@@ -1,12 +1,9 @@
-(ns leiningen
-  (:use [lancet])
-  )
-
-(require)
+(ns leiningen)
 
 (defmacro defproject [project-name & args]
   `(def ~project-name (assoc (apply hash-map (quote ~args))
-                :name ~(name project-name))))
+                        :name ~(name project-name)
+                        :root ~(.getParent (java.io.File. *file*)))))
 
-(deftarget deps "Download all the project's dependencies into lib/")
-
+(defn read-project []
+  @(load-file "build.clj"))
