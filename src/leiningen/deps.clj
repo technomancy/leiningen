@@ -3,7 +3,8 @@
   (:use [leiningen]
         [clojure.contrib.java-utils :only [file]])
   (:import [org.apache.maven.model Dependency]
-           [org.apache.maven.artifact.ant DependenciesTask]))
+           [org.apache.maven.artifact.ant DependenciesTask]
+           [org.apache.tools.ant.util FlatFileNameMapper]))
 
 (defn- make-dependency [[group name version]]
   (doto (Dependency.)
@@ -24,6 +25,6 @@
     (.execute deps-task)
     (.mkdirs (file (:root project) "lib"))
     (lancet/copy {:todir "lib/"}
-                 ;; TODO: flatten
                  (.getReference lancet/ant-project
-                                (.getFilesetId deps-task)))))
+                                (.getFilesetId deps-task))
+                 (FlatFileNameMapper.))))
