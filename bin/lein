@@ -1,1 +1,11 @@
 #!/bin/bash
+
+if [ -r "bin/lein" ]; then
+  LIBS="$(find -H ../lib/ -mindepth 1 -maxdepth 1 -print0 | tr \\0 \:)"
+  CLASSPATH=src/:$LIBS
+else
+  CLASSPATH="$HOME/.m2/repository/org/clojure/lancet/1.0-SNAPSHOT/lancet-1.0-SNAPSHOT.jar"
+fi
+
+exec java -cp "$CLASSPATH" leinigen.core $@
+     
