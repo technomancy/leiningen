@@ -1,5 +1,5 @@
 (ns test-leiningen
-  (:use [leiningen.main] :reload-all)
+  (:use [leiningen.core] :reload-all)
   (:use [clojure.test]))
 
 (deftest test-deps

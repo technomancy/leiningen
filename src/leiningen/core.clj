@@ -1,5 +1,5 @@
-(ns leiningen.main
-  (:require [leiningen deps compile jar uberjar help])
+(ns leiningen.core
+  (:require [leiningen deps test compile jar uberjar help])
   (:gen-class))
 
 (defn -main [command & args]
