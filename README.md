@@ -12,6 +12,8 @@ Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
     $ lein deps # install dependencies in lib/
 
+    $ lein test [PRED] # run the project's tests, optionally filtered on PRED
+
     $ lein compile # ahead-of-time compile into classes/
 
     $ lein repl # launch a REPL with the project classpath configured
