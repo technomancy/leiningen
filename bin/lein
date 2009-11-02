@@ -1,11 +1,22 @@
 #!/bin/bash
 
 if [ -r "bin/lein" ]; then
-  LIBS="$(find -H ../lib/ -mindepth 1 -maxdepth 1 -print0 | tr \\0 \:)"
-  CLASSPATH=src/:$LIBS
+  LIBS="$(find -H lib/ -mindepth 1 -maxdepth 1 -print0 | tr \\0 \:)"
+  CLASSPATH=src/:classes/:$LIBS
 else
   CLASSPATH="$HOME/.m2/repository/org/clojure/lancet/1.0-SNAPSHOT/lancet-1.0-SNAPSHOT.jar"
 fi
 
-exec java -cp "$CLASSPATH" leinigen.core $@
-     
+if [ $1 = "test" ]; then
+  CLASSPATH=test/:$CLASSPATH
+fi
+
+if [ $1 = "repl" ]; then
+  if which rlwrap > /dev/null; then
+    rlwrap java -cp "$CLASSPATH" clojure.main
+  else
+    java -cp "$CLASSPATH" clojure.main
+  fi
+else
+  exec java -cp "$CLASSPATH" leinigen.core $@
+fi
