@@ -8,6 +8,11 @@
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
+## Install
+
+For now, you will need http://p.hagelb.org/leiningen-deps.tar unpacked
+in the root and http://p.hagelb.org/lancet.clj on the classpath.
+
 ## Usage
 
     $ lein deps # install dependencies in lib/
