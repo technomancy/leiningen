@@ -1,5 +1,5 @@
 (ns leiningen.core
-  (:require [leiningen deps test compile jar uberjar help]
+  (:require [leiningen deps test compile]
             [clojure.contrib.with-ns])
   (:gen-class))
 

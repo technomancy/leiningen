@@ -23,9 +23,7 @@ in the root and http://p.hagelb.org/lancet.clj on the classpath.
 
     $ lein repl # launch a REPL with the project classpath configured
 
-    $ lein jar # create a jar of the compiled project
-
-    $ lein uberjar # create standalone jar that bundles dependencies too
+TODO: jar, uberjar, swank, new, help
 
 ## Configuration
 
