@@ -19,5 +19,5 @@ if [ $1 = "repl" ]; then
         java -cp "$CLASSPATH" clojure.main
     fi
 else
-    exec java -cp "$CLASSPATH" leinigen.core $@
+    exec java -cp "$CLASSPATH" leiningen.core $@
 fi
