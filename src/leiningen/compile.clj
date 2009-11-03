@@ -7,7 +7,10 @@
   "Compile the namespaces specified in build.clj or all namespaces in src/
   if none are provided."
   [project]
-  (.mkdir (file (:root project) "classes"))
-  (doseq [n (or (:namespaces project)
-                (find-namespaces-in-dir (file (:root project) "src")))]
-    (compile n)))
+  ;; TODO: not sure why this is necessary
+  (binding [*compile-path* "classes/"]
+    (.mkdir (file (:root project) "classes"))
+    (doseq [n (or (:namespaces project)
+                  (find-namespaces-in-dir (file (:root project) "src")))]
+      (println "Compiling" n)
+      (clojure.core/compile n))))
