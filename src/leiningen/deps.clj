@@ -1,7 +1,6 @@
 (ns leiningen.deps
   (:require [lancet])
-  (:use [leiningen]
-        [clojure.contrib.java-utils :only [file]])
+  (:use [clojure.contrib.java-utils :only [file]])
   (:import [org.apache.maven.model Dependency]
            [org.apache.maven.artifact.ant DependenciesTask]
            [org.apache.tools.ant.util FlatFileNameMapper]))
@@ -24,7 +23,7 @@
       (.addDependency deps-task (make-dependency dep)))
     (.execute deps-task)
     (.mkdirs (file (:root project) "lib"))
-    (lancet/copy {:todir "lib/"}
+    (lancet/copy {:todir (str (:root project) "/lib/")}
                  (.getReference lancet/ant-project
                                 (.getFilesetId deps-task))
                  (FlatFileNameMapper.))))
