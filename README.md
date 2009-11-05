@@ -23,7 +23,7 @@ in the root and http://p.hagelb.org/lancet.clj on the classpath.
 
     $ lein repl # launch a REPL with the project classpath configured
 
-TODO: jar, uberjar, swank, new, help
+TODO: jar, uberjar, swank, new, help, deploy
 
 ## Configuration
 
@@ -37,6 +37,34 @@ Place a build.clj file in the project root that looks something like this:
                      ["org.apache.ant" "ant" "1.7.1"]
                      ["org.apache.ant" "ant-launcher" "1.7.1"]
                      ["org.apache.maven" "maven-ant-tasks" "2.0.10"]])
+
+## FAQ
+
+Q: How do you pronounce Leiningen?
+A: It's LINE-ing-en. I think.
+
+Q: What does this offer over [Lancet](http://github.com/stuarthalloway/lancet)?
+A: Lancet is more of a library than a build tool. It doesn't predefine
+   any tasks apart from what Ant itself offers, so there is nothing
+   Clojure-specific there. In addition, Leiningen includes some Maven
+   functionality for dependencies.
+
+Q: But Maven is terrifying!
+A: That's not a question. Anyway, Leiningen only uses the dependency
+   resolution parts of Maven, which are quite tame. For the actual
+   task execution cycles it uses Ant under the covers via Lancet.
+
+Q: But Ant is terrifying!
+A: That's [true](http://www.defmacro.org/ramblings/lisp.html). Ant is
+   an interpreter for a [procedural language with a regrettable 
+   syntax](http://blogs.tedneward.com/2005/08/22/When+Do+You+Use+XML+Again.aspx).
+   But if you're able to write it with a more pleasing syntax, it's
+   not so bad.
+
+Q: What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?
+A: I tried, but I really couldn't make the wine metaphor work. That,
+   and the Plexus Classworlds container was an ornery beast causing
+   much frustration.
 
 ## License
 

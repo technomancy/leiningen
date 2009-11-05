@@ -13,4 +13,5 @@
     (doseq [n (or (:namespaces project)
                   (find-namespaces-in-dir (file (:root project) "src")))]
       (println "Compiling" n)
+      ;; TODO: check to see if bytecode is older than source
       (clojure.core/compile n))))
