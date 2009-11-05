@@ -12,9 +12,10 @@
                                   :root ~(.getParent (java.io.File. *file*)))))
        (def ~project-name project)))
 
-(defn read-project []
-  (load-file "build.clj")
-  project)
+(defn read-project
+  ([file] (load-file file)
+     project)
+  ([] (read-project "build.clj")))
 
 (defn -main [command & args]
   (let [action (ns-resolve (symbol (str "leiningen." command))

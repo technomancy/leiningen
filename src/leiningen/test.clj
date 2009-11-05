@@ -10,18 +10,23 @@
   (when (pred (meta var))
     (old-test-var var)))
 
-(defn run-matching [pred namespaces]
-  (binding [test-var (partial test-var-matching pred)]
-    (apply run-tests namespaces)))
+(defn merge-predicates [preds]
+  (fn [t] (every? #(% t) preds)))
+
+(defn run-matching [project preds]
+  (binding [test-var (partial test-var-matching (merge-predicates preds))]
+    (doseq [n (find-namespaces-in-dir
+               (file (:root project) "test"))]
+      (require n)
+      (run-tests n))))
 
 (defn test
-  "Run the projects tests. Second argument is an optional filter predicate that
-  is called with each test's metadata map."
-  [project & [pred]]
-  (let [namespaces (find-namespaces-in-dir (file (:root project) "test"))
-        runner (if pred
-                 (partial run-matching (eval pred))
-                 run-tests)]
-    (doseq [n namespaces]
-      (require n))
-    (apply runner namespaces)))
+  "Run the projects tests. Args may be either a list of predicates called
+  with each test var's metadata or a list of namespaces for which to run
+  all the tests."
+  [project & args]
+  (let [preds (if (empty? args)
+                [identity]
+                (map (comp eval read-string) args))]
+    ;; TODO: System/exit appropriately
+    (run-matching project preds)))
