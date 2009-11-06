@@ -23,11 +23,11 @@ in the root and http://p.hagelb.org/lancet.clj on the classpath.
 
     $ lein repl # launch a REPL with the project classpath configured
 
-TODO: jar, uberjar, swank, new, help, deploy
+TODO: jar, uberjar, swank, new, help, deploy, pom
 
 ## Configuration
 
-Place a build.clj file in the project root that looks something like this: 
+Place a project.clj file in the project root that looks something like this: 
 
     (defproject leiningen
       :version "1.0-SNAPSHOT"
@@ -72,6 +72,9 @@ Place a build.clj file in the project root that looks something like this:
 ## License
 
 Copyright (C) 2009 Phil Hagelberg
+
+Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
+me that good builds are important.
 
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.
