@@ -29,7 +29,9 @@ in the root and http://p.hagelb.org/lancet.clj on the classpath.
 
     $ lein uberjar # create a standalone jar that contains all dependencies
 
-TODO: swank, new, help, deploy, pom
+    $ lein swank [PORT] # launch swank server for Emacs to connect
+
+TODO: new, help, deploy, pom
 
 ## Configuration
 
