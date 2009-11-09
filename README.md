@@ -25,7 +25,11 @@ in the root and http://p.hagelb.org/lancet.clj on the classpath.
 
     $ lein clean # remove all build artifacts
 
-TODO: jar, uberjar, swank, new, help, deploy, pom
+    $ lein jar # create a jar of the project
+
+    $ lein uberjar # create a standalone jar that contains all dependencies
+
+TODO: swank, new, help, deploy, pom
 
 ## Configuration
 
