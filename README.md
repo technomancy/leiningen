@@ -23,6 +23,8 @@ in the root and http://p.hagelb.org/lancet.clj on the classpath.
 
     $ lein repl # launch a REPL with the project classpath configured
 
+    $ lein clean # remove all build artifacts
+
 TODO: jar, uberjar, swank, new, help, deploy, pom
 
 ## Configuration
