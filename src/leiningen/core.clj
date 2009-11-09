@@ -1,6 +1,5 @@
 (ns leiningen.core
-  (:require [leiningen deps test compile]
-            [clojure.contrib.with-ns])
+  (:use [clojure.contrib.with-ns])
   (:gen-class))
 
 (def project nil)
@@ -15,15 +14,22 @@
                                   :root ~(.getParent (java.io.File. *file*)))))
        (def ~project-name project)))
 
+;; So it doesn't need to be fully-qualified in project.clj
+(with-ns 'user (use ['leiningen.core :only ['defproject]]))
+
 (defn read-project
   ([file] (load-file file)
      project)
   ([] (read-project "project.clj")))
 
 (defn -main [command & args]
-  (let [action (ns-resolve (symbol (str "leiningen." command))
-                           (symbol command))]
-    ;; TODO: ensure tasks run only once
-    (apply action (read-project) args)
-    ;; In case tests or some other task started any:
-    (shutdown-agents)))
+  (let [action-ns (symbol (str "leiningen." command))
+        _ (require action-ns)
+        action (ns-resolve action-ns (symbol command))
+        project (read-project)]
+    (binding [*compile-path* (or (:compile-path project)
+                                 (str (:root project) "/classes/"))]
+      ;; TODO: ensure tasks run only once
+      (apply action project args)
+      ;; In case tests or some other task started any:
+      (shutdown-agents))))
