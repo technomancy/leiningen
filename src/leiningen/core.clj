@@ -15,7 +15,7 @@
        (def ~project-name project)))
 
 ;; So it doesn't need to be fully-qualified in project.clj
-(with-ns 'user (use ['leiningen.core :only ['defproject]]))
+(with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
 
 (defn read-project
   ([file] (load-file file)
