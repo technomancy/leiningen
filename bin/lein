@@ -1,21 +1,38 @@
 #!/bin/bash
 
-LIBS="$(find -H lib/ -mindepth 1 -maxdepth 1 -print0 | tr \\0 \:)"
+LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 
 CLASSPATH="src/:classes/:$LIBS"
 
 if [ ! -r "bin/lein" ]; then
     # If we are not running from a checkout
-    CLASSPATH="$CLASSPATH:$HOME/.leiningen.jar"
+    LEIN_JAR=$HOME/.leiningen.jar
+    if [ ! -r "$LEIN_JAR" ]; then
+        exec $0 self-install
+    fi
+
+    CLASSPATH="$CLASSPATH:$LEIN_JAR"
 fi
 
 if [ $1 = "test" ]; then
     CLASSPATH=test/:$CLASSPATH
 fi
 
+if [ $DEBUG ]; then
+    echo $CLASSPATH
+fi
+
 if [ $1 = "repl" ]; then
     # If repl used leiningen.core then there'd be no way to bootstrap AOT
     java -cp "$CLASSPATH" clojure.main
+elif [ $1 = "self-install" ]; then
+    echo "Downloading Leiningen now..."
+    LEIN_URL=http://repo.technomancy.us/leiningen.jar
+    if [ -x curl ]; then
+        exec curl -o $LEIN_JAR $LEIN_URL
+    else
+        exec wget -O $LEIN_JAR $LEIN_URL
+    fi
 else
     exec java -cp "$CLASSPATH" leiningen.core $@
 fi
