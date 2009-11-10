@@ -62,7 +62,7 @@
       (.setProject project)
       (set-properties! props))
     (doseq [fs filesets]
-      (.add task fs))
+      (.addFileset task fs))
     task))
 
 (defn runonce

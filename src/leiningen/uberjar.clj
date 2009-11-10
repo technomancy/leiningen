@@ -20,6 +20,6 @@
   (deps project)
   (doseq [dep (file-seq (file (:root project) "lib"))]
     (when (.endsWith (.getName dep) ".jar") ;; TODO: move this clause to doseq
-      (println "Unpacking" dep)
+      (println "Unpacking" (.getName dep))
       (unzip dep *compile-path*)))
   (jar project))

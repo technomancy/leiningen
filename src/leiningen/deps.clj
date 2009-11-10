@@ -23,7 +23,6 @@
       (.addDependency deps-task (make-dependency dep)))
     (.execute deps-task)
     (.mkdirs (file (:root project) "lib"))
-    (lancet/copy {:todir (str (:root project) "/lib/")}
+    (lancet/copy {:todir (str (:root project) "/lib/") :flatten "on"}
                  (.getReference lancet/ant-project
-                                (.getFilesetId deps-task))
-                 (FlatFileNameMapper.))))
+                                (.getFilesetId deps-task)))))
