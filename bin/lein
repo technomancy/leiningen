@@ -1,14 +1,16 @@
 #!/bin/bash
 
+# TODO: this gives us a trailing colon
 LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-
+# TODO: older versions of clojure in lib/ break leiningen
 CLASSPATH="src/:classes/:$LIBS"
+LEIN_JAR=$HOME/.leiningen.jar
 
+# If we are not running from a checkout
 if [ ! -r "bin/lein" ]; then
-    # If we are not running from a checkout
-    LEIN_JAR=$HOME/.leiningen.jar
-    if [ ! -r "$LEIN_JAR" ]; then
-        exec $0 self-install
+    if [ ! -r "$LEIN_JAR" -a $1 != "self-install" ]; then
+        echo "Leiningen is not installed. Please run \"lein self-install\"."
+        exit 1
     fi
 
     CLASSPATH="$CLASSPATH:$LEIN_JAR"
@@ -16,6 +18,11 @@ fi
 
 if [ $1 = "test" ]; then
     CLASSPATH=test/:$CLASSPATH
+fi
+
+if [ $1 = "compile" ]; then
+    # this needs to exist before the JVM is launched apparently
+    mkdir -p classes
 fi
 
 if [ $DEBUG ]; then
