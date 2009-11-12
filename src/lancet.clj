@@ -126,7 +126,8 @@
 
 (define-all-ant-tasks)
 
-(define-ant-type files org.apache.tools.ant.types.resources.Files)
+;; The version of ant that maven-ant-tasks requires doesn't have this class:
+;; (define-ant-type files org.apache.tools.ant.types.resources.Files)
 (define-ant-type fileset org.apache.tools.ant.types.FileSet)
 
 (defn -main [& targs]
