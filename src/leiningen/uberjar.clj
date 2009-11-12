@@ -18,8 +18,8 @@
 
 (defn uberjar [project & args]
   (deps project)
-  (doseq [dep (file-seq (file (:root project) "lib"))]
-    (when (.endsWith (.getName dep) ".jar") ;; TODO: move this clause to doseq
-      (println "Unpacking" (.getName dep))
-      (unzip dep *compile-path*)))
+  (doseq [dep (file-seq (file (:root project) "lib"))
+          :when (.endsWith (.getName dep) ".jar")]
+    (println "Unpacking" (.getName dep))
+    (unzip dep *compile-path*))
   (jar project))
