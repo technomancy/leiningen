@@ -1,17 +1,16 @@
 # Leiningen
 
-    "Leiningen!" he shouted. "You're insane! They're not creatures you can
-    fight--they're an elemental--an 'act of God!' Ten miles long, two
-    miles wide--ants, nothing but ants! And every single one of them a
-    fiend from hell...
-    -- from Leiningen Versus the Ants by Carl Stephenson
+> "Leiningen!" he shouted. "You're insane! They're not creatures you can
+> fight--they're an elemental--an 'act of God!' Ten miles long, two
+> miles wide--ants, nothing but ants! And every single one of them a
+> fiend from hell...
+> -- from Leiningen Versus the Ants by Carl Stephenson
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
-## Install
+## Installation
 
-For now, you will need http://p.hagelb.org/leiningen-deps.tar unpacked
-in the root and http://p.hagelb.org/lancet.clj on the classpath.
+Put bin/lein on your $PATH and run: $ lein self-install
 
 ## Usage
 
