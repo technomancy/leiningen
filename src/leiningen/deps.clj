@@ -5,10 +5,10 @@
            [org.apache.maven.artifact.ant DependenciesTask]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
-(defn- make-dependency [[group name version]]
+(defn- make-dependency [[dep version]]
   (doto (Dependency.)
-    (.setGroupId group)
-    (.setArtifactId name)
+    (.setGroupId (or (namespace dep) (name dep)))
+    (.setArtifactId (name dep))
     (.setVersion version)))
 
 ;; TODO: development dependencies
