@@ -41,5 +41,10 @@ elif [ "$1" = "self-install" ]; then
         exec wget -O $LEIN_JAR $LEIN_URL
     fi
 else
-    exec java -client -cp "$CLASSPATH" leiningen.core $@
+    if [ -z "$1" ]; then
+        echo "$0 missing task"
+        echo "Usage: $0 taskname"
+    else
+        exec java -client -cp "$CLASSPATH" leiningen.core $@
+    fi
 fi
