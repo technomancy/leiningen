@@ -41,5 +41,5 @@ elif [ "$1" = "self-install" ]; then
         exec wget -O $LEIN_JAR $LEIN_URL
     fi
 else
-    exec java -cp "$CLASSPATH" leiningen.core $@
+    exec java -client -cp "$CLASSPATH" leiningen.core $@
 fi
