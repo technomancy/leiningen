@@ -30,20 +30,22 @@ Put bin/lein on your $PATH and run: $ lein self-install
 
     $ lein swank [PORT] # launch swank server for Emacs to connect
 
-TODO: new, help, deploy, pom
+TODO: install, new, help, deploy, pom
 
 ## Configuration
 
 Place a project.clj file in the project root that looks something like this: 
 
-    (defproject leiningen
-      :version "1.0-SNAPSHOT"
-      :dependencies [["org.clojure" "clojure" "1.1.0-alpha-SNAPSHOT"]
-                     ["org.clojure" "clojure-contrib" "1.0-SNAPSHOT"]
-                     ["org.clojure" "lancet" "1.0-SNAPSHOT"]
-                     ["org.apache.ant" "ant" "1.7.1"]
-                     ["org.apache.ant" "ant-launcher" "1.7.1"]
-                     ["org.apache.maven" "maven-ant-tasks" "2.0.10"]])
+    (defproject leiningen "1.0-SNAPSHOT"
+      :dependencies [[org.clojure clojure "1.1.0-alpha-SNAPSHOT"]
+                     [org.clojure clojure-contrib "1.0-SNAPSHOT"]
+                     [org.clojure lancet "1.0-SNAPSHOT"]
+                     [org.apache.ant ant "1.7.1"]
+                     [org.apache.ant ant-launcher "1.7.1"]
+                     [org.apache.maven maven-ant-tasks "2.0.10"]])
+
+Other keys you can set are :namespaces to compile if you don't want
+all of them AOT'd as well as a :main namespace for building executable jars.
 
 ## FAQ
 
@@ -53,8 +55,9 @@ Place a project.clj file in the project root that looks something like this:
 **Q:** What does this offer over [Lancet](http://github.com/stuarthalloway/lancet)?  
 **A:** Lancet is more of a library than a build tool. It doesn't predefine
    any tasks apart from what Ant itself offers, so there is nothing
-   Clojure-specific there. In addition, Leiningen includes some Maven
-   functionality for dependencies.
+   Clojure-specific in it. Leiningen builds on Lancet, but takes
+   things further. In addition, it includes some Maven functionality
+   for dependencies.
 
 **Q:** But Maven is terrifying!  
 **A:** That's not a question. Anyway, Leiningen only uses the dependency

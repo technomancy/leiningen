@@ -4,13 +4,14 @@
 
 (def project nil)
 
-(defmacro defproject [project-name & args]
+(defmacro defproject [project-name version & args]
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(do (alter-var-root #'project
                        (fn [_#] (assoc (apply hash-map (quote ~args))
                                   :name ~(name project-name)
+                                  :version ~version
                                   :root ~(.getParent (java.io.File. *file*)))))
        (def ~project-name project)))
 
