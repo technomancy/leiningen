@@ -8,7 +8,7 @@ LEIN_JAR=$HOME/.leiningen.jar
 
 # If we are not running from a checkout
 if [ ! -r "bin/lein" ]; then
-    if [ ! -r "$LEIN_JAR" -a $1 != "self-install" ]; then
+    if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         echo "Leiningen is not installed. Please run \"lein self-install\"."
         exit 1
     fi
@@ -16,11 +16,11 @@ if [ ! -r "bin/lein" ]; then
     CLASSPATH="$CLASSPATH:$LEIN_JAR"
 fi
 
-if [ $1 = "test" ]; then
+if [ "$1" = "test" ]; then
     CLASSPATH=test/:$CLASSPATH
 fi
 
-if [ $1 = "compile" ]; then
+if [ "$1" = "compile" ]; then
     # this needs to exist before the JVM is launched apparently
     mkdir -p classes
 fi
@@ -29,10 +29,10 @@ if [ $DEBUG ]; then
     echo $CLASSPATH
 fi
 
-if [ $1 = "repl" ]; then
+if [ "$1" = "repl" ]; then
     # If repl used leiningen.core then there'd be no way to bootstrap AOT
     java -cp "$CLASSPATH" clojure.main
-elif [ $1 = "self-install" ]; then
+elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     LEIN_URL=http://repo.technomancy.us/leiningen.jar
     if [ -x curl ]; then
