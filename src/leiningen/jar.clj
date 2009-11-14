@@ -5,7 +5,7 @@
   (:import [java.util.jar JarFile JarEntry JarOutputStream]
            [java.io File FileOutputStream FileInputStream]))
 
-;; TODO: allow setting main class
+;; TODO: allow setting main class (or replace with lancet)
 (defn jar [project & args]
   (compile/compile project)
   (let [jar-name (str (:root project) "/" (:name project) ".jar")

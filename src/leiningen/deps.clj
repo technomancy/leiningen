@@ -11,6 +11,7 @@
     (.setArtifactId name)
     (.setVersion version)))
 
+;; TODO: development dependencies
 ;; TODO: add build.clojure.org as a default repo
 (defn deps
   "Install dependencies in lib/"
