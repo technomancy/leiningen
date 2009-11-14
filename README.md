@@ -79,6 +79,21 @@ all of them AOT'd as well as a :main namespace for building executable jars.
 **Q:** What about Windows?  
 **A:** Patches welcome.
 
+## Hacking
+
+Working on the Leiningen codebase has a few unique challenges since
+there's a bit of a chicken-and-egg bootstrap problem. To go from a
+clean checkout to a working environment, the following steps are
+necessary:
+
+0. Place bin/lein on your $PATH somewhere.
+1. Do a self-install of leiningen (from outside the checkout tree).
+2. Place ~/.leiningen.jar in lib.
+3. Invoke "lein compile" followed by "lein deps".
+4. Remove .leiningen.jar from lib.
+5. Invoke "lein uberjar", and place the jar in ~/.leiningen.jar for
+   future use.
+
 ## License
 
 Copyright (C) 2009 Phil Hagelberg
