@@ -6,4 +6,4 @@
   (delete-file (str (:root project) "/" (:name project) ".jar") true)
   (doseq [d ["classes" "lib"]]
     (println "Cleaning " d) ;; TODO: use clojure.contrib.logging
-    (delete-file-recursively (file (:root project) d))))
+    (delete-file-recursively (file (:root project) d) true)))
