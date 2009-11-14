@@ -37,12 +37,12 @@ TODO: install, new, help, deploy, pom
 Place a project.clj file in the project root that looks something like this: 
 
     (defproject leiningen "1.0-SNAPSHOT"
-      :dependencies [[org.clojure clojure "1.1.0-alpha-SNAPSHOT"]
-                     [org.clojure clojure-contrib "1.0-SNAPSHOT"]
-                     [org.clojure lancet "1.0-SNAPSHOT"]
-                     [org.apache.ant ant "1.7.1"]
-                     [org.apache.ant ant-launcher "1.7.1"]
-                     [org.apache.maven maven-ant-tasks "2.0.10"]])
+      :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
+                     [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
+                     [org.clojure/lancet "1.0-SNAPSHOT"]
+                     [org.apache.ant/ant "1.7.1"]
+                     [org.apache.ant/ant-launcher "1.7.1"]
+                     [org.apache.maven/maven-ant-tasks "2.0.10"]])
 
 Other keys you can set are :namespaces to compile if you don't want
 all of them AOT'd as well as a :main namespace for building executable jars.
