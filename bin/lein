@@ -42,8 +42,7 @@ elif [ "$1" = "self-install" ]; then
     fi
 else
     if [ -z "$1" ]; then
-        echo "$0 missing task"
-        echo "Usage: $0 taskname"
+        echo "Usage: `basename $0` taskname"
     else
         exec java -cp "$CLASSPATH" leiningen.core $@
     fi
