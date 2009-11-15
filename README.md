@@ -10,7 +10,7 @@ Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
 ## Installation
 
-Put bin/lein on your $PATH and run: $ lein self-install
+Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
 ## Usage
 
