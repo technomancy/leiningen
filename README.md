@@ -44,7 +44,9 @@ Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
     $ lein uberjar # create a standalone jar that contains all dependencies
 
-TODO: install, new, help, deploy, pom
+    $ lein pom # output a pom.xml file describing the project
+
+TODO: install, new, help, deploy
 
 ## Configuration
 

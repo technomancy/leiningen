@@ -11,6 +11,8 @@
   `(do (alter-var-root #'project
                        (fn [_#] (assoc (apply hash-map (quote ~args))
                                   :name ~(name project-name)
+                                  :group ~(or (namespace project-name)
+                                              (name project-name))
                                   :version ~version
                                   :root ~(.getParent (java.io.File. *file*)))))
        (def ~project-name project)))
