@@ -44,8 +44,6 @@ Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
     $ lein uberjar # create a standalone jar that contains all dependencies
 
-    $ lein swank [PORT] # launch swank server for Emacs to connect
-
 TODO: install, new, help, deploy, pom
 
 ## Configuration
