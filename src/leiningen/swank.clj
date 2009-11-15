@@ -1,9 +1,11 @@
 (ns leiningen.swank
-  (:use [clojure.contrib.logging :only [error]]))
+  (:use [leiningen.deps :only [deps-if-missing]]
+        [clojure.contrib.logging :only [error]]))
 
 (defn swank
   "Launch swank server for Emacs to connect."
   [project & [port]]
+  (deps-if-missing project)
   (try (require 'swank.swank)
        ;; Can't compile code that refers to a var that may not exist:
        (let [repl @(ns-resolve 'swank.swank 'start-repl)]
