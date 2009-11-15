@@ -36,7 +36,7 @@ if [ "$1" = "repl" ]; then
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     LEIN_URL=http://repo.technomancy.us/leiningen.jar
-    if [ -x curl ]; then
+    if type -p curl >/dev/null 2>&1; then
         exec curl -o $LEIN_JAR $LEIN_URL
     else
         exec wget -O $LEIN_JAR $LEIN_URL
