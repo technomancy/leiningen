@@ -41,6 +41,6 @@
                  (.getReference lancet/ant-project
                                 (.getFilesetId deps-task)))))
 
-(defn deps-if-missing [project]
+(defn deps-if-missing [project & [skip-dev]]
   (when (empty? (.listFiles (file (:root project) "lib")))
-    (deps project)))
+    (deps project skip-dev)))

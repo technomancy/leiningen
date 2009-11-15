@@ -8,7 +8,7 @@
   "Compile the namespaces specified in build.clj or all namespaces in src/
   if none are provided."
   [project]
-  (deps-if-missing project)
+  (deps-if-missing project true)
   ;; TODO: use a java subprocess in case a different clojure version is needed
   (doseq [n (or (:namespaces project)
                 (find-namespaces-in-dir (file (:root project) "src")))]
