@@ -1,3 +1,5 @@
-test/lib
+sample/lib
+sample/classes/
+sample/nomnomnom.jar
 classes/
 leiningen.jar

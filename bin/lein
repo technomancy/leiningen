@@ -4,6 +4,7 @@
 LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 # TODO: older versions of clojure in lib/ break leiningen
 CLASSPATH="src/:classes/:$LIBS"
+# TODO: keep this in ~/.m2/repository
 LEIN_JAR=$HOME/.leiningen.jar
 
 # If we are not running from a checkout
@@ -44,6 +45,6 @@ else
     if [ -z "$1" ]; then
         echo "Usage: `basename $0` taskname"
     else
-        exec java -cp "$CLASSPATH" leiningen.core $@
+        exec java -client -cp "$CLASSPATH" leiningen.core $@
     fi
 fi
