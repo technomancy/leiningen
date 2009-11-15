@@ -8,6 +8,22 @@
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
+Building Clojure projects with tools designed for Java can be an
+exercise in frustration. If you use Ant, you end up copying around a
+lot of the same tasks around between XML files on all your projects;
+there's a lot of repetition. Maven avoids repetition, but provides
+very little transparency into what's really going on behind the scenes
+and forces you to become a Maven expert to script a nontrivial
+build. Either way you end up writing far more XML than is necessary.
+
+With Leiningen, your build is described using Clojure. You can put any
+code you like in your project.clj file; the only requirement is that
+it includes a call to defproject. You can define your own tasks in
+there if you need to, but the majority of projects should be able to
+get by on the tasks that are provided with Leiningen. If you do find a
+common task that you need to add, you can implement it as a plugin
+rather than copying and pasting among each of your projects.
+
 ## Installation
 
 Copy bin/lein to a location on your $PATH and run: $ lein self-install
@@ -93,10 +109,10 @@ necessary:
 5. Invoke "lein uberjar", and place the jar in ~/.leiningen.jar for
    future use.
 
-Leiningen is extensible, you can define new commands in plugins. Add
-your plugin as a dev-dependency of your project, and you'll be able to
-call "lein $YOUR_COMMAND". See the lein-swank directory for an example
-of a plugin.
+Leiningen is extensible, you can define new tasks in plugins. Add your
+plugin as a dev-dependency of your project, and you'll be able to call
+"lein $YOUR_COMMAND". See the lein-swank directory for an example of a
+plugin.
 
 ## License
 
