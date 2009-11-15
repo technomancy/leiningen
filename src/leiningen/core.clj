@@ -30,7 +30,6 @@
         project (read-project)]
     (binding [*compile-path* (or (:compile-path project)
                                  (str (:root project) "/classes/"))]
-      ;; TODO: ensure tasks run only once
       (apply action project args)
       ;; In case tests or some other task started any:
       (shutdown-agents))))

@@ -2,6 +2,7 @@
   (:use [leiningen.deps :only [deps-if-missing]]
         [clojure.contrib.logging :only [error]]))
 
+;; TODO: This should be spun off into an external task jar
 (defn swank
   "Launch swank server for Emacs to connect."
   [project & [port]]
