@@ -17,7 +17,7 @@
           (copy (.getInputStream zipfile file) out))))))
 
 (defn uberjar [project & args]
-  (deps project)
+  (deps project true)
   (doseq [dep (file-seq (file (:root project) "lib"))
           :when (.endsWith (.getName dep) ".jar")]
     (println "Unpacking" (.getName dep))

@@ -9,6 +9,7 @@
   if none are provided."
   [project]
   (deps-if-missing project)
+  ;; TODO: use a java subprocess in case a different clojure version is needed
   (doseq [n (or (:namespaces project)
                 (find-namespaces-in-dir (file (:root project) "src")))]
     (println "Compiling" n)

@@ -19,10 +19,9 @@
     (.setArtifactId (name dep))
     (.setVersion version)))
 
-;; TODO: development dependencies
 (defn deps
   "Install dependencies in lib/"
-  [project & args]
+  [project & [skip-dev]]
   (let [deps-task (DependenciesTask.)]
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
@@ -33,6 +32,9 @@
       (.addConfiguredRemoteRepository deps-task r))
     (doseq [dep (:dependencies project)]
       (.addDependency deps-task (make-dependency dep)))
+    (when-not skip-dev
+      (doseq [dep (:dev-dependencies project)]
+        (.addDependency deps-task (make-dependency dep))))
     (.execute deps-task)
     (.mkdirs (file (:root project) "lib"))
     (lancet/copy {:todir (str (:root project) "/lib/") :flatten "on"}
