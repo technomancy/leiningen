@@ -36,13 +36,12 @@ TODO: install, new, help, deploy, pom
 
 Place a project.clj file in the project root that looks something like this: 
 
-    (defproject leiningen "1.0-SNAPSHOT"
+    (defproject leiningen "0.5.0-SNAPSHOT"
       :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
                      [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
-                     [org.clojure/lancet "1.0-SNAPSHOT"]
-                     [org.apache.ant/ant "1.7.1"]
-                     [org.apache.ant/ant-launcher "1.7.1"]
-                     [org.apache.maven/maven-ant-tasks "2.0.10"]])
+                     [ant/ant-launcher "1.6.2"]
+                     [org.apache.maven/maven-ant-tasks "2.0.10"]]
+      :dev-dependencies [[org.clojure/swank-clojure "1.0"]])
 
 Other keys you can set are :namespaces to compile if you don't want
 all of them AOT'd as well as a :main namespace for building executable jars.
@@ -93,6 +92,11 @@ necessary:
 4. Remove .leiningen.jar from lib.
 5. Invoke "lein uberjar", and place the jar in ~/.leiningen.jar for
    future use.
+
+Leiningen is extensible, you can define new commands in plugins. Add
+your plugin as a dev-dependency of your project, and you'll be able to
+call "lein $YOUR_COMMAND". See the lein-swank directory for an example
+of a plugin.
 
 ## License
 
