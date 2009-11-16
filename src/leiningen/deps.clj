@@ -1,23 +1,12 @@
 (ns leiningen.deps
   (:require [lancet])
-  (:use [clojure.contrib.java-utils :only [file]])
+  (:use [leiningen.pom :only [make-repository make-dependency default-repos]]
+        [clojure.contrib.java-utils :only [file]])
   (:import [org.apache.maven.model Dependency]
            [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
-(defn make-repository [[id url]]
-  (doto (RemoteRepository.)
-    (.setId id)
-    (.setUrl url)))
-
-(def default-repos {"central" "http://repo1.maven.org/maven/"
-                    "clojure-snapshots" "http://build.clojure.org/snapshots"})
-
-(defn- make-dependency [[dep version]]
-  (doto (Dependency.)
-    (.setGroupId (or (namespace dep) (name dep)))
-    (.setArtifactId (name dep))
-    (.setVersion version)))
+;; TODO: unify with pom.clj
 
 (defn deps
   "Install dependencies in lib/"
