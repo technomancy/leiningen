@@ -17,7 +17,7 @@
     (.setId id)
     (.setUrl url)))
 
-(def default-repos {"central" "http://repo1.maven.org/maven/"
+(def default-repos {"central" "http://repo1.maven.org/maven2"
                     "clojure-snapshots" "http://build.clojure.org/snapshots"})
 
 (defn make-model [project]
@@ -35,11 +35,13 @@
 
 (defn make-pom [project]
   (doto (Pom.)
-    (.setId "leiningen-pom")
     (.setProject lancet/ant-project)
     (.setMavenProject (MavenProject. (make-model project)))))
 
 (defn pom [project & [args]]
   ;; TODO: prompt if pom.xml exists
-  (.writeModel (MavenProject. (make-model project))
-               (writer (file (:root project) "pom.xml"))))
+  (let [pom-file (file (:root project) "pom.xml")]
+    (.writeModel (MavenProject. (make-model project))
+                 (writer pom-file))
+    (println "Wrote pom.xml")
+    (.getAbsolutePath pom-file)))
