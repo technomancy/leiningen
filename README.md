@@ -46,7 +46,9 @@ Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
     $ lein pom # output a pom.xml file describing the project
 
-TODO: install, new, help, deploy
+    $ lein install # install in local repo (currently requires mvn)
+
+TODO: new, help, deploy
 
 ## Configuration
 
