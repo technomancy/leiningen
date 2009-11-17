@@ -11,4 +11,4 @@
     (with-sh-dir (:root project)
       (sh "mvn" "install:install-file" "-DpomFile=pom.xml"
           (str "-Dfile=" jarfile)))
-    (println "Installed" (:name project))))
+    (println "Installed" (:group project) "/" (:name project))))

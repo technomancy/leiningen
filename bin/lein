@@ -7,6 +7,9 @@ CLASSPATH="src/:classes/:$LIBS"
 # TODO: keep this in ~/.m2/repository
 LEIN_JAR=$HOME/.leiningen.jar
 
+# this needs to exist before the JVM is launched apparently
+mkdir -p classes
+
 # If we are not running from a checkout
 if [ ! -r "bin/lein" ]; then
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
@@ -19,11 +22,6 @@ fi
 
 if [ "$1" = "test" ]; then
     CLASSPATH=test/:$CLASSPATH
-fi
-
-if [ "$1" = "compile" ]; then
-    # this needs to exist before the JVM is launched apparently
-    mkdir -p classes
 fi
 
 if [ $DEBUG ]; then
