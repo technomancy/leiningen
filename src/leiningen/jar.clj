@@ -6,8 +6,9 @@
   (compile/compile project)
   (let [jarfile (str (:root project) "/" (:name project) ".jar")]
     ;; TODO: add manifest
-    ;; TODO: add project.clj to the jar
     (lancet/jar {:jarfile jarfile}
-                ;; TODO: add src/ but support slim, etc.
-                (lancet/fileset {:dir *compile-path*}))
+                ;; TODO: support slim, etc
+                (lancet/fileset {:dir *compile-path*})
+                (lancet/fileset {:dir (str (:root project) "/src")})
+                (lancet/fileset {:file (str (:root project) "/project.clj")}))
     jarfile))
