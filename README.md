@@ -44,7 +44,7 @@ Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
     $ lein uberjar # create a standalone jar that contains all dependencies
 
-    $ lein pom # output a pom.xml file describing the project
+    $ lein pom # output a pom.xml file for interop with Maven
 
     $ lein install # install in local repo (currently requires mvn)
 
@@ -63,6 +63,10 @@ Place a project.clj file in the project root that looks something like this:
 
 Other keys you can set are :namespaces to compile if you don't want
 all of them AOT'd as well as a :main namespace for building executable jars.
+
+Currently Leiningen can only be used to compile projects that use the
+same version of Clojure as it uses, though this restriction should go
+away soon.
 
 ## FAQ
 

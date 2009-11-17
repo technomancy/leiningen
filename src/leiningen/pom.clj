@@ -39,9 +39,11 @@
     (.setMavenProject (MavenProject. (make-model project)))))
 
 (defn pom [project & [args]]
-  ;; TODO: prompt if pom.xml exists
   (let [pom-file (file (:root project) "pom.xml")]
-    (.writeModel (MavenProject. (make-model project))
-                 (writer pom-file))
-    (println "Wrote pom.xml")
+    (when (or (not (.exists pom-file))
+              (do (print "pom.xml exists; overwrite? ") (flush)
+                  (re-find #"^y(es)?" (.toLowerCase (read-line)))))
+      (.writeModel (MavenProject. (make-model project))
+                   (writer pom-file))
+      (println "Wrote pom.xml"))
     (.getAbsolutePath pom-file)))
