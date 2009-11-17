@@ -22,5 +22,4 @@
           :when (.endsWith (.getName dep) ".jar")]
     (println "Unpacking" (.getName dep))
     (unzip dep *compile-path*))
-  ;; TODO: clean out manifests that may have come from other jars
   (jar project))
