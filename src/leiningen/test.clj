@@ -31,5 +31,5 @@
   (let [preds (if (empty? args)
                 [identity]
                 (map (comp eval read-string) args))]
-    ;; TODO: System/exit appropriately
+    ;; TODO: System/exit appropriately (depends on Clojure ticket #193)
     (run-matching project preds)))

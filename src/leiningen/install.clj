@@ -9,7 +9,9 @@
     (pom project)
     ;; TODO: use maven-ant-tasks InstallTask with in-memory Pom object
     (with-sh-dir (:root project)
-      ;; TODO: better error if mvn isn't installed
-      (sh "mvn" "install:install-file" "-DpomFile=pom.xml"
-          (str "-Dfile=" jarfile)))
-    (println "Installed" (:group project) "/" (:name project))))
+      (try (sh "mvn" "install:install-file" "-DpomFile=pom.xml"
+               (str "-Dfile=" jarfile))
+           (println "Installed" (:group project) "/" (:name project))
+           (catch java.io.IOException _
+             (.write *err* "Currently maven must be present to install.\n")
+             (System/exit 1))))))
