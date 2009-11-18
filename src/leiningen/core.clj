@@ -11,9 +11,11 @@
   `(do (alter-var-root #'project
                        (fn [_#] (assoc (apply hash-map (quote ~args))
                                   :name ~(name project-name)
+                                  :group ~(or (namespace project-name)
+                                              (name project-name))
                                   :version ~version
                                   :root ~(.getParent (java.io.File. *file*)))))
-       (def ~project-name project)))
+       (def ~(symbol (name project-name)) project)))
 
 ;; So it doesn't need to be fully-qualified in project.clj
 (with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
@@ -23,8 +25,11 @@
      project)
   ([] (read-project "project.clj")))
 
+(def aliases {"--help" "help" "-h" "help" "-?" "help"})
+
 (defn -main [command & args]
-  (let [action-ns (symbol (str "leiningen." command))
+  (let [command (or (aliases command) command)
+        action-ns (symbol (str "leiningen." command))
         _ (require action-ns)
         action (ns-resolve action-ns (symbol command))
         project (read-project)]

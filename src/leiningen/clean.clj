@@ -1,4 +1,5 @@
 (ns leiningen.clean
+  "Remove compiled files and dependencies from project."
   (:use [clojure.contrib.java-utils :only [file delete-file
                                            delete-file-recursively]]))
 
