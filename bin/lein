@@ -29,7 +29,7 @@ fi
 # Deps need to run before the JVM launches for tasks that need them
 if [ "$1" = "compile" -o "$1" = "jar" -o "$1" = "uberjar" ]; then
     if [ ! "$(ls -A lib/*jar 2> /dev/null)" ]; then
-        $0 deps
+        $0 deps skip-dev
     fi
 fi
 

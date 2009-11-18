@@ -22,8 +22,9 @@
 
 (defn deps
   "Download and install all :dependencies listed in project.clj into the lib/
-directory. Dependencies should be a vector of entries specifying group, name,
-and version like the following:
+directory. With an argument it will skip develpment dependencies. Dependencies
+should be a vector of entries specifying group, name, and version like the
+following:
   [org.clojure/clojure-contrib \"1.0-SNAPSHOT\"]"
   [project & [skip-dev]]
   (let [deps-task (DependenciesTask.)]
