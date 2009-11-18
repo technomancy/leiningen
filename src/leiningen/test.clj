@@ -1,7 +1,6 @@
 (ns leiningen.test
   (:refer-clojure :exclude [test])
-  (:use [leiningen.deps :only [deps-if-missing]]
-        [clojure.test]
+  (:use [clojure.test]
         [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]]))
 
@@ -27,7 +26,6 @@
   with each test var's metadata or a list of namespaces for which to run
   all the tests."
   [project & args]
-  (deps-if-missing project)
   (let [preds (if (empty? args)
                 [identity]
                 (map (comp eval read-string) args))]

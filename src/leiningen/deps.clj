@@ -40,7 +40,3 @@
     (lancet/copy {:todir (str (:root project) "/lib/") :flatten "on"}
                  (.getReference lancet/ant-project
                                 (.getFilesetId deps-task)))))
-
-(defn deps-if-missing [project & [skip-dev]]
-  (when (empty? (.listFiles (file (:root project) "lib")))
-    (deps project skip-dev)))

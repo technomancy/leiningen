@@ -2,10 +2,8 @@
 
 # TODO: this gives us a trailing colon
 LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-# TODO: older versions of clojure in lib/ break leiningen
 CLASSPATH="src/:classes/:$LIBS"
-# TODO: keep this in ~/.m2/repository
-LEIN_JAR=$HOME/.leiningen.jar
+LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/0.5.0-SNAPSHOT/leiningen-0.5.0-SNAPSHOT.jar
 
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
@@ -28,16 +26,24 @@ if [ $DEBUG ]; then
     echo $CLASSPATH
 fi
 
+# Deps need to run before the JVM launches for tasks that need them
+if [ "$1" = "compile" -o "$1" = "jar" -o "$1" = "uberjar" ]; then
+    if [ ! "$(ls -A lib/*jar 2> /dev/null)" ]; then
+        $0 deps
+    fi
+fi
+
 if [ "$1" = "repl" ]; then
     # If repl used leiningen.core then there'd be no way to bootstrap AOT
     java -cp "$CLASSPATH" clojure.main
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
+    mkdir -p `dirname "$LEIN_JAR"`
     LEIN_URL=http://repo.technomancy.us/leiningen.jar
     if type -p curl >/dev/null 2>&1; then
-        exec curl -o $LEIN_JAR $LEIN_URL
+        exec curl -o "$LEIN_JAR" "$LEIN_URL"
     else
-        exec wget -O $LEIN_JAR $LEIN_URL
+        exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
 else
     if [ -z "$1" ]; then
