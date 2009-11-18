@@ -25,7 +25,8 @@
     (.setUrl url)))
 
 (def default-repos {"central" "http://repo1.maven.org/maven2"
-                    "clojure-snapshots" "http://build.clojure.org/snapshots"})
+                    "clojure-snapshots" "http://build.clojure.org/snapshots"
+                    "clojars" "http://clojars.org/repo/"})
 
 (defn make-model [project]
   (let [model (doto (Model.)

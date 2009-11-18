@@ -6,8 +6,9 @@
 
 (defn make-manifest [project]
   (doto (str (:root project) "/Manifest.txt")
-    (spit (when (:main project)
-            (str "Main-Class: " (:main project) "\n")))))
+    (spit (if (:main project)
+            (str "Main-Class: " (:main project) "\n")
+            ""))))
 
 (defn jar
   "Create a $PROJECT.jar file containing the compiled .class files as well as

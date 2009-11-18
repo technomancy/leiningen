@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # TODO: this gives us a trailing colon
+VERSION=0.5.0
 LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 CLASSPATH="src/:classes/:$LIBS"
-LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/0.5.0-SNAPSHOT/leiningen-0.5.0-SNAPSHOT.jar
+LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar
 
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
@@ -39,7 +40,7 @@ if [ "$1" = "repl" ]; then
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
-    LEIN_URL=http://repo.technomancy.us/leiningen.jar
+    LEIN_URL=http://repo.technomancy.us/leiningen-$VERSION.jar
     if type -p curl >/dev/null 2>&1; then
         exec curl -o "$LEIN_JAR" "$LEIN_URL"
     else

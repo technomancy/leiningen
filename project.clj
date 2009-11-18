@@ -2,8 +2,8 @@
 ;; defproject form. It can have other code in it as well, including
 ;; loading other task definitions.
 
-(defproject leiningen "0.5.0-SNAPSHOT"
-  :description "A build tool designed not to set your hair on file."
+(defproject leiningen "0.5.0"
+  :description "A build tool designed not to set your hair on fire."
   :main leiningen.core
   :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
