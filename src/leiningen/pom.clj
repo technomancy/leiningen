@@ -1,4 +1,5 @@
 (ns leiningen.pom
+  "Write a pom.xml file to disk for Maven interop."
   (:require [lancet])
   (:use [clojure.contrib.duck-streams :only [writer]]
         [clojure.contrib.java-utils :only [file]])

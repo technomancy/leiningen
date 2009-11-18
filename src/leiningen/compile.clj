@@ -1,12 +1,10 @@
 (ns leiningen.compile
+  "Compile the namespaces listed in project.clj or all namespaces in src."
   (:use [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile]))
 
-(defn compile
-  "Compile the namespaces specified in build.clj or all namespaces in src/
-  if none are provided."
-  [project]
+(defn compile [project]
   ;; TODO: use a java subprocess in case a different clojure version is needed
   (doseq [n (or (:namespaces project)
                 (find-namespaces-in-dir (file (:root project) "src")))]

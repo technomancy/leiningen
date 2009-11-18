@@ -48,7 +48,9 @@ Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
     $ lein install # install in local repo (currently requires mvn)
 
-TODO: new, help, deploy
+    $ lein help [TASK] # show a list of tasks or help for a given TASK
+
+TODO: new, deploy
 
 ## Configuration
 

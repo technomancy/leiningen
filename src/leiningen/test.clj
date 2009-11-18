@@ -1,4 +1,5 @@
 (ns leiningen.test
+  "Run the project's tests."
   (:refer-clojure :exclude [test])
   (:use [clojure.test]
         [clojure.contrib.java-utils :only [file]]
@@ -22,9 +23,8 @@
 
 ;; TODO: only single-token predicates work from the shell
 (defn test
-  "Run the projects tests. Args may be either a list of predicates called
-  with each test var's metadata or a list of namespaces for which to run
-  all the tests."
+  "Run the projects tests. Accept a list of predicates called with
+  each test var's metadata."
   [project & args]
   (let [preds (if (empty? args)
                 [identity]

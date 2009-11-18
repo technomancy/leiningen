@@ -1,4 +1,5 @@
 (ns leiningen.jar
+  "Create a jar containing the compiled code and original source."
   (:require [leiningen.compile :as compile]
             [lancet])
   (:use [clojure.contrib.duck-streams :only [spit]]))

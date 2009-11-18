@@ -1,4 +1,5 @@
 (ns leiningen.uberjar
+  "Create a jar containing the compiled code, source, and all dependencies."
   (:use [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.duck-streams :only [copy]]
         [leiningen.deps :only [deps]]

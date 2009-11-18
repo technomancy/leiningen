@@ -1,4 +1,5 @@
 (ns leiningen.install
+  "Install the project in your local repository. Currently requires Maven."
   (:use [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom]]
         [clojure.contrib.shell-out :only [sh with-sh-dir]])

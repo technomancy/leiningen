@@ -1,4 +1,5 @@
 (ns leiningen.deps
+  "Install jars for all dependencies in lib."
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos]]
         [clojure.contrib.java-utils :only [file]])
@@ -19,9 +20,7 @@
     (.setId id)
     (.setUrl url)))
 
-(defn deps
-  "Install dependencies in lib/"
-  [project & [skip-dev]]
+(defn deps [project & [skip-dev]]
   (let [deps-task (DependenciesTask.)]
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
