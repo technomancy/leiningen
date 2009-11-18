@@ -17,7 +17,10 @@
         (with-open [out (FileOutputStream. (str target (.getName file)))]
           (copy (.getInputStream zipfile file) out))))))
 
-(defn uberjar [project & args]
+(defn uberjar
+  "Create a jar like the jar task, but including the contents of each of
+the dependency jars. Suitable for standalone distribution."
+  [project & args]
   (doseq [dep (file-seq (file (:root project) "lib"))
           :when (.endsWith (.getName dep) ".jar")]
     (println "Unpacking" (.getName dep))

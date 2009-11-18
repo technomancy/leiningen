@@ -21,10 +21,9 @@
       (require n)
       (run-tests n))))
 
-;; TODO: only single-token predicates work from the shell
 (defn test
-  "Run the projects tests. Accept a list of predicates called with
-  each test var's metadata."
+  "Run the projects tests. Accept a list of predicates called with each test
+var's metadata. Does not support anonymous fns; works best with keywords."
   [project & args]
   (let [preds (if (empty? args)
                 [identity]

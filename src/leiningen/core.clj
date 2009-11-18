@@ -25,8 +25,11 @@
      project)
   ([] (read-project "project.clj")))
 
+(def aliases {"--help" "help" "-h" "help" "-?" "help"})
+
 (defn -main [command & args]
-  (let [action-ns (symbol (str "leiningen." command))
+  (let [command (or (aliases command) command)
+        action-ns (symbol (str "leiningen." command))
         _ (require action-ns)
         action (ns-resolve action-ns (symbol command))
         project (read-project)]

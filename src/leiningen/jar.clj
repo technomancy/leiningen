@@ -9,7 +9,11 @@
     (spit (when (:main project)
             (str "Main-Class: " (:main project) "\n")))))
 
-(defn jar [project & args]
+(defn jar
+  "Create a $PROJECT.jar file containing the compiled .class files as well as
+the source .clj files. If project.clj contains a :main symbol, it will be used
+as the main-class for an executable jar."
+  [project & args]
   (compile/compile project)
   (let [jar-file (str (:root project) "/" (:name project) ".jar")
         filesets [{:dir *compile-path*}

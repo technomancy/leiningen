@@ -20,7 +20,12 @@
     (.setId id)
     (.setUrl url)))
 
-(defn deps [project & [skip-dev]]
+(defn deps
+  "Download and install all :dependencies listed in project.clj into the lib/
+directory. Dependencies should be a vector of entries specifying group, name,
+and version like the following:
+  [org.clojure/clojure-contrib \"1.0-SNAPSHOT\"]"
+  [project & [skip-dev]]
   (let [deps-task (DependenciesTask.)]
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")

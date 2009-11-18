@@ -4,7 +4,10 @@
         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile]))
 
-(defn compile [project]
+(defn compile
+  "Ahead-of-time compile the project. Looks for all namespaces under src/
+unless a list of :namespaces is provided in project.clj."
+  [project]
   ;; TODO: use a java subprocess in case a different clojure version is needed
   (doseq [n (or (:namespaces project)
                 (find-namespaces-in-dir (file (:root project) "src")))]

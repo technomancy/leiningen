@@ -5,7 +5,9 @@
         [clojure.contrib.shell-out :only [sh with-sh-dir]])
   (:import [org.apache.maven.artifact.ant InstallTask Pom]))
 
-(defn install [project & args]
+(defn install
+  "Install the project and its dependencies into ~/.m2/repository using Maven."
+  [project & args]
   (let [jarfile (jar project)]
     (pom project)
     ;; TODO: use maven-ant-tasks InstallTask with in-memory Pom object
