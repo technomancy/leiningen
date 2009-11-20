@@ -52,6 +52,8 @@ rather than copying and pasting among each of your projects.
 
     $ lein help [TASK] # show a list of tasks or help for a given TASK
 
+    $ lein new NAME # generate a new project skeleton
+
 ## Configuration
 
 Place a project.clj file in the project root that looks something like this: 

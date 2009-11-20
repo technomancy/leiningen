@@ -32,7 +32,9 @@
         action-ns (symbol (str "leiningen." command))
         _ (require action-ns)
         action (ns-resolve action-ns (symbol command))
-        project (read-project)]
+        project (if (= command "new") ; only new works without a project.clj
+                  (first args)
+                  (read-project))]
     (binding [*compile-path* (or (:compile-path project)
                                  (str (:root project) "/classes/"))]
       (apply action project args)

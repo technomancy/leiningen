@@ -36,6 +36,7 @@
                 (.setVersion (:version project))
                 (.setGroupId (:group project))
                 (.setDescription (:description project)))]
+    ;; TODO: add leiningen as a test-scoped dependency
     (doseq [dep (:dependencies project)]
       (.addDependency model (make-dependency dep)))
     (doseq [repo (concat (:repositories project) default-repos)]
