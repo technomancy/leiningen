@@ -3,5 +3,6 @@ sample/classes/
 sample/nomnomnom.jar
 classes/
 leiningen.jar
+pom-generated.xml
 pom.xml
 Manifest.txt

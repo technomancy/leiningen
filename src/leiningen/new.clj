@@ -19,7 +19,7 @@
   (spit (file project-name "src" (str project-name ".clj"))
         (str "(ns " project-name ".core)\n"))
   (spit (file project-name ".gitignore")
-        (str-join "\n" ["pom.xml"
+        (str-join "\n" ["pom-generated.xml"
                         "Manifest.txt"
                         (str project-name ".jar")]))
   (spit (file project-name "lib" ".gitignore") "*")
