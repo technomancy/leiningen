@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # TODO: this gives us a trailing colon
-VERSION=0.5.0
+VERSION="1.0.0-SNAPSHOT"
 LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 CLASSPATH="src/:classes/:$LIBS"
 LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar

@@ -47,6 +47,9 @@
     (.setProject lancet/ant-project)
     (.setMavenProject (MavenProject. (make-model project)))))
 
+;; TODO: generated poms should use a different filename so we don't
+;; have to worry about overwriting existing ones?
+
 (defn pom [project & [args]]
   (let [pom-file (file (:root project) "pom.xml")]
     (with-open [w (writer pom-file)]

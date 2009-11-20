@@ -13,4 +13,5 @@ unless a list of :namespaces is provided in project.clj."
                 (find-namespaces-in-dir (file (:root project) "src")))]
     (println "Compiling" n)
     ;; TODO: check to see if bytecode is older than source
+    (require n)
     (clojure.core/compile n)))

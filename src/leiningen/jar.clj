@@ -15,10 +15,11 @@
 the source .clj files. If project.clj contains a :main symbol, it will be used
 as the main-class for an executable jar."
   [project & args]
+  ;; TODO: clean?
   (compile/compile project)
   (let [jar-file (str (:root project) "/" (:name project) ".jar")
         filesets [{:dir *compile-path*}
-                  {:dir (str (:root project) "/src")}
+                  {:dir (str (:root project) "/src")} ; TODO: pom too
                   {:file (str (:root project) "/project.clj")}]]
     ;; TODO: support slim, etc
     (apply lancet/jar {:jarfile jar-file
