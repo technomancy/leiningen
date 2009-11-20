@@ -102,6 +102,21 @@ away soon.
 **Q:** What about Windows?  
 **A:** Patches welcome.
 
+## Publishing
+
+If your project is a library and you would like others to be able to
+use it as a dependency in their projects, you will need to get it into
+a public repository. While it's possible to maintain your own or get
+it into Maven central, the easiest way is to publish it at
+[Clojars](http://clojars.org), which is a Clojure-specific repository
+for open-source code. Once you have created an account there,
+publishing is easy:
+
+    $ lein pom
+    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
+
+Once that succeeds it will be available for other projects to depend on.
+
 ## Hacking
 
 Working on the Leiningen codebase has a few unique challenges since
