@@ -17,7 +17,7 @@ the source .clj files. If project.clj contains a :main symbol, it will be used
 as the main-class for an executable jar."
   ([project jar-name]
      (compile/compile project)
-     (pom "pom-generated.xml" true)
+     (pom project "pom-generated.xml" true)
      (let [jar-file (str (:root project) "/" jar-name)
            filesets [{:dir *compile-path*}
                      {:dir (str (:root project) "/src")}
