@@ -99,7 +99,7 @@
     (doseq [repo (concat (:repositories project) default-repos)]
       (.addRepository model (make-repository repo)))
     (when-let [scm (make-git-scm (file (:root project) ".git"))]
-      (.setScm scm))
+      (.setScm model scm))
     model))
 
 (defn make-pom [project]
