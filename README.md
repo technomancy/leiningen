@@ -26,7 +26,7 @@ rather than copying and pasting among each of your projects.
 
 ## Installation
 
-1. Download the script: http://github.com/technomancy/leiningen/raw/master/bin/lein
+1. Download the script: http://github.com/technomancy/leiningen/raw/stable/bin/lein
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 

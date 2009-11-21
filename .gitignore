@@ -6,3 +6,4 @@ leiningen.jar
 pom-generated.xml
 pom.xml
 Manifest.txt
+lein-swank/lein-swank.jar

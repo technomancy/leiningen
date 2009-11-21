@@ -9,8 +9,8 @@ LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.ja
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
 
-# If we are not running from a checkout
-if [ ! -r "bin/lein" ]; then
+# If we are not running from a compiled checkout
+if [ ! -r "classes/leiningen/core.class" -a ! -r "lib/clojure*jar" ]; then
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         echo "Leiningen is not installed. Please run \"lein self-install\"."
         exit 1
