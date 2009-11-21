@@ -92,13 +92,14 @@
                 (.setName (:name project))
                 (.setVersion (:version project))
                 (.setGroupId (:group project))
-                (.setDescription (:description project))
-                (.setScm (make-git-scm (file (:root project) ".git"))))]
+                (.setDescription (:description project)))]
     ;; TODO: add leiningen as a test-scoped dependency
     (doseq [dep (:dependencies project)]
       (.addDependency model (make-dependency dep)))
     (doseq [repo (concat (:repositories project) default-repos)]
       (.addRepository model (make-repository repo)))
+    (when-let [scm (make-git-scm (file (:root project) ".git"))]
+      (.setScm scm))
     model))
 
 (defn make-pom [project]
