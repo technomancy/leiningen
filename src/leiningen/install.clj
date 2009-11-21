@@ -9,10 +9,10 @@
   "Install the project and its dependencies into ~/.m2/repository using Maven."
   [project & args]
   (let [jarfile (jar project)]
-    (pom project)
+    (pom project "pom-generated.xml" true)
     ;; TODO: use maven-ant-tasks InstallTask with in-memory Pom object
     (with-sh-dir (:root project)
-      (try (sh "mvn" "install:install-file" "-DpomFile=pom.xml"
+      (try (sh "mvn" "install:install-file" "-DpomFile=pom-generated.xml"
                (str "-Dfile=" jarfile))
            (println "Installed" (:group project) "/" (:name project))
            (catch java.io.IOException _

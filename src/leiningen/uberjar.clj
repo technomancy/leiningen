@@ -25,4 +25,4 @@ the dependency jars. Suitable for standalone distribution."
           :when (.endsWith (.getName dep) ".jar")]
     (println "Unpacking" (.getName dep))
     (unzip dep *compile-path*))
-  (jar project))
+  (jar project (str (:name project) "-standalone.jar")))

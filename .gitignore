@@ -3,4 +3,8 @@ sample/classes/
 sample/nomnomnom.jar
 classes/
 leiningen.jar
+leiningen-standalone.jar
+pom-generated.xml
 pom.xml
+Manifest.txt
+lein-swank/lein-swank.jar

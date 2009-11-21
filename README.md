@@ -26,7 +26,9 @@ rather than copying and pasting among each of your projects.
 
 ## Installation
 
-Copy bin/lein to a location on your $PATH and run: $ lein self-install
+1. Download the script: http://github.com/technomancy/leiningen/raw/stable/bin/lein
+2. Place it on your path and chmod it to be executable.
+3. Run: <tt>lein self-install</tt>
 
 ## Usage
 
@@ -50,7 +52,7 @@ Copy bin/lein to a location on your $PATH and run: $ lein self-install
 
     $ lein help [TASK] # show a list of tasks or help for a given TASK
 
-TODO: new, deploy
+    $ lein new NAME # generate a new project skeleton
 
 ## Configuration
 
@@ -102,6 +104,21 @@ away soon.
 **Q:** What about Windows?  
 **A:** Patches welcome.
 
+## Publishing
+
+If your project is a library and you would like others to be able to
+use it as a dependency in their projects, you will need to get it into
+a public repository. While it's possible to maintain your own or get
+it into Maven central, the easiest way is to publish it at
+[Clojars](http://clojars.org), which is a Clojure-specific repository
+for open-source code. Once you have created an account there,
+publishing is easy:
+
+    $ lein pom
+    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
+
+Once that succeeds it will be available for other projects to depend on.
+
 ## Hacking
 
 Working on the Leiningen codebase has a few unique challenges since
@@ -111,11 +128,19 @@ necessary:
 
 0. Place bin/lein on your $PATH somewhere.
 1. Do a self-install of leiningen (from outside the checkout tree).
-2. Place ~/.leiningen.jar in lib.
+2. Place ~/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar in lib.
 3. Invoke "lein compile" followed by "lein deps".
 4. Remove .leiningen.jar from lib.
 5. Invoke "lein uberjar", and place the jar in ~/.leiningen.jar for
    future use.
+
+The [mailing list](http://groups.google.com/group/clojure) and the
+#leiningen or #clojure channels on Freenode are the best places to
+bring up questions or suggestions. Contributions are preferred as
+either Github pull requests or using "git format-patch" as described
+at http://clojure.org/patches.
+
+Please use standard indentation with no tabs or trailing whitespace.
 
 Leiningen is extensible, you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
