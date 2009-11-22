@@ -27,16 +27,25 @@
 
 (def aliases {"--help" "help" "-h" "help" "-?" "help"})
 
+(defn command-not-found [command project & _]
+  (println (format "Command %s does not exist." command)))
+
+(defn resolve-command [command]
+  (let [command-ns (symbol (str "leiningen." command))
+        command (symbol command)]
+    (try
+     (require command-ns)
+     (ns-resolve command-ns command)
+     (catch java.io.FileNotFoundException e
+       (partial command-not-found command)))))
+
 (defn -main [command & args]
   (let [command (or (aliases command) command)
-        action-ns (symbol (str "leiningen." command))
-        _ (require action-ns)
-        action (ns-resolve action-ns (symbol command))
         project (if (= command "new") ; only new works without a project.clj
                   (first args)
                   (read-project))]
     (binding [*compile-path* (or (:compile-path project)
                                  (str (:root project) "/classes/"))]
-      (apply action project args)
-      ;; In case tests or some other task started any:
-      (shutdown-agents))))
+      (apply (resolve-command command) project args))
+    ;; In case tests or some other task started any:
+    (shutdown-agents))))
