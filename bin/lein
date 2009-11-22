@@ -9,15 +9,28 @@ LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.ja
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
 
-# resolve symlinks in a cross-platform way
-TMP="$PWD"
-cd "$(dirname $0)"
-BIN_DIR=`pwd -P`
-cd "$TMP"
+if [ "$(dirname $0)" = "." ]; then
+    SCRIPT="$(which $(basename $0))"
+else
+    SCRIPT="$0"
+fi
+
+# resolve symlinks to the script itself portably
+while [ -h "$SCRIPT" ] ; do
+    ls=`ls -ld "$SCRIPT"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        SCRIPT="$link"
+    else
+        SCRIPT="`dirname "$SCRIPT"`/$link"
+    fi
+done
+
+BIN_DIR="$(dirname "$SCRIPT")"
 
 if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
-    # Running from a git checkout
-    LEIN_DIR=$(dirname $BIN_DIR)
+    # Running from source checkout
+    LEIN_DIR="$(dirname "$BIN_DIR")"
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/classes:$LEIN_DIR/lib:$LEIN_JAR:$CLASSPATH"
 
     if [ ! -r "classes/leiningen/core.class" -a ! -r "lib/leiningen*jar" -a ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
