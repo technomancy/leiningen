@@ -9,17 +9,13 @@ LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.ja
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
 
-# detect if we're running from a git checkout
 BIN_DIR=`dirname $0`
 
 if [ "$BIN_DIR" = "." ]; then
     BIN_DIR=`dirname (which (basename $0))`
 fi
 
-grep "url = git.*github\.com.*\/leiningen\.git" $BIN_DIR/../.git/config  &> /dev/null
-repo_found=$?
-
-if [ $repo_found -eq 0 ]; then
+if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from a git checkout
     LEIN_DIR=$(dirname $BIN_DIR)
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/classes:$LEIN_DIR/lib:$LEIN_JAR:$CLASSPATH"
