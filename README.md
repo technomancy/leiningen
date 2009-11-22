@@ -150,7 +150,7 @@ plugin.
 
 ## License
 
-Copyright (C) 2009 Phil Hagelberg
+Copyright (C) 2009 Phil Hagelberg, Alex Osborne, and Dan Larkin
 
 Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
 me that good builds are important.
