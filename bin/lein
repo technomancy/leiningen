@@ -9,6 +9,7 @@ LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.ja
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
 
+# normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then
     SCRIPT="$(which $(basename $0))"
 else
@@ -28,12 +29,12 @@ done
 
 BIN_DIR="$(dirname "$SCRIPT")"
 
-if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
+if [ -r "$BIN_DIR/../classes/leiningen/core.class" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/classes:$LEIN_DIR/lib:$LEIN_JAR:$CLASSPATH"
 
-    if [ ! -r "classes/leiningen/core.class" -a ! -r "lib/leiningen*jar" -a ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
+    if [ ! -r "lib/leiningen*jar" -a ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         echo "Leiningen is not installed. Please run \"lein self-install\"."
     fi
 else
@@ -73,10 +74,8 @@ elif [ "$1" = "self-install" ]; then
     else
         exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
+elif [ -z "$1" ]; then
+    echo "Usage: `basename $0` taskname. Run `basename $0` help for a list of tasks."
 else
-    if [ -z "$1" ]; then
-        echo "Usage: `basename $0` taskname"
-    else
-        exec java -client -cp "$CLASSPATH" leiningen.core $@
-    fi
+    exec java -client -cp "$CLASSPATH" leiningen.core $@
 fi
