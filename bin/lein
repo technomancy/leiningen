@@ -7,7 +7,9 @@ CLASSPATH="src/:classes/:$LIBS"
 LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar
 
 # this needs to exist before the JVM is launched apparently
-mkdir -p classes
+if [ -r project.clj ]; then
+    mkdir -p classes
+fi
 
 # normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then
