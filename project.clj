@@ -4,7 +4,6 @@
 
 (defproject leiningen "1.0.0-SNAPSHOT"
   :description "A build tool designed not to set your hair on fire."
-  :main leiningen.core
   :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
                  [ant/ant-launcher "1.6.2"]

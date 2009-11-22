@@ -1,6 +1,5 @@
 (ns leiningen.core
-  (:use [clojure.contrib.with-ns])
-  (:gen-class))
+  (:use [clojure.contrib.with-ns]))
 
 (def project nil)
 
@@ -40,8 +39,9 @@
      (catch java.io.FileNotFoundException e
        (partial command-not-found command)))))
 
-(defn -main [command & args]
-  (let [command (or (aliases command) command)
+(defn main [args-string]
+  (let [[command & args] (.split args-string " ")
+        command (or (aliases command) command)
         project (if (= command "new") ; only new works without a project.clj
                   (first args)
                   (read-project))]

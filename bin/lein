@@ -31,7 +31,7 @@ done
 
 BIN_DIR="$(dirname "$SCRIPT")"
 
-if [ -r "$BIN_DIR/../classes/leiningen/core.class" ]; then
+if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/classes:$LEIN_DIR/lib:$LEIN_JAR:$CLASSPATH"
@@ -79,5 +79,5 @@ elif [ "$1" = "self-install" ]; then
 elif [ -z "$1" ]; then
     echo "Usage: `basename $0` taskname. Run `basename $0` help for a list of tasks."
 else
-    exec java -client -cp "$CLASSPATH" leiningen.core $@
+    exec java -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(main \"$*\")"
 fi
