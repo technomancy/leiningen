@@ -7,7 +7,7 @@
         [clojure.contrib.str-utils :only [str-join]]))
 
 (defn make-manifest [project]
-  (doto (str (:root project) "/Manifest.txt")
+  (doto (str (:root project) "/classes/Manifest.txt")
     (spit (str-join "\n"
                     ["Created-By: Leiningen"
                      (str "Built-By: " (System/getProperty "user.name"))
