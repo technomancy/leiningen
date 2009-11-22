@@ -3,13 +3,17 @@
   (:require [leiningen.compile :as compile]
             [lancet])
   (:use [leiningen.pom :only [pom]]
-        [clojure.contrib.duck-streams :only [spit]]))
+        [clojure.contrib.duck-streams :only [spit]]
+        [clojure.contrib.str-utils :only [str-join]]))
 
 (defn make-manifest [project]
   (doto (str (:root project) "/Manifest.txt")
-    (spit (if (:main project)
-            (str "Main-Class: " (:main project) "\n")
-            ""))))
+    (spit (str-join "\n"
+                    ["Created-By: Leiningen"
+                     (str "Built-By: " (System/getProperty "user.name"))
+                     (str "Build-Jdk: " (System/getProperty "java.version"))
+                     (when-let [main (:main project)]
+                       (str "Main-Class: " main))]))))
 
 (defn jar
   "Create a $PROJECT.jar file containing the compiled .class files as well as
