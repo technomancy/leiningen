@@ -11,7 +11,9 @@ unless a list of :namespaces is provided in project.clj."
   ;; TODO: use a java subprocess in case a different clojure version is needed
   (doseq [n (or (:namespaces project)
                 (find-namespaces-in-dir (file (:root project) "src")))]
-    (let [ns-file (str (.replaceAll (name n) "\\." "/"))]
+    (let [ns-file (str (-> (name n)
+                           (.replaceAll "\\." "/")
+                           (.replaceAll "-" "_")))]
       (when (> (.lastModified (file (:root project) "src" (str ns-file ".clj")))
                (.lastModified (file (:root project) "classes"
                                     (str ns-file "__init.class"))))
