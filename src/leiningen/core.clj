@@ -28,7 +28,8 @@
 (def aliases {"--help" "help" "-h" "help" "-?" "help"})
 
 (defn command-not-found [command project & _]
-  (println (format "Command %s does not exist." command)))
+  (println command "is not a command. Use \"help\" to list all commands.")
+  (System/exit 1))
 
 (defn resolve-command [command]
   (let [command-ns (symbol (str "leiningen." command))
@@ -48,4 +49,4 @@
                                  (str (:root project) "/classes/"))]
       (apply (resolve-command command) project args))
     ;; In case tests or some other task started any:
-    (shutdown-agents))))
+    (shutdown-agents)))
