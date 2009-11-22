@@ -9,14 +9,41 @@ LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.ja
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
 
-# If we are not running from a compiled checkout
-if [ ! -r "classes/leiningen/core.class" -a ! -r "lib/clojure*jar" ]; then
+if [ "$(dirname $0)" = "." ]; then
+    SCRIPT="$(which $(basename $0))"
+else
+    SCRIPT="$0"
+fi
+
+# resolve symlinks to the script itself portably
+while [ -h "$SCRIPT" ] ; do
+    ls=`ls -ld "$SCRIPT"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        SCRIPT="$link"
+    else
+        SCRIPT="`dirname "$SCRIPT"`/$link"
+    fi
+done
+
+BIN_DIR="$(dirname "$SCRIPT")"
+
+if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
+    # Running from source checkout
+    LEIN_DIR="$(dirname "$BIN_DIR")"
+    CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/classes:$LEIN_DIR/lib:$LEIN_JAR:$CLASSPATH"
+
+    if [ ! -r "classes/leiningen/core.class" -a ! -r "lib/leiningen*jar" -a ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
+        echo "Leiningen is not installed. Please run \"lein self-install\"."
+    fi
+else
+    # Not running from a checkout
+    CLASSPATH="$CLASSPATH:$LEIN_JAR"
+
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         echo "Leiningen is not installed. Please run \"lein self-install\"."
         exit 1
     fi
-
-    CLASSPATH="$CLASSPATH:$LEIN_JAR"
 fi
 
 if [ "$1" = "test" ]; then
@@ -48,8 +75,7 @@ elif [ "$1" = "self-install" ]; then
     fi
 else
     if [ -z "$1" ]; then
-        echo "$0 missing task"
-        echo "Usage: $0 taskname"
+        echo "Usage: `basename $0` taskname"
     else
         exec java -client -cp "$CLASSPATH" leiningen.core $@
     fi
