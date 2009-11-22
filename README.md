@@ -140,7 +140,8 @@ bring up questions or suggestions. Contributions are preferred as
 either Github pull requests or using "git format-patch" as described
 at http://clojure.org/patches.
 
-Please use standard indentation with no tabs or trailing whitespace.
+Please use standard indentation with no tabs, trailing whitespace, or
+lines longer than 80 columns.
 
 Leiningen is extensible, you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
