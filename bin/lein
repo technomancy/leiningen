@@ -9,11 +9,11 @@ LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.ja
 # this needs to exist before the JVM is launched apparently
 mkdir -p classes
 
-BIN_DIR=$(dirname $(readlink -f $0))
-
-if [ "$BIN_DIR" = "." ]; then
-    BIN_DIR=$(dirname $(readlink -f $(which $(basename $0))))
-fi
+# resolve symlinks in a cross-platform way
+TMP="$PWD"
+cd "$(dirname $0)"
+BIN_DIR=`pwd -P`
+cd "$TMP"
 
 if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from a git checkout
