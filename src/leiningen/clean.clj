@@ -5,7 +5,7 @@
 
 (defn clean [project & args]
   (delete-file (str (:root project) "/" (:name project) ".jar") true)
-  (doseq [d ["classes" "lib"]]
+  (doseq [d [(:compile-path project)
+             (str (:root project) "/lib")]]
     (println "Cleaning " d)
-    (doseq [f (.listFiles (file (:root project) d))]
-      (delete-file-recursively f true))))
+    (delete-file-recursively (file d) true)))
