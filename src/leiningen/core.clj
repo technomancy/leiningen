@@ -1,5 +1,6 @@
 (ns leiningen.core
-  (:use [clojure.contrib.with-ns]))
+  (:use [clojure.contrib.with-ns])
+  (:import [java.io File]))
 
 (def project nil)
 
@@ -46,9 +47,11 @@
         command (or (aliases command) command)
         project (if (no-project-needed command)
                   (first args)
-                  (read-project))]
-    (binding [*compile-path* (or (:compile-path project)
-                                 (str (:root project) "/classes/"))]
+                  (read-project))
+        compile-path (or (:compile-path project)
+                         (str (:root project) "/classes/"))]
+    (.mkdirs (File. compile-path))
+    (binding [*compile-path* compile-path]
       (apply (resolve-command command) project args))
     ;; In case tests or some other task started any:
     (shutdown-agents)))

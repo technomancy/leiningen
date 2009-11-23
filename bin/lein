@@ -6,11 +6,6 @@ LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 CLASSPATH="src/:classes/:$LIBS"
 LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar
 
-# this needs to exist before the JVM is launched apparently
-if [ -r project.clj ]; then
-    mkdir -p classes
-fi
-
 # normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then
     SCRIPT="$(which $(basename $0))"
