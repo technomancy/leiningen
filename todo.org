@@ -1,0 +1,16 @@
+Leiningen TODOs
+
+* For 1.0
+** TODO Remove install task dependency on having Maven installed (Phil)
+** TODO Use -Xbootclasspath where possible
+** TODO Don't write manifest, pom, etc. to disk when jarring (Dan)
+** TODO Perform compilation in either a subprocess or with a separate classloader
+** TODO Allow test task to take namespaces as an argument
+** TODO System/exit appropriately when testing based on pass/fail
+* Post 1.0
+** TODO doc generation
+** TODO user config file for activating plugins across all projects
+** TODO write shell wrappers
+* Low Priority
+** TODO Slim jar task
+** TODO Remove duplication between deps.clj and pom.clj
