@@ -26,6 +26,8 @@
 
 (def aliases {"--help" "help" "-h" "help" "-?" "help"})
 
+(def no-project-needed #{"new" "help"})
+
 (defn command-not-found [command project & _]
   (println command "is not a command. Use \"help\" to list all commands.")
   (System/exit 1))
@@ -42,7 +44,7 @@
 (defn main [args-string]
   (let [[command & args] (.split args-string " ")
         command (or (aliases command) command)
-        project (if (= command "new") ; only new works without a project.clj
+        project (if (no-project-needed command)
                   (first args)
                   (read-project))]
     (binding [*compile-path* (or (:compile-path project)
