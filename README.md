@@ -30,6 +30,9 @@ rather than copying and pasting among each of your projects.
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 
+This works best with stable versions of Leiningen; for development
+versions see "Hacking" below.
+
 ## Usage
 
     $ lein deps # install dependencies in lib/
@@ -93,8 +96,9 @@ away soon.
 **A:** That's [true](http://www.defmacro.org/ramblings/lisp.html). Ant is
    an interpreter for a [procedural language with a regrettable 
    syntax](http://blogs.tedneward.com/2005/08/22/When+Do+You+Use+XML+Again.aspx).
-   But if you're able to write it with a more pleasing syntax, it's
-   not so bad.
+   But if you treat it as a standard library of build-related
+   functions and are able to write it with a more pleasing syntax, it's
+   not bad.
 
 **Q:** What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?  
 **A:** I tried, but I really couldn't make the wine metaphor work. That,
@@ -121,29 +125,20 @@ Once that succeeds it will be available for other projects to depend on.
 
 ## Hacking
 
-Working on the Leiningen codebase has a few unique challenges since
-there's a bit of a chicken-and-egg bootstrap problem. To go from a
-clean checkout to a working environment, the following steps are
-necessary:
-
-0. Place bin/lein on your $PATH somewhere.
-1. Do a self-install of leiningen (from outside the checkout tree).
-2. Place ~/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar in lib.
-3. Invoke "lein compile" followed by "lein deps".
-4. Remove .leiningen.jar from lib.
-5. Invoke "lein uberjar", and place the jar in ~/.leiningen.jar for
-   future use.
+Symlinking bin/lein to a location on your shell's $PATH will cause
+Leiningen to run from your checkout rather than using the version
+installed in ~/.m2, which is what you get from "lein self-install".
 
 The [mailing list](http://groups.google.com/group/clojure) and the
 #leiningen or #clojure channels on Freenode are the best places to
-bring up questions or suggestions. Contributions are preferred as
-either Github pull requests or using "git format-patch" as described
-at http://clojure.org/patches.
+bring up questions or suggestions.
 
-Please use standard indentation with no tabs, trailing whitespace, or
-lines longer than 80 columns.
+Contributions are preferred as either Github pull requests or using
+"git format-patch" as described at http://clojure.org/patches. Please
+use standard indentation with no tabs, trailing whitespace, or lines
+longer than 80 columns.
 
-Leiningen is extensible, you can define new tasks in plugins. Add your
+Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
 "lein $YOUR_COMMAND". See the lein-swank directory for an example of a
 plugin.

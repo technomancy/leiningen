@@ -43,6 +43,8 @@
   "Run the projects tests. Accept a list of predicates called with each test
 var's metadata. Does not support anonymous fns; works best with keywords."
   [project & args]
+  ;; TODO: eval args; if they're namespaces, run their tests; if they're
+  ;; ifn? then use them as predicates
   (let [preds (if (empty? args)
                 [identity]
                 (map (comp eval read-string) args))]

@@ -5,6 +5,7 @@
 (def tasks (filter #(re-find #"^leiningen\.(?!core)" (name %))
                       (find-namespaces-on-classpath)))
 
+;; Clojure ticket #130 fixes bug of AOT'd namespaces losing docstrings
 (defn help-for [task]
   (let [task-ns (symbol (str "leiningen." task))
         _ (require task-ns)
