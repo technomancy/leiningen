@@ -125,9 +125,12 @@ Once that succeeds it will be available for other projects to depend on.
 
 ## Hacking
 
-Symlinking bin/lein to a location on your shell's $PATH will cause
-Leiningen to run from your checkout rather than using the version
-installed in ~/.m2, which is what you get from "lein self-install".
+You'll need to bootstrap using a stable release before you can hack on
+Leiningen. Grab the stable bin script, put it on your $PATH, and do a
+self-install. Then run "lein deps" in your checkout. When that
+finishes, replace the bin script with a symlink to bin/lein from your
+checkout. This will make Leiningen run from your checkout rather than
+using the version self-installed in ~/.m2.
 
 The [mailing list](http://groups.google.com/group/clojure) and the
 #leiningen or #clojure channels on Freenode are the best places to
