@@ -1,9 +1,14 @@
+#-*- mode: org -*-
+#+startup: overview
+#+startup: hidestars
+#+TODO: TODO | INPROGRESS | DONE
+
 Leiningen TODOs
 
 * For 1.0
-** TODO Remove install task dependency on having Maven installed (Phil)
+** TODO Remove install task dependency on having Maven installed       :Phil:
 ** TODO Use -Xbootclasspath where possible
-** TODO Don't write manifest, pom, etc. to disk when jarring (Dan)
+** TODO Don't write manifest, pom, etc. to disk when jarring            :Dan:
 ** TODO Don't put uberjar in ~/.m2
 ** TODO Perform compilation in either a subprocess or with a separate classloader
 ** TODO Allow test task to take namespaces as an argument
