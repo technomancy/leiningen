@@ -22,26 +22,25 @@
                         (str "Main-Class: " main))])
            "\n")))))
 
-(defn write-file-to-jar [chop-off jar-os f]
-  (if (.isDirectory f)
-    (doseq [child (.listFiles f)]
-      (write-file-to-jar chop-off jar-os child))
-    (do
-      (let [path (str f)
-            path (re-sub (re-pattern (str "^" chop-off)) "" path)
+(defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
+
+(defmethod copy-to-jar :path [project jar-os spec]
+  (doseq [child (file-seq (file (:path spec)))]
+    (when-not (.isDirectory child)
+      (let [path (str child)
+            path (re-sub (re-pattern (str "^" (:root project))) "" path)
             path (re-sub #"^/classes" "" path)
             path (re-sub #"^/src" "" path)
             path (re-sub #"^/" "" path)]
-        (.putNextEntry jar-os (JarEntry.
-                               path)))
-      (copy f jar-os))))
+        (.putNextEntry jar-os (JarEntry. path))
+        (copy child jar-os)))))
 
-(defn write-jar [project out-filename files]
+(defn write-jar [project out-filename filespecs]
   (with-open [jar-os (JarOutputStream. (BufferedOutputStream.
                                         (FileOutputStream. out-filename))
                                        (make-manifest project))]
-    (doseq [f files]
-      (write-file-to-jar (:root project) jar-os (file f)))))
+    (doseq [filespec filespecs]
+      (copy-to-jar project jar-os filespec))))
 
 (defn jar
   "Create a $PROJECT.jar file containing the compiled .class files as well as
@@ -51,13 +50,11 @@ as the main-class for an executable jar."
      (compile/compile project)
      (pom project "pom-generated.xml" true)
      (let [jar-file (str (:root project) "/" jar-name)
-           files [*compile-path*
-                  (str (:root project) "/src")
-                  ;; TODO: place in META-INF/maven/$groupId/$artifactId/pom.xml
-                  ;; TODO: pom.properties
-                  (str (:root project) "/pom-generated.xml")
-                  (str (:root project) "/project.clj")]]
+           filespecs [{:type :path :path *compile-path*}
+                      {:type :path :path (str (:root project) "/src")}
+                      ;; TODO: pom.properties
+                      {:type :path :path (str (:root project) "/project.clj")}]]
        ;; TODO: support slim, etc
-       (write-jar project jar-file files)
+       (write-jar project jar-file filespecs)
        jar-file))
   ([project] (jar project (str (:name project) ".jar"))))
