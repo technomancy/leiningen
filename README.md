@@ -103,7 +103,7 @@ away soon.
 **Q:** What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?  
 **A:** I tried, but I really couldn't make the wine metaphor work. That,
    and the Plexus Classworlds container was an ornery beast causing
-   much frustration.
+   much frustration. The maven-ant-tasks API is much more manageable.
 
 **Q:** What about Windows?  
 **A:** Patches welcome.
@@ -126,20 +126,22 @@ Once that succeeds it will be available for other projects to depend on.
 ## Hacking
 
 You'll need to bootstrap using a stable release before you can hack on
-Leiningen. Grab the stable bin script, put it on your $PATH, and do a
-self-install. Then run "lein deps" in your checkout. When that
-finishes, replace the bin script with a symlink to bin/lein from your
-checkout. This will make Leiningen run from your checkout rather than
-using the version self-installed in ~/.m2.
+Leiningen. Grab the stable bin script (linked under "Installation"
+above), put it on your $PATH as "lein-stable", and do "lein-stable
+self-install". Then run "lein-stable deps" in your checkout. When that
+finishes, symlink bin/lein from your checkout to your path.  This will
+make "lein" run from your checkout while "lein-stable" uses the jar
+self-installed in ~/.m2.
 
 The [mailing list](http://groups.google.com/group/clojure) and the
-#leiningen or #clojure channels on Freenode are the best places to
+leiningen or clojure channels on Freenode are the best places to
 bring up questions or suggestions.
 
 Contributions are preferred as either Github pull requests or using
 "git format-patch" as described at http://clojure.org/patches. Please
 use standard indentation with no tabs, trailing whitespace, or lines
-longer than 80 columns.
+longer than 80 columns. If you've got some time on your hands, reading
+http://mumble.net/~campbell/scheme/style.txt wouldn't hurt either.
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
