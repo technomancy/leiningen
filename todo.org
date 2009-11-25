@@ -22,3 +22,4 @@ Leiningen TODOs
 ** TODO Slim jar task
 ** TODO Remove duplication between deps.clj and pom.clj
 ** TODO Resources directory added to classpath? (for properties, etc)
+*** This would be a good way for clojure code to have access to lein's version
