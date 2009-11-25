@@ -1,7 +1,7 @@
 (ns leiningen.jar
   "Create a jar containing the compiled code and original source."
   (:require [leiningen.compile :as compile])
-  (:use [leiningen.pom :only [pom]]
+  (:use [leiningen.pom :only [pom-in-memory]]
         [clojure.contrib.duck-streams :only [to-byte-array copy]]
         [clojure.contrib.str-utils :only [str-join re-sub]]
         [clojure.contrib.java-utils :only [file]])
@@ -35,6 +35,10 @@
         (.putNextEntry jar-os (JarEntry. path))
         (copy child jar-os)))))
 
+(defmethod copy-to-jar :bytes [project jar-os spec]
+  (.putNextEntry jar-os (JarEntry. (:path spec)))
+  (copy (ByteArrayInputStream. (:bytes spec)) jar-os))
+
 (defn write-jar [project out-filename filespecs]
   (with-open [jar-os (JarOutputStream. (BufferedOutputStream.
                                         (FileOutputStream. out-filename))
@@ -48,9 +52,13 @@ the source .clj files. If project.clj contains a :main symbol, it will be used
 as the main-class for an executable jar."
   ([project jar-name]
      (compile/compile project)
-     (pom project "pom-generated.xml" true)
      (let [jar-file (str (:root project) "/" jar-name)
-           filespecs [{:type :path :path *compile-path*}
+           filespecs [{:type :bytes
+                       :path (format "meta-inf/maven/%s/%s/pom.xml"
+                                     (:group project)
+                                     (:name project))
+                       :bytes (pom-in-memory project)}
+                      {:type :path :path *compile-path*}
                       {:type :path :path (str (:root project) "/src")}
                       ;; TODO: pom.properties
                       {:type :path :path (str (:root project) "/project.clj")}]]

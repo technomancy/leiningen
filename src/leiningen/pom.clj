@@ -3,7 +3,8 @@
   (:require [lancet])
   (:use [clojure.contrib.duck-streams :only [reader writer]]
         [clojure.contrib.java-utils :only [file]])
-  (:import [org.apache.maven.model Model Parent Dependency Repository Scm]
+  (:import [java.io StringWriter]
+           [org.apache.maven.model Model Parent Dependency Repository Scm]
            [org.apache.maven.project MavenProject]
            [org.apache.maven.artifact.ant Pom]))
 
@@ -106,6 +107,11 @@
   (doto (Pom.)
     (.setProject lancet/ant-project)
     (.setMavenProject (MavenProject. (make-model project)))))
+
+(defn pom-in-memory [project]
+  (with-open [w (StringWriter.)]
+    (.writeModel (MavenProject. (make-model project)) w)
+    (.getBytes (str w))))
 
 (defn pom [project & [pom-location silently?]]
   (let [pom-file (file (:root project) (or pom-location "pom.xml"))]
