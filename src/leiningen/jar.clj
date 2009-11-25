@@ -1,7 +1,7 @@
 (ns leiningen.jar
   "Create a jar containing the compiled code and original source."
   (:require [leiningen.compile :as compile])
-  (:use [leiningen.pom :only [make-pom]]
+  (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [clojure.contrib.duck-streams :only [to-byte-array copy]]
         [clojure.contrib.str-utils :only [str-join re-sub]]
         [clojure.contrib.java-utils :only [file]])
@@ -58,9 +58,13 @@ as the main-class for an executable jar."
                                      (:group project)
                                      (:name project))
                        :bytes (make-pom project)}
+                      {:type :bytes
+                       :path (format "meta-inf/maven/%s/%s/pom.properties"
+                                     (:group project)
+                                     (:name project))
+                       :bytes (make-pom-properties project)}
                       {:type :path :path *compile-path*}
                       {:type :path :path (str (:root project) "/src")}
-                      ;; TODO: pom.properties
                       {:type :path :path (str (:root project) "/project.clj")}]]
        ;; TODO: support slim, etc
        (write-jar project jar-file filespecs)
