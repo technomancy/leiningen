@@ -1,7 +1,7 @@
 (ns leiningen.pom
   "Write a pom.xml file to disk for Maven interop."
   (:require [lancet])
-  (:use [clojure.contrib.duck-streams :only [reader writer]]
+  (:use [clojure.contrib.duck-streams :only [reader copy]]
         [clojure.contrib.java-utils :only [file]])
   (:import [java.io StringWriter]
            [org.apache.maven.model Model Parent Dependency Repository Scm]
@@ -103,20 +103,17 @@
       (.setScm model scm))
     model))
 
-(defn make-pom [project]
-  (doto (Pom.)
-    (.setProject lancet/ant-project)
-    (.setMavenProject (MavenProject. (make-model project)))))
-
-(defn pom-in-memory [project]
-  (with-open [w (StringWriter.)]
-    (.writeModel (MavenProject. (make-model project)) w)
-    (.getBytes (str w))))
+(defn make-pom
+  ([project] (make-pom project false))
+  ([project disclaimer?]
+     (with-open [w (StringWriter.)]
+       (.writeModel (MavenProject. (make-model project)) w)
+       (when disclaimer?
+         (.write w disclaimer))
+       (.getBytes (str w)))))
 
 (defn pom [project & [pom-location silently?]]
   (let [pom-file (file (:root project) (or pom-location "pom.xml"))]
-    (with-open [w (writer pom-file)]
-      (.writeModel (MavenProject. (make-model project)) w)
-      (.write w disclaimer)
-      (when-not silently? (println "Wrote" (.getName pom-file))))
+    (copy (make-pom project true) pom-file)
+    (when-not silently? (println "Wrote" (.getName pom-file)))
     (.getAbsolutePath pom-file)))
