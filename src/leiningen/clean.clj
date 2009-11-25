@@ -16,7 +16,6 @@ Raise an exception if any deletion fails unless silently is true."
   (println "Cleaning up")
   (delete-file (str (:root project) "/" (:name project) ".jar") true)
   (delete-file (str (:root project) "/" (:name project) "-standalone.jar") true)
-  (delete-file (str (:root project) "/pom-generated.xml") true)
   (doseq [d [(:compile-path project)
              (str (:root project) "/lib")]]
     (empty-directory (file d) true)))
