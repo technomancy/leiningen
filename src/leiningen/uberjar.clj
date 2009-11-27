@@ -24,6 +24,7 @@
   (for [file (enumeration-seq (.entries in))
         :when (not (skip-pred file))]
     (do
+      (.setCompressedSize file -1) ; some jars report size incorrectly
       (.putNextEntry out file)
       (copy (.getInputStream in file) out)
       (.closeEntry out)
