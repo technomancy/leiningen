@@ -54,7 +54,7 @@
                   (first args)
                   (read-project))
         compile-path (:compile-path project)]
-    (.mkdirs (File. compile-path))
+    (when compile-path (.mkdirs (File. compile-path)))
     (binding [*compile-path* compile-path]
       (apply (resolve-command command) project args))
     ;; In case tests or some other task started any:
