@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# TODO: this gives us a trailing colon
 VERSION="1.0.0-SNAPSHOT"
 LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 CLASSPATH="src/:classes/:$LIBS"
-LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION.jar
+LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar
 
 # normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then
@@ -29,10 +28,14 @@ BIN_DIR="$(dirname "$SCRIPT")"
 if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
-    CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/classes:$LEIN_DIR/lib:$LEIN_JAR:$CLASSPATH"
+    LEIN_LIBS="$(find -H $LEIN_DIR/lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
+    CLASSPATH="$LEIN_DIR/src:$LEIN_LIBS:$CLASSPATH"
 
-    if [ ! -r "lib/leiningen*jar" -a ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        echo "Leiningen is not installed. Please run \"lein self-install\"."
+    if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" ]; then
+        echo "Your Leiningen development checkout is missing its dependencies."
+        echo "Please download a stable version of Leiningen to fetch the deps."
+        echo "See the \"Hacking\" section of the readme for details."
+        exit 1
     fi
 else
     # Not running from a checkout
@@ -65,7 +68,7 @@ if [ "$1" = "repl" ]; then
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
-    LEIN_URL=http://repo.technomancy.us/leiningen-$VERSION.jar
+    LEIN_URL="http://repo.technomancy.us/leiningen-$VERSION-standalone.jar"
     if type -p curl >/dev/null 2>&1; then
         exec curl -o "$LEIN_JAR" "$LEIN_URL"
     else
