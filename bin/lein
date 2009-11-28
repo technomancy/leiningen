@@ -1,7 +1,8 @@
 #!/bin/bash
 
 VERSION="1.0.0-SNAPSHOT"
-LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar
+LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
+CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.1.0-alpha-SNAPSHOT/clojure-1.1.0-alpha-SNAPSHOT.jar"
 
 # normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then
@@ -68,5 +69,10 @@ elif [ "$1" = "self-install" ]; then
         exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
 else
-    exec java -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    if [ -e "$CLOJURE_JAR" ]; then
+        BOOTCLASSPATH="-Xbootclasspath/a:$CLOJURE_JAR"
+    else
+        BOOTCLASSPATH=""
+    fi
+    exec java "$BOOTCLASSPATH" -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
