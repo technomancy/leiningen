@@ -6,7 +6,7 @@
 Leiningen TODOs
 
 * For 1.0
-** TODO Remove install task dependency on having Maven installed       :Phil:
+** DONE Remove install task dependency on having Maven installed       :Phil:
 ** TODO Use -Xbootclasspath where possible                             :Dan:
 ** DONE Don't write manifest, pom, etc. to disk when jarring           :Dan:
 ** DONE Don't put uberjar in ~/.m2                                     :Phil:
@@ -18,7 +18,12 @@ Leiningen TODOs
 ** TODO user config file for activating plugins across all projects
 ** TODO write shell wrappers
 ** TODO advise existing tasks from plugins
+** Plugin Ideas:
+*** Graph output for dependencies between namespaces
+*** Start web server for web-related projects
 * Low Priority
 ** TODO Slim jar task
+** TODO Source jar task
+** TODO Run failed tests task
 ** TODO Remove duplication between deps.clj and pom.clj
 ** TODO Resources directory added to classpath? (for properties, etc)
