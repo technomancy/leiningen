@@ -8,4 +8,4 @@
                  [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
                  [ant/ant-launcher "1.6.2"]
                  [org.apache.maven/maven-ant-tasks "2.0.10"]]
-  :dev-dependencies [[org.clojure/swank-clojure "1.0"]])
+  :dev-dependencies [[leiningen/lein-swank "1.0.0-SNAPSHOT"]])
