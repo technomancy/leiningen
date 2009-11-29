@@ -37,7 +37,7 @@ versions see "Hacking" below.
 
     $ lein deps # install dependencies in lib/
 
-    $ lein test [PRED] # run the project's tests, optionally filtered on PRED
+    $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
 
     $ lein compile # ahead-of-time compile into classes/
 
@@ -62,6 +62,7 @@ versions see "Hacking" below.
 Place a project.clj file in the project root that looks something like this: 
 
     (defproject leiningen "0.5.0-SNAPSHOT"
+      :description "A build tool designed not to set your hair on fire."
       :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
                      [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
                      [ant/ant-launcher "1.6.2"]
