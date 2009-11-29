@@ -35,28 +35,28 @@
 
 (def no-project-needed #{"new" "help"})
 
-(defn command-not-found [command project & _]
-  (println command "is not a command. Use \"help\" to list all commands.")
+(defn task-not-found [task project & _]
+  (println task "is not a task. Use \"help\" to list all task.")
   (System/exit 1))
 
-(defn resolve-command [command]
-  (let [command-ns (symbol (str "leiningen." command))
-        command (symbol command)]
+(defn resolve-task [task]
+  (let [task-ns (symbol (str "leiningen." task))
+        task (symbol task)]
     (try
-     (require command-ns)
-     (ns-resolve command-ns command)
+     (require task-ns)
+     (ns-resolve task-ns task)
      (catch java.io.FileNotFoundException e
-       (partial command-not-found command)))))
+       (partial task-not-found task)))))
 
 (defn main [args-string]
-  (let [[command & args] (.split args-string " ")
-        command (or (aliases command) command)
-        project (if (no-project-needed command)
+  (let [[task & args] (.split args-string " ")
+        task (or (aliases task) task)
+        project (if (no-project-needed task)
                   (first args)
                   (read-project))
         compile-path (:compile-path project)]
     (when compile-path (.mkdirs (File. compile-path)))
     (binding [*compile-path* compile-path]
-      (apply (resolve-command command) project args))
+      (apply (resolve-task task) project args))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
