@@ -135,13 +135,17 @@ self-installed in ~/.m2.
 
 The [mailing list](http://groups.google.com/group/clojure) and the
 leiningen or clojure channels on Freenode are the best places to
-bring up questions or suggestions.
+bring up questions or suggestions. If you're planning on adding a
+feature or fixing a nontrivial bug, please discuss it first to avoid
+duplicating effort.
 
 Contributions are preferred as either Github pull requests or using
-"git format-patch" as described at http://clojure.org/patches. Please
-use standard indentation with no tabs, trailing whitespace, or lines
-longer than 80 columns. If you've got some time on your hands, reading
-http://mumble.net/~campbell/scheme/style.txt wouldn't hurt either.
+"git format-patch" as is requested [for contributing to Clojure
+itself](http://clojure.org/patches). Please use standard indentation
+with no tabs, trailing whitespace, or lines longer than 80 columns. If
+you've got some time on your hands, reading this [style
+guide](http://mumble.net/~campbell/scheme/style.txt) wouldn't hurt
+either.
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
