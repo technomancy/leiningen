@@ -21,6 +21,7 @@ Leiningen TODOs
 ** Plugin Ideas:
 *** Graph output for dependencies between namespaces
 *** Start web server for web-related projects
+*** Multi-module builds
 * Low Priority
 ** TODO Slim jar task
 ** TODO Source jar task

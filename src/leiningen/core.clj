@@ -25,6 +25,7 @@
 ;; So it doesn't need to be fully-qualified in project.clj
 (with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
 
+;; TODO: prompt to run "new" if no project file is found
 (defn read-project
   ([file] (load-file file)
      project)

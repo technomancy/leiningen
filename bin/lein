@@ -63,7 +63,7 @@ if [ "$1" = "compile" -o "$1" = "jar" -o "$1" = "uberjar" ]; then
 fi
 
 if [ "$1" = "repl" ]; then
-    # If repl used leiningen.core then there'd be no way to bootstrap AOT
+    # TODO: use rlwrap if present
     java -cp "$CLASSPATH" clojure.main
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
