@@ -51,7 +51,7 @@ versions see "Hacking" below.
 
     $ lein pom # output a pom.xml file for interop with Maven
 
-    $ lein install # install in local repo (currently requires mvn)
+    $ lein install # install in local repository
 
     $ lein help [TASK] # show a list of tasks or help for a given TASK
 

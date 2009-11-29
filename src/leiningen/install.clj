@@ -1,20 +1,41 @@
 (ns leiningen.install
-  "Install the project in your local repository. Currently requires Maven."
+  "Install the project and its dependencies in your local repository."
   (:use [leiningen.jar :only [jar]]
-        [leiningen.pom :only [pom]]
-        [clojure.contrib.shell-out :only [sh with-sh-dir]])
-  (:import [org.apache.maven.artifact.ant InstallTask Pom]))
+        [leiningen.pom :only [make-model]]
+        [clojure.contrib.java-utils :only [file]])
+  (:import [org.apache.maven.artifact.installer ArtifactInstaller]
+           [org.apache.maven.settings MavenSettingsBuilder]
+           [org.apache.maven.artifact.repository ArtifactRepositoryFactory]
+           [org.apache.maven.artifact.factory ArtifactFactory]
+           [org.apache.maven.artifact.repository.layout
+            ArtifactRepositoryLayout]
+           [org.codehaus.plexus.embed Embedder]))
 
-(defn install
-  "Install the project and its dependencies into ~/.m2/repository using Maven."
-  [project & args]
-  (let [jarfile (jar project)]
-    (pom project "pom-generated.xml" true)
-    ;; TODO: use maven-ant-tasks InstallTask with in-memory Pom object
-    (with-sh-dir (:root project)
-      (try (sh "mvn" "install:install-file" "-DpomFile=pom-generated.xml"
-               (str "-Dfile=" jarfile))
-           (println "Installed" (:group project) "/" (:name project))
-           (catch java.io.IOException _
-             (.write *err* "Currently maven must be present to install.\n")
-             (System/exit 1))))))
+;; Welcome to the absurdist self-parodying world of Dependency Injection
+(def container (.getContainer (doto (Embedder.) (.start))))
+
+(defn make-settings []
+  (.buildSettings (.lookup container MavenSettingsBuilder/ROLE)))
+
+(defn make-local-repo []
+  (let [path (.getLocalRepository (make-settings))
+        url (if (.startsWith path "file:") path (str "file://" path))]
+    (-> (.lookup container ArtifactRepositoryFactory/ROLE)
+        (.createDeploymentArtifactRepository
+         "local" url (.lookup container ArtifactRepositoryLayout/ROLE "default")
+         true))))
+
+(defn make-artifact [model]
+  (.createArtifactWithClassifier
+   (.lookup container ArtifactFactory/ROLE)
+   (.getGroupId model)
+   (.getArtifactId model)
+   (.getVersion model)
+   (.getPackaging model)
+   nil))
+
+(defn install [project & args]
+  (let [jarfile (file (jar project))
+        artifact (make-artifact (make-model project))
+        installer (.lookup container ArtifactInstaller/ROLE)]
+    (.install installer jarfile artifact (make-local-repo))))
