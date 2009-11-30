@@ -48,7 +48,7 @@
                             (str (:name project) "-standalone.jar"))
                       (FileOutputStream.) (ZipOutputStream.))]
     ;; TODO: any way to make sure we skip dev dependencies?
-    (let [deps (->> (file-seq (file (:root project) "lib"))
+    (let [deps (->> (file-seq (file (:library-path project)))
                     (filter #(.endsWith (.getName %) ".jar"))
                     (cons (file (:root project) (str (:name project) ".jar"))))
           [_ components] (reduce (partial include-dep out)

@@ -10,7 +10,7 @@ Leiningen TODOs
 ** TODO Use -Xbootclasspath where possible                             :Dan:
 ** DONE Don't write manifest, pom, etc. to disk when jarring           :Dan:
 ** DONE Don't put uberjar in ~/.m2                                     :Phil:
-** TODO Perform compilation in either a subprocess or with a separate classloader
+** DONE Perform compilation in either a subprocess or with a separate classloader
 ** DONE Allow test task to take namespaces as an argument
 ** TODO System/exit appropriately when testing based on pass/fail
 * Post 1.0

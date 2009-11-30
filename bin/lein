@@ -1,8 +1,6 @@
 #!/bin/bash
 
 VERSION="1.0.0-SNAPSHOT"
-LIBS="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-CLASSPATH="src/:classes/:$LIBS"
 LEIN_JAR=$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar
 
 # normalize $0 on certain BSDs
@@ -29,7 +27,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     LEIN_LIBS="$(find -H $LEIN_DIR/lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-    CLASSPATH="$LEIN_DIR/src:$LEIN_LIBS:$CLASSPATH"
+    CLASSPATH="$LEIN_DIR/src:$LEIN_LIBS"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" ]; then
         echo "Your Leiningen development checkout is missing its dependencies."
@@ -39,7 +37,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     fi
 else
     # Not running from a checkout
-    CLASSPATH="$CLASSPATH:$LEIN_JAR"
+    CLASSPATH="$LEIN_JAR"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         echo "Leiningen is not installed. Please run \"lein self-install\"."
@@ -47,20 +45,15 @@ else
     fi
 fi
 
-if [ "$1" = "test" ]; then
-    CLASSPATH=test/:$CLASSPATH
-fi
-
 if [ $DEBUG ]; then
     echo $CLASSPATH
 fi
 
-# Deps need to run before the JVM launches for tasks that need them
-if [ "$1" = "compile" -o "$1" = "jar" -o "$1" = "uberjar" ]; then
-    if [ ! "$(ls -A lib/*jar 2> /dev/null)" ]; then
-        $0 deps skip-dev
-    fi
-fi
+# escape command-line arguments so they can be evaled as strings
+ESCAPED_ARGS=""
+for ARG in "$@"; do
+  ESCAPED_ARGS="$ESCAPED_ARGS"' "'$(echo $ARG | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')'"'
+done
 
 if [ "$1" = "repl" ]; then
     # TODO: use rlwrap if present
@@ -77,5 +70,5 @@ elif [ "$1" = "self-install" ]; then
 elif [ -z "$1" ]; then
     echo "Usage: `basename $0` taskname. Run `basename $0` help for a list of tasks."
 else
-    exec java -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(main \"$*\")"
+    exec java -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
