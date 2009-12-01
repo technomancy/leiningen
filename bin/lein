@@ -67,8 +67,6 @@ elif [ "$1" = "self-install" ]; then
     else
         exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
-elif [ -z "$1" ]; then
-    echo "Usage: `basename $0` taskname. Run `basename $0` help for a list of tasks."
 else
     exec java -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
