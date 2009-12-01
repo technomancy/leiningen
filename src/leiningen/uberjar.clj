@@ -24,6 +24,7 @@
   (for [file (enumeration-seq (.entries in))
         :when (not (skip-pred file))]
     (do
+      (.setCompressedSize file -1) ; some jars report size incorrectly
       (.putNextEntry out file)
       (copy (.getInputStream in file) out)
       (.closeEntry out)
@@ -46,6 +47,7 @@
   (with-open [out (-> (file (:root project)
                             (str (:name project) "-standalone.jar"))
                       (FileOutputStream.) (ZipOutputStream.))]
+    ;; TODO: any way to make sure we skip dev dependencies?
     (let [deps (->> (file-seq (file (:root project) "lib"))
                     (filter #(.endsWith (.getName %) ".jar"))
                     (cons (file (:root project) (str (:name project) ".jar"))))

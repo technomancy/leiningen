@@ -1,5 +1,6 @@
 (ns leiningen.core
-  (:use [clojure.contrib.with-ns]))
+  (:use [clojure.contrib.with-ns])
+  (:import [java.io File]))
 
 (def project nil)
 
@@ -7,18 +8,24 @@
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
-  `(do (alter-var-root #'project
-                       (fn [_#] (assoc (apply hash-map (quote ~args))
+  `(do
+     (let [m# (apply hash-map (quote ~args))
+           root# ~(.getParent (java.io.File. *file*))]
+       (alter-var-root #'project
+                       (fn [_#] (assoc m#
                                   :name ~(name project-name)
                                   :group ~(or (namespace project-name)
                                               (name project-name))
                                   :version ~version
-                                  :root ~(.getParent (java.io.File. *file*)))))
-       (def ~(symbol (name project-name)) project)))
+                                  :compile-path (or (:compile-path m#)
+                                                    (str root# "/classes/"))
+                                  :root root#))))
+     (def ~(symbol (name project-name)) project)))
 
 ;; So it doesn't need to be fully-qualified in project.clj
 (with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
 
+;; TODO: prompt to run "new" if no project file is found
 (defn read-project
   ([file] (load-file file)
      project)
@@ -28,27 +35,28 @@
 
 (def no-project-needed #{"new" "help"})
 
-(defn command-not-found [command project & _]
-  (println command "is not a command. Use \"help\" to list all commands.")
+(defn task-not-found [task project & _]
+  (println task "is not a task. Use \"help\" to list all task.")
   (System/exit 1))
 
-(defn resolve-command [command]
-  (let [command-ns (symbol (str "leiningen." command))
-        command (symbol command)]
+(defn resolve-task [task]
+  (let [task-ns (symbol (str "leiningen." task))
+        task (symbol task)]
     (try
-     (require command-ns)
-     (ns-resolve command-ns command)
+     (require task-ns)
+     (ns-resolve task-ns task)
      (catch java.io.FileNotFoundException e
-       (partial command-not-found command)))))
+       (partial task-not-found task)))))
 
 (defn main [args-string]
-  (let [[command & args] (.split args-string " ")
-        command (or (aliases command) command)
-        project (if (no-project-needed command)
+  (let [[task & args] (.split args-string " ")
+        task (or (aliases task) task)
+        project (if (no-project-needed task)
                   (first args)
-                  (read-project))]
-    (binding [*compile-path* (or (:compile-path project)
-                                 (str (:root project) "/classes/"))]
-      (apply (resolve-command command) project args))
+                  (read-project))
+        compile-path (:compile-path project)]
+    (when compile-path (.mkdirs (File. compile-path)))
+    (binding [*compile-path* compile-path]
+      (apply (resolve-task task) project args))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
