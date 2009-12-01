@@ -28,3 +28,4 @@ Leiningen TODOs
 ** TODO Run failed tests task
 ** TODO Remove duplication between deps.clj and pom.clj
 ** TODO Resources directory added to classpath? (for properties, etc)
+** TODO Help task should display arglist
