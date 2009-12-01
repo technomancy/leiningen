@@ -5,7 +5,6 @@
         [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.duck-streams :only [copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
-        [leiningen.deps :only [deps]]
         [leiningen.jar :only [jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))

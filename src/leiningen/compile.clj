@@ -57,9 +57,9 @@
 
 (defn compile
   "Ahead-of-time compile the project. Looks for all namespaces under src/
-  unless a list of :namespaces is provided in project.clj."
+unless a list of :namespaces is provided in project.clj."
   [project]
-  (deps project)
+  (deps project :skip-dev)
   (.mkdir (file (:compile-path project)))
   (let [namespaces (namespaces-to-compile project)]
     (when (seq namespaces)
