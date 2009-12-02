@@ -1,6 +1,9 @@
 (ns leiningen.test
   "Run the project's tests."
   (:refer-clojure :exclude [test])
+  ;; When using -Xbootclasspath transitive requires break, so we need
+  ;; to require stuff that clojure.test depends on explicitly:
+  (:require [clojure walk template stacktrace])
   (:use [clojure.test]
         [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]]
