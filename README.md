@@ -73,9 +73,9 @@ Place a project.clj file in the project root that looks something like this:
 Other keys accepted:
 
 * :namespaces - if set, only AOT-compile namespaces listed here rather
-  than all namespaces found in src/ directory
-* :main - specify a namespace to use as main for an executable jar
-* :repositories - additional maven repositories to search for dependencies
+  than all namespaces found in src/ directory.
+* :main - specify a namespace to use as main for an executable jar.
+* :repositories - additional maven repositories to search for dependencies.
 * :source-path, :compile-path, :library-path, :test-path - alternate
   locations for src/, classes/, lib/, and test/ directories.
 
@@ -105,11 +105,12 @@ Other keys accepted:
    not bad.
 
 **Q:** What if my project depends on jars that aren't in any repository?
-**A:** Open-source jars can be uploaded to Clojars (see publishing
+**A:** Open-source jars can be uploaded to Clojars (see "Publishing"
   below), though be sure to use the groupId of "org.clojars.$USERNAME"
   in order to avoid conflicts and to allow the original authors to
   claim it in the future once they get around to uploading. 
-  Alternatively you can install into your local repository in ~/.m2.
+  Alternatively you can install into your local repository in ~/.m2
+  with Maven for Java libs or "lein install" for Clojure libs.
 
 **Q:** What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?  
 **A:** I tried, but I really couldn't make the wine metaphor work. That,
@@ -132,7 +133,9 @@ publishing is easy:
     $ lein pom
     $ scp pom.xml $PROJECT.jar clojars@clojars.org:
 
-Once that succeeds it will be available for other projects to depend on.
+Once that succeeds it will be available for other projects to depend
+on. Leiningen adds Clojars and [the Clojure nightly build
+snapshots](http://build.clojure.org) to the default repositories.
 
 ## Hacking
 
