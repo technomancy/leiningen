@@ -27,7 +27,7 @@ BIN_DIR="$(dirname "$SCRIPT")"
 if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
-    LEIN_LIBS="$(find -H $LEIN_DIR/lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
+    LEIN_LIBS="$(find -H $LEIN_DIR/lib -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
     CLASSPATH="$LEIN_DIR/src:$LEIN_LIBS"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" ]; then
@@ -69,10 +69,5 @@ elif [ "$1" = "self-install" ]; then
         exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
 else
-    if [ -e "$CLOJURE_JAR" ]; then
-        BOOTCLASSPATH="-Xbootclasspath/a:$CLOJURE_JAR"
-    else
-        BOOTCLASSPATH=""
-    fi
-    exec java "$BOOTCLASSPATH" -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
