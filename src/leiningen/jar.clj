@@ -63,8 +63,8 @@ as the main-class for an executable jar."
                                      (:group project)
                                      (:name project))
                        :bytes (make-pom-properties project)}
-                      {:type :path :path *compile-path*}
-                      {:type :path :path (str (:root project) "/src")}
+                      {:type :path :path (:compile-path project)}
+                      {:type :path :path (:source-path project)}
                       {:type :path :path (str (:root project) "/project.clj")}]]
        ;; TODO: support slim, etc
        (write-jar project jar-file filespecs)

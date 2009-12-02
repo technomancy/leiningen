@@ -5,7 +5,6 @@
         [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.duck-streams :only [copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
-        [leiningen.deps :only [deps]]
         [leiningen.jar :only [jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
@@ -41,14 +40,16 @@
 
 (defn uberjar
   "Create a jar like the jar task, but including the contents of each of
-  the dependency jars. Suitable for standalone distribution."
+the dependency jars. Suitable for standalone distribution. Note that this
+will include all jars in lib, so if you have dev dependencies in there, you
+may wish to clean first."
   [project & args]
   (jar project)
   (with-open [out (-> (file (:root project)
                             (str (:name project) "-standalone.jar"))
                       (FileOutputStream.) (ZipOutputStream.))]
     ;; TODO: any way to make sure we skip dev dependencies?
-    (let [deps (->> (file-seq (file (:root project) "lib"))
+    (let [deps (->> (file-seq (file (:library-path project)))
                     (filter #(.endsWith (.getName %) ".jar"))
                     (cons (file (:root project) (str (:name project) ".jar"))))
           [_ components] (reduce (partial include-dep out)

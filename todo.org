@@ -10,7 +10,7 @@ Leiningen TODOs
 ** TODO Use -Xbootclasspath where possible                             :Dan:
 ** DONE Don't write manifest, pom, etc. to disk when jarring           :Dan:
 ** DONE Don't put uberjar in ~/.m2                                     :Phil:
-** TODO Perform compilation in either a subprocess or with a separate classloader
+** DONE Perform compilation in either a subprocess or with a separate classloader
 ** DONE Allow test task to take namespaces as an argument
 ** TODO System/exit appropriately when testing based on pass/fail
 * Post 1.0
@@ -29,3 +29,4 @@ Leiningen TODOs
 ** TODO Remove duplication between deps.clj and pom.clj
 ** TODO Resources directory added to classpath? (for properties, etc)
 *** This would be a good way for clojure code to have access to lein's version
+** TODO Help task should display arglist

@@ -41,7 +41,7 @@ following:
       (doseq [dep (:dev-dependencies project)]
         (.addDependency deps-task (make-dependency dep))))
     (.execute deps-task)
-    (.mkdirs (file (:root project) "lib"))
-    (lancet/copy {:todir (str (:root project) "/lib/") :flatten "on"}
+    (.mkdirs (file (:library-path project)))
+    (lancet/copy {:todir (:library-path project) :flatten "on"}
                  (.getReference lancet/ant-project
                                 (.getFilesetId deps-task)))))

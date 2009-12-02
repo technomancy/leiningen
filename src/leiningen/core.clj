@@ -1,6 +1,7 @@
 (ns leiningen.core
   (:use [clojure.contrib.with-ns])
-  (:import [java.io File]))
+  (:import [java.io File])
+  (:gen-class))
 
 (def project nil)
 
@@ -18,7 +19,13 @@
                                               (name project-name))
                                   :version ~version
                                   :compile-path (or (:compile-path m#)
-                                                    (str root# "/classes/"))
+                                                    (str root# "/classes"))
+                                  :source-path (or (:source-path m#)
+                                                   (str root# "/src"))
+                                  :library-path (or (:library-path m#)
+                                                    (str root# "/lib"))
+                                  :test-path (or (:test-path m#)
+                                                 (str root# "/test"))
                                   :root root#))))
      (def ~(symbol (name project-name)) project)))
 
@@ -48,9 +55,8 @@
      (catch java.io.FileNotFoundException e
        (partial task-not-found task)))))
 
-(defn main [args-string]
-  (let [[task & args] (.split args-string " ")
-        task (or (aliases task) task)
+(defn -main [& [task & args]]
+  (let [task (or (aliases task) task "help")
         project (if (no-project-needed task)
                   (first args)
                   (read-project))
