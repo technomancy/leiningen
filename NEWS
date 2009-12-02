@@ -1,0 +1,37 @@
+Leiningen NEWS -- history of user-visible changes
+
+= 1.0.0 / ???
+
+* Source, test, and compilation paths can be set in project.clj.
+
+* Run project code in an isolated classloader; can now compile/test
+  projects that require a different version of Clojure from
+  Leiningen. (Does not support 1.0's test-is yet.)
+
+* Install task no longer requires maven to be installed.
+
+* Only compile namespaces whose .class files are older than .clj files.
+
+* Add "new" task for generating blank projects.
+
+* Set <scm> tag when generating pom.xml.
+
+* Include pom.xml, pom.properties, and more detailed manifest in jars.
+
+* Summarize pass/fail counts from test runs across all namespaces.
+
+* Accept a list of namespaces for test task rather than testing all.
+
+* Create $PROJECT-standalone.jar file from uberjar to distinguish from
+  regular jar files.
+
+* Plugins have more flexibility to set the classpath and other
+  arguments for running project code. (TODO)
+
+* Add resources/ directory to classpath and generated jars. (TODO)
+
+* Start Leiningen faster by using -Xbootclasspath argument. (TODO)
+
+= 0.5.0 / 17-11-2009
+
+* Initial release!
