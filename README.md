@@ -63,18 +63,21 @@ Place a project.clj file in the project root that looks something like this:
 
     (defproject leiningen "0.5.0-SNAPSHOT"
       :description "A build tool designed not to set your hair on fire."
+      :url "http://github.com/technomancy/leiningen"
       :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
                      [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
                      [ant/ant-launcher "1.6.2"]
                      [org.apache.maven/maven-ant-tasks "2.0.10"]]
       :dev-dependencies [[org.clojure/swank-clojure "1.0"]])
 
-Other keys you can set are :namespaces to compile if you don't want
-all of them AOT'd as well as a :main namespace for building executable jars.
+Other keys accepted:
 
-Currently Leiningen can only be used to compile projects that use the
-same version of Clojure as it uses, though this restriction should go
-away soon.
+* :namespaces - if set, only AOT-compile namespaces listed here rather
+  than all namespaces found in src/ directory
+* :main - specify a namespace to use as main for an executable jar
+* :repositories - additional maven repositories to search for dependencies
+* :source-path, :compile-path, :library-path, :test-path - alternate
+  locations for src/, classes/, lib/, and test/ directories.
 
 ## FAQ
 
@@ -100,6 +103,13 @@ away soon.
    But if you treat it as a standard library of build-related
    functions and are able to write it with a more pleasing syntax, it's
    not bad.
+
+**Q:** What if my project depends on jars that aren't in any repository?
+**A:** Open-source jars can be uploaded to Clojars (see publishing
+  below), though be sure to use the groupId of "org.clojars.$USERNAME"
+  in order to avoid conflicts and to allow the original authors to
+  claim it in the future once they get around to uploading. 
+  Alternatively you can install into your local repository in ~/.m2.
 
 **Q:** What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?  
 **A:** I tried, but I really couldn't make the wine metaphor work. That,
