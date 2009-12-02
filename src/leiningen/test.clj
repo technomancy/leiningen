@@ -7,27 +7,34 @@
         [leiningen.compile :only [eval-in-project]]))
 
 (def report-fns
-     '(let [orig-report report
-            aggregates (ref [])]
-        (defn lein-report [event]
-          (when (= (:type event) :summary)
-            (dosync (commute aggregates conj event)))
-          (orig-report event))
+     '(let [aggregates (ref [])]
+
+        (defmethod report :summary [m]
+          (with-test-out
+            (println "\nRan" (:test m) "tests containing"
+                     (+ (:pass m) (:fail m) (:error m)) "assertions.")
+            (println (:fail m) "failures," (:error m) "errors."))
+          (dosync (commute aggregates conj m))
+          (= 0 (:fail m) (:error m)))
+
+        (defn test-namespace [all-passed? n]
+          (require n)
+          (let [this-passed? (run-tests n)]
+            (and all-passed? this-passed?)))
 
         (defn super-summary []
           (with-test-out
             (println "\n\n--------------------\nTotal:"))
-          (orig-report (apply merge-with (fn [a b]
-                                           (if (number? a)
-                                             (+ a b)
-                                             a))
-                              @aggregates)))))
+          (report (apply merge-with (fn [a b]
+                                      (if (number? a)
+                                        (+ a b)
+                                        a))
+                         @aggregates)))))
 
 (defn test
   "Run the project's tests. Accept a list of namespaces for which to run all
 tests for. If none are given, runs them all."
   [project & namespaces]
-  ;; TODO: System/exit appropriately (depends on Clojure ticket #193)
   (let [namespaces (if (empty? namespaces)
                      (find-namespaces-in-dir (file (:root project) "test"))
                      (map symbol namespaces))]
@@ -36,7 +43,6 @@ tests for. If none are given, runs them all."
      `(do
         (use ~''clojure.test)
         ~report-fns
-        (doseq [ns# '~namespaces]
-          (require ns#)
-          (binding [report ~'lein-report]
-            (run-tests ns#)))))))
+        (let [passed?# (reduce ~'test-namespace true '~namespaces)]
+          (~'super-summary)
+          (System/exit (if passed?# 0 1)))))))
