@@ -69,5 +69,7 @@ elif [ "$1" = "self-install" ]; then
         exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
 else
-    exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    # Temporarily disabled while debugging NPE.
+    # exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    exec java -client -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
