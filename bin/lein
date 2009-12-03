@@ -1,6 +1,8 @@
 #!/bin/bash
 
 VERSION="1.0.0-SNAPSHOT"
+
+CLASSPATH="$(find -H lib/ -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.1.0-alpha-SNAPSHOT/clojure-1.1.0-alpha-SNAPSHOT.jar"
 
@@ -28,7 +30,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     LEIN_LIBS="$(find -H $LEIN_DIR/lib -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-    CLASSPATH="$LEIN_DIR/src:$LEIN_LIBS"
+    CLASSPATH="$LEIN_DIR/src:$LEIN_LIBS:$CLASSPATH"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" ]; then
         echo "Your Leiningen development checkout is missing its dependencies."
@@ -38,7 +40,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     fi
 else
     # Not running from a checkout
-    CLASSPATH="$LEIN_JAR"
+    CLASSPATH="$LEIN_JAR:$CLASSPATH"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         echo "Leiningen is not installed. Please run \"lein self-install\"."
@@ -58,7 +60,7 @@ done
 
 if [ "$1" = "repl" ]; then
     # TODO: use rlwrap if present
-    java -cp "$CLASSPATH" clojure.main
+    java -cp "src/:classes/:$CLASSPATH" clojure.main
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
