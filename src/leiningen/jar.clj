@@ -29,6 +29,7 @@
     (when-not (.isDirectory child)
       (let [path (str child)
             path (re-sub (re-pattern (str "^" (:root project))) "" path)
+            path (re-sub #"^/resources" "" path)
             path (re-sub #"^/classes" "" path)
             path (re-sub #"^/src" "" path)
             path (re-sub #"^/" "" path)]
@@ -63,6 +64,7 @@ as the main-class for an executable jar."
                                      (:group project)
                                      (:name project))
                        :bytes (make-pom-properties project)}
+                      {:type :path :path (:resources-path project)}
                       {:type :path :path (:compile-path project)}
                       {:type :path :path (:source-path project)}
                       {:type :path :path (str (:root project) "/project.clj")}]]

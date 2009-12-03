@@ -49,6 +49,7 @@
                                (:source-path project)
                                (:test-path project)
                                (:compile-path project)
+                               (:resources-path project)
                                (find-lib-jars project)))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")

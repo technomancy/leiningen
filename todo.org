@@ -12,10 +12,10 @@ Leiningen TODOs
 ** DONE Don't put uberjar in ~/.m2                                     :Phil:
 ** DONE Perform compilation in either a subprocess or with a separate classloader
 ** DONE Allow test task to take namespaces as an argument
-** TODO System/exit appropriately when testing based on pass/fail      :Phil:
+** DONE System/exit appropriately when testing based on pass/fail      :Phil:
 ** TODO Fix eval-in-project to let plugins pass in extra args
-** TODO Resources directory added to classpath (for properties, etc)
-*** This would be a good way for clojure code to have access to lein's version
+** DONE Resources directory added to classpath (for properties, etc)
+*** This would be a good way for clojure code to have access to lein's vers
 * Post 1.0
 ** TODO doc generation
 ** TODO user config file for activating plugins across all projects

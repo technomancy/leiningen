@@ -26,6 +26,8 @@
                                                     (str root# "/lib"))
                                   :test-path (or (:test-path m#)
                                                  (str root# "/test"))
+                                  :resources-path (or (:resources-path m#)
+                                                      (str root# "/resources"))
                                   :root root#))))
      (def ~(symbol (name project-name)) project)))
 

@@ -76,8 +76,8 @@ Other keys accepted:
   than all namespaces found in src/ directory.
 * :main - specify a namespace to use as main for an executable jar.
 * :repositories - additional maven repositories to search for dependencies.
-* :source-path, :compile-path, :library-path, :test-path - alternate
-  locations for src/, classes/, lib/, and test/ directories.
+* :source-path, :compile-path, :library-path, :test-path, :resources-path -
+  alternate paths for src/, classes/, lib/, resources/, and test/ directories.
 
 ## FAQ
 
