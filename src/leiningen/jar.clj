@@ -40,6 +40,9 @@
   (.putNextEntry jar-os (JarEntry. (:path spec)))
   (copy (ByteArrayInputStream. (:bytes spec)) jar-os))
 
+;; TODO: hacky; needed for conditional :resources-path below
+(defmethod copy-to-jar nil [project jar-os spec])
+
 (defn write-jar [project out-filename filespecs]
   (with-open [jar-os (JarOutputStream. (BufferedOutputStream.
                                         (FileOutputStream. out-filename))
@@ -64,7 +67,9 @@ as the main-class for an executable jar."
                                      (:group project)
                                      (:name project))
                        :bytes (make-pom-properties project)}
-                      {:type :path :path (:resources-path project)}
+                      (when (and (:resources-path project)
+                                 (.exists (file (:resources-path project))))
+                        {:type :path :path (:resources-path project)})
                       {:type :path :path (:compile-path project)}
                       {:type :path :path (:source-path project)}
                       {:type :path :path (str (:root project) "/project.clj")}]]
