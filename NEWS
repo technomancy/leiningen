@@ -26,11 +26,11 @@ Leiningen NEWS -- history of user-visible changes
   regular jar files.
 
 * Plugins have more flexibility to set the classpath and other
-  arguments for running project code. (TODO)
+  arguments for running project code.
 
-* Add resources/ directory to classpath and generated jars. (TODO)
+* Add resources/ directory to classpath and generated jars.
 
-* Start Leiningen faster by using -Xbootclasspath argument. (TODO)
+* Start Leiningen faster by using -Xbootclasspath argument.
 
 = 0.5.0 / 17-11-2009
 

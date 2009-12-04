@@ -38,8 +38,10 @@
 
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
-  set correctly for the project."
-  [project form]
+  set correctly for the project. Pass in a handler function to have it called
+  with the java task right before executing if you need to customize any of its
+  properties (classpath, library-path, etc)."
+  [project form & [handler]]
   (let [java (Java.)]
     (.setProject java lancet/ant-project)
     (.addSysproperty java (doto (Environment$Variable.)
@@ -54,6 +56,8 @@
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
     (.setValue (.createArg java) (prn-str form))
+    ;; to allow plugins and other tasks to customize
+    (when handler (handler java))
     (.execute java)))
 
 (defn compile

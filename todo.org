@@ -13,7 +13,7 @@ Leiningen TODOs
 ** DONE Perform compilation in either a subprocess or with a separate classloader
 ** DONE Allow test task to take namespaces as an argument
 ** DONE System/exit appropriately when testing based on pass/fail      :Phil:
-** TODO Fix eval-in-project to let plugins pass in extra args
+** DONE Fix eval-in-project to let plugins pass in extra args
 ** DONE Resources directory added to classpath (for properties, etc)
 *** This would be a good way for clojure code to have access to lein's vers
 * Post 1.0
