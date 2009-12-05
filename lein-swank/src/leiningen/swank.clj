@@ -1,8 +1,16 @@
 (ns leiningen.swank
-  (:require [swank.swank]))
+  (:use [leiningen.compile :only [eval-in-project]]))
 
 (defn swank
   "Launch swank server for Emacs to connect."
   ([project port]
-     (swank.swank/start-repl (Integer. port)))
-  ([project] (swank.swank/start-repl)))
+     (eval-in-project project
+                      `(do (try (require '~'swank.swank)
+                                (@(ns-resolve '~'swank.swank
+                                              '~'start-repl)
+                                 (Integer. ~port))
+                                (catch Exception _#
+                                  (println "Make sure swank-clojure is added as"
+                                           "a dev-dependency in your"
+                                           "project.clj."))))))
+  ([project] (swank project 4005)))
