@@ -7,3 +7,6 @@ run M-x slime-connect to connect to your project.
 
 You will need slime and slime-repl (but not swank-clojure) installed
 [from ELPA](http://tromey.com/elpa) for this to work.
+
+Due to a bug in contrib's build, there may be problems using it along
+with projects that use Clojure 1.0.

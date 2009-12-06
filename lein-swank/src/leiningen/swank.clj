@@ -9,7 +9,8 @@
                                 (@(ns-resolve '~'swank.swank
                                               '~'start-repl)
                                  (Integer. ~port))
-                                (catch Exception _#
+                                (catch Exception e#
+                                  (println e#)
                                   (println "Make sure swank-clojure is added as"
                                            "a dev-dependency in your"
                                            "project.clj."))))))
