@@ -1,6 +1,6 @@
 Leiningen NEWS -- history of user-visible changes
 
-= 1.0.0 / ???
+= 1.0.0 / 2009-12-05
 
 * Source, test, and compilation paths can be set in project.clj.
 
@@ -32,6 +32,6 @@ Leiningen NEWS -- history of user-visible changes
 
 * Start Leiningen faster by using -Xbootclasspath argument.
 
-= 0.5.0 / 17-11-2009
+= 0.5.0 / 2009-11-17
 
 * Initial release!
