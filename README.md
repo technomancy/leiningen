@@ -137,6 +137,18 @@ Once that succeeds it will be available for other projects to depend
 on. Leiningen adds Clojars and [the Clojure nightly build
 snapshots](http://build.clojure.org) to the default repositories.
 
+## Known Issues
+
+* The repl task will use the version of Clojure and Contrib that
+  Leiningen uses, not the one specified by your project.
+
+* Projects that use Clojure 1.0 are supported, but the test task does
+  not support clojure.contrib.test-is. This may be added with a plugin
+  later.
+
+* Due to a bug in contrib's build, the swank plugin may not work with
+  projects that use Clojure 1.0 and contrib together.
+
 ## Hacking
 
 You'll need to bootstrap using a stable release before you can hack on

@@ -4,7 +4,7 @@ Leiningen NEWS -- history of user-visible changes
 
 * Source, test, and compilation paths can be set in project.clj.
 
-* Run project code in an isolated classloader; can now compile/test
+* Project code runs in an isolated classloader; can now compile/test
   projects that require a different version of Clojure from
   Leiningen. (Does not support 1.0's test-is yet.)
 
