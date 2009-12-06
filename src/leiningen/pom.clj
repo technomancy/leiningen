@@ -2,7 +2,7 @@
   "Write a pom.xml file to disk for Maven interop."
   (:use [clojure.contrib.duck-streams :only [reader copy]]
         [clojure.contrib.java-utils :only [file as-properties]])
-  (:import [java.io StringWriter]
+  (:import [java.io StringWriter ByteArrayOutputStream]
            [org.apache.maven.model Model Parent Dependency Repository Scm]
            [org.apache.maven.project MavenProject]))
 
@@ -111,12 +111,12 @@
        (.getBytes (str w)))))
 
 (defn make-pom-properties [project]
-  (with-open [w (StringWriter.)]
+  (with-open [baos (ByteArrayOutputStream.)]
     (.store (as-properties {:version (:version project)
                             :groupId (:group project)
                             :artifactId (:name project)})
-            w "Leiningen")
-    (.getBytes (str w))))
+            baos "Leiningen")
+    (.getBytes (str baos))))
 
 (defn pom [project & [pom-location silently?]]
   (let [pom-file (file (:root project) (or pom-location "pom.xml"))]
