@@ -62,9 +62,9 @@ if [ "$1" = "repl" ]; then
     RLWRAP=$(which rlwrap)
     # Can't use/don't need rlwrap in eshell
     if [ -x $RLWRAP -a ! $TERM = "dumb" ]; then
-        $RLWRAP java -cp "src/:classes/:$CLASSPATH" clojure.main
+        $RLWRAP java -cp "src/:classes/:$CLASSPATH" clojure.main ${@:2}
     else
-        java -cp "src/:classes/:$CLASSPATH" clojure.main
+        java -cp "src/:classes/:$CLASSPATH" clojure.main ${@:2}
     fi
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
