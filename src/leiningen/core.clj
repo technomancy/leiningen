@@ -40,9 +40,10 @@
      project)
   ([] (read-project "project.clj")))
 
-(def aliases {"--help" "help" "-h" "help" "-?" "help"})
+(def aliases {"--help" "help" "-h" "help" "-?" "help"
+              "-v" "version" "--version" "version"})
 
-(def no-project-needed #{"new" "help"})
+(def no-project-needed #{"new" "help" "version"})
 
 (defn task-not-found [task project & _]
   (println task "is not a task. Use \"help\" to list all task.")
