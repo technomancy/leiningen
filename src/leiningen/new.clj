@@ -10,14 +10,14 @@ Neither group-id nor artifact-id may contain slashes."
 (defn str-replace [subs s]
   (apply str (replace subs s)))
 
-(defn new [project-name & [_ project-dir]]
-  ; Clojure symbols conventionally use -, not _ to separate words in a
-  ; compound name.  When such compound names are used for as
-  ; directories or java packages, however, we must use _ in place of -.
-  (let [project-name (symbol (str-replace {\_ \-} project-name))
+(defn new [project-name & [project-dir]]
+  (println project-name project-dir)
+  (let [project-name (symbol project-name)
+        group-id (namespace project-name)
         artifact-id (name project-name)
-        project-dir (or project-dir (str-replace {\- \_} artifact-id))]
+        project-dir (or project-dir artifact-id)]
     (.mkdirs (file project-dir))
+    ;; TODO: pretty-print this
     (spit (file project-dir "project.clj")
           (pr-str (list 'defproject project-name "1.0.0-SNAPSHOT"
                         :description "FIXME: write"

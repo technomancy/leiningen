@@ -60,12 +60,12 @@
 
 (defn -main [& [task & args]]
   (let [task (or (aliases task) task "help")
-        project (if (no-project-needed task)
-                  (first args)
-                  (read-project))
-        compile-path (:compile-path project)]
+        args (if (no-project-needed task)
+               args
+               (conj args (read-project)))
+        compile-path (:compile-path (first args))]
     (when compile-path (.mkdirs (File. compile-path)))
     (binding [*compile-path* compile-path]
-      (apply (resolve-task task) project args))
+      (apply (resolve-task task) args))
     ;; In case tests or some other task started any:
     (shutdown-agents)))

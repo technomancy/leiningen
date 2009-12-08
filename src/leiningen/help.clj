@@ -22,7 +22,7 @@
     (str task-name (apply str (repeat (- 8 (count task-name)) " "))
          " - " (:doc (meta (find-ns task-ns))))))
 
-(defn help [project & [task]]
+(defn help [& [task]]
   (if task
     (println (help-for task))
     (do (println "Leiningen is a build tool for Clojure.\n")
