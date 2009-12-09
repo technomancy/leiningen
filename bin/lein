@@ -59,13 +59,7 @@ for ARG in "$@"; do
 done
 
 if [ "$1" = "repl" ]; then
-    RLWRAP=$(which rlwrap)
-    # Can't use/don't need rlwrap in eshell
-    if [ -x $RLWRAP -a ! $TERM = "dumb" ]; then
-        $RLWRAP java -cp "src/:classes/:$CLASSPATH" clojure.main ${@:2}
-    else
-        java -cp "src/:classes/:$CLASSPATH" clojure.main ${@:2}
-    fi
+    java -cp "src/:classes/:$CLASSPATH" jline.ConsoleRunner clojure.main ${@:2}
 elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
