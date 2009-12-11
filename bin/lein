@@ -61,6 +61,11 @@ done
 if [ "$1" = "repl" ]; then
     java -cp "src/:classes/:$CLASSPATH" jline.ConsoleRunner clojure.main ${@:2}
 elif [ "$1" = "self-install" ]; then
+    if [[ $VERSION == *SNAPSHOT ]]; then
+        echo "The self-install task is only meant for stable releases."
+        echo "See the \"Hacking\" section of the README."
+        exit 1
+    fi
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
     LEIN_URL="http://repo.technomancy.us/leiningen-$VERSION-standalone.jar"
