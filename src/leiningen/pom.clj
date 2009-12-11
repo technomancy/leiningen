@@ -118,8 +118,11 @@
             baos "Leiningen")
     (.getBytes (str baos))))
 
-(defn pom [project & [pom-location silently?]]
-  (let [pom-file (file (:root project) (or pom-location "pom.xml"))]
-    (copy (make-pom project true) pom-file)
-    (when-not silently? (println "Wrote" (.getName pom-file)))
-    (.getAbsolutePath pom-file)))
+(defn pom
+  ([project pom-location silently?]
+     (let [pom-file (file (:root project) pom-location)]
+       (copy (make-pom project true) pom-file)
+       (when-not silently? (println "Wrote" (.getName pom-file)))
+       (.getAbsolutePath pom-file)))
+  ([project pom-location] (pom project pom-location false))
+  ([project] (pom project "pom.xml")))

@@ -43,7 +43,7 @@
 the dependency jars. Suitable for standalone distribution. Note that this
 will include all jars in lib, so if you have dev dependencies in there, you
 may wish to clean first."
-  [project & args]
+  [project]
   (jar project)
   (with-open [out (-> (file (:root project)
                             (str (:name project) "-standalone.jar"))

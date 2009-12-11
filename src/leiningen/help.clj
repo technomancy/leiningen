@@ -6,7 +6,7 @@
                         (find-namespaces-on-classpath))))
 
 (defn help-for
-  "Help for a task is stored in its docstring, or if that's not present,
+  "Help for a task is stored in its docstring, or if that's not present
   in its namespace."
   [task]
   (let [task-ns (symbol (str "leiningen." task))
@@ -22,13 +22,13 @@
     (str task-name (apply str (repeat (- 8 (count task-name)) " "))
          " - " (:doc (meta (find-ns task-ns))))))
 
-(defn help [& [task]]
-  (if task
-    (println (help-for task))
-    (do (println "Leiningen is a build tool for Clojure.\n")
-        (println "Several tasks are available:")
-        (doseq [task-ns tasks]
-          ;; (println (help-summary-for task-ns))
-          (println " " (last (.split (name task-ns) "\\."))))
-        (println "\nRun lein help $TASK for details.")
-        (println "See http://github.com/technomancy/leiningen as well."))))
+(defn help
+  ([task] (println (help-for task)))
+  ([]
+     (println "Leiningen is a build tool for Clojure.\n")
+     (println "Several tasks are available:")
+     (doseq [task-ns tasks]
+       ;; (println (help-summary-for task-ns))
+       (println " " (last (.split (name task-ns) "\\."))))
+     (println "\nRun lein help $TASK for details.")
+     (println "See http://github.com/technomancy/leiningen as well.")))

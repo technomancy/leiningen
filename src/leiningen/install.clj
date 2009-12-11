@@ -34,7 +34,7 @@
    (.getPackaging model)
    nil))
 
-(defn install [project & args]
+(defn install [project]
   (let [jarfile (file (jar project))
         artifact (make-artifact (make-model project))
         installer (.lookup container ArtifactInstaller/ROLE)]

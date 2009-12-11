@@ -12,7 +12,7 @@ Raise an exception if any deletion fails unless silently is true."
       (doseq [child (.listFiles f)]
         (delete-file-recursively child silently)))))
 
-(defn clean [project & args]
+(defn clean [project]
   (println "Cleaning up")
   (delete-file (str (:root project) "/" (:name project) ".jar") true)
   (delete-file (str (:root project) "/" (:name project) "-standalone.jar") true)

@@ -26,22 +26,23 @@ directory. With an argument it will skip develpment dependencies. Dependencies
 should be a vector of entries specifying group, name, and version like the
 following:
   [org.clojure/clojure-contrib \"1.0-SNAPSHOT\"]"
-  [project & [skip-dev]]
-  (let [deps-task (DependenciesTask.)]
-    (.setBasedir lancet/ant-project (:root project))
-    (.setFilesetId deps-task "dependency.fileset")
-    (.setProject deps-task lancet/ant-project)
-    (.setPathId deps-task (:name project))
-    (doseq [r (map make-repository (concat default-repos
-                                           (:repositories project)))]
-      (.addConfiguredRemoteRepository deps-task r))
-    (doseq [dep (:dependencies project)]
-      (.addDependency deps-task (make-dependency dep)))
-    (when-not skip-dev
-      (doseq [dep (:dev-dependencies project)]
-        (.addDependency deps-task (make-dependency dep))))
-    (.execute deps-task)
-    (.mkdirs (file (:library-path project)))
-    (lancet/copy {:todir (:library-path project) :flatten "on"}
-                 (.getReference lancet/ant-project
-                                (.getFilesetId deps-task)))))
+  ([project skip-dev]
+     (let [deps-task (DependenciesTask.)]
+       (.setBasedir lancet/ant-project (:root project))
+       (.setFilesetId deps-task "dependency.fileset")
+       (.setProject deps-task lancet/ant-project)
+       (.setPathId deps-task (:name project))
+       (doseq [r (map make-repository (concat default-repos
+                                              (:repositories project)))]
+         (.addConfiguredRemoteRepository deps-task r))
+       (doseq [dep (:dependencies project)]
+         (.addDependency deps-task (make-dependency dep)))
+       (when-not skip-dev
+         (doseq [dep (:dev-dependencies project)]
+           (.addDependency deps-task (make-dependency dep))))
+       (.execute deps-task)
+       (.mkdirs (file (:library-path project)))
+       (lancet/copy {:todir (:library-path project) :flatten "on"}
+                    (.getReference lancet/ant-project
+                                   (.getFilesetId deps-task)))))
+  ([project] (deps project false)))
