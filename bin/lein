@@ -59,7 +59,7 @@ for ARG in "$@"; do
 done
 
 if [ "$1" = "repl" ]; then
-    java -cp "src/:classes/:$CLASSPATH" jline.ConsoleRunner clojure.main ${@:2}
+    java -client $JAVA_OPTS -cp "src/:classes/:$CLASSPATH" jline.ConsoleRunner clojure.main ${@:2}
 elif [ "$1" = "self-install" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
         echo "The self-install task is only meant for stable releases."
@@ -75,5 +75,5 @@ elif [ "$1" = "self-install" ]; then
         exec wget -O "$LEIN_JAR" "$LEIN_URL"
     fi
 else
-    exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
