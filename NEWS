@@ -1,6 +1,10 @@
 Leiningen NEWS -- history of user-visible changes
 
-= 1.0.1 / ???
+= 1.0.1 / 2009-12-10
+
+* Added bash completion.
+
+* Honor $JAVA_OPTS.
 
 * Fix new task.
 
