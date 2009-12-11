@@ -5,7 +5,7 @@
 (defproject leiningen "1.0.1-SNAPSHOT"
   :description "A build tool designed not to set your hair on fire."
   :url "http://github.com/technomancy/leiningen"
-  :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
+  :dependencies [[org.clojure/clojure "1.1.0-master-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
                  [ant/ant-launcher "1.6.2"]
                  [jline "0.9.94"]

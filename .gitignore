@@ -5,6 +5,5 @@ classes/
 lib/
 leiningen.jar
 leiningen-standalone.jar
-pom-generated.xml
 pom.xml
 lein-swank/lein-swank.jar
