@@ -8,7 +8,6 @@ Neither group-id nor artifact-id may contain slashes."
         [clojure.contrib.str-utils :only [str-join]]))
 
 (defn new [project-name & [project-dir]]
-  (println project-name project-dir)
   (let [project-name (symbol project-name)
         group-id (namespace project-name)
         artifact-id (name project-name)
