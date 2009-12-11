@@ -51,12 +51,14 @@
 
 (defn resolve-task [task]
   (let [task-ns (symbol (str "leiningen." task))
-        task (symbol task)]
+        task (symbol task)
+        not-found-fn (partial task-not-found task)]
     (try
      (require task-ns)
-     (ns-resolve task-ns task)
+     (or (ns-resolve task-ns task)
+         not-found-fn)
      (catch java.io.FileNotFoundException e
-       (partial task-not-found task)))))
+       not-found-fn))))
 
 (defn -main [& [task & args]]
   (let [task (or (aliases task) task "help")
