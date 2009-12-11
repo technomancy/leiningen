@@ -46,7 +46,7 @@
 (def no-project-needed #{"new" "help" "version"})
 
 (defn task-not-found [task project & _]
-  (println task "is not a task. Use \"help\" to list all task.")
+  (println task "is not a task. Use \"help\" to list all tasks.")
   (System/exit 1))
 
 (defn resolve-task [task]
@@ -68,6 +68,10 @@
         compile-path (:compile-path (first args))]
     (when compile-path (.mkdirs (File. compile-path)))
     (binding [*compile-path* compile-path]
-      (apply (resolve-task task) args))
+      (try
+       (apply (resolve-task task) args)
+       (catch IllegalArgumentException _
+         (println (format "Wrong number of arguments to task %s." task))
+         (System/exit 1))))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
