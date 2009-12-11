@@ -9,31 +9,6 @@
         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]]
         [leiningen.compile :only [eval-in-project]]))
 
-(def report-fns
-     '(let [aggregates (ref [])]
-
-        (defmethod report :summary [m]
-          (with-test-out
-            (println "\nRan" (:test m) "tests containing"
-                     (+ (:pass m) (:fail m) (:error m)) "assertions.")
-            (println (:fail m) "failures," (:error m) "errors."))
-          (dosync (commute aggregates conj m))
-          (= 0 (:fail m) (:error m)))
-
-        (defn test-namespace [all-passed? n]
-          (require n)
-          (let [this-passed? (run-tests n)]
-            (and all-passed? this-passed?)))
-
-        (defn super-summary []
-          (with-test-out
-            (println "\n\n--------------------\nTotal:"))
-          (report (apply merge-with (fn [a b]
-                                      (if (number? a)
-                                        (+ a b)
-                                        a))
-                         @aggregates)))))
-
 (defn test
   "Run the project's tests. Accept a list of namespaces for which to run all
 tests for. If none are given, runs them all."
@@ -41,11 +16,18 @@ tests for. If none are given, runs them all."
   (let [namespaces (if (empty? namespaces)
                      (find-namespaces-in-dir (file (:root project) "test"))
                      (map symbol namespaces))]
+    ;; It's long and a bit hairy because it has to be self-contained.
     (eval-in-project
      project
-     `(do
-        (use ~''clojure.test)
-        ~report-fns
-        (let [passed?# (reduce ~'test-namespace true '~namespaces)]
-          (~'super-summary)
-          (System/exit (if passed?# 0 1)))))))
+     `(do (use ~''clojure.test)
+          (let [add-numbers# (fn [a# b#] (if (number? a#)
+                                           (+ a# b#) a#))
+                summary# (reduce (fn [summary# n#]
+                                   (require n#)
+                                   (merge-with add-numbers#
+                                               summary# (run-tests n#)))
+                                 {} '~namespaces)]
+            (with-test-out
+              (println "\n\n--------------------\nTotal:")
+              (report summary#))
+            (System/exit (if (successful? summary#) 0 1)))))))
