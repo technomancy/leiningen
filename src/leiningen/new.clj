@@ -39,4 +39,5 @@ Neither group-id nor artifact-id may contain slashes."
                                  "## Installation" "FIXME: write"
                                  "## License" "FIXME: write\n"]))
          (println "Created new project in:" project-dir))))
-  ([project-name] (new project-name (name (symbol project-name)))))
+  ([project-name] (leiningen.new/new project-name
+                                     (name (symbol project-name)))))
