@@ -68,6 +68,10 @@
         compile-path (:compile-path (first args))]
     (when compile-path (.mkdirs (File. compile-path)))
     (binding [*compile-path* compile-path]
-      (apply (resolve-task task) args))
+      (try
+       (apply (resolve-task task) args)
+       (catch IllegalArgumentException _
+         (println (format "Wrong number of arguments to task %s." task))
+         (System/exit 1))))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
