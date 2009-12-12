@@ -40,8 +40,12 @@
 
 ;; TODO: prompt to run "new" if no project file is found
 (defn read-project
-  ([file] (load-file file)
-     project)
+  ([file]
+     (try
+      (load-file file)
+      project
+      (catch java.io.FileNotFoundException _
+        (exit-with-error "No project.clj found in this directory."))))
   ([] (read-project "project.clj")))
 
 (def aliases {"--help" "help" "-h" "help" "-?" "help"
