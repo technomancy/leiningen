@@ -34,6 +34,10 @@
 ;; So it doesn't need to be fully-qualified in project.clj
 (with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
 
+(defn exit-with-error [msg]
+  (println msg)
+  (System/exit 1))
+
 ;; TODO: prompt to run "new" if no project file is found
 (defn read-project
   ([file] (load-file file)
@@ -45,20 +49,19 @@
 
 (def no-project-needed #{"new" "help" "version"})
 
-(defn task-not-found [task project & _]
-  (println task "is not a task. Use \"help\" to list all tasks.")
-  (System/exit 1))
-
 (defn resolve-task [task]
   (let [task-ns (symbol (str "leiningen." task))
         task (symbol task)
-        not-found-fn (partial task-not-found task)]
+        error-fn (fn [& _]
+                   (exit-with-error
+                     (format "%s is not a task. Use \"help\" to list all tasks."
+                             task)))]
     (try
      (require task-ns)
      (or (ns-resolve task-ns task)
-         not-found-fn)
+         error-fn)
      (catch java.io.FileNotFoundException e
-       not-found-fn))))
+       error-fn))))
 
 (defn -main [& [task & args]]
   (let [task (or (aliases task) task "help")
@@ -71,7 +74,7 @@
       (try
        (apply (resolve-task task) args)
        (catch IllegalArgumentException _
-         (println (format "Wrong number of arguments to task %s." task))
-         (System/exit 1))))
+         (exit-with-error (format "Wrong number of arguments to task %s."
+                                  task)))))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
