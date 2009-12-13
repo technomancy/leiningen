@@ -28,6 +28,32 @@
   (filter #(.endsWith (.getName %) ".jar")
           (file-seq (file (:library-path project)))))
 
+(def native-dir-names
+     {"Mac OS X" "macosx"
+      "Windows" "windows"
+      "Linux" "linux"
+      "amd64" "64"
+      "x86_64" "64"
+      "x86" "32"})
+
+(defn get-native-dir-name
+  [prop-value]
+  (native-dir-names 
+   (first (drop-while #(nil? (re-find (re-pattern %) prop-value))
+		      (keys native-dir-names)))))
+
+(defn find-native-lib-path
+  "Returns a File representing the directory where native libs for the
+  current platform are located."
+  [project]
+  (let [osdir (get-native-dir-name (System/getProperty "os.name"))
+	archdir (get-native-dir-name (System/getProperty "os.arch"))
+	sep (System/getProperty "file.separator")
+	f (file (str "native" sep osdir sep archdir sep))]
+    (if (.exists f)
+      f
+      nil)))
+
 (defn make-path
   "Constructs an ant Path object from Files and strings."
   [& paths]
@@ -47,6 +73,14 @@
     (.addSysproperty java (doto (Environment$Variable.)
                             (.setKey "clojure.compile.path")
                             (.setValue (:compile-path project))))
+    (when-let [path (or (:native-path project)
+			(find-native-lib-path project))]
+      (println (str "path is: " path))
+      (.addSysproperty java (doto (Environment$Variable.)
+			    (.setKey "java.library.path")
+			    (.setValue (if (= java.io.File (class path))
+					 (.getAbsolutePath path)
+					 path)))))
     (.setClasspath java (apply make-path
                                (:source-path project)
                                (:test-path project)
