@@ -32,9 +32,13 @@
      {"Mac OS X" "macosx"
       "Windows" "windows"
       "Linux" "linux"
-      "amd64" "64"
-      "x86_64" "64"
-      "x86" "32"})
+      "SunOS" "solaris"
+      "amd64" "x86_64"
+      "x86_64" "x86_64"
+      "x86" "x86"
+      "i386" "x86"
+      "arm" "arm"
+      "sparc" "sparc"})
 
 (defn get-native-dir-name
   [prop-value]
@@ -75,12 +79,13 @@
                             (.setValue (:compile-path project))))
     (when-let [path (or (:native-path project)
 			(find-native-lib-path project))]
-      (println (str "path is: " path))
       (.addSysproperty java (doto (Environment$Variable.)
 			    (.setKey "java.library.path")
-			    (.setValue (if (= java.io.File (class path))
-					 (.getAbsolutePath path)
-					 path)))))
+			    (.setValue (cond 
+					(= java.io.File (class path))
+					(.getAbsolutePath path)
+					(fn? path) (path)
+					:default path)))))
     (.setClasspath java (apply make-path
                                (:source-path project)
                                (:test-path project)
