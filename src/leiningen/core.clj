@@ -34,7 +34,7 @@
 ;; So it doesn't need to be fully-qualified in project.clj
 (with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
 
-(defn exit-with-error [msg]
+(defn abort [msg]
   (println msg)
   (System/exit 1))
 
@@ -45,7 +45,7 @@
       (load-file file)
       project
       (catch java.io.FileNotFoundException _
-        (exit-with-error "No project.clj found in this directory."))))
+        (abort "No project.clj found in this directory."))))
   ([] (read-project "project.clj")))
 
 (def aliases {"--help" "help" "-h" "help" "-?" "help"
@@ -57,8 +57,8 @@
   (let [task-ns (symbol (str "leiningen." task))
         task (symbol task)
         error-fn (fn [& _]
-                   (exit-with-error
-                     (format "%s is not a task. Use \"help\" to list all tasks."
+                   (abort
+                    (format "%s is not a task. Use \"help\" to list all tasks."
                              task)))]
     (try
      (require task-ns)
@@ -78,7 +78,7 @@
       (try
        (apply (resolve-task task) args)
        (catch IllegalArgumentException _
-         (exit-with-error (format "Wrong number of arguments to task %s."
-                                  task)))))
+         (abort (format "Wrong number of arguments to task %s."
+                        task)))))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
