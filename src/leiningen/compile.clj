@@ -41,19 +41,23 @@
       "sparc" "sparc"})
 
 (defn get-native-dir-name
+  "Gets a value from the native-dir-names map, but uses a regex
+  to check the prop-value for a match against keys instead of just
+  doing a map lookup. Reason for this is that e.g. windows may
+  report different names for different OS versions but will likely
+  always contain the string 'Windows'"
   [prop-value]
-  (native-dir-names 
+  (native-dir-names
    (first (drop-while #(nil? (re-find (re-pattern %) prop-value))
-		      (keys native-dir-names)))))
+                      (keys native-dir-names)))))
 
 (defn find-native-lib-path
   "Returns a File representing the directory where native libs for the
   current platform are located."
   [project]
   (let [osdir (get-native-dir-name (System/getProperty "os.name"))
-	archdir (get-native-dir-name (System/getProperty "os.arch"))
-	sep (System/getProperty "file.separator")
-	f (file (str "native" sep osdir sep archdir sep))]
+        archdir (get-native-dir-name (System/getProperty "os.arch"))
+        f (file "native" osdir archdir)]
     (if (.exists f)
       f
       nil)))
@@ -78,14 +82,14 @@
                             (.setKey "clojure.compile.path")
                             (.setValue (:compile-path project))))
     (when-let [path (or (:native-path project)
-			(find-native-lib-path project))]
+                        (find-native-lib-path project))]
       (.addSysproperty java (doto (Environment$Variable.)
-			    (.setKey "java.library.path")
-			    (.setValue (cond 
-					(= java.io.File (class path))
-					(.getAbsolutePath path)
-					(fn? path) (path)
-					:default path)))))
+                              (.setKey "java.library.path")
+                              (.setValue (cond
+                                          (= java.io.File (class path))
+                                          (.getAbsolutePath path)
+                                          (fn? path) (path)
+                                          :default path)))))
     (.setClasspath java (apply make-path
                                (:source-path project)
                                (:test-path project)
