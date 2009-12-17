@@ -83,6 +83,7 @@
                             (.setValue (:compile-path project))))
     (when-let [path (or (:native-path project)
                         (find-native-lib-path project))]
+      (.setFork java true)
       (.addSysproperty java (doto (Environment$Variable.)
                               (.setKey "java.library.path")
                               (.setValue (cond
