@@ -6,6 +6,7 @@
         [leiningen.deps :only [deps]])
   (:refer-clojure :exclude [compile])
   (:import org.apache.tools.ant.taskdefs.Java
+           java.lang.management.ManagementFactory
            (org.apache.tools.ant.types Environment$Variable Path)))
 
 (defn namespaces-to-compile
@@ -28,39 +29,52 @@
   (filter #(.endsWith (.getName %) ".jar")
           (file-seq (file (:library-path project)))))
 
-(def native-dir-names
-     {"Mac OS X" "macosx"
-      "Windows" "windows"
-      "Linux" "linux"
-      "SunOS" "solaris"
-      "amd64" "x86_64"
-      "x86_64" "x86_64"
-      "x86" "x86"
-      "i386" "x86"
-      "arm" "arm"
-      "sparc" "sparc"})
+(defn get-by-pattern
+  "Gets a value from map m, but uses the keys as regex patterns,
+  trying to match against k instead of doing an exact match."
+  [m k]
+  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
+                        (keys m)))))
 
-(defn get-native-dir-name
-  "Gets a value from the native-dir-names map, but uses a regex
-  to check the prop-value for a match against keys instead of just
-  doing a map lookup. Reason for this is that e.g. windows may
-  report different names for different OS versions but will likely
-  always contain the string 'Windows'"
-  [prop-value]
-  (native-dir-names
-   (first (drop-while #(nil? (re-find (re-pattern %) prop-value))
-                      (keys native-dir-names)))))
+(def native-names
+     {"Mac OS X" :macosx
+      "Windows" :windows
+      "Linux" :linux
+      "SunOS" :solaris
+      "amd64" :x86_64
+      "x86_64" :x86_64
+      "x86" :x86
+      "i386" :x86
+      "arm" :arm
+      "sparc" :sparc})
+
+(defn get-os
+  "Returns a keyword naming the host OS."
+  []
+  (get-by-pattern native-names (System/getProperty "os.name")))
+
+(defn get-arch
+  "Returns a keyword naming the host architecture"
+  []
+  (get-by-pattern native-names (System/getProperty "os.arch")))
 
 (defn find-native-lib-path
   "Returns a File representing the directory where native libs for the
   current platform are located."
   [project]
-  (let [osdir (get-native-dir-name (System/getProperty "os.name"))
-        archdir (get-native-dir-name (System/getProperty "os.arch"))
+  (let [osdir (name (get-os))
+        archdir (name (get-arch))
         f (file "native" osdir archdir)]
     (if (.exists f)
       f
       nil)))
+
+(defn get-jvm-args
+  "Returns a seq of strings with the arguments sent to this jvm instance."
+  []
+  (-> (ManagementFactory/getRuntimeMXBean)
+      (.getInputArguments)
+      (seq)))
 
 (defn make-path
   "Constructs an ant Path object from Files and strings."
@@ -76,27 +90,31 @@
   with the java task right before executing if you need to customize any of its
   properties (classpath, library-path, etc)."
   [project form & [handler]]
-  (let [java (Java.)]
+  (let [java (Java.)
+        native-path (or (:native-path project)
+                        (find-native-lib-path project))]
     (.setProject java lancet/ant-project)
     (.addSysproperty java (doto (Environment$Variable.)
                             (.setKey "clojure.compile.path")
                             (.setValue (:compile-path project))))
-    (when-let [path (or (:native-path project)
-                        (find-native-lib-path project))]
-      (.setFork java true)
+    (when native-path
       (.addSysproperty java (doto (Environment$Variable.)
                               (.setKey "java.library.path")
                               (.setValue (cond
-                                          (= java.io.File (class path))
-                                          (.getAbsolutePath path)
-                                          (fn? path) (path)
-                                          :default path)))))
+                                          (= java.io.File (class native-path))
+                                          (.getAbsolutePath native-path)
+                                          (fn? native-path) (native-path)
+                                          :default native-path)))))
     (.setClasspath java (apply make-path
                                (:source-path project)
                                (:test-path project)
                                (:compile-path project)
                                (:resources-path project)
                                (find-lib-jars project)))
+    (when (or (= :macosx (get-os)) native-path)
+      (.setFork java true)
+      (doseq [arg (get-jvm-args)]
+        (.setValue (.createJvmarg java) arg)))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
     (.setValue (.createArg java) (prn-str form))
