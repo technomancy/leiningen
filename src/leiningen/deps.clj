@@ -3,17 +3,25 @@
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos]]
         [clojure.contrib.java-utils :only [file]])
-  (:import [org.apache.maven.model Dependency]
+  (:import [org.apache.maven.model Dependency Exclusion]
            [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
 ;; TODO: unify with pom.clj
 
-(defn make-dependency [[dep version]]
-  (doto (Dependency.)
-    (.setGroupId (or (namespace dep) (name dep)))
-    (.setArtifactId (name dep))
-    (.setVersion version)))
+(defn make-exclusion [excl]
+  (doto (Exclusion.)
+    (.setGroupId (or (namespace excl) (name excl)))
+    (.setArtifactId (name excl))))
+
+(defn make-dependency [[dep version & exclusions]]
+  (let [es (map make-exclusion (when (= (first exclusions) :exclusions) 
+                                 (second exclusions)))]
+    (doto (Dependency.)
+            (.setGroupId (or (namespace dep) (name dep)))
+            (.setArtifactId (name dep))
+            (.setVersion version)
+            (.setExclusions es))))
 
 (defn make-repository [[id url]]
   (doto (RemoteRepository.)
