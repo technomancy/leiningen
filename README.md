@@ -3,7 +3,7 @@
 > "Leiningen!" he shouted. "You're insane! They're not creatures you can
 > fight--they're an elemental--an 'act of God!' Ten miles long, two
 > miles wide--ants, nothing but ants! And every single one of them a
-> fiend from hell...
+> fiend from hell..."
 > -- from Leiningen Versus the Ants by Carl Stephenson
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
@@ -30,7 +30,7 @@ rather than copying and pasting among each of your projects.
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 
-This works best with stable versions of Leiningen; for development
+This only works with stable versions of Leiningen; for development
 versions see "Hacking" below.
 
 ## Usage
@@ -104,13 +104,16 @@ Other keys accepted:
    functions and are able to write it with a more pleasing syntax, it's
    not bad.
 
-**Q:** What if my project depends on jars that aren't in any repository?
+**Q:** What if my project depends on jars that aren't in any repository?  
 **A:** Open-source jars can be uploaded to Clojars (see "Publishing"
   below), though be sure to use the groupId of "org.clojars.$USERNAME"
   in order to avoid conflicts and to allow the original authors to
   claim it in the future once they get around to uploading. 
   Alternatively you can install into your local repository in ~/.m2
   with Maven for Java libs or "lein install" for Clojure libs.
+
+**Q:** How should I pick my version numbers?  
+**A:** Use [semantic versioning](http://semver.org).
 
 **Q:** What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?  
 **A:** I tried, but I really couldn't make the wine metaphor work. That,
@@ -163,15 +166,17 @@ The [mailing list](http://groups.google.com/group/clojure) and the
 leiningen or clojure channels on Freenode are the best places to
 bring up questions or suggestions. If you're planning on adding a
 feature or fixing a nontrivial bug, please discuss it first to avoid
-duplicating effort.
+duplicating effort. If you haven't discussed it on the mailing list,
+please include in your pull request details of what problem your patch
+intendeds to solve as well as the approach you took.
 
 Contributions are preferred as either Github pull requests or using
-"git format-patch" as is requested [for contributing to Clojure
-itself](http://clojure.org/patches). Please use standard indentation
-with no tabs, trailing whitespace, or lines longer than 80 columns. If
-you've got some time on your hands, reading this [style
-guide](http://mumble.net/~campbell/scheme/style.txt) wouldn't hurt
-either.
+"git format-patch" and the mailing list as is requested [for
+contributing to Clojure itself](http://clojure.org/patches). Please
+use standard indentation with no tabs, trailing whitespace, or lines
+longer than 80 columns. If you've got some time on your hands, reading
+this [style guide](http://mumble.net/~campbell/scheme/style.txt)
+wouldn't hurt either.
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call

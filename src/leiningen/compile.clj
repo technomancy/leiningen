@@ -53,6 +53,7 @@
                                (:compile-path project)
                                (:resources-path project)
                                (find-lib-jars project)))
+    (.setFailonerror java true)
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
     (.setValue (.createArg java) (prn-str form))
