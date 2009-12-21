@@ -112,7 +112,7 @@ Other keys accepted:
   Alternatively you can install into your local repository in ~/.m2
   with Maven for Java libs or "lein install" for Clojure libs.
 
-**Q:** Is it possible to exclude indirect dependencies?
+**Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes.  Some libraries, such as log4j, depend on projects that are
   not included in public repositories and unnecessary for basic
   functionality.  Projects listed as :dependencies may exclude 
