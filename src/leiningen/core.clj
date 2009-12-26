@@ -48,8 +48,8 @@
         (abort "No project.clj found in this directory."))))
   ([] (read-project "project.clj")))
 
-(def aliases {"--help" "help" "-h" "help" "-?" "help"
-              "-v" "version" "--version" "version"})
+(def aliases {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
+              "--version" "version" "überjar" "uberjar"})
 
 (def no-project-needed #{"new" "help" "version"})
 
