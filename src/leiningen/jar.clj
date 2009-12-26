@@ -22,13 +22,17 @@
                         (str "Main-Class: " main))])
            "\n")))))
 
+(defn unix-path [path]
+  (.replaceAll path "\\\\" "/"))
+
 (defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
 (defmethod copy-to-jar :path [project jar-os spec]
   (doseq [child (file-seq (file (:path spec)))]
     (when-not (.isDirectory child)
-      (let [path (str child)
-            path (re-sub (re-pattern (str "^" (:root project))) "" path)
+      (let [path (unix-path (str child))
+            path (re-sub (re-pattern (str "^" (unix-path (:root project))))
+                         "" path)
             path (re-sub #"^/resources" "" path)
             path (re-sub #"^/classes" "" path)
             path (re-sub #"^/src" "" path)
