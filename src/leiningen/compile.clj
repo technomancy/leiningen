@@ -12,8 +12,10 @@
 (defn namespaces-to-compile
   "Returns a seq of the namespaces which need compiling."
   [project]
-  (for [n (or (:namespaces project)
-              (find-namespaces-in-dir (file (:source-path project))))
+  (for [n (cond (coll? (:namespaces project))
+                (:namespaces project)
+                (= :all (:namespaces project))
+                (find-namespaces-in-dir (file (:source-path project))))
         :let [ns-file (str (-> (name n)
                                (.replaceAll "\\." "/")
                                (.replaceAll "-" "_")))]

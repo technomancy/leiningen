@@ -72,8 +72,7 @@ Place a project.clj file in the project root that looks something like this:
 
 Other keys accepted:
 
-* :namespaces - if set, only AOT-compile namespaces listed here rather
-  than all namespaces found in src/ directory.
+* :namespaces - a list of namespaces on which to perform AOT-compilation.
 * :main - specify a namespace to use as main for an executable jar.
 * :repositories - additional maven repositories to search for dependencies.
 * :source-path, :compile-path, :library-path, :test-path, :resources-path -
@@ -158,9 +157,6 @@ snapshots](http://build.clojure.org) to the default repositories.
 * Projects that use Clojure 1.0 are supported, but the test task does
   not support clojure.contrib.test-is. This may be added with a plugin
   later.
-
-* Due to a bug in contrib's build, the swank plugin may not work with
-  projects that use Clojure 1.0 and contrib together.
 
 ## Hacking
 
