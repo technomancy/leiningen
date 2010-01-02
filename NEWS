@@ -1,5 +1,15 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.1.0 / ???
+
+* Only AOT namespaces specified in project.clj.
+
+* Better error handling.
+
+* Add exclusions support for dependencies.
+
+* Support dependencies with native code.
+
 = 1.0.1 / 2009-12-10
 
 * Added bash completion.
