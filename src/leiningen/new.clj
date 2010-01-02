@@ -18,7 +18,7 @@ Neither group-id nor artifact-id may contain slashes."
              (pr-str (list 'defproject project-name "1.0.0-SNAPSHOT"
                            :description "FIXME: write"
                            :dependencies [['org.clojure/clojure
-                                           "1.1.0-alpha-SNAPSHOT"]
+                                           "1.1.0"]
                                           ['org.clojure/clojure-contrib
                                            "1.0-SNAPSHOT"]])))
        (let [project-ns  (.replace (str project-name) "/" ".")
