@@ -22,7 +22,8 @@ Neither group-id nor artifact-id may contain slashes."
                                           ['org.clojure/clojure-contrib
                                            "1.0-SNAPSHOT"]])))
        (let [project-ns  (.replace (str project-name) "/" ".")
-             project-clj (str (.replace (str project-name) "-" "_") ".clj")]
+             project-clj (str (apply str (replace {\- \_, \. \/} project-ns))
+			      ".clj")]
          (.mkdirs (file project-dir "test"))
          (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
          (spit (file project-dir "src" project-clj)
