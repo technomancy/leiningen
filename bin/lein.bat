@@ -7,8 +7,8 @@ rem There is needed also Clojure jar from http://build.clojure.org/
 rem and it should be copied on %CLOJURE_JAR% path
 
 
-set CLOJURE_VERSION=1.1.0-alpha-SNAPSHOT
-set LEIN_VERSION=1.0.1-SNAPSHOT
+set CLOJURE_VERSION=1.1.0
+set LEIN_VERSION=1.1.0-SNAPSHOT
 set LEIN_JAR=%HOMEDRIVE%%HOMEPATH%\.m2\repository\leiningen\leiningen\%LEIN_VERSION%\leiningen-%LEIN_VERSION%-standalone.jar
 set CLOJURE_JAR=%HOMEDRIVE%%HOMEPATH%\.m2\repository\org\clojure\clojure\%CLOJURE_VERSION%\clojure-%CLOJURE_VERSION%.jar
 

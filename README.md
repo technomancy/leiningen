@@ -130,7 +130,8 @@ Other keys accepted:
    much frustration. The maven-ant-tasks API is much more manageable.
 
 **Q:** What about Windows?  
-**A:** Patches welcome.
+**A:** Try the bin/lein.bat script. Note that Windows support is still 
+   experimental; not all features (notably self-install) are implemented.
 
 ## Publishing
 

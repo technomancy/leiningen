@@ -10,6 +10,8 @@ Leiningen NEWS -- history of user-visible changes
 
 * Support dependencies with native code.
 
+* Added experimental Windows support.
+
 = 1.0.1 / 2009-12-10
 
 * Added bash completion.
