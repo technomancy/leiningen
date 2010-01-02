@@ -75,5 +75,6 @@ as the main-class for an executable jar."
                       {:type :path :path (str (:root project) "/project.clj")}]]
        ;; TODO: support slim, etc
        (write-jar project jar-file filespecs)
+       (println "Created" jar-file)
        jar-file))
   ([project] (jar project (str (:name project) ".jar"))))
