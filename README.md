@@ -26,7 +26,7 @@ rather than copying and pasting among each of your projects.
 
 ## Installation
 
-1. Download the script: http://github.com/technomancy/leiningen/raw/stable/bin/lein
+1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 
@@ -169,7 +169,7 @@ finishes, symlink bin/lein from your checkout to your path.  This will
 make "lein" run from your checkout while "lein-stable" uses the jar
 self-installed in ~/.m2.
 
-The [mailing list](http://groups.google.com/group/clojure) and the
+The [mailing list](http://groups.google.com/group/leiningen) and the
 leiningen or clojure channels on Freenode are the best places to
 bring up questions or suggestions. If you're planning on adding a
 feature or fixing a nontrivial bug, please discuss it first to avoid
