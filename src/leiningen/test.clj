@@ -29,5 +29,8 @@ tests for. If none are given, runs them all."
                                  {} '~namespaces)]
             (with-test-out
               (println "\n\n--------------------\nTotal:")
-              (report summary#))
-            (System/exit (if (successful? summary#) 0 1)))))))
+              (report summary#)
+              (System/setProperty "leiningen.test" (str false)
+                                 ;; (successful? summary#)
+                                 )))))
+    (println (System/getProperty "leiningen.test"))))
