@@ -14,7 +14,7 @@
 tests for. If none are given, runs them all."
   [project & namespaces]
   (let [namespaces (if (empty? namespaces)
-                     (find-namespaces-in-dir (file (:root project) "test"))
+                     (find-namespaces-in-dir (file (:test-path project)))
                      (map symbol namespaces))]
     ;; It's long and a bit hairy because it has to be self-contained.
     (eval-in-project
