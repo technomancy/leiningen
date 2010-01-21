@@ -15,24 +15,27 @@ Neither group-id nor artifact-id may contain slashes."
        (.mkdirs (file project-dir))
        ;; TODO: pretty-print this
        (spit (file project-dir "project.clj")
-             (pr-str (list 'defproject project-name "1.0.0-SNAPSHOT"
-                           :description "FIXME: write"
-                           :dependencies [['org.clojure/clojure
-                                           "1.1.0"]
-                                          ['org.clojure/clojure-contrib
-                                           "1.0-SNAPSHOT"]])))
+             (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
+                  "  :description \"FIXME: write\"\n"
+                  "  :dependencies [[org.clojure/clojure \"1.1.0\"]\n"
+                  "                 [org.clojure/clojure-contrib "
+                  "\"1.1.0-SNAPSHOT\"]])"))
        (let [project-ns  (.replace (str project-name) "/" ".")
              project-clj (str (apply str (replace {\- \_, \. \/} project-ns))
-			      ".clj")]
+                              ".clj")
+             test-clj (.replace project-clj ".clj" "-test.clj")]
          (.mkdirs (file project-dir "test"))
          (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
          (spit (file project-dir "src" project-clj)
                (str "(ns " project-ns ")\n"))
+         (.mkdirs (.getParentFile (file project-dir "test" project-clj)))
+         (spit (file project-dir "test" test-clj)
+               (str "(ns " (.replace test-clj "\\." "/")
+                    "\n  (:use [" project-ns "] :reload-all)"
+                    "\n  (:use [clojure.test]))\n\n"
+                    "(deftest replace-me ;; FIXME: write\n  (is false))\n"))
          (spit (file project-dir ".gitignore")
-               (str-join "\n" ["pom-generated.xml"
-                               "Manifest.txt"
-                               (str artifact-id ".jar")
-                               "lib" "classes"]))
+               (str-join "\n" ["pom.xml" "*jar" "lib" "classes"]))
          (spit (file project-dir "README")
                (str-join "\n\n" [(str "# " artifact-id)
                                  "FIXME: write description"
