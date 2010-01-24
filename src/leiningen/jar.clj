@@ -6,6 +6,7 @@
         [clojure.contrib.str-utils :only [str-join re-sub]]
         [clojure.contrib.java-utils :only [file]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
+           [java.util.regex Pattern]
            [java.io BufferedOutputStream FileOutputStream
             ByteArrayInputStream]))
 
@@ -27,16 +28,20 @@
 
 (defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
+(defn- trim-leading-str [s to-trim]
+  (re-sub (re-pattern (str "^" (Pattern/quote to-trim))) "" s))
+
 (defmethod copy-to-jar :path [project jar-os spec]
   (doseq [child (file-seq (file (:path spec)))]
     (when-not (.isDirectory child)
-      (let [path (unix-path (str child))
-            path (re-sub (re-pattern (str "^" (unix-path (:root project))))
-                         "" path)
-            path (re-sub #"^/resources" "" path)
-            path (re-sub #"^/classes" "" path)
-            path (re-sub #"^/src" "" path)
-            path (re-sub #"^/" "" path)]
+      (let [path (reduce trim-leading-str
+                         (unix-path (str child))
+                         [(unix-path (:root project))
+                          "/"
+                          "resources"
+                          "classes"
+                          (:source-path project)
+                          "/"])]
         (.putNextEntry jar-os (JarEntry. path))
         (copy child jar-os)))))
 
