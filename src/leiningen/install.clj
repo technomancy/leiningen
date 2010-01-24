@@ -1,9 +1,10 @@
 (ns leiningen.install
   "Install the project and its dependencies in your local repository."
   (:use [leiningen.jar :only [jar]]
-        [leiningen.pom :only [make-model]]
+        [leiningen.pom :only [pom make-model]]
         [clojure.contrib.java-utils :only [file]])
   (:import [org.apache.maven.artifact.installer ArtifactInstaller]
+           [org.apache.maven.project.artifact ProjectArtifactMetadata]
            [org.apache.maven.settings MavenSettingsBuilder]
            [org.apache.maven.artifact.repository ArtifactRepositoryFactory]
            [org.apache.maven.artifact.factory ArtifactFactory]
@@ -25,6 +26,9 @@
          "local" url (.lookup container ArtifactRepositoryLayout/ROLE "default")
          true))))
 
+(defn add-metadata [artifact pomfile]
+  (.addMetadata artifact (ProjectArtifactMetadata. artifact pomfile)))
+
 (defn make-artifact [model]
   (.createArtifactWithClassifier
    (.lookup container ArtifactFactory/ROLE)
@@ -36,6 +40,13 @@
 
 (defn install [project]
   (let [jarfile (file (jar project))
-        artifact (make-artifact (make-model project))
-        installer (.lookup container ArtifactInstaller/ROLE)]
-    (.install installer jarfile artifact (make-local-repo))))
+        model (make-model project)
+        artifact (make-artifact model)
+        installer (.lookup container ArtifactInstaller/ROLE)
+        local-repo (make-local-repo)]
+    ;; for packaging other than "pom" there should be "pom.xml" 
+    ;; generated and installed in local repo
+    (if (not= "pom" (.getPackaging model))
+      (add-metadata artifact (file (pom project))))
+    (.install installer jarfile artifact local-repo)))
+
