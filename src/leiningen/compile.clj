@@ -12,6 +12,7 @@
 (defn namespaces-to-compile
   "Returns a seq of the namespaces which need compiling."
   [project]
+  ;; TODO: Compile :main ns if needed
   (for [n (cond (coll? (:namespaces project))
                 (:namespaces project)
                 (= :all (:namespaces project))

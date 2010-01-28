@@ -43,6 +43,7 @@ dependencies with the following:
                                  javax.jms/jms
                                  com.sun.jdmk/jmxtools
                                  com.sun.jmx/jmxri]]"
+  ;; TODO: get deps from ~/.m2 while offline
   ([project skip-dev]
      (let [deps-task (DependenciesTask.)]
        (.setBasedir lancet/ant-project (:root project))

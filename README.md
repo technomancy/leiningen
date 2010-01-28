@@ -75,6 +75,7 @@ Other keys accepted:
 * :namespaces - a list of namespaces on which to perform AOT-compilation.
 * :main - specify a namespace to use as main for an executable jar.
 * :repositories - additional maven repositories to search for dependencies.
+  Specify this as a map of repo IDs to URLs.
 * :source-path, :compile-path, :library-path, :test-path, :resources-path -
   alternate paths for src/, classes/, lib/, resources/, and test/ directories.
 
