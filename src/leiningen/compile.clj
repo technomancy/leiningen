@@ -133,8 +133,9 @@ unless a list of :namespaces is provided in project.clj."
   (deps project :skip-dev)
   (.mkdir (file (:compile-path project)))
   (let [namespaces (namespaces-to-compile project)]
-    (when (seq namespaces)
+    (if (seq namespaces)
       (eval-in-project project
                        `(doseq [namespace# '~namespaces]
                           (println "Compiling" namespace#)
-                          (clojure.core/compile namespace#))))))
+                          (clojure.core/compile namespace#)))
+      (println "No :namespaces listed for compilation in project.clj."))))
