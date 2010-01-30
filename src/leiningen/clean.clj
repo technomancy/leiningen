@@ -17,5 +17,5 @@ Raise an exception if any deletion fails unless silently is true."
   (delete-file (str (:root project) "/" (:name project) ".jar") true)
   (delete-file (str (:root project) "/" (:name project) "-standalone.jar") true)
   (doseq [d [(:compile-path project)
-             (str (:root project) "/lib")]]
+             (:library-path project)]]
     (empty-directory (file d) true)))
