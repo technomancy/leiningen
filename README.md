@@ -112,6 +112,13 @@ Other keys accepted:
   Alternatively you can install into your local repository in ~/.m2
   with Maven for Java libs or "lein install" for Clojure libs.
 
+**Q:** It looks like the classpath isn't honoring project.clj.  
+**A:** Leiningen runs many things in a subclassloader so it can
+  control the classpath and other things. Because of this, the
+  standard (System/getProperty "java.class.path") call will return the
+  classpath that Leiningen runs in, not the one that your project is
+  run in. Your project's classpath is stored in the user/*classpath* var.
+
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes.  Some libraries, such as log4j, depend on projects that are
   not included in public repositories and unnecessary for basic

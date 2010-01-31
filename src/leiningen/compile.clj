@@ -121,7 +121,9 @@
         (.setValue (.createJvmarg java) arg)))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
-    (.setValue (.createArg java) (prn-str form))
+    (let [cp (str (.getClasspath (.getCommandLine java)))
+          form `(do (def ~'*classpath* ~cp) ~form)]
+      (.setValue (.createArg java) (prn-str form)))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
     (.execute java)))

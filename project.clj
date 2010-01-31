@@ -7,7 +7,8 @@
   :url "http://github.com/technomancy/leiningen"
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.1.0-master-SNAPSHOT"]
-                 [ant/ant-launcher "1.6.2"]
+                 [ant/ant "1.6.5"]
+                 [ant/ant-launcher "1.6.5"]
                  [jline "0.9.94"]
                  [org.apache.maven/maven-ant-tasks "2.0.10"]]
   :dev-dependencies [[leiningen/lein-swank "1.0.0-SNAPSHOT"]
