@@ -132,7 +132,10 @@
   "Ahead-of-time compile the project. Looks for all namespaces under src/
 unless a list of :namespaces is provided in project.clj."
   [project]
-  (deps project :skip-dev)
+  ;; dependencies should be resolved by explicit "lein deps",
+  ;; otherwise it will be done only if :library-path is empty
+  (when (empty? (find-lib-jars project))
+    (deps project :skip-dev))
   (.mkdir (file (:compile-path project)))
   (let [namespaces (namespaces-to-compile project)]
     (if (seq namespaces)
@@ -141,3 +144,4 @@ unless a list of :namespaces is provided in project.clj."
                           (println "Compiling" namespace#)
                           (clojure.core/compile namespace#)))
       (println "No :namespaces listed for compilation in project.clj."))))
+
