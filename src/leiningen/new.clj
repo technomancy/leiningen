@@ -18,19 +18,18 @@ Neither group-id nor artifact-id may contain slashes."
              (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
                   "  :description \"FIXME: write\"\n"
                   "  :dependencies [[org.clojure/clojure \"1.1.0\"]\n"
-                  "                 [org.clojure/clojure-contrib "
-                  "\"1.1.0-SNAPSHOT\"]])"))
+                  "                 [org.clojure/clojure-contrib \"1.1.0\"]])"))
        (let [project-ns  (.replace (str project-name) "/" ".")
              project-clj (str (apply str (replace {\- \_, \. \/} project-ns))
                               ".clj")
-             test-clj (.replace project-clj ".clj" "-test.clj")]
+             test-clj (.replace project-clj ".clj" "_test.clj")]
          (.mkdirs (file project-dir "test"))
          (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
          (spit (file project-dir "src" project-clj)
                (str "(ns " project-ns ")\n"))
-         (.mkdirs (.getParentFile (file project-dir "test" project-clj)))
+         (.mkdirs (.getParentFile (file project-dir "test" test-clj)))
          (spit (file project-dir "test" test-clj)
-               (str "(ns " (.replace test-clj "\\." "/")
+               (str "(ns " (str project-ns "-test")
                     "\n  (:use [" project-ns "] :reload-all)"
                     "\n  (:use [clojure.test]))\n\n"
                     "(deftest replace-me ;; FIXME: write\n  (is false))\n"))
