@@ -32,18 +32,17 @@
   (re-sub (re-pattern (str "^" (Pattern/quote to-trim))) "" s))
 
 (defmethod copy-to-jar :path [project jar-os spec]
+  (let [root (str (unix-path (:root project)) \/)
+        noroot  #(trim-leading-str (unix-path %) root)
+        [resources classes src]
+          (map noroot (map project [:resources-path :compile-path :source-path]))]
   (doseq [child (file-seq (file (:path spec)))]
     (when-not (.isDirectory child)
-      (let [path (reduce trim-leading-str
+      (let [path (reduce trim-leading-str 
                          (unix-path (str child))
-                         [(unix-path (:root project))
-                          "/"
-                          "resources"
-                          "classes"
-                          (:source-path project)
-                          "/"])]
+                         [root resources classes src "/"])]
         (.putNextEntry jar-os (JarEntry. path))
-        (copy child jar-os)))))
+        (copy child jar-os))))))
 
 (defmethod copy-to-jar :bytes [project jar-os spec]
   (.putNextEntry jar-os (JarEntry. (:path spec)))
