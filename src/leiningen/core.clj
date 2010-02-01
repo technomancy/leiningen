@@ -75,10 +75,8 @@
         compile-path (:compile-path (first args))]
     (when compile-path (.mkdirs (File. compile-path)))
     (binding [*compile-path* compile-path]
-      (try
-       (apply (resolve-task task) args)
-       (catch IllegalArgumentException _
-         (abort (format "Wrong number of arguments to task %s."
-                        task)))))
+      ;; TODO: can we catch only task-level arity problems here?
+      ;; compare args and (:arglists (meta (resolve-task task)))?
+      (apply (resolve-task task) args))
     ;; In case tests or some other task started any:
     (shutdown-agents)))
