@@ -35,11 +35,10 @@
   (let [root (str (unix-path (:root project)) \/)
         noroot  #(trim-leading-str (unix-path %) root)
         [resources classes src]
-          (map noroot (map project [:resources-path :compile-path :source-path]))]
+        (map noroot (map project [:resources-path :compile-path :source-path]))]
   (doseq [child (file-seq (file (:path spec)))]
     (when-not (.isDirectory child)
-      (let [path (reduce trim-leading-str 
-                         (unix-path (str child))
+      (let [path (reduce trim-leading-str (unix-path (str child))
                          [root resources classes src "/"])]
         (.putNextEntry jar-os (JarEntry. path))
         (copy child jar-os))))))
