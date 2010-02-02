@@ -26,6 +26,11 @@
 (defn unix-path [path]
   (.replaceAll path "\\\\" "/"))
 
+(defn skip-file? [file]
+  (or (.isDirectory file)
+      (re-find #"^\.?#" (.getName file))
+      (re-find #"~$" (.getName file))))
+
 (defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
 (defn- trim-leading-str [s to-trim]
@@ -37,7 +42,7 @@
         [resources classes src]
         (map noroot (map project [:resources-path :compile-path :source-path]))]
   (doseq [child (file-seq (file (:path spec)))]
-    (when-not (.isDirectory child)
+    (when-not (skip-file? child)
       (let [path (reduce trim-leading-str (unix-path (str child))
                          [root resources classes src "/"])]
         (.putNextEntry jar-os (JarEntry. path))
