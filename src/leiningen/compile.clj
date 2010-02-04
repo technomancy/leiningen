@@ -9,22 +9,31 @@
            java.lang.management.ManagementFactory
            (org.apache.tools.ant.types Environment$Variable Path)))
 
-(defn namespaces-to-compile
-  "Returns a seq of the namespaces which need compiling."
+(defn compilable-namespaces
+  "Retrns a seq of the namespaces that are compilable, regardless of whether
+  their class files are present and up-to-date."
   [project]
   ;; TODO: Compile :main ns if needed
-  (for [n (cond (coll? (:namespaces project))
-                (:namespaces project)
-                (= :all (:namespaces project))
-                (find-namespaces-in-dir (file (:source-path project))))
-        :let [ns-file (str (-> (name n)
-                               (.replaceAll "\\." "/")
-                               (.replaceAll "-" "_")))]
-        :when (> (.lastModified (file (:source-path project)
-                                      (str ns-file ".clj")))
-                 (.lastModified (file (:compile-path project)
-                                      (str ns-file "__init.class"))))]
-    n))
+  (cond
+    (coll? (:namespaces project))
+      (:namespaces project)
+    (= :all (:namespaces project))
+      (find-namespaces-in-dir (file (:source-path project)))))
+
+(defn stale-namespaces
+  "Given a seq of namespaces that are both compilable and that hav missing or
+  out-of-date class files."
+  [project]
+  (filter
+    (fn [n]
+      (let [ns-file (str (-> (name n)
+                           (.replaceAll "\\." "/")
+                           (.replaceAll "-" "_")))]
+        (> (.lastModified (file (:source-path project)
+                                (str ns-file ".clj")))
+           (.lastModified (file (:compile-path project)
+                                (str ns-file "__init.class"))))))
+    (compilable-namespaces project)))
 
 (defn find-lib-jars
   "Returns a seq of Files for all the jars in the project's library directory."
@@ -130,18 +139,18 @@
 
 (defn compile
   "Ahead-of-time compile the project. Looks for all namespaces under src/
-unless a list of :namespaces is provided in project.clj."
+  unless a list of :namespaces is provided in project.clj."
   [project]
   ;; dependencies should be resolved by explicit "lein deps",
   ;; otherwise it will be done only if :library-path is empty
   (when (empty? (find-lib-jars project))
     (deps project :skip-dev))
   (.mkdir (file (:compile-path project)))
-  (let [namespaces (namespaces-to-compile project)]
-    (if (seq namespaces)
+  (if (compilable-namespaces project)
+    (if-let [namespaces (seq (stale-namespaces project))]
       (eval-in-project project
-                       `(doseq [namespace# '~namespaces]
-                          (println "Compiling" namespace#)
-                          (clojure.core/compile namespace#)))
-      (println "No :namespaces listed for compilation in project.clj."))))
-
+        `(doseq [namespace# '~namespaces]
+           (println "Compiling" namespace#)
+           (clojure.core/compile namespace#)))
+      (println "All :namespaces already compiled."))
+    (println "No :namespaces listed for compilation in project.clj.")))
