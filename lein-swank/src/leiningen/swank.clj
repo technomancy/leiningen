@@ -3,12 +3,13 @@
 
 (defn swank
   "Launch swank server for Emacs to connect."
-  ([project port]
+  ([project port & opts]
      (eval-in-project project
                       `(do (try (require '~'swank.swank)
                                 (@(ns-resolve '~'swank.swank
                                               '~'start-repl)
-                                 (Integer. ~port))
+                                 (Integer. ~port)
+				 ~@(map read-string opts))
                                 (catch Exception e#
                                   (println e#)
                                   (println "Make sure swank-clojure is added as"
