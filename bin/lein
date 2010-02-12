@@ -58,6 +58,11 @@ for ARG in "$@"; do
   ESCAPED_ARGS="$ESCAPED_ARGS"' "'$(echo $ARG | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')'"'
 done
 
+HTTP_CLIENT="wget -O"
+if type -p curl >/dev/null 2>&1; then
+    HTTP_CLIENT="curl -o"
+fi
+
 if [ "$1" = "repl" ]; then
     echo "Warning: the repl task currently doesn't honor some project.clj"
     echo "options due to I/O stream issues. Future versions will address"
@@ -74,11 +79,20 @@ elif [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
     LEIN_URL="http://repo.technomancy.us/leiningen-$VERSION-standalone.jar"
-    if type -p curl >/dev/null 2>&1; then
-        exec curl -o "$LEIN_JAR" "$LEIN_URL"
-    else
-        exec wget -O "$LEIN_JAR" "$LEIN_URL"
+    exec $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
+elif [ "$1" = "upgrade" ]; then
+    if [[ $VERSION == *SNAPSHOT ]]; then
+        echo "The upgrade task is only meant for stable releases."
+        echo "See the \"Hacking\" section of the README."
+        exit 1
     fi
+    echo "Upgrading Leiningen now..."
+    LEIN_SCRIPT_URL="http://github.com/technomancy/leiningen/raw/stable/bin/lein"
+    $HTTP_CLIENT "$SCRIPT" "$LEIN_SCRIPT_URL" \
+        && chmod +x "$SCRIPT" \
+        && echo && $SCRIPT self-install
+
+    exec echo "\nNow running" `$SCRIPT version`
 else
     exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
