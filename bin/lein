@@ -86,13 +86,27 @@ elif [ "$1" = "upgrade" ]; then
         echo "See the \"Hacking\" section of the README."
         exit 1
     fi
-    echo "Upgrading Leiningen now..."
-    LEIN_SCRIPT_URL="http://github.com/technomancy/leiningen/raw/stable/bin/lein"
-    $HTTP_CLIENT "$SCRIPT" "$LEIN_SCRIPT_URL" \
-        && chmod +x "$SCRIPT" \
-        && echo && $SCRIPT self-install
-
-    exec echo "\nNow running" `$SCRIPT version`
+    if [ ! -w "$SCRIPT" ]; then
+        echo "You do not have permission to upgrade the installation in $SCRIPT"
+        exit 1
+    else
+        echo "The script at $SCRIPT will be upgraded to the latest stable version."
+        echo -n "Do you want to continue [Y/n]? "
+        read RESP
+        case "$RESP" in
+            y|Y|"")
+                echo
+                echo "Upgrading..."
+                LEIN_SCRIPT_URL="http://github.com/technomancy/leiningen/raw/stable/bin/lein"
+                $HTTP_CLIENT "$SCRIPT" "$LEIN_SCRIPT_URL" \
+                    && chmod +x "$SCRIPT" \
+                    && echo && $SCRIPT self-install && echo && echo "Now running" `$SCRIPT version`
+                exit $?;;
+            *)
+                echo "Aborted."
+                exit 1;;
+        esac
+    fi
 else
     exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
