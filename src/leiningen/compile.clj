@@ -13,12 +13,14 @@
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
-  ;; TODO: Compile :main ns if needed
-  (cond
-   (coll? (:namespaces project))
-   (:namespaces project)
-   (= :all (:namespaces project))
-   (find-namespaces-in-dir (file (:source-path project)))))
+  (let [nses (set (cond
+                   (coll? (:namespaces project))
+                   (:namespaces project)
+                   (= :all (:namespaces project))
+                   (find-namespaces-in-dir (file (:source-path project)))))]
+    (if (:main project)
+      (conj nses (:main project))
+      nses)))
 
 (defn stale-namespaces
   "Given a seq of namespaces that are both compilable and that hav missing or
