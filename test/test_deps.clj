@@ -12,5 +12,4 @@
   (deps test-project)
   (let [jars (set (map #(.getName %)
                        (.listFiles (file (:root test-project) "lib"))))]
-    (is (= #{"jdom-1.0.jar" "tagsoup-1.2.jar" "rome-0.9.jar"
-             "clojure-1.0.0.jar"} jars))))
+    (is (subset? #{"jdom-1.0.jar" "tagsoup-1.2.jar" "rome-0.9.jar"} jars))))
