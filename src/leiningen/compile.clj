@@ -10,30 +10,30 @@
            (org.apache.tools.ant.types Environment$Variable Path)))
 
 (defn compilable-namespaces
-  "Retrns a seq of the namespaces that are compilable, regardless of whether
+  "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
   ;; TODO: Compile :main ns if needed
   (cond
-    (coll? (:namespaces project))
-      (:namespaces project)
-    (= :all (:namespaces project))
-      (find-namespaces-in-dir (file (:source-path project)))))
+   (coll? (:namespaces project))
+   (:namespaces project)
+   (= :all (:namespaces project))
+   (find-namespaces-in-dir (file (:source-path project)))))
 
 (defn stale-namespaces
   "Given a seq of namespaces that are both compilable and that hav missing or
   out-of-date class files."
   [project]
   (filter
-    (fn [n]
-      (let [ns-file (str (-> (name n)
-                           (.replaceAll "\\." "/")
-                           (.replaceAll "-" "_")))]
-        (> (.lastModified (file (:source-path project)
-                                (str ns-file ".clj")))
-           (.lastModified (file (:compile-path project)
-                                (str ns-file "__init.class"))))))
-    (compilable-namespaces project)))
+   (fn [n]
+     (let [ns-file (str (-> (name n)
+                            (.replaceAll "\\." "/")
+                            (.replaceAll "-" "_")))]
+       (> (.lastModified (file (:source-path project)
+                               (str ns-file ".clj")))
+          (.lastModified (file (:compile-path project)
+                               (str ns-file "__init.class"))))))
+   (compilable-namespaces project)))
 
 (defn find-lib-jars
   "Returns a seq of Files for all the jars in the project's library directory."
@@ -149,8 +149,8 @@
   (if (compilable-namespaces project)
     (if-let [namespaces (seq (stale-namespaces project))]
       (eval-in-project project
-        `(doseq [namespace# '~namespaces]
-           (println "Compiling" namespace#)
-           (clojure.core/compile namespace#)))
+                       `(doseq [namespace# '~namespaces]
+                          (println "Compiling" namespace#)
+                          (clojure.core/compile namespace#)))
       (println "All :namespaces already compiled."))
     (println "No :namespaces listed for compilation in project.clj.")))

@@ -13,7 +13,6 @@ Neither group-id nor artifact-id may contain slashes."
            group-id (namespace project-name)
            artifact-id (name project-name)]
        (.mkdirs (file project-dir))
-       ;; TODO: pretty-print this
        (spit (file project-dir "project.clj")
              (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
                   "  :description \"FIXME: write\"\n"
