@@ -30,4 +30,4 @@ tests for. If none are given, runs them all."
                      (find-namespaces-in-dir (file (:test-path project)))
                      (map symbol namespaces))]
     (eval-in-project project (form-for-testing-namespaces namespaces))
-    (println (System/getProperty "leiningen.test"))))
+    (shutdown-agents)))
