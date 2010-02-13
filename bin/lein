@@ -64,11 +64,13 @@ if type -p curl >/dev/null 2>&1; then
 fi
 
 if [ "$1" = "repl" ]; then
-    echo "Warning: the repl task currently doesn't honor some project.clj"
-    echo "options due to I/O stream issues. Future versions will address"
-    echo "this, but for now you will get more consistent behaviour from repls"
-    echo "launched by either the lein-swank plugin or the lein-nailgun plugin."
-    echo
+    if [ -r project.clj ]; then
+        echo "Warning: the repl task currently doesn't honor some project.clj"
+        echo "options due to I/O stream issues. Future versions will address"
+        echo "this, but for now you will get more consistent behaviour from repls"
+        echo "launched by either the lein-swank plugin or the lein-nailgun plugin."
+        echo
+    fi
     $RLWRAP java -client $JAVA_OPTS -cp "src/:classes/:$CLASSPATH" jline.ConsoleRunner clojure.main ${@:2}
 elif [ "$1" = "self-install" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
