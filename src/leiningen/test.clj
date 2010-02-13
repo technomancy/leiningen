@@ -20,7 +20,8 @@ each namespace and print an overall summary."
                               {} '~namespaces)]
          (clojure.test/with-test-out
            (println "\n\n--------------------\nTotal:")
-           (clojure.test/report summary#)))))
+           (clojure.test/report summary#))
+         (shutdown-agents))))
 
 (defn test
   "Run the project's tests. Accept a list of namespaces for which to run all
@@ -29,5 +30,4 @@ tests for. If none are given, runs them all."
   (let [namespaces (if (empty? namespaces)
                      (find-namespaces-in-dir (file (:test-path project)))
                      (map symbol namespaces))]
-    (eval-in-project project (form-for-testing-namespaces namespaces))
-    (shutdown-agents)))
+    (eval-in-project project (form-for-testing-namespaces namespaces))))
