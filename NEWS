@@ -2,6 +2,8 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.1.0 / ???
 
+* Added "lein upgrade" task
+
 * Don't download snapshot releases unless actually needed.
 
 * Make subclassloader's classpath available to projects.
@@ -10,7 +12,7 @@ Leiningen NEWS -- history of user-visible changes
 
 * Bug fixes to "new" task.
 
-* Only AOT namespaces specified in project.clj.
+* Only AOT-compile namespaces specified in project.clj.
 
 * Better error handling.
 
