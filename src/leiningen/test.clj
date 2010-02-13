@@ -21,7 +21,8 @@ each namespace and print an overall summary."
          (clojure.test/with-test-out
            (println "\n\n--------------------\nTotal:")
            (clojure.test/report summary#))
-         (shutdown-agents))))
+         (when-not (= "1.5" (System/getProperty "java.specification.version"))
+           (shutdown-agents)))))
 
 (defn test
   "Run the project's tests. Accept a list of namespaces for which to run all
