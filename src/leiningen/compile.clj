@@ -129,7 +129,8 @@
     (when (or (= :macosx (get-os)) native-path)
       (.setFork java true)
       (doseq [arg (get-jvm-args)]
-        (.setValue (.createJvmarg java) arg)))
+        (when-not (re-matches #"^-Xbootclasspath.+" arg)
+          (.setValue (.createJvmarg java) arg))))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
     (let [cp (str (.getClasspath (.getCommandLine java)))
