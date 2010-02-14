@@ -61,7 +61,8 @@
                     (format "%s is not a task. Use \"help\" to list all tasks."
                              task)))]
     (try
-     (require task-ns)
+     (when-not (find-ns task-ns)
+       (require task-ns))
      (or (ns-resolve task-ns task)
          error-fn)
      (catch java.io.FileNotFoundException e
