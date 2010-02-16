@@ -110,8 +110,5 @@ elif [ "$1" = "upgrade" ]; then
         esac
     fi
 else
-    if [ ! `uname` == "Darwin" ]; then
-        XBOOTCLASSPATH=-Xbootclasspath/a:"$CLOJURE_JAR"
-    fi
-    exec java $XBOOTCLASSPATH -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
