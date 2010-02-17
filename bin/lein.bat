@@ -8,7 +8,7 @@ rem and it should be copied on %CLOJURE_JAR% path
 
 
 set CLOJURE_VERSION=1.1.0
-set LEIN_VERSION=1.1.0-SNAPSHOT
+set LEIN_VERSION=1.1.0
 
 rem uncomment this and set paths explicitly 
 rem set LEIN_JAR=C:\Documents and Settings\wojcirob\.m2\repository\leiningen\leiningen\%LEIN_VERSION%\leiningen-%LEIN_VERSION%-standalone.jar

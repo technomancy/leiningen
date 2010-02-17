@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="1.1.0-SNAPSHOT"
+VERSION="1.1.0"
 
 CLASSPATH="$(find lib/ -follow -mindepth 1 -maxdepth 1 -print0 2> /dev/null | tr \\0 \:)"
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
@@ -60,7 +60,7 @@ done
 
 HTTP_CLIENT="wget -O"
 if type -p curl >/dev/null 2>&1; then
-    HTTP_CLIENT="curl -o"
+    HTTP_CLIENT="curl -L -o"
 fi
 
 if [ "$1" = "repl" ]; then
@@ -80,7 +80,7 @@ elif [ "$1" = "self-install" ]; then
     fi
     echo "Downloading Leiningen now..."
     mkdir -p `dirname "$LEIN_JAR"`
-    LEIN_URL="http://repo.technomancy.us/leiningen-$VERSION-standalone.jar"
+    LEIN_URL="http://github.com/downloads/technomancy/leiningen/leiningen-$VERSION-standalone.jar"
     exec $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
 elif [ "$1" = "upgrade" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
