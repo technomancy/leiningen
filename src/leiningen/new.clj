@@ -18,7 +18,7 @@ Neither group-id nor artifact-id may contain slashes."
                   "  :description \"FIXME: write\"\n"
                   "  :dependencies [[org.clojure/clojure \"1.1.0\"]\n"
                   "                 [org.clojure/clojure-contrib \"1.1.0\"]])"))
-       (let [project-ns  (.replace (str project-name) "/" ".")
+       (let [project-ns  (str (.replace (str project-name) "/" ".") ".core")
              project-clj (str (apply str (replace {\- \_, \. \/} project-ns))
                               ".clj")
              test-clj (.replace project-clj ".clj" "_test.clj")]
