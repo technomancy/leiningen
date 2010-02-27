@@ -20,11 +20,12 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * Later
+** TODO specify min. lein version in project.clj
 ** TODO user config file for activating plugins across all projects
 ** TODO write shell wrappers
 ** TODO move repl task from shell script to clojure code
 ** TODO advise existing tasks from plugins
-** TODO fix OS X bootclasspath issues
+** TODO allow *warn-on-reflection* to be turned on in project.clj
 ** Plugin Ideas:
 *** Code statistics (LOC, doc coverage, etc)
 *** Graph output for dependencies between namespaces

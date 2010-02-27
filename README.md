@@ -151,8 +151,8 @@ it into Maven central, the easiest way is to publish it at
 for open-source code. Once you have created an account there,
 publishing is easy:
 
-    $ lein pom
-    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
+    $ lein jar
+    $ scp $PROJECT.jar clojars@clojars.org:
 
 Once that succeeds it will be available for other projects to depend
 on. Leiningen adds Clojars and [the Clojure nightly build
@@ -166,6 +166,10 @@ snapshots](http://build.clojure.org) to the default repositories.
 * Projects that use Clojure 1.0 are supported, but the test task does
   not support clojure.contrib.test-is. This may be added with a plugin
   later.
+
+* See the [issue
+  tracker](http://github.com/technomancy/leiningen/issues) for a more
+  complete list.
 
 ## Hacking
 

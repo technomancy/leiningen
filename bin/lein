@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION="1.1.0"
+VERSION="1.2.0-SNAPSHOT"
 
 CLASSPATH="$(find lib/ -follow -mindepth 1 -maxdepth 1 -print0 2> /dev/null | tr \\0 \:)"
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
