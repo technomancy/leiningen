@@ -9,20 +9,29 @@
   "Return a form that when eval'd in the context of the project will test
 each namespace and print an overall summary."
   [namespaces]
-  `(do (use ~''clojure.test)
-       (let [add-numbers# (fn [a# b#] (if (number? a#)
+  `(do
+     (require ~''clojure.test)
+     (if (and (= 1 (:major *clojure-version*))
+              (= 0 (:minor *clojure-version*)))
+       (println "\"lein test\" is not compatible with Clojure 1.0.\n
+Please consider upgrading to a newer version of Clojure or using"
+                "the lein-test-is plugin.")
+       (let [resolver# (fn [fname#]
+                         (ns-resolve
+                          (find-ns 'clojure.test) fname#))
+             add-numbers# (fn [a# b#] (if (number? a#)
                                         (+ a# b#) a#))
              summary# (reduce (fn [summary# n#]
                                 (require n# :reload-all)
                                 (merge-with add-numbers#
                                             summary#
-                                            (clojure.test/run-tests n#)))
+                                            ((resolver# ~''run-tests) n#)))
                               {} '~namespaces)]
-         (clojure.test/with-test-out
+         ((resolver# ~''with-test-out)
            (println "\n\n--------------------\nTotal:")
-           (clojure.test/report summary#))
+           ((resolver# ~''report) summary#))
          (when-not (= "1.5" (System/getProperty "java.specification.version"))
-           (shutdown-agents)))))
+           (shutdown-agents))))))
 
 (defn test
   "Run the project's tests. Accept a list of namespaces for which to run all
