@@ -2,6 +2,7 @@
   "Compile the namespaces listed in project.clj or all namespaces in src."
   (:require lancet)
   (:use  [leiningen.deps :only [deps]]
+         [leiningen.checkout-deps :only [checkout-deps-paths]]
          [leiningen.core :only [ns->path]]
          [clojure.contrib.java-utils :only [file]]
          [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
@@ -122,7 +123,8 @@
                                (:test-path project)
                                (:compile-path project)
                                (:resources-path project)
-                               (find-lib-jars project)))
+                               (concat (find-lib-jars project)
+                                       (checkout-deps-paths project))))
     (.setFailonerror java true)
     (when (or (= :macosx (get-os)) native-path)
       (.setFork java true)
