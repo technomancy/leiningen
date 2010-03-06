@@ -32,7 +32,6 @@ set CLOJURE_JAR=%HOMEDRIVE%%HOMEPATH%\.m2\repository\org\clojure\clojure\%CLOJUR
 
 :ARGS_HANDLING
 if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
-if not exist "%CLOJURE_JAR%" goto NO_CLOJURE_JAR
 
 
 rem ##################################################
@@ -82,14 +81,6 @@ echo.
 echo "%LEIN_JAR%" can not be found.
 echo Please change LEIN_JAR environment variable
 echo or edit lein.bat to set appropriate LEIN_JAR path.
-echo. 
-goto EOF
-
-:NO_CLOJURE_JAR
-echo.
-echo "%CLOJURE_JAR%" can not be found.
-echo Please change CLOJURE_JAR environment variable
-echo or edit lein.bat to set appropriate CLOJURE_JAR path.
 echo. 
 goto EOF
 
