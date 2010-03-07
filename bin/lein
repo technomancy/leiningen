@@ -110,5 +110,8 @@ elif [ "$1" = "upgrade" ]; then
         esac
     fi
 else
+    # The -Xbootclasspath argument is optional here: if the jar
+    # doesn't exist everything will still work, it will just have a
+    # slower JVM boot.
     exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
