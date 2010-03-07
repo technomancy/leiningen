@@ -79,7 +79,8 @@ elif [ "$1" = "self-install" ]; then
         exit 1
     fi
     echo "Downloading Leiningen now..."
-    mkdir -p `dirname "$LEIN_JAR"`
+    LEIN_DIR=`dirname "$LEIN_JAR"`
+    mkdir -p "$LEIN_DIR"
     LEIN_URL="http://github.com/downloads/technomancy/leiningen/leiningen-$VERSION-standalone.jar"
     exec $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
 elif [ "$1" = "upgrade" ]; then
@@ -110,6 +111,12 @@ elif [ "$1" = "upgrade" ]; then
         esac
     fi
 else
+    if type -p cygpath >/dev/null 2>&1; then
+        # When running on Cygwin, use Windows-style paths for java
+        CLOJURE_JAR=`cygpath -w "$CLOJURE_JAR"`
+        CLASSPATH=`cygpath -wp "$CLASSPATH"`
+    fi
+
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
