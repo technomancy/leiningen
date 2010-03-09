@@ -45,7 +45,8 @@
     (when-not (skip-file? child)
       (let [path (reduce trim-leading-str (unix-path (str child))
                          [root resources classes src "/"])]
-        (.putNextEntry jar-os (JarEntry. path))
+        (.putNextEntry jar-os (doto (JarEntry. path)
+                                (.setTime (.lastModified child))))
         (copy child jar-os))))))
 
 (defmethod copy-to-jar :bytes [project jar-os spec]
