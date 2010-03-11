@@ -20,7 +20,7 @@
                       (str "Built-By: " (System/getProperty "user.name"))
                       (str "Build-Jdk: " (System/getProperty "java.version"))
                       (when-let [main (:main project)]
-                        (str "Main-Class: " (re-sub #"-" "_" (str main))))])
+                        (str "Main-Class: " (.replaceAll (str main) "-" "_")))])
            "\n")))))
 
 (defn unix-path [path]
