@@ -5,5 +5,5 @@
 
 (deftest test-new
   (sh "lein" "new" "a.b/test-new-proj")
-  (is (.exists (file "test-new-proj" "src" "a" "b" "test_new_proj.clj")))
+  (is (.exists (file "test-new-proj" "src" "a" "b" "test_new_proj" "core.clj")))
   (delete-file-recursively (file "test-new-proj") false))
