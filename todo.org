@@ -19,13 +19,15 @@ Leiningen TODOs
 * For 1.1.0
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
-* Later
+* For 1.2.0
 ** TODO specify min. lein version in project.clj
-** TODO user config file for activating plugins across all projects
-** TODO write shell wrappers
+** TODO set arbitrary jar metadata
 ** TODO move repl task from shell script to clojure code
 ** TODO advise existing tasks from plugins
 ** TODO allow *warn-on-reflection* to be turned on in project.clj
+* For later
+** TODO write shell wrappers
+** TODO user config file for activating plugins across all projects
 ** Plugin Ideas:
 *** Code statistics (LOC, doc coverage, etc)
 *** Graph output for dependencies between namespaces
