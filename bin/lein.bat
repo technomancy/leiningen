@@ -1,11 +1,17 @@
 @echo off
 
-rem this script works after downloading Leiningen standalone jar
-rem from http://repo.technomancy.us/
-rem and copying it on %LEIN_JAR% path
-rem There is needed also Clojure jar from http://build.clojure.org/
-rem and it should be copied on %CLOJURE_JAR% path
+rem WORKS ONLY with Leiningen 1.1.0 or newer
 
+rem this script works after downloading Leiningen standalone jar
+rem from http://github.com/downloads/technomancy/leiningen/leiningen-VERSION-standalone.jar
+rem and copying it on %LEIN_JAR% path
+
+rem optionally can be downloaded also Clojure jar 
+rem (stable release, 1.1.0 or newer is recommended)
+rem from http://build.clojure.org/releases/
+rem and copied on %CLOJURE_JAR% path
+rem this step is not necessary, because Leiningen standalone jar
+rem contains Clojure as well
 
 set CLOJURE_VERSION=1.1.0
 set LEIN_VERSION=1.1.0
@@ -46,13 +52,13 @@ rem ##################################################
 rem add jars found under "lib" directory to CLASSPATH
 rem
 setLocal EnableDelayedExpansion
-set CLASSPATH="
+set CP="
 for /R ./lib %%a in (*.jar) do (
-   set CLASSPATH=!CLASSPATH!;%%a
+   set CP=!CP!;%%a
 )
-set CLASSPATH=!CLASSPATH!"
+set CP=!CP!"
 
-set CLASSPATH=%CLASSPATH%;"%LEIN_JAR%"
+set CLASSPATH="%LEIN_JAR%";%CP%;"%CLASSPATH%"
 if "x%DEBUG%" == "x" goto RUN
 echo CLASSPATH=%CLASSPATH%
 rem ##################################################
@@ -73,7 +79,7 @@ java -Xbootclasspath/a:"%CLOJURE_JAR%" -client -cp %CLASSPATH% clojure.main -e "
 goto EOF
 
 :RUN_REPL
-java -Xbootclasspath/a:"%CLOJURE_JAR%" -client -cp src;classes;%CLASSPATH% clojure.main %2 %3 %4
+%RLWRAP% java -client %JAVA_OPTS% -cp src;classes;%CLASSPATH% clojure.main %2 %3 %4
 goto EOF
 
 :NO_LEIN_JAR
@@ -88,8 +94,8 @@ goto EOF
 echo.
 echo SELF_INSTALL functionality is not available on Windows
 echo Please download needed JARs manually:
-echo 1. leiningen-%LEIN_VERSION%-standalone.jar from http://repo.technomancy.us/
-echo 2. clojure.jar from http://build.clojure.org/
+echo 1. http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
+echo 2. clojure.jar from http://build.clojure.org/releases/
 echo. 
 goto EOF
 
