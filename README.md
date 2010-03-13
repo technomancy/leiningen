@@ -26,12 +26,20 @@ rather than copying and pasting among each of your projects.
 
 ## Installation
 
+Leiningen bootstraps itself using the 'lein' shell script you
+download, there is no separate 'install script'. It installs its
+dependencies in $HOME/.m2/repository.
+
 1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 
 This only works with stable versions of Leiningen; for development
 versions see "Hacking" below.
+
+On Windows you can download
+[lein.bat](http://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
+instead, though support on that platform is still experimental.
 
 ## Usage
 
@@ -59,7 +67,7 @@ versions see "Hacking" below.
 
 ## Configuration
 
-Place a project.clj file in the project root that looks something like this: 
+Place a project.clj file in the project root that looks something like this:
 
     (defproject leiningen "0.5.0-SNAPSHOT"
       :description "A build tool designed not to set your hair on fire."
@@ -104,6 +112,11 @@ Other keys accepted:
    functions and are able to write it with a more pleasing syntax, it's
    not bad.
 
+**Q:** What's a group ID? How do snapshots work?  
+**A:** See the
+  [intro](http://github.com/technomancy/leiningen/blob/master/INTRO.md)
+  for background on JVM dependency concepts.
+
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** Open-source jars can be uploaded to Clojars (see "Publishing"
   below), though be sure to use the groupId of "org.clojars.$USERNAME"
@@ -111,6 +124,19 @@ Other keys accepted:
   claim it in the future once they get around to uploading. 
   Alternatively you can install into your local repository in ~/.m2
   with Maven for Java libs or "lein install" for Clojure libs.
+
+**Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
+**A:** It means you have some code that was AOT (ahead-of-time)
+  compiled with a different version of Clojure than the one you're
+  currently using. If it persists after running "lein clean" then it
+  is a problem with your dependencies. If you depend on contrib, make
+  sure the contrib version matches the Clojure version. Also note for
+  your own project that AOT compilation in Clojure is much less
+  important than it is in other languages. There are a few
+  language-level features that must be AOT-compiled to work, generally
+  for Java interop. If you are not using any of these features, you
+  should not AOT-compile your project if other projects may depend
+  upon it.
 
 **Q:** It looks like the classpath isn't honoring project.clj.  
 **A:** Leiningen runs many things in a subclassloader so it can
@@ -136,10 +162,6 @@ Other keys accepted:
 **A:** I tried, but I really couldn't make the wine metaphor work. That,
    and the Plexus Classworlds container was an ornery beast causing
    much frustration. The maven-ant-tasks API is much more manageable.
-
-**Q:** What about Windows?  
-**A:** Try the bin/lein.bat script. Note that Windows support is still 
-   experimental; not all features (notably self-install) are implemented.
 
 ## Publishing
 
