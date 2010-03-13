@@ -15,22 +15,31 @@ Leiningen TODOs
 ** DONE System/exit appropriately when testing based on pass/fail      :Phil:
 ** DONE Fix eval-in-project to let plugins pass in extra args
 ** DONE Resources directory added to classpath (for properties, etc)
-*** This would be a good way for clojure code to have access to lein's vers
 * For 1.1.0
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
+** TODO a list of dirs to include in the jar when building
 ** TODO specify min. lein version in project.clj
 ** TODO set arbitrary jar metadata
+** TODO classpath task to just print configured classpath
+** TODO walk up the filesystem to find project.clj
 ** TODO move repl task from shell script to clojure code
-** TODO advise existing tasks from plugins
 ** TODO allow *warn-on-reflection* to be turned on in project.clj
 * For later
 ** TODO write shell wrappers
 ** TODO user config file for activating plugins across all projects
-** Plugin Ideas:
+** TODO re-compile all deps with current clojure version
+** Better deployment features
+*** TODO "lein install $PROJECT" without a checkout
+*** TODO create shell scripts post-install
+** Improve plugins
+*** TODO Expose hooks in built-in tasks so plugins may extend them
+*** TODO Allow plugins to be activated user-wide (maybe system-wide?)
+* Plugin Ideas:
 *** Code statistics (LOC, doc coverage, etc)
 *** Graph output for dependencies between namespaces
+*** Checkout task: install the jar in ~/.m2 and look for SCM repository metadata
 *** Start web server for web-related projects
 *** Multi-module builds
 * Low Priority
