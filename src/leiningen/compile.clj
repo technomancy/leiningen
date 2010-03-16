@@ -4,12 +4,13 @@
   (:use  [leiningen.deps :only [deps]]
          [leiningen.checkout-deps :only [checkout-deps-paths]]
          [leiningen.core :only [ns->path]]
+         [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.contrib.java-utils :only [file]]
          [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import org.apache.tools.ant.taskdefs.Java
            java.lang.management.ManagementFactory
-           (org.apache.tools.ant.types Environment$Variable Path)))
+           (org.apache.tools.ant.types Environment$Variable)))
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
@@ -35,12 +36,6 @@
           (.lastModified (file (:compile-path project)
                                (.replace clj-path "\\.clj" "__init.class"))))))
    (compilable-namespaces project)))
-
-(defn find-lib-jars
-  "Returns a seq of Files for all the jars in the project's library directory."
-  [project]
-  (filter #(.endsWith (.getName %) ".jar")
-          (file-seq (file (:library-path project)))))
 
 (defn get-by-pattern
   "Gets a value from map m, but uses the keys as regex patterns,
@@ -89,14 +84,6 @@
       (.getInputArguments)
       (seq)))
 
-(defn make-path
-  "Constructs an ant Path object from Files and strings."
-  [& paths]
-  (let [ant-path (Path. nil)]
-    (doseq [path paths]
-      (.addExisting ant-path (Path. nil (str path))))
-    ant-path))
-
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
   set correctly for the project. Pass in a handler function to have it called
@@ -118,13 +105,7 @@
                                           (.getAbsolutePath native-path)
                                           (fn? native-path) (native-path)
                                           :default native-path)))))
-    (.setClasspath java (apply make-path
-                               (:source-path project)
-                               (:test-path project)
-                               (:compile-path project)
-                               (:resources-path project)
-                               (concat (find-lib-jars project)
-                                       (checkout-deps-paths project))))
+    (.setClasspath java (apply make-path (get-classpath project)))
     (.setFailonerror java true)
     (when (or (= :macosx (get-os)) native-path)
       (.setFork java true)
