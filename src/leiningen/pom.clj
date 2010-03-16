@@ -3,7 +3,7 @@
   (:use [clojure.contrib.duck-streams :only [reader copy]]
         [clojure.contrib.java-utils :only [file as-properties]])
   (:import [java.io StringWriter ByteArrayOutputStream]
-           [org.apache.maven.model Model Parent Dependency Repository Scm]
+           [org.apache.maven.model Build Model Parent Dependency Repository Scm]
            [org.apache.maven.project MavenProject]))
 
 (def #^{:doc "A notice to place at the bottom of generated files."} disclaimer
@@ -85,6 +85,10 @@
                     "clojure-snapshots" "http://build.clojure.org/snapshots"
                     "clojars" "http://clojars.org/repo/"})
 
+(defn relative-path
+  [project path-key]
+  (.replace (path-key project) (str (:root project) "/") ""))
+
 (defn make-model [project]
   (let [model (doto (Model.)
                 (.setModelVersion "4.0.0")
@@ -92,7 +96,11 @@
                 (.setName (:name project))
                 (.setVersion (:version project))
                 (.setGroupId (:group project))
-                (.setDescription (:description project)))]
+                (.setDescription (:description project)))
+        build (doto (Build.)
+                (.setSourceDirectory (relative-path project :source-path))
+                (.setTestSourceDirectory (relative-path project :test-path)))]
+    (.setBuild model build)
     ;; TODO: add leiningen as a test-scoped dependency
     (doseq [dep (:dependencies project)]
       (.addDependency model (make-dependency dep)))
