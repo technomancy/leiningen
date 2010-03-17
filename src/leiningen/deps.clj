@@ -10,30 +10,23 @@
 ;; Add symlinking to Lancet's toolbox.
 (lancet/define-ant-task symlink symlink)
 
-;; Set this to one of :symlink or :copy to decide how dependencies are added to
-;; the library path."
-(def *copy-behavior* :copy)
-
 (defmulti copy-dependencies (fn [k destination flatten? fileset] k))
 
-(defmethod copy-dependencies :copy [k destination flatten? fileset]
+(defmethod copy-dependencies :default [k destination flatten? fileset]
   (lancet/copy {:todir destination :flatten (if flatten? "on" "off")}
                fileset))
 
 (defmethod copy-dependencies :symlink [k destination flatten? fileset]
-  (let [files (.getIncludedFiles (.getDirectoryScanner fileset lancet/ant-project))
+  (let [files (.getIncludedFiles
+               (.getDirectoryScanner fileset lancet/ant-project))
         dir (.getDir fileset)]
-    
     ;; In principle, this should work... but it doesn't.
     ;; Instead we link each file in turn.
-    #_
-    (symlink {:action "record" :linkfilename destination}
-             fileset))
-    
+    #_(symlink {:action "record" :linkfilename destination}
+               fileset)
     (doseq [f files]
       (symlink {:link destination
-                :resource (.getCanonicalPath (java.io.File. dir f))})))
-
+                :resource (.getCanonicalPath (file dir f))}))))
 
 ;; TODO: unify with pom.clj
 
@@ -43,7 +36,7 @@
     (.setArtifactId (name excl))))
 
 (defn make-dependency [[dep version & exclusions]]
-  (let [es (map make-exclusion (when (= (first exclusions) :exclusions) 
+  (let [es (map make-exclusion (when (= (first exclusions) :exclusions)
                                  (second exclusions)))]
     (doto (Dependency.)
             (.setGroupId (or (namespace dep) (name dep)))
@@ -88,8 +81,8 @@ dependencies with the following:
            (.addDependency deps-task (make-dependency dep))))
        (.execute deps-task)
        (.mkdirs (file (:library-path project)))
-       (copy-dependencies *copy-behavior*
-                          (:library-path project) true 
+       (copy-dependencies (:jar-behavior project)
+                          (:library-path project) true
                           (.getReference lancet/ant-project
                                          (.getFilesetId deps-task)))))
   ([project] (deps project false)))
