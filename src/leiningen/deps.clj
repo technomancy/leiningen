@@ -1,10 +1,9 @@
 (ns leiningen.deps
   "Install jars for all dependencies in lib."
   (:require [lancet])
-  (:use [leiningen.pom :only [default-repos]]
+  (:use [leiningen.pom :only [default-repos make-dependency]]
         [clojure.contrib.java-utils :only [file]])
-  (:import [org.apache.maven.model Dependency Exclusion]
-           [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
+  (:import [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
 ;; Add symlinking to Lancet's toolbox.
@@ -29,20 +28,6 @@
                 :resource (.getCanonicalPath (file dir f))}))))
 
 ;; TODO: unify with pom.clj
-
-(defn make-exclusion [excl]
-  (doto (Exclusion.)
-    (.setGroupId (or (namespace excl) (name excl)))
-    (.setArtifactId (name excl))))
-
-(defn make-dependency [[dep version & exclusions]]
-  (let [es (map make-exclusion (when (= (first exclusions) :exclusions)
-                                 (second exclusions)))]
-    (doto (Dependency.)
-            (.setGroupId (or (namespace dep) (name dep)))
-            (.setArtifactId (name dep))
-            (.setVersion version)
-            (.setExclusions es))))
 
 (defn make-repository [[id url]]
   (doto (RemoteRepository.)

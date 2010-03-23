@@ -8,7 +8,6 @@
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.1.0"]
                  [ant/ant "1.7.0"]
-                 [ant/ant-nodeps "1.6.5"]
                  [jline "0.9.94"]
                  [org.apache.maven/maven-ant-tasks "2.1.0"]]
   :dev-dependencies [[leiningen/lein-swank "1.1.0"]
