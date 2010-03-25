@@ -34,6 +34,13 @@
     (.setId id)
     (.setUrl url)))
 
+(defn get-repository-list [project]
+  (concat
+   (if (:omit-default-repositories project)
+     {}
+     default-repos)
+   (:repositories project)))
+
 (defn deps
   "Download and install all :dependencies listed in project.clj into the lib/
 directory. With an argument it will skip development dependencies. Dependencies
@@ -56,8 +63,7 @@ dependencies with the following:
        (.setFilesetId deps-task "dependency.fileset")
        (.setProject deps-task lancet/ant-project)
        (.setPathId deps-task (:name project))
-       (doseq [r (map make-repository (concat default-repos
-                                              (:repositories project)))]
+       (doseq [r (map make-repository (get-repository-list project))]
          (.addConfiguredRemoteRepository deps-task r))
        (doseq [dep (:dependencies project)]
          (.addDependency deps-task (make-dependency dep)))
