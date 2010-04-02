@@ -163,7 +163,7 @@ Other keys accepted:
    and the Plexus Classworlds container was an ornery beast causing
    much frustration. The maven-ant-tasks API is much more manageable.
 
-**Q:** What if I need to type Unicode characters at the REPL?
+**Q:** What if I need to type Unicode characters at the REPL?  
 **A:** Jline does not support typing unicode characters (they show up
   as ? characters). In order to disable Jline support, set the environment
   variable LEIN_USE_JLINE=false and "lein repl" will not use the Jline
