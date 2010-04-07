@@ -26,7 +26,7 @@
       nses)))
 
 (defn stale-namespaces
-  "Given a seq of namespaces that are both compilable and that hav missing or
+  "Given a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
   (filter
@@ -130,7 +130,7 @@
   (when (empty? (find-lib-jars project))
     (deps project :skip-dev))
   (.mkdir (file (:compile-path project)))
-  (if (compilable-namespaces project)
+  (if (seq (compilable-namespaces project))
     (if-let [namespaces (seq (stale-namespaces project))]
       (eval-in-project project
                        `(doseq [namespace# '~namespaces]
