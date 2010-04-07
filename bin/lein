@@ -71,11 +71,13 @@ if [ "$1" = "repl" ]; then
         echo "launched by either the lein-swank plugin or the lein-nailgun plugin."
         echo
     fi
-    if [ "$LEIN_USE_JLINE" = "false" ]; then
-        $RLWRAP java -client $JAVA_OPTS -cp "src/:classes/:$CLASSPATH" clojure.main ${@:2}
-    else
-        $RLWRAP java -client $JAVA_OPTS -cp "src/:classes/:$CLASSPATH" jline.ConsoleRunner clojure.main ${@:2}
+    # Use rlwrap if it's available, otherwise fall back to JLine
+    RLWRAP=`which rlwrap`
+    JLINE=jline.ConsoleRunner
+    if [ $RLWRAP != "" ]; then
+        JLINE=
     fi
+    $RLWRAP java -client $JAVA_OPTS -cp "src/:classes/:resources/:$CLASSPATH" $JLINE clojure.main ${@:2}
 elif [ "$1" = "self-install" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
         echo "The self-install task is only meant for stable releases."
