@@ -5,8 +5,9 @@
 (defn checkout-deps-paths [project]
   (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))]
                   ;; Note that this resets the leiningen.core/project var!
-                  (let [proj (read-project (.getAbsolutePath
-                                            (file dep "project.clj")))]
+                  (let [proj (binding [*ns* (find-ns 'leiningen.core)]
+                               (read-project (.getAbsolutePath
+                                              (file dep "project.clj"))))]
                       (for [d [:source-path :compile-path :resources-path]]
                         (proj d))))))
 
