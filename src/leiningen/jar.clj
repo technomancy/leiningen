@@ -89,4 +89,4 @@ as the main-class for an executable jar."
        (write-jar project jar-file filespecs)
        (println "Created" jar-file)
        jar-file))
-  ([project] (jar project (str (:name project) ".jar"))))
+  ([project] (jar project (str (:name project) "-" (:version project) ".jar"))))

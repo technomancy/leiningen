@@ -46,7 +46,8 @@ may wish to clean first."
   [project]
   (jar project)
   (with-open [out (-> (file (:root project)
-                            (str (:name project) "-standalone.jar"))
+                            (str (:name project) "-" (:version project)
+                                 "-standalone.jar"))
                       (FileOutputStream.) (ZipOutputStream.))]
     ;; TODO: any way to make sure we skip dev dependencies?
     (let [deps (->> (file-seq (file (:library-path project)))

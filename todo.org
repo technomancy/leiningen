@@ -19,7 +19,8 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
-** TODO include version in jar filenames
+** TODO unpredictable hangs when tasks finish
+** DONE include version in jar filenames
 ** TODO a list of dirs to include in the jar when building
 ** TODO specify min. lein version in project.clj
 ** TODO set arbitrary jar metadata
@@ -29,6 +30,8 @@ Leiningen TODOs
 ** TODO allow *warn-on-reflection* to be turned on in project.clj
 * For later
 ** TODO write shell wrappers
+** TODO lein install $PROJECT (works outside project root)
+** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
 ** TODO user config file for activating plugins across all projects
 ** TODO re-compile all deps with current clojure version
 ** Better deployment features
@@ -43,6 +46,7 @@ Leiningen TODOs
 *** Checkout task: install the jar in ~/.m2 and look for SCM repository metadata
 *** Start web server for web-related projects
 *** Multi-module builds
+*** Repository search
 * Low Priority
 ** TODO Run failed tests task
 ** TODO Remove duplication between deps.clj and pom.clj
