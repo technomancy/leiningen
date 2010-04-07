@@ -64,9 +64,9 @@
       (copy-to-jar project jar-os filespec))))
 
 (defn get-jar-filename [project jar-name]
-  (let [target-dir (:target-path project)]
-    (.mkdir (file target-dir))
-    (str target-dir "/"  jar-name)))
+  (let [jar-dir (:jar-dir project)]
+    (.mkdirs (file jar-dir))
+    (str jar-dir "/"  jar-name)))
 
 (defn jar
   "Create a $PROJECT.jar file containing the compiled .class files as well as
@@ -74,7 +74,7 @@ the source .clj files. If project.clj contains a :main symbol, it will be used
 as the main-class for an executable jar."
   ([project jar-name]
      (compile/compile project)
-     (let [jar-file (get-jar-filename project jar-name)
+     (let [jar-path (get-jar-filename project jar-name)
            filespecs [{:type :bytes
                        :path (format "meta-inf/maven/%s/%s/pom.xml"
                                      (:group project)
@@ -91,7 +91,7 @@ as the main-class for an executable jar."
                       {:type :path :path (:compile-path project)}
                       {:type :path :path (:source-path project)}
                       {:type :path :path (str (:root project) "/project.clj")}]]
-       (write-jar project jar-file filespecs)
-       (println "Created" jar-file)
-       jar-file))
+       (write-jar project jar-path filespecs)
+       (println "Created" jar-path)
+       jar-path))
   ([project] (jar project (str (:name project) "-" (:version project) ".jar"))))

@@ -28,8 +28,7 @@
                                                  (str root# "/test"))
                                   :resources-path (or (:resources-path m#)
                                                       (str root# "/resources"))
-                                  :target-path (or (:target-path m#)
-                                                      (str root# "/target"))
+                                  :jar-dir (or (:jar-dir m#) root#)
                                   :root root#))))
      (def ~(symbol (name project-name)) project)))
 

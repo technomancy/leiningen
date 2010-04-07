@@ -14,8 +14,9 @@ Raise an exception if any deletion fails unless silently is true."
 
 (defn clean [project]
   (println "Cleaning up")
-  (delete-file (str (:target-path project) "/" (:name project) ".jar") true)
-  (delete-file (str (:root project) "/" (:name project) "-standalone.jar") true)
+  (delete-file (str (:jar-dir project) "/" (:name project) ".jar") true)
+  (delete-file (str (:jar-dir project) "/" (:name project) "-standalone.jar")
+               true)
   (doseq [d [(:compile-path project)
              (:library-path project)]]
     (empty-directory (file d) true)))
