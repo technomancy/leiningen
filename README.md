@@ -167,7 +167,8 @@ Other keys accepted:
 **A:** Jline does not support typing unicode characters (they show up
   as ? characters). In order to disable Jline support, set the environment
   variable LEIN_USE_JLINE=false and "lein repl" will not use the Jline
-  library.
+  library. You can also set the RLWRAP environment variable to
+  "rlwrap" to retain some sanity when Jline is disabled.
 
 ## Publishing
 
