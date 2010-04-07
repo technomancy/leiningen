@@ -68,6 +68,17 @@
      (catch java.io.FileNotFoundException e
        error-fn))))
 
+(defn ns->path [n]
+  (str (.. (str n)
+           (replace \- \_)
+           (replace \. \/))
+       ".clj"))
+
+(defn path->ns [path]
+  (.. (.replaceAll path "\\.clj" "")
+      (replace \_ \-)
+      (replace \/ \.)))
+
 (defn -main [& [task & args]]
   (let [task (or (aliases task) task "help")
         args (if (@no-project-needed task)

@@ -110,7 +110,6 @@
                 (.setSourceDirectory (relative-path project :source-path))
                 (.setTestSourceDirectory (relative-path project :test-path)))]
     (.setBuild model build)
-    ;; TODO: add leiningen as a test-scoped dependency
     (doseq [dep (:dependencies project)]
       (.addDependency model (make-dependency dep)))
     (doseq [repo (concat (:repositories project) default-repos)]

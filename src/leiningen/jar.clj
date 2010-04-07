@@ -14,14 +14,14 @@
   (Manifest.
    (ByteArrayInputStream.
     (to-byte-array
-     (str  (str-join "\n"
-                     ["Manifest-Version: 1.0" ; DO NOT REMOVE!
-                      "Created-By: Leiningen"
-                      (str "Built-By: " (System/getProperty "user.name"))
-                      (str "Build-Jdk: " (System/getProperty "java.version"))
-                      (when-let [main (:main project)]
-                        (str "Main-Class: " (.replaceAll (str main) "-" "_")))])
-           "\n")))))
+     (str (str-join "\n"
+                    ["Manifest-Version: 1.0" ; DO NOT REMOVE!
+                     "Created-By: Leiningen"
+                     (str "Built-By: " (System/getProperty "user.name"))
+                     (str "Build-Jdk: " (System/getProperty "java.version"))
+                     (when-let [main (:main project)]
+                       (str "Main-Class: " (.replaceAll (str main) "-" "_")))])
+          "\n")))))
 
 (defn unix-path [path]
   (.replaceAll path "\\\\" "/"))

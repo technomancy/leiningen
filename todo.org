@@ -19,6 +19,7 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
+** TODO include version in jar filenames
 ** TODO a list of dirs to include in the jar when building
 ** TODO specify min. lein version in project.clj
 ** TODO set arbitrary jar metadata

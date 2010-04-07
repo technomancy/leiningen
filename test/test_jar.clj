@@ -7,4 +7,5 @@
 
 (deftest test-jar
   (is (= "foo.one_two.three_four.bar"
-         (.getValue (.getMainAttributes (make-manifest mock-project)) "Main-Class"))))
+         (.getValue (.getMainAttributes (make-manifest mock-project))
+                    "Main-Class"))))

@@ -1,9 +1,10 @@
 (ns leiningen.compile
   "Compile the namespaces listed in project.clj or all namespaces in src."
   (:require lancet)
-  (:use [clojure.contrib.java-utils :only [file]]
-        [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]]
-        [leiningen.deps :only [deps]])
+  (:use  [leiningen.deps :only [deps]]
+         [leiningen.core :only [ns->path]]
+         [clojure.contrib.java-utils :only [file]]
+         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import org.apache.tools.ant.taskdefs.Java
            java.lang.management.ManagementFactory
@@ -28,13 +29,10 @@
   [project]
   (filter
    (fn [n]
-     (let [ns-file (str (-> (name n)
-                            (.replaceAll "\\." "/")
-                            (.replaceAll "-" "_")))]
-       (> (.lastModified (file (:source-path project)
-                               (str ns-file ".clj")))
+     (let [clj-path (ns->path n)]
+       (> (.lastModified (file (:source-path project) clj-path))
           (.lastModified (file (:compile-path project)
-                               (str ns-file "__init.class"))))))
+                               (.replace clj-path "\\.clj" "__init.class"))))))
    (compilable-namespaces project)))
 
 (defn find-lib-jars

@@ -44,7 +44,7 @@
         artifact (make-artifact model)
         installer (.lookup container ArtifactInstaller/ROLE)
         local-repo (make-local-repo)]
-    ;; for packaging other than "pom" there should be "pom.xml" 
+    ;; for packaging other than "pom" there should be "pom.xml"
     ;; generated and installed in local repo
     (if (not= "pom" (.getPackaging model))
       (add-metadata artifact (file (pom project))))

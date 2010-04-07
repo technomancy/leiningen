@@ -3,7 +3,8 @@
 lein new [group-id/]artifact-id [project-dir]
 Group-id is optional. Project-dir defaults to artifact-id if not given.
 Neither group-id nor artifact-id may contain slashes."
-  (:use [clojure.contrib.duck-streams :only [spit]]
+  (:use [leiningen.core :only [ns->path]]
+        [clojure.contrib.duck-streams :only [spit]]
         [clojure.contrib.java-utils :only [file]]
         [clojure.contrib.str-utils :only [str-join]]))
 
@@ -19,8 +20,7 @@ Neither group-id nor artifact-id may contain slashes."
                   "  :dependencies [[org.clojure/clojure \"1.1.0\"]\n"
                   "                 [org.clojure/clojure-contrib \"1.1.0\"]])"))
        (let [project-ns  (str (.replace (str project-name) "/" ".") ".core")
-             project-clj (str (apply str (replace {\- \_, \. \/} project-ns))
-                              ".clj")
+             project-clj (ns->path project-ns)
              test-clj (.replace project-clj ".clj" "_test.clj")]
          (.mkdirs (file project-dir "test"))
          (.mkdirs (.getParentFile (file project-dir "src" project-clj)))

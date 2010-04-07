@@ -189,6 +189,10 @@ snapshots](http://build.clojure.org) to the default repositories.
   not support clojure.contrib.test-is. This may be added with a plugin
   later.
 
+* The uberjar task uses everything in the lib directory. This may
+  include dev dependencies or old dependencies; it's best to clean
+  before creating an uberjar.
+
 * See the [issue
   tracker](http://github.com/technomancy/leiningen/issues) for a more
   complete list.
