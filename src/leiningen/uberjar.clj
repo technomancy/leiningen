@@ -45,24 +45,23 @@ will include all jars in lib, so if you have dev dependencies in there, you
 may wish to clean first."
   [project]
   (jar project)
-  (with-open [out (-> (file (:root project)
-                            (str (:name project) "-" (:version project)
-                                 "-standalone.jar"))
-                      (FileOutputStream.) (ZipOutputStream.))]
-    ;; TODO: any way to make sure we skip dev dependencies?
-    (let [deps (->> (file-seq (file (:library-path project)))
-                    (filter #(.endsWith (.getName %) ".jar"))
-                    (cons (file (:root project) (str (:name project) ".jar"))))
-          [_ components] (reduce (partial include-dep out)
-                                 [#{"META-INF/plexus/components.xml"} nil]
-                                 deps)]
-      (when-not (empty? components)
-        (.putNextEntry out (ZipEntry. "META-INF/plexus/components.xml"))
-        (binding [*out* (PrintWriter. out)]
-          (xml/emit {:tag :component-set
-                     :content
-                     [{:tag :components
+  (let [jarname-root  (str (:name project) \- (:version project))]
+    (with-open [out (-> (file (:root project) (str jarname-root "-standalone.jar"))
+                          (FileOutputStream.) (ZipOutputStream.))]
+      ;; TODO: any way to make sure we skip dev dependencies?
+      (let [deps (->> (file-seq (file (:library-path project)))
+                      (filter #(.endsWith (.getName %) ".jar"))
+                      (cons (file (:root project) (str jarname-root ".jar"))))
+            [_ components] (reduce (partial include-dep out)
+                                   [#{"META-INF/plexus/components.xml"} nil]
+                                   deps)]
+        (when-not (empty? components)
+          (.putNextEntry out (ZipEntry. "META-INF/plexus/components.xml"))
+          (binding [*out* (PrintWriter. out)]
+            (xml/emit {:tag :component-set
                        :content
-                       components}]})
-          (.flush *out*))
-        (.closeEntry out)))))
+                       [{:tag :components
+                         :content
+                         components}]})
+            (.flush *out*))
+          (.closeEntry out))))))
