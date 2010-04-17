@@ -182,13 +182,6 @@ snapshots](http://build.clojure.org) to the default repositories.
 
 ## Known Issues
 
-* The repl task will use the version of Clojure and Contrib that
-  Leiningen uses, not the one specified by your project.
-
-* Projects that use Clojure 1.0 are supported, but the test task does
-  not support clojure.contrib.test-is. This may be added with a plugin
-  later.
-
 * The uberjar task uses everything in the lib directory. This may
   include dev dependencies or old dependencies; it's best to clean
   before creating an uberjar.
