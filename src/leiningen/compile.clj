@@ -2,7 +2,6 @@
   "Compile the namespaces listed in project.clj or all namespaces in src."
   (:require lancet)
   (:use  [leiningen.deps :only [deps]]
-         [leiningen.checkout-deps :only [checkout-deps-paths]]
          [leiningen.core :only [ns->path]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.contrib.io :only [file]]

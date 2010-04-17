@@ -1,7 +1,8 @@
 (ns leiningen.classpath
   (:use (clojure.contrib [io :only (file)]
                          [seq :only (flatten)]
-                         [string :only (join)]))
+                         [string :only (join)])
+        [leiningen.checkout-deps :only [checkout-deps-paths]])
   (:import org.apache.tools.ant.types.Path))
 
 (defn find-lib-jars
@@ -25,7 +26,8 @@
             (:test-path project)
             (:compile-path project)
             (:resources-path project)
-            (find-lib-jars project)]))
+            (find-lib-jars project)
+            (checkout-deps-paths project)]))
 
 (defn classpath
   "Print out the classpath in which the project operates, within the
