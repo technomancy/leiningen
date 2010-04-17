@@ -3,7 +3,7 @@
         [leiningen.deps :only [deps]] :reload-all)
   (:use [clojure.test]
         [clojure.contrib.set]
-        [clojure.contrib.java-utils :only [file delete-file-recursively]]))
+        [clojure.contrib.io :only [file delete-file-recursively]]))
 
 (def test-project (read-project "sample/project.clj"))
 

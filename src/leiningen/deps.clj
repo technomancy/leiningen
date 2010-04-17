@@ -2,7 +2,7 @@
   "Install jars for all dependencies in lib."
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos make-dependency]]
-        [clojure.contrib.java-utils :only [file]])
+        [clojure.contrib.io :only [file]])
   (:import [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
@@ -70,10 +70,13 @@ dependencies with the following:
        (when-not skip-dev
          (doseq [dep (:dev-dependencies project)]
            (.addDependency deps-task (make-dependency dep))))
+       ;; TODO: this is starting a rogue thread keeping the JVM from exiting
        (.execute deps-task)
        (.mkdirs (file (:library-path project)))
        (copy-dependencies (:jar-behavior project)
                           (:library-path project) true
                           (.getReference lancet/ant-project
-                                         (.getFilesetId deps-task)))))
+                                         (.getFilesetId deps-task)))
+       (println (format "Copied dependencies into %s."
+                        (:library-path project)))))
   ([project] (deps project false)))

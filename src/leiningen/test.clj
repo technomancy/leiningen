@@ -1,7 +1,7 @@
 (ns leiningen.test
   "Run the project's tests."
   (:refer-clojure :exclude [test])
-  (:use [clojure.contrib.java-utils :only [file]]
+  (:use [clojure.contrib.io :only [file]]
         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]]
         [leiningen.compile :only [eval-in-project]]))
 

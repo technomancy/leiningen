@@ -4,7 +4,7 @@ VERSION="1.2.0-SNAPSHOT"
 
 CLASSPATH=src/:"$(find lib/ -follow -mindepth 1 -maxdepth 1 -print0 2> /dev/null | tr \\0 \:)":$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
-CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.1.0/clojure-1.1.0.jar"
+CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-master-SNAPSHOT/clojure-1.2.0-master-SNAPSHOT.jar"
 
 # normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then

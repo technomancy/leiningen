@@ -2,7 +2,7 @@
   (:use [leiningen.core :only [read-project defproject]]
         [leiningen.pom :only [pom make-model]])
   (:use [clojure.test]
-        [clojure.contrib.java-utils :only [file delete-file]]))
+        [clojure.contrib.io :only [file delete-file]]))
 
 (def test-project (read-project "sample/project.clj"))
 

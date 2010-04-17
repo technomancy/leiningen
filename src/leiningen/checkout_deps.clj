@@ -1,6 +1,6 @@
 (ns leiningen.checkout-deps
   (:use [leiningen.core :only [read-project]]
-        [clojure.contrib.java-utils :only [file]]))
+        [clojure.contrib.io :only [file]]))
 
 (defn checkout-deps-paths [project]
   (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))]

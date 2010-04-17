@@ -4,9 +4,8 @@ lein new [group-id/]artifact-id [project-dir]
 Group-id is optional. Project-dir defaults to artifact-id if not given.
 Neither group-id nor artifact-id may contain slashes."
   (:use [leiningen.core :only [ns->path]]
-        [clojure.contrib.duck-streams :only [spit]]
-        [clojure.contrib.java-utils :only [file]]
-        [clojure.contrib.str-utils :only [str-join]]))
+        [clojure.contrib.io :only [spit file]]
+        [clojure.contrib.string :only [join]]))
 
 (defn new
   ([project-name project-dir]
@@ -33,9 +32,9 @@ Neither group-id nor artifact-id may contain slashes."
                     "\n  (:use [clojure.test]))\n\n"
                     "(deftest replace-me ;; FIXME: write\n  (is false))\n"))
          (spit (file project-dir ".gitignore")
-               (str-join "\n" ["pom.xml" "*jar" "lib" "classes"]))
+               (join "\n" ["pom.xml" "*jar" "lib" "classes"]))
          (spit (file project-dir "README")
-               (str-join "\n\n" [(str "# " artifact-id)
+               (join "\n\n" [(str "# " artifact-id)
                                  "FIXME: write description"
                                  "## Usage" "FIXME: write"
                                  "## Installation" "FIXME: write"

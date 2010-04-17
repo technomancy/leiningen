@@ -1,7 +1,7 @@
 (ns leiningen.classpath
-  (:use (clojure.contrib [java-utils :only (file)]
-                         [seq-utils :only (flatten)]
-                         [str-utils :only (str-join)]))
+  (:use (clojure.contrib [io :only (file)]
+                         [seq :only (flatten)]
+                         [string :only (join)]))
   (:import org.apache.tools.ant.types.Path))
 
 (defn find-lib-jars
@@ -31,4 +31,4 @@
   "Print out the classpath in which the project operates, within the
   current directory, in a format suitable for the -classpath option."
   [project]
-  (println (str-join java.io.File/pathSeparatorChar (get-classpath project))))
+  (println (join java.io.File/pathSeparatorChar (get-classpath project))))

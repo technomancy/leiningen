@@ -2,9 +2,8 @@
   "Create a jar containing the compiled code and original source."
   (:require [leiningen.compile :as compile])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
-        [clojure.contrib.duck-streams :only [to-byte-array copy]]
-        [clojure.contrib.str-utils :only [str-join re-sub]]
-        [clojure.contrib.java-utils :only [file]])
+        [clojure.contrib.io :only [to-byte-array copy file]]
+        [clojure.contrib.string :only [join replace-re]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
            [java.util.regex Pattern]
            [java.io BufferedOutputStream FileOutputStream
@@ -14,13 +13,13 @@
   (Manifest.
    (ByteArrayInputStream.
     (to-byte-array
-     (str (str-join "\n"
-                    ["Manifest-Version: 1.0" ; DO NOT REMOVE!
-                     "Created-By: Leiningen"
-                     (str "Built-By: " (System/getProperty "user.name"))
-                     (str "Build-Jdk: " (System/getProperty "java.version"))
-                     (when-let [main (:main project)]
-                       (str "Main-Class: " (.replaceAll (str main) "-" "_")))])
+     (str (join "\n"
+                ["Manifest-Version: 1.0" ; DO NOT REMOVE!
+                 "Created-By: Leiningen"
+                 (str "Built-By: " (System/getProperty "user.name"))
+                 (str "Build-Jdk: " (System/getProperty "java.version"))
+                 (when-let [main (:main project)]
+                   (str "Main-Class: " (.replaceAll (str main) "-" "_")))])
           "\n")))))
 
 (defn unix-path [path]
@@ -34,7 +33,7 @@
 (defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
 (defn- trim-leading-str [s to-trim]
-  (re-sub (re-pattern (str "^" (Pattern/quote to-trim))) "" s))
+  (replace-re (re-pattern (str "^" (Pattern/quote to-trim))) "" s))
 
 (defmethod copy-to-jar :path [project jar-os spec]
   (let [root (str (unix-path (:root project)) \/)

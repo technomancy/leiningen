@@ -2,8 +2,8 @@
   (:use [leiningen.core :only [read-project defproject]]
         [leiningen.install] :reload-all)
   (:use [clojure.test]
-        [clojure.contrib.java-utils :only [delete-file-recursively file]]
-        [clojure.contrib.shell-out :only [with-sh-dir sh]]))
+        [clojure.contrib.io :only [delete-file-recursively file]]
+        [clojure.contrib.shell :only [with-sh-dir sh]]))
 
 (def m2-dir (file (System/getProperty "user.home") ".m2" "repository"
                   "nomnomnom" "nomnomnom" "0.5.0-SNAPSHOT"))

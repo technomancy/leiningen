@@ -1,7 +1,7 @@
 (ns test-compile
   (:use [clojure.test]
-        [clojure.contrib.java-utils :only [delete-file-recursively file]]
-        [clojure.contrib.shell-out :only [with-sh-dir sh]]))
+        [clojure.contrib.io :only [delete-file-recursively file]]
+        [clojure.contrib.shell :only [with-sh-dir sh]]))
 
 (deftest test-compile
   (delete-file-recursively (file "sample" "classes" "nom") true)

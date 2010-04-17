@@ -1,8 +1,5 @@
 (ns lancet
   (:gen-class)
-  (:use [clojure.contrib.except :only (throw-if)]
-        clojure.contrib.shell-out
-        [clojure.contrib.str-utils :only (re-split)])
   (:import (java.beans Introspector) (java.util.concurrent CountDownLatch)))
 
 (defmulti coerce (fn [dest-class src-inst] [dest-class (class src-inst)]))
@@ -17,10 +14,7 @@
   (System/getenv (name val)))
 
 (defn- build-sh-args [args]
-  (concat (re-split #"\s+" (first args)) (rest args)))
-
-(defn system [& args]
-  (println (apply sh (build-sh-args args))))
+  (concat (.split (first args) " +") (rest args)))
 
 (def
  #^{:doc "Dummy ant project to keep Ant tasks happy"}
@@ -46,7 +40,8 @@
 
 (defn set-property! [inst prop value]
   (let [pd (property-descriptor inst prop)]
-    (throw-if (nil? pd) (str "No such property " prop))
+    (when-not pd
+      (throw (Exception. (format "No such property %s." prop))))
     (let [write-method (.getWriteMethod pd)
           dest-class (get-property-class write-method)]
       (.invoke write-method inst (into-array [(coerce dest-class value)])))))
@@ -56,7 +51,8 @@
 
 (defn instantiate-task [project name props & filesets]
   (let [task (.createTask project name)]
-    (throw-if (nil? task) (str "No task named " name))
+    (when-not task
+      (throw (Exception. (format "No task named %s." name))))
     (doto task
       (.init)
       (.setProject project)

@@ -2,8 +2,7 @@
   "Create a jar containing the compiled code, source, and all dependencies."
   (:require [clojure.xml :as xml])
   (:use [clojure.zip :only [xml-zip]]
-        [clojure.contrib.java-utils :only [file]]
-        [clojure.contrib.duck-streams :only [copy]]
+        [clojure.contrib.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.jar :only [jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
