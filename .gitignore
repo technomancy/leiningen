@@ -1,10 +1,9 @@
 sample/lib
 sample/classes/
-sample/nomnomnom.jar
+sample/nomnomnom*.jar
 classes/
 lib/
-leiningen.jar
-leiningen-standalone.jar
+leiningen*.jar
 pom.xml
-lein-swank/lein-swank.jar
+lein-swank/lein-swank*.jar
 autodoc/
