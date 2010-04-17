@@ -2,7 +2,7 @@
 
 VERSION="1.2.0-SNAPSHOT"
 
-CLASSPATH=src/:"$(find lib/ -follow -mindepth 1 -maxdepth 1 -print0 2> /dev/null | tr \\0 \:)":$CLASSPATH
+# TODO: put project's lib/dev on leiningen classpath
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-master-SNAPSHOT/clojure-1.2.0-master-SNAPSHOT.jar"
 
@@ -63,22 +63,7 @@ if type -p curl >/dev/null 2>&1; then
     HTTP_CLIENT="curl -L -o"
 fi
 
-if [ "$1" = "repl" ]; then
-    if [ -r project.clj ]; then
-        echo "Warning: the repl task currently doesn't honor some project.clj"
-        echo "options due to I/O stream issues. Future versions will address"
-        echo "this, but for now you will get more consistent behaviour from repls"
-        echo "launched by either the lein-swank plugin or the lein-nailgun plugin."
-        echo
-    fi
-    # Use rlwrap if it's available, otherwise fall back to JLine
-    RLWRAP=`which rlwrap`
-    JLINE=jline.ConsoleRunner
-    if [ $RLWRAP != "" ]; then
-        JLINE=
-    fi
-    $RLWRAP java -client $JAVA_OPTS -cp "src/:classes/:resources/:$CLASSPATH" $JLINE clojure.main ${@:2}
-elif [ "$1" = "self-install" ]; then
+if [ "$1" = "self-install" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
         echo "The self-install task is only meant for stable releases."
         echo "See the \"Hacking\" section of the README."
@@ -123,8 +108,17 @@ else
         CLASSPATH=`cygpath -wp "$CLASSPATH"`
     fi
 
+    # if [ "$1" = "repl" ]; then
+    #     # Use rlwrap if it's available, otherwise fall back to JLine
+    #     RLWRAP=`which rlwrap`
+    #     JLINE=jline.ConsoleRunner
+    #     if [ $RLWRAP != "" ]; then
+    #         JLINE=
+    #     fi
+    # fi
+
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
-    exec java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    exec $RLWRAP java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
 fi
