@@ -80,16 +80,18 @@
       (replace \_ \-)
       (replace \/ \.)))
 
-(defn -main [& [task & args]]
-  (let [task (or (aliases task) task "help")
-        args (if (@no-project-needed task)
-               args
-               (conj args (read-project)))
-        compile-path (:compile-path (first args))]
-    (when compile-path (.mkdirs (File. compile-path)))
-    (binding [*compile-path* compile-path]
-      ;; TODO: can we catch only task-level arity problems here?
-      ;; compare args and (:arglists (meta (resolve-task task)))?
-      (apply (resolve-task task) args))
-    ;; In case tests or some other task started any:
-    (shutdown-agents)))
+(defn -main
+  ([& [task & args]]
+     (let [task (or (aliases task) task "help")
+           args (if (@no-project-needed task)
+                  args
+                  (conj args (read-project)))
+           compile-path (:compile-path (first args))]
+       (when compile-path (.mkdirs (File. compile-path)))
+       (binding [*compile-path* compile-path]
+         ;; TODO: can we catch only task-level arity problems here?
+         ;; compare args and (:arglists (meta (resolve-task task)))?
+         (apply (resolve-task task) args))
+       ;; In case tests or some other task started any:
+       (shutdown-agents)))
+  ([] (apply -main *command-line-args*)))

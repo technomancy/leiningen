@@ -52,12 +52,6 @@ if [ $DEBUG ]; then
     echo $CLASSPATH
 fi
 
-# escape command-line arguments so they can be evaled as strings
-ESCAPED_ARGS=""
-for ARG in "$@"; do
-  ESCAPED_ARGS="$ESCAPED_ARGS"' "'$(echo $ARG | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')'"'
-done
-
 HTTP_CLIENT="wget -O"
 if type -p curl >/dev/null 2>&1; then
     HTTP_CLIENT="curl -L -o"
@@ -120,5 +114,7 @@ else
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
-    exec $RLWRAP java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE clojure.main -e "(use 'leiningen.core)(-main $ESCAPED_ARGS)"
+    exec $RLWRAP java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
+                      -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE \
+                      clojure.main -e "(use 'leiningen.core)(-main)" /dev/null $@
 fi
