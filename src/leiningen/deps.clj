@@ -57,7 +57,7 @@ dependencies with the following:
                                  com.sun.jdmk/jmxtools
                                  com.sun.jmx/jmxri]]"
   ;; TODO: get deps from ~/.m2 while offline
-  ([project skip-dev]
+  ([project skip-dev set]
      (let [deps-task (DependenciesTask.)]
        (.setBasedir lancet/ant-project (:root project))
        (.setFilesetId deps-task "dependency.fileset")
@@ -65,11 +65,8 @@ dependencies with the following:
        (.setPathId deps-task (:name project))
        (doseq [r (map make-repository (get-repository-list project))]
          (.addConfiguredRemoteRepository deps-task r))
-       (doseq [dep (:dependencies project)]
+       (doseq [dep (project set)]
          (.addDependency deps-task (make-dependency dep)))
-       (when-not skip-dev
-         (doseq [dep (:dev-dependencies project)]
-           (.addDependency deps-task (make-dependency dep))))
        ;; TODO: this is starting a rogue thread keeping the JVM from exiting
        (.execute deps-task)
        (.mkdirs (file (:library-path project)))
@@ -77,6 +74,9 @@ dependencies with the following:
                           (:library-path project) true
                           (.getReference lancet/ant-project
                                          (.getFilesetId deps-task)))
-       (println (format "Copied dependencies into %s."
-                        (:library-path project)))))
+       (println (format "Copied %s into %s." set (:library-path project)))
+       (when (and (not skip-dev) (seq (:dev-dependencies project)))
+         (deps (assoc project :library-path (str (:root project) "/lib/dev"))
+               true :dev-dependencies))))
+  ([project skip-dev] (deps project skip-dev :dependencies))
   ([project] (deps project false)))

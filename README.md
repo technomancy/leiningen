@@ -180,16 +180,6 @@ Once that succeeds it will be available for other projects to depend
 on. Leiningen adds Clojars and [the Clojure nightly build
 snapshots](http://build.clojure.org) to the default repositories.
 
-## Known Issues
-
-* The uberjar task uses everything in the lib directory. This may
-  include dev dependencies or old dependencies; it's best to clean
-  before creating an uberjar.
-
-* See the [issue
-  tracker](http://github.com/technomancy/leiningen/issues) for a more
-  complete list.
-
 ## Hacking
 
 You'll need to bootstrap using a stable release before you can hack on
@@ -220,6 +210,9 @@ Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
 "lein $YOUR_COMMAND". See the lein-swank directory for an example of a
 plugin.
+
+See the [complete list of known
+  issues](http://github.com/technomancy/leiningen/issues).
 
 ## License
 

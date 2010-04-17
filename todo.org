@@ -19,15 +19,17 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
+** TODO better way to force setFork in eval-in-project
 ** TODO unpredictable hangs when tasks finish
 ** DONE include version in jar filenames
 ** TODO a list of dirs to include in the jar when building
 ** TODO specify min. lein version in project.clj
 ** TODO set arbitrary jar metadata
-** TODO classpath task to just print configured classpath
+** DONE classpath task to just print configured classpath
 ** TODO walk up the filesystem to find project.clj
-** TODO move repl task from shell script to clojure code
+** DONE move repl task from shell script to clojure code
 ** TODO allow *warn-on-reflection* to be turned on in project.clj
+** TODO repl task exits on some projects (sample)
 * For later
 ** TODO write shell wrappers
 ** TODO lein install $PROJECT (works outside project root)

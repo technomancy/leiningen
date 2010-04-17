@@ -10,6 +10,6 @@
                  [org.apache.ant/ant "1.7.0"]
                  [jline "0.9.94"]
                  [org.apache.maven/maven-ant-tasks "2.1.0"]]
-  :dev-dependencies [[leiningen/lein-swank "1.1.0"]
+  :dev-dependencies [[leiningen/lein-swank "1.2.0-SNAPSHOT"]
                      [autodoc "0.7.0"]]
   :main leiningen.core)
