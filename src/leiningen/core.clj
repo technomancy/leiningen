@@ -94,4 +94,4 @@
          (apply (resolve-task task) args))
        ;; In case tests or some other task started any:
        (shutdown-agents)))
-  ([] (apply -main *command-line-args*)))
+  ([] (apply -main (or *command-line-args* ["help"]))))
