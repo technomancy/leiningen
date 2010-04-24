@@ -5,6 +5,7 @@ VERSION="1.2.0-SNAPSHOT"
 CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-master-SNAPSHOT/clojure-1.2.0-master-SNAPSHOT.jar"
+NULL_DEVICE=/dev/null
 
 # normalize $0 on certain BSDs
 if [ "$(dirname $0)" = "." ]; then
@@ -100,6 +101,7 @@ else
         # When running on Cygwin, use Windows-style paths for java
         CLOJURE_JAR=`cygpath -w "$CLOJURE_JAR"`
         CLASSPATH=`cygpath -wp "$CLASSPATH"`
+	NULL_DEVICE=NUL
     fi
 
     # if [ "$1" = "repl" ]; then
@@ -116,5 +118,5 @@ else
     # slower JVM boot.
     exec $RLWRAP java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
                       -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE \
-                      clojure.main -e "(use 'leiningen.core)(-main)" /dev/null $@
+                      clojure.main -e "(use 'leiningen.core)(-main)" $NULL_DEVICE $@
 fi
