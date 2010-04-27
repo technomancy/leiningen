@@ -9,6 +9,8 @@ Neither group-id nor artifact-id may contain slashes."
 
 (defn new
   ([project-name project-dir]
+     (when (re-find #"(?<!clo)jure" project-name)
+       (throw (IllegalArgumentException. "*jure names are no longer allowed.")))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
            artifact-id (name project-name)]
