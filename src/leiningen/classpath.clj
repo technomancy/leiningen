@@ -1,6 +1,5 @@
 (ns leiningen.classpath
   (:use (clojure.contrib [io :only (file)]
-                         [seq :only (flatten)]
                          [string :only (join)])
         [leiningen.checkout-deps :only [checkout-deps-paths]])
   (:import org.apache.tools.ant.types.Path))
