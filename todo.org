@@ -12,15 +12,17 @@ Leiningen TODOs
 ** DONE Don't put uberjar in ~/.m2                                     :Phil:
 ** DONE Perform compilation in either a subprocess or with a separate classloader
 ** DONE Allow test task to take namespaces as an argument
-** DONE System/exit appropriately when testing based on pass/fail      :Phil:
 ** DONE Fix eval-in-project to let plugins pass in extra args
 ** DONE Resources directory added to classpath (for properties, etc)
 * For 1.1.0
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
+** DONE make org.clojure implied for clojure/contrib deps
 ** TODO better way to force setFork in eval-in-project
-** TODO unpredictable hangs when tasks finish
+** TODO System/exit appropriately when testing based on pass/fail (abedra)
+** TODO unpredictable hangs when tasks finish (mtm looking into this)
+** TODO rename :namespaces key in project.clj
 ** DONE include version in jar filenames
 ** TODO a list of dirs to include in the jar when building
 ** TODO specify min. lein version in project.clj
@@ -29,7 +31,7 @@ Leiningen TODOs
 ** TODO walk up the filesystem to find project.clj
 ** DONE move repl task from shell script to clojure code
 ** TODO allow *warn-on-reflection* to be turned on in project.clj
-** TODO repl task exits on some projects (sample)
+** TODO repl task exits on some projects (sample) (patch for this?)
 * For later
 ** TODO write shell wrappers
 ** TODO lein install $PROJECT (works outside project root)
