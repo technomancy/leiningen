@@ -49,6 +49,12 @@ else
     fi
 fi
 
+# Convert classpath to Windows format when running on Cygwin
+if [ "$OSTYPE" = "cygwin" ]; then
+    CLASSPATH=`cygpath -wp $CLASSPATH`
+    CLOJURE_JAR=`cygpath -wp $CLOJURE_JAR`
+fi
+
 if [ $DEBUG ]; then
     echo $CLASSPATH
 fi
