@@ -118,7 +118,7 @@
       (.setValue (.createArg java) (prn-str form)))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
-    (.execute java)))
+    (.executeJava java)))
 
 (defn compile
   "Ahead-of-time compile the project. Looks for all namespaces under src/

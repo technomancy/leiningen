@@ -37,16 +37,17 @@ each namespace and print an overall summary."
            (println "\n\n--------------------\nTotal:")
            ((resolver# ~''report) summary#))
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
-            (shutdown-agents))))))
+            (shutdown-agents))
+          (when-not (zero? (+ (:error summary#) (:fail summary#)))
+            (System/exit 1))))))
 
 (defn test
   "Run the project's tests. Accepts a list of namespaces for which to run all
 tests. If none are given, runs them all."
   [project & namespaces]
   (let [namespaces (if (empty? namespaces)
-                     (find-namespaces-in-dir (file (:test-path project)))
+                     (sort (find-namespaces-in-dir (file (:test-path project))))
                      (map symbol namespaces))]
-    (eval-in-project
-     project
-     (with-version-guard
-       (form-for-testing-namespaces namespaces)))))
+    (eval-in-project project
+                     (with-version-guard
+                       (form-for-testing-namespaces namespaces)))))
