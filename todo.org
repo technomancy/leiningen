@@ -18,6 +18,7 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
+** TODO make help task resilient to broken plugins
 ** DONE make org.clojure implied for clojure/contrib deps
 ** TODO better way to force setFork in eval-in-project
 ** TODO System/exit appropriately when testing based on pass/fail (abedra)

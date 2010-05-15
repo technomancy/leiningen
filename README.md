@@ -208,15 +208,14 @@ wouldn't hurt either.
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
-"lein $YOUR_COMMAND". See the lein-swank directory for an example of a
-plugin.
+"lein $YOUR_COMMAND".
 
 See the [complete list of known
   issues](http://github.com/technomancy/leiningen/issues).
 
 ## License
 
-Copyright (C) 2009 Phil Hagelberg, Alex Osborne, and Dan Larkin
+Copyright (C) 2009-2010 Phil Hagelberg, Alex Osborne, and Dan Larkin
 
 Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
 me that good builds are important.

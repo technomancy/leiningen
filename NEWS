@@ -2,6 +2,36 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.2.0 / ???
 
+* Merge lein-swank plugin into swank-clojure.
+
+* Add :aot as an alias in project.clj for :namespaces to AOT-compile.
+
+* Add option to omit-default-repositories.
+
+* Allow group-id to be omitted when dependeng on Clojure and Contrib.
+
+* Keep dev-dependencies in lib/dev, exclude them from uberjars.
+
+* Include version numbers in jar filenames.
+
+* Fix repl task to use project subclassloader.
+
+* Don't allow "new" task to create *jure names.
+
+* Keep dev dependencies in lib/dev so uberjar doesn't pick them up.
+
+* Add classpath command.
+
+* Implement Checkout Dependencies. See README.
+
+* Add option to symlink deps into lib/ instead of copying.
+
+* Fixed bug for file timestamps inside jars.
+
+* Generated poms should work in Java IDEs.
+
+* Cygwin support.
+
 * Added INTRO.md file for introductory concepts.
 
 = 1.1.0 / 2010-02-16
