@@ -2,7 +2,7 @@
 
 VERSION="1.2.0-SNAPSHOT"
 
-CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":$CLASSPATH
+CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-master-SNAPSHOT/clojure-1.2.0-master-SNAPSHOT.jar"
 
