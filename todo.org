@@ -21,8 +21,8 @@ Leiningen TODOs
 ** DONE make org.clojure implied for clojure/contrib deps
 ** TODO better way to force setFork in eval-in-project
 ** TODO System/exit appropriately when testing based on pass/fail (abedra)
-** TODO unpredictable hangs when tasks finish (mtm looking into this)
-** TODO rename :namespaces key in project.clj
+*** Needs to set permissions with the ant API's Java task
+** DONE rename :namespaces key in project.clj
 ** DONE include version in jar filenames
 ** TODO a list of dirs to include in the jar when building
 ** TODO specify min. lein version in project.clj

@@ -15,10 +15,11 @@
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
-  (let [nses (set (cond
-                   (coll? (:namespaces project))
-                   (:namespaces project)
-                   (= :all (:namespaces project))
+  (let [nses (or (:aot project) (:namespaces project))
+        nses (set (cond
+                   (coll? nses) nses
+
+                   (= :all nses)
                    (find-namespaces-in-dir (file (:source-path project)))))]
     (if (:main project)
       (conj nses (:main project))
@@ -137,3 +138,4 @@
                           (clojure.core/compile namespace#)))
       (println "All :namespaces already compiled."))
     (println "No :namespaces listed for compilation in project.clj.")))
+

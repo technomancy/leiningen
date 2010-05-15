@@ -80,7 +80,7 @@ Place a project.clj file in the project root that looks something like this:
 
 Other keys accepted:
 
-* :namespaces - a list of namespaces on which to perform AOT-compilation.
+* :aot - a list of namespaces on which to perform AOT-compilation.
 * :main - specify a namespace to use as main for an executable jar.
 * :repositories - additional maven repositories to search for dependencies.
   Specify this as a map of repo IDs to URLs.
