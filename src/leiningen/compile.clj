@@ -107,7 +107,7 @@
                                           :default native-path)))))
     (.setClasspath java (apply make-path (get-classpath project)))
     (.setFailonerror java true)
-    (when (or (= :macosx (get-os)) native-path)
+    (when (or (:fork project) (= :macosx (get-os)) native-path)
       (.setFork java true)
       (doseq [arg (get-jvm-args)]
         (when-not (re-matches #"^-Xbootclasspath.+" arg)
