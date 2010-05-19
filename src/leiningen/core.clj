@@ -39,7 +39,6 @@
   (println msg)
   (System/exit 1))
 
-;; TODO: prompt to run "new" if no project file is found
 (defn read-project
   ([file]
      (try
