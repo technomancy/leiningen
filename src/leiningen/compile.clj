@@ -11,6 +11,8 @@
            java.lang.management.ManagementFactory
            (org.apache.tools.ant.types Environment$Variable)))
 
+(declare compile)
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
@@ -87,7 +89,12 @@
   set correctly for the project. Pass in a handler function to have it called
   with the java task right before executing if you need to customize any of its
   properties (classpath, library-path, etc)."
-  [project form & [handler]]
+  [project form & [handler skip-auto-compile]]
+  (when (and (not skip-auto-compile)
+             (empty? (.list (file (:compile-path project)))))
+    (compile project))
+  (when (empty? (find-lib-jars project))
+    (deps project))
   (let [java (Java.)
         native-path (or (:native-path project)
                         (find-native-lib-path project))]
@@ -126,15 +133,13 @@
   [project]
   ;; dependencies should be resolved by explicit "lein deps",
   ;; otherwise it will be done only if :library-path is empty
-  (when (empty? (find-lib-jars project))
-    (deps project :skip-dev))
   (.mkdir (file (:compile-path project)))
   (if (seq (compilable-namespaces project))
     (if-let [namespaces (seq (stale-namespaces project))]
       (eval-in-project project
                        `(doseq [namespace# '~namespaces]
                           (println "Compiling" namespace#)
-                          (clojure.core/compile namespace#)))
+                          (clojure.core/compile namespace#))
+                       nil :skip-auto-compile)
       (println "All :namespaces already compiled."))
     (println "No :namespaces listed for compilation in project.clj.")))
-
