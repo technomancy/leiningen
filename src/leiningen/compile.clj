@@ -78,11 +78,9 @@
       nil)))
 
 (defn get-jvm-args
-  "Returns a seq of strings with the arguments sent to this jvm instance."
-  []
-  (-> (ManagementFactory/getRuntimeMXBean)
-      (.getInputArguments)
-      (seq)))
+  [project]
+  (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
+          (:jvm-opts project)))
 
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
@@ -107,9 +105,10 @@
                                           :default native-path)))))
     (.setClasspath java (apply make-path (get-classpath project)))
     (.setFailonerror java true)
-    (when (or (:fork project) (= :macosx (get-os)) native-path)
+    (when (or (:fork project) (:jvm-opts project)
+              (= :macosx (get-os)) native-path)
       (.setFork java true)
-      (doseq [arg (get-jvm-args)]
+      (doseq [arg (get-jvm-args project)]
         (when-not (re-matches #"^-Xbootclasspath.+" arg)
           (.setValue (.createJvmarg java) arg))))
     (.setClassname java "clojure.main")

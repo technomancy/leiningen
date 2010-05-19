@@ -20,6 +20,7 @@ Leiningen TODOs
 * For 1.2.0
 ** DONE make org.clojure implied for clojure/contrib deps
 ** DONE better way to force setFork in eval-in-project
+** TODO document all known project.clj keys
 ** TODO System/exit appropriately when testing based on pass/fail (abedra)
 *** Needs to set permissions with the ant API's Java task
 ** DONE rename :namespaces key in project.clj

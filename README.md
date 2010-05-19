@@ -86,6 +86,9 @@ Other keys accepted:
   Specify this as a map of repo IDs to URLs.
 * :source-path, :compile-path, :library-path, :test-path, :resources-path -
   alternate paths for src/, classes/, lib/, resources/, and test/ directories.
+* :jvm-opts - a list of arguments to pass to the project-level JVM
+
+TODO: spin this list off into its own file and explain each option better
 
 ## FAQ
 
