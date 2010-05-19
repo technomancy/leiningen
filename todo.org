@@ -22,11 +22,11 @@ Leiningen TODOs
 *** Needs to set permissions with the ant API's Java task
 ** TODO repl task exits on some projects (sample) (patch for this?)
 ** TODO document all known project.clj keys
-** TODO allow *warn-on-reflection* to be turned on in project.clj
 ** TODO walk up the filesystem to find project.clj
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
+** DONE allow *warn-on-reflection* to be turned on in project.clj
 ** DONE make org.clojure implied for clojure/contrib deps
 ** DONE better way to force setFork in eval-in-project
 ** DONE rename :namespaces key in project.clj

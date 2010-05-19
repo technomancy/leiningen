@@ -29,6 +29,7 @@ each namespace and print an overall summary."
                                          (+ a# b#) a#))
               summary# (reduce (fn [summary# n#]
                                  (require n# :reload-all)
+                                 ;; TODO: apply run-tests across all test-nses
                                  (merge-with add-numbers#
                                              summary#
                                              ((resolver# ~''run-tests) n#)))
