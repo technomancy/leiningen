@@ -88,7 +88,7 @@
 
 (defn run-task [task args]
   (load-hooks task)
-  ((join-hooks (@hooks task))
+  ((join-hooks (@hooks (symbol task)))
    #(apply (resolve-task task) args)))
 
 (defn ns->path [n]
