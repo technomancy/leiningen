@@ -1,5 +1,6 @@
 (ns leiningen.core
-  (:use [clojure.contrib.with-ns])
+  (:use [clojure.contrib.with-ns]
+        [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]])
   (:import [java.io File])
   (:gen-class))
 
@@ -68,6 +69,28 @@
      (catch java.io.FileNotFoundException e
        error-fn))))
 
+(def hooks (atom {}))
+
+(defn add-hook [task f]
+  (swap! hooks update-in [task] conj f))
+
+(defn- load-hooks [task]
+  (doseq [n (sort (find-namespaces-on-classpath))
+          :when (re-find #"^leiningen\.hooks\." (name n))]
+    (require n)))
+
+;; These two were taken from fixtures in clojure.test; thanks Stuart!
+(defn- compose-hooks [f1 f2]
+  (fn [g] (f1 (fn [] (f2 g)))))
+
+(defn- join-hooks [hooks]
+  (reduce compose-hooks #(%) hooks))
+
+(defn run-task [task args]
+  (load-hooks task)
+  ((join-hooks (@hooks task))
+   #(apply (resolve-task task) args)))
+
 (defn ns->path [n]
   (str (.. (str n)
            (replace \- \_)
@@ -90,7 +113,7 @@
        (binding [*compile-path* compile-path]
          ;; TODO: can we catch only task-level arity problems here?
          ;; compare args and (:arglists (meta (resolve-task task)))?
-         (apply (resolve-task task) args))
+         (run-task task args))
        ;; In case tests or some other task started any:
        (shutdown-agents)))
   ([] (apply -main (or *command-line-args* ["help"]))))
