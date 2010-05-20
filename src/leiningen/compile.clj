@@ -7,32 +7,11 @@
          [clojure.contrib.io :only [file]]
          [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
-  (:import [org.apache.tools.ant.taskdefs Java]
-           [java.lang.management ManagementFactory]
-           [org.apache.tools.ant.types Environment$Variable
-            Permissions Permissions$Permission]))
+  (:import org.apache.tools.ant.taskdefs.Java
+           java.lang.management.ManagementFactory
+           (org.apache.tools.ant.types Environment$Variable)))
 
 (declare compile)
-
-(def perm-list [{:class "java.lang.RuntimePermission"
-                 :name "*"}
-                {:class "java.lang.reflect.ReflectPermission"
-                 :name "*"}
-                {:class "java.io.FilePermission"
-                 :name "<<ALL FILES>>"
-                 :actions "read,write,delete,execute"}
-                {:class "java.util.PropertyPermission"
-                 :name "*"
-                 :actions "read,write"}])
-
-;; This is ridiculous, but you can't exit the VM without it.
-(defn add-perms [java]
-  (let [perms (.createPermissions java)]
-    (doseq [p perm-list]
-      (.addConfiguredGrant perms (doto (Permissions$Permission.)
-                                   (.setClass (:class p))
-                                   (.setName (:name p))
-                                   (.setActions (str (:actions p))))))))
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
@@ -105,22 +84,6 @@
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
-(defn set-args [project java form native-path]
-  (when (or (:fork project) (:jvm-opts project)
-            (= :macosx (get-os)) native-path)
-    (.setFork java true)
-    (doseq [arg (get-jvm-args project)]
-      (when-not (re-matches #"^-Xbootclasspath.+" arg)
-        (.setValue (.createJvmarg java) arg))))
-  (.setClassname java "clojure.main")
-  (.setValue (.createArg java) "-e")
-  (let [cp (str (.getClasspath (.getCommandLine java)))
-        form `(do (def ~'*classpath* ~cp)
-                  (set! ~'*warn-on-reflection*
-                        ~(:warn-on-reflection project))
-                  ~form)]
-    (.setValue (.createArg java) (prn-str form))))
-
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
   set correctly for the project. Pass in a handler function to have it called
@@ -149,11 +112,23 @@
                                           :default native-path)))))
     (.setClasspath java (apply make-path (get-classpath project)))
     (.setFailonerror java true)
-    (add-perms java)
-    (set-args project java form native-path)
+    (when (or (:fork project) (:jvm-opts project)
+              (= :macosx (get-os)) native-path)
+      (.setFork java true)
+      (doseq [arg (get-jvm-args project)]
+        (when-not (re-matches #"^-Xbootclasspath.+" arg)
+          (.setValue (.createJvmarg java) arg))))
+    (.setClassname java "clojure.main")
+    (.setValue (.createArg java) "-e")
+    (let [cp (str (.getClasspath (.getCommandLine java)))
+          form `(do (def ~'*classpath* ~cp)
+                    (set! ~'*warn-on-reflection*
+                          ~(:warn-on-reflection project))
+                    ~form)]
+      (.setValue (.createArg java) (prn-str form)))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
-    (.execute java)))
+    (.executeJava java)))
 
 (defn compile
   "Ahead-of-time compile the project. Looks for all namespaces under src/
