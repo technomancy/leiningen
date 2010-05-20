@@ -18,14 +18,14 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
-** TODO System/exit appropriately when testing based on pass/fail (abedra)
-*** Needs to set permissions with the ant API's Java task
 ** TODO repl task exits on some projects (sample) (patch for this?)
 ** TODO document all known project.clj keys
 ** TODO walk up the filesystem to find project.clj
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
+** DONE System/exit appropriately when testing based on pass/fail (abedra)
+*** Needs to set permissions with the ant API's Java task
 ** DONE allow *warn-on-reflection* to be turned on in project.clj
 ** DONE make org.clojure implied for clojure/contrib deps
 ** DONE better way to force setFork in eval-in-project
