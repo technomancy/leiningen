@@ -18,8 +18,9 @@ Please consider upgrading to a newer version of Clojure or using"
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
 each namespace and print an overall summary."
-  ([namespaces] (form-for-testing-namespaces namespaces 'clojure.test))
-  ([namespaces test-package]
+  ([namespaces result-file]
+     (form-for-testing-namespaces namespaces 'clojure.test result-file))
+  ([namespaces test-package result-file]
      `(do
         (require '~test-package)
         (let [resolver# (fn [fname#]
@@ -39,8 +40,10 @@ each namespace and print an overall summary."
            ((resolver# ~''report) summary#))
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
             (shutdown-agents))
-          (when-not (zero? (+ (:error summary#) (:fail summary#)))
-            (System/exit 1))))))
+          (with-open [w# (-> (java.io.File. ~result-file)
+                             (java.io.FileOutputStream.)
+                             (java.io.OutputStreamWriter.))]
+            (.write w# (pr-str summary#)))))))
 
 (defn test
   "Run the project's tests. Accepts a list of namespaces for which to run all
@@ -48,7 +51,13 @@ tests. If none are given, runs them all."
   [project & namespaces]
   (let [namespaces (if (empty? namespaces)
                      (sort (find-namespaces-in-dir (file (:test-path project))))
-                     (map symbol namespaces))]
+                     (map symbol namespaces))
+        result (java.io.File/createTempFile "lein" "result")]
     (eval-in-project project
                      (with-version-guard
-                       (form-for-testing-namespaces namespaces)))))
+                       (form-for-testing-namespaces namespaces
+                                                    (.getAbsolutePath result))))
+    (let [summary (read-string (slurp (.getAbsolutePath result)))
+          success? (zero? (+ (:error summary) (:fail summary)))]
+      (.delete result)
+      (System/exit (if success? 0 1)))))
