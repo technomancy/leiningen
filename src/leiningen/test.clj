@@ -29,7 +29,7 @@ each namespace and print an overall summary."
               add-numbers# (fn [a# b#] (if (number? a#)
                                          (+ a# b#) a#))
               summary# (reduce (fn [summary# n#]
-                                 (require n# :reload-all)
+                                 (require n#)
                                  ;; TODO: apply run-tests across all test-nses
                                  (merge-with add-numbers#
                                              summary#
