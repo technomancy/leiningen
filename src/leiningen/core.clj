@@ -113,7 +113,10 @@
        (binding [*compile-path* compile-path]
          ;; TODO: can we catch only task-level arity problems here?
          ;; compare args and (:arglists (meta (resolve-task task)))?
-         (run-task task args))
+         ;; TODO: wrap tasks in run-task using alter-var-root
+         (let [value (run-task task args)]
+           (when (integer? value)
+             (System/exit value))))
        ;; In case tests or some other task started any:
        (shutdown-agents)))
   ([] (apply -main (or *command-line-args* ["help"]))))

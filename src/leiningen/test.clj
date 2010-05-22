@@ -60,4 +60,4 @@ tests. If none are given, runs them all."
     (let [summary (read-string (slurp (.getAbsolutePath result)))
           success? (zero? (+ (:error summary) (:fail summary)))]
       (.delete result)
-      (System/exit (if success? 0 1)))))
+      (if success? 0 1))))
