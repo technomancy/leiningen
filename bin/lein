@@ -64,6 +64,8 @@ if type -p curl >/dev/null 2>&1; then
     HTTP_CLIENT="curl -L -o"
 fi
 
+JAVA_CMD=${JAVA_CMD:-"java"}
+
 if [ "$1" = "self-install" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
         echo "The self-install task is only meant for stable releases."
@@ -122,7 +124,7 @@ else
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
-    exec $RLWRAP java -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
+    exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
                       -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE \
                       clojure.main -e "(use 'leiningen.core)(-main)" $NULL_DEVICE $@
 fi
