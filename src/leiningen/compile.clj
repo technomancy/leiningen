@@ -112,12 +112,10 @@
                                           :default native-path)))))
     (.setClasspath java (apply make-path (get-classpath project)))
     (.setFailonerror java true)
-    (when (or (:fork project) (:jvm-opts project)
-              (= :macosx (get-os)) native-path)
-      (.setFork java true)
-      (doseq [arg (get-jvm-args project)]
-        (when-not (re-matches #"^-Xbootclasspath.+" arg)
-          (.setValue (.createJvmarg java) arg))))
+    (.setFork java true)
+    (doseq [arg (get-jvm-args project)]
+      (when-not (re-matches #"^-Xbootclasspath.+" arg)
+        (.setValue (.createJvmarg java) arg)))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
     (let [cp (str (.getClasspath (.getCommandLine java)))
