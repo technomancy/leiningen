@@ -43,7 +43,8 @@ each namespace and print an overall summary."
           (with-open [w# (-> (java.io.File. ~result-file)
                              (java.io.FileOutputStream.)
                              (java.io.OutputStreamWriter.))]
-            (.write w# (pr-str summary#)))))))
+            (.write w# (pr-str summary#))))
+        (System/exit 0))))
 
 (defn test
   "Run the project's tests. Accepts a list of namespaces for which to run all
