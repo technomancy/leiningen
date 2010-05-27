@@ -20,10 +20,10 @@ Leiningen TODOs
 * For 1.2.0
 ** TODO disable frickin [null] logging from ant (come on srsly)
 ** TODO document all known project.clj keys
-** TODO walk up the filesystem to find project.clj
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
+** DONE walk up the filesystem to find project.clj
 ** DONE make inter-task dependencies honor hooks
 ** DONE wire repl task up to socket repl
 ** DONE allow *warn-on-reflection* to be turned on in project.clj

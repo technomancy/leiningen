@@ -25,6 +25,16 @@ while [ -h "$SCRIPT" ] ; do
     fi
 done
 
+ORIGINAL_PWD=$PWD
+while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
+do
+    cd ..
+    if [ "$(dirname $PWD)" == "/" ]; then
+        NOT_FOUND=0
+        cd $ORIGINAL_PWD
+    fi
+done
+
 BIN_DIR="$(dirname "$SCRIPT")"
 
 if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
