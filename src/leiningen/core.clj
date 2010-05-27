@@ -116,7 +116,5 @@
          ;; TODO: wrap tasks in run-task using alter-var-root
          (let [value (run-task task args)]
            (when (integer? value)
-             (System/exit value))))
-       ;; In case tests or some other task started any:
-       (shutdown-agents)))
+             (System/exit value))))))
   ([] (apply -main (or *command-line-args* ["help"]))))
