@@ -18,7 +18,6 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
-** TODO wire repl task up to socket repl
 ** TODO disable frickin [null] logging from ant (come on srsly)
 ** TODO make inter-task dependencies honor hooks
 ** TODO document all known project.clj keys
@@ -26,6 +25,7 @@ Leiningen TODOs
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
+** DONE wire repl task up to socket repl
 ** DONE allow *warn-on-reflection* to be turned on in project.clj
 ** DONE make org.clojure implied for clojure/contrib deps
 ** DONE better way to force setFork in eval-in-project

@@ -5,7 +5,7 @@
   (:import [java.net Socket]
            [java.io OutputStreamWriter InputStreamReader]))
 
-(defn repl-form [project port]
+(defn repl-server [project port]
   (let [init-form (and (:main project)
                        [:init `#(doto '~(:main project) require in-ns)])]
     `(do (ns ~'user
@@ -15,7 +15,6 @@
                     [java.io ~'InputStreamReader ~'OutputStream
                      ~'OutputStreamWriter ~'PrintWriter]
                     [clojure.lang ~'LineNumberingPushbackReader]))
-         (println "Opening connection on port" ~port)
          (let [server# (ServerSocket. ~port)
                socket# (.accept server#)
                ins# (.getInputStream socket#)
@@ -34,21 +33,30 @@
     (.write *out* (.read reader)))
   (flush))
 
-(defn- connect-to-repl [reader writer]
+(defn- repl-client [reader writer]
   (copy-out reader)
-  (.write writer (str (pr-str (read)) "\n"))
-  (.flush writer)
-  (recur reader writer))
+  (let [input (try (pr-str (read))
+                   (catch Exception _ ::abort))]
+    (when-not (= ::abort input)
+      (.write writer (str input "\n"))
+      (.flush writer)
+      (recur reader writer))))
+
+(defn- connect-to-server [socket]
+  (repl-client (InputStreamReader. (.getInputStream socket))
+               (OutputStreamWriter. (.getOutputStream socket))))
 
 (defn- poll-for-socket [port]
   (Thread/sleep 100)
-  (try (let [socket (Socket. "localhost" port)]
-         (connect-to-repl (InputStreamReader. (.getInputStream socket))
-                          (OutputStreamWriter. (.getOutputStream socket))))
-       (catch java.net.ConnectException _))
-  (recur port))
+  (when (try (connect-to-server (Socket. "localhost" port))
+             (catch java.net.ConnectException _ :retry))
+    (recur port)))
 
 (defn repl [project]
-  (let [port (+ 1024 (rand-int 32000))]
-    (.start (Thread. #(eval-in-project project (repl-form project port))))
-    (poll-for-socket port)))
+  (let [port (dec (+ 1024 (rand-int 64512)))
+        server-form (repl-server project port)
+        server-thread (Thread. #(try (eval-in-project project server-form)
+                                     (catch Exception _)))]
+    (.start server-thread)
+    (poll-for-socket port)
+    (.stop server-thread)))
