@@ -86,7 +86,9 @@
 (defn- join-hooks [hooks]
   (reduce compose-hooks #(%) hooks))
 
-(defn run-task [task args]
+(defn run-task
+  "Run the given task with its hooks activated."
+  [task args]
   (load-hooks task)
   ((join-hooks (concat (@hooks (symbol task)) (@hooks :all)))
    #(apply (resolve-task task) args)))
