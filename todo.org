@@ -20,13 +20,12 @@ Leiningen TODOs
 * For 1.2.0
 ** TODO disable frickin [null] logging from ant (come on srsly)
 ** TODO document all known project.clj keys
-** TODO a list of dirs to include in the jar when building
-** TODO set arbitrary jar metadata
-** TODO specify min. lein version in project.clj
+** DONE Help task should display arglist
 ** DONE walk up the filesystem to find project.clj
 ** DONE make inter-task dependencies honor hooks
 ** DONE wire repl task up to socket repl
 ** DONE allow *warn-on-reflection* to be turned on in project.clj
+** DONE Expose hooks in built-in tasks so plugins may extend them
 ** DONE make org.clojure implied for clojure/contrib deps
 ** DONE better way to force setFork in eval-in-project
 ** DONE rename :namespaces key in project.clj
@@ -34,6 +33,10 @@ Leiningen TODOs
 ** DONE classpath task to just print configured classpath
 ** DONE move repl task from shell script to clojure code
 * For later
+** TODO differentiate between ns-level/fn-level help docstrings
+** TODO a list of dirs to include in the jar when building
+** TODO set arbitrary jar metadata
+** TODO specify min. lein version in project.clj
 ** TODO write shell wrappers
 ** TODO lein install $PROJECT (works outside project root)
 ** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
@@ -43,7 +46,6 @@ Leiningen TODOs
 *** TODO "lein install $PROJECT" without a checkout
 *** TODO create shell scripts post-install
 ** Improve plugins
-*** TODO Expose hooks in built-in tasks so plugins may extend them
 *** TODO Allow plugins to be activated user-wide (maybe system-wide?)
 * Plugin Ideas:
 *** Code statistics (LOC, doc coverage, etc)
@@ -55,4 +57,3 @@ Leiningen TODOs
 * Low Priority
 ** TODO Run failed tests task
 ** TODO Remove duplication between deps.clj and pom.clj
-** TODO Help task should display arglist
