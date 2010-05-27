@@ -27,22 +27,28 @@
              (clojure.main/repl ~@init-form))
            (.close server#)))))
 
-(defn connect-to-repl [port]
-  (Thread/sleep 3000) ;; TODO: poll
-  (let [socket (Socket. "localhost" port)
-        reader (InputStreamReader. (.getInputStream socket))
-        writer (OutputStreamWriter. (.getOutputStream socket))
-        copy-out #(do (while (.ready reader)
-                         (Thread/sleep 100)
-                         (.write *out* (.read reader)))
-                       (flush))]
-    (loop []
-      (dotimes [_ 2] (copy-out))
-      (.write writer (str (pr-str (read)) "\n"))
-      (.flush writer)
-      (recur))))
+(defn copy-out [reader]
+  (Thread/sleep 100)
+  (.write *out* (.read reader))
+  (while (.ready reader)
+    (.write *out* (.read reader)))
+  (flush))
+
+(defn- connect-to-repl [reader writer]
+  (copy-out reader)
+  (.write writer (str (pr-str (read)) "\n"))
+  (.flush writer)
+  (recur reader writer))
+
+(defn- poll-for-socket [port]
+  (Thread/sleep 100)
+  (try (let [socket (Socket. "localhost" port)]
+         (connect-to-repl (InputStreamReader. (.getInputStream socket))
+                          (OutputStreamWriter. (.getOutputStream socket))))
+       (catch java.net.ConnectException _))
+  (recur port))
 
 (defn repl [project]
   (let [port (+ 1024 (rand-int 32000))]
     (.start (Thread. #(eval-in-project project (repl-form project port))))
-    (connect-to-repl port)))
+    (poll-for-socket port)))
