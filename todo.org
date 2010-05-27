@@ -18,8 +18,9 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
+** TODO wire repl task up to socket repl
+** TODO disable frickin [null] logging from ant (come on srsly)
 ** TODO make inter-task dependencies honor hooks
-** TODO repl task exits on some projects (sample) (patch for this?)
 ** TODO document all known project.clj keys
 ** TODO walk up the filesystem to find project.clj
 ** TODO a list of dirs to include in the jar when building

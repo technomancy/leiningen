@@ -40,7 +40,9 @@ Neither group-id nor artifact-id may contain slashes."
                                  "FIXME: write description"
                                  "## Usage" "FIXME: write"
                                  "## Installation" "FIXME: write"
-                                 "## License" "FIXME: write\n"]))
+                                 "## License" "Copyright (C) 2010 FIXME"
+                                 (str "Distributed under the Eclipse Public"
+                                      " License, the same as Clojure."\n)]))
          (println "Created new project in:" project-dir))))
   ([project-name] (leiningen.new/new project-name
                                      (name (symbol project-name)))))
