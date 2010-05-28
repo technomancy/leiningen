@@ -2,7 +2,25 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.2.0 / ???
 
-* Allow :fork and :jvm-opts to be set in project.clj.
+* Include arglists in help output.
+
+* Make lein script usable from any subdirectory in the project root.
+
+* Fix repl task to work with forked subprocess.
+
+* Fork subprocess unconditionally for greater compatibility.
+
+* Allow $JAVA_CMD to be customized.
+
+* Fix a bug causing everything to recompile in tests. Thanks, Stuart!
+
+* Fix exit code for test runs.
+
+* Allow plugins to extend built-in tasks using hooks.
+
+* Automatically compile and fetch deps when needed.
+
+* Allow :jvm-opts and :warn-on-reflection to be set in project.clj.
 
 * Merge lein-swank plugin into swank-clojure.
 
