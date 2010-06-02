@@ -50,6 +50,7 @@
      {"Mac OS X" :macosx
       "Windows" :windows
       "Linux" :linux
+      "FreeBSD" :freebsd
       "SunOS" :solaris
       "amd64" :x86_64
       "x86_64" :x86_64
