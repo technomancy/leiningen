@@ -58,7 +58,7 @@ tests. If none are given, runs them all."
                      (with-version-guard
                        (form-for-testing-namespaces namespaces
                                                     (.getAbsolutePath result))))
-    (if (.exists result)
+    (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))
             success? (zero? (+ (:error summary) (:fail summary)))]
         (.delete result)
