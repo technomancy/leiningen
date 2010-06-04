@@ -18,8 +18,9 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
-** TODO disable frickin [null] logging from ant (come on srsly)
+** TODO document plugin creation
 ** TODO document all known project.clj keys
+** DONE disable frickin [null] logging from ant (come on srsly)
 ** DONE recover from missing test exit map gracefully
 ** DONE Help task should display arglist
 ** DONE walk up the filesystem to find project.clj

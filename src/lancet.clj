@@ -23,6 +23,7 @@
        logger (org.apache.tools.ant.NoBannerLogger.)]
    (doto logger
      (.setMessageOutputLevel org.apache.tools.ant.Project/MSG_INFO)
+     (.setEmacsMode true)
      (.setOutputPrintStream System/out)
      (.setErrorPrintStream System/err))
    (doto proj
