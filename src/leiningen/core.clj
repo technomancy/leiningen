@@ -33,9 +33,6 @@
                                   :root root#))))
      (def ~(symbol (name project-name)) project)))
 
-;; So it doesn't need to be fully-qualified in project.clj
-(with-ns 'clojure.core (use ['leiningen.core :only ['defproject]]))
-
 (defn abort [msg]
   (println msg)
   (System/exit 1))
@@ -49,8 +46,8 @@
         (abort "No project.clj found in this directory."))))
   ([] (read-project "project.clj")))
 
-(def aliases {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
-              "--version" "version" "überjar" "uberjar"})
+(def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
+                    "--version" "version" "überjar" "uberjar"}))
 
 (def no-project-needed (atom #{"new" "help" "version"}))
 
@@ -106,7 +103,7 @@
 
 (defn -main
   ([& [task & args]]
-     (let [task (or (aliases task) task "help")
+     (let [task (or (@aliases task) task "help")
            args (if (@no-project-needed task)
                   args
                   (conj args (read-project)))
@@ -115,7 +112,6 @@
        (binding [*compile-path* compile-path]
          ;; TODO: can we catch only task-level arity problems here?
          ;; compare args and (:arglists (meta (resolve-task task)))?
-         ;; TODO: wrap tasks in run-task using alter-var-root
          (let [value (run-task task args)]
            (when (integer? value)
              (System/exit value))))))
