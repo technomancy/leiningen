@@ -10,6 +10,5 @@
                  [ant/ant "1.6.5"]
                  [jline "0.9.94"]
                  [org.apache.maven/maven-ant-tasks "2.0.10"]]
-  :dev-dependencies [[swank-clojure "1.2.1"]
-                     [autodoc "0.7.0"]]
+  :dev-dependencies [[swank-clojure "1.2.1"]]
   :main leiningen.core)

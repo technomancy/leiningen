@@ -2,6 +2,8 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.2.0 / ???
 
+* Add plugin creation guide.
+
 * Include arglists in help output.
 
 * Make lein script usable from any subdirectory in the project root.
