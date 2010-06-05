@@ -6,14 +6,15 @@ built on some Maven libraries; specifically the dependency resolution
 parts. These aspects of Maven are not nearly as complex as the build
 features that have given it its somewhat fearsome reputation. Think of
 it as the package manager of the JVM world, much like Rubygems, CPAN,
-etc. There is a central canonical repository, a Clojure-specific
-repository called Clojars, and projects often also make their jars
-available through project-specific public repositories. It allows you
-to define the dependencies of your project, which it then goes and
-retrieves, stores in a local repository ("~/.m2" on Unix by default),
-and copies into your project's "lib/" directory. This makes it so that
-you don't have to check your dependent jar files into your SCM or make
-developers hunt down dependency jars by hand.
+etc. There is a central canonical Java-centric repository, a
+Clojure-specific repository called Clojars, and projects often also
+make their jars available through project-specific public
+repositories. It allows you to define the dependencies of your
+project, which it then goes and retrieves, stores in a local
+repository ("~/.m2" on Unix by default), and copies into your
+project's "lib/" directory. This makes it so that you don't have to
+check your dependent jar files into your SCM or make developers hunt
+down dependency jars by hand.
 
 Leiningen describes packages using identifiers that look like:
 
@@ -41,7 +42,8 @@ following dependency in your project.clj file:
 
     [org.ho.yaml/jyaml "1.3"]
 
-You'll get an error when you run "lein deps". One way to find the
+You'll get an error when you run "lein deps" because the group id
+doesn't match the package name in this case. One way to find the
 correct group id is to use a maven search web site like
 [Jarvana](http://jarvana.com). In the "project search" box, enter
 "jyaml", and you'll see results that indicate the correct group-id

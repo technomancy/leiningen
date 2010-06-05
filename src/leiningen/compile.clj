@@ -129,8 +129,7 @@
     (.executeJava java)))
 
 (defn compile
-  "Ahead-of-time compile the project. Looks for all namespaces under src/
-  unless a list of :namespaces is provided in project.clj."
+  "Ahead-of-time compile the namespaces given under :aot in project.clj."
   [project]
   ;; dependencies should be resolved by explicit "lein deps",
   ;; otherwise it will be done only if :library-path is empty

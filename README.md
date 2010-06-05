@@ -43,11 +43,11 @@ instead, though support on that platform is still experimental.
 
 ## Usage
 
+    $ lein new NAME # generate a new project skeleton
+
     $ lein deps # install dependencies in lib/
 
     $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
-
-    $ lein compile # ahead-of-time compile into classes/
 
     $ lein repl # launch a REPL with the project classpath configured
 
@@ -57,13 +57,10 @@ instead, though support on that platform is still experimental.
 
     $ lein uberjar # create a standalone jar that contains all dependencies
 
-    $ lein pom # output a pom.xml file for interop with Maven
-
     $ lein install # install in local repository
 
-    $ lein help [TASK] # show a list of tasks or help for a given TASK
-
-    $ lein new NAME # generate a new project skeleton
+These are the most commonly-used tasks; you can use "lein help" to see
+a complete list. "lein help $TASK" will show the usage for a specific one.
 
 ## Configuration
 
@@ -72,23 +69,16 @@ Place a project.clj file in the project root that looks something like this:
     (defproject leiningen "0.5.0-SNAPSHOT"
       :description "A build tool designed not to set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
-      :dependencies [[org.clojure/clojure "1.1.0-alpha-SNAPSHOT"]
-                     [org.clojure/clojure-contrib "1.0-SNAPSHOT"]
+      :dependencies [[org.clojure/clojure "1.1.0]
+                     [org.clojure/clojure-contrib "1.1.0"]
                      [ant/ant-launcher "1.6.2"]
                      [org.apache.maven/maven-ant-tasks "2.0.10"]]
-      :dev-dependencies [[org.clojure/swank-clojure "1.0"]])
+      :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]])
 
-Other keys accepted:
-
-* :aot - a list of namespaces on which to perform AOT-compilation.
-* :main - specify a namespace to use as main for an executable jar.
-* :repositories - additional maven repositories to search for dependencies.
-  Specify this as a map of repo IDs to URLs.
-* :source-path, :compile-path, :library-path, :test-path, :resources-path -
-  alternate paths for src/, classes/, lib/, resources/, and test/ directories.
-* :jvm-opts - a list of arguments to pass to the project-level JVM
-
-TODO: spin this list off into its own file and explain each option better
+The "lein new" task will generate a project skeleton with an
+appropriate starting point from which you can work. See the file
+sample.project.clj for a detailed listing of all the configuration
+options that Leiningen knows about.
 
 ## FAQ
 
@@ -122,11 +112,11 @@ TODO: spin this list off into its own file and explain each option better
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** Open-source jars can be uploaded to Clojars (see "Publishing"
-  below), though be sure to use the groupId of "org.clojars.$USERNAME"
+  below), though be sure to use the group-id of "org.clojars.$USERNAME"
   in order to avoid conflicts and to allow the original authors to
   claim it in the future once they get around to uploading. 
-  Alternatively you can install into your local repository in ~/.m2
-  with Maven for Java libs or "lein install" for Clojure libs.
+  Alternatively you can do a one-off install into your local repository in
+ ~/.m2 with Maven for Java libs or "lein install" for Clojure libs.
 
 **Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
@@ -141,30 +131,20 @@ TODO: spin this list off into its own file and explain each option better
   should not AOT-compile your project if other projects may depend
   upon it.
 
-**Q:** It looks like the classpath isn't honoring project.clj.  
-**A:** Leiningen runs many things in a subclassloader so it can
-  control the classpath and other things. Because of this, the
-  standard (System/getProperty "java.class.path") call will return the
-  classpath that Leiningen runs in, not the one that your project is
-  run in. Your project's classpath is stored in the user/*classpath* var.
-
 **Q:** Is it possible to exclude indirect dependencies?  
-**A:** Yes.  Some libraries, such as log4j, depend on projects that are
+**A:** Yes. Some libraries, such as log4j, depend on projects that are
   not included in public repositories and unnecessary for basic
   functionality.  Projects listed as :dependencies may exclude 
-  any of their dependencies by using the :exclusions key, as demonstrated here:
-    [log4j "1.2.15" :exclusions [javax.mail/mail
-                                 javax.jms/jms
-                                 com.sun.jdmk/jmxtools
-                                 com.sun.jmx/jmxri]]
+  any of their dependencies by using the :exclusions key. See
+  sample.project.clj for details.
+
+**Q:** It says a required artifact is missing for "super-pom". What's that?  
+**A:** The Maven API that Leiningen uses refers to your project as
+  "super-pom". It's just a quirk of the API. It probably means there
+  is a typo in your :dependency declaration in project.clj.
 
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).
-
-**Q:** What happened to [Corkscrew](http://github.com/technomancy/corkscrew)?  
-**A:** I tried, but I really couldn't make the wine metaphor work. That,
-   and the Plexus Classworlds container was an ornery beast causing
-   much frustration. The maven-ant-tasks API is much more manageable.
 
 ## Publishing
 
@@ -176,8 +156,8 @@ it into Maven central, the easiest way is to publish it at
 for open-source code. Once you have created an account there,
 publishing is easy:
 
-    $ lein jar
-    $ scp $PROJECT.jar clojars@clojars.org:
+    $ lein jar && lein pom
+    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
 
 Once that succeeds it will be available for other projects to depend
 on. Leiningen adds Clojars and [the Clojure nightly build
@@ -205,16 +185,17 @@ Contributions are preferred as either Github pull requests or using
 "git format-patch" and the mailing list as is requested [for
 contributing to Clojure itself](http://clojure.org/patches). Please
 use standard indentation with no tabs, trailing whitespace, or lines
-longer than 80 columns. If you've got some time on your hands, reading
-this [style guide](http://mumble.net/~campbell/scheme/style.txt)
-wouldn't hurt either.
+longer than 80 columns. See [this post on submitting good
+patches](http://technomancy.us/135) for some tips. If you've got some
+time on your hands, reading this [style
+guide](http://mumble.net/~campbell/scheme/style.txt) wouldn't hurt
+either.
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
-"lein $YOUR_COMMAND".
+"lein $YOUR_COMMAND". See the file PLUGINS.md for details.
 
-See the [complete list of known
-  issues](http://github.com/technomancy/leiningen/issues).
+See the [complete list of known issues](http://github.com/technomancy/leiningen/issues).
 
 ## License
 
