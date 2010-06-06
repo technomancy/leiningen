@@ -4,7 +4,7 @@
   (:use  [leiningen.deps :only [deps]]
          [leiningen.core :only [ns->path run-task]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
-         [clojure.contrib.io :only [file]]
+         [clojure.java.io :only [file]]
          [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import org.apache.tools.ant.taskdefs.Java

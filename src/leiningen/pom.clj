@@ -1,6 +1,6 @@
 (ns leiningen.pom
   "Write a pom.xml file to disk for Maven interop."
-  (:use [clojure.contrib.io :only [reader copy file]]
+  (:use [clojure.java.io :only [reader copy file]]
         [clojure.contrib.properties :only [as-properties]])
   (:import [java.io StringWriter ByteArrayOutputStream]
            [org.apache.maven.model Build Model Parent Dependency

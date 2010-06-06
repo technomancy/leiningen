@@ -3,7 +3,7 @@
   (:use [leiningen.core :only [run-task]]
         [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom make-model]]
-        [clojure.contrib.io :only [file]])
+        [clojure.java.io :only [file]])
   (:import [org.apache.maven.artifact.installer ArtifactInstaller]
            [org.apache.maven.project.artifact ProjectArtifactMetadata]
            [org.apache.maven.settings MavenSettingsBuilder]

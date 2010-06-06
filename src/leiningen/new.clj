@@ -4,7 +4,7 @@ lein new [group-id/]artifact-id [project-dir]
 Group-id is optional. Project-dir defaults to artifact-id if not given.
 Neither group-id nor artifact-id may contain slashes."
   (:use [leiningen.core :only [ns->path]]
-        [clojure.contrib.io :only [spit file]]
+        [clojure.java.io :only [file]]
         [clojure.contrib.string :only [join]]))
 
 (defn new

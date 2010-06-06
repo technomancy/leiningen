@@ -2,7 +2,7 @@
   "Install jars for all dependencies in lib."
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos make-dependency]]
-        [clojure.contrib.io :only [file]])
+        [clojure.java.io :only [file]])
   (:import [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 

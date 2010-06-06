@@ -2,7 +2,7 @@
   "Create a jar containing the compiled code, source, and all dependencies."
   (:require [clojure.xml :as xml])
   (:use [clojure.zip :only [xml-zip]]
-        [clojure.contrib.io :only [file copy]]
+        [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.core :only [run-task]]
         [leiningen.jar :only [jar]])
