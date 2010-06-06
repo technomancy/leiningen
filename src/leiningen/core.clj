@@ -66,10 +66,13 @@
      (catch java.io.FileNotFoundException e
        error-fn))))
 
-(def hooks (atom {}))
+(defn- hookize [v]
+  (when-not (::hooks (meta @v))
+    (alter-var-root v vary-meta assoc ::hooks (atom []))))
 
-(defn add-hook [task f]
-  (swap! hooks update-in [task] conj f))
+(defn add-hook [task-var f]
+  (hookize task-var)
+  (swap! (::hooks (meta @task-var)) conj f))
 
 (defn- load-hooks [task]
   (doseq [n (sort (find-namespaces-on-classpath))
@@ -85,10 +88,11 @@
 
 (defn run-task
   "Run the given task with its hooks activated."
-  [task args]
-  (load-hooks task)
-  ((join-hooks (concat (@hooks (symbol task)) (@hooks :all)))
-   #(apply (resolve-task task) args)))
+  [task-name args]
+  (let [task (resolve-task task-name)]
+    (load-hooks task-name)
+    ((join-hooks @(::hooks (meta @task)))
+     #(apply task args))))
 
 (defn ns->path [n]
   (str (.. (str n)

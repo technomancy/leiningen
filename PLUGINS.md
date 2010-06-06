@@ -38,17 +38,15 @@ alias->task-name mappings on to the leiningen.core/aliases atom:
 You can modify the behaviour of built-in tasks to a degree using
 hooks. Inspired by clojure.test's fixtures functionality, hooks are
 functions which wrap tasks and may alter their behaviour by using
-binding, altering the functions arguments or return value, only
-running the function conditionally, etc.
+binding, altering the return value, only running the function
+conditionally, etc. The add-hook function takes a var of the task it's
+meant to apply to:
 
     (defn skip-integration-hook [task]
       (binding [clojure.test/test-var (test-var-skip :integration)]
         (task)))
 
-    (add-hook 'test skip-integration-hook)
-
-The add-hook function takes a symbol for which task it's meant to
-apply to. You can also pass in :all to have it apply to every task.
+    (add-hook #'leiningen.test/test skip-integration-hook)
 
 Hooks compose, so be aware that your hook may be running inside
 another hook. Hooks are loaded by looking for all namespaces under
