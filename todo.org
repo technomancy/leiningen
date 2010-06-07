@@ -18,9 +18,9 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
-** TODO include lib/dev in find-lib-jars
 ** TODO document version ranges
 ** TODO document checkout dependencies
+** DONE include lib/dev in find-lib-jars
 ** DONE document plugin creation
 ** DONE document all known project.clj keys
 ** DONE disable frickin [null] logging from ant (come on srsly)

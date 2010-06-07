@@ -9,6 +9,8 @@
   [project]
   (filter #(.endsWith (.getName %) ".jar")
           (concat (.listFiles (file (:library-path project)))
+                  ;; This must be hard-coded because it's used in
+                  ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
 
 (defn make-path

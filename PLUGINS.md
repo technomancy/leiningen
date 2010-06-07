@@ -23,7 +23,8 @@ argument names that are clear and descriptive.
 
 ## Leiningen 1.2
 
-The rest of this document only applies to Leiningen version 1.2+.
+The rest of this document only applies to Leiningen version 1.2+. It
+is subject to breaking change until 1.2.0 sees a stable release.
 
 If your task returns an integer, it will be used as the exit code for
 the process.
