@@ -8,7 +8,8 @@
   "Returns a seq of Files for all the jars in the project's library directory."
   [project]
   (filter #(.endsWith (.getName %) ".jar")
-          (file-seq (file (:library-path project)))))
+          (concat (.listFiles (file (:library-path project)))
+                  (.listFiles (file (:root project) "lib/dev")))))
 
 (defn make-path
   "Constructs an ant Path object from Files and strings."
