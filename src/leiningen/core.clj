@@ -51,21 +51,19 @@
 
 (def no-project-needed (atom #{"new" "help" "version"}))
 
+(defn task-not-found [& _]
+  (abort "That's not a task. Use \"lein help\" to list all tasks."))
+
 (defn resolve-task [task]
   (let [task-ns (symbol (str "leiningen." task))
-        task (symbol task)
-        ;; code is expecting a var, so it derefs. fake with an atom.
-        error-fn (atom (fn [& _]
-                         (abort
-                          (str task " is not a task. Use \"help\" "
-                               "to list all tasks."))))]
+        task (symbol task)]
     (try
      (when-not (find-ns task-ns)
        (require task-ns))
      (or (ns-resolve task-ns task)
-         error-fn)
+         #'task-not-found)
      (catch java.io.FileNotFoundException e
-       error-fn))))
+       #'task-not-found))))
 
 (defn- hookize [v]
   (when-not (::hooks (meta @v))
