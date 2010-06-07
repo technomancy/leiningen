@@ -84,14 +84,14 @@
   (fn [g] (f1 (fn [] (f2 g)))))
 
 (defn- join-hooks [hooks]
-  (reduce compose-hooks #(%) hooks))
+  (reduce compose-hooks #(%) (and hooks @hooks)))
 
 (defn run-task
   "Run the given task with its hooks activated."
   [task-name args]
   (let [task (resolve-task task-name)]
     (load-hooks task-name)
-    ((join-hooks @(::hooks (meta @task)))
+    ((join-hooks (::hooks (meta @task)))
      #(apply task args))))
 
 (defn ns->path [n]
