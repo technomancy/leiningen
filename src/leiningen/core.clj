@@ -54,10 +54,11 @@
 (defn resolve-task [task]
   (let [task-ns (symbol (str "leiningen." task))
         task (symbol task)
-        error-fn (fn [& _]
-                   (abort
-                    (format "%s is not a task. Use \"help\" to list all tasks."
-                             task)))]
+        ;; code is expecting a var, so it derefs. fake with an atom.
+        error-fn (atom (fn [& _]
+                         (abort
+                          (str task " is not a task. Use \"help\" "
+                               "to list all tasks."))))]
     (try
      (when-not (find-ns task-ns)
        (require task-ns))
@@ -92,7 +93,7 @@
   (let [task (resolve-task task-name)]
     (load-hooks task-name)
     ((join-hooks (::hooks (meta @task)))
-     #(apply task args))))
+     #(apply @task args))))
 
 (defn ns->path [n]
   (str (.. (str n)
