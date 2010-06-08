@@ -23,21 +23,12 @@ each namespace and print an overall summary."
   ([namespaces test-package result-file]
      `(do
         (require '~test-package)
+        (doseq [n# '~namespaces]
+          (require n#))
         (let [resolver# (fn [fname#]
                           (ns-resolve
                            (find-ns '~test-package) fname#))
-              add-numbers# (fn [a# b#] (if (number? a#)
-                                         (+ a# b#) a#))
-              summary# (reduce (fn [summary# n#]
-                                 (require n#)
-                                 ;; TODO: apply run-tests across all test-nses
-                                 (merge-with add-numbers#
-                                             summary#
-                                             ((resolver# ~''run-tests) n#)))
-                               {} '~namespaces)]
-          ((resolver# ~''with-test-out)
-           (println "\n\n--------------------\nTotal:")
-           ((resolver# ~''report) summary#))
+              summary# (apply (resolver# ~''run-tests) '~namespaces)]
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
             (shutdown-agents))
           (with-open [w# (-> (java.io.File. ~result-file)
