@@ -2,6 +2,10 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.2.0 / ???
 
+* Allow compile task to take a list of namespaces overriding project.clj.
+
+* Handle more types of project metadata.
+
 * Add plugin creation guide.
 
 * Include arglists in help output.
@@ -17,8 +21,6 @@ Leiningen NEWS -- history of user-visible changes
 * Fix a bug causing everything to recompile in tests. Thanks, Stuart!
 
 * Fix exit code for test runs.
-
-* Allow plugins to extend built-in tasks using hooks.
 
 * Automatically compile and fetch deps when needed.
 
