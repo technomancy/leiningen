@@ -34,6 +34,16 @@ time you run "lein deps", (whereas normal release versions just use
 the local cache) so if you have a lot of snapshots it will slow things
 down.
 
+If you've confirmed that your project will work with a number of
+different versions of a given dependency, you can provide a range
+instead of a single version:
+
+    [org.clojure/clojure "[1.1,1.2]"] ; <= will match 1.1.0 through 1.2.0.
+
+See [Maven's version range
+specification](http://maven.apache.org/plugins/maven-enforcer-plugin/rules/versionRanges.html)
+for details.
+
 While it's customary to make group IDs match either artifact IDs or
 the Java package, it's not required. Let's take for an example the
 [JYaml jar](http://jyaml.sourceforge.net). Looking at their javadocs,
