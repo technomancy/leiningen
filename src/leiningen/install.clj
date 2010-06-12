@@ -1,7 +1,6 @@
 (ns leiningen.install
   "Install the project and its dependencies in your local repository."
-  (:use [leiningen.core :only [run-task]]
-        [leiningen.jar :only [jar]]
+  (:use [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom make-model]]
         [clojure.java.io :only [file]])
   (:import [org.apache.maven.artifact.installer ArtifactInstaller]
@@ -40,7 +39,7 @@
    nil))
 
 (defn install [project]
-  (let [jarfile (file (run-task 'jar [project]))
+  (let [jarfile (file (jar project))
         model (make-model project)
         artifact (make-artifact model)
         installer (.lookup container ArtifactInstaller/ROLE)
@@ -48,6 +47,6 @@
     ;; for packaging other than "pom" there should be "pom.xml"
     ;; generated and installed in local repo
     (if (not= "pom" (.getPackaging model))
-      (add-metadata artifact (file (run-task 'pom [project]))))
+      (add-metadata artifact (file (pom project))))
     (.install installer jarfile artifact local-repo)))
 

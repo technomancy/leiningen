@@ -5,7 +5,7 @@ writing a Leiningen plugin is pretty straightforward; as long as it's
 available on the classpath, Leiningen will be able to use it.
 
 To use a plugin, add it to your project.clj :dev-dependencies and run
-"lein deps". Then you'll be able to invoke it with "lein my-plugin".
+"lein deps". Then you'll be able to invoke it with "lein myplugin".
 
 ## Writing a Plugin
 
@@ -37,15 +37,24 @@ alias->task-name mappings on to the leiningen.core/aliases atom:
 ## Hooks
 
 You can modify the behaviour of built-in tasks to a degree using
-hooks. Inspired by clojure.test's fixtures functionality, hooks are
-functions which wrap tasks and may alter their behaviour by using
-binding, altering the return value, only running the function
-conditionally, etc. The add-hook function takes a var of the task it's
-meant to apply to:
+hooks. Hook functionality is provided by [Robert
+Hooke](http://github.com/technomancy/robert-hooke), a separate
+library. Your plugin will have to declare it as a dependency in
+project.clj if you want to use hooks:
 
-    (defn skip-integration-hook [task]
+    :dev-dependencies [[robert/hooke "1.0.1"]]
+
+Inspired by clojure.test's fixtures functionality, hooks are functions
+which wrap tasks and may alter their behaviour by using binding,
+altering the return value, only running the function conditionally,
+etc. The add-hook function takes a var of the task it's meant to apply
+to and a function to perform the wrapping:
+
+    (use 'robert.hooke)
+
+    (defn skip-integration-hook [task & args]
       (binding [clojure.test/test-var (test-var-skip :integration)]
-        (task)))
+        (apply task args)))
 
     (add-hook #'leiningen.test/test skip-integration-hook)
 
@@ -54,14 +63,14 @@ another hook. Hooks are loaded by looking for all namespaces under
 leiningen.hooks.* on the classpath and loading them in alphabetical
 order.
 
-Please add your plugins to [the list on the
-wiki](http://wiki.github.com/technomancy/leiningen/plugins).
-
-If you want to call another task from a plugin, don't call it
-directly. Call it with leiningen.core/run-task instead so it will load
-all its hooks and run the task wrapped inside them.
+See [the documentation for
+Hooke](http://github.com/technomancy/robert-hooke/blob/master/README.md)
+for more details.
 
 ## Have Fun
+
+Please add your plugins to [the list on the
+wiki](http://wiki.github.com/technomancy/leiningen/plugins).
 
 Hopefully the plugin mechanism is simple and flexible enough to let
 you bend Leiningen to your will.

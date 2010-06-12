@@ -4,7 +4,6 @@
   (:use [clojure.zip :only [xml-zip]]
         [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
-        [leiningen.core :only [run-task]]
         [leiningen.jar :only [jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
@@ -44,7 +43,7 @@ the dependency jars. Suitable for standalone distribution. Note that this
 will include all jars in lib, so if you have dev dependencies in there, you
 may wish to clean first."
   [project]
-  (run-task 'jar [project])
+  (jar project)
   (let [jarname-root  (str (:name project) \- (:version project))]
     (with-open [out (-> (file (:root project)
                               (str jarname-root "-standalone.jar"))

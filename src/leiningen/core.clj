@@ -65,33 +65,12 @@
      (catch java.io.FileNotFoundException e
        #'task-not-found))))
 
-(defn- hookize [v]
-  (when-not (::hooks (meta @v))
-    (alter-var-root v vary-meta assoc ::hooks (atom []))))
-
-(defn add-hook [task-var f]
-  (hookize task-var)
-  (swap! (::hooks (meta @task-var)) conj f))
-
-(defn- load-hooks [task]
+(defn- load-hooks []
   (doseq [n (sort (find-namespaces-on-classpath))
           :when (re-find #"^leiningen\.hooks\." (name n))]
-    (require n)))
-
-;; These two were taken from fixtures in clojure.test; thanks Stuart!
-(defn- compose-hooks [f1 f2]
-  (fn [g] (f1 (fn [] (f2 g)))))
-
-(defn- join-hooks [hooks]
-  (reduce compose-hooks #(%) (and hooks @hooks)))
-
-(defn run-task
-  "Run the given task with its hooks activated."
-  [task-name args]
-  (let [task (resolve-task task-name)]
-    (load-hooks task-name)
-    ((join-hooks (::hooks (meta @task)))
-     #(apply @task args))))
+    (try (require n)
+         (catch Exception e
+           (println "Problem loading hooks:" n (.getMessage e))))))
 
 (defn ns->path [n]
   (str (.. (str n)
@@ -105,17 +84,19 @@
       (replace \/ \.)))
 
 (defn -main
-  ([& [task & args]]
-     (let [task (or (@aliases task) task "help")
-           args (if (@no-project-needed task)
+  ([& [task-name & args]]
+     (let [task-name (or (@aliases task-name) task-name "help")
+           args (if (@no-project-needed task-name)
                   args
                   (conj args (read-project)))
            compile-path (:compile-path (first args))]
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
+         (load-hooks)
          ;; TODO: can we catch only task-level arity problems here?
          ;; compare args and (:arglists (meta (resolve-task task)))?
-         (let [value (run-task task args)]
+         (let [task (resolve-task task-name)
+               value (apply task args)]
            (when (integer? value)
              (System/exit value))))))
   ([] (apply -main (or *command-line-args* ["help"]))))
