@@ -130,17 +130,21 @@
     (.executeJava java)))
 
 (defn compile
-  "Ahead-of-time compile the namespaces given under :aot in project.clj."
-  [project]
-  ;; dependencies should be resolved by explicit "lein deps",
-  ;; otherwise it will be done only if :library-path is empty
-  (.mkdir (file (:compile-path project)))
-  (if (seq (compilable-namespaces project))
-    (if-let [namespaces (seq (stale-namespaces project))]
-      (eval-in-project project
-                       `(doseq [namespace# '~namespaces]
-                          (println "Compiling" namespace#)
-                          (clojure.core/compile namespace#))
-                       nil :skip-auto-compile)
-      (println "All :namespaces already compiled."))
-    (println "No :namespaces listed for compilation in project.clj.")))
+  "Ahead-of-time compile the namespaces given under :aot in project.clj or
+  those given as command-line arguments."
+  ([project]
+     (.mkdir (file (:compile-path project)))
+     (if (seq (compilable-namespaces project))
+       (if-let [namespaces (seq (stale-namespaces project))]
+         (eval-in-project project
+                          `(doseq [namespace# '~namespaces]
+                             (println "Compiling" namespace#)
+                             (clojure.core/compile namespace#))
+                          nil :skip-auto-compile)
+         (println "All :namespaces already compiled."))
+       (println "No :namespaces listed for compilation in project.clj.")))
+  ([project & namespaces]
+     (compile (assoc project
+                :aot (if (= namespaces [":all"])
+                       :all
+                       (map symbol namespaces))))))

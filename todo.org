@@ -18,8 +18,8 @@ Leiningen TODOs
 ** DONE upgrade task (patch submitted)
 ** DONE doc generation (autodoc plugin)
 * For 1.2.0
-** TODO accept list of namespaces to compile from command-line options
 ** TODO document checkout dependencies
+** DONE accept list of namespaces to compile from command-line options
 ** DONE document version ranges
 ** DONE include lib/dev in find-lib-jars
 ** DONE document plugin creation
