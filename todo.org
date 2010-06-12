@@ -5,18 +5,22 @@
 
 Leiningen TODOs
 
-* For 1.0
-** DONE Remove install task dependency on having Maven installed       :Phil:
-** DONE Use -Xbootclasspath where possible                              :Dan:
-** DONE Don't write manifest, pom, etc. to disk when jarring           :Dan:
-** DONE Don't put uberjar in ~/.m2                                     :Phil:
-** DONE Perform compilation in either a subprocess or with a separate classloader
-** DONE Allow test task to take namespaces as an argument
-** DONE Fix eval-in-project to let plugins pass in extra args
-** DONE Resources directory added to classpath (for properties, etc)
-* For 1.1.0
-** DONE upgrade task (patch submitted)
-** DONE doc generation (autodoc plugin)
+* For 1.3.0 or higher
+** TODO test classification using metadata; run a subset of tests
+** TODO bin script has stabilized; self-install for dev versions should work
+** TODO a list of dirs to include in the jar when building
+** TODO set arbitrary jar metadata
+** TODO specify min. lein version in project.clj
+** TODO write shell wrappers
+** TODO lein install $PROJECT (works outside project root)
+** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
+** TODO user config file for activating plugins across all projects
+** TODO re-compile all deps with current clojure version
+** Better deployment features
+*** TODO "lein install $PROJECT" without a checkout
+*** TODO create shell scripts post-install
+** Improve plugins
+*** TODO Allow plugins to be activated user-wide (maybe system-wide?)
 * For 1.2.0
 ** TODO document checkout dependencies
 ** DONE accept list of namespaces to compile from command-line options
@@ -38,23 +42,18 @@ Leiningen TODOs
 ** DONE include version in jar filenames
 ** DONE classpath task to just print configured classpath
 ** DONE move repl task from shell script to clojure code
-* For later
-** TODO test classification using metadata; run a subset of tests
-** TODO bin script has stabilized; self-install for dev versions should work
-** TODO differentiate between ns-level/fn-level help docstrings
-** TODO a list of dirs to include in the jar when building
-** TODO set arbitrary jar metadata
-** TODO specify min. lein version in project.clj
-** TODO write shell wrappers
-** TODO lein install $PROJECT (works outside project root)
-** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
-** TODO user config file for activating plugins across all projects
-** TODO re-compile all deps with current clojure version
-** Better deployment features
-*** TODO "lein install $PROJECT" without a checkout
-*** TODO create shell scripts post-install
-** Improve plugins
-*** TODO Allow plugins to be activated user-wide (maybe system-wide?)
+* For 1.1.0
+** DONE upgrade task (patch submitted)
+** DONE doc generation (autodoc plugin)
+* For 1.0
+** DONE Remove install task dependency on having Maven installed       :Phil:
+** DONE Use -Xbootclasspath where possible                              :Dan:
+** DONE Don't write manifest, pom, etc. to disk when jarring           :Dan:
+** DONE Don't put uberjar in ~/.m2                                     :Phil:
+** DONE Perform compilation in either a subprocess or with a separate classloader
+** DONE Allow test task to take namespaces as an argument
+** DONE Fix eval-in-project to let plugins pass in extra args
+** DONE Resources directory added to classpath (for properties, etc)
 * Plugin Ideas:
 *** Code statistics (LOC, doc coverage, etc)
 *** Graph output for dependencies between namespaces
