@@ -7,7 +7,6 @@ Leiningen TODOs
 
 * For 1.3.0 or higher
 ** TODO test classification using metadata; run a subset of tests
-** TODO bin script has stabilized; self-install for dev versions should work
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
@@ -23,6 +22,9 @@ Leiningen TODOs
 *** TODO Allow plugins to be activated user-wide (maybe system-wide?)
 * For 1.2.0
 ** TODO document checkout dependencies
+** TODO Hacking guide--what's the deal with the classloaders, etc.
+** TODO Re-enable rlwrap
+** DONE bin script has stabilized; self-install for dev versions should work
 ** DONE accept list of namespaces to compile from command-line options
 ** DONE document version ranges
 ** DONE include lib/dev in find-lib-jars

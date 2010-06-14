@@ -34,8 +34,8 @@ dependencies in $HOME/.m2/repository.
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 
-This only works with stable versions of Leiningen; for development
-versions see "Hacking" below.
+For snapshot versions you may use [the dev version of the lein
+script](http://github.com/technomancy/leiningen/raw/master/bin/lein) instead.
 
 On Windows you can download
 [lein.bat](http://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
@@ -164,14 +164,6 @@ on. Leiningen adds Clojars and [the Clojure nightly build
 snapshots](http://build.clojure.org) to the default repositories.
 
 ## Hacking
-
-You'll need to bootstrap using a stable release before you can hack on
-Leiningen. Grab the stable bin script (linked under "Installation"
-above), put it on your $PATH as "lein-stable", and do "lein-stable
-self-install". Then run "lein-stable deps" in your checkout. When that
-finishes, symlink bin/lein from your checkout to your path.  This will
-make "lein" run from your checkout while "lein-stable" uses the jar
-self-installed in ~/.m2.
 
 The [mailing list](http://groups.google.com/group/leiningen) and the
 leiningen or clojure channels on Freenode are the best places to
