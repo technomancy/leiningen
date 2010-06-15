@@ -21,8 +21,8 @@ Leiningen TODOs
 ** Improve plugins
 *** TODO Allow plugins to be activated user-wide (maybe system-wide?)
 * For 1.2.0
+** TODO Move the intro into a tutorial
 ** TODO document checkout dependencies
-** TODO Hacking guide--what's the deal with the classloaders, etc.
 ** TODO Re-enable rlwrap
 ** DONE bin script has stabilized; self-install for dev versions should work
 ** DONE accept list of namespaces to compile from command-line options

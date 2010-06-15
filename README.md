@@ -14,21 +14,20 @@ lot of the same tasks around between XML files on all your projects;
 there's a lot of repetition. Maven avoids repetition, but provides
 very little transparency into what's really going on behind the scenes
 and forces you to become a Maven expert to script a nontrivial
-build. Either way you end up writing far more XML than is necessary.
+build. Either way you must write far more XML than is decent.
 
-With Leiningen, your build is described using Clojure. You can put any
-code you like in your project.clj file; the only requirement is that
-it includes a call to defproject. You can define your own tasks in
-there if you need to, but the majority of projects should be able to
-get by on the tasks that are provided with Leiningen. If you do find a
-common task that you need to add, you can implement it as a plugin
-rather than copying and pasting among each of your projects.
+With Leiningen, you describe your build with Clojure. Any code you
+need goes in your project.clj file; the only requirement is calling
+defproject. You can define your own tasks in there if you need to, but
+most projects get by on the tasks provided with Leiningen. If you do
+find a common task that you need to add, you can implement it as a
+plugin rather than copying and pasting among each of your projects.
 
 ## Installation
 
-Leiningen bootstraps itself using the 'lein' shell script you
-download, there is no separate 'install script'. It installs its
-dependencies in $HOME/.m2/repository.
+Leiningen bootstraps itself using the <tt>lein</tt> shell script;
+there is no separate 'install script'. It installs its dependencies in
+$HOME/.m2/repository.
 
 1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
@@ -59,12 +58,13 @@ instead, though support on that platform is still experimental.
 
     $ lein install # install in local repository
 
-These are the most commonly-used tasks; you can use "lein help" to see
-a complete list. "lein help $TASK" will show the usage for a specific one.
+These are the most commonly-used tasks; Use <tt>lein help</tt> to see
+a complete list. <tt>lein help $TASK</tt> shows the usage for a
+specific one.
 
 ## Configuration
 
-Place a project.clj file in the project root that looks something like this:
+Place a project.clj file in the project root like this:
 
     (defproject leiningen "0.5.0-SNAPSHOT"
       :description "A build tool designed not to set your hair on fire."
@@ -75,10 +75,12 @@ Place a project.clj file in the project root that looks something like this:
                      [org.apache.maven/maven-ant-tasks "2.0.10"]]
       :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]])
 
-The "lein new" task will generate a project skeleton with an
-appropriate starting point from which you can work. See the file
-sample.project.clj for a detailed listing of all the configuration
-options that Leiningen knows about.
+The <tt>lein new</tt> task generates a project skeleton with an
+appropriate starting point from which you can work. See the
+[sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
+file for a detailed listing of configuration options. The
+[intro](http://github.com/technomancy/leiningen/blob/master/INTRO.md)
+may also help.
 
 ## FAQ
 
@@ -116,12 +118,12 @@ options that Leiningen knows about.
   in order to avoid conflicts and to allow the original authors to
   claim it in the future once they get around to uploading. 
   Alternatively you can do a one-off install into your local repository in
- ~/.m2 with Maven for Java libs or "lein install" for Clojure libs.
+  ~/.m2 with Maven for Java libs or <tt>lein install</tt> for Clojure libs.
 
 **Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
   compiled with a different version of Clojure than the one you're
-  currently using. If it persists after running "lein clean" then it
+  currently using. If it persists after running <tt>lein clean</tt> then it
   is a problem with your dependencies. If you depend on contrib, make
   sure the contrib version matches the Clojure version. Also note for
   your own project that AOT compilation in Clojure is much less
@@ -165,6 +167,23 @@ snapshots](http://build.clojure.org) to the default repositories.
 
 ## Hacking
 
+Leiningen is very small. The latest release is only 890 lines of
+Clojure; you could probably read through the whole project in an hour.
+
+When you launch Leiningen, it must start an instance of Clojure to
+load itself. But this instance must not effect the project that you're
+building. It may use a different version of Clojure from Leiningen,
+and the project should be in a totally fresh JVM. Leiningen uses ant's
+<tt>java</tt> task to fork off a separate process for this
+purpose. The <tt>leiningen.compile</tt> namespace implements this;
+specifically the <tt>eval-in-project</tt> function. Any code that must
+execute within the context of the project (AOT compilation, test runs)
+needs to go through this function.
+
+Leiningen tasks are simply Clojure functions that take the current
+project as their first argument followed by any further arguments that
+were given on the command-line.
+
 The [mailing list](http://groups.google.com/group/leiningen) and the
 leiningen or clojure channels on Freenode are the best places to
 bring up questions or suggestions. If you're planning on adding a
@@ -185,7 +204,7 @@ either.
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
-"lein $YOUR_COMMAND". See the file PLUGINS.md for details.
+<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md) for details.
 
 See the [complete list of known issues](http://github.com/technomancy/leiningen/issues).
 
