@@ -13,6 +13,8 @@
 
 (declare compile)
 
+(def *silently* false)
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
@@ -93,7 +95,8 @@
   [project form & [handler skip-auto-compile]]
   (when (and (not skip-auto-compile)
              (empty? (.list (file (:compile-path project)))))
-    (compile project))
+    (binding [*silently* true]
+      (compile project)))
   (when (empty? (find-lib-jars project))
     (deps project))
   (let [java (Java.)
@@ -138,11 +141,14 @@
        (if-let [namespaces (seq (stale-namespaces project))]
          (eval-in-project project
                           `(doseq [namespace# '~namespaces]
-                             (println "Compiling" namespace#)
+                             (when-not ~*silently*
+                               (println "Compiling" namespace#))
                              (clojure.core/compile namespace#))
                           nil :skip-auto-compile)
-         (println "All :namespaces already compiled."))
-       (println "No :namespaces listed for compilation in project.clj.")))
+         (when-not *silently*
+           (println "All namespaces already :aot compiled.")))
+       (when-not *silently*
+         (println "No namespaces to :aot compile listed in project.clj."))))
   ([project & namespaces]
      (compile (assoc project
                 :aot (if (= namespaces [":all"])
