@@ -79,7 +79,7 @@ The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
 file for a detailed listing of configuration options. The
-[intro](http://github.com/technomancy/leiningen/blob/master/INTRO.md)
+[tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
 may also help.
 
 ## FAQ
@@ -109,7 +109,7 @@ may also help.
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [intro](http://github.com/technomancy/leiningen/blob/master/INTRO.md)
+  [tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
   for background on JVM dependency concepts.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
