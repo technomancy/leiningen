@@ -2,7 +2,8 @@
   "Display a list of tasks or help for a given task."
   (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]))
 
-(def tasks (set (filter #(re-find #"^leiningen\.(?!core)" (name %))
+(def tasks (set (filter #(re-find #"^leiningen\.(?!core|checkout-deps)"
+                                  (name %))
                         (find-namespaces-on-classpath))))
 
 (defn get-arglists [task]
@@ -27,6 +28,7 @@
          " - " (:doc (meta (find-ns task-ns))))))
 
 (defn help
+  "Display a list of tasks or help for a given task."
   ([task] (println (help-for task)))
   ([]
      (println "Leiningen is a build tool for Clojure.\n")

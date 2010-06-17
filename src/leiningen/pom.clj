@@ -169,6 +169,7 @@
     (.getBytes (str baos))))
 
 (defn pom
+  "Write a pom.xml file to disk for Maven interop."
   ([project pom-location silently?]
      (let [pom-file (file (:root project) pom-location)]
        (copy (make-pom project true) pom-file)

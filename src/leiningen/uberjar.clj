@@ -39,9 +39,7 @@
 
 (defn uberjar
   "Create a jar like the jar task, but including the contents of each of
-the dependency jars. Suitable for standalone distribution. Note that this
-will include all jars in lib, so if you have dev dependencies in there, you
-may wish to clean first."
+the dependency jars. Suitable for standalone distribution."
   [project]
   (jar project)
   (let [jarname-root  (str (:name project) \- (:version project))]

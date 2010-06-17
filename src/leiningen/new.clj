@@ -8,6 +8,10 @@ Neither group-id nor artifact-id may contain slashes."
         [clojure.contrib.string :only [join]]))
 
 (defn new
+  "Create a new project skeleton.
+lein new [group-id/]artifact-id [project-dir]
+Group-id is optional. Project-dir defaults to artifact-id if not given.
+Neither group-id nor artifact-id may contain slashes."
   ([project-name project-dir]
      (when (re-find #"(?<!clo)jure" project-name)
        (throw (IllegalArgumentException. "*jure names are no longer allowed.")))

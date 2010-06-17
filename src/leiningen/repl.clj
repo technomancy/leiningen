@@ -52,7 +52,9 @@
              (catch java.net.ConnectException _ :retry))
     (recur port)))
 
-(defn repl [project]
+(defn repl
+  "Start a repl session for the current project."
+  [project]
   (let [port (dec (+ 1024 (rand-int 64512)))
         server-form (repl-server project port)
         server-thread (Thread. #(try (eval-in-project project server-form)

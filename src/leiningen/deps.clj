@@ -42,21 +42,8 @@
    (:repositories project)))
 
 (defn deps
-  "Download and install all :dependencies listed in project.clj into the lib/
-directory. With an argument it will skip development dependencies. Dependencies
-should be a vector of entries specifying group, name, and version like the
-following:
-  [org.clojure/clojure-contrib \"1.0-SNAPSHOT\"]
-
-It is also possible to exclude specific indirect dependencies of a direct
-dependency using the optional :exclusions keyword and vector of entries.
-A project that depends on log4j could exclude unnecessary indirect
-dependencies with the following:
-  [log4j \"1.2.15\" :exclusions [javax.mail/mail
-                                 javax.jms/jms
-                                 com.sun.jdmk/jmxtools
-                                 com.sun.jmx/jmxri]]"
-  ;; TODO: get deps from ~/.m2 while offline
+  "Download and install all :dependencies listed in project.clj.
+With an argument it will skip development dependencies."
   ([project skip-dev set]
      (let [deps-task (DependenciesTask.)]
        (.setBasedir lancet/ant-project (:root project))

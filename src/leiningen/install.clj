@@ -38,7 +38,9 @@
    (.getPackaging model)
    nil))
 
-(defn install [project]
+(defn install
+  "Install the project and its dependencies in your local repository."
+  [project]
   (let [jarfile (file (jar project))
         model (make-model project)
         artifact (make-artifact model)
