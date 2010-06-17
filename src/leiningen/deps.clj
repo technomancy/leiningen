@@ -61,7 +61,6 @@ With an argument it will skip development dependencies."
                           (:library-path project) true
                           (.getReference lancet/ant-project
                                          (.getFilesetId deps-task)))
-       (println (format "Copied %s into %s." set (:library-path project)))
        (when (and (not skip-dev) (seq (:dev-dependencies project)))
          (deps (assoc project :library-path (str (:root project) "/lib/dev"))
                true :dev-dependencies))))
