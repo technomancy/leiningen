@@ -2,8 +2,8 @@
 
 For those of you new to the JVM who have never touched Ant or Maven in
 anger: don't panic. Leiningen is designed with you in mind. This
-tutorial will help you get started and explain some of the details of
-JVM-land packaging and dependency handling.
+tutorial will help you get started and explain Leiningen's take on
+project building and JVM-land dependency management.
 
 ## Creating a Project
 
@@ -27,8 +27,8 @@ Generating a new project is easy:
         `-- myproject
             `-- core_test.clj
 
-Here we've got a README, a src/ directory containing your project's
-implementation, a test/ directory, and a project.clj file which
+Here we've got your project's README, a src/ directory containing
+implementation code, a test/ directory, and a project.clj file which
 describes your project to Leiningen. The src/myproject/core.clj file
 corresponds to the myproject.core namespace.
 
@@ -46,7 +46,7 @@ fairly useless:
 
     $ lein jar
 
-    Created /home/phil/src/myproject/myproject-1.0.0-SNAPSHOT.jar
+    Created ~/src/myproject/myproject-1.0.0-SNAPSHOT.jar
 
 Libraries for the JVM are packaged up as .jar files, which are
 basically just .zip files with a little extra JVM-specific metadata
@@ -103,7 +103,7 @@ install the current project in there:
     $ lein install
 
     Wrote pom.xml
-    [INFO] Installing /home/phil/src/leiningen/myproject/myproject-1.0.0-SNAPSHOT.jar to /home/phil/.m2/repository/myproject/myproject/1.0.0-SNAPSHOT/myproject-1.0.0-SNAPSHOT.jar
+    [INFO] Installing myproject-1.0.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/1.0.0-SNAPSHOT/myproject-1.0.0-SNAPSHOT.jar
 
 Generally Leiningen will fetch your dependencies on-demand, but if you
 have just added a new dependency and you want to force it to fetch it,
@@ -111,8 +111,8 @@ you can do that too:
 
     $ lein deps
 
-    Copying 2 files to /home/phil/src/leiningen/myproject/lib
-    Copied :dependencies into /home/phil/src/leiningen/myproject/lib.
+    Copying 2 files to ~/src/myproject/lib
+    Copied :dependencies into ~/src/myproject/lib.
 
 Dependencies are downloaded from Clojars, the central Maven (Java)
 repository, the [official Clojure build
@@ -135,11 +135,11 @@ for details.
 Sometimes you want to pull in dependencies that are really only for
 your convenience while developing; they aren't strictly required for
 the project to function. Leiningen calls these
-:dev-dependencies. They're listed in project.clj just like regular
+:dev-dependencies. They're listed in project.clj alongside regular
 dependencies and downloaded when you run <tt>lein deps</tt>, but they
 are not brought along when another project depends on your
 project. Using [swank-clojure](http://github.com/technomancy/swank-clojure)
-for Emacs support would be a typical example; you don't want it
+for Emacs support would be a typical example; you may not want it
 included at runtime, but it's useful while you're hacking on the project.
 
 ## Writing the Code
@@ -180,10 +180,59 @@ namespace.
 ## Compiling
 
 If you're lucky you'll be able to get away without doing any AOT
-(ahead-of-time) compilation.
+(ahead-of-time) compilation. But there are some Java interop features
+that require it, so if you need to use them you should add in an :aot
+option into your project.clj file. It should be a seq of namespaces
+you want AOT-compiled. Again, the
+[sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
+has example usage.
+
+Like dependencies, this should happen for you automatically, but if
+you need to force it you can:
+
+    $ lein compile
+
+    Compiling myproject.core
 
 ## Publishing
 
+If your project is a library and you would like others to be able to
+use it as a dependency in their projects, you will need to get it into
+a public repository. While it's possible to maintain your own or get
+it into Maven central, the easiest way is to publish it at
+[Clojars](http://clojars.org). Once you have created an account there,
+publishing is easy:
+
+    $ lein jar && lein pom
+    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
+
+Once that succeeds it will be available for other projects to depend
+on.
+
 ## Uberjar
 
-http://vimeo.com/8934942
+Not all Leiningen projects are libraries though--sometimes you want to
+distribute your project to end-users who don't want to worry about
+having a copy of Clojure lying around.
+
+For this to work you'll need to specify a namespace as your :main in
+project.clj. This namespace should have a <tt>(:gen-class)</tt>
+declaration in the <tt>ns</tt> form at the top. It also needs a
+<tt>-main</tt> function that will receive the command-line arguments.
+
+    $ lein uberjar
+    Created ~/src/myproject/myproject-1.0.0.jar
+    Including myproject-1.0.0.jar
+    Including clojure-contrib-1.1.0.jar
+    Including clojure-1.1.0.jar
+
+This creates a single jar file that contains the contents of all your
+dependencies. Users can run it with a simple
+
+    $ java -jar myproject-1.0.0.jar
+
+## That's It!
+
+If you prefer a visual introduction, try the Full Disclojure
+screencast on [project management](http://vimeo.com/8934942). Now go
+start coding your next project!

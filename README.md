@@ -114,11 +114,12 @@ may also help.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** Open-source jars can be uploaded to Clojars (see "Publishing"
-  below), though be sure to use the group-id of "org.clojars.$USERNAME"
-  in order to avoid conflicts and to allow the original authors to
-  claim it in the future once they get around to uploading. 
-  Alternatively you can do a one-off install into your local repository in
-  ~/.m2 with Maven for Java libs or <tt>lein install</tt> for Clojure libs.
+  in the tutorial), though be sure to use the group-id of
+  "org.clojars.$USERNAME" in order to avoid conflicts and to allow the
+  original authors to claim it in the future once they get around to
+  uploading. Alternatively you can do a one-off install into your
+  local repository in ~/.m2 with Maven for Java libs or <tt>lein
+  install</tt> for Clojure libs.
 
 **Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
@@ -147,23 +148,6 @@ may also help.
 
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).
-
-## Publishing
-
-If your project is a library and you would like others to be able to
-use it as a dependency in their projects, you will need to get it into
-a public repository. While it's possible to maintain your own or get
-it into Maven central, the easiest way is to publish it at
-[Clojars](http://clojars.org), which is a Clojure-specific repository
-for open-source code. Once you have created an account there,
-publishing is easy:
-
-    $ lein jar && lein pom
-    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
-
-Once that succeeds it will be available for other projects to depend
-on. Leiningen adds Clojars and [the Clojure nightly build
-snapshots](http://build.clojure.org) to the default repositories.
 
 ## Hacking
 
