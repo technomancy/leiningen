@@ -17,5 +17,7 @@ Raise an exception if any deletion fails unless silently is true."
   (delete-file (str (:jar-dir project) "/" (:name project) "-standalone.jar")
                true)
   (doseq [d [(:compile-path project)
-             (:library-path project)]]
+             (:library-path project)
+             ;; This must be hard-coded since it's needed in bin/lein
+             "lib/dev"]]
     (empty-directory (file d) true)))
