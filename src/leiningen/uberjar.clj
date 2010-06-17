@@ -42,9 +42,9 @@
 the dependency jars. Suitable for standalone distribution."
   [project]
   (jar project)
-  (let [jarname-root  (str (:name project) \- (:version project))]
-    (with-open [out (-> (file (:root project)
-                              (str jarname-root "-standalone.jar"))
+  (let [jarname-root  (str (:name project) \- (:version project))
+        standalone-filename (str jarname-root "-standalone.jar")]
+    (with-open [out (-> (file (:root project) standalone-filename)
                         (FileOutputStream.) (ZipOutputStream.))]
       (let [deps (->> (.listFiles (file (:library-path project)))
                       (filter #(.endsWith (.getName %) ".jar"))
@@ -61,4 +61,5 @@ the dependency jars. Suitable for standalone distribution."
                          :content
                          components}]})
             (.flush *out*))
-          (.closeEntry out))))))
+          (.closeEntry out))))
+    (println "Created" (str jarname-root "-standalone.jar"))))
