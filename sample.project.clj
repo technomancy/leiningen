@@ -11,6 +11,26 @@
   :description "A sample project"
   ;; The URL is also metadata that Clojars uses.
   :url "http://example.org/sample-clojure-project"
+  ;; The mailing list of the project. If the project has multiple mailing
+  ;; lists, use the :mailing-lists key (bound to a seq of mailing list
+  ;; descriptions as below).
+  :mailing-list {:name "sample mailing list"
+                 :archive "http://example.org/sample-mailing-list-archives"
+                 :other-archives ["http://example.org/sample-mailing-list-another-archive-url"
+                                  "http://example.org/sample-mailing-list-yet-another-archive-url"]
+                 :post "list@example.org"
+                 :subscribe "list-subscribe@example.org"
+                 :unsubscribe "list-unsubscribe@example.org"}
+  ;; The project's license. :distribution should be :repo or :manual;
+  ;; :repo means it is ok for public repositories to host this project's
+  ;; artifacts. :licence can be used in place of :license, and for projects
+  ;; which allow their users to choose among several licenses, :licenses
+  ;; and :licences keys are supported. NB. all licenses mentioned in
+  ;; project.clj under any of the supported keys will be put in pom.xml.
+  :license {:name "Eclipse Public License - v 1.0"
+            :url "http://www.eclipse.org/legal/epl-v10.html"
+            :distribution :repo
+            :comments "same as Clojure"}
   ;; Dependencies are listed as [group-id/name version].
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.1.0"]
