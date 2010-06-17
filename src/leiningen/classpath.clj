@@ -27,7 +27,8 @@
   (concat [(:source-path project)
            (:test-path project)
            (:compile-path project)
-           (:resources-path project)]
+           (:resources-path project)
+		   (:test-resources-path project)]
           (find-lib-jars project)
           (checkout-deps-paths project)))
 
