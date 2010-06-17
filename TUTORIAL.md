@@ -181,7 +181,7 @@ namespace.
 
 If you're lucky you'll be able to get away without doing any AOT
 (ahead-of-time) compilation. But there are some Java interop features
-that require it, so if you need to use them you should add in an :aot
+that require it, so if you need to use them you should add an :aot
 option into your project.clj file. It should be a seq of namespaces
 you want AOT-compiled. Again, the
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
@@ -204,7 +204,7 @@ it into Maven central, the easiest way is to publish it at
 publishing is easy:
 
     $ lein jar && lein pom
-    $ scp pom.xml $PROJECT.jar clojars@clojars.org:
+    $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
 
 Once that succeeds it will be available for other projects to depend
 on.
@@ -213,23 +213,28 @@ on.
 
 Not all Leiningen projects are libraries though--sometimes you want to
 distribute your project to end-users who don't want to worry about
-having a copy of Clojure lying around.
+having a copy of Clojure lying around. You can use the
+<tt>uberjar</tt> task to create a standalone executable jar.
 
-For this to work you'll need to specify a namespace as your :main in
-project.clj. This namespace should have a <tt>(:gen-class)</tt>
-declaration in the <tt>ns</tt> form at the top. It also needs a
-<tt>-main</tt> function that will receive the command-line arguments.
+For this to work you'll need to specify in project.clj a namespace as
+your :main that contains a <tt>-main</tt> function which will get
+called when your standalone jar is run. This namespace should have a
+<tt>(:gen-class)</tt> declaration in the <tt>ns</tt> form at the
+top. The <tt>-main</tt> function will get passed the command-line
+arguments.
 
     $ lein uberjar
     Created ~/src/myproject/myproject-1.0.0.jar
     Including myproject-1.0.0.jar
     Including clojure-contrib-1.1.0.jar
     Including clojure-1.1.0.jar
+    Created myproject-1.0.0-standalone.jar
 
 This creates a single jar file that contains the contents of all your
-dependencies. Users can run it with a simple
+dependencies. Users can run it with a simple <tt>java</tt> invocation,
+or on some systems just by double-clicking the jar file.
 
-    $ java -jar myproject-1.0.0.jar
+    $ java -jar myproject-1.0.0-standalone.jar
 
 ## That's It!
 
