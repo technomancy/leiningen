@@ -10,7 +10,7 @@ Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
 Building Clojure projects with tools designed for Java can be an
 exercise in frustration. If you use Ant, you end up copying around a
-lot of the same tasks around between XML files on all your projects;
+lot of the same tasks between XML files on all your projects;
 there's a lot of repetition. Maven avoids repetition, but provides
 very little transparency into what's really going on behind the scenes
 and forces you to become a Maven expert to script a nontrivial
@@ -37,10 +37,15 @@ For snapshot versions you may use [the dev version of the lein
 script](http://github.com/technomancy/leiningen/raw/master/bin/lein) instead.
 
 On Windows you can download
-[lein.bat](http://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
+[lein.bat](http://github.com/technomancy/leiningen/raw/master/bin/lein.bat),
 instead, though support on that platform is still experimental.
 
 ## Usage
+
+The
+[tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
+has a detailed walk-through of the steps involved in creating a new
+project, but here are the commonly-used tasks:
 
     $ lein new NAME # generate a new project skeleton
 
@@ -78,9 +83,7 @@ Place a project.clj file in the project root like this:
 The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
-file for a detailed listing of configuration options. The
-[tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
-may also help.
+file for a detailed listing of configuration options.
 
 ## FAQ
 
@@ -145,6 +148,14 @@ may also help.
 **A:** The Maven API that Leiningen uses refers to your project as
   "super-pom". It's just a quirk of the API. It probably means there
   is a typo in your :dependency declaration in project.clj.
+
+**Q:** How do I write my own tasks?  
+
+**A:** If it's a task that may be useful to more than just your
+  project, you should make it into a
+  [plugin](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md).
+  You can also include one-off tasks in your src/leiningen/ directory
+  if they're not worth spinning off; the plugin guide shows how.
 
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).

@@ -21,9 +21,9 @@ Leiningen TODOs
 ** Improve plugins
 *** TODO Allow plugins to be activated user-wide (maybe system-wide?)
 * For 1.2.0
-** TODO Move the intro into a tutorial
 ** TODO document checkout dependencies
 ** TODO Re-enable rlwrap
+** DONE Move the intro into a tutorial
 ** DONE bin script has stabilized; self-install for dev versions should work
 ** DONE accept list of namespaces to compile from command-line options
 ** DONE document version ranges

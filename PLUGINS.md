@@ -21,6 +21,8 @@ The docstring from the plugin's namespace will be displayed by the
 "lein help" task. The function's arglists will also be shown, so pick
 argument names that are clear and descriptive.
 
+TODO: describe lancet
+
 ## Leiningen 1.2
 
 The rest of this document only applies to Leiningen version 1.2+. It

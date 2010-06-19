@@ -8,7 +8,7 @@ project building and JVM-land dependency management.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[readme](http://github.com/technomancy/leiningen/blob/master/README.md). 
+[README](http://github.com/technomancy/leiningen/blob/master/README.md). 
 Generating a new project is easy:
 
     $ lein new myproject
@@ -49,10 +49,11 @@ fairly useless:
     Created ~/src/myproject/myproject-1.0.0-SNAPSHOT.jar
 
 Libraries for the JVM are packaged up as .jar files, which are
-basically just .zip files with a little extra JVM-specific metadata
-that contain either .class files (bytecode) or .clj source
-files. These jar files are available through repositories that serve
-them up over HTTP alongside their metadata.
+basically just .zip files with a little extra JVM-specific metadata.
+They usually contain .class files (JVM bytecode) and .clj source
+files, but they can also contain other things like config
+files. Leiningen downloads them from remote Maven repositories for
+you.
 
 ## project.clj
 
@@ -64,11 +65,16 @@ them up over HTTP alongside their metadata.
                      [org.clojure/clojure-contrib "1.1.0"]])
 
 Fill in the :description with a short paragraph so that your project
-will show up in search results. At some point you'll need to flesh out
-the README too, but for now let's skip ahead to setting :dependencies.
+will show up in search results once you upload to Clojars (as
+described below). At some point you'll need to flesh out the README
+too, but for now let's skip ahead to setting :dependencies.  Note that
+Clojure is just another dependency here. Unlike most languages, it's
+easy to swap out any version of Clojure. If you're using Clojure
+Contrib, make sure that version matches the Clojure version.
+
 If you've got a simple pure-clojure project, you will be fine with the
-default of Clojure and Contrib, but otherwise you'll need to list
-other dependencies.
+default of depending only on Clojure and Contrib, but otherwise you'll
+need to list other dependencies.
 
 ## Dependencies
 
@@ -80,34 +86,42 @@ searching [Jarvana](http://jarvana.com), though you'll need to
 translate their notation into Leiningen's. Leiningen describes
 packages using identifiers that look like this:
 
-    [org.clojure/swank-clojure "1.2.1"]
+    [org.clojure/clojure-contrib "1.1.0"]
 
-* "org.clojure" is called the 'group-id'
-* "swank-clojure" is called the 'artifact-id'
+TODO: show example of mvn deps
+
+* "org.clojure" is called the "group-id"
+* "clojure-contrib" is called the "artifact-id"
 * "1.2.1" is the version of the jar file you require
 
+If you omit the group-id, then Leiningen will use the artifact-id for
+it. This is the convention generally used for Leiningen libraries. The
+name and version at the top of the defproject form follows the same
+rules.
+
 Sometimes versions will end in "-SNAPSHOT". This means that it is not
-an official release but a development build. In general relying on
-snapshot dependencies is discouraged, but sometimes its necessary if
-you need bug fixes etc. that have not made their way into a release
-yet. Adding a snapshot dependency to your project will cause Leiningen
-to actively go seek out the latest version of the dependency every
-time you run <tt>lein deps</tt>, (whereas normal release versions are
-cached in the local repository) so if you have a lot of snapshots it
-will slow things down.
+an official release but a development build. Relying on snapshot
+dependencies is discouraged but is sometimes necessary if you need bug
+fixes etc. that have not made their way into a release yet. Adding a
+snapshot dependency to your project will cause Leiningen to actively
+go seek out the latest version of the dependency once a day when you
+run <tt>lein deps</tt>, (whereas normal release versions are cached in
+the local repository) so if you have a lot of snapshots it will slow
+things down.
 
 Speaking of the local repository, all the dependencies you pull in
-using Leiningen or Maven get cached in $HOME/.m2/repository. You can
-install the current project in there:
+using Leiningen or Maven get cached in $HOME/.m2/repository since
+Leiningen uses the Maven API under the covers. You can install the
+current project in the local repository with this command:
 
     $ lein install
 
     Wrote pom.xml
     [INFO] Installing myproject-1.0.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/1.0.0-SNAPSHOT/myproject-1.0.0-SNAPSHOT.jar
 
-Generally Leiningen will fetch your dependencies on-demand, but if you
-have just added a new dependency and you want to force it to fetch it,
-you can do that too:
+Generally Leiningen will fetch your dependencies when they're needed,
+but if you have just added a new dependency and you want to force it
+to fetch it, you can do that too:
 
     $ lein deps
 
@@ -117,7 +131,7 @@ you can do that too:
 Dependencies are downloaded from Clojars, the central Maven (Java)
 repository, the [official Clojure build
 server](http://build.clojure.org), and any other repositories that you
-add to your project.clj file; see the
+add to your project.clj file. See :repositories in
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj).
 
 If you've confirmed that your project will work with a number of
@@ -162,20 +176,13 @@ Of course, we haven't written any tests yet, so we've just got the
 skeleton failing tests that Leiningen gave us with <tt>lein
 new</tt>. But once we fill it in the test suite will become more
 useful. Sometimes if you've got a large test suite you'll want to run
-just one or two namespaces worth:
+just one or two namespaces at a time:
 
     $ lein test myproject.parser-test
 
     Testing myproject.parser-test
     Ran 2 tests containing 10 assertions.
     0 failures, 0 errors.
-
-When naming your test namespaces, it's a good idea to pick a name that
-matches the name of the namespace it's testing, but with a "-test"
-suffix. In stack traces that come from test failures you'll only see
-the last segment of the namespace that caused the exception, so it's
-convenient to have it distinguishable from the implementation
-namespace.
 
 ## Compiling
 
@@ -206,15 +213,26 @@ publishing is easy:
     $ lein jar && lein pom
     $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
 
-Once that succeeds it will be available for other projects to depend
-on.
+Once that succeeds it will be available as a package on which other
+projects may depend. You will need to have permission to publish to
+the project's group-id under Clojars, though if that group-id doesn't
+exist yet then Clojars will automatically create it and give you
+permissions.
+
+Sometimes you'll need to publish libraries that you don't directly
+maintain, either because the original maintainer hasn't published it
+or because you need some bugfixes that haven't been applied upstream
+yet. In this case you don't want to publish it under its original
+group-id, since this will prevent the true maintainer from using that
+group-id once they publish it. In this case you should use
+"org.clojars.$USERNAME" as the group-id when you upload your fork.
 
 ## Uberjar
 
 Not all Leiningen projects are libraries though--sometimes you want to
 distribute your project to end-users who don't want to worry about
 having a copy of Clojure lying around. You can use the
-<tt>uberjar</tt> task to create a standalone executable jar.
+<tt>uberjar</tt> task to create a standalone, executable jar.
 
 For this to work you'll need to specify in project.clj a namespace as
 your :main that contains a <tt>-main</tt> function which will get
