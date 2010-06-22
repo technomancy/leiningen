@@ -33,7 +33,7 @@ $HOME/.m2/repository.
 2. Place it on your path and chmod it to be executable.
 3. Run: <tt>lein self-install</tt>
 
-For snapshot versions you may use [the dev version of the lein
+For development versions you may use [the master version of the lein
 script](http://github.com/technomancy/leiningen/raw/master/bin/lein) instead.
 
 On Windows you can download
@@ -53,19 +53,12 @@ project, but here are the commonly-used tasks:
 
     $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
 
-    $ lein repl # launch a REPL with the project classpath configured
+    $ lein repl # launch a REPL session
 
-    $ lein clean # remove all build artifacts
+    $ lein jar # package up the whole project as a .jar file
 
-    $ lein jar # create a jar of the project
-
-    $ lein uberjar # create a standalone jar that contains all dependencies
-
-    $ lein install # install in local repository
-
-These are the most commonly-used tasks; Use <tt>lein help</tt> to see
-a complete list. <tt>lein help $TASK</tt> shows the usage for a
-specific one.
+Use <tt>lein help</tt> to see a complete list. <tt>lein help
+$TASK</tt> shows the usage for a specific one.
 
 ## Configuration
 
@@ -78,7 +71,7 @@ Place a project.clj file in the project root like this:
                      [org.clojure/clojure-contrib "1.1.0"]
                      [ant/ant-launcher "1.6.2"]
                      [org.apache.maven/maven-ant-tasks "2.0.10"]]
-      :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]])
+      :dev-dependencies [[swank-clojure "1.2.1"]])
 
 The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
@@ -113,7 +106,10 @@ file for a detailed listing of configuration options.
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
   [tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
-  for background on JVM dependency concepts.
+  for background.
+
+**Q:** How should I pick my version numbers?  
+**A:** Use [semantic versioning](http://semver.org).
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** Open-source jars can be uploaded to Clojars (see "Publishing"
@@ -122,20 +118,23 @@ file for a detailed listing of configuration options.
   original authors to claim it in the future once they get around to
   uploading. Alternatively you can do a one-off install into your
   local repository in ~/.m2 with Maven for Java libs or <tt>lein
-  install</tt> for Clojure libs.
+  install</tt> for Clojure libs, but this is cumbersome to coordinate
+  across a team.
 
-**Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
-**A:** It means you have some code that was AOT (ahead-of-time)
-  compiled with a different version of Clojure than the one you're
-  currently using. If it persists after running <tt>lein clean</tt> then it
-  is a problem with your dependencies. If you depend on contrib, make
-  sure the contrib version matches the Clojure version. Also note for
-  your own project that AOT compilation in Clojure is much less
-  important than it is in other languages. There are a few
-  language-level features that must be AOT-compiled to work, generally
-  for Java interop. If you are not using any of these features, you
-  should not AOT-compile your project if other projects may depend
-  upon it.
+**Q:** How do I write my own tasks?  
+**A:** If it's a task that may be useful to more than just your
+  project, you should make it into a
+  [plugin](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md).
+  You can also include one-off tasks in your src/leiningen/ directory
+  if they're not worth spinning off; the plugin guide shows how.
+
+**Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
+**A:** Use a new feature called _checkout dependencies_. If you create
+  a directory called <tt>checkouts</tt> in your project root and
+  symlink some other projects into it, Leiningen will allow you to
+  hack on them in parallel. That means changes in the dependency will
+  be visible in the main project without having to go through the
+  whole install/switch-projects/deps/restart-swank cycle.
 
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes. Some libraries, such as log4j, depend on projects that are
@@ -149,16 +148,18 @@ file for a detailed listing of configuration options.
   "super-pom". It's just a quirk of the API. It probably means there
   is a typo in your :dependency declaration in project.clj.
 
-**Q:** How do I write my own tasks?  
-
-**A:** If it's a task that may be useful to more than just your
-  project, you should make it into a
-  [plugin](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md).
-  You can also include one-off tasks in your src/leiningen/ directory
-  if they're not worth spinning off; the plugin guide shows how.
-
-**Q:** How should I pick my version numbers?  
-**A:** Use [semantic versioning](http://semver.org).
+**Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
+**A:** It means you have some code that was AOT (ahead-of-time)
+  compiled with a different version of Clojure than the one you're
+  currently using. If it persists after running <tt>lein clean</tt> then it
+  is a problem with your dependencies. If you depend on contrib, make
+  sure the contrib version matches the Clojure version. Also note for
+  your own project that AOT compilation in Clojure is much less
+  important than it is in other languages. There are a few
+  language-level features that must be AOT-compiled to work, generally
+  for Java interop. If you are not using any of these features, you
+  should not AOT-compile your project if other projects may depend
+  upon it.
 
 ## Hacking
 

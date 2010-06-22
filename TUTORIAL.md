@@ -83,12 +83,18 @@ jar repository, and it's where you'll find Clojure dependencies for your
 project. Each dependency even lists out the snippet you'll need to put
 in your project.clj to use it. Java libraries can be found by
 searching [Jarvana](http://jarvana.com), though you'll need to
-translate their notation into Leiningen's. Leiningen describes
-packages using identifiers that look like this:
+translate their notation into Leiningen's. Maven needs its
+dependencies to be specified in XML format:
 
-    [org.clojure/clojure-contrib "1.1.0"]
+    <dependency>
+       <groupId>org.clojure</groupId>
+       <artifactId>clojure</artifactId>
+       <version>1.1.0</version>
+    </dependency>
 
-TODO: show example of mvn deps
+Leiningen describes packages using identifiers that look like this:
+
+    [org.clojure/clojure "1.1.0"]
 
 * "org.clojure" is called the "group-id"
 * "clojure-contrib" is called the "artifact-id"

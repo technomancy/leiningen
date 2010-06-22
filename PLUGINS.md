@@ -17,11 +17,29 @@ a map which is based on the project.clj file, but it also has :name,
 parameters from the command-line invocation, you can make it take more
 arguments.
 
+Note that Leiningen is an implied dependency of all plugins; you don't
+need to explicitly list it in the project.clj file.
+
 The docstring from the plugin's namespace will be displayed by the
 "lein help" task. The function's arglists will also be shown, so pick
 argument names that are clear and descriptive.
 
-TODO: describe lancet
+## Lancet
+
+If your plugins need to do a fair amount of filesystem-y things, you
+may want to take a look at using Ant tasks to do them since the JDK
+lacks a lot of simple functionality of this kind. Using the Ant API
+directly is a pain, but it can be eased to a degree using
+[Lancet](http://github.com/stuarthalloway/lancet). Lancet is the
+Clojure adapter for Ant that is developed as the sample project in the
+[Programming
+Clojure](http://www.pragprog.com/titles/shcloj/programming-clojure)
+book.
+
+You can look over the [Ant API documentation's listing of
+tasks](http://www.jajakarta.org/ant/ant-1.6.1/docs/en/manual/api/org/apache/tools/ant/taskdefs/package-summary.html)
+to find an appropriate task. See the <tt>deps</tt> task for an example
+of how to call a task from Clojure.
 
 ## Leiningen 1.2
 
