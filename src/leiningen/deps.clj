@@ -2,6 +2,7 @@
   "Install jars for all dependencies in lib."
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos make-dependency]]
+        [leiningen.clean :only [empty-directory]]
         [clojure.java.io :only [file]])
   (:import [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
            [org.apache.tools.ant.util FlatFileNameMapper]))
@@ -45,6 +46,8 @@
   "Download and install all :dependencies listed in project.clj.
 With an argument it will skip development dependencies."
   ([project skip-dev set]
+     (when-not (:disable-implicit-clean project)
+       (empty-directory (:library-path project)))
      (let [deps-task (DependenciesTask.)]
        (.setBasedir lancet/ant-project (:root project))
        (.setFilesetId deps-task "dependency.fileset")
@@ -54,7 +57,6 @@ With an argument it will skip development dependencies."
          (.addConfiguredRemoteRepository deps-task r))
        (doseq [dep (project set)]
          (.addDependency deps-task (make-dependency dep)))
-       ;; TODO: this is starting a rogue thread keeping the JVM from exiting
        (.execute deps-task)
        (.mkdirs (file (:library-path project)))
        (copy-dependencies (:jar-behavior project)

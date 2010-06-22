@@ -16,6 +16,9 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
+  ;; Before fetching dependencies, the contents of the lib/ directory
+  ;; will get deleted unless this is set to true.
+  :disable-implicit-clean false
   ;; Dev dependencies are intended for use only during
   ;; development. Projects that depend on this project will not pull
   ;; in its dev-dependencies, and they won't be included in the uberjar.
