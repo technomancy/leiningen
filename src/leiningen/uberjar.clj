@@ -4,7 +4,7 @@
   (:use [clojure.zip :only [xml-zip]]
         [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
-        [leiningen.jar :only [jar]])
+        [leiningen.jar :only [get-jar-filename jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
 
@@ -42,13 +42,15 @@
 the dependency jars. Suitable for standalone distribution."
   [project]
   (jar project)
-  (let [jarname-root  (str (:name project) \- (:version project))
-        standalone-filename (str jarname-root "-standalone.jar")]
-    (with-open [out (-> (file (:root project) standalone-filename)
+  (let [jarname-base  (str (:name project) \- (:version project))
+        standalone-base (str jarname-base "-standalone.jar")
+        standalone-filename (get-jar-filename project standalone-base)]
+    (with-open [out (-> (file standalone-filename)
                         (FileOutputStream.) (ZipOutputStream.))]
       (let [deps (->> (.listFiles (file (:library-path project)))
                       (filter #(.endsWith (.getName %) ".jar"))
-                      (cons (file (:root project) (str jarname-root ".jar"))))
+                      (cons (file (get-jar-filename
+                                   project (str jarname-base ".jar")))))
             [_ components] (reduce (partial include-dep out)
                                    [#{"META-INF/plexus/components.xml"} nil]
                                    deps)]
@@ -62,4 +64,4 @@ the dependency jars. Suitable for standalone distribution."
                          components}]})
             (.flush *out*))
           (.closeEntry out))))
-    (println "Created" (str jarname-root "-standalone.jar"))))
+    (println "Created" standalone-filename)))
