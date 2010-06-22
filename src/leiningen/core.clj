@@ -1,17 +1,27 @@
 (ns leiningen.core
   (:use [clojure.contrib.with-ns]
-        [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]])
+        [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+        [clojure.walk :only [walk]])
   (:import [java.io File])
   (:gen-class))
 
 (def project nil)
+
+(defn- munge-project-args [args]
+  (walk (fn inner-munge [item]
+          (cond (and (seq? item)
+                     (= `unquote (first item))) (second item)
+                     (symbol? item) (list 'quote item)
+                     :else (munge-project-args item)))
+        identity
+        args))
 
 (defmacro defproject [project-name version & args]
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(do
-     (let [m# (apply hash-map (quote ~args))
+     (let [m# (apply hash-map ~(cons 'list (munge-project-args args)))
            root# ~(.getParent (java.io.File. *file*))]
        (alter-var-root #'project
                        (fn [_#] (assoc m#
