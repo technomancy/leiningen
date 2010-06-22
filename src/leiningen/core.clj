@@ -9,10 +9,9 @@
 
 (defn- munge-project-args [args]
   (walk (fn inner-munge [item]
-          (cond (and (seq? item)
-                     (= `unquote (first item))) (second item)
-                     (symbol? item) (list 'quote item)
-                     :else (munge-project-args item)))
+          (cond (and (seq? item) (= `unquote (first item))) (second item)
+                (symbol? item) (list 'quote item)
+                :else (munge-project-args item)))
         identity
         args))
 
