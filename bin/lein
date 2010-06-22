@@ -112,17 +112,16 @@ else
         # When running on Cygwin, use Windows-style paths for java
         CLOJURE_JAR=`cygpath -w "$CLOJURE_JAR"`
         CLASSPATH=`cygpath -wp "$CLASSPATH"`
-	NULL_DEVICE=NUL
+	    NULL_DEVICE=NUL
     fi
 
-    # if [ "$1" = "repl" ]; then
-    #     # Use rlwrap if it's available, otherwise fall back to JLine
-    #     RLWRAP=`which rlwrap`
-    #     JLINE=jline.ConsoleRunner
-    #     if [ $RLWRAP != "" ]; then
-    #         JLINE=
-    #     fi
-    # fi
+    if [ "$1" = "repl" ]; then
+        # Use rlwrap if it's available, otherwise fall back to JLine
+        RLWRAP=`which rlwrap`
+        if [ $? -eq 1 ]; then
+            JLINE=jline.ConsoleRunner
+        fi
+    fi
 
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
