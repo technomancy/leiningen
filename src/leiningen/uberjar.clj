@@ -4,6 +4,7 @@
   (:use [clojure.zip :only [xml-zip]]
         [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
+        [leiningen.clean :only [clean]]
         [leiningen.jar :only [get-jar-filename jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
@@ -41,6 +42,7 @@
   "Create a jar like the jar task, but including the contents of each of
 the dependency jars. Suitable for standalone distribution."
   [project]
+  (clean project)
   (jar project)
   (let [jarname-base  (str (:name project) \- (:version project))
         standalone-base (str jarname-base "-standalone.jar")
