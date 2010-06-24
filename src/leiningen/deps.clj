@@ -4,7 +4,10 @@
   (:use [leiningen.pom :only [default-repos make-dependency]]
         [leiningen.clean :only [empty-directory]]
         [clojure.java.io :only [file]])
-  (:import [org.apache.maven.artifact.ant DependenciesTask RemoteRepository]
+  (:import [org.apache.maven.artifact.ant Authentication
+                                          DependenciesTask
+                                          RemoteRepository]
+           org.apache.maven.settings.Server
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
 ;; Add symlinking to Lancet's toolbox.
@@ -30,10 +33,17 @@
 
 ;; TODO: unify with pom.clj
 
-(defn make-repository [[id url]]
-  (doto (RemoteRepository.)
-    (.setId id)
-    (.setUrl url)))
+(defn make-repository [[id settings]]
+  (let [repo (RemoteRepository.)]
+    (.setId repo id)
+    (cond
+     (string? settings) (.setUrl repo settings)
+     (map? settings) (do (.setUrl repo (:url settings))
+                         (let [server (doto (Server.)
+                                        (.setUsername (:username settings))
+                                        (.setPassword (:password settings)))]
+                           (.addAuthentication repo (Authentication. server)))))
+    repo))
 
 (defn get-repository-list [project]
   (concat
