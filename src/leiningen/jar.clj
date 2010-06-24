@@ -62,6 +62,10 @@
     (doseq [filespec filespecs]
       (copy-to-jar project jar-os filespec))))
 
+(defn get-default-jar-name [project]
+  (or (:jar-name project)
+      (str (:name project) "-" (:version project) ".jar")))
+
 (defn get-jar-filename [project jar-name]
   (let [jar-dir (:jar-dir project)]
     (.mkdirs (file jar-dir))
@@ -94,4 +98,4 @@ be used as the main-class for an executable jar."
        (write-jar project jar-path filespecs)
        (println "Created" jar-path)
        jar-path))
-  ([project] (jar project (str (:name project) "-" (:version project) ".jar"))))
+  ([project] (jar project (get-default-jar-name project))))
