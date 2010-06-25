@@ -7,11 +7,11 @@
 
 (def project nil)
 
-(defn- eval-unquoted-project [args]
+(defn- unquote-project [args]
   (walk (fn [item]
-          (cond (and (seq? item) (= `unquote (first item))) (eval (second item))
+          (cond (and (seq? item) (= `unquote (first item))) (second item)
                 (symbol? item) (list 'quote item)
-                :else (eval-unquoted-project item)))
+                :else (unquote-project item)))
         identity
         args))
 
@@ -20,7 +20,7 @@
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(do
-     (let [m# (apply hash-map ~(cons 'list (eval-unquoted-project args)))
+     (let [m# (apply hash-map ~(cons 'list (unquote-project args)))
            root# ~(.getParent (java.io.File. *file*))]
        (alter-var-root #'project
                        (fn [_#] (assoc m#
