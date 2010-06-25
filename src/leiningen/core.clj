@@ -7,11 +7,11 @@
 
 (def project nil)
 
-(defn- munge-project-args [args]
-  (walk (fn inner-munge [item]
-          (cond (and (seq? item) (= `unquote (first item))) (second item)
+(defn- eval-unquoted-project [args]
+  (walk (fn [item]
+          (cond (and (seq? item) (= `unquote (first item))) (eval (second item))
                 (symbol? item) (list 'quote item)
-                :else (munge-project-args item)))
+                :else (eval-unquoted-project item)))
         identity
         args))
 
@@ -20,7 +20,7 @@
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(do
-     (let [m# (apply hash-map ~(cons 'list (munge-project-args args)))
+     (let [m# (apply hash-map ~(cons 'list (eval-unquoted-project args)))
            root# ~(.getParent (java.io.File. *file*))]
        (alter-var-root #'project
                        (fn [_#] (assoc m#
@@ -38,8 +38,9 @@
                                                  (str root# "/test"))
                                   :resources-path (or (:resources-path m#)
                                                       (str root# "/resources"))
-                                  :test-resources-path (or (:test-resources-path m#) 
-                                                           (str root# "/test-resources"))
+                                  :test-resources-path
+                                  (or (:test-resources-path m#)
+                                      (str root# "/test-resources"))
                                   :jar-dir (or (:jar-dir m#) root#)
                                   :root root#))))
      (def ~(symbol (name project-name)) project)))
