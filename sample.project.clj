@@ -5,6 +5,8 @@
 
 ;; The project is named "sample", and its group-id is "org.example".
 (defproject org.example/sample "1.0.0-SNAPSHOT" ; version "1.0.0-SNAPSHOT"
+  ;; Beyond this point you may prepend a form with unquote, or ~, to eval it.
+
   ;; The descrption is used to allow searchability when uploaded to Clojars.
   :description "A sample project"
   ;; The URL is also metadata that Clojars uses.
