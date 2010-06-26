@@ -1,6 +1,5 @@
 (ns leiningen.core
-  (:use [clojure.contrib.with-ns]
-        [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+  (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
         [clojure.walk :only [walk]])
   (:import [java.io File])
   (:gen-class))
@@ -21,7 +20,7 @@
   ;; def or we would not have access to it once load-file returned.
   `(do
      (let [m# (apply hash-map ~(cons 'list (unquote-project args)))
-           root# ~(.getParent (java.io.File. *file*))]
+           root# ~(.getParent (File. *file*))]
        (alter-var-root #'project
                        (fn [_#] (assoc m#
                                   :name ~(name project-name)
