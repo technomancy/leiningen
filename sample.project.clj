@@ -43,5 +43,7 @@
   :resources-path "src/main/resources"
   :native-path "src/native" ; where to look for native dependencies
   :jar-dir "target/" ; where to place the project's jar file
+  :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
+  :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; You can set JVM-level options here.
   :jvm-opts "-Xmx1g")
