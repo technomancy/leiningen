@@ -38,7 +38,7 @@
     (.setId repo id)
     (if (string? settings)
       (.setUrl repo settings)
-      (let [{:keys [url username password]}]
+      (let [{:keys [url username password]} settings]
         (.setUrl repo url)
         (.addAuthentication repo (Authentication. (doto (Server.)
                                                     (.setUsername username)
