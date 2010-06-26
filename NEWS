@@ -2,6 +2,26 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.2.0 / ???
 
+* Add support for password-protected repositories.
+
+* Allow :jar-name and :uberjar-name to be customized.
+
+* Allow unquoting in defproject form.
+
+* Support classifiers in dependencies.
+
+* Clean before running uberjar task.
+
+* Implicitly clean lib/ before running deps.
+
+* Add support for test-resources directory.
+
+* Fix help output that AOT sometimes drops.
+
+* Clear out lib/dev on lein clean even if :library-path is customized.
+
+* Some tasks suppress useless output.
+
 * Snapshot versions now allow self-install.
 
 * Allow compile task to take a list of namespaces overriding project.clj.
