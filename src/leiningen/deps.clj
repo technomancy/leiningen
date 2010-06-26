@@ -36,13 +36,13 @@
 (defn make-repository [[id settings]]
   (let [repo (RemoteRepository.)]
     (.setId repo id)
-    (cond
-     (string? settings) (.setUrl repo settings)
-     (map? settings) (do (.setUrl repo (:url settings))
-                         (let [server (doto (Server.)
-                                        (.setUsername (:username settings))
-                                        (.setPassword (:password settings)))]
-                           (.addAuthentication repo (Authentication. server)))))
+    (if (string? settings)
+      (.setUrl repo settings)
+      (let [{:keys [url username password]}]
+        (.setUrl repo url)
+        (.addAuthentication repo (Authentication. (doto (Server.)
+                                                    (.setUsername username)
+                                                    (.setPassword password))))))
     repo))
 
 (defn get-repository-list [project]
