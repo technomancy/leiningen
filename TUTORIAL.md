@@ -97,8 +97,8 @@ Leiningen describes packages using identifiers that look like this:
     [org.clojure/clojure "1.1.0"]
 
 * "org.clojure" is called the "group-id"
-* "clojure-contrib" is called the "artifact-id"
-* "1.2.1" is the version of the jar file you require
+* "clojure is called the "artifact-id"
+* "1.1.0" is the version of the jar file you require
 
 If you omit the group-id, then Leiningen will use the artifact-id for
 it. This is the convention generally used for Leiningen libraries. The
