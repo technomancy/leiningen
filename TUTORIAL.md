@@ -81,29 +81,39 @@ need to list other dependencies.
 [Clojars](http://clojars.org) is the Clojure community's centralized
 jar repository, and it's where you'll find Clojure dependencies for your
 project. Each dependency even lists out the snippet you'll need to put
-in your project.clj to use it. Java libraries can be found by
-searching [Jarvana](http://jarvana.com), though you'll need to
-translate their notation into Leiningen's. Maven needs its
-dependencies to be specified in XML format:
+in your project.clj to use it. Let's take a look at what it would take
+to add a library named Robert Hooke:
+
+It's [available on Clojars](http://clojars.org/robert/hooke) with the
+Leiningen dependency notation shown as below:
+
+    [robert/hooke "1.0.1"]
+
+* "robert" is called the "group-id"
+* "hooke" is called the "artifact-id"
+* "1.0.1" is the version of the jar file you require
+
+For projects on Clojars, often the group-id is the same as the
+artifact-id, in which case you may leave it out of the Leiningen
+dependency notation. For Java libraries often a domain name is used as
+the group-id. The group and artifact names and version at the top of
+the defproject form in project.clj follows the same rules.
+
+Java libraries can be found by searching
+[Jarvana](http://jarvana.com), though you'll need to translate the
+Maven XML notation into
+Leiningen's. [Lucene](http://jarvana.com/jarvana/archive-details/org/apache/lucene/lucene-core/3.0.2/lucene-core-3.0.2.jar)
+is a typical example:
 
     <dependency>
-       <groupId>org.clojure</groupId>
-       <artifactId>clojure</artifactId>
-       <version>1.1.0</version>
+       <groupId>org.apache.lucene</groupId>
+       <artifactId>lucene-core</artifactId>
+       <version>3.0.2</version>
     </dependency>
 
-Leiningen describes packages using identifiers that look like this:
+This becomes:
 
-    [org.clojure/clojure "1.1.0"]
-
-* "org.clojure" is called the "group-id"
-* "clojure is called the "artifact-id"
-* "1.1.0" is the version of the jar file you require
-
-If you omit the group-id, then Leiningen will use the artifact-id for
-it. This is the convention generally used for Leiningen libraries. The
-name and version at the top of the defproject form follows the same
-rules.
+    [org.apache.lucene/lucene-core "3.0.2"]
 
 Sometimes versions will end in "-SNAPSHOT". This means that it is not
 an official release but a development build. Relying on snapshot
@@ -131,7 +141,7 @@ to fetch it, you can do that too:
 
     $ lein deps
 
-    Copying 2 files to ~/src/myproject/lib
+    Copying 4 files to ~/src/myproject/lib
     Copied :dependencies into ~/src/myproject/lib.
 
 Dependencies are downloaded from Clojars, the central Maven (Java)
@@ -207,14 +217,78 @@ you need to force it you can:
 
     Compiling myproject.core
 
-## Publishing
+## What to do with it
+
+Generally speaking, there are three different goals that are typical
+of Leiningen projects:
+
+* An application you can distribute to end-users
+* A library
+* A server-side application
+
+For the first, you will want to build an uberjar. For libraries, you
+will want to have them published to a repository like Clojars. For
+server-side applications it varies as described below.
+
+### Uberjar
+
+The <tt>uberjar</tt> task is used to create a standalone, executable
+jar. For this to work you'll need to specify a namespace as your :main
+in project.clj. By this point our project.clj file should look like this:
+
+    (defproject myproject "1.0.0-SNAPSHOT"
+      :description "This project is MINE."
+      :dependencies [[org.clojure/clojure "1.1.0"]
+                     [org.clojure/clojure-contrib "1.1.0"]
+                     [org.apache.lucene/lucene-core "3.0.2"]
+                     [robert/hooke "1.0.1"]]
+      :main myproject.core)
+
+The namespace you specify will need to contain a <tt>-main</tt>
+function that will get called when your standalone jar is run. This
+namespace should have a <tt>(:gen-class)</tt> declaration in the
+<tt>ns</tt> form at the top. The <tt>-main</tt> function will get
+passed the command-line arguments. Let's try something simple in
+src/myproject/core.clj:
+
+    (ns myproject.core
+      (:gen-class))
+
+    (defn -main [& args]
+      (println "Welcome to my project! These are your args:" args))
+
+Now we're ready to generate your uberjar:
+
+    $ lein uberjar
+    Cleaning up
+    Copying 4 files to /home/phil/src/leiningen/myproject/lib
+    Created ~/src/myproject/myproject-1.0.0.jar
+    Including myproject-1.0.0-SNAPSHOT.jar
+    Including clojure-contrib-1.1.0.jar
+    Including hooke-1.0.1.jar
+    Including clojure-1.1.0.jar
+    Including lucene-core-3.0.2.jar
+    Created myproject-1.0.0-standalone.jar
+
+This creates a single jar file that contains the contents of all your
+dependencies. Users can run it with a simple <tt>java</tt> invocation,
+or on some systems just by double-clicking the jar file.
+
+    $ java -jar myproject-1.0.0-standalone.jar Hello world.
+    Welcome to my project! These are your args: (Hello world.)
+
+You can run a regular (non-uber) jar with the <tt>java</tt>
+command-line tool, but that requires constructing the classpath
+yourself, so it's not a good solution for end-users.
+
+### Publishing
 
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
-a public repository. While it's possible to maintain your own or get
-it into Maven central, the easiest way is to publish it at
-[Clojars](http://clojars.org). Once you have created an account there,
-publishing is easy:
+a public repository. While it's possible to maintain your own
+repository or get it into Maven central, the easiest way is to publish
+it at [Clojars](http://clojars.org). Once you have created an account
+there, publishing is easy:
 
     $ lein jar && lein pom
     $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
@@ -230,35 +304,23 @@ maintain, either because the original maintainer hasn't published it
 or because you need some bugfixes that haven't been applied upstream
 yet. In this case you don't want to publish it under its original
 group-id, since this will prevent the true maintainer from using that
-group-id once they publish it. In this case you should use
-"org.clojars.$USERNAME" as the group-id when you upload your fork.
+group-id once they publish it. You should use "org.clojars.$USERNAME"
+as the group-id instead.
 
-## Uberjar
+### Server-side Projects
 
-Not all Leiningen projects are libraries though--sometimes you want to
-distribute your project to end-users who don't want to worry about
-having a copy of Clojure lying around. You can use the
-<tt>uberjar</tt> task to create a standalone, executable jar.
-
-For this to work you'll need to specify in project.clj a namespace as
-your :main that contains a <tt>-main</tt> function which will get
-called when your standalone jar is run. This namespace should have a
-<tt>(:gen-class)</tt> declaration in the <tt>ns</tt> form at the
-top. The <tt>-main</tt> function will get passed the command-line
-arguments.
-
-    $ lein uberjar
-    Created ~/src/myproject/myproject-1.0.0.jar
-    Including myproject-1.0.0.jar
-    Including clojure-contrib-1.1.0.jar
-    Including clojure-1.1.0.jar
-    Created myproject-1.0.0-standalone.jar
-
-This creates a single jar file that contains the contents of all your
-dependencies. Users can run it with a simple <tt>java</tt> invocation,
-or on some systems just by double-clicking the jar file.
-
-    $ java -jar myproject-1.0.0-standalone.jar
+There are many ways to get your project deployed as a server-side
+application. Simple programs can be packaged up as tarballs with
+accompanied shell scripts using the [lein-release
+plugin](http://github.com/technomancy/lein-release) and then deployed
+using [chef](http://opscode.com/chef/),
+[pallet](http://hugoduncan.github.com/pallet/), or other
+mechanisms. Web applications may be deployed using the [lein-war
+plugin](http://github.com/alienscience/leiningen-war). You can even
+create [Hadoop
+projects](http://github.com/ndimiduk/lein-hadoop). These kinds of
+deployments are so varied that they are better-handled using plugins
+rather than tasks that are built-in to Leiningen itself.
 
 ## That's It!
 
