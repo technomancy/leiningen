@@ -117,9 +117,12 @@ file for a detailed listing of configuration options.
   "org.clojars.$USERNAME" in order to avoid conflicts and to allow the
   original authors to claim it in the future once they get around to
   uploading. Alternatively you can do a one-off install into your
-  local repository in ~/.m2 with Maven for Java libs or <tt>lein
-  install</tt> for Clojure libs, but this is cumbersome to coordinate
-  across a team.
+  local repository in ~/.m2 with Maven. Add a dependency to
+  project.clj that doesn't exist in any remote repository and run
+  <tt>lein deps</tt>, and the output will include the <tt>mvn</tt>
+  invocation to do this. It's _much_ better to get the dependency in a
+  remote repository for repeatability reasons though. For teams
+  working on private projects [Hudson](http://hudson-ci.org/) works well.
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
