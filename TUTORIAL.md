@@ -217,6 +217,11 @@ you need to force it you can:
 
     Compiling myproject.core
 
+For your code to compile, it must be run. This means that you
+shouldn't have any code with side-effects in the top-level. If you
+have code that should run on startup, place it in a <tt>-main</tt>
+function as explained below under "Uberjar".
+
 ## What to do with it
 
 Generally speaking, there are three different goals that are typical
