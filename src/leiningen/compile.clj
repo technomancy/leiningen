@@ -20,11 +20,9 @@
   their class files are present and up-to-date."
   [project]
   (let [nses (or (:aot project) (:namespaces project))
-        nses (set (cond
-                   (coll? nses) nses
-
-                   (= :all nses)
-                   (find-namespaces-in-dir (file (:source-path project)))))]
+        nses (if (= :all nses)
+               (find-namespaces-in-dir (file (:source-path project)))
+               nses)]
     (if (:main project)
       (conj nses (:main project))
       nses)))
