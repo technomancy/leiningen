@@ -81,6 +81,7 @@
           :when (re-find #"^leiningen\.hooks\." (name n))]
     (try (require n)
          (catch Exception e
+           ;; TODO: suppress exception message if running deps task
            (println "Problem loading hooks:" n (.getMessage e))))))
 
 (defn ns->path [n]

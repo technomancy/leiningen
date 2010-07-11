@@ -6,21 +6,24 @@
 Leiningen TODOs
 
 * For 1.3.0 or higher
+** TODO user-level plugin installation and activation
+** TODO user-level config file
+** TODO re-compile all deps with current clojure version
+** TODO lein install $PROJECT (works outside project root)
+** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
+** TODO multitest task: test with various dependency sets (plugin?)
+** TODO classifiers for specifying what clojure version to use?
 ** TODO test classification using metadata; run a subset of tests
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
 ** TODO write shell wrappers
-** TODO lein install $PROJECT (works outside project root)
-** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
-** TODO user config file for activating plugins across all projects
-** TODO re-compile all deps with current clojure version
 ** Better deployment features
 *** TODO "lein install $PROJECT" without a checkout
 *** TODO create shell scripts post-install
-** Improve plugins
-*** TODO Allow plugins to be activated user-wide (maybe system-wide?)
 * For 1.2.0
+** TODO Fix self-build clean problem
+** TODO Don't catch reader exceptions unless they are from ^D
 ** DONE document checkout dependencies
 ** DONE Re-enable rlwrap
 ** DONE Move the intro into a tutorial
