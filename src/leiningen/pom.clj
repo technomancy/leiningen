@@ -97,10 +97,13 @@ from transitive dependencies."
       (.setClassifier classifier)
       (.setExclusions es))))
 
-(defn make-repository [[id url]]
-  (doto (Repository.)
-    (.setId id)
-    (.setUrl url)))
+(defn make-repository [[id settings]]
+  (let [repo (Repository.)]
+    (.setId repo id)
+    (if (string? settings)
+      (.setUrl repo settings)
+      (.setUrl repo (:url settings)))
+    repo))
 
 (defn make-license [{:keys [name url distribution comments]}]
   (doto (License.)
