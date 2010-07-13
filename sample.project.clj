@@ -16,8 +16,8 @@
   ;; descriptions as below).
   :mailing-list {:name "sample mailing list"
                  :archive "http://example.org/sample-mailing-list-archives"
-                 :other-archives ["http://example.org/sample-mailing-list-another-archive-url"
-                                  "http://example.org/sample-mailing-list-yet-another-archive-url"]
+                 :other-archives ["http://example.org/sample-list-archive2"
+                                  "http://example.org/sample-list-archive3"]
                  :post "list@example.org"
                  :subscribe "list-subscribe@example.org"
                  :unsubscribe "list-unsubscribe@example.org"}
