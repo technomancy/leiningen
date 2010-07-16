@@ -24,16 +24,18 @@ Neither group-id nor artifact-id may contain slashes."
                   "  :description \"FIXME: write\"\n"
                   "  :dependencies [[org.clojure/clojure \"1.1.0\"]\n"
                   "                 [org.clojure/clojure-contrib \"1.1.0\"]])"))
-       (let [project-ns  (str (.replace (str project-name) "/" ".") ".core")
+       (let [prefix (.replace (str project-name) "/" ".")
+             project-ns (str prefix ".core")
+             test-ns (str prefix ".test.core")
              project-clj (ns->path project-ns)
-             test-clj (.replace project-clj ".clj" "_test.clj")]
+             test-clj (ns->path test-ns)]
          (.mkdirs (file project-dir "test"))
          (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
          (spit (file project-dir "src" project-clj)
                (str "(ns " project-ns ")\n"))
          (.mkdirs (.getParentFile (file project-dir "test" test-clj)))
          (spit (file project-dir "test" test-clj)
-               (str "(ns " (str project-ns "-test")
+               (str "(ns " (str test-ns)
                     "\n  (:use [" project-ns "] :reload-all)"
                     "\n  (:use [clojure.test]))\n\n"
                     "(deftest replace-me ;; FIXME: write\n  (is false "
