@@ -115,7 +115,7 @@ else
 	    NULL_DEVICE=NUL
     fi
 
-    if [ "$1" = "repl" ]; then
+    if [ "$1" = "repl" ] && [ -z $INSIDE_EMACS ] && [ $TERM != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
         if [ $? -eq 1 ]; then
