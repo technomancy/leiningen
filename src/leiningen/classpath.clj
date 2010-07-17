@@ -1,7 +1,6 @@
 (ns leiningen.classpath
   (:use (clojure.contrib [io :only (file)]
-                         [string :only (join)])
-        [leiningen.checkout-deps :only [checkout-deps-paths]])
+                         [string :only (join)]))
   (:import org.apache.tools.ant.types.Path))
 
 (defn find-lib-jars
@@ -12,6 +11,15 @@
                   ;; This must be hard-coded because it's used in
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
+
+(defn checkout-deps-paths [project]
+  (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))]
+                  ;; Note that this resets the leiningen.core/project var!
+                  (let [proj (binding [*ns* (find-ns 'leiningen.core)]
+                               (read-project (.getAbsolutePath
+                                              (file dep "project.clj"))))]
+                      (for [d [:source-path :compile-path :resources-path]]
+                        (proj d))))))
 
 (defn make-path
   "Constructs an ant Path object from Files and strings."
