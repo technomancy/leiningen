@@ -35,10 +35,10 @@
 
 (defn- repl-client [reader writer]
   (copy-out reader)
-  (let [input (try (pr-str (read))
-                   (catch Exception _ ::abort))]
-    (when-not (= ::abort input)
-      (.write writer (str input "\n"))
+  (let [eof (Object.)
+        input (read *in* false eof)]
+    (when-not (= eof input)
+      (.write writer (str (pr-str input) "\n"))
       (.flush writer)
       (recur reader writer))))
 
