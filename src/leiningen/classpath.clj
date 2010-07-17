@@ -36,9 +36,9 @@
            (:test-path project)
            (:compile-path project)
            (:resources-path project)
-		   (:test-resources-path project)]
-          (find-lib-jars project)
-          (checkout-deps-paths project)))
+           (:test-resources-path project)]
+          (checkout-deps-paths project)
+          (find-lib-jars project)))
 
 (defn classpath
   "Print out the classpath in which the project operates, within the
