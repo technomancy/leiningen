@@ -1,6 +1,7 @@
 (ns leiningen.classpath
-  (:use (clojure.contrib [io :only (file)]
-                         [string :only (join)]))
+  (:use [leiningen.core :only [read-project]]
+        [clojure.java.io :only [file]]
+        [clojure.string :only [join]])
   (:import org.apache.tools.ant.types.Path))
 
 (defn find-lib-jars
