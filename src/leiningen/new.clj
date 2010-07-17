@@ -22,8 +22,8 @@ Neither group-id nor artifact-id may contain slashes."
        (spit (file project-dir "project.clj")
              (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
                   "  :description \"FIXME: write\"\n"
-                  "  :dependencies [[org.clojure/clojure \"1.1.0\"]\n"
-                  "                 [org.clojure/clojure-contrib \"1.1.0\"]])"))
+                  "  :dependencies [[org.clojure/clojure \"1.2.0-beta1\"]\n"
+                  "                 [org.clojure/clojure-contrib \"1.2.0-beta1\"]])"))
        (let [prefix (.replace (str project-name) "/" ".")
              project-ns (str prefix ".core")
              test-ns (str prefix ".test.core")
