@@ -8,6 +8,8 @@
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
+<img src="http://github.com/technomancy/leiningen/raw/master/resources/leiningen.png" alt="Leiningen logo" title="The man himself" align="right" />
+
 Building Clojure projects with tools designed for Java can be an
 exercise in frustration. If you use Ant, you end up copying around a
 lot of the same tasks between XML files on all your projects;
@@ -18,10 +20,11 @@ build. Either way you must write far more XML than is decent.
 
 With Leiningen, you describe your build with Clojure. Any code you
 need goes in your project.clj file; the only requirement is calling
-defproject. You can define your own tasks in there if you need to, but
-most projects get by on the tasks provided with Leiningen. If you do
-find a common task that you need to add, you can implement it as a
-plugin rather than copying and pasting among each of your projects.
+defproject. You can define your own tasks in your project if you need
+to, but most projects get by on the tasks provided with Leiningen. If
+you do find a common task that you need to add, you can implement it
+as a plugin rather than copying and pasting among each of your
+projects.
 
 ## Installation
 
@@ -53,7 +56,7 @@ project, but here are the commonly-used tasks:
 
     $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
 
-    $ lein repl # launch a REPL session
+    $ lein repl # launch an interactive REPL session
 
     $ lein jar # package up the whole project as a .jar file
 
@@ -119,10 +122,11 @@ file for a detailed listing of configuration options.
   uploading. Alternatively you can do a one-off install into your
   local repository in ~/.m2 with Maven. Add a dependency to
   project.clj that doesn't exist in any remote repository and run
-  <tt>lein deps</tt>, and the output will include the <tt>mvn</tt>
-  invocation to do this. It's _much_ better to get the dependency in a
-  remote repository for repeatability reasons though. For teams
-  working on private projects [Hudson](http://hudson-ci.org/) works well.
+  <tt>lein deps</tt>. It won't succeed, but the output will include
+  the <tt>mvn</tt> invocation to do this. It's _much_ better to get
+  the dependency in a remote repository for repeatability reasons
+  though. For teams working on private projects
+  [Hudson](http://hudson-ci.org/) works well.
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
@@ -132,7 +136,7 @@ file for a detailed listing of configuration options.
   if they're not worth spinning off; the plugin guide shows how.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
-**A:** Use a new feature called _checkout dependencies_. If you create
+**A:** Use a feature called _checkout dependencies_. If you create
   a directory called <tt>checkouts</tt> in your project root and
   symlink some other projects into it, Leiningen will allow you to
   hack on them in parallel. That means changes in the dependency will
@@ -172,16 +176,16 @@ Clojure; you could probably read through the whole project in an hour.
 When you launch Leiningen, it must start an instance of Clojure to
 load itself. But this instance must not effect the project that you're
 building. It may use a different version of Clojure from Leiningen,
-and the project should be in a totally fresh JVM. Leiningen uses ant's
+and the project should be in a fresh JVM. Leiningen uses ant's
 <tt>java</tt> task to fork off a separate process for this
 purpose. The <tt>leiningen.compile</tt> namespace implements this;
 specifically the <tt>eval-in-project</tt> function. Any code that must
 execute within the context of the project (AOT compilation, test runs)
 needs to go through this function.
 
-Leiningen tasks are simply Clojure functions that take the current
-project as their first argument followed by any further arguments that
-were given on the command-line.
+Leiningen is extensible; you can define new tasks in plugins. Add your
+plugin as a dev-dependency of your project, and you'll be able to call
+<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md) for details.
 
 The [mailing list](http://groups.google.com/group/leiningen) and the
 leiningen or clojure channels on Freenode are the best places to
@@ -200,10 +204,6 @@ patches](http://technomancy.us/135) for some tips. If you've got some
 time on your hands, reading this [style
 guide](http://mumble.net/~campbell/scheme/style.txt) wouldn't hurt
 either.
-
-Leiningen is extensible; you can define new tasks in plugins. Add your
-plugin as a dev-dependency of your project, and you'll be able to call
-<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md) for details.
 
 See the [complete list of known issues](http://github.com/technomancy/leiningen/issues).
 

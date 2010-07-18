@@ -1,11 +1,13 @@
 # Leiningen Plugins
 
-Leiningen tasks are simply functions in a leiningen.task namespace. So
-writing a Leiningen plugin is pretty straightforward; as long as it's
-available on the classpath, Leiningen will be able to use it.
+Leiningen tasks are simply functions named $TASK in a leiningen.$TASK
+namespace. So writing a Leiningen plugin is pretty straightforward; as
+long as it's available on the classpath, Leiningen will be able to use
+it.
 
 To use a plugin, add it to your project.clj :dev-dependencies and run
-"lein deps". Then you'll be able to invoke it with "lein myplugin".
+"lein deps". Then you'll be able to invoke the tasks it provides with
+"lein $TASK".
 
 ## Writing a Plugin
 
@@ -14,8 +16,8 @@ leiningen.myplugin namespace with a myplugin function. That function
 should take at least one argument: the current project. The project is
 a map which is based on the project.clj file, but it also has :name,
 :group, :version, and :root keys added in. If you want it to take
-parameters from the command-line invocation, you can make it take more
-arguments.
+parameters from the command-line invocation, you can make the function
+take more arguments.
 
 Note that Leiningen is an implied dependency of all plugins; you don't
 need to explicitly list it in the project.clj file.
@@ -23,6 +25,14 @@ need to explicitly list it in the project.clj file.
 The docstring from the plugin's namespace will be displayed by the
 "lein help" task. The function's arglists will also be shown, so pick
 argument names that are clear and descriptive.
+
+If your task returns an integer, it will be used as the exit code for
+the process.
+
+You can set up aliases for your task by conjing a pair of strings with
+alias->task-name mappings on to the leiningen.core/aliases atom:
+
+    (swap! leiningen.core/aliases conj ["-v" "version"])
 
 ## Lancet
 
@@ -41,28 +51,13 @@ tasks](http://www.jajakarta.org/ant/ant-1.6.1/docs/en/manual/api/org/apache/tool
 to find an appropriate task. See the <tt>deps</tt> task for an example
 of how to call a task from Clojure.
 
-## Leiningen 1.2
-
-The rest of this document only applies to Leiningen version 1.2+. It
-is subject to breaking change until 1.2.0 sees a stable release.
-
-If your task returns an integer, it will be used as the exit code for
-the process.
-
-You can set up aliases for your task by conjing a pair of strings with
-alias->task-name mappings on to the leiningen.core/aliases atom:
-
-    (swap! leiningen.core/aliases conj ["-v" "version"])
-
 ## Hooks
 
 You can modify the behaviour of built-in tasks to a degree using
-hooks. Hook functionality is provided by [Robert
-Hooke](http://github.com/technomancy/robert-hooke), a separate
-library. Your plugin will have to declare it as a dependency in
-project.clj if you want to use hooks:
-
-    :dev-dependencies [[robert/hooke "1.0.1"]]
+hooks. Hook functionality is provided by the [Robert
+Hooke](http://github.com/technomancy/robert-hooke) library. This is an
+implied dependency; as long as Leiningen 1.2 or higher is used it will
+be available.
 
 Inspired by clojure.test's fixtures functionality, hooks are functions
 which wrap tasks and may alter their behaviour by using binding,
