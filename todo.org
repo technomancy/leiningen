@@ -22,8 +22,8 @@ Leiningen TODOs
 *** TODO "lein install $PROJECT" without a checkout
 *** TODO create shell scripts post-install
 * For 1.2.0
-** TODO Fix self-build clean problem
-** TODO Don't catch reader exceptions unless they are from ^D
+** DONE Fix self-build clean problem
+** DONE Don't catch reader exceptions unless they are from ^D
 ** DONE document checkout dependencies
 ** DONE Re-enable rlwrap
 ** DONE Move the intro into a tutorial

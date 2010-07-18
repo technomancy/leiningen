@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.2.0-RC2"
+VERSION="1.2.0"
 
 CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
