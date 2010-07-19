@@ -78,7 +78,7 @@ Leiningen NEWS -- history of user-visible changes
 
 * Improved Cygwin support.
 
-* Added INTRO.md file for introductory concepts.
+* Added TUTORIAL.md file for introductory concepts.
 
 = 1.1.0 / 2010-02-16
 

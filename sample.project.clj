@@ -66,4 +66,4 @@
   :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; You can set JVM-level options here.
-  :jvm-opts "-Xmx1g")
+  :jvm-opts ["-Xmx1g"])
