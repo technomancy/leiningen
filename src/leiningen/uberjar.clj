@@ -5,6 +5,7 @@
         [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.clean :only [clean]]
+        [leiningen.deps :only [deps]]
         [leiningen.jar :only [get-default-jar-name get-jar-filename jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
@@ -47,6 +48,7 @@
 the dependency jars. Suitable for standalone distribution."
   ([project uberjar-name]
      (clean project)
+     (deps project)
      (jar project)
      (let [standalone-filename (get-jar-filename project uberjar-name)]
        (with-open [out (-> (file standalone-filename)
