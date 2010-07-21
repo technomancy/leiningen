@@ -71,6 +71,10 @@
     (.mkdirs (file jar-dir))
     (str jar-dir "/"  jar-name)))
 
+(defn get-default-uberjar-name [project]
+  (or (:uberjar-name project)
+      (str (:name project) \- (:version project) "-standalone.jar")))
+
 (defn jar
   "Create a $PROJECT-$VERSION.jar file containing the compiled .class files as
 well as the source .clj files. If project.clj contains a :main symbol, it will

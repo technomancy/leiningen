@@ -5,7 +5,8 @@
         [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.clean :only [clean]]
-        [leiningen.jar :only [get-default-jar-name get-jar-filename jar]])
+        [leiningen.jar :only [get-default-jar-name get-jar-filename
+                              get-default-uberjar-name jar]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
 
@@ -37,10 +38,6 @@
   (with-open [zipfile (ZipFile. dep)]
     [(into skip-set (copy-entries zipfile out #(skip-set (.getName %))))
      (concat components (read-components zipfile))]))
-
-(defn get-default-uberjar-name [project]
-  (or (:uberjar-name project)
-      (str (:name project) \- (:version project) "-standalone.jar")))
 
 (defn uberjar
   "Create a jar like the jar task, but including the contents of each of

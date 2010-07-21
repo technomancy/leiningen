@@ -209,7 +209,8 @@ See the [complete list of known issues](http://github.com/technomancy/leiningen/
 
 ## License
 
-Copyright (C) 2009-2010 Phil Hagelberg, Alex Osborne, and Dan Larkin
+Copyright (C) 2009-2010 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+contributors.
 
 Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
 me that good builds are important.

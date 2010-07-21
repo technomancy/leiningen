@@ -2,8 +2,7 @@
   "Install jars for all dependencies in lib."
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos make-dependency]]
-        [leiningen.clean :only [empty-directory]]
-        [clojure.java.io :only [file]])
+        [clojure.contrib.io :only [file delete-file-recursively]])
   (:import [org.apache.maven.artifact.ant Authentication
                                           DependenciesTask
                                           RemoteRepository]
@@ -57,7 +56,7 @@
 With an argument it will skip development dependencies."
   ([project skip-dev set]
      (when-not (:disable-implicit-clean project)
-       (empty-directory (:library-path project)))
+       (delete-file-recursively (:library-path project) true))
      (let [deps-task (DependenciesTask.)]
        (.setBasedir lancet/ant-project (:root project))
        (.setFilesetId deps-task "dependency.fileset")
