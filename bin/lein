@@ -74,6 +74,8 @@ fi
 
 JAVA_CMD=${JAVA_CMD:-"java"}
 
+# If you're packaging this for a package manager (.deb, homebrew, etc)
+# you need to remove the self-install and upgrade functionality.
 if [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     LEIN_DIR=`dirname "$LEIN_JAR"`
