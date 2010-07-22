@@ -75,12 +75,14 @@
     (.setGroupId (or (namespace excl) (name excl)))
     (.setArtifactId (name excl))))
 
-(defn make-dependency 
-  "Makes a dependency from a seq. The seq (usually a vector) should contain a symbol to define the
-group and artifact id, then a version string. The remaining arguments are combined into a map. The  value
-for the :classifier key (if present) is the classifier on the dependency (as a string). The value for
-the :exclusions key, if present, is a seq of symbols, identifying group ids and artifact ids to exclude
-from transitive dependencies."
+(defn make-dependency
+  "Makes a dependency from a seq. The seq (usually a vector) should
+contain a symbol to define the group and artifact id, then a version
+string. The remaining arguments are combined into a map. The value for
+the :classifier key (if present) is the classifier on the
+dependency (as a string). The value for the :exclusions key, if
+present, is a seq of symbols, identifying group ids and artifact ids
+to exclude from transitive dependencies."
   [[dep version & extras]]
   (let [extras-map (apply hash-map extras)
         exclusions (:exclusions extras-map)

@@ -28,7 +28,7 @@
       nses)))
 
 (defn stale-namespaces
-  "Given a seq of namespaces that are both compilable and that have missing or
+  "Return a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
   (filter
@@ -85,6 +85,7 @@
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
+;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
   set correctly for the project. Pass in a handler function to have it called
@@ -132,7 +133,7 @@
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
-  those given as command-line arguments."
+those given as command-line arguments."
   ([project]
      (.mkdir (file (:compile-path project)))
      (if (seq (compilable-namespaces project))
