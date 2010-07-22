@@ -17,10 +17,7 @@ Leiningen TODOs
 ** TODO a list of dirs to include in the jar when building
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
-** TODO write shell wrappers
-** Better deployment features
-*** TODO "lein install $PROJECT" without a checkout
-*** TODO create shell scripts post-install
+** TODO write shell wrappers on install
 * For 1.2.0
 ** DONE Fix self-build clean problem
 ** DONE Don't catch reader exceptions unless they are from ^D
