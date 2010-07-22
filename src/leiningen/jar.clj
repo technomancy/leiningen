@@ -66,14 +66,34 @@
   (or (:jar-name project)
       (str (:name project) "-" (:version project) ".jar")))
 
-(defn get-jar-filename [project jar-name]
-  (let [jar-dir (:jar-dir project)]
-    (.mkdirs (file jar-dir))
-    (str jar-dir "/"  jar-name)))
+(defn get-jar-filename
+  ([project jar-name]
+     (let [jar-dir (:jar-dir project)]
+       (.mkdirs (file jar-dir))
+       (str jar-dir "/" jar-name)))
+  ([project] (get-jar-filename project (get-default-jar-name project))))
 
 (defn get-default-uberjar-name [project]
   (or (:uberjar-name project)
       (str (:name project) \- (:version project) "-standalone.jar")))
+
+(defn- filespecs [project]
+  [{:type :bytes
+    :path (format "meta-inf/maven/%s/%s/pom.xml"
+                  (:group project)
+                  (:name project))
+    :bytes (make-pom project)}
+   {:type :bytes
+    :path (format "meta-inf/maven/%s/%s/pom.properties"
+                  (:group project)
+                  (:name project))
+    :bytes (make-pom-properties project)}
+   (when (and (:resources-path project)
+              (.exists (file (:resources-path project))))
+     {:type :path :path (:resources-path project)})
+   {:type :path :path (:compile-path project)}
+   {:type :path :path (:source-path project)}
+   {:type :path :path (str (:root project) "/project.clj")}])
 
 (defn jar
   "Create a $PROJECT-$VERSION.jar file containing the compiled .class files as
@@ -82,24 +102,8 @@ be used as the main-class for an executable jar."
   ([project jar-name]
      (binding [compile/*silently* true]
        (compile/compile project))
-     (let [jar-path (get-jar-filename project jar-name)
-           filespecs [{:type :bytes
-                       :path (format "meta-inf/maven/%s/%s/pom.xml"
-                                     (:group project)
-                                     (:name project))
-                       :bytes (make-pom project)}
-                      {:type :bytes
-                       :path (format "meta-inf/maven/%s/%s/pom.properties"
-                                     (:group project)
-                                     (:name project))
-                       :bytes (make-pom-properties project)}
-                      (when (and (:resources-path project)
-                                 (.exists (file (:resources-path project))))
-                        {:type :path :path (:resources-path project)})
-                      {:type :path :path (:compile-path project)}
-                      {:type :path :path (:source-path project)}
-                      {:type :path :path (str (:root project) "/project.clj")}]]
-       (write-jar project jar-path filespecs)
+     (let [jar-path (get-jar-filename project jar-name)]
+       (write-jar project jar-path (filespecs project))
        (println "Created" jar-path)
        jar-path))
   ([project] (jar project (get-default-jar-name project))))
