@@ -3,10 +3,9 @@
   (:require [lancet])
   (:use [leiningen.pom :only [default-repos make-dependency]]
         [clojure.contrib.io :only [file delete-file-recursively]])
-  (:import [org.apache.maven.artifact.ant Authentication
-                                          DependenciesTask
-                                          RemoteRepository]
-           org.apache.maven.settings.Server
+  (:import [org.apache.maven.artifact.ant
+            Authentication DependenciesTask RemoteRepository]
+           [org.apache.maven.settings Server]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
 ;; Add symlinking to Lancet's toolbox.
@@ -45,27 +44,28 @@
     repo))
 
 (defn get-repository-list [project]
-  (concat
-   (if (:omit-default-repositories project)
-     {}
-     default-repos)
-   (:repositories project)))
+  (merge (when-not (:omit-default-repositories project) default-repos)
+         (:repositories project)))
+
+(defn- make-deps-task [project deps-set]
+  (let [deps-task (DependenciesTask.)]
+    (.setBasedir lancet/ant-project (:root project))
+    (.setFilesetId deps-task "dependency.fileset")
+    (.setProject deps-task lancet/ant-project)
+    (.setPathId deps-task (:name project))
+    (doseq [r (map make-repository (get-repository-list project))]
+      (.addConfiguredRemoteRepository deps-task r))
+    (doseq [dep (project deps-set)]
+      (.addDependency deps-task (make-dependency dep)))
+    deps-task))
 
 (defn deps
   "Download and install all :dependencies listed in project.clj.
 With an argument it will skip development dependencies."
-  ([project skip-dev set]
+  ([project skip-dev deps-set]
      (when-not (:disable-implicit-clean project)
        (delete-file-recursively (:library-path project) true))
-     (let [deps-task (DependenciesTask.)]
-       (.setBasedir lancet/ant-project (:root project))
-       (.setFilesetId deps-task "dependency.fileset")
-       (.setProject deps-task lancet/ant-project)
-       (.setPathId deps-task (:name project))
-       (doseq [r (map make-repository (get-repository-list project))]
-         (.addConfiguredRemoteRepository deps-task r))
-       (doseq [dep (project set)]
-         (.addDependency deps-task (make-dependency dep)))
+     (let [deps-task (make-deps-task project deps-set)]
        (.execute deps-task)
        (.mkdirs (file (:library-path project)))
        (copy-dependencies (:jar-behavior project)
