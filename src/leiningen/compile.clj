@@ -52,6 +52,7 @@
       "Linux" :linux
       "FreeBSD" :freebsd
       "SunOS" :solaris
+      "OpenBSD" :openbsd
       "amd64" :x86_64
       "x86_64" :x86_64
       "x86" :x86
