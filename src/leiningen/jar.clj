@@ -79,12 +79,12 @@
 
 (defn- filespecs [project]
   [{:type :bytes
-    :path (format "meta-inf/maven/%s/%s/pom.xml"
+    :path (format "META-INF/maven/%s/%s/pom.xml"
                   (:group project)
                   (:name project))
     :bytes (make-pom project)}
    {:type :bytes
-    :path (format "meta-inf/maven/%s/%s/pom.properties"
+    :path (format "META-INF/maven/%s/%s/pom.properties"
                   (:group project)
                   (:name project))
     :bytes (make-pom-properties project)}
