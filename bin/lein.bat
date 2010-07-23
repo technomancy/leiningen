@@ -13,8 +13,8 @@ rem and copied on %CLOJURE_JAR% path
 rem this step is not necessary, because Leiningen standalone jar
 rem contains Clojure as well
 
-set CLOJURE_VERSION=1.1.0
-set LEIN_VERSION=1.1.0
+set CLOJURE_VERSION=1.2.0-beta1
+set LEIN_VERSION=1.2.0
 
 rem uncomment this and set paths explicitly 
 rem set LEIN_JAR=C:\Documents and Settings\wojcirob\.m2\repository\leiningen\leiningen\%LEIN_VERSION%\leiningen-%LEIN_VERSION%-standalone.jar
@@ -51,6 +51,11 @@ rem ##################################################
 rem ##################################################
 rem add jars found under "lib" directory to CLASSPATH
 rem
+
+call :FIND_DIR_CONTAINING_UPWARDS project.clj
+
+if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
+
 setLocal EnableDelayedExpansion
 set CP="
 for /R ./lib %%a in (*.jar) do (
@@ -98,5 +103,35 @@ echo 1. http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSIO
 echo 2. clojure.jar from http://build.clojure.org/releases/
 echo. 
 goto EOF
+
+rem Find directory containing filename supplied in first argument
+rem looking in current directory, and looking up the parent
+rem chain until we find it, or run out
+rem returns result in %DIR_CONTAINING%
+rem empty string if we don't find it
+:FIND_DIR_CONTAINING_UPWARDS
+set DIR_CONTAINING=%CD%
+set LAST_DIR=
+
+:LOOK_AGAIN
+if "%DIR_CONTAINING%" == "%LAST_DIR%" (
+    rem didn't find it
+    set DIR_CONTAINING=
+    goto :EOF
+)
+
+if EXIST "%DIR_CONTAINING%\%1" (
+    rem found it - use result in DIR_CONTAINING
+    goto :EOF
+)
+
+set LAST_DIR=%DIR_CONTAINING%
+call :GET_PARENT_PATH "%DIR_CONTAINING%\.."
+set DIR_CONTAINING=%PARENT_PATH%
+goto :LOOK_AGAIN
+
+:GET_PARENT_PATH
+set PARENT_PATH=%~f1
+goto :EOF
 
 :EOF

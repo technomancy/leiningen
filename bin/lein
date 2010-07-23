@@ -2,6 +2,12 @@
 
 VERSION="1.2.0"
 
+# Make sure classpath is in unix format for manipulating, then put
+# it back to windows format when we use it
+if [ "$OSTYPE" = "cygwin" ]; then
+    CLASSPATH=`cygpath -up $CLASSPATH`
+fi
+
 CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-beta1/clojure-1.2.0-beta1.jar"
@@ -57,15 +63,6 @@ else
     fi
 fi
 
-# Convert classpath to Windows format when running on Cygwin
-if [ "$OSTYPE" = "cygwin" ]; then
-    CLASSPATH=`cygpath -wp $CLASSPATH`
-    CLOJURE_JAR=`cygpath -wp $CLOJURE_JAR`
-fi
-
-if [ $DEBUG ]; then
-    echo $CLASSPATH
-fi
 
 HTTP_CLIENT="wget -O"
 if type -p curl >/dev/null 2>&1; then
@@ -108,11 +105,16 @@ elif [ "$1" = "upgrade" ]; then
         esac
     fi
 else
-    if type -p cygpath >/dev/null 2>&1; then
+    if [ [$OS_TYPE] = "cygwin"]; then
         # When running on Cygwin, use Windows-style paths for java
         CLOJURE_JAR=`cygpath -w "$CLOJURE_JAR"`
         CLASSPATH=`cygpath -wp "$CLASSPATH"`
-	    NULL_DEVICE=NUL
+        NULL_DEVICE=NUL
+    fi
+
+    if [ $DEBUG ]; then
+        echo $CLASSPATH
+        echo $CLOJURE_JAR
     fi
 
     if [ "$1" = "repl" ] && [ -z $INSIDE_EMACS ] && [ $TERM != "dumb" ]; then
