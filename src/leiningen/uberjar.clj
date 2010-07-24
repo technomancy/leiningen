@@ -67,6 +67,6 @@ the dependency jars. Suitable for standalone distribution."
          (let [deps (->> (.listFiles (file (:library-path project)))
                          (filter #(.endsWith (.getName %) ".jar"))
                          (cons (file (get-jar-filename project))))]
-           (write-components project out)))
+           (write-components deps out)))
        (println "Created" standalone-filename)))
   ([project] (uberjar project (get-default-uberjar-name project))))
