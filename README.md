@@ -8,7 +8,7 @@
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
-<img src="http://github.com/technomancy/leiningen/raw/master/resources/leiningen.png" alt="Leiningen logo" title="The man himself" align="right" />
+<img src="http://github.com/downloads/technomancy/leiningen/leiningen-banner.png" alt="Leiningen logo" title="The man himself" align="right" />
 
 Building Clojure projects with tools designed for Java can be an
 exercise in frustration. If you use Ant, you end up copying around a
