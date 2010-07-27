@@ -6,6 +6,7 @@
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.clean :only [clean]]
         [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]])
+        [leiningen.deps :only [deps]]
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
 
@@ -58,8 +59,8 @@
   "Create a jar like the jar task, but including the contents of each of
 the dependency jars. Suitable for standalone distribution."
   ([project uberjar-name]
-     (clean project)
-     (jar project)
+     (doto project
+       clean deps jar)
      (let [standalone-filename (get-jar-filename project uberjar-name)]
        (with-open [out (-> standalone-filename
                            (FileOutputStream.)
