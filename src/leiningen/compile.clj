@@ -76,12 +76,13 @@
   "Returns a File representing the directory where native libs for the
   current platform are located."
   [project]
-  (let [osdir (name (get-os))
-        archdir (name (get-arch))
-        f (file "native" osdir archdir)]
-    (if (.exists f)
-      f
-      nil)))
+  (when (and (get-os) (get-arch))
+    (let [osdir (name (get-os))
+          archdir (name (get-arch))
+          f (file "native" osdir archdir)]
+      (if (.exists f)
+        f
+        nil))))
 
 (defn get-jvm-args
   [project]
