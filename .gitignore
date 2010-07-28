@@ -4,6 +4,5 @@ sample/nomnomnom*.jar
 classes/
 lib/
 leiningen*.jar
-pom.xml
 lein-swank/lein-swank*.jar
 autodoc/
