@@ -4,7 +4,7 @@
         [clojure.contrib.properties :only [as-properties]])
   (:import [java.io StringWriter ByteArrayOutputStream]
            [org.apache.maven.model Build Model Parent Dependency
-            Exclusion Repository Scm License MailingList]
+            Exclusion Repository Scm License MailingList Resource]
            [org.apache.maven.project MavenProject]))
 
 (def #^{:doc "A notice to place at the bottom of generated files."} disclaimer
@@ -136,6 +136,11 @@ to exclude from transitive dependencies."
   [project path-key]
   (.replace (path-key project) (str (:root project) "/") ""))
 
+(defmacro add-a-resource [build method resource-path]
+  `(let [resource# (Resource.)]
+    (.setDirectory resource# ~resource-path)
+    (~(symbol (name method)) ~build [resource#])))
+
 (defn make-model [project]
   (let [model (doto (Model.)
                 (.setModelVersion "4.0.0")
@@ -146,6 +151,8 @@ to exclude from transitive dependencies."
                 (.setDescription (:description project))
                 (.setUrl (:url project)))
         build (doto (Build.)
+                (add-a-resource :.setResources (relative-path project :resources-path))
+                (add-a-resource :.setTestResources (relative-path project :test-resources-path))
                 (.setSourceDirectory (relative-path project :source-path))
                 (.setTestSourceDirectory (relative-path project :test-path)))]
     (.setBuild model build)

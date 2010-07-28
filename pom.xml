@@ -15,12 +15,22 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>549ddc7bd349930cdd16364e036b6514c6db767a</tag>
+    <tag>5c85cdb534da5e079dd97a34fde25d977885fd1a</tag>
     <url>http://github.com/technomancy/leiningen</url>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
+    <resources>
+      <resource>
+        <directory>resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>test-resources</directory>
+      </testResource>
+    </testResources>
   </build>
   <repositories>
     <repository>
