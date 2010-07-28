@@ -5,8 +5,8 @@
         [clojure.java.io :only [file copy]]
         [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.clean :only [clean]]
-        [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]])
-        [leiningen.deps :only [deps]]
+        [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
+        [leiningen.deps :only [deps]])
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
 
