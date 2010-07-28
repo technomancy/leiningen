@@ -33,10 +33,12 @@
   [project]
   (filter
    (fn [n]
-     (let [clj-path (ns->path n)]
-       (> (.lastModified (file (:source-path project) clj-path))
-          (.lastModified (file (:compile-path project)
-                               (.replace clj-path "\\.clj" "__init.class"))))))
+     (let [clj-path (ns->path n)
+           class-file (file (:compile-path project)
+                            (.replace clj-path "\\.clj" "__init.class"))]
+       (or (not (.exists class-file))
+           (> (.lastModified (file (:source-path project) clj-path))
+              (.lastModified class-file)))))
    (compilable-namespaces project)))
 
 (defn get-by-pattern
