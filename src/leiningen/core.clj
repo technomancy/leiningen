@@ -82,7 +82,8 @@
     (try (require n)
          (catch Exception e
            (when-not (empty? (.list (File. "lib")))
-             (println "Problem loading hooks:" n (.getMessage e)))))))
+             (println "Warning: problem requiring hooks:" n (.getMessage e))
+             (println "...continuing without hooks completely loaded."))))))
 
 (defn ns->path [n]
   (str (.. (str n)
