@@ -10,6 +10,7 @@ Leiningen TODOs
 ** TODO user-level config file
 ** TODO re-compile all deps with current clojure version
 ** TODO lein install $PROJECT (works outside project root)
+   Possibly take some of this from cljr?
 ** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
 ** TODO multitest task: test with various dependency sets (plugin?)
 ** TODO classifiers for specifying what clojure version to use?

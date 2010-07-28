@@ -128,6 +128,7 @@ else
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
+    # TODO: add more to the boot classpath
     exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
                       -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE \
                       clojure.main -e "(use 'leiningen.core)(-main)" $NULL_DEVICE $@

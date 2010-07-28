@@ -168,6 +168,21 @@ file for a detailed listing of configuration options.
   should not AOT-compile your project if other projects may depend
   upon it.
 
+## Building
+
+Generally a "lein self-install" will get you what you need.
+Occasionally for very new SNAPSHOT versions the standalone jar will
+not have been uploaded yet.
+
+If you have a copy of an older Leiningen version around (installed as
+lein-stable, for example), then you can run "lein-stable deps" in your
+checkout.
+
+Otherwise you can use Maven:
+
+    $ mvn dependency:copy-dependencies 
+    $ mv target/dependency lib
+
 ## Hacking
 
 Leiningen is very small. The latest release is only 890 lines of
