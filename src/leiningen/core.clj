@@ -77,13 +77,13 @@
        #'task-not-found))))
 
 (defn- load-hooks []
-  (doseq [n (sort (find-namespaces-on-classpath))
-          :when (re-find #"^leiningen\.hooks\." (name n))]
-    (try (require n)
-         (catch Exception e
-           (when-not (empty? (.list (File. "lib")))
-             (println "Warning: problem requiring hooks:" n (.getMessage e))
-             (println "...continuing without hooks completely loaded."))))))
+  (try (doseq [n (sort (find-namespaces-on-classpath))
+               :when (re-find #"^leiningen\.hooks\." (name n))]
+         (require n))
+       (catch Exception e
+         (when-not (empty? (.list (File. "lib")))
+           (println "Warning: problem requiring hooks:" (.getMessage e))
+           (println "...continuing without hooks completely loaded.")))))
 
 (defn ns->path [n]
   (str (.. (str n)
