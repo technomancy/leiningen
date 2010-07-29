@@ -69,7 +69,7 @@ fi
 
 HTTP_CLIENT="wget -O"
 if type -p curl >/dev/null 2>&1; then
-    HTTP_CLIENT="curl -L -o"
+    HTTP_CLIENT="curl -f -L -o"
 fi
 
 JAVA_CMD=${JAVA_CMD:-"java"}
@@ -81,7 +81,15 @@ if [ "$1" = "self-install" ]; then
     LEIN_DIR=`dirname "$LEIN_JAR"`
     mkdir -p "$LEIN_DIR"
     LEIN_URL="http://github.com/downloads/technomancy/leiningen/leiningen-$VERSION-standalone.jar"
-    exec $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
+    $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
+    if [ $? != 0 ]; then
+        echo "Failed to download $LEIN_URL"
+        if [[ $VERSION == *SNAPSHOT ]]; then
+            echo "See README.md for SNAPSHOT build instructions."
+        fi
+        rm $LEIN_JAR
+        exit 1
+    fi
 elif [ "$1" = "upgrade" ]; then
     if [[ $VERSION == *SNAPSHOT ]]; then
         echo "The upgrade task is only meant for stable releases."
