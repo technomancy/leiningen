@@ -44,7 +44,7 @@ do
     cd ..
     if [ "$(dirname "$PWD")" == "/" ]; then
         NOT_FOUND=0
-        cd $ORIGINAL_PWD
+        cd "$ORIGINAL_PWD"
     fi
 done
 
