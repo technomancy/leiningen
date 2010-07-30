@@ -76,9 +76,14 @@
      (catch java.io.FileNotFoundException e
        #'task-not-found))))
 
-(defn- load-hooks []
-  (try (doseq [n (sort (find-namespaces-on-classpath))
-               :when (re-find #"^leiningen\.hooks\." (name n))]
+(defn- hook-namespaces [project]
+  (sort (or (:hooks project)
+            (and (:implicit-hooks project)
+                 (filter #(re-find #"^leiningen\.hooks\." (name %))
+                         (find-namespaces-on-classpath))))))
+
+(defn- load-hooks [project]
+  (try (doseq [n (hook-namespaces project)]
          (require n))
        (catch Exception e
          (when-not (empty? (.list (File. "lib")))
@@ -99,17 +104,19 @@
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
-           args (if (@no-project-needed task-name)
-                  args
-                  (conj args (read-project)))
-           compile-path (:compile-path (first args))]
+           project (when-not (@no-project-needed task-name)
+                     (read-project))
+           compile-path (:compile-path project)]
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
-         (load-hooks)
+         (when project
+           (load-hooks project))
          ;; TODO: can we catch only task-level arity problems here?
          ;; compare args and (:arglists (meta (resolve-task task)))?
          (let [task (resolve-task task-name)
-               value (apply task args)]
+               value (apply task (if project
+                                   (cons project args)
+                                   args))]
            (when (integer? value)
              (System/exit value))))))
   ([] (apply -main (or *command-line-args* ["help"]))))

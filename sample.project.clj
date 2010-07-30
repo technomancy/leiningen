@@ -41,6 +41,13 @@
   ;; Before fetching dependencies, the contents of the lib/ directory
   ;; will get deleted unless this is set to true.
   :disable-implicit-clean false
+  ;; Load these namespaces on startup to pick up hooks from
+  ;; them. Hooks are generally included in plugins.
+  :hooks [leiningen.hooks.difftest]
+  ;; Set this to true to search the classpath for hooks. Will load all
+  ;; namespaces matching leiningen.hooks.*. Warning: this will cause
+  ;; Leiningen to start slowly, especially with many dependencies.
+  :implicit-hooks false
   ;; Dev dependencies are intended for use only during
   ;; development. Projects that depend on this project will not pull
   ;; in its dev-dependencies, and they won't be included in the uberjar.
