@@ -8,6 +8,13 @@ if [ "$OSTYPE" = "cygwin" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
+if [ $USER = "root" ] && [ "$LEIN_ROOT" == "" ]; then
+    echo "WARNING: You're currently running as root; probably by accident."
+    echo "Press control-C to abort or Enter to continue as root."
+    echo "Set LEIN_ROOT to disable this warning."
+    read
+fi
+
 CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-beta1/clojure-1.2.0-beta1.jar"
