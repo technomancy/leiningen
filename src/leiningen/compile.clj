@@ -130,14 +130,16 @@
                     (set! ~'*warn-on-reflection*
                           ~(:warn-on-reflection project))
                     ~form)
-	  readable-form (if (= (get-os) :windows)
-			  ;; work around java's command line handling on windows
-			  ;; http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6468220
-			  ;; This isn't perfect, but works for what's currently being passed
-			  ;; see http://www.perlmonks.org/?node_id=300286
-			  ;; for some of the landmines involved in doing it properly
-			  (pr-str (pr-str form))
-			  (prn-str form))]
+          readable-form (if (= (get-os) :windows)
+                          ;; work around java's command line handling
+                          ;; on windows http://bit.ly/9c6biv
+                          ;; This isn't perfect, but works for what's
+                          ;; currently being passed see
+                          ;; http://www.perlmonks.org/?node_id=300286
+                          ;; for some of the landmines involved in
+                          ;; doing it properly
+                          (pr-str (pr-str form))
+                          (prn-str form))]
       (.setValue (.createArg java) readable-form))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
