@@ -58,23 +58,26 @@
   ([] (read-project "project.clj")))
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
-                    "--version" "version" "überjar" "uberjar"}))
+                    "--version" "version" "überjar" "uberjar"
+                    "int" "interactive"}))
 
 (def no-project-needed (atom #{"new" "help" "version"}))
 
 (defn task-not-found [& _]
   (abort "That's not a task. Use \"lein help\" to list all tasks."))
 
-(defn resolve-task [task]
-  (let [task-ns (symbol (str "leiningen." task))
-        task (symbol task)]
-    (try
-     (when-not (find-ns task-ns)
-       (require task-ns))
-     (or (ns-resolve task-ns task)
-         #'task-not-found)
-     (catch java.io.FileNotFoundException e
-       #'task-not-found))))
+(defn resolve-task
+  ([task not-found]
+     (let [task-ns (symbol (str "leiningen." task))
+           task (symbol task)]
+       (try
+         (when-not (find-ns task-ns)
+           (require task-ns))
+         (or (ns-resolve task-ns task)
+             not-found)
+         (catch java.io.FileNotFoundException e
+           not-found))))
+  ([task] (resolve-task task #'task-not-found)))
 
 (defn- hook-namespaces [project]
   (sort (or (:hooks project)
