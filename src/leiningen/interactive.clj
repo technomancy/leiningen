@@ -1,6 +1,6 @@
 (ns leiningen.interactive
   (:require [clojure.string :as string])
-  (:use [leiningen.core :only [resolve-task project-needed]]))
+  (:use [leiningen.core :only [apply-task]]))
 
 (defn not-found [& _]
   (println "That's not a task. Use \"lein help\" to list all tasks."))
@@ -16,9 +16,6 @@
     ;; TODO: integrate with tab-completion in jLine
     (let [input (.readLine *in*)]
       (when input
-        (let [[task-name & args] (string/split input #"\s")
-              task (resolve-task task-name not-found)]
-          (if (project-needed task-name)
-            (apply task project args)
-            (apply task args))
+        (let [[task-name & args] (string/split input #"\s")]
+          (apply-task task-name project args not-found)
           (recur))))))

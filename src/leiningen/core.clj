@@ -102,8 +102,16 @@
       (replace \_ \-)
       (replace \/ \.)))
 
-(defn project-needed [taskname]
-  (some #{'project} (map first (:arglists (meta (resolve-task taskname))))))
+(defn project-needed [task-name]
+  (some #{'project} (map first (:arglists (meta (resolve-task task-name))))))
+
+(defn apply-task [task-name project args not-found]
+  ;; TODO: can we catch only task-level arity problems here?
+  ;; compare args and (:arglists (meta (resolve-task task)))?
+  (let [task (resolve-task task-name not-found)]
+    (if (project-needed task-name)
+      (apply task project args)
+      (apply task args))))
 
 (defn -main
   ([& [task-name & args]]
@@ -114,12 +122,7 @@
        (binding [*compile-path* compile-path]
          (when project
            (load-hooks project))
-         ;; TODO: can we catch only task-level arity problems here?
-         ;; compare args and (:arglists (meta (resolve-task task)))?
-         (let [task (resolve-task task-name)
-               value (apply task (if project
-                                   (cons project args)
-                                   args))]
+         (let [value (apply-task task-name project args task-not-found)]
            (when (integer? value)
              (System/exit value))))))
   ([] (apply -main (or *command-line-args* ["help"]))))
