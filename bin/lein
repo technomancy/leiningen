@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.2.1-SNAPSHOT"
+VERSION="1.3.0-SNAPSHOT"
 
 # Make sure classpath is in unix format for manipulating, then put
 # it back to windows format when we use it
