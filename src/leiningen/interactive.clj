@@ -1,6 +1,6 @@
 (ns leiningen.interactive
   (:require [clojure.string :as string])
-  (:use [leiningen.core :only [resolve-task no-project-needed]]))
+  (:use [leiningen.core :only [resolve-task project-needed]]))
 
 (defn not-found [& _]
   (println "That's not a task. Use \"lein help\" to list all tasks."))
@@ -18,7 +18,7 @@
       (when input
         (let [[task-name & args] (string/split input #"\s")
               task (resolve-task task-name not-found)]
-          (if (@no-project-needed task-name)
-            (apply task args)
-            (apply task project args))
+          (if (project-needed task-name)
+            (apply task project args)
+            (apply task args))
           (recur))))))

@@ -61,8 +61,6 @@
                     "--version" "version" "überjar" "uberjar"
                     "int" "interactive"}))
 
-(def no-project-needed (atom #{"new" "help" "version"}))
-
 (defn task-not-found [& _]
   (abort "That's not a task. Use \"lein help\" to list all tasks."))
 
@@ -104,11 +102,13 @@
       (replace \_ \-)
       (replace \/ \.)))
 
+(defn project-needed [taskname]
+  (some #{'project} (map first (:arglists (meta (resolve-task taskname))))))
+
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
-           project (when-not (@no-project-needed task-name)
-                     (read-project))
+           project (if (project-needed task-name) (read-project))
            compile-path (:compile-path project)]
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
