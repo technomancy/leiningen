@@ -3,13 +3,14 @@
   (:use [leiningen.compile :only [eval-in-project]]
         [clojure.java.io :only [copy]])
   (:import [java.net Socket]
-           [java.io OutputStreamWriter InputStreamReader]))
+           [java.io OutputStreamWriter InputStreamReader File]))
 
 (defn repl-server [project port]
   (let [init-form (and (or (:init-script project) (:main project))
                        [:init `#(let [is# ~(:init-script project)
                                       mn# '~(:main project)]
-                                  (when is# (load-file is#))
+                                  (when (and is# (.exists (File. is#)))
+                                    (load-file is#))
                                   (when mn# (doto mn# require in-ns)))])]
     `(do (ns ~'user
            (:use [~'clojure.main :only [~'repl]])
