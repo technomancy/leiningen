@@ -6,8 +6,11 @@
            [java.io OutputStreamWriter InputStreamReader]))
 
 (defn repl-server [project port]
-  (let [init-form (and (:main project)
-                       [:init `#(doto '~(:main project) require in-ns)])]
+  (let [init-form (and (or (:init-script project) (:main project))
+                       [:init `#(let [is# ~(:init-script project)
+                                      mn# '~(:main project)]
+                                  (when is# (load-file is#))
+                                  (when mn# (doto mn# require in-ns)))])]
     `(do (ns ~'user
            (:use [~'clojure.main :only [~'repl]])
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
