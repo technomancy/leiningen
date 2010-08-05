@@ -1,5 +1,6 @@
 (ns leiningen.core
   (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+        [clojure.string :only [split]]
         [clojure.walk :only [walk]])
   (:import [java.io File])
   (:gen-class))
@@ -126,6 +127,22 @@
         (apply task args))
       (not-found))))
 
+(def arg-separator ",")
+(defn ends-in-separator [s]
+  (re-matches (re-pattern (str ".*" arg-separator)) s))
+
+(defn make-groups [args]
+  (if (some ends-in-separator args)
+    (remove #(= [arg-separator] %)
+      (partition-by #(= arg-separator %)
+        (flatten
+          (map (fn [arg]
+                 (if (ends-in-separator arg)
+                   [(apply str (butlast arg)) arg-separator]
+                   arg))
+               args))))
+    [args]))
+
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
@@ -138,4 +155,8 @@
          (let [value (apply-task task-name project args task-not-found)]
            (when (integer? value)
              (System/exit value))))))
-  ([] (apply -main (or *command-line-args* ["help"]))))
+  ([]
+    (let [arg-groups (make-groups *command-line-args*)]
+      (dorun (map
+               (fn [arg-group] (apply -main (or arg-group ["help"])))
+               arg-groups)))))
