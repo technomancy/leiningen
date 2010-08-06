@@ -145,6 +145,10 @@ else
         RLWRAP=`which rlwrap`
         if [ $? -eq 1 ]; then
             JLINE=jline.ConsoleRunner
+            if [ "$OSTYPE" = "cygwin" ]; then
+		JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
+		CYGWIN_JLINE=y
+            fi
         fi
     fi
 
@@ -152,7 +156,9 @@ else
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
     # TODO: add more to the boot classpath
+    test $CYGWIN_JLINE && stty -icanon min 1 -echo
     exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
                       -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE \
                       clojure.main -e "(use 'leiningen.core)(-main)" $NULL_DEVICE $@
+    test $CYGWIN_JLINE && stty icanon echo
 fi
