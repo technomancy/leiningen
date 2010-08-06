@@ -3,7 +3,7 @@
   (:use [leiningen.core :only [resolve-task no-project-needed]]))
 
 (defn not-found [& _]
-  (println "That's not a task. Use \"lein help\" to list all tasks."))
+  (println "That's not a task. Use \"help\" to list all tasks."))
 
 (defn interactive
   "Enter an interactive shell for calling tasks without relaunching new JVMs."
