@@ -40,13 +40,13 @@
         noroot  #(trim-leading-str (unix-path %) root)
         [resources classes src]
         (map noroot (map project [:resources-path :compile-path :source-path]))]
-  (doseq [child (file-seq (file (:path spec)))]
-    (when-not (skip-file? child)
-      (let [path (reduce trim-leading-str (unix-path (str child))
-                         [root resources classes src "/"])]
-        (.putNextEntry jar-os (doto (JarEntry. path)
-                                (.setTime (.lastModified child))))
-        (copy child jar-os))))))
+    (doseq [child (file-seq (file (:path spec)))]
+      (when-not (skip-file? child)
+        (let [path (reduce trim-leading-str (unix-path (str child))
+                           [root resources classes src "/"])]
+          (.putNextEntry jar-os (doto (JarEntry. path)
+                                  (.setTime (.lastModified child))))
+          (copy child jar-os))))))
 
 (defmethod copy-to-jar :bytes [project jar-os spec]
   (.putNextEntry jar-os (JarEntry. (:path spec)))

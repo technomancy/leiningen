@@ -19,8 +19,8 @@
                   (let [proj (binding [*ns* (find-ns 'leiningen.core)]
                                (read-project (.getAbsolutePath
                                               (file dep "project.clj"))))]
-                      (for [d [:source-path :compile-path :resources-path]]
-                        (proj d))))))
+                    (for [d [:source-path :compile-path :resources-path]]
+                      (proj d))))))
 
 (defn user-plugins []
   (for [jar (.listFiles (file (home-dir) "plugins"))

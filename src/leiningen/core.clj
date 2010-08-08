@@ -24,25 +24,25 @@
            root# ~(.getParent (File. *file*))]
        (alter-var-root #'project
                        (fn [_#] (assoc m#
-                                  :name ~(name project-name)
-                                  :group ~(or (namespace project-name)
-                                              (name project-name))
-                                  :version ~version
-                                  :compile-path (or (:compile-path m#)
-                                                    (str root# "/classes"))
-                                  :source-path (or (:source-path m#)
-                                                   (str root# "/src"))
-                                  :library-path (or (:library-path m#)
-                                                    (str root# "/lib"))
-                                  :test-path (or (:test-path m#)
-                                                 (str root# "/test"))
-                                  :resources-path (or (:resources-path m#)
-                                                      (str root# "/resources"))
-                                  :test-resources-path
-                                  (or (:test-resources-path m#)
-                                      (str root# "/test-resources"))
-                                  :jar-dir (or (:jar-dir m#) root#)
-                                  :root root#))))
+                                 :name ~(name project-name)
+                                 :group ~(or (namespace project-name)
+                                             (name project-name))
+                                 :version ~version
+                                 :compile-path (or (:compile-path m#)
+                                                   (str root# "/classes"))
+                                 :source-path (or (:source-path m#)
+                                                  (str root# "/src"))
+                                 :library-path (or (:library-path m#)
+                                                   (str root# "/lib"))
+                                 :test-path (or (:test-path m#)
+                                                (str root# "/test"))
+                                 :resources-path (or (:resources-path m#)
+                                                     (str root# "/resources"))
+                                 :test-resources-path
+                                 (or (:test-resources-path m#)
+                                     (str root# "/test-resources"))
+                                 :jar-dir (or (:jar-dir m#) root#)
+                                 :root root#))))
      (def ~(symbol (name project-name)) project)))
 
 (defn abort [& msg]
@@ -62,11 +62,10 @@
 
 (defn read-project
   ([file]
-     (try
-      (load-file file)
-      project
-      (catch java.io.FileNotFoundException _
-        (abort "No project.clj found in this directory."))))
+     (try (load-file file)
+          project
+          (catch java.io.FileNotFoundException _
+            (abort "No project.clj found in this directory."))))
   ([] (read-project "project.clj")))
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
@@ -133,7 +132,7 @@
             (if (= '& (last (butlast defined-args)))
               (>= arg-count (- (count defined-args) 2))
               (= arg-count (count defined-args))))
-      (arglists task-name))))
+          (arglists task-name))))
 
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
