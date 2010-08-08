@@ -15,3 +15,9 @@
 (deftest test-make-groups-with-args
   (is (= [["test" "test-core"] ["version"]]
          (make-groups ["test" "test-core," "version"]))))
+
+(deftest test-make-groups-with-long-chain
+  (is (= [["help" "help"] ["help" "version"] ["version"]
+          ["test" "test-compile"]]
+         (make-groups '("help" "help," "help" "version," "version,"
+                        "test" "test-compile")))))
