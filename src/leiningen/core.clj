@@ -128,20 +128,20 @@
       (not-found))))
 
 (def arg-separator ",")
-(defn ends-in-separator [s]
-  (re-matches (re-pattern (str ".*" arg-separator)) s))
 
-(defn make-groups [args]
-  (if (some ends-in-separator args)
-    (remove #(= [arg-separator] %)
-      (partition-by #(= arg-separator %)
-        (flatten
-          (map (fn [arg]
-                 (if (ends-in-separator arg)
-                   [(apply str (butlast arg)) arg-separator]
-                   arg))
-               args))))
-    [args]))
+(defn- append-to-group [groups arg]
+  (update-in groups [(dec (count groups))] conj arg))
+
+(defn make-groups
+  ([args]
+     (reduce make-groups [[]] args))
+  ;; This could be a separate defn, but I can't think of a good name for it...
+  ([groups arg]
+     (if (.endsWith arg arg-separator)
+       (-> groups
+           (append-to-group (apply str (butlast arg)))
+           (conj []))
+       (append-to-group groups arg))))
 
 (defn -main
   ([& [task-name & args]]
@@ -156,7 +156,5 @@
            (when (integer? value)
              (System/exit value))))))
   ([]
-    (let [arg-groups (make-groups *command-line-args*)]
-      (dorun (map
-               (fn [arg-group] (apply -main (or arg-group ["help"])))
-               arg-groups)))))
+     (doseq [arg-group (make-groups *command-line-args*)]
+       (apply -main (or arg-group ["help"])))))
