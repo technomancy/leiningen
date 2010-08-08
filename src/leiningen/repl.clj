@@ -1,13 +1,21 @@
 (ns leiningen.repl
   (:require [clojure.main])
   (:use [leiningen.compile :only [eval-in-project]]
+        [leiningen.core :only [get-global-init-script]]
         [clojure.java.io :only [copy]])
   (:import [java.net Socket]
-           [java.io OutputStreamWriter InputStreamReader]))
+           [java.io OutputStreamWriter InputStreamReader File]))
 
 (defn repl-server [project port]
-  (let [init-form (and (:main project)
-                       [:init `#(doto '~(:main project) require in-ns)])]
+  (let [global-init-file (get-global-init-script)
+        init-form [:init `#(let [gis# ~global-init-file
+                                 is# ~(:init-script project)
+                                 mn# '~(:main project)]
+                             (when gis#
+                               (load-file gis#))
+                             (when (and (not (nil? is#)) (.exists (File. (str is#))))
+                               (load-file is#))
+                             (when mn# (doto mn# require in-ns)))]]
     `(do (ns ~'user
            (:use [~'clojure.main :only [~'repl]])
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket

@@ -20,6 +20,11 @@ Leiningen NEWS -- history of user-visible changes
 
 * Fix bug where uberjar left out dependencies for non-AOT'd projects. (Alex Ott)
 
+* Execution of global initialization script ($LEIN_HOME/init.clj or $HOME/.lein/init.clj)
+  when running 'lein repl'
+
+* Execution of per-project initialization script, specified in :init-script option
+
 = 1.2.0 / 2010-07-18
 
 * Don't enable repl rlwrap when unnecessary. (dumb terms, Emacs, etc.)
