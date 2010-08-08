@@ -9,7 +9,7 @@ esac
 
 # Make sure classpath is in unix format for manipulating, then put
 # it back to windows format when we use it
-if [ "$OSTYPE" = "cygwin" ]; then
+if [ "$OSTYPE" = "cygwin" ] && [ $CLASSPATH != "" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
@@ -20,7 +20,13 @@ if [ $USER = "root" ] && [ "$LEIN_ROOT" == "" ]; then
     read
 fi
 
-CLASSPATH="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)":src/:$CLASSPATH
+if [ "$LEIN_HOME" = "" ]; then
+    LEIN_HOME="$HOME/.lein"
+fi
+
+LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
+LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
+CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-beta1/clojure-1.2.0-beta1.jar"
 NULL_DEVICE=/dev/null
@@ -74,7 +80,6 @@ else
         exit 1
     fi
 fi
-
 
 HTTP_CLIENT="wget -O"
 if type -p curl >/dev/null 2>&1; then

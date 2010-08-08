@@ -49,7 +49,7 @@
   (apply println msg)
   (System/exit 1))
 
-(defn get-home-dir
+(defn home-dir
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []
   (let [lein-home-dir (System/getenv "LEIN_HOME")
@@ -104,7 +104,7 @@
            (println "...continuing without hooks completely loaded.")))))
 
 (defn user-init [project]
-  (let [init-file (File. (get-home-dir) "init.clj")]
+  (let [init-file (File. (home-dir) "init.clj")]
     (when (.exists init-file)
       (load-file (.getAbsolutePath init-file)))))
 

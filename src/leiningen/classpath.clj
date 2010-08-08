@@ -1,5 +1,5 @@
 (ns leiningen.classpath
-  (:use [leiningen.core :only [read-project]]
+  (:use [leiningen.core :only [read-project home-dir]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
   (:import org.apache.tools.ant.types.Path))
@@ -22,6 +22,11 @@
                       (for [d [:source-path :compile-path :resources-path]]
                         (proj d))))))
 
+(defn user-plugins []
+  (for [jar (.listFiles (file (home-dir) "plugins"))
+        :when (re-find #"\.jar$" (.getName jar))]
+    (.getAbsolutePath jar)))
+
 (defn make-path
   "Constructs an ant Path object from Files and strings."
   [& paths]
@@ -38,6 +43,7 @@
            (:compile-path project)
            (:resources-path project)
            (:test-resources-path project)]
+          (user-plugins)
           (checkout-deps-paths project)
           (find-lib-jars project)))
 
