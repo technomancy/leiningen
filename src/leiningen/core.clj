@@ -45,8 +45,8 @@
                                   :root root#))))
      (def ~(symbol (name project-name)) project)))
 
-(defn abort [msg]
-  (println msg)
+(defn abort [& msg]
+  (apply println msg)
   (System/exit 1))
 
 (defn get-home-dir
@@ -124,29 +124,30 @@
       (replace \_ \-)
       (replace \/ \.)))
 
-(defn arglists [task-name not-found]
-  (:arglists (meta (resolve-task task-name not-found))))
+(defn arglists [task-name]
+  (:arglists (meta (resolve-task task-name))))
 
-(defn project-needed [task-name not-found]
-  (some #{'project} (map first (arglists task-name not-found))))
+(defn project-needed? [task-name]
+  (some #{'project} (map first (arglists task-name))))
 
-(defn matching-arity [task-name project args not-found]
-  (let [arg-count (if (project-needed task-name not-found)
+(defn matching-arity? [task-name project args]
+  (let [arg-count (if (project-needed? task-name)
                     (inc (count args))
                     (count args))]
     (some (fn [defined-args]
             (if (= '& (last (butlast defined-args)))
               (>= arg-count (- (count defined-args) 2))
               (= arg-count (count defined-args))))
-      (arglists task-name not-found))))
+      (arglists task-name))))
 
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
-    (if (matching-arity task-name project args not-found)
-      (if (project-needed task-name not-found)
+    (if (matching-arity? task-name project args)
+      (if (project-needed? task-name)
         (apply task project args)
         (apply task args))
-      (not-found))))
+      (abort "Wrong number of arguments to" task-name "task."
+             "\nExpected"  (arglists task-name)))))
 
 (def arg-separator ",")
 
@@ -167,7 +168,7 @@
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
-           project (if (project-needed task-name task-not-found) (read-project))
+           project (if (project-needed? task-name) (read-project))
            compile-path (:compile-path project)]
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
