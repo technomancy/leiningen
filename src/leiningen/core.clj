@@ -54,21 +54,11 @@
   []
   (let [lein-home-dir (System/getenv "LEIN_HOME")
         user-home-dir (or (System/getenv "HOME")
-                          (System/getProperty "user.home"))
-        home-dir (or lein-home-dir
-                     (and user-home-dir (str (File. (str user-home-dir) ".lein"))))]
-    (when home-dir
-      (let [hdir (File. home-dir)]
-        (when (.isDirectory hdir)
-          (.getAbsolutePath hdir))))))
-
-(defn get-global-init-script
-  "Returns full path to global init script (init.clj) if it exists"
-  []
-  (when-let [home-dir (get-home-dir)]
-    (let [init-file (File. (str home-dir) "init.clj")]
-      (when (.isFile init-file)
-        (.getAbsolutePath init-file)))))
+                          (System/getProperty "user.home"))]
+    (when-let [home-dir (or lein-home-dir
+                            (and user-home-dir (File. user-home-dir ".lein")))]
+      (when (.isDirectory home-dir)
+        (.getAbsolutePath home-dir)))))
 
 (defn read-project
   ([file]

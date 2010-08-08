@@ -57,6 +57,8 @@
   :aot [org.example.sample.SampleClass]
   ;; This namespace will be used as the "main" in the uberjar.
   :main [org.example.sample]
+  ;; This will get loaded automatically when you launch a repl.
+  :repl-init-script "src/main/clojure/init.clj"
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
   ;; Set this in order to only use the :repositories you list below.
