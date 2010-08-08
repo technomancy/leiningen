@@ -9,18 +9,21 @@
            [java.io BufferedOutputStream FileOutputStream
             ByteArrayInputStream]))
 
+(def default-manifest
+     {"Created-By" (str "Leiningen " (System/getProperty "leiningen.version"))
+      "Built-By" (System/getProperty "user.name")
+      "Build-Jdk" (System/getProperty "java.version")})
+
 (defn make-manifest [project]
   (Manifest.
    (ByteArrayInputStream.
     (to-byte-array
-     (str (join "\n"
-                ["Manifest-Version: 1.0" ; DO NOT REMOVE!
-                 "Created-By: Leiningen"
-                 (str "Built-By: " (System/getProperty "user.name"))
-                 (str "Build-Jdk: " (System/getProperty "java.version"))
-                 (when-let [main (:main project)]
-                   (str "Main-Class: " (.replaceAll (str main) "-" "_")))])
-          "\n")))))
+     (reduce (fn [manifest [k v]]
+               (str manifest "\n" k ": " v))
+             "Manifest-Version: 1.0"
+             (merge default-manifest (:manifest project)
+                    (when-let [main (:main project)]
+                      {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
 
 (defn unix-path [path]
   (.replaceAll path "\\\\" "/"))
