@@ -1,5 +1,6 @@
 (ns leiningen.core
   (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+        [clojure.string :only [split]]
         [clojure.walk :only [walk]])
   (:import [java.io File])
   (:gen-class))
@@ -61,8 +62,6 @@
                     "--version" "version" "überjar" "uberjar"
                     "int" "interactive"}))
 
-(def no-project-needed (atom #{"new" "help" "version"}))
-
 (defn task-not-found [& _]
   (abort "That's not a task. Use \"lein help\" to list all tasks."))
 
@@ -104,22 +103,60 @@
       (replace \_ \-)
       (replace \/ \.)))
 
+(defn arglists [task-name not-found]
+  (:arglists (meta (resolve-task task-name not-found))))
+
+(defn project-needed [task-name not-found]
+  (some #{'project} (map first (arglists task-name not-found))))
+
+(defn matching-arity [task-name project args not-found]
+  (let [arg-count (if (project-needed task-name not-found)
+                    (inc (count args))
+                    (count args))]
+    (some (fn [defined-args]
+            (if (= '& (last (butlast defined-args)))
+              (>= arg-count (- (count defined-args) 2))
+              (= arg-count (count defined-args))))
+      (arglists task-name not-found))))
+
+(defn apply-task [task-name project args not-found]
+  (let [task (resolve-task task-name not-found)]
+    (if (matching-arity task-name project args not-found)
+      (if (project-needed task-name not-found)
+        (apply task project args)
+        (apply task args))
+      (not-found))))
+
+(def arg-separator ",")
+(defn ends-in-separator [s]
+  (re-matches (re-pattern (str ".*" arg-separator)) s))
+
+(defn make-groups [args]
+  (if (some ends-in-separator args)
+    (remove #(= [arg-separator] %)
+      (partition-by #(= arg-separator %)
+        (flatten
+          (map (fn [arg]
+                 (if (ends-in-separator arg)
+                   [(apply str (butlast arg)) arg-separator]
+                   arg))
+               args))))
+    [args]))
+
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
-           project (when-not (@no-project-needed task-name)
-                     (read-project))
+           project (if (project-needed task-name task-not-found) (read-project))
            compile-path (:compile-path project)]
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
          (when project
            (load-hooks project))
-         ;; TODO: can we catch only task-level arity problems here?
-         ;; compare args and (:arglists (meta (resolve-task task)))?
-         (let [task (resolve-task task-name)
-               value (apply task (if project
-                                   (cons project args)
-                                   args))]
+         (let [value (apply-task task-name project args task-not-found)]
            (when (integer? value)
              (System/exit value))))))
-  ([] (apply -main (or *command-line-args* ["help"]))))
+  ([]
+    (let [arg-groups (make-groups *command-line-args*)]
+      (dorun (map
+               (fn [arg-group] (apply -main (or arg-group ["help"])))
+               arg-groups)))))
