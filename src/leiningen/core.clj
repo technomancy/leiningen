@@ -103,6 +103,11 @@
            (println "Warning: problem requiring hooks:" (.getMessage e))
            (println "...continuing without hooks completely loaded.")))))
 
+(defn user-init [project]
+  (let [init-file (File. (get-home-dir) "init.clj")]
+    (when (.exists init-file)
+      (load-file (.getAbsolutePath init-file)))))
+
 (defn ns->path [n]
   (str (.. (str n)
            (replace \- \_)
@@ -160,6 +165,7 @@
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (project-needed? task-name) (read-project))
            compile-path (:compile-path project)]
+       (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
          (when project
