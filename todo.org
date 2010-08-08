@@ -20,8 +20,8 @@ Leiningen TODOs
 ** TODO errors in read-project should show filename
 ** TODO user-level plugin installation and activation
 ** TODO user-level config file (with hook list)
-** TODO get no-project-needed from arglist
-** TODO argument chaining
+** DONE get no-project-needed from arglist
+** DONE argument chaining
 ** DONE interactive task
 ** DONE resources in generated pom
 * For 1.2.0

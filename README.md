@@ -18,13 +18,7 @@ very little transparency into what's really going on behind the scenes
 and forces you to become a Maven expert to script a nontrivial
 build. Either way you must write far more XML than is decent.
 
-With Leiningen, you describe your build with Clojure. Any code you
-need goes in your project.clj file; the only requirement is calling
-defproject. You can define your own tasks in your project if you need
-to, but most projects get by on the tasks provided with Leiningen. If
-you do find a common task that you need to add, you can implement it
-as a plugin rather than copying and pasting among each of your
-projects.
+With Leiningen, you describe your build with Clojure.
 
 ## Installation
 
