@@ -6,9 +6,6 @@
 Leiningen TODOs
 
 * For 1.4.0 or later
-** TODO lein install $PROJECT (works outside project root)
-   Possibly take some of this from cljr?
-** TODO write shell wrappers on install
 ** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
 ** TODO classifiers for specifying what clojure version to use?
 ** TODO test classification using metadata; run a subset of tests
@@ -17,9 +14,12 @@ Leiningen TODOs
 ** TODO set arbitrary jar metadata
 ** TODO specify min. lein version in project.clj
 * For 1.3.0
-** TODO errors in read-project should show filename
-** TODO user-level plugin installation and activation
-** TODO user-level config file (with hook list)
+** TODO lein install $PROJECT (works outside project root)
+   Possibly take some of this from cljr?
+** TODO write shell wrappers on install
+** DONE errors in read-project should show filename
+** DONE user-level plugin installation and activation
+** DONE user-level config file (with hook list)
 ** DONE get no-project-needed from arglist
 ** DONE argument chaining
 ** DONE interactive task
