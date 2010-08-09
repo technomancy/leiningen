@@ -57,6 +57,8 @@
   :aot [org.example.sample.SampleClass]
   ;; This namespace will be used as the "main" in the uberjar.
   :main [org.example.sample]
+  ;; This will get loaded automatically when you launch a repl.
+  :repl-init-script "src/main/clojure/init.clj"
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
   ;; Set this in order to only use the :repositories you list below.
@@ -72,5 +74,7 @@
   :jar-dir "target/" ; where to place the project's jar file
   :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
+  ;; Set arbitrary key/value pairs for the jar's manifest.
+  :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.
   :jvm-opts ["-Xmx1g"])

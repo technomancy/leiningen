@@ -56,19 +56,19 @@
 
 (defn make-git-scm [git-dir]
   (try
-   (let [origin (read-git-origin git-dir)
-         head (read-git-head git-dir)
-         urls (github-urls origin)
-         scm (Scm.)]
-     (.setUrl scm (:browse urls))
-     (.setTag scm head)
-     (when (:public-clone urls)
-       (.setConnection scm (str "scm:git:" (:public-clone urls))))
-     (when (:dev-clone urls)
-       (.setDeveloperConnection scm (str "scm:git:" (:dev-clone urls))))
-     scm)
-   (catch java.io.FileNotFoundException e
-     nil)))
+    (let [origin (read-git-origin git-dir)
+          head (read-git-head git-dir)
+          urls (github-urls origin)
+          scm (Scm.)]
+      (.setUrl scm (:browse urls))
+      (.setTag scm head)
+      (when (:public-clone urls)
+        (.setConnection scm (str "scm:git:" (:public-clone urls))))
+      (when (:dev-clone urls)
+        (.setDeveloperConnection scm (str "scm:git:" (:dev-clone urls))))
+      scm)
+    (catch java.io.FileNotFoundException e
+      nil)))
 
 (defn make-exclusion [excl]
   (doto (Exclusion.)
@@ -138,8 +138,8 @@ to exclude from transitive dependencies."
 
 (defmacro add-a-resource [build method resource-path]
   `(let [resource# (Resource.)]
-    (.setDirectory resource# ~resource-path)
-    (~(symbol (name method)) ~build [resource#])))
+     (.setDirectory resource# ~resource-path)
+     (~(symbol (name method)) ~build [resource#])))
 
 (defn make-model [project]
   (let [model (doto (Model.)
@@ -151,8 +151,10 @@ to exclude from transitive dependencies."
                 (.setDescription (:description project))
                 (.setUrl (:url project)))
         build (doto (Build.)
-                (add-a-resource :.setResources (relative-path project :resources-path))
-                (add-a-resource :.setTestResources (relative-path project :test-resources-path))
+                (add-a-resource :.setResources
+                                (relative-path project :resources-path))
+                (add-a-resource :.setTestResources
+                                (relative-path project :test-resources-path))
                 (.setSourceDirectory (relative-path project :source-path))
                 (.setTestSourceDirectory (relative-path project :test-path)))]
     (.setBuild model build)
