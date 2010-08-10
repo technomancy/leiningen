@@ -10,4 +10,6 @@
                  [rome/rome ~(str "0." "9")]
                  [org.ccil.cowan.tagsoup/tagsoup "1.2"]]
   :main nom.nom.nom
-  :warn-on-reflection true)
+  :warn-on-reflection true
+  :shell-wrapper {:main nom.nom.nom
+                  :bin "bin/nom"})
