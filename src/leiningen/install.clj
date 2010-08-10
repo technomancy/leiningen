@@ -1,8 +1,9 @@
 (ns leiningen.install
   "Install the project and its dependencies in your local repository."
-  (:use [leiningen.jar :only [jar]]
+  (:use [leiningen.jar :only [jar manifest-map]]
         [leiningen.pom :only [pom make-model]]
-        [clojure.java.io :only [file]])
+        [leiningen.core :only [home-dir]]
+        [clojure.java.io :only [file copy]])
   (:import [org.apache.maven.artifact.installer ArtifactInstaller]
            [org.apache.maven.project.artifact ProjectArtifactMetadata]
            [org.apache.maven.settings MavenSettingsBuilder]
@@ -10,7 +11,8 @@
            [org.apache.maven.artifact.factory ArtifactFactory]
            [org.apache.maven.artifact.repository.layout
             ArtifactRepositoryLayout]
-           [org.codehaus.plexus.embed Embedder]))
+           [org.codehaus.plexus.embed Embedder]
+           [java.util.jar JarFile]))
 
 ;; Welcome to the absurdist self-parodying world of Dependency Injection
 (def container (.getContainer (doto (Embedder.) (.start))))
@@ -38,6 +40,17 @@
    (.getPackaging model)
    nil))
 
+(defn bin-path []
+  (doto (file (home-dir) "bin") .mkdirs))
+
+(defn install-shell-wrapper [jarfile]
+  (when-let [bin-name ((manifest-map (.getManifest jarfile))
+                       "Leiningen-shell-wrapper")]
+    (let [bin-file (file (bin-path) (last (.split bin-name "/")))]
+      (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
+      (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
+      (.setExecutable bin-file true))))
+
 (defn install
   "Install the project and its dependencies in your local repository."
   [project]
@@ -50,5 +63,6 @@
     ;; generated and installed in local repo
     (if (not= "pom" (.getPackaging model))
       (add-metadata artifact (file (pom project))))
+    (install-shell-wrapper (JarFile. jarfile))
     (.install installer jarfile artifact local-repo)))
 
