@@ -13,21 +13,22 @@
                       (.getResourceAsStream "script-template")
                       (slurp*)))
 
-(defn- classpath-path [group name version]
+(defn local-repo-path [name group version]
   (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
           group name version name version))
 
 (defn- script-classpath-for [project]
-  (str (classpath-path (:group project) (:name project) (:version project)) ":"
+  (str (local-repo-path (:name project) (:group project) (:version project)) ":"
        (join ":" (for [[dep version] (:dependencies project)
                        :let [group (or (namespace dep) (name dep))
                              group (.replaceAll group "\\." "/")]]
-                   (classpath-path group (name dep) version)))))
+                   (local-repo-path (name dep) group version)))))
 
 (defn- shell-wrapper-bin [project]
   (or (:bin (:shell-wrapper project)
             (format "bin/%s" (:name project)))))
 
+;; TODO: look for a custom bin in resources before using default one
 (defn- shell-wrapper-filespecs [project]
   (when (:shell-wrapper project)
     (let [main (or (:main (:shell-wrapper project)) (:main project))
