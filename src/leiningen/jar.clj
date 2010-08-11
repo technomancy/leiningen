@@ -24,20 +24,25 @@
                              group (.replaceAll group "\\." "/")]]
                    (local-repo-path (name dep) group version)))))
 
-(defn- shell-wrapper-bin [project]
+(defn- shell-wrapper-name [project]
   (or (:bin (:shell-wrapper project)
             (format "bin/%s" (:name project)))))
 
-;; TODO: look for a custom bin in resources before using default one
+(defn- shell-wrapper-contents [project bin-name main]
+  (if-let [is (-> (.getContextClassLoader (Thread/currentThread))
+                  (.getResourceAsStream bin-name))]
+    (slurp* is)
+    (format bin-template
+            (script-classpath-for project) main)))
+
 (defn- shell-wrapper-filespecs [project]
   (when (:shell-wrapper project)
     (let [main (or (:main (:shell-wrapper project)) (:main project))
-          bin (shell-wrapper-bin project)]
+          bin-name (shell-wrapper-name project)
+          bin (shell-wrapper-contents project bin-name main)]
       [{:type :bytes
-        :path bin
-        :bytes (.getBytes (format bin-template
-                                  (script-classpath-for project)
-                                  main))}])))
+        :path bin-name
+        :bytes (.getBytes bin)}])))
 
 (def default-manifest
      {"Created-By" (str "Leiningen " (System/getProperty "leiningen.version"))
@@ -53,7 +58,7 @@
              "Manifest-Version: 1.0"
              (merge default-manifest (:manifest project)
                     (when (:shell-wrapper project)
-                      {"Leiningen-shell-wrapper" (shell-wrapper-bin project)})
+                      {"Leiningen-shell-wrapper" (shell-wrapper-name project)})
                     (when-let [main (:main project)]
                       {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
 
