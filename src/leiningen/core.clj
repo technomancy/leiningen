@@ -5,7 +5,7 @@
   (:import [java.io File])
   (:gen-class))
 
-(def project nil)
+(def ^{:doc "For internal use only, but can't be made private."} project nil)
 
 (defn- unquote-project [args]
   (walk (fn [item]

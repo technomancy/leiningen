@@ -13,30 +13,36 @@
                       (.getResourceAsStream "script-template")
                       (slurp*)))
 
-(defn- classpath-path [group name version]
+(defn local-repo-path [name group version]
   (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
           group name version name version))
 
 (defn- script-classpath-for [project]
-  (str (classpath-path (:group project) (:name project) (:version project)) ":"
+  (str (local-repo-path (:name project) (:group project) (:version project)) ":"
        (join ":" (for [[dep version] (:dependencies project)
                        :let [group (or (namespace dep) (name dep))
                              group (.replaceAll group "\\." "/")]]
-                   (classpath-path group (name dep) version)))))
+                   (local-repo-path (name dep) group version)))))
 
-(defn- shell-wrapper-bin [project]
+(defn- shell-wrapper-name [project]
   (or (:bin (:shell-wrapper project)
             (format "bin/%s" (:name project)))))
+
+(defn- shell-wrapper-contents [project bin-name main]
+  (if-let [is (-> (.getContextClassLoader (Thread/currentThread))
+                  (.getResourceAsStream bin-name))]
+    (slurp* is)
+    (format bin-template
+            (script-classpath-for project) main)))
 
 (defn- shell-wrapper-filespecs [project]
   (when (:shell-wrapper project)
     (let [main (or (:main (:shell-wrapper project)) (:main project))
-          bin (shell-wrapper-bin project)]
+          bin-name (shell-wrapper-name project)
+          bin (shell-wrapper-contents project bin-name main)]
       [{:type :bytes
-        :path bin
-        :bytes (.getBytes (format bin-template
-                                  (script-classpath-for project)
-                                  main))}])))
+        :path bin-name
+        :bytes (.getBytes bin)}])))
 
 (def default-manifest
      {"Created-By" (str "Leiningen " (System/getProperty "leiningen.version"))
@@ -52,7 +58,7 @@
              "Manifest-Version: 1.0"
              (merge default-manifest (:manifest project)
                     (when (:shell-wrapper project)
-                      {"Leiningen-shell-wrapper" (shell-wrapper-bin project)})
+                      {"Leiningen-shell-wrapper" (shell-wrapper-name project)})
                     (when-let [main (:main project)]
                       {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
 
