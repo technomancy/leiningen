@@ -42,8 +42,8 @@
    (compilable-namespaces project)))
 
 (defn get-by-pattern
-  "Gets a value from map m, but uses the keys as regex patterns,
-  trying to match against k instead of doing an exact match."
+  "Gets a value from map m, but uses the keys as regex patterns, trying
+   to match against k instead of doing an exact match."
   [m k]
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))

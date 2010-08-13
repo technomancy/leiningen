@@ -6,3 +6,4 @@ lib/
 leiningen*.jar
 lein-swank/lein-swank*.jar
 autodoc/
+/sample/pom.xml
