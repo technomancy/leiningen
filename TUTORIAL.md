@@ -200,6 +200,13 @@ just one or two namespaces at a time:
     Ran 2 tests containing 10 assertions.
     0 failures, 0 errors.
 
+Because it must start a new process, lein test is not a good solution
+for a development cycle that involves running the tests often. For
+that you would either need to look into better editor integration (see
+[clojure-test-mode](http://github.com/technomancy/clojure-mode) for
+Emacs) or keep a repl open and call <tt>run-tests</tt> from there as
+you work.
+
 ## Compiling
 
 If you're lucky you'll be able to get away without doing any AOT
