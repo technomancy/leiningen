@@ -64,7 +64,7 @@
   ;; Set this in order to only use the :repositories you list below.
   :omit-default-repositories true
   :repositories { "java.net" "http://download.java.net/maven/2"
-                  "jboss" "http://repository.jboss.com/maven2/"}
+                  "jboss" "https://repository.jboss.org/nexus/content/groups/public/"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"
