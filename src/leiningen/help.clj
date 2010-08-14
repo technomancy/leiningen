@@ -2,7 +2,7 @@
   "Display a list of tasks or help for a given task."
   (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]))
 
-(def tasks (set (filter #(re-find #"^leiningen\.(?!core)" (name %))
+(def tasks (set (filter #(re-find #"^leiningen\.(?!core|util)" (name %))
                         (find-namespaces-on-classpath))))
 
 (defn get-arglists [task]

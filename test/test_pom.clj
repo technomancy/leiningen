@@ -1,6 +1,7 @@
 (ns test-pom
   (:use [leiningen.core :only [read-project defproject]]
-        [leiningen.pom :only [pom make-model]])
+        [leiningen.util.maven :only [make-model]]
+        [leiningen.pom :only [pom]])
   (:use [clojure.test]
         [clojure.contrib.io :only [file delete-file]]))
 

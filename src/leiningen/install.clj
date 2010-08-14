@@ -1,58 +1,15 @@
 (ns leiningen.install
   "Install the project and its dependencies in your local repository."
-  (:use [leiningen.jar :only [jar manifest-map local-repo-path]]
-        [leiningen.pom :only [pom make-model default-repos]]
-        [leiningen.core :only [home-dir]]
+  (:use [leiningen.core :only [home-dir default-repos]]
+        [leiningen.jar :only [jar manifest-map local-repo-path]]
+        [leiningen.util.maven :only [container make-model make-remote-artifact
+                                     make-remote-repo make-local-repo
+                                     make-artifact add-metadata]]
+        [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
-  (:import [org.apache.maven.artifact.installer ArtifactInstaller]
-           [org.apache.maven.project.artifact ProjectArtifactMetadata]
-           [org.apache.maven.settings MavenSettingsBuilder]
-           [org.apache.maven.artifact.repository ArtifactRepositoryFactory
-            DefaultArtifactRepository]
-           [org.apache.maven.artifact.factory ArtifactFactory]
-           [org.apache.maven.artifact.repository ArtifactRepositoryPolicy]
-           [org.apache.maven.artifact.repository.layout
-            ArtifactRepositoryLayout]
-           [java.util.jar JarFile]
+  (:import [java.util.jar JarFile]
            [org.apache.maven.artifact.resolver ArtifactResolver]
-           [org.codehaus.plexus.embed Embedder]))
-
-;; Welcome to the absurdist self-parodying world of Dependency Injection
-(def container (.getContainer (doto (Embedder.) (.start))))
-
-(def layout (.lookup container ArtifactRepositoryLayout/ROLE "default"))
-
-(def policy
-     (ArtifactRepositoryPolicy. true
-                                ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
-                                ArtifactRepositoryPolicy/CHECKSUM_POLICY_FAIL))
-
-(defn make-settings []
-  (.buildSettings (.lookup container MavenSettingsBuilder/ROLE)))
-
-(defn make-local-repo []
-  (let [path (.getLocalRepository (make-settings))
-        url (if (.startsWith path "file:") path (str "file://" path))]
-    (-> (.lookup container ArtifactRepositoryFactory/ROLE)
-        (.createDeploymentArtifactRepository
-         "local" url layout true))))
-
-(defn make-remote-repo [[name url]]
-  (-> (.lookup container ArtifactRepositoryFactory/ROLE)
-      (.createArtifactRepository
-       name url layout policy policy)))
-
-(defn add-metadata [artifact pomfile]
-  (.addMetadata artifact (ProjectArtifactMetadata. artifact pomfile)))
-
-(defn make-artifact [model]
-  (.createArtifactWithClassifier
-   (.lookup container ArtifactFactory/ROLE)
-   (.getGroupId model)
-   (.getArtifactId model)
-   (.getVersion model)
-   (.getPackaging model)
-   nil))
+           [org.apache.maven.artifact.installer ArtifactInstaller]))
 
 (defn bin-path []
   (doto (file (home-dir) "bin") .mkdirs))
@@ -64,12 +21,6 @@
       (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
       (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
       (.setExecutable bin-file true))))
-
-(defn make-remote-artifact [name group version]
-  (.createArtifact
-   (.lookup container ArtifactFactory/ROLE)
-   (or group name) name
-   version "compile" "jar"))
 
 (defn standalone-install [name group version]
   (let [resolver (.lookup container ArtifactResolver/ROLE)

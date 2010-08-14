@@ -7,8 +7,8 @@
          [clojure.java.io :only [file]]
          [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
-  (:import org.apache.tools.ant.taskdefs.Java
-           java.lang.management.ManagementFactory
+  (:import (org.apache.tools.ant.taskdefs Java)
+           (java.lang.management ManagementFactory)
            (org.apache.tools.ant.types Environment$Variable)))
 
 (declare compile)
