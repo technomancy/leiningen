@@ -5,7 +5,7 @@
   (:import [java.net Socket]
            [java.io OutputStreamWriter InputStreamReader File]))
 
-(defn repl-server [project port]
+(defn repl-server [project host port]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
                                  mn# '~(:main project)]
                              (when (and is# (.exists (File. str)))
@@ -18,16 +18,30 @@
                     [java.io ~'InputStreamReader ~'OutputStream
                      ~'OutputStreamWriter ~'PrintWriter]
                     [clojure.lang ~'LineNumberingPushbackReader]))
-         (let [server# (ServerSocket. ~port)
-               socket# (.accept server#)
-               ins# (.getInputStream socket#)
-               outs# (.getOutputStream socket#)]
-           (binding [*in* (-> ins# InputStreamReader.
-                              LineNumberingPushbackReader.)
-                     *out* (OutputStreamWriter. outs#)
-                     *err* (PrintWriter. outs# true)]
-             (clojure.main/repl ~@init-form))
-           (.close server#)))))
+         (let [server# (ServerSocket. ~port 0 (~'InetAddress/getByName ~host))
+               acc# (fn [s#]
+                      (let [ins# (.getInputStream s#)
+                            outs# (.getOutputStream s#)]
+                        (doto (Thread.
+                               #(binding [*in* (-> ins# InputStreamReader.
+                                                   LineNumberingPushbackReader.)
+                                          *out* (OutputStreamWriter. outs#)
+                                          *err* (PrintWriter. outs# true)]
+                                  (try
+                                    (clojure.main/repl ~@init-form)
+                                    (catch ~'SocketException _#
+                                      (doto s#
+                                        .shutdownInput
+                                        .shutdownOutput
+                                        .close)))))
+                          .start)))]
+           (doto (Thread. #(when-not (.isClosed server#)
+                             (try
+                               (acc# (.accept server#))
+                               (catch ~'SocketException _#))
+                             (recur)))
+             .start)
+           (format "REPL started; server listening on %s:%s." ~host ~port)))))
 
 (defn copy-out [reader]
   (Thread/sleep 100)
@@ -58,8 +72,10 @@
 (defn repl
   "Start a repl session for the current project."
   [project]
-  (let [port (dec (+ 1024 (rand-int 64512)))
-        server-form (repl-server project port)
+  (let [host (or (System/getenv "LEIN_REPL_HOST") "localhost")
+        port (Integer. (or (System/getenv "LEIN_REPL_PORT")
+                           (dec (+ 1024 (rand-int 64512)))))
+        server-form (repl-server project host port)
         server-thread (Thread. #(try (eval-in-project project server-form)
                                      (catch Exception _)))]
     (.start server-thread)
