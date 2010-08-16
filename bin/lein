@@ -13,7 +13,7 @@ if [ "$OSTYPE" = "cygwin" ] && [ $CLASSPATH != "" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
-if [ $USER = "root" ] && [ "$LEIN_ROOT" == "" ]; then
+if [ $USER = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
@@ -24,7 +24,7 @@ ORIGINAL_PWD=$PWD
 while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
 do
     cd ..
-    if [ "$(dirname "$PWD")" == "/" ]; then
+    if [ "$(dirname "$PWD")" = "/" ]; then
         NOT_FOUND=0
         cd "$ORIGINAL_PWD"
     fi
