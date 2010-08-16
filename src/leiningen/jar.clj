@@ -140,8 +140,9 @@
                (.exists (file (:resources-path project))))
       {:type :path :path (:resources-path project)})
     {:type :path :path (:compile-path project)}
-    {:type :path :path (:source-path project)}
     {:type :path :path (str (:root project) "/project.clj")}]
+   (when-not (:omit-source project)
+     [{:type :path :path (:source-path project)}])
    (shell-wrapper-filespecs project deps-fileset)))
 
 (defn jar

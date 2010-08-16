@@ -74,6 +74,8 @@
   :jar-dir "target/" ; where to place the project's jar file
   :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
+  ;; Leave the contents of :source-path out of jars (for AOT projects)
+  :omit-source true
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.

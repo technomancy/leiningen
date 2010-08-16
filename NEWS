@@ -2,6 +2,8 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.3.0 / ???
 
+* Add :omit-source option to project.clj for shipping aot-only jars.
+
 * Make repl task listen on a socket as well as the command-line.
 
 * Write shell wrapper scripts at installation time. See TUTORIAL.md.
