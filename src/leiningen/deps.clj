@@ -1,12 +1,25 @@
 (ns leiningen.deps
   "Install jars for all dependencies in lib."
   (:require [lancet])
-  (:use [leiningen.pom :only [default-repos make-dependency]]
+  (:use [leiningen.core :only [repositories-for]]
+        [leiningen.util.maven :only [make-dependency]]
         [clojure.contrib.io :only [file delete-file-recursively]])
   (:import [org.apache.maven.artifact.ant
             Authentication DependenciesTask RemoteRepository]
            [org.apache.maven.settings Server]
            [org.apache.tools.ant.util FlatFileNameMapper]))
+
+(defn make-repository [[id settings]]
+  (let [repo (RemoteRepository.)]
+    (.setId repo id)
+    (if (string? settings)
+      (.setUrl repo settings)
+      (let [{:keys [url username password]} settings]
+        (.setUrl repo url)
+        (.addAuthentication repo (Authentication. (doto (Server.)
+                                                    (.setUsername username)
+                                                    (.setPassword password))))))
+    repo))
 
 ;; Add symlinking to Lancet's toolbox.
 (lancet/define-ant-task symlink symlink)
@@ -29,31 +42,13 @@
       (symlink {:link destination
                 :resource (.getCanonicalPath (file dir f))}))))
 
-;; TODO: unify with pom.clj
-
-(defn make-repository [[id settings]]
-  (let [repo (RemoteRepository.)]
-    (.setId repo id)
-    (if (string? settings)
-      (.setUrl repo settings)
-      (let [{:keys [url username password]} settings]
-        (.setUrl repo url)
-        (.addAuthentication repo (Authentication. (doto (Server.)
-                                                    (.setUsername username)
-                                                    (.setPassword password))))))
-    repo))
-
-(defn get-repository-list [project]
-  (merge (when-not (:omit-default-repositories project) default-repos)
-         (:repositories project)))
-
-(defn- make-deps-task [project deps-set]
+(defn make-deps-task [project deps-set]
   (let [deps-task (DependenciesTask.)]
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
     (.setProject deps-task lancet/ant-project)
     (.setPathId deps-task (:name project))
-    (doseq [r (map make-repository (get-repository-list project))]
+    (doseq [r (map make-repository (repositories-for project))]
       (.addConfiguredRemoteRepository deps-task r))
     (doseq [dep (project deps-set)]
       (.addDependency deps-task (make-dependency dep)))

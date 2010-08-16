@@ -60,6 +60,15 @@
       (when (.isDirectory home-dir)
         (.getAbsolutePath home-dir)))))
 
+(def default-repos {"central" "http://repo1.maven.org/maven2"
+                    "clojure" "http://build.clojure.org/releases"
+                    "clojure-snapshots" "http://build.clojure.org/snapshots"
+                    "clojars" "http://clojars.org/repo/"})
+
+(defn repositories-for [project]
+  (merge (when-not (:omit-default-repositories project) default-repos)
+         (:repositories project)))
+
 (defn read-project
   ([file]
      (try (load-file file)

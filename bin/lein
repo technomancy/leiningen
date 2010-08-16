@@ -20,6 +20,16 @@ if [ $USER = "root" ] && [ "$LEIN_ROOT" == "" ]; then
     read
 fi
 
+ORIGINAL_PWD=$PWD
+while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
+do
+    cd ..
+    if [ "$(dirname "$PWD")" == "/" ]; then
+        NOT_FOUND=0
+        cd "$ORIGINAL_PWD"
+    fi
+done
+
 if [ "$LEIN_HOME" = "" ]; then
     LEIN_HOME="$HOME/.lein"
 fi
@@ -46,16 +56,6 @@ while [ -h "$SCRIPT" ] ; do
         SCRIPT="$link"
     else
         SCRIPT="`dirname "$SCRIPT"`/$link"
-    fi
-done
-
-ORIGINAL_PWD=$PWD
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
-do
-    cd ..
-    if [ "$(dirname "$PWD")" == "/" ]; then
-        NOT_FOUND=0
-        cd "$ORIGINAL_PWD"
     fi
 done
 
