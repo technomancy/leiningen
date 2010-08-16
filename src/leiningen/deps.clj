@@ -60,15 +60,17 @@ With an argument it will skip development dependencies."
   ([project skip-dev deps-set]
      (when-not (:disable-implicit-clean project)
        (delete-file-recursively (:library-path project) true))
-     (let [deps-task (make-deps-task project deps-set)]
-       (.execute deps-task)
+     (let [deps-task (make-deps-task project deps-set)
+           _ (.execute deps-task)
+           fileset (.getReference lancet/ant-project
+                                  (.getFilesetId deps-task))]
        (.mkdirs (file (:library-path project)))
        (copy-dependencies (:jar-behavior project)
-                          (:library-path project) true
-                          (.getReference lancet/ant-project
-                                         (.getFilesetId deps-task)))
+                          (:library-path project)
+                          true fileset)
        (when (and (not skip-dev) (seq (:dev-dependencies project)))
          (deps (assoc project :library-path (str (:root project) "/lib/dev"))
-               true :dev-dependencies))))
+               true :dev-dependencies))
+       fileset))
   ([project skip-dev] (deps project skip-dev :dependencies))
   ([project] (deps project false)))

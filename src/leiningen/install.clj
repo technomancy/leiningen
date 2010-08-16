@@ -28,7 +28,6 @@
         remote-repos (map make-remote-repo default-repos)
         local-repo (make-local-repo)]
     (.resolveAlways resolver artifact remote-repos local-repo)
-    (println (local-repo-path name group version))
     (-> (local-repo-path name group version)
         file
         JarFile.
