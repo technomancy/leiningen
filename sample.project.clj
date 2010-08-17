@@ -64,7 +64,7 @@
   ;; Set this in order to only use the :repositories you list below.
   :omit-default-repositories true
   :repositories { "java.net" "http://download.java.net/maven/2"
-                  "jboss" "http://repository.jboss.com/maven2/"}
+                  "jboss" "https://repository.jboss.org/nexus/content/groups/public/"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"
@@ -74,6 +74,8 @@
   :jar-dir "target/" ; where to place the project's jar file
   :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
+  ;; Leave the contents of :source-path out of jars (for AOT projects)
+  :omit-source true
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.

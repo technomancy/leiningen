@@ -2,6 +2,7 @@
   "Create a jar containing the compiled code and original source."
   (:require [leiningen.compile :as compile])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
+        [leiningen.deps :only [deps]]
         [clojure.contrib.io :only [to-byte-array copy file slurp*]]
         [clojure.contrib.string :only [join replace-re split]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
@@ -13,33 +14,33 @@
                       (.getResourceAsStream "script-template")
                       (slurp*)))
 
-(defn local-repo-path [name group version]
+(defn local-repo-path [{:keys [group name version]}]
   (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
           group name version name version))
 
-(defn- script-classpath-for [project]
-  (str (local-repo-path (:name project) (:group project) (:version project)) ":"
-       (join ":" (for [[dep version] (:dependencies project)
-                       :let [group (or (namespace dep) (name dep))
-                             group (.replaceAll group "\\." "/")]]
-                   (local-repo-path (name dep) group version)))))
+(defn- script-classpath-for [project deps-fileset]
+  (join ":" (conj (for [dep (-> deps-fileset
+                                (.getDirectoryScanner lancet/ant-project)
+                                (.getIncludedFiles))]
+                    (format "$HOME/.m2/repository/%s" dep))
+                  (local-repo-path project))))
 
 (defn- shell-wrapper-name [project]
   (or (:bin (:shell-wrapper project)
             (format "bin/%s" (:name project)))))
 
-(defn- shell-wrapper-contents [project bin-name main]
+(defn- shell-wrapper-contents [project bin-name main deps-fileset]
   (if-let [is (-> (.getContextClassLoader (Thread/currentThread))
                   (.getResourceAsStream bin-name))]
     (slurp* is)
     (format bin-template
-            (script-classpath-for project) main)))
+            (script-classpath-for project deps-fileset) main)))
 
-(defn- shell-wrapper-filespecs [project]
+(defn- shell-wrapper-filespecs [project deps-fileset]
   (when (:shell-wrapper project)
     (let [main (or (:main (:shell-wrapper project)) (:main project))
           bin-name (shell-wrapper-name project)
-          bin (shell-wrapper-contents project bin-name main)]
+          bin (shell-wrapper-contents project bin-name main deps-fileset)]
       [{:type :bytes
         :path bin-name
         :bytes (.getBytes bin)}])))
@@ -123,7 +124,7 @@
   (or (:uberjar-name project)
       (str (:name project) \- (:version project) "-standalone.jar")))
 
-(defn- filespecs [project]
+(defn- filespecs [project deps-fileset]
   (concat
    [{:type :bytes
      :path (format "META-INF/maven/%s/%s/pom.xml"
@@ -139,9 +140,10 @@
                (.exists (file (:resources-path project))))
       {:type :path :path (:resources-path project)})
     {:type :path :path (:compile-path project)}
-    {:type :path :path (:source-path project)}
     {:type :path :path (str (:root project) "/project.clj")}]
-   (shell-wrapper-filespecs project)))
+   (when-not (:omit-source project)
+     [{:type :path :path (:source-path project)}])
+   (shell-wrapper-filespecs project deps-fileset)))
 
 (defn jar
   "Create a $PROJECT-$VERSION.jar file containing the compiled .class files as
@@ -150,8 +152,9 @@ be used as the main-class for an executable jar."
   ([project jar-name]
      (binding [compile/*silently* true]
        (compile/compile project))
-     (let [jar-path (get-jar-filename project jar-name)]
-       (write-jar project jar-path (filespecs project))
+     (let [jar-path (get-jar-filename project jar-name)
+           deps-fileset (deps project :skip-dev)]
+       (write-jar project jar-path (filespecs project deps-fileset))
        (println "Created" jar-path)
        jar-path))
   ([project] (jar project (get-default-jar-name project))))

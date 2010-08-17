@@ -183,4 +183,4 @@
              (System/exit value))))))
   ([]
      (doseq [arg-group (make-groups *command-line-args*)]
-       (apply -main (or arg-group ["help"])))))
+       (apply -main (or (seq arg-group) ["help"])))))

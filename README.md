@@ -57,6 +57,10 @@ project, but here are the commonly-used tasks:
 Use <tt>lein help</tt> to see a complete list. <tt>lein help
 $TASK</tt> shows the usage for a specific one.
 
+TODO: document chaining tasks
+
+TODO: document user-level init script and plugins
+
 ## Configuration
 
 Place a project.clj file in the project root like this:

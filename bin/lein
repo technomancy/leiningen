@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="1.3.0-SNAPSHOT"
+VERSION="1.3.0-RC1"
 
 case $VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
@@ -13,7 +13,7 @@ if [ "$OSTYPE" = "cygwin" ] && [ $CLASSPATH != "" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
-if [ $USER = "root" ] && [ "$LEIN_ROOT" == "" ]; then
+if [ $USER = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
@@ -24,7 +24,7 @@ ORIGINAL_PWD=$PWD
 while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
 do
     cd ..
-    if [ "$(dirname "$PWD")" == "/" ]; then
+    if [ "$(dirname "$PWD")" = "/" ]; then
         NOT_FOUND=0
         cd "$ORIGINAL_PWD"
     fi
@@ -68,7 +68,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_LIBS:$CLASSPATH:$LEIN_JAR"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" -a ! -r "$LEIN_JAR" ]; then
-        echo "Leiningen is missing its dependencies. Please run \"lein self-install\"."
+        echo "Leiningen is missing its dependencies. Please run \"$(basename $0) self-install\"."
         exit 1
     fi
 else
@@ -76,7 +76,7 @@ else
     CLASSPATH="$LEIN_JAR:$CLASSPATH"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        echo "Leiningen is not installed. Please run \"lein self-install\"."
+        echo "Leiningen is not installed. Please run \"$(basename $0) self-install\"."
         exit 1
     fi
 fi

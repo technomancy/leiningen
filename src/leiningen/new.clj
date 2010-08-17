@@ -12,8 +12,8 @@ Neither group-id nor artifact-id may contain slashes."
   (spit (file project-dir "project.clj")
         (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
              "  :description \"FIXME: write\"\n"
-             "  :dependencies [[org.clojure/clojure \"1.2.0-beta1\"]\n  "
-             "               [org.clojure/clojure-contrib \"1.2.0-beta1\"]])")))
+             "  :dependencies [[org.clojure/clojure \"1.2.0-RC3\"]\n  "
+             "               [org.clojure/clojure-contrib \"1.2.0-RC3\"]])")))
 
 (defn write-implementation [project-dir project-clj project-ns]
   (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
