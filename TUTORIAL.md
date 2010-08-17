@@ -293,6 +293,8 @@ You can run a regular (non-uber) jar with the <tt>java</tt>
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
 
+TODO: document shell wrappers
+
 ### Publishing
 
 If your project is a library and you would like others to be able to

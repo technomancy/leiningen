@@ -78,6 +78,8 @@ another hook. Hooks are loaded by looking for all namespaces under
 leiningen.hooks.* on the classpath and loading them in alphabetical
 order.
 
+TODO: document hook loading
+
 See [the documentation for
 Hooke](http://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
