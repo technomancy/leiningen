@@ -8,6 +8,7 @@ Leiningen TODOs
 * For 1.4.0 or later
 ** TODO add option to use ~/.m2-based classpath instead of copying to lib/?
 ** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
+** TODO shell wrappers should support multiple versions
 ** TODO classifiers for specifying what clojure version to use?
 ** TODO test classification using metadata; run a subset of tests
 ** TODO a list of dirs to include in the jar when building

@@ -74,11 +74,9 @@ to and a function to perform the wrapping:
     (add-hook #'leiningen.test/test skip-integration-hook)
 
 Hooks compose, so be aware that your hook may be running inside
-another hook. Hooks are loaded by looking for all namespaces under
-leiningen.hooks.* on the classpath and loading them in alphabetical
-order.
-
-TODO: document hook loading
+another hook. To take advantage of this functionality, projects must
+set the :hooks key in project.clj to a seq of namespaces to load that
+call add-hook.
 
 See [the documentation for
 Hooke](http://github.com/technomancy/robert-hooke/blob/master/README.md)

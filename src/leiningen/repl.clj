@@ -70,8 +70,8 @@
     (recur port)))
 
 (defn repl
-  ;; TODO: document socket repl
-  "Start a repl session for the current project."
+  "Start a repl session. A socket-repl will also be launched in the
+background; use the LEIN_REPL_PORT environment variable to set the port."
   [project]
   (let [host (or (System/getenv "LEIN_REPL_HOST") "localhost")
         port (Integer. (or (System/getenv "LEIN_REPL_PORT")

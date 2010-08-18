@@ -238,15 +238,17 @@ of Leiningen projects:
 * A library
 * A server-side application
 
-For the first, you will want to build an uberjar. For libraries, you
-will want to have them published to a repository like Clojars. For
-server-side applications it varies as described below.
+For the first, you can either build an uberjar or use a shell-wrapper.
+For libraries, you will want to have them published to a repository
+like Clojars. For server-side applications it varies as described
+below.
 
 ### Uberjar
 
-The <tt>uberjar</tt> task is used to create a standalone, executable
-jar. For this to work you'll need to specify a namespace as your :main
-in project.clj. By this point our project.clj file should look like this:
+The simplest thing to do is to distribute an uberjar. This is a single
+standalone executable jar file. For this to work you'll need to
+specify a namespace as your :main in project.clj. By this point our
+project.clj file should look like this:
 
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "This project is MINE."
@@ -293,7 +295,35 @@ You can run a regular (non-uber) jar with the <tt>java</tt>
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
 
-TODO: document shell wrappers
+### Shell Wrappers
+
+There are a few downsides to uberjars. It's relatively awkward to
+invoke them compared to other command-line tools. You also can't
+control how the JVM is launched. To solve this, you can include a
+shell script in your jar file that can be used to launch the
+project. Leiningen places this shell script into the
+<tt>~/.lein/bin</tt> directory at install time.
+
+If you simply include <tt>:shell-wrapper true</tt> in your
+project.clj, Leiningen automatically generates a simple shell script
+wrapper when you create your jar file. However, if you need more
+control you can provide a map instead:
+
+    :shell-wrapper {:main myproject.core
+                    :bin "bin/myproject"}
+
+Normally the shell wrapper will invoke the -main function in your
+project's :main namespace, but specifying this option triggers AOT for
+uberjars, so if you wish to avoid this or use a different :main for
+the shell wrapper vs uberjar you can specify a :main ns inside the
+:shell-wrapper map. You may also specify a :bin key, which should
+point to a file in <tt>resources/</tt> directory to use as a shell
+wrapper template instead of the default. The <tt>format</tt> function
+is called with the contents of this file along with the necessary
+classpath and the main namespace, so put %s in the right place. See
+[the default
+wrapper](http://github.com/technomancy/leiningen/blob/master/resources/script-template)
+for an example.
 
 ### Publishing
 

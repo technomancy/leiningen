@@ -54,12 +54,22 @@ project, but here are the commonly-used tasks:
 
     $ lein jar # package up the whole project as a .jar file
 
+    $ lein install [NAME VERSION] # install a project
+
 Use <tt>lein help</tt> to see a complete list. <tt>lein help
 $TASK</tt> shows the usage for a specific one.
 
-TODO: document chaining tasks
+You can also chain tasks together in a single command by using commas:
 
-TODO: document user-level init script and plugins
+    $ lein clean, test foo.test-core, jar
+
+Most tasks need to be run from somewhere inside a project directory to
+work, but some (<tt>new</tt>, <tt>help</tt>, <tt>version</tt> and the
+two-argument version of <tt>install</tt>) may run from anywhere.
+
+The install task places shell scripts in the <tt>~/.lein/bin</tt>
+directory for projects that include them, so if you want to take
+advantage of this, you should put it on your $PATH.
 
 ## Configuration
 
@@ -78,6 +88,12 @@ The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
 file for a detailed listing of configuration options.
+
+You can also have user-level configuration that applies for all
+projects. The ~/.lein/init.clj file will be loaded every time
+Leiningen launches; any arbitrary code may go there. Place jars
+containing plugins in ~/.lein/plugins to have them available globally
+for the current user.
 
 ## FAQ
 
