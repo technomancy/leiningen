@@ -10,7 +10,9 @@
                                  mn# '~(:main project)]
                              (when (and is# (.exists (File. str)))
                                (load-file is#))
-                             (when mn# (doto mn# require in-ns)))]]
+                             (if mn#
+                               (doto mn# require in-ns)
+                               (in-ns '~'user)))]]
     `(do (ns ~'user
            (:use [~'clojure.main :only [~'repl]])
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
