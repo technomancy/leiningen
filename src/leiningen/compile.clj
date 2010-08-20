@@ -89,6 +89,23 @@
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
+(defn get-readable-form [java project form]
+  (let [cp (str (.getClasspath (.getCommandLine java)))
+        form `(do (def ~'*classpath* ~cp)
+                  (set! ~'*warn-on-reflection*
+                        ~(:warn-on-reflection project))
+                  ~form)]
+    (if (= (get-os) :windows)
+                    ;; work around java's command line handling
+                    ;; on windows http://bit.ly/9c6biv
+                    ;; This isn't perfect, but works for what's
+                    ;; currently being passed see
+                    ;; http://www.perlmonks.org/?node_id=300286
+                    ;; for some of the landmines involved in
+                    ;; doing it properly
+                    (pr-str (pr-str form))
+                    (prn-str form))))
+
 ;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
@@ -125,25 +142,21 @@
         (.setValue (.createJvmarg java) arg)))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
-    (let [cp (str (.getClasspath (.getCommandLine java)))
-          form `(do (def ~'*classpath* ~cp)
-                    (set! ~'*warn-on-reflection*
-                          ~(:warn-on-reflection project))
-                    ~form)
-          readable-form (if (= (get-os) :windows)
-                          ;; work around java's command line handling
-                          ;; on windows http://bit.ly/9c6biv
-                          ;; This isn't perfect, but works for what's
-                          ;; currently being passed see
-                          ;; http://www.perlmonks.org/?node_id=300286
-                          ;; for some of the landmines involved in
-                          ;; doing it properly
-                          (pr-str (pr-str form))
-                          (prn-str form))]
-      (.setValue (.createArg java) readable-form))
+    (.setValue (.createArg java) (get-readable-form java project form))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
     (.executeJava java)))
+
+(defn eval-without-project [form]
+  (let [java (Java.)]
+    (.setProject java lancet/ant-project)
+    (.setFailonerror java true)
+    (.setFork java true)
+    (.setClassname java "clojure.main")
+    (.setValue (.createArg java) "-e")
+    (.setValue (.createArg java) (get-readable-form java {} form))
+    (.executeJava java)))
+
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or

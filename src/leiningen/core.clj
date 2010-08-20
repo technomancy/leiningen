@@ -131,7 +131,7 @@
   (:arglists (meta (resolve-task task-name))))
 
 (defn project-needed? [task-name]
-  (some #{'project} (map first (arglists task-name))))
+  (every? #{'project} (map first (arglists task-name))))
 
 (defn matching-arity? [task-name project args]
   (let [arg-count (if (project-needed? task-name)
