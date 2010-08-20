@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="1.3.0-RC1"
+VERSION="1.3.0"
 
 case $VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
@@ -38,7 +38,7 @@ LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
 CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:src/:$CLASSPATH
 LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
-CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0-beta1/clojure-1.2.0-beta1.jar"
+CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
 NULL_DEVICE=/dev/null
 
 # normalize $0 on certain BSDs
@@ -145,7 +145,7 @@ else
     fi
 
     if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
-        [ -z $INSIDE_EMACS ] && [ $TERM != "dumb" ]; then
+        [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
         if [ $? -eq 1 ]; then

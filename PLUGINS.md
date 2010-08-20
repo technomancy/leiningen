@@ -7,17 +7,24 @@ it.
 
 To use a plugin, add it to your project.clj :dev-dependencies and run
 "lein deps". Then you'll be able to invoke the tasks it provides with
-"lein $TASK".
+"lein $TASK". If you want plugins to be available for all the projects
+you use, you can place their jars in ~/.lein/plugins.
 
 ## Writing a Plugin
 
 Start by generating a new project with "lein new myplugin", and add a
-leiningen.myplugin namespace with a myplugin function. That function
-should take at least one argument: the current project. The project is
-a map which is based on the project.clj file, but it also has :name,
-:group, :version, and :root keys added in. If you want it to take
-parameters from the command-line invocation, you can make the function
-take more arguments.
+leiningen.myplugin namespace with a myplugin function. 
+
+Some tasks may only be run in the context of a project. For tasks like
+this, name the first argument <tt>project</tt>. Leiningen will inspect
+the argument list and pass in the current project if needed. The
+project is a map which is based on the project.clj file, but it also
+has :name, :group, :version, and :root keys added in. If you want it
+to take parameters from the command-line invocation, you can make the
+function take more arguments.
+
+Tasks without a <tt>project</tt> argument will be able to be run from
+anywhere.
 
 Note that Leiningen is an implied dependency of all plugins; you don't
 need to explicitly list it in the project.clj file.
@@ -74,11 +81,11 @@ to and a function to perform the wrapping:
     (add-hook #'leiningen.test/test skip-integration-hook)
 
 Hooks compose, so be aware that your hook may be running inside
-another hook. Hooks are loaded by looking for all namespaces under
-leiningen.hooks.* on the classpath and loading them in alphabetical
-order.
-
-TODO: document hook loading
+another hook. To take advantage of your hooks functionality, projects
+must set the :hooks key in project.clj to a seq of namespaces to load
+that call add-hook. Note that in Leiningen 1.2, hooks get loaded and
+used without being specified in project.clj; this is a bug. In 1.3 and
+on they are opt-in only.
 
 See [the documentation for
 Hooke](http://github.com/technomancy/robert-hooke/blob/master/README.md)

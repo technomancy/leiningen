@@ -1,7 +1,10 @@
 # Hacking Leiningen
 
-Leiningen is very small. The latest release is only 890 lines of
-Clojure; you could probably read through the whole project in an hour.
+Leiningen is very small. The latest release is only around a thousand
+lines of Clojure; you could probably read through the whole project in
+an hour.
+
+TODO: what goes where? a tour through the launching of a task
 
 When you launch Leiningen, it must start an instance of Clojure to
 load itself. But this instance must not effect the project that you're
@@ -41,7 +44,7 @@ TODO: integrate with plugin guide
 
 # Release Checklist
 
-* update NEWS, bin/lein, project.clj
+* update NEWS, bin/lein, project.clj, pom
 * generate uberjar, upload
 * git tag
 * test self-install

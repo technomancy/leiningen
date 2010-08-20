@@ -54,12 +54,22 @@ project, but here are the commonly-used tasks:
 
     $ lein jar # package up the whole project as a .jar file
 
+    $ lein install [NAME VERSION] # install a project
+
 Use <tt>lein help</tt> to see a complete list. <tt>lein help
 $TASK</tt> shows the usage for a specific one.
 
-TODO: document chaining tasks
+You can also chain tasks together in a single command by using commas:
 
-TODO: document user-level init script and plugins
+    $ lein clean, test foo.test-core, jar
+
+Most tasks need to be run from somewhere inside a project directory to
+work, but some (<tt>new</tt>, <tt>help</tt>, <tt>version</tt> and the
+two-argument version of <tt>install</tt>) may run from anywhere.
+
+The install task places shell scripts in the <tt>~/.lein/bin</tt>
+directory for projects that include them, so if you want to take
+advantage of this, you should put it on your $PATH.
 
 ## Configuration
 
@@ -78,6 +88,12 @@ The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
 file for a detailed listing of configuration options.
+
+You can also have user-level configuration that applies for all
+projects. The ~/.lein/init.clj file will be loaded every time
+Leiningen launches; any arbitrary code may go there. Place jars
+containing plugins in ~/.lein/plugins to have them available globally
+for the current user.
 
 ## FAQ
 
@@ -169,8 +185,8 @@ file for a detailed listing of configuration options.
 ## Building
 
 Generally a "lein self-install" will get you what you need.
-Occasionally for very new SNAPSHOT versions the standalone jar will
-not have been uploaded yet.
+Occasionally this will fail for very new SNAPSHOT versions since the
+standalone jar will not have been uploaded yet.
 
 If you have a copy of an older Leiningen version around (installed as
 lein-stable, for example), then you can run "lein-stable deps" in your
@@ -178,47 +194,10 @@ checkout.
 
 Otherwise you can use Maven:
 
-    $ mvn dependency:copy-dependencies 
+    $ mvn dependency:copy-dependencies
     $ mv target/dependency lib
 
-## Hacking
-
-Leiningen is very small. The latest release is only 890 lines of
-Clojure; you could probably read through the whole project in an hour.
-
-When you launch Leiningen, it must start an instance of Clojure to
-load itself. But this instance must not effect the project that you're
-building. It may use a different version of Clojure from Leiningen,
-and the project should be in a fresh JVM. Leiningen uses ant's
-<tt>java</tt> task to fork off a separate process for this
-purpose. The <tt>leiningen.compile</tt> namespace implements this;
-specifically the <tt>eval-in-project</tt> function. Any code that must
-execute within the context of the project (AOT compilation, test runs)
-needs to go through this function.
-
-Leiningen is extensible; you can define new tasks in plugins. Add your
-plugin as a dev-dependency of your project, and you'll be able to call
-<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md) for details.
-
-The [mailing list](http://groups.google.com/group/leiningen) and the
-leiningen or clojure channels on Freenode are the best places to
-bring up questions or suggestions. If you're planning on adding a
-feature or fixing a nontrivial bug, please discuss it first to avoid
-duplicating effort. If you haven't discussed it on the mailing list,
-please include in your pull request details of what problem your patch
-intendeds to solve as well as the approach you took.
-
-Contributions are preferred as either Github pull requests or using
-"git format-patch" and the mailing list as is requested [for
-contributing to Clojure itself](http://clojure.org/patches). Please
-use standard indentation with no tabs, trailing whitespace, or lines
-longer than 80 columns. See [this post on submitting good
-patches](http://technomancy.us/135) for some tips. If you've got some
-time on your hands, reading this [style
-guide](http://mumble.net/~campbell/scheme/style.txt) wouldn't hurt
-either.
-
-See the [complete list of known issues](http://github.com/technomancy/leiningen/issues).
+See the file HACKING.md for instructions on contributing.
 
 ## License
 

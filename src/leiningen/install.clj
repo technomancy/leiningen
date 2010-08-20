@@ -34,7 +34,9 @@
         install-shell-wrapper)))
 
 (defn install
-  "Install the project and its dependencies in your local repository."
+  "With no arguments, installs the current project and its dependencies in
+your local repository. With two arguments, downloads and installs a project
+from a remote repository. May place shell wrappers in ~/.lein/bin."
   ([project]
      (let [jarfile (file (jar project))
            model (make-model project)
