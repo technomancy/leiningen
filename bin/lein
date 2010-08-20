@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="1.3.0-RC1"
+VERSION="1.3.0"
 
 case $VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
