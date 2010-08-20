@@ -27,13 +27,13 @@ Generating a new project is easy:
         `-- myproject
             `-- core_test.clj
 
-Here we've got your project's README, a src/ directory containing
-implementation code, a test/ directory, and a project.clj file which
-describes your project to Leiningen. The src/myproject/core.clj file
-corresponds to the myproject.core namespace.
+Here we've got your project's README, a src/ directory containing the
+code, a test/ directory, and a project.clj file which describes your
+project to Leiningen. The src/myproject/core.clj file corresponds to
+the myproject.core namespace.
 
-Note that we use that instead of just myproject since single-segment
-namespaces are discouraged in Clojure. Also the file
+Note that we use myproject.core instead of just myproject since
+single-segment namespaces are discouraged in Clojure. Also the file
 test/myproject/core_test.clj corresponds with the myproject.core-test
 namespace--you need to remember to replace dashes in namespace names
 with underscores in file names on disk since the JVM has trouble
@@ -200,9 +200,9 @@ just one or two namespaces at a time:
     Ran 2 tests containing 10 assertions.
     0 failures, 0 errors.
 
-Because it must start a new process, lein test is not a good solution
-for a development cycle that involves running the tests often. For
-that you would either need to look into better editor integration (see
+Because it starts a new JVM process, lein test is not a good solution
+for test-driven development. For that you would either need to look
+into better editor integration (see
 [clojure-test-mode](http://github.com/technomancy/clojure-mode) for
 Emacs) or keep a repl open and call <tt>run-tests</tt> from there as
 you work.
@@ -217,8 +217,8 @@ you want AOT-compiled. Again, the
 [sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
 has example usage.
 
-Like dependencies, this should happen for you automatically, but if
-you need to force it you can:
+Like dependencies, this should happen for you automatically when
+needed, but if you need to force it you can:
 
     $ lein compile
 
@@ -350,6 +350,16 @@ yet. In this case you don't want to publish it under its original
 group-id, since this will prevent the true maintainer from using that
 group-id once they publish it. You should use "org.clojars.$USERNAME"
 as the group-id instead.
+
+There may be times when you want to make your project available from a
+repository that's private for internal use. The simplest thing to do
+in this case is to set up a continuous integration server running
+[Hudson](http://hudson-ci.org), which can take care of both running
+the tests in a neutral environment and acting as a private repository
+server. Simply set up a task that polls your SCM and runs <tt>lein
+test! && lein install</tt> and make the hudson user's
+<tt>~/.m2/repository</tt> directory available over password-protected
+HTTP using something like <a href="http://nginx.net">nginx</a>.
 
 ### Server-side Projects
 
