@@ -145,7 +145,7 @@ else
     fi
 
     if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
-        [ -z $INSIDE_EMACS ] && [ $TERM != "dumb" ]; then
+        [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
         if [ $? -eq 1 ]; then
