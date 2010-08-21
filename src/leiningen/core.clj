@@ -130,24 +130,27 @@
 (defn arglists [task-name]
   (:arglists (meta (resolve-task task-name))))
 
-;; TODO: some arities of some tasks require projects while others don't
-(defn project-needed? [task-name]
-  (every? #{'project} (map first (arglists task-name))))
+(defn project-needed? [parameters]
+  (= 'project (first parameters)))
+
+(defn arg-count [parameters project]
+  (if (and project (project-needed? parameters))
+    (dec (count parameters))
+    (count parameters)))
 
 (defn matching-arity? [task-name project args]
-  (let [arg-count (if (project-needed? task-name)
-                    (inc (count args))
-                    (count args))]
-    (some (fn [defined-args]
-            (if (= '& (last (butlast defined-args)))
-              (>= arg-count (- (count defined-args) 2))
-              (= arg-count (count defined-args))))
-          (arglists task-name))))
+  (some (fn [parameters]
+          (and (if (= '& (last (butlast parameters)))
+                 (>= (- (arg-count parameters project) 2) (count args))
+                 (= (arg-count parameters project) (count args)))
+               parameters))
+        ;; use project.clj if possible
+        (reverse (sort-by count (arglists task-name)))))
 
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
-    (if (matching-arity? task-name project args)
-      (if (project-needed? task-name)
+    (if-let [parameters (matching-arity? task-name project args)]
+      (if (project-needed? parameters)
         (apply task project args)
         (apply task args))
       (abort "Wrong number of arguments to" task-name "task."
@@ -172,7 +175,7 @@
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
-           project (if (project-needed? task-name) (read-project))
+           project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
        (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))

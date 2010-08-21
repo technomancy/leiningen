@@ -49,6 +49,6 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
          (add-metadata artifact (file (pom project))))
        (install-shell-wrapper (JarFile. jarfile))
        (.install installer jarfile artifact local-repo)))
-  ([_ project-name version]
+  ([project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))]
        (standalone-install name (or group name) version))))
