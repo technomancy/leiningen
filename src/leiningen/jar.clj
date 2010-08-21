@@ -14,9 +14,12 @@
                       (.getResourceAsStream "script-template")
                       (slurp*)))
 
-(defn local-repo-path [{:keys [group name version]}]
-  (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-          group name version name version))
+(defn local-repo-path
+  ([group name version]
+     (local-repo-path {:group group :name name :version version}))
+  ([{:keys [group name version]}]
+     (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
+             group name version name version)))
 
 (defn- script-classpath-for [project deps-fileset]
   (join ":" (conj (for [dep (-> deps-fileset

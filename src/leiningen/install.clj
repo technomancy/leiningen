@@ -29,6 +29,7 @@
         local-repo (make-local-repo)]
     (.resolveAlways resolver artifact remote-repos local-repo)
     (-> (local-repo-path name group version)
+        (.replace "$HOME" (System/getenv "HOME"))
         file
         JarFile.
         install-shell-wrapper)))
