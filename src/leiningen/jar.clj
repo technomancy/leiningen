@@ -30,10 +30,10 @@
             (format "bin/%s" (:name project)))))
 
 (defn- shell-wrapper-contents [project bin-name main deps-fileset]
-  (if-let [is (-> (.getContextClassLoader (Thread/currentThread))
-                  (.getResourceAsStream bin-name))]
-    (slurp* is)
-    (format bin-template
+  (let [bin-file (file bin-name)]
+    (format (if (.exists bin-file)
+              (slurp* bin-file)
+              bin-template)
             (script-classpath-for project deps-fileset) main)))
 
 (defn- shell-wrapper-filespecs [project deps-fileset]

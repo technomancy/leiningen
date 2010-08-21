@@ -130,6 +130,7 @@
 (defn arglists [task-name]
   (:arglists (meta (resolve-task task-name))))
 
+;; TODO: some arities of some tasks require projects while others don't
 (defn project-needed? [task-name]
   (every? #{'project} (map first (arglists task-name))))
 

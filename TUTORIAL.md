@@ -317,7 +317,7 @@ project's :main namespace, but specifying this option triggers AOT for
 uberjars, so if you wish to avoid this or use a different :main for
 the shell wrapper vs uberjar you can specify a :main ns inside the
 :shell-wrapper map. You may also specify a :bin key, which should
-point to a file in <tt>resources/</tt> directory to use as a shell
+point to a file relative to the project's root to use as a shell
 wrapper template instead of the default. The <tt>format</tt> function
 is called with the contents of this file along with the necessary
 classpath and the main namespace, so put %s in the right place. See
