@@ -1,40 +1,18 @@
 @echo off
 
-rem WORKS ONLY with Leiningen 1.1.0 or newer
+set LEIN_VERSION=1.3.0
 
-rem this script works after downloading Leiningen standalone jar
-rem from http://github.com/downloads/technomancy/leiningen/leiningen-VERSION-standalone.jar
-rem and copying it on %LEIN_JAR% path
+if "x%1" == "xself-install" goto SELF_INSTALL
+if "x%1" == "xupgrade"      goto NO_UPGRADE
 
-rem optionally can be downloaded also Clojure jar 
-rem (stable release, 1.1.0 or newer is recommended)
-rem from http://build.clojure.org/releases/
-rem and copied on %CLOJURE_JAR% path
-rem this step is not necessary, because Leiningen standalone jar
-rem contains Clojure as well
-
-set CLOJURE_VERSION=1.2.0-beta1
-set LEIN_VERSION=1.2.0
-
-rem uncomment this and set paths explicitly 
-rem set LEIN_JAR=C:\Documents and Settings\wojcirob\.m2\repository\leiningen\leiningen\%LEIN_VERSION%\leiningen-%LEIN_VERSION%-standalone.jar
-rem set CLOJURE_JAR=C:\Documents and Settings\wojcirob\.m2\repository\org\clojure\clojure\%CLOJURE_VERSION%\clojure-%CLOJURE_VERSION%.jar
-
-
-if "x%1" == "xself-install" goto NO_SELF_INSTALL
-
-rem it is possible to set LEIN_JAR and CLOJURE_JAR variables manually
+rem it is possible to set LEIN_JAR variable manually
 rem so we don't overwrite them
 if "x%LEIN_JAR%" == "x" goto SET_LEIN
 goto ARGS_HANDLING
-if "x%CLOJURE_JAR%" == "x" goto SET_CLOJURE
-goto ARGS_HANDLING
 
 :SET_LEIN
-set LEIN_JAR=%HOMEDRIVE%%HOMEPATH%\.m2\repository\leiningen\leiningen\%LEIN_VERSION%\leiningen-%LEIN_VERSION%-standalone.jar
-
-:SET_CLOJURE
-set CLOJURE_JAR=%HOMEDRIVE%%HOMEPATH%\.m2\repository\org\clojure\clojure\%CLOJURE_VERSION%\clojure-%CLOJURE_VERSION%.jar
+set LEIN_DIR=%~dp0
+set LEIN_JAR=%LEIN_DIR%leiningen-%LEIN_VERSION%-standalone.jar
 
 :ARGS_HANDLING
 if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
@@ -72,15 +50,15 @@ rem ##################################################
 if "x%1" == "xrepl" goto RUN_REPL
 if "%ARGCOUNT%" == "2" goto RUN_ARG2
 if "%ARGCOUNT%" == "3" goto RUN_ARG3
-java -Xbootclasspath/a:"%CLOJURE_JAR%" -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\")"
+java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\")"
 goto EOF
 
 :RUN_ARG2
-java -Xbootclasspath/a:"%CLOJURE_JAR%" -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\" \"%2\")"
+java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\" \"%2\")"
 goto EOF
 
 :RUN_ARG3
-java -Xbootclasspath/a:"%CLOJURE_JAR%" -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\" \"%2\" \"%3\")"
+java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\" \"%2\" \"%3\")"
 goto EOF
 
 :RUN_REPL
@@ -90,19 +68,58 @@ goto EOF
 :NO_LEIN_JAR
 echo.
 echo "%LEIN_JAR%" can not be found.
-echo Please change LEIN_JAR environment variable
+echo You can try running "lein self-install"
+echo or change LEIN_JAR environment variable
 echo or edit lein.bat to set appropriate LEIN_JAR path.
 echo. 
 goto EOF
 
-:NO_SELF_INSTALL
-echo.
-echo SELF_INSTALL functionality is not available on Windows
-echo Please download needed JARs manually:
-echo 1. http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
-echo 2. clojure.jar from http://build.clojure.org/releases/
-echo. 
+:SELF_INSTALL
+if exist %LEIN_JAR% (
+    echo %LEIN_JAR% already exists. Delete and retry.
+    goto EOF
+)
+set HTTP_CLIENT=wget -O
+wget>nul 2>&1
+if ERRORLEVEL 9009 (
+    curl>nul 2>&1
+    if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
+    set HTTP_CLIENT=curl -f -L -o
+)
+set LEIN_DIR=%~dp0
+set LEIN_JAR=%LEIN_DIR%leiningen-%LEIN_VERSION%-standalone.jar
+set LEIN_JAR_URL=http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
+%HTTP_CLIENT% %LEIN_JAR% %LEIN_JAR_URL%
+if ERRORLEVEL 1 (
+    del %LEIN_JAR%>nul 2>&1
+    goto DOWNLOAD_FAILED
+)
 goto EOF
+
+:DOWNLOAD_FAILED
+echo.
+echo *** DOWNLOAD FAILED! Check URL/Version. ***
+echo.
+goto EOF
+
+:NO_HTTP_CLIENT
+echo.
+echo ERROR: Wget/Curl not found. Make sure at least either of Wget and Curl is
+echo        installed and is in PATH. You can get them from URLs below:
+echo.
+echo Wget: "http://users.ugent.be/~bpuype/wget/"
+echo Curl: "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
+echo.
+goto EOF
+
+:NO_UPGRADE
+echo.
+echo Upgrade feature is not available on Windows. Please edit the value of
+echo variable LEIN_VERSION in file %~f0
+echo then run "lein self-install".
+echo.
+goto EOF
+
 
 rem Find directory containing filename supplied in first argument
 rem looking in current directory, and looking up the parent
