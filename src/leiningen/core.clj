@@ -141,8 +141,9 @@
 (defn matching-arity? [task-name project args]
   (some (fn [parameters]
           (and (if (= '& (last (butlast parameters)))
-                 (>= (- (arg-count parameters project) 2) (count args))
+                 (>= (count args) (- (arg-count parameters project) 2))
                  (= (arg-count parameters project) (count args)))
+               (or project (not (project-needed? parameters)))
                parameters))
         ;; use project.clj if possible
         (reverse (sort-by count (arglists task-name)))))
