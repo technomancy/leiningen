@@ -14,6 +14,8 @@
                                (doto mn# require in-ns)
                                (in-ns '~'user)))]]
     `(do (ns ~'user
+           (:require [~'clojure.java.shell])
+           (:require [~'clojure.java.browse])
            (:use [~'clojure.main :only [~'repl]])
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
                      ~'SocketException]
@@ -81,7 +83,8 @@ background; use the LEIN_REPL_PORT environment variable to set the port."
                              (dec (+ 1024 (rand-int 64512)))))
           server-form (repl-server project host port)
           server-thread (Thread. #(try (if (empty? project)
-                                         (eval-without-project server-form)
+                                         (clojure.main/with-bindings
+                                           (println (eval server-form)))
                                          (eval-in-project project server-form))
                                        (catch Exception _)))]
       (.start server-thread)

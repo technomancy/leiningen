@@ -147,17 +147,6 @@
     (when handler (handler java))
     (.executeJava java)))
 
-(defn eval-without-project [form]
-  (let [java (Java.)]
-    (.setProject java lancet/ant-project)
-    (.setFailonerror java true)
-    (.setFork java true)
-    (.setClassname java "clojure.main")
-    (.setValue (.createArg java) "-e")
-    (.setValue (.createArg java) (get-readable-form java {} form))
-    (.executeJava java)))
-
-
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
 those given as command-line arguments."
