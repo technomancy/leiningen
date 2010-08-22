@@ -1,6 +1,6 @@
 (ns leiningen.repl
   (:require [clojure.main])
-  (:use [leiningen.compile :only [eval-in-project eval-without-project]]
+  (:use [leiningen.compile :only [eval-in-project]]
         [clojure.java.io :only [copy]])
   (:import [java.net Socket]
            [java.io OutputStreamWriter InputStreamReader File]))
