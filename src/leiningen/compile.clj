@@ -5,7 +5,7 @@
          [leiningen.core :only [ns->path]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
-         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
+         [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
@@ -21,7 +21,7 @@
   [project]
   (let [nses (or (:aot project) (:namespaces project))
         nses (if (= :all nses)
-               (find-namespaces-in-dir (file (:source-path project)))
+               (namespaces-in-dir (:source-path project))
                nses)]
     (if (:main project)
       (conj nses (:main project))

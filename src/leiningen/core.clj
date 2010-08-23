@@ -1,5 +1,5 @@
 (ns leiningen.core
-  (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+  (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
         [clojure.walk :only [walk]])
   (:import [java.io File])
@@ -105,8 +105,7 @@
 (defn- hook-namespaces [project]
   (sort (or (:hooks project)
             (and (:implicit-hooks project)
-                 (filter #(re-find #"^leiningen\.hooks\." (name %))
-                         (find-namespaces-on-classpath))))))
+                 (namespaces-matching "leiningen.hooks")))))
 
 (defn- load-hooks [project]
   (try (doseq [n (hook-namespaces project)]
