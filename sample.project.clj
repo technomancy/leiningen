@@ -56,7 +56,7 @@
   ;; other Java interop functionality. :namespaces is an alias for this.
   :aot [org.example.sample.SampleClass]
   ;; This namespace will be used as the "main" in the uberjar.
-  :main [org.example.sample]
+  :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"
   ;; Emit warnings on all reflection calls.
@@ -70,9 +70,9 @@
   :library-path "target/dependency"
   :test-path "src/test/clojure"
   :resources-path "src/main/resources"
-  :native-path "src/native" ; where to look for native dependencies
-  :jar-dir "target/" ; where to place the project's jar file
-  :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
+  :native-path "src/native"   ; where to look for native dependencies
+  :jar-dir "target/"          ; where to place the project's jar file
+  :jar-name "sample.jar"      ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Leave the contents of :source-path out of jars (for AOT projects)
   :omit-source true

@@ -8,8 +8,8 @@ Leiningen TODOs
 * For 1.4.0 or later
 ** TODO add option to use ~/.m2-based classpath instead of copying to lib/?
 ** TODO plugin task for managing/upgrading plugins
-** TODO lein add $DEPENDENCY (inserts it into :dependencies in project.clj)
 ** TODO shell wrappers should support multiple versions
+** TODO merge lein-search features?
 ** TODO classifiers for specifying what clojure version to use?
 ** TODO test classification using metadata; run a subset of tests
 ** TODO a list of dirs to include in the jar when building
@@ -67,13 +67,11 @@ Leiningen TODOs
 ** DONE Allow test task to take namespaces as an argument
 ** DONE Fix eval-in-project to let plugins pass in extra args
 ** DONE Resources directory added to classpath (for properties, etc)
-* Plugin Ideas:
-*** Code statistics (LOC, doc coverage, etc)
-*** Graph output for dependencies between namespaces
-*** Checkout task: install the jar in ~/.m2 and look for SCM repository metadata
-*** Start web server for web-related projects
-*** Multi-module builds
-*** Repository search
-* Low Priority
-** TODO Run failed tests task
-** TODO Remove duplication between deps.clj and pom.clj
+* Git-aware dependencies (experimental back-burner idea)
+  Talking with Rich after Emerging Langs day 1
+  Problem: you can pull in two versions of the same library
+  transitively without realizing it if people fork on clojars. How do
+  we detect this problem and de-dupe?
+** What if artifacts could be correlated with the git rev that produced them?
+** They have repository and sha1 metadata in their pom (but no history tree)
+** Cross-correlate with a separate revision metadata store?

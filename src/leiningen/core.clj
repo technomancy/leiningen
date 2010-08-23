@@ -49,6 +49,11 @@
   (apply println msg)
   (System/exit 1))
 
+(defn exit
+  "Call System/exit. Defined as a function so that rebinding is possible."
+  [code]
+  (System/exit code))
+
 (defn home-dir
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []
@@ -130,23 +135,28 @@
 (defn arglists [task-name]
   (:arglists (meta (resolve-task task-name))))
 
-(defn project-needed? [task-name]
-  (some #{'project} (map first (arglists task-name))))
+(defn project-needed? [parameters]
+  (= 'project (first parameters)))
+
+(defn arg-count [parameters project]
+  (if (and project (project-needed? parameters))
+    (dec (count parameters))
+    (count parameters)))
 
 (defn matching-arity? [task-name project args]
-  (let [arg-count (if (project-needed? task-name)
-                    (inc (count args))
-                    (count args))]
-    (some (fn [defined-args]
-            (if (= '& (last (butlast defined-args)))
-              (>= arg-count (- (count defined-args) 2))
-              (= arg-count (count defined-args))))
-          (arglists task-name))))
+  (some (fn [parameters]
+          (and (if (= '& (last (butlast parameters)))
+                 (>= (count args) (- (arg-count parameters project) 2))
+                 (= (arg-count parameters project) (count args)))
+               (or project (not (project-needed? parameters)))
+               parameters))
+        ;; use project.clj if possible
+        (reverse (sort-by count (arglists task-name)))))
 
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
-    (if (matching-arity? task-name project args)
-      (if (project-needed? task-name)
+    (if-let [parameters (matching-arity? task-name project args)]
+      (if (project-needed? parameters)
         (apply task project args)
         (apply task args))
       (abort "Wrong number of arguments to" task-name "task."
@@ -171,7 +181,7 @@
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
-           project (if (project-needed? task-name) (read-project))
+           project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
        (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))

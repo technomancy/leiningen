@@ -14,9 +14,12 @@
                       (.getResourceAsStream "script-template")
                       (slurp*)))
 
-(defn local-repo-path [{:keys [group name version]}]
-  (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-          group name version name version))
+(defn local-repo-path
+  ([group name version]
+     (local-repo-path {:group group :name name :version version}))
+  ([{:keys [group name version]}]
+     (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
+             group name version name version)))
 
 (defn- script-classpath-for [project deps-fileset]
   (join ":" (conj (for [dep (-> deps-fileset
@@ -30,10 +33,10 @@
             (format "bin/%s" (:name project)))))
 
 (defn- shell-wrapper-contents [project bin-name main deps-fileset]
-  (if-let [is (-> (.getContextClassLoader (Thread/currentThread))
-                  (.getResourceAsStream bin-name))]
-    (slurp* is)
-    (format bin-template
+  (let [bin-file (file bin-name)]
+    (format (if (.exists bin-file)
+              (slurp* bin-file)
+              bin-template)
             (script-classpath-for project deps-fileset) main)))
 
 (defn- shell-wrapper-filespecs [project deps-fileset]
