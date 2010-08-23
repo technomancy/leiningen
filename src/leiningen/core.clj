@@ -49,6 +49,11 @@
   (apply println msg)
   (System/exit 1))
 
+(defn exit
+  "Call System/exit. Defined as a function so that rebinding is possible."
+  [code]
+  (System/exit code))
+
 (defn home-dir
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []

@@ -1,6 +1,7 @@
 (ns leiningen.repl
   (:require [clojure.main])
-  (:use [leiningen.compile :only [eval-in-project]]
+  (:use [leiningen.core :only [exit]]
+        [leiningen.compile :only [eval-in-project]]
         [clojure.java.io :only [copy]])
   (:import [java.net Socket]
            [java.io OutputStreamWriter InputStreamReader File]))
@@ -78,15 +79,14 @@
 background; use the LEIN_REPL_PORT environment variable to set the port."
   ([] (repl {}))
   ([project]
-    (let [host (or (System/getenv "LEIN_REPL_HOST") "localhost")
-          port (Integer. (or (System/getenv "LEIN_REPL_PORT")
-                             (dec (+ 1024 (rand-int 64512)))))
-          server-form (repl-server project host port)
-          server-thread (Thread. #(try (if (empty? project)
-                                         (clojure.main/with-bindings
-                                           (println (eval server-form)))
-                                         (eval-in-project project server-form))
-                                       (catch Exception _)))]
-      (.start server-thread)
-      (poll-for-socket port)
-      (.stop server-thread))))
+     (let [host (or (System/getenv "LEIN_REPL_HOST") "localhost")
+           port (Integer. (or (System/getenv "LEIN_REPL_PORT")
+                              (dec (+ 1024 (rand-int 64512)))))
+           server-form (repl-server project host port)]
+       (future (try (if (empty? project)
+                      (clojure.main/with-bindings
+                        (println (eval server-form)))
+                      (eval-in-project project server-form))
+                    (catch Exception _)))
+       (poll-for-socket port)
+       (exit 0))))
