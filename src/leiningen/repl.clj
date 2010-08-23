@@ -59,7 +59,8 @@
   (copy-out reader)
   (let [eof (Object.)
         input (try (read *in* false eof)
-                   (catch Exception e nil))]
+                   (catch Exception e
+                     (println "Couldn't read input.")))]
     (when-not (= eof input)
       (.write writer (str (pr-str input) "\n"))
       (.flush writer)
