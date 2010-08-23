@@ -58,7 +58,8 @@
 (defn- repl-client [reader writer]
   (copy-out reader)
   (let [eof (Object.)
-        input (read *in* false eof)]
+        input (try (read *in* false eof)
+                   (catch Exception e nil))]
     (when-not (= eof input)
       (.write writer (str (pr-str input) "\n"))
       (.flush writer)
