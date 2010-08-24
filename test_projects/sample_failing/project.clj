@@ -6,4 +6,5 @@
 (def clj-version "1.1.0-master-SNAPSHOT")
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
-  :dependencies [[~(symbol "org.clojure" "clojure") ~clj-version]])
+  :dependencies [[~(symbol "org.clojure" "clojure") ~clj-version]]
+  :main nom.nom.nom)
