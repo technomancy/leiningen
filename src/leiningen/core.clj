@@ -178,20 +178,19 @@
        (append-to-group groups arg))))
 
 (defn version-greater-eq?
-  "Returns true if 'v1 is greater than or equal to 'v2, where v# are version strings. Takes major, minor and incremental versions into account."
+  "Check if v1 is greater than or equal to v2, where args are version strings.
+Takes major, minor and incremental versions into account."
   [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d" (first (split v1 #"-" 2))))
         v2 (map #(Integer. %) (re-seq #"\d" (first (split v2 #"-" 2))))]
-    (or (and (every? true? (map (fn [a b]
-                                  (>= a b)) v1 v2))
+    (or (and (every? true? (map >= v1 v2))
              (>= (count v1) (count v2)))
-        (every? true? (map (fn [a b]
-                             (> a b)) v1 v2)))))
+        (every? true? (map > v1 v2)))))
 
 (defn verify-min-version
   [project]
-  (if-not (version-greater-eq? (System/getenv "LEIN_VERSION")
-                               (:min-lein-version project))
+  (when-not (version-greater-eq? (System/getenv "LEIN_VERSION")
+                                 (:min-lein-version project))
     (do (println (str "\n*** Warning: This project requires Leiningen version "
                       (:min-lein-version project)
                       " ***"
@@ -206,8 +205,8 @@
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
-       (if-not (nil? (:min-lein-version project))
-                     (verify-min-version project))
+       (when (:min-lein-version project)
+         (verify-min-version project))
        (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
