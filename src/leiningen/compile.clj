@@ -159,18 +159,15 @@
      "NUL"
      "/dev/null")))
 
-(defn- compile-status [status msg]
+(defn- status [status msg]
   (do
     (binding [*out* (if status *out* *err*)]
       (when-not *silently*
         (println msg)))
     status))
 
-(def ^{:private true}
-     success (partial compile-status true))
-
-(def ^{:private true}
-     failure (partial compile-status false))
+(def ^{:private true} success (partial status true))
+(def ^{:private true} failure (partial status false))
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
