@@ -39,5 +39,5 @@
   (println "**********************************************")
   (println "***** You're about to see a stack trace. *****")
   (println "***** Stay cool, it's part of the test.  *****")
-  (println "**********************************************")  
+  (println "**********************************************")
   (is (not (jar sample-failing-project))))
