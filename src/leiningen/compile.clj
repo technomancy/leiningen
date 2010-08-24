@@ -154,12 +154,17 @@ those given as command-line arguments."
      (.mkdir (file (:compile-path project)))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-         (eval-in-project project
-                          `(doseq [namespace# '~namespaces]
-                             (when-not ~*silently*
-                               (println "Compiling" namespace#))
-                             (clojure.core/compile namespace#))
-                          nil :skip-auto-compile)
+         (let [exit-status (eval-in-project project
+                                            `(doseq [namespace# '~namespaces]
+                                               (when-not ~*silently*
+                                                 (println "Compiling" namespace#))
+                                               (clojure.core/compile namespace#))
+                                            nil :skip-auto-compile)]
+           (if (= 1 exit-status)
+             (do (binding [*out* *err*]
+                   (println "Compilation failed."))
+                 false)
+             true))
          (when-not *silently*
            (println "All namespaces already :aot compiled.")))
        (when-not *silently*

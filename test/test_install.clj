@@ -8,7 +8,7 @@
 (def m2-dir (file (System/getProperty "user.home") ".m2" "repository"
                   "nomnomnom" "nomnomnom" "0.5.0-SNAPSHOT"))
 
-(defonce test-project (read-project "sample/project.clj"))
+(defonce test-project (read-project "test_projects/sample/project.clj"))
 
 (deftest test-install
   (delete-file-recursively m2-dir true)

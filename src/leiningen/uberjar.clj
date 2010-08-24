@@ -60,14 +60,19 @@
 the dependency jars. Suitable for standalone distribution."
   ([project uberjar-name]
      (doto project
-       clean deps jar)
-     (let [standalone-filename (get-jar-filename project uberjar-name)]
-       (with-open [out (-> standalone-filename
-                           (FileOutputStream.)
-                           (ZipOutputStream.))]
-         (let [deps (->> (.listFiles (file (:library-path project)))
-                         (filter #(.endsWith (.getName %) ".jar"))
-                         (cons (file (get-jar-filename project))))]
-           (write-components deps out)))
-       (println "Created" standalone-filename)))
+       clean deps)
+     (if (jar project)
+       (let [standalone-filename (get-jar-filename project uberjar-name)]
+         (with-open [out (-> standalone-filename
+                             (FileOutputStream.)
+                             (ZipOutputStream.))]
+           (let [deps (->> (.listFiles (file (:library-path project)))
+                           (filter #(.endsWith (.getName %) ".jar"))
+                           (cons (file (get-jar-filename project))))]
+             (write-components deps out)))
+         (println "Created" standalone-filename))
+       (do
+         (binding [*out* *err*]
+           (println "Uberjar aborting because jar/compilation failed."))
+         (System/exit 1))))
   ([project] (uberjar project (get-default-uberjar-name project))))
