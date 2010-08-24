@@ -3,9 +3,9 @@
   (:use [leiningen.util.maven :only [make-exclusion make-dependency
                                      make-repository make-license
                                      make-mailing-list make-model]]
-        [clojure.java.io :only [copy file]]
-        [clojure.contrib.properties :only [as-properties]])
+        [clojure.java.io :only [copy file]])
   (:import [java.io StringWriter ByteArrayOutputStream]
+           [java.util Properties]
            [org.apache.maven.project MavenProject]))
 
 (def #^{:doc "A notice to place at the bottom of generated files."} disclaimer
@@ -25,10 +25,11 @@
 
 (defn make-pom-properties [project]
   (with-open [baos (ByteArrayOutputStream.)]
-    (.store (as-properties {:version (:version project)
-                            :groupId (:group project)
-                            :artifactId (:name project)})
-            baos "Leiningen")
+    (.store (doto (Properties.)
+              (.setProperty "version" (:version project))
+              (.setProperty "groupId" (:group project))
+              (.setProperty "artifactId" (:name project)))
+              baos "Leiningen")
     (.getBytes (str baos))))
 
 (defn pom
