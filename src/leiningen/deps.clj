@@ -3,8 +3,9 @@
   (:require [lancet])
   (:use [leiningen.core :only [repositories-for]]
         [leiningen.util.maven :only [make-dependency]]
-        [clojure.contrib.io :only [file delete-file-recursively]])
-  (:import [org.apache.maven.artifact.ant
+        [leiningen.util.file :only [delete-file-recursively]])
+  (:import [java.io File]
+           [org.apache.maven.artifact.ant
             Authentication DependenciesTask RemoteRepository]
            [org.apache.maven.settings Server]
            [org.apache.tools.ant.util FlatFileNameMapper]))
@@ -40,7 +41,7 @@
                fileset)
     (doseq [f files]
       (symlink {:link destination
-                :resource (.getCanonicalPath (file dir f))}))))
+                :resource (.getCanonicalPath (File. dir f))}))))
 
 (defn make-deps-task [project deps-set]
   (let [deps-task (DependenciesTask.)]
@@ -64,7 +65,7 @@ With an argument it will skip development dependencies."
            _ (.execute deps-task)
            fileset (.getReference lancet/ant-project
                                   (.getFilesetId deps-task))]
-       (.mkdirs (file (:library-path project)))
+       (.mkdirs (File. (:library-path project)))
        (copy-dependencies (:jar-behavior project)
                           (:library-path project)
                           true fileset)

@@ -1,9 +1,8 @@
 (ns leiningen.uberjar
   "Create a jar containing the compiled code, source, and all dependencies."
   (:require [clojure.xml :as xml])
-  (:use [clojure.zip :only [xml-zip]]
+  (:use [clojure.zip :only [xml-zip children]]
         [clojure.java.io :only [file copy]]
-        [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.clean :only [clean]]
         [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
         [leiningen.deps :only [deps]])
@@ -12,9 +11,11 @@
 
 (defn read-components [zipfile]
   (when-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
-    (-> (xml-> (xml-zip (xml/parse (.getInputStream zipfile entry)))
-               (tag= :components))
-        first first :content)))
+    (->> (xml-zip (xml/parse (.getInputStream zipfile entry)))
+         children
+         (filter #(= (:tag %) :components))
+         first
+         :content)))
 
 (defn copy-entries
   "Copies the entries of ZipFile in to the ZipOutputStream out, skipping
