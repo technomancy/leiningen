@@ -189,7 +189,7 @@ those given as command-line arguments."
                                        (.setError java (platform-nullsink))))
                                    :skip-auto-compile))
            (failure "Compilation failed.")
-           (success "Compilated succeeded."))
+           (success "Compilation succeeded."))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]
