@@ -159,6 +159,19 @@
      "NUL"
      "/dev/null")))
 
+(defn- compile-status [status msg]
+  (do
+    (binding [*out* (if status *out* *err*)]
+      (when-not *silently*
+        (println msg)))
+    status))
+
+(def ^{:private true}
+     success (partial compile-status true))
+
+(def ^{:private true}
+     failure (partial compile-status false))
+
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
 those given as command-line arguments."
@@ -166,28 +179,19 @@ those given as command-line arguments."
      (.mkdir (file (:compile-path project)))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-         (let [exit-status (eval-in-project project
-                                            `(doseq [namespace# '~namespaces]
-                                               (when-not ~*silently*
-                                                 (println "Compiling" namespace#))
-                                               (clojure.core/compile namespace#))
-                                            (when *testing*
-                                              (fn [java]
-                                                (.setError java (platform-nullsink))))
-                                            :skip-auto-compile)]
-           (if (= 1 exit-status)
-             (do (binding [*out* *err*]
-                   (println "Compilation failed."))
-                 false)
-             true))
-         (do
-           (when-not *silently*
-             (println "All namespaces already :aot compiled."))
-           true))
-       (do
-         (when-not *silently*
-           (println "No namespaces to :aot compile listed in project.clj."))
-         true)))
+         (if (= 1 (eval-in-project project
+                                   `(doseq [namespace# '~namespaces]
+                                      (when-not ~*silently*
+                                        (println "Compiling" namespace#))
+                                      (clojure.core/compile namespace#))
+                                   (when *testing*
+                                     (fn [java]
+                                       (.setError java (platform-nullsink))))
+                                   :skip-auto-compile))
+           (failure "Compilation failed.")
+           (success "Compilated succeeded."))
+         (success "All namespaces already :aot compiled."))
+       (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]
      (compile (assoc project
                 :aot (if (= namespaces [":all"])
