@@ -149,15 +149,12 @@
     (when handler (handler java))
     (.executeJava java)))
 
-(defn- on-windows? []
-  (let [os (.. System (getProperties) (get "os.name"))]
-    (> (.indexOf os "Windows") -1)))
-
 (defn- platform-nullsink []
   (file
-   (if (on-windows?)
-     "NUL"
-     "/dev/null")))
+   (let [os (.. System (getProperties) (get "os.name"))]
+     (if (> (.indexOf os "Windows") -1)
+       "NUL"
+       "/dev/null"))))
 
 (defn- status [status msg]
   (do
