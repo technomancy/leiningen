@@ -34,10 +34,13 @@
   ;; Dependencies are listed as [group-id/name version].
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.1.0"]
+                 [org.jclouds/jclouds "1.0-RC6" :classifier "jdk15"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
+  ;; Warns users of earlier versions of Leiningen.
+  :min-lein-version "1.3.0"
   ;; Before fetching dependencies, the contents of the lib/ directory
   ;; will get deleted unless this is set to true.
   :disable-implicit-clean false

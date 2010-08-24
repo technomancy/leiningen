@@ -14,7 +14,7 @@
            (select-keys manifest ["hello" "Main-Class"])))))
 
 (def sample-project (binding [*ns* (the-ns 'leiningen.core)]
-                      (read-project "sample/project.clj")))
+                      (read-project "test_projects/sample/project.clj")))
 
 (deftest test-jar
   (let [jar-file (JarFile. (jar sample-project))
@@ -30,3 +30,14 @@
         manifest (manifest-map (.getManifest jar-file))]
     (is (nil? (.getEntry jar-file "bin/nom")))
     (is (nil? (manifest "Leiningen-shell-wrapper")))))
+
+(def sample-failing-project
+  (binding [*ns* (the-ns 'leiningen.core)]
+    (read-project "test_projects/sample_failing/project.clj")))
+
+(deftest test-jar-fails
+  (println "**********************************************")
+  (println "***** You're about to see a stack trace. *****")
+  (println "***** Stay cool, it's part of the test.  *****")
+  (println "**********************************************")
+  (is (not (jar sample-failing-project))))

@@ -5,7 +5,7 @@ Group-id is optional. Project-dir defaults to artifact-id if not given.
 Neither group-id nor artifact-id may contain slashes."
   (:use [leiningen.core :only [ns->path]]
         [clojure.java.io :only [file]]
-        [clojure.contrib.string :only [join]]))
+        [clojure.string :only [join]]))
 
 (defn write-project [project-dir project-name]
   (.mkdirs (file project-dir))

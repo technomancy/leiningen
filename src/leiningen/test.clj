@@ -2,7 +2,7 @@
   "Run the project's tests."
   (:refer-clojure :exclude [test])
   (:use [clojure.java.io :only [file]]
-        [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]]
+        [leiningen.util.ns :only [namespaces-in-dir]]
         [leiningen.compile :only [eval-in-project]]))
 
 (defn- with-version-guard
@@ -42,7 +42,7 @@ each namespace and print an overall summary."
 tests. If none are given, runs them all."
   [project & namespaces]
   (let [namespaces (if (empty? namespaces)
-                     (sort (find-namespaces-in-dir (file (:test-path project))))
+                     (sort (namespaces-in-dir (:test-path project)))
                      (map symbol namespaces))
         result (java.io.File/createTempFile "lein" "result")]
     (eval-in-project project

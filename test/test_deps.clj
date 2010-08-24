@@ -5,7 +5,7 @@
         [clojure.contrib.set]
         [clojure.contrib.io :only [file delete-file-recursively]]))
 
-(def test-project (read-project "sample/project.clj"))
+(def test-project (read-project "test_projects/sample/project.clj"))
 
 (deftest test-deps
   (delete-file-recursively (file (:root test-project) "lib") true)

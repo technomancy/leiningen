@@ -1,5 +1,5 @@
 (ns leiningen.core
-  (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+  (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
         [clojure.walk :only [walk]])
   (:import [java.io File])
@@ -105,8 +105,7 @@
 (defn- hook-namespaces [project]
   (sort (or (:hooks project)
             (and (:implicit-hooks project)
-                 (filter #(re-find #"^leiningen\.hooks\." (name %))
-                         (find-namespaces-on-classpath))))))
+                 (namespaces-matching "leiningen.hooks")))))
 
 (defn- load-hooks [project]
   (try (doseq [n (hook-namespaces project)]
@@ -178,11 +177,36 @@
            (conj []))
        (append-to-group groups arg))))
 
+(defn version-greater-eq?
+  "Check if v1 is greater than or equal to v2, where args are version strings.
+Takes major, minor and incremental versions into account."
+  [v1 v2]
+  (let [v1 (map #(Integer. %) (re-seq #"\d" (first (split v1 #"-" 2))))
+        v2 (map #(Integer. %) (re-seq #"\d" (first (split v2 #"-" 2))))]
+    (or (and (every? true? (map >= v1 v2))
+             (>= (count v1) (count v2)))
+        (every? true? (map > v1 v2)))))
+
+(defn verify-min-version
+  [project]
+  (when-not (version-greater-eq? (System/getenv "LEIN_VERSION")
+                                 (:min-lein-version project))
+    (do (println (str "\n*** Warning: This project requires Leiningen version "
+                      (:min-lein-version project)
+                      " ***"
+                      "\n*** Using version " (System/getenv "LEIN_VERSION")
+                      " could cause problems. ***\n"
+                      "\n- Get the latest verison of Leiningen at\n"
+                      "- http://github.com/technomancy/leiningen\n"
+                      "- Or by executing \"lein upgrade\"\n\n")))))
+
 (defn -main
   ([& [task-name & args]]
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
+       (when (:min-lein-version project)
+         (verify-min-version project))
        (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]

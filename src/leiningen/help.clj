@@ -1,9 +1,9 @@
 (ns leiningen.help
   "Display a list of tasks or help for a given task."
-  (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]))
+  (:use [leiningen.util.ns :only [namespaces-matching]]))
 
 (def tasks (set (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %))
-                        (find-namespaces-on-classpath))))
+                        (namespaces-matching "leiningen"))))
 
 (defn get-arglists [task]
   (for [args (:arglists (meta task))]

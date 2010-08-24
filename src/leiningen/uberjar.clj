@@ -1,9 +1,8 @@
 (ns leiningen.uberjar
   "Create a jar containing the compiled code, source, and all dependencies."
   (:require [clojure.xml :as xml])
-  (:use [clojure.zip :only [xml-zip]]
+  (:use [clojure.zip :only [xml-zip children]]
         [clojure.java.io :only [file copy]]
-        [clojure.contrib.zip-filter.xml :only [xml-> tag=]]
         [leiningen.clean :only [clean]]
         [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
         [leiningen.deps :only [deps]])
@@ -12,9 +11,11 @@
 
 (defn read-components [zipfile]
   (when-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
-    (-> (xml-> (xml-zip (xml/parse (.getInputStream zipfile entry)))
-               (tag= :components))
-        first first :content)))
+    (->> (xml-zip (xml/parse (.getInputStream zipfile entry)))
+         children
+         (filter #(= (:tag %) :components))
+         first
+         :content)))
 
 (defn copy-entries
   "Copies the entries of ZipFile in to the ZipOutputStream out, skipping
@@ -60,14 +61,19 @@
 the dependency jars. Suitable for standalone distribution."
   ([project uberjar-name]
      (doto project
-       clean deps jar)
-     (let [standalone-filename (get-jar-filename project uberjar-name)]
-       (with-open [out (-> standalone-filename
-                           (FileOutputStream.)
-                           (ZipOutputStream.))]
-         (let [deps (->> (.listFiles (file (:library-path project)))
-                         (filter #(.endsWith (.getName %) ".jar"))
-                         (cons (file (get-jar-filename project))))]
-           (write-components deps out)))
-       (println "Created" standalone-filename)))
+       clean deps)
+     (if (jar project)
+       (let [standalone-filename (get-jar-filename project uberjar-name)]
+         (with-open [out (-> standalone-filename
+                             (FileOutputStream.)
+                             (ZipOutputStream.))]
+           (let [deps (->> (.listFiles (file (:library-path project)))
+                           (filter #(.endsWith (.getName %) ".jar"))
+                           (cons (file (get-jar-filename project))))]
+             (write-components deps out)))
+         (println "Created" standalone-filename))
+       (do
+         (binding [*out* *err*]
+           (println "Uberjar aborting because jar/compilation failed."))
+         (System/exit 1))))
   ([project] (uberjar project (get-default-uberjar-name project))))
