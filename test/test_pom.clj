@@ -5,7 +5,7 @@
   (:use [clojure.test]
         [clojure.contrib.io :only [file delete-file]]))
 
-(def test-project (read-project "sample/project.clj"))
+(def test-project (read-project "test_projects/sample/project.clj"))
 
 (deftest test-pom
   (let [pom-file (file (:root test-project) "pom.xml")]
