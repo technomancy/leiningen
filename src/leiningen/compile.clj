@@ -15,6 +15,8 @@
 
 (def *silently* false)
 
+(def *testing* false)
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
@@ -147,6 +149,16 @@
     (when handler (handler java))
     (.executeJava java)))
 
+(defn- on-windows? []
+  (let [os (.. System (getProperties) (get "os.name"))]
+    (> (.indexOf os "Windows") -1)))
+
+(defn- platform-nullsink []
+  (file
+   (if (on-windows?)
+     "NUL"
+     "/dev/null")))
+
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
 those given as command-line arguments."
@@ -159,7 +171,10 @@ those given as command-line arguments."
                                                (when-not ~*silently*
                                                  (println "Compiling" namespace#))
                                                (clojure.core/compile namespace#))
-                                            nil :skip-auto-compile)]
+                                            (when *testing*
+                                              (fn [java]
+                                                (.setError java (platform-nullsink))))
+                                            :skip-auto-compile)]
            (if (= 1 exit-status)
              (do (binding [*out* *err*]
                    (println "Compilation failed."))
