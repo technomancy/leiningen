@@ -40,3 +40,10 @@
   (binding [*testing* true]             ;suppress compilation stacktrace
     (is (not (jar sample-failing-project)))))
 
+(def sample-no-aot-project
+  (binding [*ns* (the-ns 'leiningen.core)]
+    (read-project "test_projects/sample_no_aot/project.clj")))
+
+(deftest test-no-aot-jar-succeeds
+  (binding [*testing* true]
+    (is (jar sample-no-aot-project))))

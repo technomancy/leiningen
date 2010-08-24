@@ -180,10 +180,14 @@ those given as command-line arguments."
                    (println "Compilation failed."))
                  false)
              true))
+         (do
+           (when-not *silently*
+             (println "All namespaces already :aot compiled."))
+           true))
+       (do
          (when-not *silently*
-           (println "All namespaces already :aot compiled.")))
-       (when-not *silently*
-         (println "No namespaces to :aot compile listed in project.clj."))))
+           (println "No namespaces to :aot compile listed in project.clj."))
+         true)))
   ([project & namespaces]
      (compile (assoc project
                 :aot (if (= namespaces [":all"])
