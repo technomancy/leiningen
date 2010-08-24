@@ -206,7 +206,8 @@
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
-       (verify-min-version project)
+       (if-not (nil? (:min-lein-version project))
+                     (verify-min-version project))
        (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
