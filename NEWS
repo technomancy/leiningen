@@ -2,6 +2,8 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.3.1 / ???
 
+* Stop jar/uberjar task if compile fails. (Alan Dipert)
+
 * Support :min-lein-version in project.clj so if a project uses newer Leiningen
   features it will warn users of old lein versions. (Isaac Hodes)
 

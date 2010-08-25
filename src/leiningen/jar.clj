@@ -155,7 +155,7 @@ well as the source .clj files. If project.clj contains a :main symbol, it will
 be used as the main-class for an executable jar."
   ([project jar-name]
      (binding [compile/*silently* true]
-       (when (compile/compile project)
+       (when (zero? (compile/compile project))
          (let [jar-path (get-jar-filename project jar-name)
                deps-fileset (deps project :skip-dev)]
            (write-jar project jar-path (filespecs project deps-fileset))

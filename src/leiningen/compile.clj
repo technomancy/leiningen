@@ -15,7 +15,7 @@
 
 (def *silently* false)
 
-(def *testing* false)
+(def *suppress-err* false)
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
@@ -97,16 +97,14 @@
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
                   ~form)]
+    ;; work around java's command line handling on windows
+    ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
+    ;; currently being passed; see
+    ;; http://www.perlmonks.org/?node_id=300286 for some of the
+    ;; landmines involved in doing it properly
     (if (= (get-os) :windows)
-                    ;; work around java's command line handling
-                    ;; on windows http://bit.ly/9c6biv
-                    ;; This isn't perfect, but works for what's
-                    ;; currently being passed see
-                    ;; http://www.perlmonks.org/?node_id=300286
-                    ;; for some of the landmines involved in
-                    ;; doing it properly
-                    (pr-str (pr-str form))
-                    (prn-str form))))
+      (pr-str (pr-str form))
+      (prn-str form))))
 
 ;; TODO: split this function up
 (defn eval-in-project
@@ -150,21 +148,17 @@
     (.executeJava java)))
 
 (defn- platform-nullsink []
-  (file
-   (let [os (.. System (getProperties) (get "os.name"))]
-     (if (> (.indexOf os "Windows") -1)
-       "NUL"
-       "/dev/null"))))
+  (file (if (= :windows (get-os))
+          "NUL"
+          "/dev/null")))
 
-(defn- status [status msg]
-  (do
-    (binding [*out* (if status *out* *err*)]
-      (when-not *silently*
-        (println msg)))
-    status))
+(defn- status [code msg]
+  (when-not *silently*
+    (.write (if (zero? code) *out* *err*) (str msg "\n")))
+  code)
 
-(def ^{:private true} success (partial status true))
-(def ^{:private true} failure (partial status false))
+(def ^{:private true} success (partial status 0))
+(def ^{:private true} failure (partial status 1))
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
@@ -173,17 +167,16 @@ those given as command-line arguments."
      (.mkdir (file (:compile-path project)))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-         (if (= 1 (eval-in-project project
-                                   `(doseq [namespace# '~namespaces]
-                                      (when-not ~*silently*
-                                        (println "Compiling" namespace#))
-                                      (clojure.core/compile namespace#))
-                                   (when *testing*
-                                     (fn [java]
-                                       (.setError java (platform-nullsink))))
-                                   :skip-auto-compile))
-           (failure "Compilation failed.")
-           (success "Compilation succeeded."))
+         (if (zero? (eval-in-project project
+                                     `(doseq [namespace# '~namespaces]
+                                        (when-not ~*silently*
+                                          (println "Compiling" namespace#))
+                                        (clojure.core/compile namespace#))
+                                     (when *suppress-err*
+                                       #(.setError % (platform-nullsink)))
+                                     :skip-auto-compile))
+           (success "Compilation succeeded.")
+           (failure "Compilation failed."))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]
