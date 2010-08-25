@@ -2,6 +2,7 @@
   (:use [clojure.test]
         [clojure.contrib.io :only [slurp*]]
         [leiningen.core :only [defproject read-project]]
+        [leiningen.compile :only [*suppress-err*]]
         [leiningen.jar])
   (:import [java.util.jar JarFile]))
 
@@ -36,8 +37,13 @@
     (read-project "test_projects/sample_failing/project.clj")))
 
 (deftest test-jar-fails
-  (println "**********************************************")
-  (println "***** You're about to see a stack trace. *****")
-  (println "***** Stay cool, it's part of the test.  *****")
-  (println "**********************************************")
-  (is (not (jar sample-failing-project))))
+  (binding [*suppress-err* true]
+    (is (not (jar sample-failing-project)))))
+
+(def sample-no-aot-project
+  (binding [*ns* (the-ns 'leiningen.core)]
+    (read-project "test_projects/sample_no_aot/project.clj")))
+
+(deftest test-no-aot-jar-succeeds
+  (binding [*suppress-err* true]
+    (is (jar sample-no-aot-project))))

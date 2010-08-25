@@ -15,14 +15,15 @@
                                (doto mn# require in-ns)
                                (in-ns '~'user)))]]
     `(do (ns ~'user
-           (:require [~'clojure.java.shell])
-           (:require [~'clojure.java.browse])
-           (:use [~'clojure.main :only [~'repl]])
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
                      ~'SocketException]
                     [java.io ~'InputStreamReader ~'OutputStream
                      ~'OutputStreamWriter ~'PrintWriter]
                     [clojure.lang ~'LineNumberingPushbackReader]))
+           (try (require ['~'clojure.java.shell])
+                (require ['~'clojure.java.browse])
+                (catch Exception _#))
+           (use ['~'clojure.main :only ['~'repl]])
          (let [server# (ServerSocket. ~port 0 (~'InetAddress/getByName ~host))
                acc# (fn [s#]
                       (let [ins# (.getInputStream s#)
