@@ -3,6 +3,7 @@
   (:require [clojure.xml :as xml])
   (:use [clojure.zip :only [xml-zip children]]
         [clojure.java.io :only [file copy]]
+        [leiningen.core :only [abort]]
         [leiningen.clean :only [clean]]
         [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
         [leiningen.deps :only [deps]])
@@ -72,8 +73,5 @@ the dependency jars. Suitable for standalone distribution."
                            (cons (file (get-jar-filename project))))]
              (write-components deps out)))
          (println "Created" standalone-filename))
-       (do
-         (binding [*out* *err*]
-           (println "Uberjar aborting because jar/compilation failed."))
-         (System/exit 1))))
+       (abort "Uberjar aborting because jar/compilation failed.")))
   ([project] (uberjar project (get-default-uberjar-name project))))

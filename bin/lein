@@ -20,7 +20,7 @@ if [ $USER = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     read
 fi
 
-ORIGINAL_PWD=$PWD
+ORIGINAL_PWD="$PWD"
 while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
 do
     cd ..

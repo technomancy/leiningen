@@ -20,12 +20,13 @@
            (throw (Exception. (format "Problem loading %s" project) e))))))
 
 (defn checkout-deps-paths [project]
-  (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))]
-                  ;; Note that this resets the leiningen.core/project var!
-                  (let [proj (binding [*ns* (find-ns 'leiningen.core)]
-                               (read-dependency-project dep))]
-                    (for [d [:source-path :compile-path :resources-path]]
-                      (proj d))))))
+  (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))
+                      ;; Note that this resets the leiningen.core/project var!
+                      :let [proj (binding [*ns* (find-ns 'leiningen.core)]
+                                   (read-dependency-project dep))]
+                      :when proj]
+                  (for [d [:source-path :compile-path :resources-path]]
+                    (proj d)))))
 
 (defn user-plugins []
   (for [jar (.listFiles (file (home-dir) "plugins"))
