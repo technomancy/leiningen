@@ -50,7 +50,7 @@
         :bytes (.getBytes bin)}])))
 
 (def default-manifest
-     {"Created-By" (str "Leiningen " (System/getProperty "leiningen.version"))
+     {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
       "Built-By" (System/getProperty "user.name")
       "Build-Jdk" (System/getProperty "java.version")})
 
