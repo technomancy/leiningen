@@ -56,7 +56,8 @@ Neither group-id nor artifact-id may contain slashes."
              test-ns (str prefix ".test.core")
              project-clj (ns->path project-ns)]
          (spit (file project-dir ".gitignore")
-               (join "\n" ["pom.xml" "*jar" "lib" "classes"]))
+               (apply str (interleave ["pom.xml" "*jar" "lib" "classes"]
+                                      (repeat "\n"))))
          (write-implementation project-dir project-clj project-ns)
          (write-test project-dir test-ns project-ns)
          (write-readme project-dir artifact-id)
