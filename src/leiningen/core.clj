@@ -115,7 +115,7 @@
            (println "Warning: problem requiring hooks:" (.getMessage e))
            (println "...continuing without hooks completely loaded.")))))
 
-(defn user-init [project]
+(defn user-init []
   (let [init-file (File. (home-dir) "init.clj")]
     (when (.exists init-file)
       (load-file (.getAbsolutePath init-file)))))
@@ -202,12 +202,12 @@ Takes major, minor and incremental versions into account."
 
 (defn -main
   ([& [task-name & args]]
+     (user-init)
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
        (when (:min-lein-version project)
          (verify-min-version project))
-       (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
          (when project
