@@ -62,6 +62,9 @@
   :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"
+  ;; Customize the socket the repl task listens on.
+  :repl-port 4001
+  :repl-host "0.0.0.0"
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
   ;; Set this in order to only use the :repositories you list below.
