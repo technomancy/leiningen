@@ -58,13 +58,10 @@
 (defn home-dir
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []
-  (let [lein-home-dir (System/getenv "LEIN_HOME")
-        user-home-dir (or (System/getenv "HOME")
-                          (System/getProperty "user.home"))]
-    (when-let [home-dir (or lein-home-dir
-                            (and user-home-dir (File. user-home-dir ".lein")))]
-      (when (.isDirectory home-dir)
-        (.getAbsolutePath home-dir)))))
+  (.getAbsolutePath (doto (if-let [lein-home (System/getenv "LEIN_HOME")]
+                            (File. lein-home)
+                            (File. (System/getProperty "user.home") ".lein"))
+                      .mkdirs)))
 
 (def default-repos {"central" "http://repo1.maven.org/maven2"
                     "clojure" "http://build.clojure.org/releases"
