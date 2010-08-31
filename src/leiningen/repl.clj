@@ -91,7 +91,7 @@ background on a socket based on the :repl-port key in project.clj or
 chosen randomly."
   ([] (repl {}))
   ([project]
-     (let [[host port] (repl-socket-on project)
+     (let [[port host] (repl-socket-on project)
            server-form (repl-server project host port)]
        (future (try (if (empty? project)
                       (clojure.main/with-bindings
