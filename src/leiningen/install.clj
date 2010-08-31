@@ -18,6 +18,7 @@
   (when-let [bin-name ((manifest-map (.getManifest jarfile))
                        "Leiningen-shell-wrapper")]
     (let [bin-file (file (bin-path) (last (.split bin-name "/")))]
+      (.mkdirs (.getParentFile bin-file))
       (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
       (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
       (.setExecutable bin-file true))))
