@@ -50,7 +50,7 @@
         :bytes (.getBytes bin)}])))
 
 (def default-manifest
-     {"Created-By" (str "Leiningen " (System/getProperty "leiningen.version"))
+     {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
       "Built-By" (System/getProperty "user.name")
       "Build-Jdk" (System/getProperty "java.version")})
 
@@ -154,10 +154,11 @@
 well as the source .clj files. If project.clj contains a :main symbol, it will
 be used as the main-class for an executable jar."
   ([project jar-name]
-     (binding [compile/*silently* true]
+     (binding [compile/*silently* true
+               deps (memoize deps)]
        (when (zero? (compile/compile project))
          (let [jar-path (get-jar-filename project jar-name)
-               deps-fileset (deps project :skip-dev)]
+               deps-fileset (deps project)]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
            jar-path))))

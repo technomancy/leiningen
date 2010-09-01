@@ -77,14 +77,21 @@
              (catch java.net.ConnectException _ :retry))
     (recur port)))
 
+(defn repl-socket-on [{:keys [repl-port repl-host]}]
+  [(Integer. (or repl-port
+                 (System/getenv "LEIN_REPL_PORT")
+                 (dec (+ 1024 (rand-int 64512)))))
+   (or repl-host
+       (System/getenv "LEIN_REPL_HOST")
+       "localhost")])
+
 (defn repl
   "Start a repl session. A socket-repl will also be launched in the
-background; use the LEIN_REPL_PORT environment variable to set the port."
+background on a socket based on the :repl-port key in project.clj or
+chosen randomly."
   ([] (repl {}))
   ([project]
-     (let [host (or (System/getenv "LEIN_REPL_HOST") "localhost")
-           port (Integer. (or (System/getenv "LEIN_REPL_PORT")
-                              (dec (+ 1024 (rand-int 64512)))))
+     (let [[port host] (repl-socket-on project)
            server-form (repl-server project host port)]
        (future (try (if (empty? project)
                       (clojure.main/with-bindings

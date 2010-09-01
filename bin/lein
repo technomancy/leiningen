@@ -20,7 +20,7 @@ if [ $USER = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     read
 fi
 
-ORIGINAL_PWD=$PWD
+ORIGINAL_PWD="$PWD"
 while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
 do
     cd ..
@@ -163,7 +163,7 @@ else
     # TODO: add more to the boot classpath
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
     exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
-                      -cp "$CLASSPATH" -Dleiningen.version="$LEIN_VERSION" $JLINE \
-                      clojure.main -e "(use 'leiningen.core)(-main)" $NULL_DEVICE $@
+        -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
+        $NULL_DEVICE $@
     test $CYGWIN_JLINE && stty icanon echo
 fi

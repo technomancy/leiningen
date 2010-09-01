@@ -19,51 +19,49 @@
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
-  `(do
-     (let [m# (apply hash-map ~(cons 'list (unquote-project args)))
-           root# ~(.getParent (File. *file*))]
-       (alter-var-root #'project
-                       (fn [_#] (assoc m#
-                                 :name ~(name project-name)
-                                 :group ~(or (namespace project-name)
-                                             (name project-name))
-                                 :version ~version
-                                 :compile-path (or (:compile-path m#)
-                                                   (str root# "/classes"))
-                                 :source-path (or (:source-path m#)
-                                                  (str root# "/src"))
-                                 :library-path (or (:library-path m#)
-                                                   (str root# "/lib"))
-                                 :test-path (or (:test-path m#)
-                                                (str root# "/test"))
-                                 :resources-path (or (:resources-path m#)
-                                                     (str root# "/resources"))
-                                 :test-resources-path
-                                 (or (:test-resources-path m#)
-                                     (str root# "/test-resources"))
-                                 :jar-dir (or (:jar-dir m#) root#)
-                                 :root root#))))
+  `(let [m# (apply hash-map ~(cons 'list (unquote-project args)))
+         root# ~(.getParent (File. *file*))]
+     (alter-var-root #'project
+                     (fn [_#] (assoc m#
+                               :name ~(name project-name)
+                               :group ~(or (namespace project-name)
+                                           (name project-name))
+                               :version ~version
+                               :compile-path (or (:compile-path m#)
+                                                 (str root# "/classes"))
+                               :source-path (or (:source-path m#)
+                                                (str root# "/src"))
+                               :library-path (or (:library-path m#)
+                                                 (str root# "/lib"))
+                               :test-path (or (:test-path m#)
+                                              (str root# "/test"))
+                               :resources-path (or (:resources-path m#)
+                                                   (str root# "/resources"))
+                               :test-resources-path
+                               (or (:test-resources-path m#)
+                                   (str root# "/test-resources"))
+                               :jar-dir (or (:jar-dir m#) root#)
+                               :root root#)))
      (def ~(symbol (name project-name)) project)))
-
-(defn abort [& msg]
-  (apply println msg)
-  (System/exit 1))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
-  [code]
-  (System/exit code))
+  ([code]
+     (System/exit code))
+  ([] (exit 0)))
+
+(defn abort [& msg]
+  (binding [*out* *err*]
+    (apply println msg)
+    (exit 1)))
 
 (defn home-dir
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []
-  (let [lein-home-dir (System/getenv "LEIN_HOME")
-        user-home-dir (or (System/getenv "HOME")
-                          (System/getProperty "user.home"))]
-    (when-let [home-dir (or lein-home-dir
-                            (and user-home-dir (File. user-home-dir ".lein")))]
-      (when (.isDirectory home-dir)
-        (.getAbsolutePath home-dir)))))
+  (.getAbsolutePath (doto (if-let [lein-home (System/getenv "LEIN_HOME")]
+                            (File. lein-home)
+                            (File. (System/getProperty "user.home") ".lein"))
+                      .mkdirs)))
 
 (def default-repos {"central" "http://repo1.maven.org/maven2"
                     "clojure" "http://build.clojure.org/releases"
@@ -78,8 +76,7 @@
   ([file]
      (try (load-file file)
           project
-          (catch java.io.FileNotFoundException _
-            (abort "No project.clj found in this directory."))))
+          (catch java.io.FileNotFoundException _)))
   ([] (read-project "project.clj")))
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
@@ -115,7 +112,7 @@
            (println "Warning: problem requiring hooks:" (.getMessage e))
            (println "...continuing without hooks completely loaded.")))))
 
-(defn user-init [project]
+(defn user-init []
   (let [init-file (File. (home-dir) "init.clj")]
     (when (.exists init-file)
       (load-file (.getAbsolutePath init-file)))))
@@ -202,12 +199,12 @@ Takes major, minor and incremental versions into account."
 
 (defn -main
   ([& [task-name & args]]
+     (user-init)
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
        (when (:min-lein-version project)
          (verify-min-version project))
-       (user-init project)
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
          (when project
