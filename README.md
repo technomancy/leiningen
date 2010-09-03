@@ -28,14 +28,17 @@ $HOME/.m2/repository.
 
 1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
-3. Run: <tt>lein self-install</tt>
+
+Your first run of Leiningen will take a little longer since it has to
+bootstrap itself by downloading a jar file.
 
 For development versions you may use [the master version of the lein
-script](http://github.com/technomancy/leiningen/raw/master/bin/lein) instead.
+script](http://github.com/technomancy/leiningen/raw/master/bin/lein)
+instead. See the "Building" section below.
 
 On Windows you can download
 [lein.bat](http://github.com/technomancy/leiningen/raw/master/bin/lein.bat),
-instead, though support on that platform is still experimental.
+instead.
 
 ## Usage
 
