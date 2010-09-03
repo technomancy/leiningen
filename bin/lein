@@ -68,7 +68,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_LIBS:$CLASSPATH:$LEIN_JAR"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" -a ! -r "$LEIN_JAR" ]; then
-        echo "Leiningen is missing its dependencies. Please run \"$(basename $0) self-install\"."
+        echo "Leiningen is missing its dependencies. Please see \"Building\" in the README."
         exit 1
     fi
 else
@@ -76,8 +76,7 @@ else
     CLASSPATH="$LEIN_JAR:$CLASSPATH"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        echo "Leiningen is not installed. Please run \"$(basename $0) self-install\"."
-        exit 1
+        "$0" self-install
     fi
 fi
 
