@@ -9,7 +9,7 @@
 (defn repl-server [project host port]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
                                  mn# '~(:main project)]
-                             (when (and is# (.exists (File. str)))
+                             (when (and is# (.exists (File. (str is#))))
                                (load-file is#))
                              (if mn#
                                (doto mn# require in-ns)
