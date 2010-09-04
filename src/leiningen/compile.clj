@@ -5,10 +5,12 @@
          [leiningen.core :only [ns->path]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
+         [clojure.contrib.seq :only [separate]]
          [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
+           java.util.regex.Pattern
            (org.apache.tools.ant.types Environment$Variable)))
 
 (declare compile)
@@ -17,6 +19,25 @@
 
 (def *suppress-err* false)
 
+(defn- regex?
+  "Returns true if we have regex class"
+  [str-or-re]
+  (instance? java.util.regex.Pattern str-or-re))
+
+(defn- find-namespaces-by-regex
+  "Trying to generate list of namespaces, matching to given regexs"
+  [project nses]
+  (let [[res syms] (separate #(or (string? %) (regex? %)) nses)]
+    (if (seq res)
+      (let [all-ns (namespaces-in-dir (:source-path project))
+            all-re (map #(if (string? %) (re-pattern %) %) res)
+            re-ns (map (fn [^java.util.regex.Pattern re]
+                         (filter (fn [ns-name] (re-matches re (name ns-name)))
+                                 all-ns))
+                       all-re)]
+        (into #{} (flatten [syms re-ns])))
+      nses)))
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
@@ -24,7 +45,7 @@
   (let [nses (or (:aot project) (:namespaces project))
         nses (if (= :all nses)
                (namespaces-in-dir (:source-path project))
-               nses)]
+               (find-namespaces-by-regex project nses))]
     (if (:main project)
       (conj nses (:main project))
       nses)))
