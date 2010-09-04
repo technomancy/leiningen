@@ -1,10 +1,11 @@
 (ns leiningen.install
   "Install the project and its dependencies in your local repository."
-  (:use [leiningen.core :only [home-dir default-repos]]
-        [leiningen.jar :only [jar manifest-map local-repo-path]]
+  (:use [leiningen.core :only [home-dir default-repos read-project]]
+        [leiningen.jar :only [jar manifest-map local-repo-path extract-jar]]
         [leiningen.util.maven :only [container make-model make-remote-artifact
                                      make-remote-repo make-local-repo
                                      make-artifact add-metadata]]
+        [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import [java.util.jar JarFile]
@@ -23,17 +24,11 @@
       (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
       (.setExecutable bin-file true))))
 
-(defn standalone-install [name group version]
-  (let [resolver (.lookup container ArtifactResolver/ROLE)
-        artifact (make-remote-artifact name group version)
-        remote-repos (map make-remote-repo default-repos)
-        local-repo (make-local-repo)]
-    (.resolveAlways resolver artifact remote-repos local-repo)
-    (-> (local-repo-path name group version)
-        (.replace "$HOME" (System/getenv "HOME"))
-        file
-        JarFile.
-        install-shell-wrapper)))
+(defn standalone-download [name group version]
+  (.resolveAlways (.lookup container ArtifactResolver/ROLE)
+                  (make-remote-artifact name group version)
+                  (map make-remote-repo default-repos)
+                  (make-local-repo)))
 
 (defn install
   "With no arguments, installs the current project and its dependencies in
@@ -52,5 +47,14 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
        (install-shell-wrapper (JarFile. jarfile))
        (.install installer jarfile artifact local-repo)))
   ([project-name version]
-     (let [[name group] ((juxt name namespace) (symbol project-name))]
-       (standalone-install name (or group name) version))))
+     (let [[name group] ((juxt name namespace) (symbol project-name))
+           _ (standalone-download name (or group name) version)
+           temp-project (format "/tmp/lein-%s" (java.util.UUID/randomUUID))
+           jar-file (-> (local-repo-path name (or group name) version)
+                        (.replace "$HOME" (System/getenv "HOME")))]
+       (try (extract-jar (file jar-file) temp-project)
+            (binding [jar (constantly jar-file)
+                      *ns* (the-ns 'leiningen.core)]
+              (install (read-project (format "%s/project.clj" temp-project))))
+            (finally
+             (delete-file-recursively temp-project :silently))))))

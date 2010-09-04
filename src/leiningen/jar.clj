@@ -8,6 +8,7 @@
         [clojure.contrib.string :only [join replace-re]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
            [java.util.regex Pattern]
+           [java.util.jar JarFile]
            [java.io BufferedOutputStream FileOutputStream
             ByteArrayInputStream]))
 
@@ -148,6 +149,20 @@
    (when-not (:omit-source project)
      [{:type :path :path (:source-path project)}])
    (shell-wrapper-filespecs project deps-fileset)))
+
+(defn extract-jar
+  "Unpacks jar-file into target-dir. jar-file can be a JarFile
+  instance or a path to a jar file on disk."
+  [jar-file target-dir]
+  (let [jar (if (isa? jar-file JarFile)
+              jar-file
+              (JarFile. jar-file true))
+        entries (enumeration-seq (.entries jar))
+        target-file #(file target-dir (.getName %))]
+    (doseq [entry entries :when (not (.isDirectory entry))
+            :let [f (target-file entry)]]
+      (.mkdirs (.getParentFile f))
+      (copy (.getInputStream jar entry) f))))
 
 (defn jar
   "Create a $PROJECT-$VERSION.jar file containing the compiled .class files as
