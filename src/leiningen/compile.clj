@@ -5,7 +5,7 @@
          [leiningen.core :only [ns->path]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
-         [clojure.contrib.find-namespaces :only [find-namespaces-in-dir]])
+         [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
@@ -15,13 +15,15 @@
 
 (def *silently* false)
 
+(def *suppress-err* false)
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
   (let [nses (or (:aot project) (:namespaces project))
         nses (if (= :all nses)
-               (find-namespaces-in-dir (file (:source-path project)))
+               (namespaces-in-dir (:source-path project))
                nses)]
     (if (:main project)
       (conj nses (:main project))
@@ -89,6 +91,21 @@
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
+(defn get-readable-form [java project form]
+  (let [cp (str (.getClasspath (.getCommandLine java)))
+        form `(do (def ~'*classpath* ~cp)
+                  (set! ~'*warn-on-reflection*
+                        ~(:warn-on-reflection project))
+                  ~form)]
+    ;; work around java's command line handling on windows
+    ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
+    ;; currently being passed; see
+    ;; http://www.perlmonks.org/?node_id=300286 for some of the
+    ;; landmines involved in doing it properly
+    (if (= (get-os) :windows)
+      (pr-str (pr-str form))
+      (prn-str form))))
+
 ;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
@@ -125,25 +142,23 @@
         (.setValue (.createJvmarg java) arg)))
     (.setClassname java "clojure.main")
     (.setValue (.createArg java) "-e")
-    (let [cp (str (.getClasspath (.getCommandLine java)))
-          form `(do (def ~'*classpath* ~cp)
-                    (set! ~'*warn-on-reflection*
-                          ~(:warn-on-reflection project))
-                    ~form)
-          readable-form (if (= (get-os) :windows)
-                          ;; work around java's command line handling
-                          ;; on windows http://bit.ly/9c6biv
-                          ;; This isn't perfect, but works for what's
-                          ;; currently being passed see
-                          ;; http://www.perlmonks.org/?node_id=300286
-                          ;; for some of the landmines involved in
-                          ;; doing it properly
-                          (pr-str (pr-str form))
-                          (prn-str form))]
-      (.setValue (.createArg java) readable-form))
+    (.setValue (.createArg java) (get-readable-form java project form))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
     (.executeJava java)))
+
+(defn- platform-nullsink []
+  (file (if (= :windows (get-os))
+          "NUL"
+          "/dev/null")))
+
+(defn- status [code msg]
+  (when-not *silently*
+    (.write (if (zero? code) *out* *err*) (str msg "\n")))
+  code)
+
+(def ^{:private true} success (partial status 0))
+(def ^{:private true} failure (partial status 1))
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
@@ -152,16 +167,18 @@ those given as command-line arguments."
      (.mkdir (file (:compile-path project)))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-         (eval-in-project project
-                          `(doseq [namespace# '~namespaces]
-                             (when-not ~*silently*
-                               (println "Compiling" namespace#))
-                             (clojure.core/compile namespace#))
-                          nil :skip-auto-compile)
-         (when-not *silently*
-           (println "All namespaces already :aot compiled.")))
-       (when-not *silently*
-         (println "No namespaces to :aot compile listed in project.clj."))))
+         (if (zero? (eval-in-project project
+                                     `(doseq [namespace# '~namespaces]
+                                        (when-not ~*silently*
+                                          (println "Compiling" namespace#))
+                                        (clojure.core/compile namespace#))
+                                     (when *suppress-err*
+                                       #(.setError % (platform-nullsink)))
+                                     :skip-auto-compile))
+           (success "Compilation succeeded.")
+           (failure "Compilation failed."))
+         (success "All namespaces already :aot compiled."))
+       (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]
      (compile (assoc project
                 :aot (if (= namespaces [":all"])

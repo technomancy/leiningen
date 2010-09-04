@@ -28,14 +28,17 @@ $HOME/.m2/repository.
 
 1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
-3. Run: <tt>lein self-install</tt>
+
+Your first run of Leiningen will take a little longer since it has to
+bootstrap itself by downloading a jar file.
 
 For development versions you may use [the master version of the lein
-script](http://github.com/technomancy/leiningen/raw/master/bin/lein) instead.
+script](http://github.com/technomancy/leiningen/raw/master/bin/lein)
+instead. See the "Building" section below.
 
 On Windows you can download
 [lein.bat](http://github.com/technomancy/leiningen/raw/master/bin/lein.bat),
-instead, though support on that platform is still experimental.
+instead.
 
 ## Usage
 
@@ -78,7 +81,7 @@ Place a project.clj file in the project root like this:
     (defproject leiningen "0.5.0-SNAPSHOT"
       :description "A build tool designed not to set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
-      :dependencies [[org.clojure/clojure "1.1.0]
+      :dependencies [[org.clojure/clojure "1.1.0"]
                      [org.clojure/clojure-contrib "1.1.0"]
                      [ant/ant-launcher "1.6.2"]
                      [org.apache.maven/maven-ant-tasks "2.0.10"]]

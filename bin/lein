@@ -1,8 +1,8 @@
 #!/bin/sh
 
-VERSION="1.3.0"
+export LEIN_VERSION="1.3.1-SNAPSHOT"
 
-case $VERSION in
+case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
     *) SNAPSHOT="NO" ;;
 esac
@@ -20,7 +20,7 @@ if [ $USER = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     read
 fi
 
-ORIGINAL_PWD=$PWD
+ORIGINAL_PWD="$PWD"
 while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
 do
     cd ..
@@ -37,7 +37,7 @@ fi
 LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
 CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:src/:$CLASSPATH
-LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$VERSION/leiningen-$VERSION-standalone.jar"
+LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
 NULL_DEVICE=/dev/null
 
@@ -68,7 +68,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_LIBS:$CLASSPATH:$LEIN_JAR"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" -a ! -r "$LEIN_JAR" ]; then
-        echo "Leiningen is missing its dependencies. Please run \"$(basename $0) self-install\"."
+        echo "Leiningen is missing its dependencies. Please see \"Building\" in the README."
         exit 1
     fi
 else
@@ -76,8 +76,7 @@ else
     CLASSPATH="$LEIN_JAR:$CLASSPATH"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        echo "Leiningen is not installed. Please run \"$(basename $0) self-install\"."
-        exit 1
+        "$0" self-install
     fi
 fi
 
@@ -94,7 +93,7 @@ if [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     LEIN_DIR=`dirname "$LEIN_JAR"`
     mkdir -p "$LEIN_DIR"
-    LEIN_URL="http://github.com/downloads/technomancy/leiningen/leiningen-$VERSION-standalone.jar"
+    LEIN_URL="http://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
     $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
     if [ $? != 0 ]; then
         echo "Failed to download $LEIN_URL"
@@ -163,7 +162,7 @@ else
     # TODO: add more to the boot classpath
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
     exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
-                      -cp "$CLASSPATH" -Dleiningen.version="$VERSION" $JLINE \
-                      clojure.main -e "(use 'leiningen.core)(-main)" $NULL_DEVICE $@
+        -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
+        $NULL_DEVICE $@
     test $CYGWIN_JLINE && stty icanon echo
 fi

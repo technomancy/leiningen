@@ -1,10 +1,10 @@
 (ns leiningen.clean
   "Remove compiled files and dependencies from project."
   (:use [leiningen.jar :only [get-jar-filename get-default-uberjar-name]]
-        [clojure.contrib.io :only [file delete-file delete-file-recursively]]))
+        [leiningen.util.file :only [delete-file-recursively]]))
 
 (defn clean
-  "Remove compiled files and dependencies from project."
+  "Remove compiled artifacts and jars from project."
   [project]
   (println "Cleaning up.")
   (doseq [f [(get-jar-filename project)

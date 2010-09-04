@@ -1,5 +1,30 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.3.1 / ???
+
+* Allow dependency type to be specified in project.clj. (John Sanda)
+
+* Stop jar/uberjar task if compile fails. (Alan Dipert)
+
+* Support :min-lein-version in project.clj so if a project uses newer Leiningen
+  features it will warn users of old lein versions. (Isaac Hodes)
+
+* Fix a bug where tests would get skipped if their first form was not ns.
+
+* Fix a bug where "lein help" would hang if run from a dir with a large src/.
+
+* Fix a bug where repl task would hang on unreadable input. (Isaac Hodes)
+
+* Allow repl task to work outside project. (Colin Jones)
+
+* If curl/wget is found, self-install works on Windows. (Shantanu Kumar)
+
+* Fix bug causing standalone install task to fail.
+
+* Allow custom shell-wrappers.
+
+* Start repls in user ns if no :main is in project.clj.
+
 = 1.3.0 / 2010-08-19
 
 * Add :omit-source option to project.clj for shipping aot-only jars.

@@ -34,10 +34,13 @@
   ;; Dependencies are listed as [group-id/name version].
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [org.clojure/clojure-contrib "1.1.0"]
+                 [org.jclouds/jclouds "1.0-RC6" :classifier "jdk15"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
+  ;; Warns users of earlier versions of Leiningen.
+  :min-lein-version "1.3.0"
   ;; Before fetching dependencies, the contents of the lib/ directory
   ;; will get deleted unless this is set to true.
   :disable-implicit-clean false
@@ -56,9 +59,12 @@
   ;; other Java interop functionality. :namespaces is an alias for this.
   :aot [org.example.sample.SampleClass]
   ;; This namespace will be used as the "main" in the uberjar.
-  :main [org.example.sample]
+  :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"
+  ;; Customize the socket the repl task listens on.
+  :repl-port 4001
+  :repl-host "0.0.0.0"
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
   ;; Set this in order to only use the :repositories you list below.
@@ -70,9 +76,9 @@
   :library-path "target/dependency"
   :test-path "src/test/clojure"
   :resources-path "src/main/resources"
-  :native-path "src/native" ; where to look for native dependencies
-  :jar-dir "target/" ; where to place the project's jar file
-  :jar-name "sample.jar" ; name of the jar produced by 'lein jar'
+  :native-path "src/native"   ; where to look for native dependencies
+  :jar-dir "target/"          ; where to place the project's jar file
+  :jar-name "sample.jar"      ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Leave the contents of :source-path out of jars (for AOT projects)
   :omit-source true

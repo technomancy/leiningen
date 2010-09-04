@@ -1,10 +1,11 @@
 (ns leiningen.jar
   "Create a jar containing the compiled code and original source."
-  (:require [leiningen.compile :as compile])
+  (:require [leiningen.compile :as compile]
+            [clojure.string :as string])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
-        [clojure.contrib.io :only [to-byte-array copy file slurp*]]
-        [clojure.contrib.string :only [join replace-re split]])
+        [clojure.java.io :only [copy file]]
+        [clojure.contrib.string :only [join replace-re]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
            [java.util.regex Pattern]
            [java.io BufferedOutputStream FileOutputStream
@@ -12,28 +13,31 @@
 
 (def bin-template (-> (.getContextClassLoader (Thread/currentThread))
                       (.getResourceAsStream "script-template")
-                      (slurp*)))
+                      (slurp)))
 
-(defn local-repo-path [{:keys [group name version]}]
-  (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-          group name version name version))
+(defn local-repo-path
+  ([group name version]
+     (local-repo-path {:group group :name name :version version}))
+  ([{:keys [group name version]}]
+     (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
+             group name version name version)))
 
 (defn- script-classpath-for [project deps-fileset]
-  (join ":" (conj (for [dep (-> deps-fileset
-                                (.getDirectoryScanner lancet/ant-project)
-                                (.getIncludedFiles))]
-                    (format "$HOME/.m2/repository/%s" dep))
-                  (local-repo-path project))))
+  (string/join ":" (conj (for [dep (-> deps-fileset
+                                       (.getDirectoryScanner lancet/ant-project)
+                                       (.getIncludedFiles))]
+                           (format "$HOME/.m2/repository/%s" dep))
+                         (local-repo-path project))))
 
 (defn- shell-wrapper-name [project]
   (or (:bin (:shell-wrapper project)
             (format "bin/%s" (:name project)))))
 
 (defn- shell-wrapper-contents [project bin-name main deps-fileset]
-  (if-let [is (-> (.getContextClassLoader (Thread/currentThread))
-                  (.getResourceAsStream bin-name))]
-    (slurp* is)
-    (format bin-template
+  (let [bin-file (file bin-name)]
+    (format (if (.exists bin-file)
+              (slurp bin-file)
+              bin-template)
             (script-classpath-for project deps-fileset) main)))
 
 (defn- shell-wrapper-filespecs [project deps-fileset]
@@ -46,14 +50,14 @@
         :bytes (.getBytes bin)}])))
 
 (def default-manifest
-     {"Created-By" (str "Leiningen " (System/getProperty "leiningen.version"))
+     {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
       "Built-By" (System/getProperty "user.name")
       "Build-Jdk" (System/getProperty "java.version")})
 
 (defn make-manifest [project & [extra-entries]]
   (Manifest.
    (ByteArrayInputStream.
-    (to-byte-array
+    (.getBytes
      (reduce (fn [manifest [k v]]
                (str manifest "\n" k ": " v))
              "Manifest-Version: 1.0"
@@ -78,7 +82,7 @@
 (defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
 (defn- trim-leading-str [s to-trim]
-  (replace-re (re-pattern (str "^" (Pattern/quote to-trim))) "" s))
+  (.replaceAll s (str "^" (Pattern/quote to-trim)) ""))
 
 (defmethod copy-to-jar :path [project jar-os spec]
   (let [root (str (unix-path (:root project)) \/)
@@ -150,11 +154,12 @@
 well as the source .clj files. If project.clj contains a :main symbol, it will
 be used as the main-class for an executable jar."
   ([project jar-name]
-     (binding [compile/*silently* true]
-       (compile/compile project))
-     (let [jar-path (get-jar-filename project jar-name)
-           deps-fileset (deps project :skip-dev)]
-       (write-jar project jar-path (filespecs project deps-fileset))
-       (println "Created" jar-path)
-       jar-path))
+     (binding [compile/*silently* true
+               deps (memoize deps)]
+       (when (zero? (compile/compile project))
+         (let [jar-path (get-jar-filename project jar-name)
+               deps-fileset (deps project)]
+           (write-jar project jar-path (filespecs project deps-fileset))
+           (println "Created" jar-path)
+           jar-path))))
   ([project] (jar project (get-default-jar-name project))))

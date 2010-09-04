@@ -1,5 +1,5 @@
 (ns test-core
-  (:use [leiningen.core :only [make-groups]] :reload-all)
+  (:use [leiningen.core :only [make-groups matching-arity?]] :reload-all)
   (:use [clojure.test]))
 
 (deftest test-make-groups-empty-args
@@ -21,3 +21,13 @@
           ["test" "test-compile"]]
          (make-groups '("help" "help," "help" "version," "version,"
                         "test" "test-compile")))))
+
+(deftest test-matching-arity-with-project
+  (is (matching-arity? "test" {} []))
+  (is (matching-arity? "test" {} ["test-core"]))
+  (is (not (matching-arity? "version" {} ["bogus" "arg" "s"]))))
+
+(deftest test-matching-arity-without-project
+  (is (matching-arity? "version" nil []))
+  (is (not (matching-arity? "test" nil [])))
+  (is (not (matching-arity? "test" nil ["test-core"]))))

@@ -18,6 +18,7 @@
   (when-let [bin-name ((manifest-map (.getManifest jarfile))
                        "Leiningen-shell-wrapper")]
     (let [bin-file (file (bin-path) (last (.split bin-name "/")))]
+      (.mkdirs (.getParentFile bin-file))
       (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
       (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
       (.setExecutable bin-file true))))
@@ -29,6 +30,7 @@
         local-repo (make-local-repo)]
     (.resolveAlways resolver artifact remote-repos local-repo)
     (-> (local-repo-path name group version)
+        (.replace "$HOME" (System/getenv "HOME"))
         file
         JarFile.
         install-shell-wrapper)))
@@ -49,6 +51,6 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
          (add-metadata artifact (file (pom project))))
        (install-shell-wrapper (JarFile. jarfile))
        (.install installer jarfile artifact local-repo)))
-  ([_ project-name version]
+  ([project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))]
        (standalone-install name (or group name) version))))

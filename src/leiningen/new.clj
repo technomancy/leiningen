@@ -5,7 +5,7 @@ Group-id is optional. Project-dir defaults to artifact-id if not given.
 Neither group-id nor artifact-id may contain slashes."
   (:use [leiningen.core :only [ns->path]]
         [clojure.java.io :only [file]]
-        [clojure.contrib.string :only [join]]))
+        [clojure.string :only [join]]))
 
 (defn write-project [project-dir project-name]
   (.mkdirs (file project-dir))
@@ -13,7 +13,7 @@ Neither group-id nor artifact-id may contain slashes."
         (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
              "  :description \"FIXME: write\"\n"
              "  :dependencies [[org.clojure/clojure \"1.2.0\"]\n  "
-             "                 [org.clojure/clojure-contrib \"1.2.0\"]])")))
+             "                 [org.clojure/clojure-contrib \"1.2.0\"]])\n")))
 
 (defn write-implementation [project-dir project-clj project-ns]
   (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
@@ -56,7 +56,8 @@ Neither group-id nor artifact-id may contain slashes."
              test-ns (str prefix ".test.core")
              project-clj (ns->path project-ns)]
          (spit (file project-dir ".gitignore")
-               (join "\n" ["pom.xml" "*jar" "lib" "classes"]))
+               (apply str (interleave ["pom.xml" "*jar" "lib" "classes"]
+                                      (repeat "\n"))))
          (write-implementation project-dir project-clj project-ns)
          (write-test project-dir test-ns project-ns)
          (write-readme project-dir artifact-id)

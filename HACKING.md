@@ -45,9 +45,9 @@ TODO: integrate with plugin guide
 # Release Checklist
 
 * update NEWS, bin/lein, project.clj, pom
-* generate uberjar, upload
-* git tag
+* rm -rf lib, generate uberjar, upload
 * test self-install
+* git tag
 * push, push tags, update stable branch
 * announce on mailing list
 * bump version numbers (bin/lein and project.clj)

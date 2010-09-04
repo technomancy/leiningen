@@ -1,5 +1,5 @@
 (ns leiningen.core
-  (:use [clojure.contrib.find-namespaces :only [find-namespaces-on-classpath]]
+  (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
         [clojure.walk :only [walk]])
   (:import [java.io File])
@@ -19,46 +19,49 @@
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
-  `(do
-     (let [m# (apply hash-map ~(cons 'list (unquote-project args)))
-           root# ~(.getParent (File. *file*))]
-       (alter-var-root #'project
-                       (fn [_#] (assoc m#
-                                 :name ~(name project-name)
-                                 :group ~(or (namespace project-name)
-                                             (name project-name))
-                                 :version ~version
-                                 :compile-path (or (:compile-path m#)
-                                                   (str root# "/classes"))
-                                 :source-path (or (:source-path m#)
-                                                  (str root# "/src"))
-                                 :library-path (or (:library-path m#)
-                                                   (str root# "/lib"))
-                                 :test-path (or (:test-path m#)
-                                                (str root# "/test"))
-                                 :resources-path (or (:resources-path m#)
-                                                     (str root# "/resources"))
-                                 :test-resources-path
-                                 (or (:test-resources-path m#)
-                                     (str root# "/test-resources"))
-                                 :jar-dir (or (:jar-dir m#) root#)
-                                 :root root#))))
+  `(let [m# (apply hash-map ~(cons 'list (unquote-project args)))
+         root# ~(.getParent (File. *file*))]
+     (alter-var-root #'project
+                     (fn [_#] (assoc m#
+                               :name ~(name project-name)
+                               :group ~(or (namespace project-name)
+                                           (name project-name))
+                               :version ~version
+                               :compile-path (or (:compile-path m#)
+                                                 (str root# "/classes"))
+                               :source-path (or (:source-path m#)
+                                                (str root# "/src"))
+                               :library-path (or (:library-path m#)
+                                                 (str root# "/lib"))
+                               :test-path (or (:test-path m#)
+                                              (str root# "/test"))
+                               :resources-path (or (:resources-path m#)
+                                                   (str root# "/resources"))
+                               :test-resources-path
+                               (or (:test-resources-path m#)
+                                   (str root# "/test-resources"))
+                               :jar-dir (or (:jar-dir m#) root#)
+                               :root root#)))
      (def ~(symbol (name project-name)) project)))
 
+(defn exit
+  "Call System/exit. Defined as a function so that rebinding is possible."
+  ([code]
+     (System/exit code))
+  ([] (exit 0)))
+
 (defn abort [& msg]
-  (apply println msg)
-  (System/exit 1))
+  (binding [*out* *err*]
+    (apply println msg)
+    (exit 1)))
 
 (defn home-dir
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []
-  (let [lein-home-dir (System/getenv "LEIN_HOME")
-        user-home-dir (or (System/getenv "HOME")
-                          (System/getProperty "user.home"))]
-    (when-let [home-dir (or lein-home-dir
-                            (and user-home-dir (File. user-home-dir ".lein")))]
-      (when (.isDirectory home-dir)
-        (.getAbsolutePath home-dir)))))
+  (.getAbsolutePath (doto (if-let [lein-home (System/getenv "LEIN_HOME")]
+                            (File. lein-home)
+                            (File. (System/getProperty "user.home") ".lein"))
+                      .mkdirs)))
 
 (def default-repos {"central" "http://repo1.maven.org/maven2"
                     "clojure" "http://build.clojure.org/releases"
@@ -73,8 +76,7 @@
   ([file]
      (try (load-file file)
           project
-          (catch java.io.FileNotFoundException _
-            (abort "No project.clj found in this directory."))))
+          (catch java.io.FileNotFoundException _)))
   ([] (read-project "project.clj")))
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
@@ -100,8 +102,7 @@
 (defn- hook-namespaces [project]
   (sort (or (:hooks project)
             (and (:implicit-hooks project)
-                 (filter #(re-find #"^leiningen\.hooks\." (name %))
-                         (find-namespaces-on-classpath))))))
+                 (namespaces-matching "leiningen.hooks")))))
 
 (defn- load-hooks [project]
   (try (doseq [n (hook-namespaces project)]
@@ -111,7 +112,7 @@
            (println "Warning: problem requiring hooks:" (.getMessage e))
            (println "...continuing without hooks completely loaded.")))))
 
-(defn user-init [project]
+(defn user-init []
   (let [init-file (File. (home-dir) "init.clj")]
     (when (.exists init-file)
       (load-file (.getAbsolutePath init-file)))))
@@ -130,23 +131,28 @@
 (defn arglists [task-name]
   (:arglists (meta (resolve-task task-name))))
 
-(defn project-needed? [task-name]
-  (some #{'project} (map first (arglists task-name))))
+(defn project-needed? [parameters]
+  (= 'project (first parameters)))
+
+(defn arg-count [parameters project]
+  (if (and project (project-needed? parameters))
+    (dec (count parameters))
+    (count parameters)))
 
 (defn matching-arity? [task-name project args]
-  (let [arg-count (if (project-needed? task-name)
-                    (inc (count args))
-                    (count args))]
-    (some (fn [defined-args]
-            (if (= '& (last (butlast defined-args)))
-              (>= arg-count (- (count defined-args) 2))
-              (= arg-count (count defined-args))))
-          (arglists task-name))))
+  (some (fn [parameters]
+          (and (if (= '& (last (butlast parameters)))
+                 (>= (count args) (- (arg-count parameters project) 2))
+                 (= (arg-count parameters project) (count args)))
+               (or project (not (project-needed? parameters)))
+               parameters))
+        ;; use project.clj if possible
+        (reverse (sort-by count (arglists task-name)))))
 
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
-    (if (matching-arity? task-name project args)
-      (if (project-needed? task-name)
+    (if-let [parameters (matching-arity? task-name project args)]
+      (if (project-needed? parameters)
         (apply task project args)
         (apply task args))
       (abort "Wrong number of arguments to" task-name "task."
@@ -168,12 +174,37 @@
            (conj []))
        (append-to-group groups arg))))
 
+(defn version-greater-eq?
+  "Check if v1 is greater than or equal to v2, where args are version strings.
+Takes major, minor and incremental versions into account."
+  [v1 v2]
+  (let [v1 (map #(Integer. %) (re-seq #"\d" (first (split v1 #"-" 2))))
+        v2 (map #(Integer. %) (re-seq #"\d" (first (split v2 #"-" 2))))]
+    (or (and (every? true? (map >= v1 v2))
+             (>= (count v1) (count v2)))
+        (every? true? (map > v1 v2)))))
+
+(defn verify-min-version
+  [project]
+  (when-not (version-greater-eq? (System/getenv "LEIN_VERSION")
+                                 (:min-lein-version project))
+    (do (println (str "\n*** Warning: This project requires Leiningen version "
+                      (:min-lein-version project)
+                      " ***"
+                      "\n*** Using version " (System/getenv "LEIN_VERSION")
+                      " could cause problems. ***\n"
+                      "\n- Get the latest verison of Leiningen at\n"
+                      "- http://github.com/technomancy/leiningen\n"
+                      "- Or by executing \"lein upgrade\"\n\n")))))
+
 (defn -main
   ([& [task-name & args]]
+     (user-init)
      (let [task-name (or (@aliases task-name) task-name "help")
-           project (if (project-needed? task-name) (read-project))
+           project (if (.exists (File. "project.clj")) (read-project))
            compile-path (:compile-path project)]
-       (user-init project)
+       (when (:min-lein-version project)
+         (verify-min-version project))
        (when compile-path (.mkdirs (File. compile-path)))
        (binding [*compile-path* compile-path]
          (when project

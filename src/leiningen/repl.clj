@@ -1,6 +1,7 @@
 (ns leiningen.repl
   (:require [clojure.main])
-  (:use [leiningen.compile :only [eval-in-project]]
+  (:use [leiningen.core :only [exit]]
+        [leiningen.compile :only [eval-in-project]]
         [clojure.java.io :only [copy]])
   (:import [java.net Socket]
            [java.io OutputStreamWriter InputStreamReader File]))
@@ -14,12 +15,15 @@
                                (doto mn# require in-ns)
                                (in-ns '~'user)))]]
     `(do (ns ~'user
-           (:use [~'clojure.main :only [~'repl]])
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
                      ~'SocketException]
                     [java.io ~'InputStreamReader ~'OutputStream
                      ~'OutputStreamWriter ~'PrintWriter]
                     [clojure.lang ~'LineNumberingPushbackReader]))
+           (try (require ['~'clojure.java.shell])
+                (require ['~'clojure.java.browse])
+                (catch Exception _#))
+           (use ['~'clojure.main :only ['~'repl]])
          (let [server# (ServerSocket. ~port 0 (~'InetAddress/getByName ~host))
                acc# (fn [s#]
                       (let [ins# (.getInputStream s#)
@@ -55,7 +59,9 @@
 (defn- repl-client [reader writer]
   (copy-out reader)
   (let [eof (Object.)
-        input (read *in* false eof)]
+        input (try (read *in* false eof)
+                   (catch Exception e
+                     (println "Couldn't read input.")))]
     (when-not (= eof input)
       (.write writer (str (pr-str input) "\n"))
       (.flush writer)
@@ -71,16 +77,26 @@
              (catch java.net.ConnectException _ :retry))
     (recur port)))
 
+(defn repl-socket-on [{:keys [repl-port repl-host]}]
+  [(Integer. (or repl-port
+                 (System/getenv "LEIN_REPL_PORT")
+                 (dec (+ 1024 (rand-int 64512)))))
+   (or repl-host
+       (System/getenv "LEIN_REPL_HOST")
+       "localhost")])
+
 (defn repl
   "Start a repl session. A socket-repl will also be launched in the
-background; use the LEIN_REPL_PORT environment variable to set the port."
-  [project]
-  (let [host (or (System/getenv "LEIN_REPL_HOST") "localhost")
-        port (Integer. (or (System/getenv "LEIN_REPL_PORT")
-                           (dec (+ 1024 (rand-int 64512)))))
-        server-form (repl-server project host port)
-        server-thread (Thread. #(try (eval-in-project project server-form)
-                                     (catch Exception _)))]
-    (.start server-thread)
-    (poll-for-socket port)
-    (.stop server-thread)))
+background on a socket based on the :repl-port key in project.clj or
+chosen randomly."
+  ([] (repl {}))
+  ([project]
+     (let [[port host] (repl-socket-on project)
+           server-form (repl-server project host port)]
+       (future (try (if (empty? project)
+                      (clojure.main/with-bindings
+                        (println (eval server-form)))
+                      (eval-in-project project server-form))
+                    (catch Exception _)))
+       (poll-for-socket port)
+       (exit 0))))

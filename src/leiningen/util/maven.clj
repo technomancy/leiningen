@@ -136,6 +136,7 @@ to exclude from transitive dependencies."
   (let [extras-map (apply hash-map extras)
         exclusions (:exclusions extras-map)
         classifier (:classifier extras-map)
+        type (:type extras-map)
         es (map make-exclusion exclusions)]
     (doto (Dependency.)
       ;; Allow org.clojure group to be omitted from clojure/contrib deps.
@@ -146,6 +147,7 @@ to exclude from transitive dependencies."
       (.setArtifactId (name dep))
       (.setVersion version)
       (.setClassifier classifier)
+      (.setType (or type "jar"))
       (.setExclusions es))))
 
 (defn make-repository [[id settings]]
