@@ -2,6 +2,10 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.3.1 / ???
 
+* Run self-install automatically if uberjar is missing.
+
+* Fix bugs that caused standalone install task to fail.
+
 * Allow dependency type to be specified in project.clj. (John Sanda)
 
 * Stop jar/uberjar task if compile fails. (Alan Dipert)

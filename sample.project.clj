@@ -58,7 +58,8 @@
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. :namespaces is an alias for this.
   :aot [org.example.sample.SampleClass]
-  ;; This namespace will be used as the "main" in the uberjar.
+  ;; The -main function in this namespace will be run at launch if you
+  ;; create an uberjar. Repl sessions will start in this namespace as well.
   :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"

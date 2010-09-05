@@ -118,7 +118,7 @@ This becomes:
 Sometimes versions will end in "-SNAPSHOT". This means that it is not
 an official release but a development build. Relying on snapshot
 dependencies is discouraged but is sometimes necessary if you need bug
-fixes etc. that have not made their way into a release yet. Adding a
+fixes, etc. that have not made their way into a release yet. Adding a
 snapshot dependency to your project will cause Leiningen to actively
 go seek out the latest version of the dependency once a day when you
 run <tt>lein deps</tt>, (whereas normal release versions are cached in
@@ -246,9 +246,10 @@ below.
 ### Uberjar
 
 The simplest thing to do is to distribute an uberjar. This is a single
-standalone executable jar file. For this to work you'll need to
-specify a namespace as your :main in project.clj. By this point our
-project.clj file should look like this:
+standalone executable jar file most suitable for giving to
+nontechnical users. For this to work you'll need to specify a
+namespace as your :main in project.clj. By this point our project.clj
+file should look like this:
 
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "This project is MINE."
@@ -302,7 +303,8 @@ invoke them compared to other command-line tools. You also can't
 control how the JVM is launched. To solve this, you can include a
 shell script in your jar file that can be used to launch the
 project. Leiningen places this shell script into the
-<tt>~/.lein/bin</tt> directory at install time.
+<tt>~/.lein/bin</tt> directory at install time. Of course, this is
+only suitable if your users already use Leiningen.
 
 If you simply include <tt>:shell-wrapper true</tt> in your
 project.clj, Leiningen automatically generates a simple shell script

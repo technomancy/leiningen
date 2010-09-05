@@ -11,7 +11,7 @@
 ;; 50 GB. Also it never looks past the first form to find a namespace
 ;; declaration.
 
-(def classpath
+(def classpath-files
   (for [f (.split (System/getProperty "java.class.path")
                   (System/getProperty "path.separator"))]
     (file f)))
@@ -58,8 +58,8 @@
 
 (defn namespaces-matching [prefix]
   (concat (mapcat namespaces-in-dir
-                  (for [dir classpath
+                  (for [dir classpath-files
                         :when (.isDirectory dir)]
                     (file dir (.replaceAll prefix "\\." "/"))))
           (filter #(and % (.startsWith (name %) prefix))
-                  (mapcat namespaces-in-jar (filter jar? classpath)))))
+                  (mapcat namespaces-in-jar (filter jar? classpath-files)))))
