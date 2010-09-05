@@ -21,7 +21,7 @@
      (local-repo-path {:group group :name name :version version}))
   ([{:keys [group name version]}]
      (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-             group name version name version)))
+             (.replaceAll group "\\." "/") name version name version)))
 
 (defn- script-classpath-for [project deps-fileset]
   (string/join ":" (conj (for [dep (-> deps-fileset

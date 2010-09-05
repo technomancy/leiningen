@@ -1,6 +1,5 @@
 (ns test-jar
   (:use [clojure.test]
-        [clojure.contrib.io :only [slurp*]]
         [leiningen.core :only [defproject read-project]]
         [leiningen.compile :only [*suppress-err*]]
         [leiningen.jar])
@@ -20,7 +19,7 @@
 (deftest test-jar
   (let [jar-file (JarFile. (jar sample-project))
         manifest (manifest-map (.getManifest jar-file))
-        bin (slurp* (.getInputStream jar-file (.getEntry jar-file "bin/nom")))]
+        bin (slurp (.getInputStream jar-file (.getEntry jar-file "bin/nom")))]
     (is (= "bin/nom" (manifest "Leiningen-shell-wrapper")))
     (is (re-find #"org/clojure/clojure/1.1.0-master-SNAPSHOT/" bin))
     (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bin))
@@ -47,3 +46,15 @@
 (deftest test-no-aot-jar-succeeds
   (binding [*suppress-err* true]
     (is (jar sample-no-aot-project))))
+
+(def tricky-name
+  (binding [*ns* (the-ns 'leiningen.core)]
+    (read-project "test_projects/tricky-name/project.clj")))
+
+(deftest test-tricky-name
+  (let [jar-file (JarFile. (jar tricky-name))
+        manifest (manifest-map (.getManifest jar-file))
+        bin (slurp (.getInputStream
+                    jar-file (.getEntry jar-file "bin/tricky-name")))]
+    (is (= "bin/tricky-name" (manifest "Leiningen-shell-wrapper")))
+    (is (re-find #"org/domain/tricky-name/1.0/tricky-name-1\.0\.jar" bin))))
