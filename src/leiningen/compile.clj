@@ -5,7 +5,6 @@
          [leiningen.core :only [ns->path]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
-         [clojure.contrib.seq :only [separate]]
          [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
@@ -23,6 +22,11 @@
   "Returns true if we have regex class"
   [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
+
+(defn- separate
+  "copy of separate function from c.c.seq-utils"
+  [f s]
+  [(filter f s) (filter (complement f) s) ])
 
 (defn- find-namespaces-by-regex
   "Trying to generate list of namespaces, matching to given regexs"
