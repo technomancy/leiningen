@@ -68,6 +68,11 @@ Leiningen TODOs
 ** DONE Allow test task to take namespaces as an argument
 ** DONE Fix eval-in-project to let plugins pass in extra args
 ** DONE Resources directory added to classpath (for properties, etc)
+* Plugin ideas
+** metrics
+*** LOC
+*** complexity
+*** time logs
 * Git-aware dependencies (experimental back-burner idea)
   Talking with Rich after Emerging Langs day 1
   Problem: you can pull in two versions of the same library

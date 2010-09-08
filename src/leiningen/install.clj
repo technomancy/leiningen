@@ -54,6 +54,7 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
            jarfile (-> (local-repo-path name (or group name) version)
                         (.replace "$HOME" (System/getenv "HOME")))]
        (install-shell-wrapper (JarFile. jarfile))
+       ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
             (binding [*ns* (the-ns 'leiningen.core)
                       copy-dependencies (constantly nil)]
