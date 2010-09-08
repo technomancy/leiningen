@@ -31,15 +31,11 @@
 (defn- find-namespaces-by-regex
   "Trying to generate list of namespaces, matching to given regexs"
   [project nses]
-  (let [[res syms] (separate #(or (string? %) (regex? %)) nses)]
+  (let [[res syms] (separate regex? nses)]
     (if (seq res)
-      (let [all-ns (namespaces-in-dir (:source-path project))
-            all-re (map #(if (string? %) (re-pattern %) %) res)
-            re-ns (map (fn [^java.util.regex.Pattern re]
-                         (filter (fn [ns-name] (re-matches re (name ns-name)))
-                                 all-ns))
-                       all-re)]
-        (into #{} (flatten [syms re-ns])))
+      (set (for [re res n (namespaces-in-dir (:source-path project))
+                 :when (re-find re (name n))]
+             n))
       nses)))
 
 (defn compilable-namespaces

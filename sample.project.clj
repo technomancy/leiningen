@@ -57,6 +57,7 @@
   :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]]
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. :namespaces is an alias for this.
+  ;; Put a regex here to compile all namespaces whose names match.
   :aot [org.example.sample.SampleClass]
   ;; The -main function in this namespace will be run at launch if you
   ;; create an uberjar. Repl sessions will start in this namespace as well.
@@ -71,7 +72,7 @@
   ;; Set this in order to only use the :repositories you list below.
   :omit-default-repositories true
   :repositories { "java.net" "http://download.java.net/maven/2"
-                  "jboss" "https://repository.jboss.org/nexus/content/groups/public/"}
+                  "modularity" "http://m2.modularity.net.au/releases"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"
