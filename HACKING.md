@@ -50,5 +50,5 @@ TODO: integrate with plugin guide
 * git tag
 * push, push tags, update stable branch
 * announce on mailing list
-* bump version numbers (bin/lein and project.clj)
+* bump version numbers (bin/lein, bin/lein.bat, project.clj)
 * regenerate pom.xml

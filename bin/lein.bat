@@ -1,6 +1,6 @@
 @echo off
 
-set LEIN_VERSION=1.3.1
+set LEIN_VERSION=1.4.0-SNAPSHOT
 
 if "x%1" == "xself-install" goto SELF_INSTALL
 if "x%1" == "xupgrade"      goto NO_UPGRADE
