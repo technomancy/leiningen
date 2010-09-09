@@ -183,7 +183,7 @@ to exclude from transitive dependencies."
   [project path-key]
   (.replace (path-key project) (str (:root project) "/") ""))
 
-(defmacro- add-a-resource [build method resource-path]
+(defmacro ^:private add-a-resource [build method resource-path]
   `(let [resource# (Resource.)]
      (.setDirectory resource# ~resource-path)
      (~(symbol (name method)) ~build [resource#])))
