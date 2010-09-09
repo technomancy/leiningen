@@ -4,17 +4,16 @@
             [clojure.string :as string])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
-        [clojure.java.io :only [copy file]]
-        [clojure.contrib.string :only [join replace-re]])
+        [clojure.java.io :only [copy file]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
            [java.util.regex Pattern]
            [java.util.jar JarFile]
            [java.io BufferedOutputStream FileOutputStream
             ByteArrayInputStream]))
 
-(def bin-template (-> (.getContextClassLoader (Thread/currentThread))
-                      (.getResourceAsStream "script-template")
-                      (slurp)))
+(def ^:private bin-template (-> (.getContextClassLoader (Thread/currentThread))
+                                (.getResourceAsStream "script-template")
+                                (slurp)))
 
 (defn local-repo-path
   ([group name version]
@@ -50,12 +49,12 @@
         :path bin-name
         :bytes (.getBytes bin)}])))
 
-(def default-manifest
+(def ^:private default-manifest
      {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
       "Built-By" (System/getProperty "user.name")
       "Build-Jdk" (System/getProperty "java.version")})
 
-(defn make-manifest [project & [extra-entries]]
+(defn- make-manifest [project & [extra-entries]]
   (Manifest.
    (ByteArrayInputStream.
     (.getBytes
@@ -72,15 +71,15 @@
   (let [attrs (.getMainAttributes manifest)]
     (zipmap (map str (keys attrs)) (vals attrs))))
 
-(defn unix-path [path]
+(defn- unix-path [path]
   (.replaceAll path "\\\\" "/"))
 
-(defn skip-file? [file]
+(defn- skip-file? [file]
   (or (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
       (re-find #"~$" (.getName file))))
 
-(defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
+(defmulti ^:private copy-to-jar (fn [project jar-os spec] (:type spec)))
 
 (defn- trim-leading-str [s to-trim]
   (.replaceAll s (str "^" (Pattern/quote to-trim)) ""))
@@ -105,7 +104,7 @@
 ;; TODO: hacky; needed for conditional :resources-path below
 (defmethod copy-to-jar nil [project jar-os spec])
 
-(defn write-jar [project out-filename filespecs]
+(defn- write-jar [project out-filename filespecs]
   (let [manifest (make-manifest project)]
     (with-open [jar-os (-> out-filename
                            (FileOutputStream.)

@@ -5,11 +5,11 @@
 (def tasks (set (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %))
                         (namespaces-matching "leiningen"))))
 
-(defn get-arglists [task]
+(defn- get-arglists [task]
   (for [args (:arglists (meta task))]
     (vec (remove #(= 'project %) args))))
 
-(defn help-for
+(defn- help-for
   "Help for a task is stored in its docstring, or if that's not present
   in its namespace."
   [task]
@@ -20,7 +20,7 @@
              (:doc (meta (find-ns task-ns)))))))
 
 ;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
-(defn help-summary-for [task-ns]
+(defn- help-summary-for [task-ns]
   (require task-ns)
   (let [task-name (last (.split (name task-ns) "\\."))]
     (str task-name (apply str (repeat (- 8 (count task-name)) " "))

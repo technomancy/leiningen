@@ -49,14 +49,14 @@
              .start)
            (format "REPL started; server listening on %s:%s." ~host ~port)))))
 
-(defn copy-out [reader]
+(defn- copy-out [reader]
   (Thread/sleep 100)
   (.write *out* (.read reader))
   (while (.ready reader)
     (.write *out* (.read reader)))
   (flush))
 
-(defn- repl-client [reader writer]
+(defn repl-client [reader writer]
   (copy-out reader)
   (let [eof (Object.)
         input (try (read *in* false eof)
@@ -71,13 +71,13 @@
   (repl-client (InputStreamReader. (.getInputStream socket))
                (OutputStreamWriter. (.getOutputStream socket))))
 
-(defn- poll-for-socket [port]
+(defn poll-repl-connection [port]
   (Thread/sleep 100)
   (when (try (connect-to-server (Socket. "localhost" port))
              (catch java.net.ConnectException _ :retry))
     (recur port)))
 
-(defn repl-socket-on [{:keys [repl-port repl-host]}]
+(defn- repl-socket-on [{:keys [repl-port repl-host]}]
   [(Integer. (or repl-port
                  (System/getenv "LEIN_REPL_PORT")
                  (dec (+ 1024 (rand-int 64512)))))
@@ -98,5 +98,5 @@ chosen randomly."
                         (println (eval server-form)))
                       (eval-in-project project server-form))
                     (catch Exception _)))
-       (poll-for-socket port)
+       (poll-repl-connection port)
        (exit 0))))

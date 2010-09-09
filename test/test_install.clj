@@ -1,9 +1,10 @@
 (ns test-install
   (:use [leiningen.core :only [read-project defproject home-dir]]
-        [leiningen.install] :reload-all)
+        [leiningen.install] :reload)
   (:use [clojure.test]
-        [clojure.contrib.io :only [delete-file-recursively file]]
-        [clojure.contrib.shell :only [with-sh-dir sh]]))
+        [clojure.java.io :only [file]]
+        [clojure.java.shell :only [with-sh-dir sh]]
+        [leiningen.util.file :only [delete-file-recursively]]))
 
 (def local-repo (file (System/getProperty "user.home") ".m2" "repository"))
 

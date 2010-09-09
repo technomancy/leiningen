@@ -1,6 +1,12 @@
 (ns test-core
-  (:use [leiningen.core :only [make-groups matching-arity?]] :reload-all)
+  (:require leiningen.core :reload-all)
   (:use [clojure.test]))
+
+;; testing private vars is awesome!
+
+(def make-groups @#'leiningen.core/make-groups)
+
+(def matching-arity? @#'leiningen.core/matching-arity?)
 
 (deftest test-make-groups-empty-args
   (is (= [[]] (make-groups []))))

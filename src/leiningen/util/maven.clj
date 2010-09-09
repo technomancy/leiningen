@@ -16,14 +16,15 @@
 ;; Welcome to the absurdist self-parodying world of Dependency Injection
 (def container (.getContainer (doto (Embedder.) (.start))))
 
-(def layout (.lookup container ArtifactRepositoryLayout/ROLE "default"))
+(def ^:private layout
+  (.lookup container ArtifactRepositoryLayout/ROLE "default"))
 
-(def policy
+(def ^:private policy
      (ArtifactRepositoryPolicy. true
                                 ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
                                 ArtifactRepositoryPolicy/CHECKSUM_POLICY_FAIL))
 
-(defn make-settings []
+(defn- make-settings []
   (.buildSettings (.lookup container MavenSettingsBuilder/ROLE)))
 
 ;; repositories
@@ -40,7 +41,7 @@
       (.createArtifactRepository
        name url layout policy policy)))
 
-(defn add-metadata [artifact pomfile]
+(defn- add-metadata [artifact pomfile]
   (.addMetadata artifact (ProjectArtifactMetadata. artifact pomfile)))
 
 (defn make-artifact [model]
@@ -150,7 +151,7 @@ to exclude from transitive dependencies."
       (.setType (or type "jar"))
       (.setExclusions es))))
 
-(defn make-repository [[id settings]]
+(defn- make-repository [[id settings]]
   (let [repo (Repository.)]
     (.setId repo id)
     (if (string? settings)
@@ -158,14 +159,14 @@ to exclude from transitive dependencies."
       (.setUrl repo (:url settings)))
     repo))
 
-(defn make-license [{:keys [name url distribution comments]}]
+(defn- make-license [{:keys [name url distribution comments]}]
   (doto (License.)
     (.setName name)
     (.setUrl url)
     (.setDistribution (and distribution (clojure.core/name distribution)))
     (.setComments comments)))
 
-(defn make-mailing-list [{:keys [name archive other-archives
+(defn- make-mailing-list [{:keys [name archive other-archives
                                  post subscribe unsubscribe]}]
   (let [mailing-list (MailingList.)]
     (doto mailing-list
@@ -182,7 +183,7 @@ to exclude from transitive dependencies."
   [project path-key]
   (.replace (path-key project) (str (:root project) "/") ""))
 
-(defmacro add-a-resource [build method resource-path]
+(defmacro- add-a-resource [build method resource-path]
   `(let [resource# (Resource.)]
      (.setDirectory resource# ~resource-path)
      (~(symbol (name method)) ~build [resource#])))

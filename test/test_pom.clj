@@ -3,7 +3,7 @@
         [leiningen.util.maven :only [make-model]]
         [leiningen.pom :only [pom]])
   (:use [clojure.test]
-        [clojure.contrib.io :only [file delete-file]]))
+        [clojure.java.io :only [file delete-file]]))
 
 (def test-project (read-project "test_projects/sample/project.clj"))
 

@@ -2,7 +2,7 @@
   (:require [clojure.string :as string])
   (:use [leiningen.core :only [apply-task]]))
 
-(defn not-found [& _]
+(defn- not-found [& _]
   (println "That's not a task. Use \"help\" to list all tasks."))
 
 (defn interactive

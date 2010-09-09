@@ -10,7 +10,7 @@
   (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
            [java.io File FileOutputStream PrintWriter]))
 
-(defn read-components [zipfile]
+(defn- read-components [zipfile]
   (when-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
     (->> (xml-zip (xml/parse (.getInputStream zipfile entry)))
          children
@@ -18,7 +18,7 @@
          first
          :content)))
 
-(defn copy-entries
+(defn- copy-entries
   "Copies the entries of ZipFile in to the ZipOutputStream out, skipping
   the entries which satisfy skip-pred. Returns the names of the
   entries copied."
@@ -35,7 +35,7 @@
 ;; we have to keep track of every entry we've copied so that we can
 ;; skip duplicates.  We also collect together all the plexus components so
 ;; that we can merge them.
-(defn include-dep [out [skip-set components] dep]
+(defn- include-dep [out [skip-set components] dep]
   (println "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
     [(into skip-set (copy-entries zipfile out #(skip-set (.getName %))))

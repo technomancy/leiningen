@@ -38,7 +38,7 @@
              n))
       nses)))
 
-(defn compilable-namespaces
+(defn- compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
@@ -50,7 +50,7 @@
       (conj nses (:main project))
       nses)))
 
-(defn stale-namespaces
+(defn- stale-namespaces
   "Return a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
@@ -64,14 +64,14 @@
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
-(defn get-by-pattern
+(defn- get-by-pattern
   "Gets a value from map m, but uses the keys as regex patterns, trying
    to match against k instead of doing an exact match."
   [m k]
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))
 
-(def native-names
+(def ^:private native-names
      {"Mac OS X" :macosx
       "Windows" :windows
       "Linux" :linux
@@ -85,17 +85,17 @@
       "arm" :arm
       "sparc" :sparc})
 
-(defn get-os
+(defn- get-os
   "Returns a keyword naming the host OS."
   []
   (get-by-pattern native-names (System/getProperty "os.name")))
 
-(defn get-arch
+(defn- get-arch
   "Returns a keyword naming the host architecture"
   []
   (get-by-pattern native-names (System/getProperty "os.arch")))
 
-(defn find-native-lib-path
+(defn- find-native-lib-path
   "Returns a File representing the directory where native libs for the
   current platform are located."
   [project]
@@ -107,12 +107,12 @@
         f
         nil))))
 
-(defn get-jvm-args
+(defn- get-jvm-args
   [project]
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
-(defn get-readable-form [java project form]
+(defn- get-readable-form [java project form]
   (let [cp (str (.getClasspath (.getCommandLine java)))
         form `(do (def ~'*classpath* ~cp)
                   (set! ~'*warn-on-reflection*
@@ -178,8 +178,8 @@
     (.write (if (zero? code) *out* *err*) (str msg "\n")))
   code)
 
-(def ^{:private true} success (partial status 0))
-(def ^{:private true} failure (partial status 1))
+(def ^:private success (partial status 0))
+(def ^:private failure (partial status 1))
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or
