@@ -41,7 +41,7 @@
       (.createArtifactRepository
        name url layout policy policy)))
 
-(defn- add-metadata [artifact pomfile]
+(defn add-metadata [artifact pomfile]
   (.addMetadata artifact (ProjectArtifactMetadata. artifact pomfile)))
 
 (defn make-artifact [model]
