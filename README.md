@@ -23,22 +23,28 @@ With Leiningen, you describe your build with Clojure.
 ## Installation
 
 Leiningen bootstraps itself using the <tt>lein</tt> shell script;
-there is no separate 'install script'. It installs its dependencies in
-$HOME/.m2/repository.
+there is no separate 'install script'. It installs its dependencies
+upon the first run on unix, so the first run will take longer.
 
 1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
 
-Your first run of Leiningen will take a little longer since it has to
-bootstrap itself by downloading a jar file.
-
-For development versions you may use [the master version of the lein
+To track development of Leiningen you may use [the master version of the
 script](http://github.com/technomancy/leiningen/raw/master/bin/lein)
 instead. See the "Building" section below.
 
-On Windows you can download
-[lein.bat](http://github.com/technomancy/leiningen/raw/master/bin/lein.bat),
-instead.
+On Windows most users can
+1. Download the Windows distribution
+[lein-win32.zip](http://github.com/downloads/technomancy/leiningen/lein-win32.zip)
+2. Unzip in a folder of choice.
+3. Include the "lein" directory in PATH.
+
+If you have wget.exe or curl.exe already installed and in PATH, you
+can download either [the stable version
+lein.bat](http://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
+or [the development
+version](http://github.com/technomancy/leiningen/raw/master/bin/lein.bat)
+and use self-install.
 
 ## Usage
 
