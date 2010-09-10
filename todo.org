@@ -45,6 +45,7 @@ See also http://github.com/technomancy/leiningen/issues
 ** TODO spin lancet off into its own dependency
    I've never felt comfortable about simply keeping it inline.
 ** TODO fail gracefully when run without an Internet connection (Issue #100)
+** TODO improve test coverage
 * For 1.3.0
 ** DONE specify min. lein version in project.clj
 ** DONE :omit-source
