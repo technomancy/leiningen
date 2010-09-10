@@ -1,8 +1,7 @@
 (ns leiningen.pom
   "Write a pom.xml file to disk for Maven interop."
   (:use [leiningen.util.maven :only [make-exclusion make-dependency
-                                     make-repository make-license
-                                     make-mailing-list make-model]]
+                                     make-model]]
         [clojure.java.io :only [copy file]])
   (:import [java.io StringWriter ByteArrayOutputStream]
            [java.util Properties]
