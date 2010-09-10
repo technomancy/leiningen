@@ -151,7 +151,7 @@ to exclude from transitive dependencies."
       (.setType (or type "jar"))
       (.setExclusions es))))
 
-(defn- make-repository [[id settings]]
+(defn make-repository [[id settings]]
   (let [repo (Repository.)]
     (.setId repo id)
     (if (string? settings)
@@ -159,14 +159,14 @@ to exclude from transitive dependencies."
       (.setUrl repo (:url settings)))
     repo))
 
-(defn- make-license [{:keys [name url distribution comments]}]
+(defn make-license [{:keys [name url distribution comments]}]
   (doto (License.)
     (.setName name)
     (.setUrl url)
     (.setDistribution (and distribution (clojure.core/name distribution)))
     (.setComments comments)))
 
-(defn- make-mailing-list [{:keys [name archive other-archives
+(defn make-mailing-list [{:keys [name archive other-archives
                                  post subscribe unsubscribe]}]
   (let [mailing-list (MailingList.)]
     (doto mailing-list
