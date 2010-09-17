@@ -3,10 +3,11 @@
   (:require [lancet])
   (:use [leiningen.core :only [repositories-for]]
         [leiningen.util.maven :only [make-dependency]]
-        [leiningen.util.file :only [delete-file-recursively]])
+        [leiningen.util.file :only [delete-file-recursively]]
+        [clojure.contrib.java-utils :only [wall-hack-method]])
   (:import [java.io File]
            [org.apache.maven.artifact.ant
-            Authentication DependenciesTask RemoteRepository]
+            AbstractArtifactTask Authentication DependenciesTask RemoteRepository]
            [org.apache.maven.settings Server]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
@@ -45,9 +46,10 @@
 
 (defn- make-deps-task [project deps-set]
   (let [deps-task (DependenciesTask.)]
+    (.setProject deps-task lancet/ant-project)
+    (wall-hack-method AbstractArtifactTask :getContainer [] deps-task) ;;; in maven-ant-tasks 2.0.10, if there's an exception, there must be a call to getContainer() made (in order to set local state on the task) before the exception happens, or else you don't see stack traces. 
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
-    (.setProject deps-task lancet/ant-project)
     (.setPathId deps-task (:name project))
     (doseq [r (map make-repository (repositories-for project))]
       (.addConfiguredRemoteRepository deps-task r))
