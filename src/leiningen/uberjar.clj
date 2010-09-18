@@ -41,8 +41,9 @@
     [(into skip-set (copy-entries zipfile out #(skip-set (.getName %))))
      (concat components (read-components zipfile))]))
 
-(defn- write-components [deps out]
-  ;; TODO: need documentation; I have no idea what this is for. Alex!
+(defn write-components
+  "Given a list of jarfiles, writes contents to a stream"
+  [deps out]
   (let [[_ components] (reduce (partial include-dep out)
                                [#{"META-INF/plexus/components.xml"} nil]
                                deps)]
