@@ -2,8 +2,8 @@
   "Display a list of tasks or help for a given task."
   (:use [leiningen.util.ns :only [namespaces-matching]]))
 
-(def tasks (set (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %))
-                        (namespaces-matching "leiningen"))))
+(def tasks (sort (set (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %))
+                              (namespaces-matching "leiningen")))))
 
 (defn- get-arglists [task]
   (for [args (:arglists (meta task))]
