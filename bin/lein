@@ -100,7 +100,7 @@ if [ "$1" = "self-install" ]; then
         if [ $SNAPSHOT = "YES" ]; then
             echo "See README.md for SNAPSHOT build instructions."
         fi
-        rm $LEIN_JAR
+        rm $LEIN_JAR 2> /dev/null
         exit 1
     fi
 elif [ "$1" = "upgrade" ]; then
