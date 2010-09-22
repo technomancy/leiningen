@@ -3,7 +3,6 @@
         [leiningen.install] :reload)
   (:use [clojure.test]
         [clojure.java.io :only [file]]
-        [clojure.java.shell :only [with-sh-dir sh]]
         [leiningen.util.file :only [delete-file-recursively]]))
 
 (def local-repo (file (System/getProperty "user.home") ".m2" "repository"))
