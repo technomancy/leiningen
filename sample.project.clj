@@ -77,7 +77,8 @@
   :source-path "src/main/clojure"
   :library-path "target/dependency"
   :test-path "src/test/clojure"
-  :resources-path "src/main/resources"
+  :resources-path "src/main/resource" ; non-code files included in classpath/jar
+  :test-resources-path "src/test/resource" ; added to classpath but not in jar
   :native-path "src/native"   ; where to look for native dependencies
   :jar-dir "target/"          ; where to place the project's jar file
   :jar-name "sample.jar"      ; name of the jar produced by 'lein jar'
