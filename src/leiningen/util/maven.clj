@@ -120,6 +120,14 @@
 
 ;; model
 
+(defn make-parent [parent version & {:as opts}]
+  (doto (Parent.)
+    (.setArtifactId (name parent))
+    (.setGroupId (or (namespace parent) (name parent)))
+    (.setVersion version)
+    (.setRelativePath (:relative-path opts))
+    (.setModelEncoding (:model-encoding opts))))
+
 (defn make-exclusion [excl]
   (doto (Exclusion.)
     (.setGroupId (or (namespace excl) (name excl)))
@@ -211,6 +219,8 @@ to exclude from transitive dependencies."
       (.addRepository model (make-repository repo)))
     (when-let [scm (make-git-scm (file (:root project) ".git"))]
       (.setScm model scm))
+    (when-let [parent (:parent project)]
+      (.setParent model (apply make-parent parent)))
     (doseq [license (concat (keep #(% project)
                                   [:licence :license])
                             (:licences project)
