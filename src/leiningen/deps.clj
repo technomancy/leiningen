@@ -45,9 +45,20 @@
 
 (defn make-deps-task [project deps-set]
   (let [deps-task (DependenciesTask.)]
+    (.setProject deps-task lancet/ant-project)
+    ;; in maven-ant-tasks (at least 2.0.10 and 2.1.1) if there's an
+    ;; exception thrown, there must be a call to
+    ;; AbstractArtifactTask.getContainer() made to set some local
+    ;; state on the task, before the exception happens, or else you
+    ;; don't see stack traces. getContainer is a protected
+    ;; method. Since we don't have contrib, we can't use
+    ;; wall-hack-method, and clojure.lang.Reflector doesn't call
+    ;; private methods, we'll call a public method that we know calls
+    ;; getContainer, getSupportedProtocols.
+    ;;
+    (.getSupportedProtocols deps-task)
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
-    (.setProject deps-task lancet/ant-project)
     (.setPathId deps-task (:name project))
     (doseq [r (map make-repository (repositories-for project))]
       (.addConfiguredRemoteRepository deps-task r))
