@@ -85,6 +85,8 @@
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Leave the contents of :source-path out of jars (for AOT projects)
   :omit-source true
+  ;; Files with names matching any of these patterns will be excluded from jars
+  :jar-exclusions [#"(?:^|/).svn/"]
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.

@@ -74,10 +74,11 @@
 (defn- unix-path [path]
   (.replaceAll path "\\\\" "/"))
 
-(defn- skip-file? [file]
+(defn- skip-file? [file relative-path patterns]
   (or (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
-      (re-find #"~$" (.getName file))))
+      (re-find #"~$" (.getName file))
+      (reduce #(or %1 (re-find %2 relative-path)) false patterns)))
 
 (defmulti ^:private copy-to-jar (fn [project jar-os spec] (:type spec)))
 
@@ -90,9 +91,9 @@
         [resources classes src]
         (map noroot (map project [:resources-path :compile-path :source-path]))]
     (doseq [child (file-seq (file (:path spec)))]
-      (when-not (skip-file? child)
-        (let [path (reduce trim-leading-str (unix-path (str child))
-                           [root resources classes src "/"])]
+      (let [path (reduce trim-leading-str (unix-path (str child))
+                         [root resources classes src "/"])]
+        (when-not (skip-file? child path (:jar-exclusions project))
           (.putNextEntry jar-os (doto (JarEntry. path)
                                   (.setTime (.lastModified child))))
           (copy child jar-os))))))
