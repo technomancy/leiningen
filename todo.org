@@ -7,45 +7,53 @@ Leiningen TODOs
 
 See also http://github.com/technomancy/leiningen/issues
 
-* For 1.4.0 or later
+* For 2.0
+** TODO Quit using ant's Java task. It is horrible.
+   Try a custom classloader approach?
+** TODO Use Aether instead of maven-ant-tasks?
+   http://www.sonatype.com/people/2010/08/introducing-aether/
+** TODO Rename test-resources to dev-resources
+   Breaking change; needs to wait for a major version bump.
 ** TODO add option to use ~/.m2-based classpath instead of copying to lib/?
    It looks like it would be easy to stop copying things into lib/ and
-   just use ant's notion of the project's dependencies to construct a
-   classpath that references jars straight from ~/.m2. This should be
-   optional and not the default since it will break M-x swank-clojure-project
-   and possibly other things that make the same assumption.
+   just use Maven's notion of the project's dependencies to construct a
+   classpath that references jars straight from ~/.m2.
+* For 1.4
 ** TODO plugin task for managing/upgrading plugins
    Manually copying jar files into ~/.lein/plugins is pretty
    lame. Let's get a task to handle this. It could be implemented as a
    plugin at first, maybe.
-** TODO shell wrappers should support multiple versions
-   We could write out a different "foo-$VERSION" shell wrapper for each
-   version of a project that gets installed and then have the plain
-   "foo" script look for a $VERSION env var if it's set, and if not
-   just fall back to the latest.
 ** TODO merge lein-search features?
    This plugin is great; we should think about taking it into
    Leiningen itself.
 ** TODO merge lein-run task?
    Ditto; this is something useful that many projects need.
+** TODO merge lein-javac task
+   Also make the compile task run it where appropriate.
 ** TODO classifiers for specifying what clojure version to use?
    As more versions of Clojure start to exist, libraries may want to
    publish different branches that target different versions of
    Clojure itself. Classifiers may be the way to separate these out?
-** TODO test selectors using metadata; run a subset of tests
-   We could have a :test-selectors key in project.clj that would map
-   keywords to predicate functions. Then the test task could take a
-   keyword argument and only run the subset of the tests for which
-   calling the predicate on its metadata returns true.
 ** TODO a list of dirs to include in the jar when building
    Some people have requested this.
 ** TODO re-compile all deps with current clojure version
    Another thing that's going to start becoming more important as more
    Clojure versions are introduced.
 ** TODO spin lancet off into its own dependency
-   I've never felt comfortable about simply keeping it inline.
+   I've never felt comfortable about simply keeping it inline. On the
+   other hand if we quit using ant then we can skip this.
+** TODO shell wrappers should support multiple versions
+   We could write out a different "foo-$VERSION" shell wrapper for each
+   version of a project that gets installed and then have the plain
+   "foo" script look for a $VERSION env var if it's set, and if not
+   just fall back to the latest.
 ** TODO fail gracefully when run without an Internet connection (Issue #100)
 ** TODO improve test coverage
+** DONE test selectors using metadata; run a subset of tests
+   We could have a :test-selectors key in project.clj that would map
+   keywords to predicate functions. Then the test task could take a
+   keyword argument and only run the subset of the tests for which
+   calling the predicate on its metadata returns true.
 * For 1.3.0
 ** DONE specify min. lein version in project.clj
 ** DONE :omit-source
