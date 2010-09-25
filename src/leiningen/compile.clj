@@ -162,10 +162,10 @@
       (when-not (re-matches #"^-Xbootclasspath.+" arg)
         (.setValue (.createJvmarg java) arg)))
     (.setClassname java "clojure.main")
-    (.setValue (.createArg java) "-e")
-    (.setValue (.createArg java) (get-readable-form java project form))
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
+    (.setValue (.createArg java) "-e")
+    (.setValue (.createArg java) (get-readable-form java project form))
     (.executeJava java)))
 
 (defn- platform-nullsink []

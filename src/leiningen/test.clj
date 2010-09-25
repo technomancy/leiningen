@@ -3,34 +3,35 @@
   (:refer-clojure :exclude [test])
   (:use [clojure.java.io :only [file]]
         [leiningen.util.ns :only [namespaces-in-dir]]
-        [leiningen.compile :only [eval-in-project]]))
+        [leiningen.compile :only [eval-in-project]])
+  (:import [java.io File]))
 
-(defn- with-version-guard
-  "Compatibility test to prevent use of clojure.test with Clojure 1.0."
-  [form]
-  `(if (and (= 1 (:major *clojure-version*))
-            (= 0 (:minor *clojure-version*)))
-     (println "\"lein test\" is not compatible with Clojure 1.0 projects.
-Please consider upgrading to a newer version of Clojure or using"
-              "the lein-test-is plugin.")
-     ~form))
+(defn- init-args [java & files]
+  (doseq [f files]
+    (.setValue (.createArg java) "-i")
+    (.setValue (.createArg java) f)))
+
+(defn- form-for-hook-selectors [selectors]
+  `(when (seq ~selectors)
+     (if-let [add-hook# (resolve 'robert.hooke/add-hook)]
+       (add-hook# (resolve 'clojure.test/test-var)
+                  (fn test-var-with-selector [test-var# var#]
+                    (when (reduce #(or %1 (%2 (meta var#))) false ~selectors)
+                      (test-var# var#))))
+       (throw (Exception. "Test selectors require robert/hooke dep.")))))
 
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
 each namespace and print an overall summary."
-  ([namespaces result-file]
-     (form-for-testing-namespaces namespaces 'clojure.test result-file))
-  ([namespaces test-package result-file]
+  ([namespaces result-file & [selectors]]
      `(do
-        (require '~test-package)
         (doseq [n# '~namespaces]
           (require n#))
-        (let [resolver# (fn [fname#]
-                          (ns-resolve
-                           (find-ns '~test-package) fname#))
-              summary# (apply (resolver# ~''run-tests) '~namespaces)]
+        ~(form-for-hook-selectors selectors)
+        (let [summary# (apply ~'clojure.test/run-tests '~namespaces)]
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
             (shutdown-agents))
+          ;; Stupid ant won't let us return anything, so write results to disk
           (with-open [w# (-> (java.io.File. ~result-file)
                              (java.io.FileOutputStream.)
                              (java.io.OutputStreamWriter.))]
@@ -39,19 +40,24 @@ each namespace and print an overall summary."
 
 (defn test
   "Run the project's tests. Accepts a list of namespaces for which to run all
-tests. If none are given, runs them all."
-  [project & namespaces]
-  (let [namespaces (if (empty? namespaces)
-                     (sort (namespaces-in-dir (:test-path project)))
-                     (map symbol namespaces))
-        result (java.io.File/createTempFile "lein" "result")]
-    (eval-in-project project
-                     (with-version-guard
-                       (form-for-testing-namespaces namespaces
-                                                    (.getAbsolutePath result))))
+tests. If none are given, runs them all." ; TODO: update
+  [project & tests]
+  (let [tests (map read-string tests)
+        nses (if (or (empty? tests) (every? keyword? tests))
+               (sort (namespaces-in-dir (:test-path project)))
+               tests)
+        result (doto (File/createTempFile "lein" "result") .deleteOnExit)
+        selectors (filter keyword? tests)]
+    (when-not (or (every? symbol? nses) (every? keyword? nses))
+      (throw (Exception. "Args must be either all namespaces or keywords.")))
+    (eval-in-project project (form-for-testing-namespaces
+                              nses (.getAbsolutePath result) (vec selectors))
+                     #(apply init-args %
+                             (if (seq selectors)
+                               ["@clojure/test.clj" "@robert/hooke.clj"]
+                               ["@clojure/test.clj"])))
     (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))
             success? (zero? (+ (:error summary) (:fail summary)))]
-        (.delete result)
         (if success? 0 1))
       1)))
