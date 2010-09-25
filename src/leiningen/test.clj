@@ -16,7 +16,8 @@
      (if-let [add-hook# (resolve 'robert.hooke/add-hook)]
        (add-hook# (resolve 'clojure.test/test-var)
                   (fn test-var-with-selector [test-var# var#]
-                    (when (reduce #(or %1 (%2 (meta var#))) false ~selectors)
+                    (when (reduce #(or %1 (%2 (assoc (meta var#) ::var var#)))
+                                  false ~selectors)
                       (test-var# var#))))
        (throw (Exception. "Test selectors require robert/hooke dep.")))))
 
