@@ -6,4 +6,7 @@
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :dependencies [[clojure "1.2.0"]
                  [robert/hooke "1.0.2"]]
-  :test-selectors {:default '(fn [m] (not (:integration m)))})
+  :test-selectors {:default (fn [m] (not (:integration m)))
+                   :integration :integration
+                   :int2 :int2
+                   :no-custom (fn [m] (not (false? (:custom m))))})

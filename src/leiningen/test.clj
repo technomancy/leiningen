@@ -47,7 +47,11 @@ tests. If none are given, runs them all." ; TODO: update
                (sort (namespaces-in-dir (:test-path project)))
                tests)
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)
-        selectors (filter keyword? tests)]
+        selectors (map (:test-selectors project) (filter keyword? tests))
+        selectors (if (and (empty? selectors)
+                           (:default (:test-selectors project)))
+                    [(:default (:test-selectors project))]
+                    selectors)]
     (when-not (or (every? symbol? nses) (every? keyword? nses))
       (throw (Exception. "Args must be either all namespaces or keywords.")))
     (eval-in-project project (form-for-testing-namespaces
