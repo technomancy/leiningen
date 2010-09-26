@@ -7,7 +7,7 @@ an hour.
 TODO: what goes where? a tour through the launching of a task
 
 When you launch Leiningen, it must start an instance of Clojure to
-load itself. But this instance must not effect the project that you're
+load itself. But this instance must not affect the project that you're
 building. It may use a different version of Clojure from Leiningen,
 and the project should be in a fresh JVM. Leiningen uses ant's
 <tt>java</tt> task to fork off a separate process for this
@@ -26,7 +26,7 @@ bring up questions or suggestions. If you're planning on adding a
 feature or fixing a nontrivial bug, please discuss it first to avoid
 duplicating effort. If you haven't discussed it on the mailing list,
 please include in your pull request details of what problem your patch
-intendeds to solve as well as the approach you took.
+intends to solve as well as the approach you took.
 
 Contributions are preferred as either Github pull requests or using
 "git format-patch" and the mailing list as is requested [for
