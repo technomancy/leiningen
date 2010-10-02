@@ -78,11 +78,11 @@ two-argument version of <tt>install</tt>) may run from anywhere.
 
 The install task places shell scripts in the <tt>~/.lein/bin</tt>
 directory for projects that include them, so if you want to take
-advantage of this, you should put it on your $PATH.
+advantage of this, you should put it on your <tt>$PATH</tt>.
 
 ## Configuration
 
-Place a project.clj file in the project root like this:
+Place a <tt>project.clj</tt> file in the project root like this:
 
     (defproject leiningen "0.5.0-SNAPSHOT"
       :description "A build tool designed not to set your hair on fire."
@@ -99,9 +99,9 @@ appropriate starting point from which you can work. See the
 file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
-projects. The ~/.lein/init.clj file will be loaded every time
+projects. The <tt>~/.lein/init.clj</tt> file will be loaded every time
 Leiningen launches; any arbitrary code may go there. Place jars
-containing plugins in ~/.lein/plugins to have them available globally
+containing plugins in <tt>~/.lein/plugins</tt> to have them available globally
 for the current user.
 
 ## FAQ
@@ -193,7 +193,7 @@ for the current user.
 
 ## Building
 
-Generally a "lein self-install" will get you what you need.
+Generally a <tt>lein self-install</tt> will get you what you need.
 Occasionally this will fail for very new SNAPSHOT versions since the
 standalone jar will not have been uploaded yet.
 
