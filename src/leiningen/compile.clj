@@ -112,9 +112,10 @@
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
-(defn- get-readable-form [java project form]
+(defn- get-readable-form [java project form init]
   (let [cp (str (.getClasspath (.getCommandLine java)))
-        form `(do (def ~'*classpath* ~cp)
+        form `(do ~init
+                  (def ~'*classpath* ~cp)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
                   ~form)]
@@ -133,7 +134,7 @@
   set correctly for the project. Pass in a handler function to have it called
   with the java task right before executing if you need to customize any of its
   properties (classpath, library-path, etc)."
-  [project form & [handler skip-auto-compile]]
+  [project form & [handler skip-auto-compile init]]
   (when (and (not skip-auto-compile)
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
@@ -165,7 +166,7 @@
     ;; to allow plugins and other tasks to customize
     (when handler (handler java))
     (.setValue (.createArg java) "-e")
-    (.setValue (.createArg java) (get-readable-form java project form))
+    (.setValue (.createArg java) (get-readable-form java project form init))
     (.executeJava java)))
 
 (defn- platform-nullsink []
