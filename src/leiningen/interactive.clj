@@ -15,7 +15,7 @@
     (flush)
     ;; TODO: integrate with tab-completion in jLine
     (let [input (.readLine *in*)]
-      (when input
+      (when (and input (not= input "exit"))
         (let [[task-name & args] (string/split input #"\s")]
           (apply-task task-name project args not-found)
           (recur))))))
