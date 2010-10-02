@@ -1,6 +1,8 @@
 (ns lancet
   (:gen-class)
-  (:import (java.beans Introspector) (java.util.concurrent CountDownLatch)))
+  (:import (java.beans Introspector)
+           (java.util.concurrent CountDownLatch)
+           (org.apache.tools.ant.types Path)))
 
 (defmulti coerce (fn [dest-class src-inst] [dest-class (class src-inst)]))
 
@@ -9,6 +11,8 @@
 (defmethod coerce [Boolean/TYPE String] [_ str]
   (contains? #{"on" "yes" "true"} (.toLowerCase str)))
 (defmethod coerce :default [dest-cls obj] (cast dest-cls obj))
+(defmethod coerce [Path String] [_ str]
+  (Path. lancet/ant-project str))
 
 (defn env [val]
   (System/getenv (name val)))
