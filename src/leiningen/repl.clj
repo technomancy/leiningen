@@ -20,10 +20,11 @@
                     [java.io ~'InputStreamReader ~'OutputStream
                      ~'OutputStreamWriter ~'PrintWriter]
                     [clojure.lang ~'LineNumberingPushbackReader]))
-           (try (require ['~'clojure.java.shell])
-                (require ['~'clojure.java.browse])
-                (catch Exception _#))
-           (use ['~'clojure.main :only ['~'repl]])
+         (try ;; transitive requires don't work for stuff on bootclasspath
+           (require ['~'clojure.java.shell])
+           (require ['~'clojure.java.browse])
+           (catch Exception _#))
+         (use ['~'clojure.main :only ['~'repl]])
          (let [server# (ServerSocket. ~port 0 (~'InetAddress/getByName ~host))
                acc# (fn [s#]
                       (let [ins# (.getInputStream s#)
@@ -49,15 +50,15 @@
              .start)
            (format "REPL started; server listening on %s:%s." ~host ~port)))))
 
-(defn- copy-out [reader]
-  (Thread/sleep 100)
-  (.write *out* (.read reader))
-  (while (.ready reader)
-    (.write *out* (.read reader)))
-  (flush))
+(defn- copy-out-loop [reader]
+  (let [buffer (make-array Character/TYPE 1000)]
+    (loop []
+      (.write *out* buffer 0 (.read reader buffer))
+      (flush)
+      (Thread/sleep 100)
+      (recur))))
 
 (defn repl-client [reader writer]
-  (copy-out reader)
   (let [eof (Object.)
         input (try (read *in* false eof)
                    (catch Exception e
@@ -68,8 +69,10 @@
       (recur reader writer))))
 
 (defn- connect-to-server [socket]
-  (repl-client (InputStreamReader. (.getInputStream socket))
-               (OutputStreamWriter. (.getOutputStream socket))))
+  (let [reader (InputStreamReader. (.getInputStream socket))
+        writer (OutputStreamWriter. (.getOutputStream socket))]
+    (.start (Thread. #(copy-out-loop reader)))
+    (repl-client reader writer)))
 
 (defn poll-repl-connection [port]
   (Thread/sleep 100)
