@@ -11,7 +11,7 @@
            [java.io BufferedOutputStream FileOutputStream
             ByteArrayInputStream]))
 
-(def ^:private bin-template (-> (.getContextClassLoader (Thread/currentThread))
+(def bin-template (-> (.getContextClassLoader (Thread/currentThread))
                                 (.getResourceAsStream "script-template")
                                 (slurp)))
 
@@ -49,12 +49,12 @@
         :path bin-name
         :bytes (.getBytes bin)}])))
 
-(def ^:private default-manifest
+(def default-manifest
      {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
       "Built-By" (System/getProperty "user.name")
       "Build-Jdk" (System/getProperty "java.version")})
 
-(defn- make-manifest [project & [extra-entries]]
+(defn make-manifest [project & [extra-entries]]
   (Manifest.
    (ByteArrayInputStream.
     (.getBytes
@@ -71,16 +71,16 @@
   (let [attrs (.getMainAttributes manifest)]
     (zipmap (map str (keys attrs)) (vals attrs))))
 
-(defn- unix-path [path]
+(defn unix-path [path]
   (.replaceAll path "\\\\" "/"))
 
-(defn- skip-file? [file relative-path patterns]
+(defn skip-file? [file relative-path patterns]
   (or (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
       (re-find #"~$" (.getName file))
       (reduce #(or %1 (re-find %2 relative-path)) false patterns)))
 
-(defmulti ^:private copy-to-jar (fn [project jar-os spec] (:type spec)))
+(defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
 (defn- trim-leading-str [s to-trim]
   (.replaceAll s (str "^" (Pattern/quote to-trim)) ""))
@@ -105,7 +105,7 @@
 ;; TODO: hacky; needed for conditional :resources-path below
 (defmethod copy-to-jar nil [project jar-os spec])
 
-(defn- write-jar [project out-filename filespecs]
+(defn write-jar [project out-filename filespecs]
   (let [manifest (make-manifest project)]
     (with-open [jar-os (-> out-filename
                            (FileOutputStream.)

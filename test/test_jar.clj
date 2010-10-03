@@ -5,8 +5,6 @@
         [leiningen.jar])
   (:import [java.util.jar JarFile]))
 
-(def make-manifest @#'leiningen.jar/make-manifest)
-
 (defproject mock-project "1.0" :main foo.one-two.three-four.bar
   :manifest {"hello" "world"})
 

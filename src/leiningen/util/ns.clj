@@ -11,18 +11,18 @@
 ;; 50 GB. Also it never looks past the first form to find a namespace
 ;; declaration.
 
-(def ^:private classpath-files
+(def classpath-files
   (for [f (.split (System/getProperty "java.class.path")
                   (System/getProperty "path.separator"))]
     (file f)))
 
-(defn- clj? [f]
+(defn clj? [f]
   (.endsWith (.getName f) ".clj"))
 
-(defn- jar? [f]
+(defn jar? [f]
   (and (.isFile f) (.endsWith (.getName f) ".jar")))
 
-(defn- read-ns-form [r]
+(defn read-ns-form [r]
   (let [form (try (read r)
                   (catch Exception _ ::done))]
     (if (and (list? form) (= 'ns (first form)))
@@ -30,7 +30,7 @@
       (when-not (= ::done form)
         (recur r)))))
 
-(defn- find-ns-form [f]
+(defn find-ns-form [f]
   (when (and (.isFile (file f)) (clj? f))
     (read-ns-form (PushbackReader. (reader f)))))
 
@@ -40,7 +40,7 @@
               :when ns-form]
           (second ns-form))))
 
-(defn- ns-in-jar-entry [jarfile entry]
+(defn ns-in-jar-entry [jarfile entry]
   (with-open [rdr (-> jarfile
                       (.getInputStream (.getEntry jarfile (.getName entry)))
                       InputStreamReader.

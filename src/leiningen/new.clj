@@ -7,7 +7,7 @@ Neither group-id nor artifact-id may contain slashes."
         [clojure.java.io :only [file]]
         [clojure.string :only [join]]))
 
-(defn- write-project [project-dir project-name]
+(defn write-project [project-dir project-name]
   (.mkdirs (file project-dir))
   (spit (file project-dir "project.clj")
         (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
@@ -15,12 +15,12 @@ Neither group-id nor artifact-id may contain slashes."
              "  :dependencies [[org.clojure/clojure \"1.2.0\"]\n"
              "                 [org.clojure/clojure-contrib \"1.2.0\"]])\n")))
 
-(defn- write-implementation [project-dir project-clj project-ns]
+(defn write-implementation [project-dir project-clj project-ns]
   (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
   (spit (file project-dir "src" project-clj)
         (str "(ns " project-ns ")\n")))
 
-(defn- write-test [project-dir test-ns project-ns]
+(defn write-test [project-dir test-ns project-ns]
   (.mkdirs (.getParentFile (file project-dir "test" (ns->path test-ns))))
   (spit (file project-dir "test" (ns->path test-ns))
         (str "(ns " (str test-ns)
@@ -29,7 +29,7 @@ Neither group-id nor artifact-id may contain slashes."
              "(deftest replace-me ;; FIXME: write\n  (is false "
              "\"No tests have been written.\"))\n")))
 
-(defn- write-readme [project-dir artifact-id]
+(defn write-readme [project-dir artifact-id]
   (spit (file project-dir "README")
         (join "\n\n" [(str "# " artifact-id)
                       "FIXME: write description"

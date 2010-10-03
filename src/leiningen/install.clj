@@ -13,10 +13,10 @@
            [org.apache.maven.artifact.resolver ArtifactResolver]
            [org.apache.maven.artifact.installer ArtifactInstaller]))
 
-(defn- bin-path []
+(defn bin-path []
   (doto (file (home-dir) "bin") .mkdirs))
 
-(defn- install-shell-wrapper [jarfile]
+(defn install-shell-wrapper [jarfile]
   (when-let [bin-name ((manifest-map (.getManifest jarfile))
                        "Leiningen-shell-wrapper")]
     (let [bin-file (file (bin-path) (last (.split bin-name "/")))]
@@ -25,7 +25,7 @@
       (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
       (.setExecutable bin-file true))))
 
-(defn- standalone-download [name group version]
+(defn standalone-download [name group version]
   (.resolveAlways (.lookup container ArtifactResolver/ROLE)
                   (make-remote-artifact name group version)
                   (map make-remote-repo default-repos)

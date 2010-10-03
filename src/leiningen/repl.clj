@@ -80,7 +80,7 @@
              (catch java.net.ConnectException _ :retry))
     (recur port)))
 
-(defn- repl-socket-on [{:keys [repl-port repl-host]}]
+(defn repl-socket-on [{:keys [repl-port repl-host]}]
   [(Integer. (or repl-port
                  (System/getenv "LEIN_REPL_PORT")
                  (dec (+ 1024 (rand-int 64512)))))

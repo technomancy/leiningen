@@ -38,7 +38,7 @@
              n))
       nses)))
 
-(defn- compilable-namespaces
+(defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
@@ -50,7 +50,7 @@
       (conj nses (:main project))
       nses)))
 
-(defn- stale-namespaces
+(defn stale-namespaces
   "Return a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
@@ -64,14 +64,14 @@
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
-(defn- get-by-pattern
+(defn get-by-pattern
   "Gets a value from map m, but uses the keys as regex patterns, trying
    to match against k instead of doing an exact match."
   [m k]
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))
 
-(def ^:private native-names
+(def native-names
      {"Mac OS X" :macosx
       "Windows" :windows
       "Linux" :linux
@@ -85,12 +85,12 @@
       "arm" :arm
       "sparc" :sparc})
 
-(defn- get-os
+(defn get-os
   "Returns a keyword naming the host OS."
   []
   (get-by-pattern native-names (System/getProperty "os.name")))
 
-(defn- get-arch
+(defn get-arch
   "Returns a keyword naming the host architecture"
   []
   (get-by-pattern native-names (System/getProperty "os.arch")))
@@ -112,7 +112,7 @@
   (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
           (:jvm-opts project)))
 
-(defn- get-readable-form [java project form init]
+(defn get-readable-form [java project form init]
   (let [cp (str (.getClasspath (.getCommandLine java)))
         form `(do ~init
                   (def ~'*classpath* ~cp)

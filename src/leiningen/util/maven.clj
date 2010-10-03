@@ -16,15 +16,15 @@
 ;; Welcome to the absurdist self-parodying world of Dependency Injection
 (def container (.getContainer (doto (Embedder.) (.start))))
 
-(def ^:private layout
+(def layout
   (.lookup container ArtifactRepositoryLayout/ROLE "default"))
 
-(def ^:private policy
+(def policy
      (ArtifactRepositoryPolicy. true
                                 ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
                                 ArtifactRepositoryPolicy/CHECKSUM_POLICY_FAIL))
 
-(defn- make-settings []
+(defn make-settings []
   (.buildSettings (.lookup container MavenSettingsBuilder/ROLE)))
 
 ;; repositories

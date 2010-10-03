@@ -88,7 +88,7 @@
 (defn task-not-found [& _]
   (abort "That's not a task. Use \"lein help\" to list all tasks."))
 
-(defn- resolve-task
+(defn resolve-task
   ([task not-found]
      (let [task-ns (symbol (str "leiningen." task))
            task (symbol task)]
@@ -114,7 +114,7 @@
            (println "Warning: problem requiring hooks:" (.getMessage e))
            (println "...continuing without hooks completely loaded.")))))
 
-(defn- user-init []
+(defn user-init []
   (let [init-file (File. (home-dir) "init.clj")]
     (when (.exists init-file)
       (load-file (.getAbsolutePath init-file)))))
@@ -130,7 +130,7 @@
       (replace \_ \-)
       (replace \/ \.)))
 
-(defn- arglists [task-name]
+(defn arglists [task-name]
   (:arglists (meta (resolve-task task-name))))
 
 (defn- project-needed? [parameters]
@@ -141,7 +141,7 @@
     (dec (count parameters))
     (count parameters)))
 
-(defn- matching-arity? [task-name project args]
+(defn matching-arity? [task-name project args]
   (some (fn [parameters]
           (and (if (= '& (last (butlast parameters)))
                  (>= (count args) (- (arg-count parameters project) 2))
@@ -165,7 +165,7 @@
 (defn- append-to-group [groups arg]
   (update-in groups [(dec (count groups))] conj arg))
 
-(defn- make-groups
+(defn make-groups
   ([args]
      (reduce make-groups [[]] args))
   ;; This could be a separate defn, but I can't think of a good name for it...
@@ -176,7 +176,7 @@
            (conj []))
        (append-to-group groups arg))))
 
-(defn- version-greater-eq?
+(defn version-greater-eq?
   "Check if v1 is greater than or equal to v2, where args are version strings.
 Takes major, minor and incremental versions into account."
   [v1 v2]
@@ -186,7 +186,7 @@ Takes major, minor and incremental versions into account."
              (>= (count v1) (count v2)))
         (every? true? (map > v1 v2)))))
 
-(defn- verify-min-version
+(defn verify-min-version
   [project]
   (when-not (version-greater-eq? (System/getenv "LEIN_VERSION")
                                  (:min-lein-version project))

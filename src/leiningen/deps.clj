@@ -10,7 +10,7 @@
            [org.apache.maven.settings Server]
            [org.apache.tools.ant.util FlatFileNameMapper]))
 
-(defn- make-repository [[id settings]]
+(defn make-repository [[id settings]]
   (let [repo (RemoteRepository.)]
     (.setId repo id)
     (if (string? settings)
@@ -43,7 +43,7 @@
       (symlink {:link destination
                 :resource (.getCanonicalPath (File. dir f))}))))
 
-(defn- make-deps-task [project deps-set]
+(defn make-deps-task [project deps-set]
   (let [deps-task (DependenciesTask.)]
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
