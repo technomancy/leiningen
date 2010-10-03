@@ -7,6 +7,7 @@
   :url "http://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"}
   :dependencies [[org.clojure/clojure "1.3.0-master-SNAPSHOT"]
+                 [org.clojure.contrib/standalone "1.3.0-SNAPSHOT"]
                  [ant/ant "1.6.5"]
                  [jline "0.9.94"]
                  [robert/hooke "1.0.2"]
