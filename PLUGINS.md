@@ -27,7 +27,11 @@ Tasks without a <tt>project</tt> argument will be able to be run from
 anywhere.
 
 Note that Leiningen is an implied dependency of all plugins; you don't
-need to explicitly list it in the project.clj file.
+need to explicitly list it in the project.clj file. You also don't
+need to list Clojure or Contrib, but you will be locked into using the
+same version of Clojure that Leiningen is using. So for instance, if
+your plugin depends on defprotocol, then you should make it clear in
+your documentation that it only works with Leiningen 1.2.0 and higher.
 
 The docstring from the plugin's namespace will be displayed by the
 "lein help" task. The function's arglists will also be shown, so pick
