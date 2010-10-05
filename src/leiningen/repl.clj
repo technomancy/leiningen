@@ -59,14 +59,10 @@
       (recur))))
 
 (defn repl-client [reader writer]
-  (let [eof (Object.)
-        input (try (read *in* false eof)
-                   (catch Exception e
-                     (println "Couldn't read input.")))]
-    (when-not (= eof input)
-      (.write writer (str (pr-str input) "\n"))
-      (.flush writer)
-      (recur reader writer))))
+  (when-let [input (read-line)]
+    (.write writer (str input "\n"))
+    (.flush writer)
+    (recur reader writer)))
 
 (defn- connect-to-server [socket]
   (let [reader (InputStreamReader. (.getInputStream socket))
