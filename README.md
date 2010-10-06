@@ -193,15 +193,16 @@ for the current user.
 
 ## Building
 
-Generally a <tt>lein self-install</tt> will get you what you need.
-Occasionally this will fail for very new SNAPSHOT versions since the
-standalone jar will not have been uploaded yet.
+You don't need to "build" Leiningen per se, but when you're using a
+checkout you will need to get its dependencies in place. If you have a
+copy of an older Leiningen version around (installed as lein-stable,
+for example), then you can run "lein-stable deps" in your checkout.
 
-If you have a copy of an older Leiningen version around (installed as
-lein-stable, for example), then you can run "lein-stable deps" in your
-checkout.
+Alternatively a <tt>lein self-install</tt> will usually get you what
+you need. However, this will occasionally fail for very new SNAPSHOT
+versions since the standalone jar will not have been uploaded yet.
 
-Otherwise you can use Maven:
+You can also use Maven, just for variety's sake:
 
     $ mvn dependency:copy-dependencies
     $ mv target/dependency lib
