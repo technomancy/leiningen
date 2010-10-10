@@ -2,11 +2,8 @@
 
 set LEIN_VERSION=1.4.0-SNAPSHOT
 
-if "x%1" == "xself-install" goto SELF_INSTALL
-if "x%1" == "xupgrade"      goto NO_UPGRADE
-
 rem it is possible to set LEIN_JAR variable manually
-rem so we don't overwrite them
+rem if it's set, don't overwrite it
 if "x%LEIN_JAR%" == "x" goto SET_LEIN
 goto ARGS_HANDLING
 
@@ -15,6 +12,9 @@ set LEIN_DIR=%~dp0
 set LEIN_JAR=%LEIN_DIR%leiningen-%LEIN_VERSION%-standalone.jar
 
 :ARGS_HANDLING
+if "x%1" == "xself-install" goto SELF_INSTALL
+if "x%1" == "xupgrade"      goto NO_UPGRADE
+
 if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
 
 
@@ -86,8 +86,6 @@ if ERRORLEVEL 9009 (
     if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
     set HTTP_CLIENT=curl -f -L -o
 )
-set LEIN_DIR=%~dp0
-set LEIN_JAR=%LEIN_DIR%leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
 %HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
