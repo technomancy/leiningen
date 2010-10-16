@@ -19,10 +19,13 @@ See also http://github.com/technomancy/leiningen/issues
    just use Maven's notion of the project's dependencies to construct a
    classpath that references jars straight from ~/.m2.
 * For 1.4
+** TODO merge push task based on clj-ssh
 ** TODO plugin task for managing/upgrading plugins
    Manually copying jar files into ~/.lein/plugins is pretty
    lame. Let's get a task to handle this. It could be implemented as a
    plugin at first, maybe.
+** TODO integrate plugin task with lein-search
+   Would be better to be able to leave off version numbers
 ** TODO merge lein-search features?
    This plugin is great; we should think about taking it into
    Leiningen itself.
@@ -42,6 +45,7 @@ See also http://github.com/technomancy/leiningen/issues
 ** TODO spin lancet off into its own dependency
    I've never felt comfortable about simply keeping it inline. On the
    other hand if we quit using ant then we can skip this.
+   Needs to not be in the default package!
 ** TODO shell wrappers should support multiple versions
    We could write out a different "foo-$VERSION" shell wrapper for each
    version of a project that gets installed and then have the plain
@@ -49,6 +53,7 @@ See also http://github.com/technomancy/leiningen/issues
    just fall back to the latest.
 ** TODO fail gracefully when run without an Internet connection (Issue #100)
 ** TODO improve test coverage
+** TODO expose original cwd as property
 ** DONE test selectors using metadata; run a subset of tests
    We could have a :test-selectors key in project.clj that would map
    keywords to predicate functions. Then the test task could take a

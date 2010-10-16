@@ -85,7 +85,7 @@ advantage of this, you should put it on your <tt>$PATH</tt>.
 Place a <tt>project.clj</tt> file in the project root like this:
 
     (defproject leiningen "0.5.0-SNAPSHOT"
-      :description "A build tool designed not to set your hair on fire."
+      :description "A build tool designed to not set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
       :dependencies [[org.clojure/clojure "1.1.0"]
                      [org.clojure/clojure-contrib "1.1.0"]

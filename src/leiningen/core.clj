@@ -10,7 +10,7 @@
 (defn- unquote-project [args]
   (walk (fn [item]
           (cond (and (seq? item) (= `unquote (first item))) (second item)
-                ;; needed if we want fn literals to be usable by eval-in-project:
+                ;; needed if we want fn literals to be usable by eval-in-project
                 (and (seq? item) (= 'fn (first item))) (list 'quote item)
                 (symbol? item) (list 'quote item)
                 :else (unquote-project item)))
