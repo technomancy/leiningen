@@ -20,9 +20,9 @@
   (.lookup container ArtifactRepositoryLayout/ROLE "default"))
 
 (def policy
-     (ArtifactRepositoryPolicy. true
-                                ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
-                                ArtifactRepositoryPolicy/CHECKSUM_POLICY_FAIL))
+  (ArtifactRepositoryPolicy. true
+                             ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
+                             ArtifactRepositoryPolicy/CHECKSUM_POLICY_FAIL))
 
 (defn make-settings []
   (.buildSettings (.lookup container MavenSettingsBuilder/ROLE)))
@@ -221,8 +221,7 @@ to exclude from transitive dependencies."
       (.setScm model scm))
     (when-let [parent (:parent project)]
       (.setParent model (apply make-parent parent)))
-    (doseq [license (concat (keep #(% project)
-                                  [:licence :license])
+    (doseq [license (concat (filter project [:licence :license])
                             (:licences project)
                             (:licenses project))]
       (.addLicense model (make-license license)))
