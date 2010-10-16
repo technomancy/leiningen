@@ -3,6 +3,7 @@
   (:require lancet)
   (:use  [leiningen.deps :only [deps]]
          [leiningen.core :only [ns->path]]
+         [leiningen.javac :only [javac]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
          [leiningen.util.ns :only [namespaces-in-dir]])
@@ -187,6 +188,8 @@
 those given as command-line arguments."
   ([project]
      (.mkdir (file (:compile-path project)))
+     (when (:java-source-path project)
+       (javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
          (if (zero? (eval-in-project project

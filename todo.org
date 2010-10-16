@@ -31,8 +31,6 @@ See also http://github.com/technomancy/leiningen/issues
    Leiningen itself.
 ** TODO merge lein-run task?
    Ditto; this is something useful that many projects need.
-** TODO merge lein-javac task
-   Also make the compile task run it where appropriate.
 ** TODO classifiers for specifying what clojure version to use?
    As more versions of Clojure start to exist, libraries may want to
    publish different branches that target different versions of
@@ -54,6 +52,8 @@ See also http://github.com/technomancy/leiningen/issues
 ** TODO fail gracefully when run without an Internet connection (Issue #100)
 ** TODO improve test coverage
 ** TODO expose original cwd as property
+** DONE merge lein-javac task
+   Also make the compile task run it where appropriate.
 ** DONE test selectors using metadata; run a subset of tests
    We could have a :test-selectors key in project.clj that would map
    keywords to predicate functions. Then the test task could take a
