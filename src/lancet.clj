@@ -4,6 +4,19 @@
            (java.util.concurrent CountDownLatch)
            (org.apache.tools.ant.types Path)))
 
+(def #^{:doc "Dummy ant project to keep Ant tasks happy"}
+  ant-project
+  (let [proj (org.apache.tools.ant.Project.)
+        logger (org.apache.tools.ant.NoBannerLogger.)]
+    (doto logger
+      (.setMessageOutputLevel org.apache.tools.ant.Project/MSG_INFO)
+      (.setEmacsMode true)
+      (.setOutputPrintStream System/out)
+      (.setErrorPrintStream System/err))
+    (doto proj
+      (.init)
+      (.addBuildListener logger))))
+
 (defmulti coerce (fn [dest-class src-inst] [dest-class (class src-inst)]))
 
 (defmethod coerce [java.io.File String] [_ str]
@@ -19,20 +32,6 @@
 
 (defn- build-sh-args [args]
   (concat (.split (first args) " +") (rest args)))
-
-(def
- #^{:doc "Dummy ant project to keep Ant tasks happy"}
- ant-project
- (let [proj (org.apache.tools.ant.Project.)
-       logger (org.apache.tools.ant.NoBannerLogger.)]
-   (doto logger
-     (.setMessageOutputLevel org.apache.tools.ant.Project/MSG_INFO)
-     (.setEmacsMode true)
-     (.setOutputPrintStream System/out)
-     (.setErrorPrintStream System/err))
-   (doto proj
-     (.init)
-     (.addBuildListener logger))))
 
 (defn property-descriptor [inst prop-name]
   (first

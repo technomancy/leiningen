@@ -55,7 +55,6 @@
     ;; wall-hack-method, and clojure.lang.Reflector doesn't call
     ;; private methods, we'll call a public method that we know calls
     ;; getContainer, getSupportedProtocols.
-    ;;
     (.getSupportedProtocols deps-task)
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
