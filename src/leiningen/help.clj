@@ -2,19 +2,10 @@
   "Display a list of tasks or help for a given task."
   (:use [leiningen.util.ns :only [namespaces-matching]]))
 
-(defn- ordered-distinct
-  "Just like distinct, but for ordered coll"
-  ([[x & xs]]
-     (ordered-distinct x xs))
-  ([x xs]
-     (if (seq xs)
-       (if (= x (first xs))
-         (recur x (rest xs))
-         (lazy-seq (cons x (ordered-distinct (first xs) (rest xs)))))
-       nil)))
-
-(def tasks (ordered-distinct (sort (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %))
-                                           (namespaces-matching "leiningen")))))
+(def tasks (->> (namespaces-matching "leiningen")
+                (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %)))
+                (distinct)
+                (sort)))
 
 (defn get-arglists [task]
   (for [args (:arglists (meta task))]
