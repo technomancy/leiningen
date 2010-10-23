@@ -7,6 +7,9 @@ Leiningen TODOs
 
 See also http://github.com/technomancy/leiningen/issues
 
+* Open Questions
+** Aether: how would it integrate? Improvement over maven-ant-tasks?
+** Tests in Nailgun: would it require a separate shell script?
 * For 2.0
 ** TODO Quit using ant's Java task. It is horrible.
    Try a custom classloader approach?
@@ -19,6 +22,9 @@ See also http://github.com/technomancy/leiningen/issues
    just use Maven's notion of the project's dependencies to construct a
    classpath that references jars straight from ~/.m2.
 * For 1.4
+** TODO explain unquote in sample.project.clj
+** TODO clear out non-transitive .class files after AOT
+   Luc Prefontaine has code for this.
 ** TODO merge push task based on clj-ssh
 ** TODO plugin task for managing/upgrading plugins
    Manually copying jar files into ~/.lein/plugins is pretty
@@ -51,7 +57,7 @@ See also http://github.com/technomancy/leiningen/issues
    just fall back to the latest.
 ** TODO fail gracefully when run without an Internet connection (Issue #100)
 ** TODO improve test coverage
-** TODO expose original cwd as property
+** DONE expose original pwd as property
 ** DONE merge lein-javac task
    Also make the compile task run it where appropriate.
 ** DONE test selectors using metadata; run a subset of tests

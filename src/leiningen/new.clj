@@ -49,7 +49,10 @@ Neither group-id nor artifact-id may contain slashes."
        (throw (IllegalArgumentException. "*jure names are no longer allowed.")))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
-           artifact-id (name project-name)]
+           artifact-id (name project-name)
+           project-dir (-> (System/getProperty "leiningen.original.pwd")
+                           (file project-dir)
+                           (.getAbsolutePath ))]
        (write-project project-dir project-name)
        (let [prefix (.replace (str project-name) "/" ".")
              project-ns (str prefix ".core")
