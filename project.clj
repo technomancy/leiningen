@@ -6,8 +6,8 @@
   :description "A build tool designed not to set your hair on fire."
   :url "http://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"}
-  :dependencies [[org.clojure/clojure "1.3.0-master-SNAPSHOT"]
-                 [org.clojure.contrib/standalone "1.3.0-SNAPSHOT"]
+  :dependencies [[org.clojure/clojure "1.3.0-alpha1"]
+                 [org.clojure.contrib/complete "1.3.0-alpha1" :classifier "bin"]
                  [ant/ant "1.6.5"]
                  [jline "0.9.94"]
                  [robert/hooke "1.0.2"]
