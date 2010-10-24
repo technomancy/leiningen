@@ -92,4 +92,6 @@
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.
-  :jvm-opts ["-Xmx1g"])
+  :jvm-opts ["-Xmx1g"]
+  ;; If your project is a Leiningen plugin, set this to skip the subprocess step
+  :eval-in-leiningen false)

@@ -142,33 +142,35 @@
       (compile project)))
   (when (empty? (find-lib-jars project))
     (deps project))
-  (let [java (Java.)
-        native-path (or (:native-path project)
-                        (find-native-lib-path project))]
-    (.setProject java lancet/ant-project)
-    (.addSysproperty java (doto (Environment$Variable.)
-                            (.setKey "clojure.compile.path")
-                            (.setValue (:compile-path project))))
-    (when native-path
+  (if (:eval-in-leiningen project)
+    (eval form)
+    (let [java (Java.)
+          native-path (or (:native-path project)
+                          (find-native-lib-path project))]
+      (.setProject java lancet/ant-project)
       (.addSysproperty java (doto (Environment$Variable.)
-                              (.setKey "java.library.path")
-                              (.setValue (cond
-                                          (= java.io.File (class native-path))
-                                          (.getAbsolutePath native-path)
-                                          (fn? native-path) (native-path)
-                                          :default native-path)))))
-    (.setClasspath java (apply make-path (get-classpath project)))
-    (.setFailonerror java true)
-    (.setFork java true)
-    (doseq [arg (get-jvm-args project)]
-      (when-not (re-matches #"^-Xbootclasspath.+" arg)
-        (.setValue (.createJvmarg java) arg)))
-    (.setClassname java "clojure.main")
-    ;; to allow plugins and other tasks to customize
-    (when handler (handler java))
-    (.setValue (.createArg java) "-e")
-    (.setValue (.createArg java) (get-readable-form java project form init))
-    (.executeJava java)))
+                              (.setKey "clojure.compile.path")
+                              (.setValue (:compile-path project))))
+      (when native-path
+        (.addSysproperty java (doto (Environment$Variable.)
+                                (.setKey "java.library.path")
+                                (.setValue (cond
+                                            (= java.io.File (class native-path))
+                                            (.getAbsolutePath native-path)
+                                            (fn? native-path) (native-path)
+                                            :default native-path)))))
+      (.setClasspath java (apply make-path (get-classpath project)))
+      (.setFailonerror java true)
+      (.setFork java true)
+      (doseq [arg (get-jvm-args project)]
+        (when-not (re-matches #"^-Xbootclasspath.+" arg)
+          (.setValue (.createJvmarg java) arg)))
+      (.setClassname java "clojure.main")
+      ;; to allow plugins and other tasks to customize
+      (when handler (handler java))
+      (.setValue (.createArg java) "-e")
+      (.setValue (.createArg java) (get-readable-form java project form init))
+      (.executeJava java))))
 
 (defn- platform-nullsink []
   (file (if (= :windows (get-os))
