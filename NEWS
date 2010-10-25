@@ -1,5 +1,9 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.4.0 / 2010-??-??
+
+* Merge plugin task: easily install user-level plugins (Colin Jones)
+
 = 1.3.1 / 2010-09-07
 
 * Support regex matching in :aot list. (Alex Ott)

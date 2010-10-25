@@ -73,8 +73,9 @@ You can also chain tasks together in a single command by using commas:
     $ lein clean, test foo.test-core, jar
 
 Most tasks need to be run from somewhere inside a project directory to
-work, but some (<tt>new</tt>, <tt>help</tt>, <tt>version</tt> and the
-two-argument version of <tt>install</tt>) may run from anywhere.
+work, but some (<tt>new</tt>, <tt>help</tt>, <tt>version</tt>,
+<tt>plugin</tt>, and the two-argument version of <tt>install</tt>) may
+run from anywhere.
 
 The install task places shell scripts in the <tt>~/.lein/bin</tt>
 directory for projects that include them, so if you want to take
@@ -103,6 +104,17 @@ projects. The <tt>~/.lein/init.clj</tt> file will be loaded every time
 Leiningen launches; any arbitrary code may go there. Place jars
 containing plugins in <tt>~/.lein/plugins</tt> to have them available globally
 for the current user.
+
+You can also use leiningen to manage your plugins with the plugin
+task. Use the same arguments you would put in the Leiningen
+:dev-dependencies if you were only using the plugin on a single
+project.
+
+    % lein plugin install lein-clojars/lein-clojars "0.6.0"
+
+See the plugin task's help for more information.
+
+    % lein plugin help
 
 ## FAQ
 
