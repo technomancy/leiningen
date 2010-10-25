@@ -9,7 +9,7 @@ esac
 
 # Make sure classpath is in unix format for manipulating, then put
 # it back to windows format when we use it
-if [ "$OSTYPE" = "cygwin" ] && [ $CLASSPATH != "" ]; then
+if [ "$OSTYPE" = "cygwin" ] && [ "$CLASSPATH" != "" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
