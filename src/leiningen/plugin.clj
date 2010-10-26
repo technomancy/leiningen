@@ -7,7 +7,8 @@
                               extract-jar
                               get-default-uberjar-name)]
         [clojure.java.io :only (file)])
-  (:require [leiningen.install])
+  (:require [leiningen.install]
+            [clojure.string :as string])
   (:import [java.util.zip ZipOutputStream]
            [java.io File FileOutputStream]))
 
@@ -52,6 +53,7 @@ Syntax: lein plugin uninstall GROUP/ARTIFACT-ID VERSION"
     (.delete (file plugins-path
                (plugin-standalone-filename group name version)))))
 
+;; TODO: move subtask documentation support to help namespace.
 (defn- formatted-docstring [command docstring padding]
   (apply str
     (replace
@@ -77,25 +79,21 @@ Syntax: lein plugin uninstall GROUP/ARTIFACT-ID VERSION"
         [(str (:name (meta subtask))) (:doc (meta subtask))])
       [#'help #'install #'uninstall])))
 
-(defn help
-  "Show plugin subtasks"
-  []
+(defn help []
   (let [help-map (get-help-map)
         longest-key-length (apply max (map count (keys help-map)))]
-    (println (str "Plugin tasks available:\n"))
-    (doall (map
-             (fn [[k v]] (println (formatted-help k v longest-key-length)))
-             help-map))
-    (println)))
+    (string/join "\n" (concat
+                       ["Manage user-level plugins.\n"
+                        "Subtasks available:\n"]
+                       (for [[subtask doc] help-map]
+                         (formatted-help subtask doc longest-key-length))))))
 
-
-(defn plugin
-  ([] (help))
-  ([_] (help))
-  ([_ _] (help))
+(defn ^{:help-arglists '([subtask project-name version])} plugin
+  ([] (println (help)))
+  ([_] (plugin))
+  ([_ _] (plugin))
   ([subtask project-name version]
     (case subtask
       "install" (install project-name version)
       "uninstall" (uninstall project-name version)
       (help))))
-
