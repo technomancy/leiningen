@@ -12,4 +12,5 @@
                  [jline "0.9.94"]
                  [robert/hooke "1.0.2"]
                  [org.apache.maven/maven-ant-tasks "2.0.10"]]
-  :disable-implicit-clean true)
+  :disable-implicit-clean true
+  :eval-in-leiningen true)
