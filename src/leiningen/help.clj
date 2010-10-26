@@ -17,7 +17,7 @@
   [task]
   (let [task-ns (doto (symbol (str "leiningen." task)) require)
         task (ns-resolve task-ns (symbol task))
-        help-fn (ns-resolve 'task-ns 'help)]
+        help-fn (ns-resolve task-ns 'help)]
     (str "Arguments: " (pr-str (get-arglists task)) "\n"
          (or (and help-fn (help-fn))
              (:doc (meta task))
