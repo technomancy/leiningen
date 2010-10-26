@@ -8,7 +8,7 @@
   :license {:name "Eclipse Public License"}
   :dependencies [[org.clojure/clojure "1.3.0-alpha1"]
                  [org.clojure.contrib/complete "1.3.0-alpha1" :classifier "bin"]
-                 [ant/ant "1.7.1"]
+                 [org.apache.ant/ant "1.7.1"]
                  [jline "0.9.94"]
                  [robert/hooke "1.0.2"]
                  [org.apache.maven/maven-ant-tasks "2.0.10"
