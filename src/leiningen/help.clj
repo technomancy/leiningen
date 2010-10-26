@@ -8,7 +8,7 @@
                 (sort)))
 
 (defn get-arglists [task]
-  (for [args (:arglists (meta task))]
+  (for [args (or (:help-arglists (meta task)) (:arglists (meta task)))]
     (vec (remove #(= 'project %) args))))
 
 (defn help-for
@@ -16,9 +16,11 @@
   in its namespace."
   [task]
   (let [task-ns (doto (symbol (str "leiningen." task)) require)
-        task (ns-resolve task-ns (symbol task))]
+        task (ns-resolve task-ns (symbol task))
+        help-fn (ns-resolve 'task-ns 'help)]
     (str "Arguments: " (pr-str (get-arglists task)) "\n"
-         (or (:doc (meta task))
+         (or (and help-fn (help-fn))
+             (:doc (meta task))
              (:doc (meta (find-ns task-ns)))))))
 
 ;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
