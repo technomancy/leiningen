@@ -6,14 +6,11 @@ setLocal EnableDelayedExpansion
 
 rem it is possible to set LEIN_JAR variable manually
 rem if it's set, don't overwrite it
-if "x%LEIN_JAR%" == "x" goto SET_LEIN
-goto ARGS_HANDLING
+if "x%LEIN_JAR%" == "x" (
+    set LEIN_DIR=%~dp0
+    set LEIN_JAR=!LEIN_DIR!leiningen-%LEIN_VERSION%-standalone.jar
+)
 
-:SET_LEIN
-set LEIN_DIR=%~dp0
-set LEIN_JAR=%LEIN_DIR%leiningen-%LEIN_VERSION%-standalone.jar
-
-:ARGS_HANDLING
 if "x%1" == "xself-install" goto SELF_INSTALL
 if "x%1" == "xupgrade"      goto NO_UPGRADE
 
