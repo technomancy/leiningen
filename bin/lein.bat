@@ -41,9 +41,10 @@ set CLASSPATH="%LEIN_JAR%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;src;"%CLASSPATH%"
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 rem ##################################################
 
-if "x%1" == "xrepl"         goto SET_JLINE
-if "x%1" == "xinteractive"  goto SET_JLINE
-if "x%1" == "xint"          goto SET_JLINE
+if not "x%INSIDE_EMACS%" == "x" goto SKIP_JLINE
+if "x%1" == "xrepl"             goto SET_JLINE
+if "x%1" == "xinteractive"      goto SET_JLINE
+if "x%1" == "xint"              goto SET_JLINE
 goto :SKIP_JLINE
 
 :SET_JLINE
