@@ -8,7 +8,7 @@
                               get-default-uberjar-name)]
         [clojure.java.io :only (file)])
   (:require [leiningen.install]
-            [clojure.string :as string])
+            [leiningen.help])
   (:import [java.util.zip ZipOutputStream]
            [java.io File FileOutputStream]))
 
@@ -20,6 +20,7 @@
 (defn extract-name-and-group [project-name]
   ((juxt name namespace) (symbol project-name)))
 
+;; TODO: extract shared behavior between this and the install task
 (defn install
   "Download, package, and install plugin jarfile into
   ~/.lein/plugins
@@ -53,47 +54,15 @@ Syntax: lein plugin uninstall GROUP/ARTIFACT-ID VERSION"
     (.delete (file plugins-path
                (plugin-standalone-filename group name version)))))
 
-;; TODO: move subtask documentation support to help namespace.
-(defn- formatted-docstring [command docstring padding]
-  (apply str
-    (replace
-      {\newline
-       (apply str (cons
-                    \newline
-                    (repeat (+ padding (count command)) " ")))}
-      docstring)))
-
-(def help-padding 3)
-
-(defn- formatted-help [command docstring longest-key-length]
-  (let [padding (+ longest-key-length help-padding (- (count command)))]
-    (format (str "%1s" (apply str (repeat padding " ")) "%2s")
-      command
-      (formatted-docstring command docstring padding))))
-
-(declare help)
-(defn- get-help-map []
-  (into {}
-    (map
-      (fn [subtask]
-        [(str (:name (meta subtask))) (:doc (meta subtask))])
-      [#'help #'install #'uninstall])))
-
-(defn help []
-  (let [help-map (get-help-map)
-        longest-key-length (apply max (map count (keys help-map)))]
-    (string/join "\n" (concat
-                       ["Manage user-level plugins.\n"
-                        "Subtasks available:\n"]
-                       (for [[subtask doc] help-map]
-                         (formatted-help subtask doc longest-key-length))))))
-
-(defn ^{:help-arglists '([subtask project-name version])} plugin
-  ([] (println (help)))
+(defn ^{:doc "Manage user-level plugins."
+        :help-arglists '([subtask project-name version])
+        :subtasks [#'install #'uninstall]}
+  plugin
+  ([] (println (leiningen.help/help-for "plugin")))
   ([_] (plugin))
   ([_ _] (plugin))
   ([subtask project-name version]
     (case subtask
       "install" (install project-name version)
       "uninstall" (uninstall project-name version)
-      (help))))
+      (plugin))))
