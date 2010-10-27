@@ -112,6 +112,8 @@
        (catch Exception e
          (when-not (empty? (.list (File. "lib")))
            (println "Warning: problem requiring hooks:" (.getMessage e))
+           (when (System/getenv "DEBUG")
+             (.printStackTrace e))
            (println "...continuing without hooks completely loaded.")))))
 
 (defn user-init []
