@@ -24,34 +24,28 @@
 
 (defn- formatted-help [command docstring longest-key-length]
   (let [padding (+ longest-key-length help-padding (- (count command)))]
-    (format (str "%1s" (apply str (repeat padding " ")) "%2s")
+    (format (str "%1s" (apply str (repeat padding \space)) "%2s")
       command
       (formatted-docstring command docstring padding))))
 
 (defn- get-subtasks-and-docstrings-for [task]
-  (let [task-ns (symbol (str "leiningen." task))
-        task (ns-resolve task-ns (symbol task))]
-    (into {}
-      (map
-        (fn [subtask]
-          (let [m (meta subtask)]
-            [(str (:name m)) (:doc m)]))
-        (:subtasks (meta task))))))
+  (into {}
+    (map (fn [subtask]
+           (let [m (meta subtask)]
+             [(str (:name m)) (:doc m)]))
+         (:subtasks (meta task)))))
 
 (defn subtask-help-for
-  [task-name]
-  (let [subtasks (get-subtasks-and-docstrings-for task-name)]
+  [task-ns task]
+  (let [subtasks (get-subtasks-and-docstrings-for task)]
     (if (empty? subtasks)
       nil
       (let [longest-key-length (apply max (map count (keys subtasks)))
-            task-ns (doto (symbol (str "leiningen." task-name)) require)
-            task (ns-resolve task-ns (symbol task-name))
             help-fn (ns-resolve task-ns 'help)]
-          (string/join
-            "\n"
-            (concat ["\n\nSubtasks available:"]
-                    (for [[subtask doc] subtasks]
-                      (formatted-help subtask doc longest-key-length))))))))
+        (string/join "\n"
+          (concat ["\n\nSubtasks available:"]
+                  (for [[subtask doc] subtasks]
+                    (formatted-help subtask doc longest-key-length))))))))
 
 (defn help-for
   "Help for a task is stored in its docstring, or if that's not present
@@ -64,7 +58,7 @@
          (or (and help-fn (help-fn))
              (:doc (meta task))
              (:doc (meta (find-ns task-ns))))
-         (subtask-help-for task-name))))
+         (subtask-help-for task-ns task))))
 
 ;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
 (defn help-summary-for [task-ns]
