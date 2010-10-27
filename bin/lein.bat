@@ -38,18 +38,21 @@ set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
 set CLASSPATH="%LEIN_JAR%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;src;"%CLASSPATH%"
 
-if "x%DEBUG%" == "x" goto RUN
-echo CLASSPATH=%CLASSPATH%
+if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 rem ##################################################
 
-:RUN
-if "x%1" == "xrepl" goto RUN_REPL
-java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+if "x%1" == "xrepl"         goto SET_JLINE
+if "x%1" == "xinteractive"  goto SET_JLINE
+if "x%1" == "xint"          goto SET_JLINE
+goto :SKIP_JLINE
+
+:SET_JLINE
+set JLINE=jline.ConsoleRunner
+:SKIP_JLINE
+
+java -client -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
 goto EOF
 
-:RUN_REPL
-%RLWRAP% java -client %JAVA_OPTS% -cp src;classes;%CLASSPATH% clojure.main %2 %3 %4
-goto EOF
 
 :NO_LEIN_JAR
 echo.
