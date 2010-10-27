@@ -47,12 +47,16 @@
                   (for [[subtask doc] subtasks]
                     (formatted-help subtask doc longest-key-length))))))))
 
+(defn- resolve-task [task-name]
+  (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
+        task (ns-resolve task-ns (symbol task-name))]
+    [task-ns task]))
+
 (defn help-for
   "Help for a task is stored in its docstring, or if that's not present
   in its namespace."
   [task-name]
-  (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
-        task (ns-resolve task-ns (symbol task-name))
+  (let [[task-ns task] (resolve-task task-name)
         help-fn (ns-resolve task-ns 'help)]
     (str "Arguments: " (pr-str (get-arglists task)) "\n"
          (or (and help-fn (help-fn))
