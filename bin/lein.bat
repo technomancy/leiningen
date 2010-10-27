@@ -4,8 +4,8 @@ set LEIN_VERSION=1.4.0-SNAPSHOT
 
 setLocal EnableDelayedExpansion
 
-rem it is possible to set LEIN_JAR variable manually
-rem if it's set, don't overwrite it
+rem LEIN_JAR and LEIN_HOME variables can be set manually.
+
 if "x%LEIN_JAR%" == "x" (
     set LEIN_DIR=%~dp0
     set LEIN_JAR=!LEIN_DIR!leiningen-%LEIN_VERSION%-standalone.jar
@@ -25,21 +25,28 @@ for %%a in (%*) do set /a ARGCOUNT+=1
 rem ##################################################
 
 
-rem ##################################################
-rem add jars found under "lib" directory to CLASSPATH
-rem
+if "x%LEIN_HOME%" == "x" (
+    set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%/.lein
+)
 
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
-
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
-set CP="
-for /R ./lib %%a in (*.jar) do (
-   set CP=!CP!;%%a
-)
-set CP=!CP!"
 
-set CLASSPATH="%LEIN_JAR%";%CP%;"%CLASSPATH%"
+set LEIN_PLUGINS="
+for %%j in (.\lib\dev\*.jar) do (
+    set LEIN_PLUGINS=!LEIN_PLUGINS!;%%~fj
+)
+set LEIN_PLUGINS=!LEIN_PLUGINS!"
+
+set LEIN_USER_PLUGINS="
+for %%j in (%LEIN_HOME%\plugins\*.jar) do (
+    set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!;%%~fj
+)
+set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
+
+set CLASSPATH="%LEIN_JAR%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;src;"%CLASSPATH%"
+
 if "x%DEBUG%" == "x" goto RUN
 echo CLASSPATH=%CLASSPATH%
 rem ##################################################
