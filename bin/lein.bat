@@ -2,6 +2,8 @@
 
 set LEIN_VERSION=1.4.0-SNAPSHOT
 
+setLocal EnableDelayedExpansion
+
 rem it is possible to set LEIN_JAR variable manually
 rem if it's set, don't overwrite it
 if "x%LEIN_JAR%" == "x" goto SET_LEIN
@@ -34,7 +36,6 @@ call :FIND_DIR_CONTAINING_UPWARDS project.clj
 
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
-setLocal EnableDelayedExpansion
 set CP="
 for /R ./lib %%a in (*.jar) do (
    set CP=!CP!;%%a
