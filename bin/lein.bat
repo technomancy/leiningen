@@ -51,7 +51,9 @@ goto :SKIP_JLINE
 set JLINE=jline.ConsoleRunner
 :SKIP_JLINE
 
-java -client -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
+
+%JAVA_CMD% -client %JAVA_OPTS% -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
 goto EOF
 
 
