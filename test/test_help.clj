@@ -3,6 +3,7 @@
         [clojure.test]))
 
 (def formatted-docstring @#'leiningen.help/formatted-docstring)
+(def get-subtasks-and-docstrings-for @#'leiningen.help/get-subtasks-and-docstrings-for)
 (def formatted-help @#'leiningen.help/formatted-help)
 (def resolve-task @#'leiningen.help/resolve-task)
 
@@ -19,11 +20,18 @@
   (is (= "This is an
               AWESOME command
             For real!"
-      (formatted-docstring "install" "This is an\n  AWESOME command\nFor real!" 5))))
+      (formatted-docstring
+        "install"
+        "This is an\n  AWESOME command\nFor real!" 5))))
 
 (deftest test-formatted-help
   (is (= "install           This is an
                   AWESOME command
                   For real!"
       (formatted-help "install" "This is an\nAWESOME command\nFor real!" 15))))
+
+(deftest test-get-subtasks
+  (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
+    (is (= ["install" "uninstall"]
+           (sort (keys m))))))
 
