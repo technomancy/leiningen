@@ -16,15 +16,6 @@ if "x%1" == "xupgrade"      goto NO_UPGRADE
 
 if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
 
-
-rem ##################################################
-rem count number of command line arguments
-rem
-set ARGCOUNT=0
-for %%a in (%*) do set /a ARGCOUNT+=1
-rem ##################################################
-
-
 if "x%LEIN_HOME%" == "x" (
     set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%/.lein
 )
@@ -53,17 +44,7 @@ rem ##################################################
 
 :RUN
 if "x%1" == "xrepl" goto RUN_REPL
-if "%ARGCOUNT%" == "2" goto RUN_ARG2
-if "%ARGCOUNT%" == "3" goto RUN_ARG3
-java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\")"
-goto EOF
-
-:RUN_ARG2
-java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\" \"%2\")"
-goto EOF
-
-:RUN_ARG3
-java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core) (-main \"%1\" \"%2\" \"%3\")"
+java -client -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
 goto EOF
 
 :RUN_REPL
