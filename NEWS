@@ -2,7 +2,27 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.4.0 / 2010-??-??
 
-* Merge plugin task: easily install user-level plugins (Colin Jones)
+* Delete non-project .class files after AOT compilation. (Luc Prefontaine)
+
+* Merge run task from lein-run plugin. (Siddhartha Reddy)
+
+* Improve subtask help output. (Colin Jones)
+
+* Support :eval-in-leiningen for easier testing of plugins.
+
+* Merge javac task from lein-javac plugin. (Antonio Garrote)
+
+* Add init argument to eval-in-project to help with the Gilardi Scenario.
+
+* Fix bug involving repl I/O flushing.
+
+* Run subset of test suite using test selector predicates.
+
+* Specify what file patterns to exclude from jars. (Zehua Liu)
+
+* Sort and de-dupe help output. (Sergio Arbeo)
+
+* Add plugin task: easily install user-level plugins (Colin Jones, Michael Ivey)
 
 = 1.3.1 / 2010-09-07
 
