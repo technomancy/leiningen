@@ -29,9 +29,12 @@
 
 ;; repositories
 
+(def local-repo-path (.getLocalRepository (make-settings)))
+
 (defn make-local-repo []
-  (let [path (.getLocalRepository (make-settings))
-        url (if (.startsWith path "file:") path (str "file://" path))]
+  (let [url (if (.startsWith local-repo-path "file:")
+              local-repo-path
+              (str "file://" local-repo-path))]
     (-> (.lookup container ArtifactRepositoryFactory/ROLE)
         (.createDeploymentArtifactRepository
          "local" url layout true))))
