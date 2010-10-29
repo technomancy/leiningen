@@ -71,11 +71,11 @@ echo "%LEIN_JAR%" can not be found.
 echo You can try running "lein self-install"
 echo or change LEIN_JAR environment variable
 echo or edit lein.bat to set appropriate LEIN_JAR path.
-echo. 
+echo.
 goto EOF
 
 :SELF_INSTALL
-if exist %LEIN_JAR% (
+if exist "%LEIN_JAR%" (
     echo %LEIN_JAR% already exists. Delete and retry.
     goto EOF
 )
@@ -89,9 +89,9 @@ if ERRORLEVEL 9009 (
 set LEIN_DIR=%~dp0
 set LEIN_JAR=%LEIN_DIR%leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
-%HTTP_CLIENT% %LEIN_JAR% %LEIN_JAR_URL%
+%HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
-    del %LEIN_JAR%>nul 2>&1
+    del "%LEIN_JAR%">nul 2>&1
     goto DOWNLOAD_FAILED
 )
 goto EOF
