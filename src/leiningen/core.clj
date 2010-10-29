@@ -136,7 +136,9 @@
   (:arglists (meta (resolve-task task-name))))
 
 (defn- project-needed? [parameters]
-  (= 'project (first parameters)))
+  (if (vector? parameters)
+    (= 'project (first parameters))
+    (every? project-needed? parameters)))
 
 (defn- arg-count [parameters project]
   (if (and project (project-needed? parameters))
@@ -159,8 +161,11 @@
       (if (project-needed? parameters)
         (apply task project args)
         (apply task args))
-      (abort "Wrong number of arguments to" task-name "task."
-             "\nExpected"  (arglists task-name)))))
+      (let [args (arglists task-name)]
+        (if (and (not project) (project-needed? args))
+          (abort "Couldn't find project.clj, which is needed for" task-name)
+          (abort "Wrong number of arguments to" task-name "task."
+                 "\nExpected" args))))))
 
 (def arg-separator ",")
 
