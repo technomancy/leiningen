@@ -10,6 +10,7 @@ See also http://github.com/technomancy/leiningen/issues
 * Open Questions
 ** Aether: how would it integrate? Improvement over maven-ant-tasks?
 ** Tests in Nailgun: would it require a separate shell script?
+** How could nonlinear versions be represented?
 * For 2.0
 ** TODO Quit using ant's Java task. It is horrible.
    Try a custom classloader approach?
@@ -43,20 +44,21 @@ See also http://github.com/technomancy/leiningen/issues
 ** TODO improve test coverage
 ** TODO merge push task based on clj-ssh
    lein-clojars task doesn't support DSA keys
-* For 1.4
-** TODO explain unquote in sample.project.clj
-** TODO clear out non-transitive .class files after AOT
-   Luc Prefontaine has code for this.
-** TODO plugin task for managing/upgrading plugins
-   Manually copying jar files into ~/.lein/plugins is pretty
-   lame. Let's get a task to handle this. It could be implemented as a
-   plugin at first, maybe.
 ** TODO integrate plugin task with lein-search
    Would be better to be able to leave off version numbers
+* For 1.4
+** TODO Avoid warning when defining *classpath* by marking :dynamic
+** TODO get -Xbootclasspath working with Clojure 1.3 again
 ** TODO merge lein-search features?
    This plugin is great; we should think about taking it into
    Leiningen itself.
-** TODO merge lein-run task?
+** DONE clear out non-transitive .class files after AOT
+   Luc Prefontaine has code for this.
+** DONE plugin task for managing/upgrading plugins
+   Manually copying jar files into ~/.lein/plugins is pretty
+   lame. Let's get a task to handle this. It could be implemented as a
+   plugin at first, maybe.
+** DONE merge lein-run task?
    Ditto; this is something useful that many projects need.
 ** DONE expose original pwd as property
 ** DONE merge lein-javac task
