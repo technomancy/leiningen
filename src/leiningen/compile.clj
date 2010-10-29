@@ -155,7 +155,7 @@
         (.addSysproperty java (doto (Environment$Variable.)
                                 (.setKey "java.library.path")
                                 (.setValue (cond
-                                            (= java.io.File (class native-path))
+                                            (= file (class native-path))
                                             (.getAbsolutePath native-path)
                                             (fn? native-path) (native-path)
                                             :default native-path)))))
@@ -177,6 +177,23 @@
           "NUL"
           "/dev/null")))
 
+(defn- has-corresponding-src?
+  "Test if the given class file path exists in the source folder."
+  [project f]
+  (.exists (file (:source-path project)
+                 (-> (.getAbsolutePath f)
+                     (.replaceAll "\\$\\w*\\.class$" ".clj")
+                     (.replaceAll "__init\\.class$" ".clj")
+                     (.replaceAll "\\.class$" ".clj")
+                     (.replace (str (:compile-path project) "/") "")))))
+
+(defn delete-non-project-classes [project]
+  (when (and (not= :all (:aot project))
+             (not (:keep-non-project-classes project)))
+    (doseq [f (file-seq (file (:compile-path project)))
+            :when (and (.isFile f) (not (has-corresponding-src? project f)))]
+      (.delete f))))
+
 (defn- status [code msg]
   (when-not *silently*
     (.write (if (zero? code) *out* *err*) (str msg "\n")))
@@ -194,16 +211,18 @@ those given as command-line arguments."
        (javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-         (if (zero? (eval-in-project project
-                                     `(doseq [namespace# '~namespaces]
-                                        (when-not ~*silently*
-                                          (println "Compiling" namespace#))
-                                        (clojure.core/compile namespace#))
-                                     (when *suppress-err*
-                                       #(.setError % (platform-nullsink)))
-                                     :skip-auto-compile))
-           (success "Compilation succeeded.")
-           (failure "Compilation failed."))
+         (let [result (eval-in-project project
+                                       `(doseq [namespace# '~namespaces]
+                                          (when-not ~*silently*
+                                            (println "Compiling" namespace#))
+                                          (clojure.core/compile namespace#))
+                                       (when *suppress-err*
+                                         #(.setError % (platform-nullsink)))
+                                       :skip-auto-compile)]
+           (delete-non-project-classes project)
+           (if (zero? result)
+             (success "Compilation succeeded.")
+             (failure "Compilation failed.")))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]

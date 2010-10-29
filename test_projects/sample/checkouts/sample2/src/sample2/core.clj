@@ -1,1 +1,2 @@
-(ns sample2.core)
+(ns sample2.core
+  (:gen-class))
