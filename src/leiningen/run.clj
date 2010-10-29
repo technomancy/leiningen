@@ -23,11 +23,11 @@ USAGE: lein run :alias [ARGS...]
 Aliases can be defined in project.clj as
     :run-aliases {:alias a.namespace
                   :alias2 another.namespace}"
-  [project & [first-arg & args]]
-  (let [first-arg (read-string first-arg)
-        alias (and (keyword? first-arg) (first-arg (:run-aliases project)))]
-    (cond alias              (apply run project "-m" (cons alias args))
-          (= first-arg '-m) (apply run-main project args)
-          (:main project)    (apply run-main project (:main project)
-                                    first-arg args)
+  [project & [flag & args]]
+  (let [flag (read-string flag)
+        alias (and (keyword? flag) (flag (:run-aliases project)))]
+    (cond alias           (apply run project "-m" (cons alias args))
+          (= flag '-m)    (apply run-main project args)
+          (:main project) (apply run-main project (:main project)
+                                 flag args)
           :else (abort "No :main namespace specified in project.clj."))))
