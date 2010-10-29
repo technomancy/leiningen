@@ -69,19 +69,20 @@
   "Download and install all :dependencies listed in project.clj.
 With an argument it will skip development dependencies."
   ([project skip-dev deps-set]
-     (when-not (:disable-implicit-clean project)
-       (delete-file-recursively (:library-path project) true))
-     (let [deps-task (make-deps-task project deps-set)
-           _ (.execute deps-task)
-           fileset (.getReference lancet/ant-project
-                                  (.getFilesetId deps-task))]
-       (.mkdirs (File. (:library-path project)))
-       (copy-dependencies (:jar-behavior project)
-                          (:library-path project)
-                          true fileset)
-       (when (and (not skip-dev) (seq (:dev-dependencies project)))
-         (deps (assoc project :library-path (str (:root project) "/lib/dev"))
-               true :dev-dependencies))
-       fileset))
+     (when (seq (project deps-set))
+       (when-not (:disable-implicit-clean project)
+         (delete-file-recursively (:library-path project) true))
+       (let [deps-task (make-deps-task project deps-set)
+             _ (.execute deps-task)
+             fileset (.getReference lancet/ant-project
+                                    (.getFilesetId deps-task))]
+         (.mkdirs (File. (:library-path project)))
+         (copy-dependencies (:jar-behavior project)
+                            (:library-path project)
+                            true fileset)
+         (when (and (not skip-dev) (seq (:dev-dependencies project)))
+           (deps (assoc project :library-path (str (:root project) "/lib/dev"))
+                 true :dev-dependencies))
+         fileset)))
   ([project skip-dev] (deps project skip-dev :dependencies))
   ([project] (deps project false)))
