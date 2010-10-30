@@ -25,13 +25,13 @@ if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
 
 set LEIN_PLUGINS="
-for %%j in (.\lib\dev\*.jar) do (
+for %%j in (".\lib\dev\*.jar") do (
     set LEIN_PLUGINS=!LEIN_PLUGINS!;%%~fj
 )
 set LEIN_PLUGINS=!LEIN_PLUGINS!"
 
 set LEIN_USER_PLUGINS="
-for %%j in (%LEIN_HOME%\plugins\*.jar) do (
+for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
     set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!;%%~fj
 )
 set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
