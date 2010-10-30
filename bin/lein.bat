@@ -17,7 +17,7 @@ if "x%1" == "xupgrade"      goto NO_UPGRADE
 if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
 
 if "x%LEIN_HOME%" == "x" (
-    set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%/.lein
+    set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%\.lein
 )
 
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
