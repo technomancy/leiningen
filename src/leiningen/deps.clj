@@ -65,11 +65,14 @@
       (.addDependency deps-task (make-dependency dep)))
     deps-task))
 
+(defn use-dev-deps? [project skip-dev]
+  (and (not skip-dev) (seq (:dev-dependencies project))))
+
 (defn deps
   "Download and install all :dependencies listed in project.clj.
 With an argument it will skip development dependencies."
   ([project skip-dev deps-set]
-     (when (seq (project deps-set))
+     (when (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
        (when-not (:disable-implicit-clean project)
          (delete-file-recursively (:library-path project) true))
        (let [deps-task (make-deps-task project deps-set)
@@ -80,7 +83,7 @@ With an argument it will skip development dependencies."
          (copy-dependencies (:jar-behavior project)
                             (:library-path project)
                             true fileset)
-         (when (and (not skip-dev) (seq (:dev-dependencies project)))
+         (when (use-dev-deps? project skip-dev)
            (deps (assoc project :library-path (str (:root project) "/lib/dev"))
                  true :dev-dependencies))
          fileset)))

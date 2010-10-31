@@ -14,3 +14,15 @@
                        (.listFiles (file (:root test-project) "lib"))))]
     (doseq [j ["jdom-1.0.jar" "tagsoup-1.2.jar" "rome-0.9.jar"]]
       (is (jars j)))))
+
+(def dev-deps-only-project
+  (read-project "test_projects/dev-deps-only/project.clj"))
+
+(deftest test-dev-deps-only
+  (delete-file-recursively (file (:root dev-deps-only-project) "lib") true)
+  (deps dev-deps-only-project)
+  (let [jars (set (map #(.getName %)
+                       (.listFiles (file (:root dev-deps-only-project) "lib" "dev"))))]
+    (doseq [j ["clojure-1.2.0.jar"]]
+      (is (jars j)))))
+
