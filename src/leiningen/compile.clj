@@ -43,6 +43,8 @@
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [project]
+  (when (:namespaces project)
+    (println "WARNING: :namespaces in project.clj is deprecated; use :aot."))
   (let [nses (or (:aot project) (:namespaces project))
         nses (if (= :all nses)
                (namespaces-in-dir (:source-path project))
