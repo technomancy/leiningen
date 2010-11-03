@@ -49,7 +49,7 @@
            (:test-path project)
            (:compile-path project)
            (:resources-path project)
-           (:test-resources-path project)]
+           (:dev-resources-path project)]
           (user-plugins)
           (checkout-deps-paths project)
           (find-lib-jars project)))

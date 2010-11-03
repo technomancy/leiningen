@@ -212,7 +212,7 @@ to exclude from transitive dependencies."
                 (add-a-resource :.setResources
                                 (relative-path project :resources-path))
                 (add-a-resource :.setTestResources
-                                (relative-path project :test-resources-path))
+                                (relative-path project :dev-resources-path))
                 (.setSourceDirectory (relative-path project :source-path))
                 (.setTestSourceDirectory (relative-path project :test-path)))]
     (.setBuild model build)

@@ -39,11 +39,16 @@
                                               (str root# "/test"))
                                :resources-path (or (:resources-path m#)
                                                    (str root# "/resources"))
-                               :test-resources-path
-                               (or (:test-resources-path m#)
+                               :dev-resources-path
+                               (or (:dev-resources-path m#)
+                                   (:test-resources-path m#)
+                                   ;; TODO: change default in 2.0.
                                    (str root# "/test-resources"))
                                :jar-dir (or (:jar-dir m#) root#)
                                :root root#)))
+     (when (:test-resources-path m#)
+       (println (str "WARNING: :test-resources-path is deprecated; use "
+                     ":dev-resources-path.")))
      (def ~(symbol (name project-name)) @#'project)))
 
 (defn exit
