@@ -11,13 +11,13 @@
 
 ;; TODO: use subtask help?
 (defn run
-  "Call a function in a new process or run a .clj file.
+  "Call a -main function with optional command-line arguments.
 
 USAGE: lein run [ARGS...]
 Calls the -main function in the namespace specified as :main in project.clj.
 
 USAGE: lein run -m NAMESPACE [ARGS...]
-Calls the namespace/function in a new process; function defaults to -main.
+Calls the -main function in the specified namespace.
 
 USAGE: lein run :alias [ARGS...]
 Aliases can be defined in project.clj as
@@ -28,6 +28,5 @@ Aliases can be defined in project.clj as
         alias (and (keyword? flag) (flag (:run-aliases project)))]
     (cond alias           (apply run project "-m" (cons alias args))
           (= flag '-m)    (apply run-main project args)
-          (:main project) (apply run-main project (:main project)
-                                 flag args)
+          (:main project) (apply run-main project (:main project) flag args)
           :else (abort "No :main namespace specified in project.clj."))))
