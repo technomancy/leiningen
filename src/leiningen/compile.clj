@@ -177,21 +177,19 @@
           "NUL"
           "/dev/null")))
 
-(defn- has-corresponding-src?
-  "Test if the given class file path exists in the source folder."
+(defn- has-source-package?
+  "Test if the class file's package exists as a directory in :source-path."
   [project f]
-  (.exists (file (:source-path project)
-                 (-> (.getAbsolutePath f)
-                     (.replaceAll "\\$\\w*\\.class$" ".clj")
-                     (.replaceAll "__init\\.class$" ".clj")
-                     (.replaceAll "\\.class$" ".clj")
-                     (.replace (str (:compile-path project) "/") "")))))
+  (.isDirectory (doto (file (.replace (.getParent f)
+                                      (:compile-path project)
+                                      (:source-path project)))
+                  println)))
 
 (defn delete-non-project-classes [project]
   (when (and (not= :all (:aot project))
              (not (:keep-non-project-classes project)))
     (doseq [f (file-seq (file (:compile-path project)))
-            :when (and (.isFile f) (not (has-corresponding-src? project f)))]
+            :when (and (.isFile f) (not (has-source-package? project f)))]
       (.delete f))))
 
 (defn- status [code msg]
