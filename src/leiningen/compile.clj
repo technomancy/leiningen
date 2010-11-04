@@ -17,7 +17,7 @@
 
 (def *silently* false)
 
-(def *suppress-err* false)
+(def *skip-auto-compile* false)
 
 (defn- regex?
   "Returns true if we have regex class"
@@ -138,7 +138,9 @@
   with the java task right before executing if you need to customize any of its
   properties (classpath, library-path, etc)."
   [project form & [handler skip-auto-compile init]]
-  (when (and (not skip-auto-compile)
+  (when skip-auto-compile
+    (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
+  (when (and (not (or *skip-auto-compile* skip-auto-compile))
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
       (compile project)))
@@ -169,7 +171,9 @@
           (.setValue (.createJvmarg java) arg)))
       (.setClassname java "clojure.main")
       ;; to allow plugins and other tasks to customize
-      (when handler (handler java))
+      (when handler
+        (println "WARNING: eval-in-project's handler argument is deprecated.")
+        (handler java))
       (.setValue (.createArg java) "-e")
       (.setValue (.createArg java) (get-readable-form java project form init))
       (.executeJava java))))
@@ -182,10 +186,9 @@
 (defn- has-source-package?
   "Test if the class file's package exists as a directory in :source-path."
   [project f]
-  (.isDirectory (doto (file (.replace (.getParent f)
-                                      (:compile-path project)
-                                      (:source-path project)))
-                  println)))
+  (.isDirectory (file (.replace (.getParent f)
+                                (:compile-path project)
+                                (:source-path project)))))
 
 (defn delete-non-project-classes [project]
   (when (and (not= :all (:aot project))
@@ -211,18 +214,16 @@ those given as command-line arguments."
        (javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-         (let [result (eval-in-project project
-                                       `(doseq [namespace# '~namespaces]
-                                          (when-not ~*silently*
-                                            (println "Compiling" namespace#))
-                                          (clojure.core/compile namespace#))
-                                       (when *suppress-err*
-                                         #(.setError % (platform-nullsink)))
-                                       :skip-auto-compile)]
-           (delete-non-project-classes project)
-           (if (zero? result)
-             (success "Compilation succeeded.")
-             (failure "Compilation failed.")))
+         (binding [*skip-auto-compile* true]
+           (try
+             (if (zero? (eval-in-project project
+                                         `(doseq [namespace# '~namespaces]
+                                            (when-not ~*silently*
+                                              (println "Compiling" namespace#))
+                                            (clojure.core/compile namespace#))))
+               (success "Compilation succeeded.")
+               (failure "Compilation failed."))
+             (finally (delete-non-project-classes project))))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]
