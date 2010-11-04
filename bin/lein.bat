@@ -36,7 +36,7 @@ for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
 )
 set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
-set CLASSPATH="%LEIN_JAR%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;src;"%CLASSPATH%"
+set CLASSPATH="%LEIN_JAR%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src;"%CLASSPATH%"
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 rem ##################################################
