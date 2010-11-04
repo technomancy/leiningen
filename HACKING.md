@@ -1,8 +1,8 @@
 # Hacking Leiningen
 
-Leiningen is very small. The latest release is only around a thousand
-lines of Clojure; you could probably read through the whole project in
-an hour.
+Leiningen is very small. The latest release is only around a couple
+thousand lines of Clojure; you could probably read through the whole
+project in an hour.
 
 TODO: what goes where? a tour through the launching of a task
 

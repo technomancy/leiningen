@@ -110,11 +110,11 @@ task. Use the same arguments you would put in the Leiningen
 :dev-dependencies if you were only using the plugin on a single
 project.
 
-    % lein plugin install lein-clojars/lein-clojars "0.6.0"
+    $ lein plugin install lein-clojars/lein-clojars "0.6.0"
 
 See the plugin task's help for more information.
 
-    % lein plugin help
+    $ lein plugin help
 
 ## FAQ
 
@@ -202,6 +202,26 @@ See the plugin task's help for more information.
   for Java interop. If you are not using any of these features, you
   should not AOT-compile your project if other projects may depend
   upon it.
+
+**Q:** What can be done to speed up launch?  
+**A:** The "server" Hotspot compiler in the JVM is optimized for
+  long-running processes and has quite a poor startup time. Leiningen
+  will try to launch a client JVM, but this only works on 32-bit JVM
+  installations. If you are on a 64-bit machine you can still use a
+  client JVM; on Ubuntu use the ia32-sun-java6-bin package. Once
+  you've installed it, set the <tt>JAVA_CMD</tt> environment variable
+  to <tt>/usr/lib/jvm/ia32-java-6-sun/bin/java</tt>. Using the
+  <tt>interactive</tt> command, the <tt>swank-clojure</tt> plugin, and
+  the socket started by the <tt>repl</tt> command are also good ways
+  to avoid paying the startup time penalty.
+
+## Contributing
+
+Please report issues on the [Github issue
+tracker](https://github.com/technomancy/leiningen/issues) or the
+[mailing list](http://groups.google.com/group/leiningen). Personal
+email addresses are not appropriate for bug reports. See the file
+HACKING.md for more details on how Leiningen's codebase is structured.
 
 ## Building
 
