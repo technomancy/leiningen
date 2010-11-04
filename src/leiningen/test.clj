@@ -6,11 +6,6 @@
         [leiningen.compile :only [eval-in-project]])
   (:import [java.io File]))
 
-(defn- init-args [java & files]
-  (doseq [f files]
-    (.setValue (.createArg java) "-i")
-    (.setValue (.createArg java) f)))
-
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
      (if-let [add-hook# (resolve 'robert.hooke/add-hook)]
@@ -57,10 +52,9 @@ tests. If none are given, runs them all." ; TODO: update
       (throw (Exception. "Args must be either all namespaces or keywords.")))
     (eval-in-project project (form-for-testing-namespaces
                               nses (.getAbsolutePath result) (vec selectors))
-                     #(apply init-args %
-                             (if (seq selectors)
-                               ["@clojure/test.clj" "@robert/hooke.clj"]
-                               ["@clojure/test.clj"])))
+                     nil nil `(do (require '~'clojure.test)
+                                  ~(when (seq selectors)
+                                     '(require 'robert.hooke))))
     (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))
             success? (zero? (+ (:error summary) (:fail summary)))]
