@@ -80,9 +80,9 @@ else
     fi
 fi
 
-HTTP_CLIENT="wget -O"
+HTTP_CLIENT="wget --no-check-certificate -O"
 if type -p curl >/dev/null 2>&1; then
-    HTTP_CLIENT="curl -f -L -o"
+    HTTP_CLIENT="curl --insecure -f -L -o"
 fi
 
 JAVA_CMD=${JAVA_CMD:-"java"}
