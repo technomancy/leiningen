@@ -14,7 +14,6 @@ if "x%LEIN_JAR%" == "x" (
 if "x%1" == "xself-install" goto SELF_INSTALL
 if "x%1" == "xupgrade"      goto NO_UPGRADE
 
-if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
 
 if "x%LEIN_HOME%" == "x" (
     set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%\.lein
@@ -36,7 +35,24 @@ for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
 )
 set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
-set CLASSPATH="%LEIN_JAR%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src;"%CLASSPATH%"
+set CLASSPATH=%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src;"%CLASSPATH%"
+
+if exist "%~f0\..\..\src\leiningen\core.clj" (
+    rem Running from source checkout.
+    call :SET_LEIN_ROOT "%~f0\..\.."
+
+    set LEIN_LIBS="
+    for %%j in ("!LEIN_ROOT!\lib\*") do set LEIN_LIBS=!LEIN_LIBS!;%%~fj
+    set LEIN_LIBS=!LEIN_LIBS!"
+
+    if "x!LEIN_LIBS!" == "x" if not exist "%LEIN_JAR%" goto NO_DEPENDENCIES
+
+    set CLASSPATH="!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";!LEIN_LIBS!;%CLASSPATH%;"%LEIN_JAR%"
+) else (
+    rem Not running from a checkout.
+    if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
+    set CLASSPATH="%LEIN_JAR%";%CLASSPATH%
+)
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 rem ##################################################
@@ -63,6 +79,13 @@ echo "%LEIN_JAR%" can not be found.
 echo You can try running "lein self-install"
 echo or change LEIN_JAR environment variable
 echo or edit lein.bat to set appropriate LEIN_JAR path.
+echo.
+goto EOF
+
+:NO_DEPENDENCIES
+echo.
+echo Leiningen is missing its dependencies.
+echo Please see "Building" in the README.
 echo.
 goto EOF
 
@@ -110,6 +133,10 @@ echo then run "lein self-install".
 echo.
 goto EOF
 
+
+:SET_LEIN_ROOT
+set LEIN_ROOT=%~f1
+goto EOF
 
 rem Find directory containing filename supplied in first argument
 rem looking in current directory, and looking up the parent
