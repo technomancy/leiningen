@@ -76,7 +76,7 @@ wget>nul 2>&1
 if ERRORLEVEL 9009 (
     curl>nul 2>&1
     if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
-    set HTTP_CLIENT=curl -f -L -o
+    set HTTP_CLIENT=curl --insecure -f -L -o
 )
 set LEIN_JAR_URL=http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
 %HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
