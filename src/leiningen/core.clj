@@ -5,7 +5,7 @@
   (:import [java.io File])
   (:gen-class))
 
-(def ^:private project nil)
+(def ^{:private true} project nil)
 
 (defn- unquote-project [args]
   (walk (fn [item]

@@ -147,7 +147,8 @@
   (when (empty? (find-lib-jars project))
     (deps project))
   (if (:eval-in-leiningen project)
-    (eval form)
+    ;; need to at least pretend to return an exit code
+    (do (eval form) 0)
     (let [java (Java.)
           native-path (or (:native-path project)
                           (find-native-lib-path project))]
@@ -202,8 +203,8 @@
     (.write (if (zero? code) *out* *err*) (str msg "\n")))
   code)
 
-(def ^:private success (partial status 0))
-(def ^:private failure (partial status 1))
+(def ^{:private true} success (partial status 0))
+(def ^{:private true} failure (partial status 1))
 
 (defn compile
   "Ahead-of-time compile the namespaces given under :aot in project.clj or

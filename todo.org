@@ -46,12 +46,13 @@ See also http://github.com/technomancy/leiningen/issues
    lein-clojars task doesn't support DSA keys
 ** TODO integrate plugin task with lein-search
    Would be better to be able to leave off version numbers
+** TODO add search functionality based on standard mvn lucene indexes
+   lein-search is cool, but it would be better to interoperate with
+   the standard lucene index system that Maven repositories offer.
+   This would also mean getting Clojars to produce those indices.
 * For 1.4
 ** TODO Avoid warning when defining *classpath* by marking :dynamic
 ** TODO get -Xbootclasspath working with Clojure 1.3 again
-** TODO merge lein-search features?
-   This plugin is great; we should think about taking it into
-   Leiningen itself.
 ** DONE clear out non-transitive .class files after AOT
    Luc Prefontaine has code for this.
 ** DONE plugin task for managing/upgrading plugins
