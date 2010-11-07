@@ -11,14 +11,8 @@ Leiningen is a build tool for Clojure designed to not set your hair on fire.
 <img src="http://github.com/downloads/technomancy/leiningen/leiningen-banner.png" alt="Leiningen logo" title="The man himself" align="right" />
 
 Building Clojure projects with tools designed for Java can be an
-exercise in frustration. If you use Ant, you end up copying around a
-lot of the same tasks between XML files on all your projects;
-there's a lot of repetition. Maven avoids repetition, but provides
-very little transparency into what's really going on behind the scenes
-and forces you to become a Maven expert to script a nontrivial
-build. Either way you must write far more XML than is decent.
-
-With Leiningen, you describe your build with Clojure.
+exercise in frustration. With Leiningen, you describe your build with
+Clojure.
 
 ## Installation
 
@@ -59,7 +53,7 @@ project, but here are the commonly-used tasks:
 
     $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
 
-    $ lein repl # launch an interactive REPL session
+    $ lein repl # launch an interactive REPL session and socket server
 
     $ lein jar # package up the whole project as a .jar file
 
@@ -89,9 +83,7 @@ Place a <tt>project.clj</tt> file in the project root like this:
       :description "A build tool designed to not set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
       :dependencies [[org.clojure/clojure "1.1.0"]
-                     [org.clojure/clojure-contrib "1.1.0"]
-                     [ant/ant-launcher "1.6.2"]
-                     [org.apache.maven/maven-ant-tasks "2.0.10"]]
+                     [org.clojure/clojure-contrib "1.1.0"]]
       :dev-dependencies [[swank-clojure "1.2.1"]])
 
 The <tt>lein new</tt> task generates a project skeleton with an
@@ -101,14 +93,11 @@ file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
 projects. The <tt>~/.lein/init.clj</tt> file will be loaded every time
-Leiningen launches; any arbitrary code may go there. Place jars
-containing plugins in <tt>~/.lein/plugins</tt> to have them available globally
-for the current user.
+Leiningen launches; any arbitrary code may go there.
 
-You can also use leiningen to manage your plugins with the plugin
-task. Use the same arguments you would put in the Leiningen
-:dev-dependencies if you were only using the plugin on a single
-project.
+You can also manage your plugins with the <tt>plugin</tt> task. Use
+the same arguments you would put in the Leiningen :dev-dependencies if
+you were only using the plugin on a single project.
 
     $ lein plugin install lein-clojars/lein-clojars "0.6.0"
 

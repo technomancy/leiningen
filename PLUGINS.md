@@ -10,10 +10,15 @@ To use a plugin, add it to your project.clj :dev-dependencies and run
 "lein $TASK". If you want plugins to be available for all the projects
 you use, you can place their jars in ~/.lein/plugins.
 
+TODO: explain plugin task
+
 ## Writing a Plugin
 
 Start by generating a new project with "lein new myplugin", and add a
-leiningen.myplugin namespace with a myplugin function. 
+leiningen.myplugin namespace with a myplugin function. Add
+:eval-in-leiningen true to your project.clj so Leiningen knows to
+execute its code inside the Leiningen process rather than spinning up
+a subprocess.
 
 Some tasks may only be run in the context of a project. For tasks like
 this, name the first argument <tt>project</tt>. Leiningen will inspect
@@ -35,15 +40,11 @@ your documentation that it only works with Leiningen 1.2.0 and higher.
 
 The docstring from the plugin's namespace will be displayed by the
 "lein help" task. The function's arglists will also be shown, so pick
-argument names that are clear and descriptive.
+argument names that are clear and descriptive. If you set
+:help-arglists in the function's metadata, it will be used instead.
 
 If your task returns an integer, it will be used as the exit code for
 the process.
-
-You can set up aliases for your task by conjing a pair of strings with
-alias->task-name mappings on to the leiningen.core/aliases atom:
-
-    (swap! leiningen.core/aliases conj ["-v" "version"])
 
 ## Lancet
 

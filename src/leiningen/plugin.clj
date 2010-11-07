@@ -24,7 +24,7 @@
 (defn install
   "Download, package, and install plugin jarfile into
   ~/.lein/plugins
-Syntax: lein plugin install GROUP/ARTIFACT-ID VERSION
+Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
   You can use the same syntax here as when listing Leiningen
   dependencies."
   [project-name version]
@@ -48,7 +48,7 @@ Syntax: lein plugin install GROUP/ARTIFACT-ID VERSION
 
 (defn uninstall
   "Delete the plugin jarfile
-Syntax: lein plugin uninstall GROUP/ARTIFACT-ID VERSION"
+Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION"
   [project-name version]
   (let [[name group] (extract-name-and-group project-name)]
     (.delete (file plugins-path

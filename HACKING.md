@@ -16,6 +16,8 @@ specifically the <tt>eval-in-project</tt> function. Any code that must
 execute within the context of the project (AOT compilation, test runs)
 needs to go through this function.
 
+TODO: mention eval-in-leiningen
+
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
 <tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md) for details.

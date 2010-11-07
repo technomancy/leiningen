@@ -229,6 +229,10 @@ shouldn't have any code with side-effects in the top-level. If you
 have code that should run on startup, place it in a <tt>-main</tt>
 function as explained below under "Uberjar".
 
+TODO: mention javac task
+
+TODO: mention deletion of non-project .class files
+
 ## What to do with it
 
 Generally speaking, there are three different goals that are typical
@@ -295,6 +299,8 @@ or on some systems just by double-clicking the jar file.
 You can run a regular (non-uber) jar with the <tt>java</tt>
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
+
+TODO: mention run task
 
 ### Shell Wrappers
 
