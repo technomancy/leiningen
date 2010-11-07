@@ -96,7 +96,7 @@ if exist "%LEIN_JAR%" (
     echo %LEIN_JAR% already exists. Delete and retry.
     goto EOF
 )
-set HTTP_CLIENT=wget -O
+set HTTP_CLIENT=wget --no-check-certificate -O
 wget>nul 2>&1
 if ERRORLEVEL 9009 (
     curl>nul 2>&1
