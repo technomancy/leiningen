@@ -19,6 +19,7 @@ if "x%LEIN_HOME%" == "x" (
     set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%\.lein
 )
 
+set ORIGINAL_PWD=%CD%
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
@@ -69,7 +70,8 @@ set JLINE=jline.ConsoleRunner
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 
-%JAVA_CMD% -client %JAVA_OPTS% -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+%JAVA_CMD% -client %JAVA_OPTS% -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
+ -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
 goto EOF
 
 
