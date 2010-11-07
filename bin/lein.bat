@@ -16,7 +16,7 @@ if "x%1" == "xupgrade"      goto NO_UPGRADE
 
 
 if "x%LEIN_HOME%" == "x" (
-    set LEIN_HOME=%HOMEDRIVE%%HOMEPATH%\.lein
+    set LEIN_HOME=%USERPROFILE%\.lein
 )
 
 set ORIGINAL_PWD=%CD%
