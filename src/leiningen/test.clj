@@ -34,20 +34,26 @@ each namespace and print an overall summary."
             (.write w# (pr-str summary#))))
         (System/exit 0))))
 
-(defn test
-  "Run the project's tests. Accepts a list of namespaces for which to run all
-tests. If none are given, runs them all." ; TODO: update
-  [project & tests]
-  (let [tests (map read-string tests)
-        nses (if (or (empty? tests) (every? keyword? tests))
+(defn- read-args [args project]
+  (let [args (map read-string args)
+        nses (if (or (empty? args) (every? keyword? args))
                (sort (namespaces-in-dir (:test-path project)))
-               tests)
-        result (doto (File/createTempFile "lein" "result") .deleteOnExit)
-        selectors (map (:test-selectors project) (filter keyword? tests))
+               args)
+        selectors (map (:test-selectors project) (filter keyword? args))
         selectors (if (and (empty? selectors)
                            (:default (:test-selectors project)))
                     [(:default (:test-selectors project))]
                     selectors)]
+    (when (and (not (:test-selectors project)) (some keyword? args))
+      (throw (Exception. "Must specify :test-selectors in project.clj")))
+    [nses selectors]))
+
+(defn test
+  "Run the project's tests. Accepts a list of namespaces for which to run all
+tests. If none are given, runs them all." ; TODO: update
+  [project & tests]
+  (let [[nses selectors] (read-args tests project)
+        result (doto (File/createTempFile "lein" "result") .deleteOnExit)]
     (when-not (or (every? symbol? nses) (every? keyword? nses))
       (throw (Exception. "Args must be either all namespaces or keywords.")))
     (eval-in-project project (form-for-testing-namespaces
