@@ -1,5 +1,5 @@
 (ns leiningen.util.maven
-  (:use [leiningen.core :only [repositories-for]]
+  (:use [leiningen.core :only [repositories-for abort]]
         [clojure.java.io :only [file reader]])
   (:import [org.apache.maven.model Build Model Parent Dependency
             Exclusion Repository Scm License MailingList Resource]
@@ -144,8 +144,11 @@ the :classifier key (if present) is the classifier on the
 dependency (as a string). The value for the :exclusions key, if
 present, is a seq of symbols, identifying group ids and artifact ids
 to exclude from transitive dependencies."
-  [[dep version & extras]]
-  (let [extras-map (apply hash-map extras)
+  [dependency]
+  (when-not (vector? dependency)
+    (abort "Dependencies must be specified as vector:" dependency))
+  (let [[dep version & extras] dependency
+        extras-map (apply hash-map extras)
         exclusions (:exclusions extras-map)
         classifier (:classifier extras-map)
         type (:type extras-map)
