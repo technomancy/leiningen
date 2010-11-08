@@ -37,7 +37,7 @@ fi
 LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
 CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/:$CLASSPATH
-LEIN_JAR="$HOME/.m2/repository/leiningen/leiningen/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar"
+LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
 NULL_DEVICE=/dev/null
 
