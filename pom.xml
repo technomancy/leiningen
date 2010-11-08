@@ -3,19 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen</groupId>
   <artifactId>leiningen</artifactId>
-  <version>1.4.0-SNAPSHOT</version>
+  <version>1.4.0-RC1</version>
   <name>leiningen</name>
   <description>A build tool designed not to set your hair on fire.</description>
   <url>http://github.com/technomancy/leiningen</url>
   <licenses>
-    <license>
-      <name>Eclipse Public License</name>
-    </license>
+    <license />
   </licenses>
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>2ea4b63e584267745fdf2d3f0f9888ba182eabfe</tag>
+    <tag>74f0e8f26db350f99bcf13591e3f603347f4ad8c</tag>
     <url>http://github.com/technomancy/leiningen</url>
   </scm>
   <build>
@@ -62,9 +60,9 @@
       <version>1.2.0</version>
     </dependency>
     <dependency>
-      <groupId>ant</groupId>
+      <groupId>org.apache.ant</groupId>
       <artifactId>ant</artifactId>
-      <version>1.6.5</version>
+      <version>1.7.1</version>
     </dependency>
     <dependency>
       <groupId>jline</groupId>
@@ -80,6 +78,12 @@
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-ant-tasks</artifactId>
       <version>2.0.10</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>ant</artifactId>
+          <groupId>ant</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>
