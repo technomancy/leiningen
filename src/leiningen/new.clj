@@ -34,7 +34,6 @@ Neither group-id nor artifact-id may contain slashes."
         (join "\n\n" [(str "# " artifact-id)
                       "FIXME: write description"
                       "## Usage" "FIXME: write"
-                      "## Installation" "FIXME: write"
                       "## License" "Copyright (C) 2010 FIXME"
                       (str "Distributed under the Eclipse Public"
                            " License, the same as Clojure.\n")])))
