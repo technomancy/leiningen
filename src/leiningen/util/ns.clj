@@ -22,17 +22,19 @@
 (defn jar? [f]
   (and (.isFile f) (.endsWith (.getName f) ".jar")))
 
-(defn read-ns-form [r]
-  (let [form (try (read r)
-                  (catch Exception _ ::done))]
+(defn read-ns-form [r f]
+  (let [form (try (read r false ::done)
+                  (catch Exception e
+                    (println (format "Couldn't parse %s: %s" f (.getMessage e)))
+                    ::done))]
     (if (and (list? form) (= 'ns (first form)))
       form
       (when-not (= ::done form)
-        (recur r)))))
+        (recur r f)))))
 
 (defn find-ns-form [f]
   (when (and (.isFile (file f)) (clj? f))
-    (read-ns-form (PushbackReader. (reader f)))))
+    (read-ns-form (PushbackReader. (reader f)) f)))
 
 (defn namespaces-in-dir [dir]
   (sort (for [f (file-seq (file dir))
@@ -46,7 +48,7 @@
                       InputStreamReader.
                       BufferedReader.
                       PushbackReader.)]
-    (read-ns-form rdr)))
+    (read-ns-form rdr jarfile)))
 
 (defn namespaces-in-jar [jar]
   (let [jarfile (JarFile. jar)]
