@@ -3,7 +3,8 @@
         [clojure.test]))
 
 (def formatted-docstring @#'leiningen.help/formatted-docstring)
-(def get-subtasks-and-docstrings-for @#'leiningen.help/get-subtasks-and-docstrings-for)
+(def get-subtasks-and-docstrings-for
+  @#'leiningen.help/get-subtasks-and-docstrings-for)
 (def formatted-help @#'leiningen.help/formatted-help)
 (def resolve-task @#'leiningen.help/resolve-task)
 

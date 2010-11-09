@@ -21,11 +21,11 @@ Manage user-level plugins.
 Subtasks available:
 install     Download, package, and install plugin jarfile into
               ~/.lein/plugins
-            Syntax: lein plugin install GROUP/ARTIFACT-ID VERSION
+            Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
               You can use the same syntax here as when listing Leiningen
               dependencies.
 uninstall   Delete the plugin jarfile
-            Syntax: lein plugin uninstall GROUP/ARTIFACT-ID VERSION\n"
+            Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION\n"
          (with-out-str (plugin "help")))))
 
 
