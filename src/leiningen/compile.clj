@@ -147,8 +147,11 @@
   (when (empty? (find-lib-jars project))
     (deps project))
   (if (:eval-in-leiningen project)
-    ;; need to at least pretend to return an exit code
-    (do (eval form) 0)
+    (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
+      (require '[clojure walk repl])
+      (require '[clojure.java io shell browse])
+      ;; need to at least pretend to return an exit code
+      (eval form) 0)
     (let [java (Java.)
           native-path (or (:native-path project)
                           (find-native-lib-path project))]

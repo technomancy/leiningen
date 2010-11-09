@@ -52,6 +52,8 @@ each namespace and print an overall summary."
   "Run the project's tests. Accepts a list of namespaces for which to run all
 tests. If none are given, runs them all." ; TODO: update
   [project & tests]
+  (when (:eval-in-leiningen project)
+    (require '[clojure walk template stacktrace]))
   (let [[nses selectors] (read-args tests project)
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)]
     (when-not (or (every? symbol? nses) (every? keyword? nses))
