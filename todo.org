@@ -51,7 +51,7 @@ See also http://github.com/technomancy/leiningen/issues
    the standard lucene index system that Maven repositories offer.
    This would also mean getting Clojars to produce those indices.
 * For 1.4
-** TODO test selectors need to support things like constantly, complement
+** DONE test selectors need to support things like constantly, complement
 ** DONE detect missing level of nesting in project.clj's deps/dev-deps
 ** DONE clear out non-transitive .class files after AOT
    Luc Prefontaine has code for this.
