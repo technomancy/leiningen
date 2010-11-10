@@ -15,6 +15,7 @@ Leiningen NEWS -- history of user-visible changes
 * Merge javac task from lein-javac plugin. (Antonio Garrote)
 
 * Add init argument to eval-in-project to help with the Gilardi Scenario.
+  See http://technomancy.us/143 for details.
 
 * Fix bug involving repl I/O flushing.
 

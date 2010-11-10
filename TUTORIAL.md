@@ -200,6 +200,23 @@ just one or two namespaces at a time:
     Ran 2 tests containing 10 assertions.
     0 failures, 0 errors.
 
+Rather than running your whole suite or just a few namespaces at a
+time, you can run a subset of your tests using test selectors. To do
+this, you attach metadata to various deftests.
+
+    (deftest ^{:integration true} network-heavy-test
+      (is (= [1 2 3] (:numbers (network-operation)))))
+
+Then add a :test-selectors map to project.clj:
+
+    :test-selectors {:default (fn [v] (not (:integration v)))
+                     :integration :integration
+                     :all (fn [_] true)}
+
+Now if you run "lein test" it will only run deftests that don't have
+:integration metadata, while "lein test :integration" will only run
+the integration tests and "lein test :all" will run everything.
+
 Because it starts a new JVM process, lein test is not a good solution
 for test-driven development. For that you would either need to look
 into better editor integration (see
@@ -229,9 +246,19 @@ shouldn't have any code with side-effects in the top-level. If you
 have code that should run on startup, place it in a <tt>-main</tt>
 function as explained below under "Uberjar".
 
-TODO: mention javac task
+For projects that include some Java code, you can set the
+<tt>:java-source-path</tt> key in project.clj to a directory
+containing Java files. Then the javac compiler will run before your
+Clojure code is AOT-compiled, or you can run it manually with the
+<tt>javac</tt> task.
 
-TODO: mention deletion of non-project .class files
+There's [a problem in
+Clojure](http://dev.clojure.org/jira/browse/CLJ-322) where
+AOT-compiling a namespace will also AOT compile all the namespaces it
+depends upon. This has often caused unrelated compilation artifacts to
+be included in the jars, but Leiningen will now only keep class files
+for which a directory exists in src/ corresponding to the class's
+package.
 
 ## What to do with it
 
@@ -300,7 +327,10 @@ You can run a regular (non-uber) jar with the <tt>java</tt>
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
 
-TODO: mention run task
+Invoking "lein run" will launch your project's -main function as if
+from an uberjar, but without going through the packaging process. You
+can also specify an alternate namespace in which to look for -main
+with "lein run -m my.alternate.namespace ARG1 ARG2".
 
 ### Shell Wrappers
 

@@ -5,12 +5,10 @@ namespace. So writing a Leiningen plugin is pretty straightforward; as
 long as it's available on the classpath, Leiningen will be able to use
 it.
 
-To use a plugin, add it to your project.clj :dev-dependencies and run
-"lein deps". Then you'll be able to invoke the tasks it provides with
-"lein $TASK". If you want plugins to be available for all the projects
-you use, you can place their jars in ~/.lein/plugins.
-
-TODO: explain plugin task
+Plugins may be installed on a per-project or user-wide basis. To use a
+plugin in a single project, add it to your project.clj
+:dev-dependencies and run "lein deps". To install it for your user,
+run "lein plugin install ARTIFACT-ID VERSION".
 
 ## Writing a Plugin
 
