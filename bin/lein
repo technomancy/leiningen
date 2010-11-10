@@ -143,6 +143,7 @@ else
         echo $CLOJURE_JAR
     fi
 
+    JLINE=""
     if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
         [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
@@ -150,8 +151,8 @@ else
         if [ $? -eq 1 ]; then
             JLINE=jline.ConsoleRunner
             if [ "$OSTYPE" = "cygwin" ]; then
-		JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
-		CYGWIN_JLINE=y
+		        JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
+		        CYGWIN_JLINE=y
             fi
         fi
     fi
