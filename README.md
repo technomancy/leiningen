@@ -216,8 +216,9 @@ HACKING.md for more details on how Leiningen's codebase is structured.
 
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place. If you have a
-copy of an older Leiningen version around (installed as lein-stable,
-for example), then you can run "lein-stable deps" in your checkout.
+copy of an older Leiningen version around (at least 1.1.0, installed
+as lein-stable, for example), then you can run "lein-stable deps" in
+your checkout. If Leiningen's dependencies change,
 
 Alternatively a <tt>lein self-install</tt> will usually get you what
 you need. However, this will occasionally fail for very new SNAPSHOT
