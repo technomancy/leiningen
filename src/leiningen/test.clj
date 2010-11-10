@@ -38,7 +38,7 @@ each namespace and print an overall summary."
   (let [args (map read-string args)
         nses (if (or (empty? args) (every? keyword? args))
                (sort (namespaces-in-dir (:test-path project)))
-               args)
+               (filter symbol? args))
         selectors (map (:test-selectors project) (filter keyword? args))
         selectors (if (and (empty? selectors)
                            (:default (:test-selectors project)))
@@ -56,8 +56,6 @@ tests. If none are given, runs them all." ; TODO: update
     (require '[clojure walk template stacktrace]))
   (let [[nses selectors] (read-args tests project)
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)]
-    (when-not (or (every? symbol? nses) (every? keyword? nses))
-      (throw (Exception. "Args must be either all namespaces or keywords.")))
     (eval-in-project project (form-for-testing-namespaces
                               nses (.getAbsolutePath result) (vec selectors))
                      nil nil `(do (require '~'clojure.test)

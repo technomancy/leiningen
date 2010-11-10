@@ -13,4 +13,7 @@
   :main nom.nom.nom
   :warn-on-reflection true
   :shell-wrapper {:main nom.nom.nom
-                  :bin "bin/nom"})
+                  :bin "bin/nom"}
+  :test-selectors {:integration :integration
+                   :default (complement :integration)
+                   :all (constantly true)})
