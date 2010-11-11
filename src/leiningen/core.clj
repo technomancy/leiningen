@@ -41,13 +41,24 @@
                                :dev-resources-path
                                (or (:dev-resources-path m#)
                                    (:test-resources-path m#)
-                                   ;; TODO: change default in 2.0.
                                    (str root# "/test-resources"))
-                               :jar-dir (or (:jar-dir m#) root#)
+                               ;; TODO: remove in 2.0
+                               :test-resources-path
+                               (or (:dev-resources-path m#)
+                                   (:test-resources-path m#)
+                                   (str root# "/test-resources"))
+                               :target-dir (or (:target-dir m#) (:jar-dir m#)
+                                               root#)
+                               ;; TODO: remove in 2.0
+                               :jar-dir (or (:target-dir m#) (:jar-dir m#)
+                                            root#)
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "
                      ":dev-resources-path.")))
+     (when (:jar-dir m#)
+       (println (str "WARNING: :jar-dir is deprecated; use "
+                     ":target-dir.")))
      (def ~(symbol (name project-name)) @#'project)))
 
 (defn exit

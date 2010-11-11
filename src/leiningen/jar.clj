@@ -120,9 +120,9 @@
 
 (defn get-jar-filename
   ([project jar-name]
-     (let [jar-dir (:jar-dir project)]
-       (.mkdirs (file jar-dir))
-       (str jar-dir "/" jar-name)))
+     (let [target-dir (:target-dir project)]
+       (.mkdirs (file target-dir))
+       (str target-dir "/" jar-name)))
   ([project] (get-jar-filename project (get-default-jar-name project))))
 
 (defn get-default-uberjar-name [project]
