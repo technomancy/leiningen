@@ -23,6 +23,7 @@ upon the first run on unix, so the first run will take longer.
 1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
 
+I like to place it in ~/bin, but it can go anywhere on the $PATH.
 To track development of Leiningen you may use [the master version of the
 script](http://github.com/technomancy/leiningen/raw/master/bin/lein)
 instead. See the "Building" section below.
@@ -228,6 +229,10 @@ You can also use Maven, just for variety's sake:
 
     $ mvn dependency:copy-dependencies
     $ mv target/dependency lib
+
+Symlink bin/lein from your checkout into a location on the $PATH. The
+script can figure out when it's being called from inside a checkout
+and use the checkout rather than the self-install uberjar.
 
 See the file HACKING.md for instructions on contributing.
 
