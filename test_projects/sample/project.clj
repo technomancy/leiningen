@@ -16,4 +16,5 @@
                   :bin "bin/nom"}
   :test-selectors {:integration :integration
                    :default (complement :integration)
+                   :random (fn [_] (> (rand) ~(float 1/2)))
                    :all (constantly true)})

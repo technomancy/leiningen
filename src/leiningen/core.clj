@@ -11,7 +11,7 @@
   (walk (fn [item]
           (cond (and (seq? item) (= `unquote (first item))) (second item)
                 ;; needed if we want fn literals to be usable by eval-in-project
-                (or (list? item) (symbol? item)) (list 'quote item)
+                (or (seq? item) (symbol? item)) (list 'quote item)
                 :else (unquote-project item)))
         identity
         args))

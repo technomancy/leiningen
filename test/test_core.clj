@@ -1,12 +1,6 @@
 (ns test-core
-  (:require leiningen.core :reload-all)
+  (:use [leiningen.core] :reload-all)
   (:use [clojure.test]))
-
-;; testing private vars is awesome!
-
-(def make-groups @#'leiningen.core/make-groups)
-
-(def matching-arity? @#'leiningen.core/matching-arity?)
 
 (deftest test-make-groups-empty-args
   (is (= [[]] (make-groups []))))
@@ -37,3 +31,10 @@
   (is (matching-arity? "version" nil []))
   (is (not (matching-arity? "test" nil [])))
   (is (not (matching-arity? "test" nil ["test-core"]))))
+
+(deftest test-unquote
+  (let [project (binding [*ns* (find-ns 'leiningen.core)]
+                  (read-project "test_projects/sample/project.clj"))]
+    (is (= ['org.clojure/clojure "1.1.0-master-SNAPSHOT"]
+             (first (:dependencies project))))
+    (is (= '(fn [_] (> (rand) 0.5))))))
