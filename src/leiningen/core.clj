@@ -21,37 +21,47 @@
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(let [m# (apply hash-map ~(cons 'list (unquote-project args)))
-         root# ~(.getParent (File. *file*))]
+         root# ~(.getParent (File. *file*))
+         normalize-path# (fn [p#] (when p# (.getPath (File. p#))))]
      (alter-var-root #'project
                      (fn [_#] (assoc m#
                                :name ~(name project-name)
                                :group ~(or (namespace project-name)
                                            (name project-name))
                                :version ~version
-                               :compile-path (or (:compile-path m#)
-                                                 (str root# "/classes"))
-                               :source-path (or (:source-path m#)
-                                                (str root# "/src"))
-                               :library-path (or (:library-path m#)
-                                                 (str root# "/lib"))
-                               :test-path (or (:test-path m#)
-                                              (str root# "/test"))
-                               :resources-path (or (:resources-path m#)
-                                                   (str root# "/resources"))
+                               :compile-path (normalize-path#
+                                              (or (:compile-path m#)
+                                                  (str root# "/classes")))
+                               :source-path (normalize-path#
+                                             (or (:source-path m#)
+                                                 (str root# "/src")))
+                               :library-path (normalize-path#
+                                              (or (:library-path m#)
+                                                  (str root# "/lib")))
+                               :test-path (normalize-path#
+                                           (or (:test-path m#)
+                                           (str root# "/test")))
+                               :resources-path (normalize-path#
+                                                (or (:resources-path m#)
+                                                    (str root# "/resources")))
                                :dev-resources-path
-                               (or (:dev-resources-path m#)
-                                   (:test-resources-path m#)
-                                   (str root# "/test-resources"))
+                               (normalize-path#
+                                (or (:dev-resources-path m#)
+                                    (:test-resources-path m#)
+                                    (str root# "/test-resources")))
                                ;; TODO: remove in 2.0
                                :test-resources-path
-                               (or (:dev-resources-path m#)
-                                   (:test-resources-path m#)
-                                   (str root# "/test-resources"))
-                               :target-dir (or (:target-dir m#) (:jar-dir m#)
-                                               root#)
+                               (normalize-path#
+                                (or (:dev-resources-path m#)
+                                    (:test-resources-path m#)
+                                    (str root# "/test-resources")))
+                               :target-dir (normalize-path#
+                                            (or (:target-dir m#) (:jar-dir m#)
+                                                root#))
                                ;; TODO: remove in 2.0
-                               :jar-dir (or (:target-dir m#) (:jar-dir m#)
-                                            root#)
+                               :jar-dir (normalize-path#
+                                         (or (:target-dir m#) (:jar-dir m#)
+                                             root#))
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "
