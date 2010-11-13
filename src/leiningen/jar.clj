@@ -4,6 +4,7 @@
             [clojure.string :as string])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
+        [lancet :only [ant-project]]
         [clojure.java.io :only [copy file]])
   (:import [java.util.jar Manifest JarEntry JarOutputStream]
            [java.util.regex Pattern]
@@ -23,9 +24,10 @@
              (.replaceAll group "\\." "/") name version name version)))
 
 (defn- script-classpath-for [project deps-fileset]
-  (string/join ":" (conj (for [dep (-> deps-fileset
-                                       (.getDirectoryScanner lancet/ant-project)
-                                       (.getIncludedFiles))]
+  (string/join ":" (conj (for [dep (when (:dependencies project)
+                                     (-> deps-fileset
+                                         (.getDirectoryScanner ant-project)
+                                         (.getIncludedFiles)))]
                            (format "$HOME/.m2/repository/%s" dep))
                          (local-repo-path project))))
 
@@ -173,7 +175,7 @@ be used as the main-class for an executable jar."
                deps (memoize deps)]
        (when (zero? (compile/compile project))
          (let [jar-path (get-jar-filename project jar-name)
-               deps-fileset (deps project)]
+               deps-fileset (deps project true)]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
            jar-path))))

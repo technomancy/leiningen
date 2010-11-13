@@ -35,7 +35,7 @@
     (read-project "test_projects/sample_failing/project.clj")))
 
 (deftest test-jar-fails
-  (with-out-str
+  (binding [*err* (java.io.PrintWriter. "/dev/null")]
     (is (not (jar sample-failing-project)))))
 
 (def sample-no-aot-project
@@ -57,3 +57,7 @@
                     jar-file (.getEntry jar-file "bin/tricky-name")))]
     (is (= "bin/tricky-name" (manifest "Leiningen-shell-wrapper")))
     (is (re-find #"org/domain/tricky-name/1.0/tricky-name-1\.0\.jar" bin))))
+
+(deftest test-no-deps-jar
+  (let [jar-file (jar (dissoc sample-project :dependencies :dev-dependencies))]
+    (is (.exists (java.io.File. jar-file)))))
