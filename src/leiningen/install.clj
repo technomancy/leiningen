@@ -52,7 +52,7 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
            _ (standalone-download name (or group name) version)
            temp-project (format "/tmp/lein-%s" (java.util.UUID/randomUUID))
            jarfile (-> (local-repo-path name (or group name) version)
-                        (.replace "$HOME" (System/getenv "HOME")))]
+                        (.replace "$HOME" (System/getProperty "user.home")))]
        (install-shell-wrapper (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
