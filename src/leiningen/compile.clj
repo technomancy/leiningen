@@ -110,10 +110,25 @@
         f
         nil))))
 
-(defn- get-jvm-args
-  [project]
-  (concat (.getInputArguments (ManagementFactory/getRuntimeMXBean))
-          (:jvm-opts project)))
+;; Split this function out for better testability.
+(defn- get-raw-input-args []
+  (.getInputArguments (ManagementFactory/getRuntimeMXBean)))
+
+(defn- get-input-args
+  "Returns a vector of input arguments, accounting for a bug in RuntimeMXBean
+  that splits arguments which contain spaces."
+  []
+  ;; RuntimeMXBean.getInputArguments() is buggy when an input argument
+  ;; contains spaces. For an input argument of -Dprop="hello world" it
+  ;; returns ["-Dprop=hello", "world"]. Try to work around this bug.
+  (letfn [(join-broken-args [v arg] (if (= \- (first arg))
+                                      (conj v arg)
+                                      (conj (vec (butlast v))
+                                            (format "%s %s" (last v) arg))))]
+         (reduce join-broken-args [] (get-raw-input-args))))
+
+(defn- get-jvm-args [project]
+  (concat (get-input-args) (:jvm-opts project)))
 
 (defn get-readable-form [java project form init]
   (let [cp (str (.getClasspath (.getCommandLine java)))
@@ -218,6 +233,7 @@ those given as command-line arguments."
        (javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
+
          (binding [*skip-auto-compile* true]
            (try
              (if (zero? (eval-in-project project
