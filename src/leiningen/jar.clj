@@ -15,18 +15,22 @@
                                 (.getResourceAsStream "script-template")
                                 (slurp)))
 
+(defn unix-path [path]
+  (.replaceAll path "\\\\" "/"))
+
 (defn local-repo-path
   ([group name version]
      (local-repo-path {:group group :name name :version version}))
   ([{:keys [group name version]}]
-     (format "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-             (.replaceAll group "\\." "/") name version name version)))
+     (unix-path (format
+                 "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
+                 (.replaceAll group "\\." "/") name version name version))))
 
 (defn- script-classpath-for [project deps-fileset]
   (string/join ":" (conj (for [dep (-> deps-fileset
                                        (.getDirectoryScanner lancet/ant-project)
                                        (.getIncludedFiles))]
-                           (format "$HOME/.m2/repository/%s" dep))
+                           (unix-path (format "$HOME/.m2/repository/%s" dep)))
                          (local-repo-path project))))
 
 (defn- shell-wrapper-name [project]
@@ -70,9 +74,6 @@
 (defn manifest-map [manifest]
   (let [attrs (.getMainAttributes manifest)]
     (zipmap (map str (keys attrs)) (vals attrs))))
-
-(defn unix-path [path]
-  (.replaceAll path "\\\\" "/"))
 
 (defn skip-file? [file relative-path patterns]
   (or (.isDirectory file)
