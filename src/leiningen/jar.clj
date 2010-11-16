@@ -11,12 +11,21 @@
            [java.io BufferedOutputStream FileOutputStream
             ByteArrayInputStream]))
 
-(def bin-template (-> (.getContextClassLoader (Thread/currentThread))
-                                (.getResourceAsStream "script-template")
-                                (slurp)))
+(defn- read-resource [resource-name]
+  (-> (.getContextClassLoader (Thread/currentThread))
+      (.getResourceAsStream resource-name)
+      (slurp)))
+
+(defn- read-bin-template [system]
+  (case system
+        :unix (read-resource "script-template")
+        :windows (read-resource "script-template.bat")))
 
 (defn unix-path [path]
-  (.replaceAll path "\\\\" "/"))
+  (.replace path "\\" "/"))
+
+(defn windows-path [path]
+  (.replace path "/" "\\"))
 
 (defn local-repo-path
   ([group name version]
@@ -24,34 +33,48 @@
   ([{:keys [group name version]}]
      (unix-path (format
                  "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-                 (.replaceAll group "\\." "/") name version name version))))
+                 (.replace group "." "/") name version name version))))
 
-(defn- script-classpath-for [project deps-fileset]
-  (string/join ":" (conj (for [dep (-> deps-fileset
-                                       (.getDirectoryScanner lancet/ant-project)
-                                       (.getIncludedFiles))]
+(defn- script-classpath-for [project deps-fileset system]
+  (let [deps (-> deps-fileset
+                 (.getDirectoryScanner lancet/ant-project)
+                 (.getIncludedFiles))
+        unix-paths (conj (for [dep deps]
                            (unix-path (format "$HOME/.m2/repository/%s" dep)))
-                         (local-repo-path project))))
+                         (local-repo-path project))]
+    (case system
+          :unix (string/join ":" unix-paths)
+          :windows (string/join ";" (for [path unix-paths]
+                                      (windows-path
+                                       (.replace path "$HOME"
+                                                 "%USERPROFILE%")))))))
 
 (defn- shell-wrapper-name [project]
-  (or (:bin (:shell-wrapper project)
-            (format "bin/%s" (:name project)))))
+  (get-in project [:shell-wrapper :bin]
+          (format "bin/%s" (:name project))))
 
-(defn- shell-wrapper-contents [project bin-name main deps-fileset]
-  (let [bin-file (file bin-name)]
+(defn- shell-wrapper-contents [project bin-name main deps-fileset system]
+  (let [file-name (case system
+                        :unix bin-name
+                        :windows (format "%s.bat" bin-name))
+        bin-file (file file-name)]
     (format (if (.exists bin-file)
               (slurp bin-file)
-              bin-template)
-            (script-classpath-for project deps-fileset) main)))
+              (read-bin-template system))
+            (script-classpath-for project deps-fileset system) main)))
 
 (defn- shell-wrapper-filespecs [project deps-fileset]
   (when (:shell-wrapper project)
     (let [main (or (:main (:shell-wrapper project)) (:main project))
           bin-name (shell-wrapper-name project)
-          bin (shell-wrapper-contents project bin-name main deps-fileset)]
+          read-bin #(shell-wrapper-contents
+                     project bin-name main deps-fileset %)]
       [{:type :bytes
         :path bin-name
-        :bytes (.getBytes bin)}])))
+        :bytes (.getBytes (read-bin :unix))}
+       {:type :bytes
+        :path (format "%s.bat" bin-name)
+        :bytes (.getBytes (read-bin :windows))}])))
 
 (def default-manifest
      {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))

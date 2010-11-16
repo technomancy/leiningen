@@ -9,17 +9,28 @@
 
 (def m2-dir (file local-repo "nomnomnom" "nomnomnom" "0.5.0-SNAPSHOT"))
 
+(def unix-shell-wrapper (file (home-dir) "bin" "nom"))
+(def windows-shell-wrapper (file (home-dir) "bin" "nom.bat"))
+
 (defonce test-project (read-project "test_projects/sample/project.clj"))
+
+(defn delete-shell-wrappers []
+  (.delete unix-shell-wrapper)
+  (.delete windows-shell-wrapper))
 
 (deftest test-install
   (delete-file-recursively m2-dir true)
+  (delete-shell-wrappers)
   (install test-project)
-  (is (not (empty? (.listFiles m2-dir)))))
+  (is (not (empty? (.listFiles m2-dir))))
+  (is (.exists unix-shell-wrapper))
+  (is (.exists windows-shell-wrapper)))
 
 (def jdom-dir (file local-repo "jdom" "jdom" "1.0"))
 
 (deftest test-standalone-install
   (delete-file-recursively jdom-dir true)
+  (delete-shell-wrappers)
   (install "nomnomnom" "0.5.0-SNAPSHOT")
   (is (not (empty? (.listFiles jdom-dir))))
-  (is (.exists (file (home-dir) "bin" "nom"))))
+  (is (.exists unix-shell-wrapper)))

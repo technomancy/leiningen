@@ -18,16 +18,24 @@
 (deftest test-jar
   (let [jar-file (JarFile. (jar sample-project))
         manifest (manifest-map (.getManifest jar-file))
-        bin (slurp (.getInputStream jar-file (.getEntry jar-file "bin/nom")))]
+        bin (slurp (.getInputStream jar-file (.getEntry jar-file "bin/nom")))
+        bat (slurp (.getInputStream jar-file (.getEntry jar-file
+                                                        "bin/nom.bat")))]
     (is (= "bin/nom" (manifest "Leiningen-shell-wrapper")))
-    (is (re-find #"org/clojure/clojure/1.1.0-master-SNAPSHOT/" bin))
+    (is (re-find #"org/clojure/clojure/1\.1\.0-master-SNAPSHOT/" bin))
+    (is (re-find #"org\\clojure\\clojure\\1\.1\.0-master-SNAPSHOT" bat))
     (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bin))
-    (is (re-find #"\$HOME/\.m2/repository/rome/rome/0.9/rome-0\.9\.jar" bin))))
+    (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bat))
+    (is (re-find #"\$HOME/\.m2/repository/rome/rome/0\.9/rome-0\.9\.jar" bin))
+    (is (re-find
+         #"%USERPROFILE%\\\.m2\\repository\\rome\\rome\\0\.9\\rome-0\.9\.jar"
+         bat))))
 
 (deftest test-no-bin-jar
   (let [jar-file (JarFile. (jar (dissoc sample-project :shell-wrapper)))
         manifest (manifest-map (.getManifest jar-file))]
     (is (nil? (.getEntry jar-file "bin/nom")))
+    (is (nil? (.getEntry jar-file "bin/nom.bat")))
     (is (nil? (manifest "Leiningen-shell-wrapper")))))
 
 (def sample-failing-project
@@ -54,6 +62,9 @@
   (let [jar-file (JarFile. (jar tricky-name))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream
-                    jar-file (.getEntry jar-file "bin/tricky-name")))]
+                    jar-file (.getEntry jar-file "bin/tricky-name")))
+        bat (slurp (.getInputStream
+                    jar-file (.getEntry jar-file "bin/tricky-name.bat")))]
     (is (= "bin/tricky-name" (manifest "Leiningen-shell-wrapper")))
-    (is (re-find #"org/domain/tricky-name/1.0/tricky-name-1\.0\.jar" bin))))
+    (is (re-find #"org/domain/tricky-name/1\.0/tricky-name-1\.0\.jar" bin))
+    (is (re-find #"org\\domain\\tricky-name\\1\.0\\tricky-name-1\.0\.jar" bat))))
