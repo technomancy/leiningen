@@ -185,6 +185,7 @@
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)
       (.setFork java true)
+      (.setDir java (file (:root project)))
       (doseq [arg (get-jvm-args project)]
         (when-not (re-matches #"^-Xbootclasspath.+" arg)
           (.setValue (.createJvmarg java) arg)))
