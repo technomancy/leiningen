@@ -1,6 +1,12 @@
 #!/bin/sh
 
 CLASSPATH="%s"
+NULL_DEVICE=/dev/null
+
+if [ "$OSTYPE" = "cygwin" ]; then
+    CLASSPATH=`cygpath -wp "$CLASSPATH"`
+    NULL_DEVICE=NUL
+fi
 
 java -cp "$CLASSPATH" $JAVA_OPTS \
-    clojure.main -e "(use '%s)(apply -main *command-line-args*)" /dev/null "$@"
+    clojure.main -e "(use '%s)(apply -main *command-line-args*)" $NULL_DEVICE "$@"
