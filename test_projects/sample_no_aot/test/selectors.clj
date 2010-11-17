@@ -3,8 +3,10 @@
         [clojure.java.io]))
 
 (defn record-ran [t]
-  (with-open [w (writer "/tmp/lein-test-ran" :append true)]
-    (.write w (str t "\n"))))
+  (let [file-name (format "%s/lein-test-ran"
+                          (System/getProperty "java.io.tmpdir"))]
+    (with-open [w (writer file-name :append true)]
+      (.write w (str t "\n")))))
 
 (deftest ^{:integration true} integration-test
   (record-ran :integration)

@@ -1,4 +1,4 @@
 (ns org.domain.tricky-name.brunch)
 
 (defn -main [& args]
-  (spit "/tmp/lein-test" "BRUNCH"))
+  (spit (format "%s/lein-test" (System/getProperty "java.io.tmpdir")) "BRUNCH"))

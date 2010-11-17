@@ -6,7 +6,7 @@
         [leiningen.util.maven :only [container make-model make-remote-artifact
                                      make-remote-repo make-local-repo
                                      make-artifact add-metadata]]
-        [leiningen.util.file :only [delete-file-recursively]]
+        [leiningen.util.file :only [tmp-dir delete-file-recursively]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import [java.util.jar JarFile]
@@ -52,7 +52,7 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
   ([project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))
            _ (standalone-download name (or group name) version)
-           temp-project (format "/tmp/lein-%s" (java.util.UUID/randomUUID))
+           temp-project (format "%s/lein-%s" tmp-dir (java.util.UUID/randomUUID))
            jarfile (-> (local-repo-path name (or group name) version)
                         (.replace "$HOME" (System/getProperty "user.home")))]
        (install-shell-wrappers (JarFile. jarfile))
