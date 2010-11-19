@@ -6,7 +6,8 @@
          [leiningen.javac :only [javac]]
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
-         [leiningen.util.ns :only [namespaces-in-dir]])
+         [leiningen.util.ns :only [namespaces-in-dir]]
+         [leiningen.util.os :only [get-os get-arch]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
@@ -66,37 +67,6 @@
            (> (.lastModified (file (:source-path project) clj-path))
               (.lastModified class-file)))))
    (compilable-namespaces project)))
-
-(defn get-by-pattern
-  "Gets a value from map m, but uses the keys as regex patterns, trying
-   to match against k instead of doing an exact match."
-  [m k]
-  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
-                        (keys m)))))
-
-(def native-names
-     {"Mac OS X" :macosx
-      "Windows" :windows
-      "Linux" :linux
-      "FreeBSD" :freebsd
-      "SunOS" :solaris
-      "OpenBSD" :openbsd
-      "amd64" :x86_64
-      "x86_64" :x86_64
-      "x86" :x86
-      "i386" :x86
-      "arm" :arm
-      "sparc" :sparc})
-
-(defn get-os
-  "Returns a keyword naming the host OS."
-  []
-  (get-by-pattern native-names (System/getProperty "os.name")))
-
-(defn get-arch
-  "Returns a keyword naming the host architecture"
-  []
-  (get-by-pattern native-names (System/getProperty "os.arch")))
 
 (defn- find-native-lib-path
   "Returns a File representing the directory where native libs for the
