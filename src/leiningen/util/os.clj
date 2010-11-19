@@ -1,4 +1,5 @@
-(ns leiningen.util.os)
+(ns leiningen.util.os
+  (:use [clojure.java.io :only [file]]))
 
 (defn- get-by-pattern
   "Gets a value from map m, but uses the keys as regex patterns, trying
@@ -30,3 +31,8 @@
   "Returns a keyword naming the host architecture"
   []
   (get-by-pattern native-names (System/getProperty "os.arch")))
+
+(defn platform-nullsink []
+  (file (if (= :windows (get-os))
+          "NUL"
+          "/dev/null")))

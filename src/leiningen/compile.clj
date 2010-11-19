@@ -7,7 +7,7 @@
          [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
          [clojure.java.io :only [file]]
          [leiningen.util.ns :only [namespaces-in-dir]]
-         [leiningen.util.os :only [get-os get-arch]])
+         [leiningen.util.os :only [get-os get-arch platform-nullsink]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
@@ -167,11 +167,6 @@
       (.setValue (.createArg java) "-e")
       (.setValue (.createArg java) (get-readable-form java project form init))
       (.executeJava java))))
-
-(defn- platform-nullsink []
-  (file (if (= :windows (get-os))
-          "NUL"
-          "/dev/null")))
 
 (defn- has-source-package?
   "Test if the class file's package exists as a directory in :source-path."

@@ -1,7 +1,8 @@
 (ns test-jar
   (:use [clojure.test]
         [leiningen.core :only [defproject read-project]]
-        [leiningen.jar])
+        [leiningen.jar]
+        [leiningen.util.os :only [platform-nullsink]])
   (:import [java.util.jar JarFile]))
 
 (defproject mock-project "1.0" :main foo.one-two.three-four.bar
@@ -43,7 +44,7 @@
     (read-project "test_projects/sample_failing/project.clj")))
 
 (deftest test-jar-fails
-  (binding [*err* (java.io.PrintWriter. "/dev/null")]
+  (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
     (is (not (jar sample-failing-project)))))
 
 (def sample-no-aot-project
