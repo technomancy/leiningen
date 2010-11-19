@@ -104,7 +104,7 @@
   (or (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
       (re-find #"~$" (.getName file))
-      (reduce #(or %1 (re-find %2 relative-path)) false patterns)))
+      (some #(re-find % relative-path) patterns)))
 
 (defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
 
