@@ -1,6 +1,8 @@
 (ns leiningen.util.file
   (:use [clojure.java.io :only [file delete-file]]))
 
+(def tmp-dir (System/getProperty "java.io.tmpdir"))
+
 ;; grumble, grumble; why didn't this make it into clojure.java.io?
 (defn delete-file-recursively
   "Delete file f. If it's a directory, recursively delete all its contents.

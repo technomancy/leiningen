@@ -6,7 +6,7 @@
         [leiningen.util.maven :only [container make-model make-remote-artifact
                                      make-remote-repo make-local-repo
                                      make-artifact add-metadata]]
-        [leiningen.util.file :only [delete-file-recursively]]
+        [leiningen.util.file :only [tmp-dir delete-file-recursively]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import [java.util.jar JarFile]
@@ -16,14 +16,16 @@
 (defn bin-path []
   (doto (file (home-dir) "bin") .mkdirs))
 
-(defn install-shell-wrapper [jarfile]
+(defn install-shell-wrappers [jarfile]
   (when-let [bin-name ((manifest-map (.getManifest jarfile))
                        "Leiningen-shell-wrapper")]
-    (let [bin-file (file (bin-path) (last (.split bin-name "/")))]
-      (.mkdirs (.getParentFile bin-file))
-      (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
-      (copy (.getInputStream jarfile (.getEntry jarfile bin-name)) bin-file)
-      (.setExecutable bin-file true))))
+    (doseq [entry-path [bin-name (format "%s.bat" bin-name)]]
+      (let [bin-file (file (bin-path) (last (.split entry-path "/")))]
+        (.mkdirs (.getParentFile bin-file))
+        (when-let [zip-entry (.getEntry jarfile entry-path)]
+          (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
+          (copy (.getInputStream jarfile zip-entry) bin-file)
+          (.setExecutable bin-file true))))))
 
 (defn standalone-download [name group version]
   (.resolveAlways (.lookup container ArtifactResolver/ROLE)
@@ -45,15 +47,15 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
        ;; generated and installed in local repo
        (if (not= "pom" (.getPackaging model))
          (add-metadata artifact (file (pom project))))
-       (install-shell-wrapper (JarFile. jarfile))
+       (install-shell-wrappers (JarFile. jarfile))
        (.install installer jarfile artifact local-repo)))
   ([project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))
            _ (standalone-download name (or group name) version)
-           temp-project (format "/tmp/lein-%s" (java.util.UUID/randomUUID))
+           temp-project (format "%s/lein-%s" tmp-dir (java.util.UUID/randomUUID))
            jarfile (-> (local-repo-path name (or group name) version)
-                        (.replace "$HOME" (System/getenv "HOME")))]
-       (install-shell-wrapper (JarFile. jarfile))
+                        (.replace "$HOME" (System/getProperty "user.home")))]
+       (install-shell-wrappers (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
             (binding [*ns* (the-ns 'leiningen.core)

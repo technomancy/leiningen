@@ -1,12 +1,13 @@
 (ns test-test
   (:refer-clojure :exclude [test])
   (:use [leiningen.test]
+        [leiningen.util.file :only [tmp-dir]]
         [leiningen.core :only [read-project]] :reload)
   (:use [clojure.test]))
 
 (use-fixtures :each
               (fn [f]
-                (.delete (java.io.File. "/tmp/lein-test-ran"))
+                (.delete (java.io.File. tmp-dir "lein-test-ran"))
                 (f)))
 
 (def project (binding [*ns* (find-ns 'leiningen.core)]
@@ -14,7 +15,8 @@
 
 (defn ran? [& expected]
   (= (set expected)
-     (set (map read-string (.split (slurp "/tmp/lein-test-ran") "\n")))))
+     (set (map read-string (.split (slurp (format "%s/lein-test-ran" tmp-dir))
+                                   "\n")))))
 
 (deftest test-project-selectors
   (is (= [:default :integration :int2 :no-custom]

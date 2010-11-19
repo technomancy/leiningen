@@ -69,10 +69,8 @@ set JLINE=jline.ConsoleRunner
 :SKIP_JLINE
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
-
-%JAVA_CMD% -client %JAVA_OPTS% -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
-goto EOF
+set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.0\clojure-1.2.0.jar
+goto RUN
 
 
 :NO_LEIN_JAR
@@ -169,5 +167,16 @@ goto :LOOK_AGAIN
 :GET_PARENT_PATH
 set PARENT_PATH=%~f1
 goto :EOF
+
+
+:RUN
+rem Need to disable delayed expansion because the %* variable
+rem may contain bangs (as in test!).
+setLocal DisableDelayedExpansion
+
+%JAVA_CMD% -client %JAVA_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
+ -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
+ -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+goto EOF
 
 :EOF

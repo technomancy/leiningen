@@ -2,9 +2,10 @@
   (:use [clojure.test]
         [clojure.java.io :only [delete-file]]
         [leiningen.core :only [read-project]]
-        [leiningen.run]))
+        [leiningen.run]
+        [leiningen.util.file :only [tmp-dir]]))
 
-(def out-file "/tmp/lein-test")
+(def out-file (format "%s/lein-test" tmp-dir))
 
 (def project (binding [*ns* (find-ns 'leiningen.core)]
                (read-project "test_projects/tricky-name/project.clj")))

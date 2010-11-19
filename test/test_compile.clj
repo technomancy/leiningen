@@ -41,3 +41,9 @@
       (is (some (partial re-find r) classes) (format "missing %s" r))))
   (is (not (.exists (file "test_projects" "sample"
                           "classes" "sample2" "core.class")))))
+
+(deftest test-spaces-in-project-path
+  (binding [leiningen.compile/get-raw-input-args
+            (fn [] ["-Dleiningen.original.pwd=/path/with" "spaces/got-broken"])]
+    (is (zero? (eval-in-project (make-project "test_projects/sample")
+                                `(System/exit 0))))))

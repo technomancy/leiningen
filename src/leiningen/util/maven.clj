@@ -1,7 +1,8 @@
 (ns leiningen.util.maven
   (:use [leiningen.core :only [repositories-for abort]]
         [clojure.java.io :only [file reader]])
-  (:import [org.apache.maven.model Build Model Parent Dependency
+  (:import [java.io File]
+           [org.apache.maven.model Build Model Parent Dependency
             Exclusion Repository Scm License MailingList Resource]
            [org.apache.maven.project.artifact ProjectArtifactMetadata]
            [org.apache.maven.settings MavenSettingsBuilder]
@@ -195,7 +196,7 @@ to exclude from transitive dependencies."
 
 (defn- relative-path
   [project path-key]
-  (.replace (path-key project) (str (:root project) "/") ""))
+  (.replace (path-key project) (str (:root project) File/separator) ""))
 
 (defmacro ^{:private true} add-a-resource [build method resource-path]
   `(let [resource# (Resource.)]
