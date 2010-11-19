@@ -13,7 +13,7 @@ if [ "$OSTYPE" = "cygwin" ] && [ "$CLASSPATH" != "" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
-if [ $USER = "root" ] && [ "$LEIN_ROOT" = "" ]; then
+if [ "$USER" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
@@ -148,7 +148,8 @@ else
         [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
-        if [ $? -eq 1 ]; then
+        if [ ! -x $RLWRAP ]; then
+            RLWRAP=""
             JLINE=jline.ConsoleRunner
             if [ "$OSTYPE" = "cygwin" ]; then
 		        JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
