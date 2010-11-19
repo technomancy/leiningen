@@ -7,6 +7,7 @@
                                      make-remote-repo make-local-repo
                                      make-artifact add-metadata]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
+        [leiningen.compile :only [get-os]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import [java.util.jar JarFile]
@@ -19,13 +20,16 @@
 (defn install-shell-wrappers [jarfile]
   (when-let [bin-name ((manifest-map (.getManifest jarfile))
                        "Leiningen-shell-wrapper")]
-    (doseq [entry-path [bin-name (format "%s.bat" bin-name)]]
-      (let [bin-file (file (bin-path) (last (.split entry-path "/")))]
-        (.mkdirs (.getParentFile bin-file))
-        (when-let [zip-entry (.getEntry jarfile entry-path)]
-          (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
-          (copy (.getInputStream jarfile zip-entry) bin-file)
-          (.setExecutable bin-file true))))))
+    (let [entry-paths (if (= :windows (get-os))
+                        [bin-name (format "%s.bat" bin-name)]
+                        [bin-name])]
+      (doseq [entry-path entry-paths]
+        (let [bin-file (file (bin-path) (last (.split entry-path "/")))]
+          (when-let [zip-entry (.getEntry jarfile entry-path)]
+            (.mkdirs (.getParentFile bin-file))
+            (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
+            (copy (.getInputStream jarfile zip-entry) bin-file)
+            (.setExecutable bin-file true)))))))
 
 (defn standalone-download [name group version]
   (.resolveAlways (.lookup container ArtifactResolver/ROLE)
