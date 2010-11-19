@@ -39,7 +39,8 @@ each namespace and print an overall summary."
         nses (if (or (empty? args) (every? keyword? args))
                (sort (namespaces-in-dir (:test-path project)))
                (filter symbol? args))
-        selectors (map (:test-selectors project) (filter keyword? args))
+        selectors (map (merge {:all '(constantly true)}
+                              (:test-selectors project)) (filter keyword? args))
         selectors (if (and (empty? selectors)
                            (:default (:test-selectors project)))
                     [(:default (:test-selectors project))]
