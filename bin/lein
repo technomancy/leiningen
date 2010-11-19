@@ -153,8 +153,8 @@ else
             RLWRAP=""
             JLINE=jline.ConsoleRunner
             if [ "$OSTYPE" = "cygwin" ]; then
-		        JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
-		        CYGWIN_JLINE=y
+                JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
+                CYGWIN_JLINE=y
             fi
         fi
     fi
