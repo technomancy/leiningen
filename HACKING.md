@@ -4,8 +4,6 @@ Leiningen is very small. The latest release is only around a couple
 thousand lines of Clojure; you could probably read through the whole
 project in an hour.
 
-TODO: what goes where? a tour through the launching of a task
-
 When you launch Leiningen, it must start an instance of Clojure to
 load itself. But this instance must not affect the project that you're
 building. It may use a different version of Clojure from Leiningen,
@@ -16,7 +14,12 @@ specifically the <tt>eval-in-project</tt> function. Any code that must
 execute within the context of the project (AOT compilation, test runs)
 needs to go through this function.
 
-TODO: mention eval-in-leiningen
+The exception to this rule is the case of Leiningen plugins; they run
+in the same process and classloader as Leiningen. Setting the
+<tt>:eval-in-leiningen</tt> key to true in project.clj will make this
+happen in test runs and repl sessions.
+
+TODO: what goes where? a tour through the launching of a task
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call

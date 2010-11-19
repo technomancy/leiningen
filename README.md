@@ -94,7 +94,10 @@ file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
 projects. The <tt>~/.lein/init.clj</tt> file will be loaded every time
-Leiningen launches; any arbitrary code may go there.
+Leiningen launches; any arbitrary code may go there. This code is
+executed inside Leiningen itself, not in your project. Set the
+<tt>:repl-init-script</tt> key in project.clj to point to a file if
+you want code executed inside your project.
 
 You can also manage your plugins with the <tt>plugin</tt> task. Use
 the same arguments you would put in the Leiningen :dev-dependencies if
