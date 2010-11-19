@@ -1,5 +1,6 @@
 (ns test-install
   (:use [leiningen.core :only [read-project defproject home-dir]]
+        [leiningen.util.os :only [get-os]]
         [leiningen.install] :reload)
   (:use [clojure.test]
         [clojure.java.io :only [file]]
@@ -24,7 +25,9 @@
   (install test-project)
   (is (not (empty? (.listFiles m2-dir))))
   (is (.exists unix-shell-wrapper))
-  (is (.exists windows-shell-wrapper)))
+  (if (= :windows (get-os))
+    (is (.exists windows-shell-wrapper))
+    (is (not (.exists windows-shell-wrapper)))))
 
 (def jdom-dir (file local-repo "jdom" "jdom" "1.0"))
 
