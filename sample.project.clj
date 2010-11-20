@@ -91,6 +91,8 @@
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars
   :jar-exclusions [#"(?:^|/).svn/"]
+  ;; Same thing, but for uberjars.
+  :uberjar-exclusions [#"META-INF/DUMMY.SF"]
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.

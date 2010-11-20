@@ -18,13 +18,20 @@
          first
          :content)))
 
+(defn- skip? [entry skip-set]
+  (reduce (fn [skip matcher]
+            (or skip (if (string? matcher)
+                       (= matcher (.getName entry))
+                       (re-find matcher (.getName entry)))))
+          false skip-set))
+
 (defn- copy-entries
   "Copies the entries of ZipFile in to the ZipOutputStream out, skipping
   the entries which satisfy skip-pred. Returns the names of the
   entries copied."
-  [in out & [skip-pred]]
+  [in out skip-set]
   (for [file (enumeration-seq (.entries in))
-        :when (not (skip-pred file))]
+        :when (not (skip? file skip-set))]
     (do
       (.setCompressedSize file -1) ; some jars report size incorrectly
       (.putNextEntry out file)
@@ -38,14 +45,15 @@
 (defn include-dep [out [skip-set components] dep]
   (println "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
-    [(into skip-set (copy-entries zipfile out #(skip-set (.getName %))))
+    [(into skip-set (copy-entries zipfile out skip-set))
      (concat components (read-components zipfile))]))
 
 (defn write-components
   "Given a list of jarfiles, writes contents to a stream"
-  [deps out]
+  [project deps out]
   (let [[_ components] (reduce (partial include-dep out)
-                               [#{"META-INF/plexus/components.xml"} nil]
+                               [(into #{"META-INF/plexus/components.xml"}
+                                      (:uberjar-exclusions project)) nil]
                                deps)]
     (when-not (empty? components)
       (.putNextEntry out (ZipEntry. "META-INF/plexus/components.xml"))
@@ -72,7 +80,7 @@ the dependency jars. Suitable for standalone distribution."
            (let [deps (->> (.listFiles (file (:library-path project)))
                            (filter #(.endsWith (.getName %) ".jar"))
                            (cons (file (get-jar-filename project))))]
-             (write-components deps out)))
+             (write-components project deps out)))
          (println "Created" standalone-filename))
        (abort "Uberjar aborting because jar/compilation failed.")))
   ([project] (uberjar project (get-default-uberjar-name project))))

@@ -5,7 +5,9 @@
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :dependencies [[clojure "1.2.0"]
-                 [robert/hooke "1.0.2"]]
+                 [robert/hooke "1.0.2"]
+                 [janino "2.5.15"]]
+  :uberjar-exclusions [#"DUMMY"]
   :test-selectors {:default (fn [m] (not (:integration m)))
                    :integration :integration
                    :int2 :int2
