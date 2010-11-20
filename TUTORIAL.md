@@ -61,8 +61,8 @@ you.
 
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "FIXME: write"
-      :dependencies [[org.clojure/clojure "1.1.0"]
-                     [org.clojure/clojure-contrib "1.1.0"]])
+      :dependencies [[org.clojure/clojure "1.2.0"]
+                     [org.clojure/clojure-contrib "1.2.0"]])
 
 Fill in the :description with a short paragraph so that your project
 will show up in search results once you upload to Clojars (as
@@ -87,11 +87,11 @@ to add a library named Robert Hooke:
 It's [available on Clojars](http://clojars.org/robert/hooke) with the
 Leiningen dependency notation shown as below:
 
-    [robert/hooke "1.0.1"]
+    [robert/hooke "1.1.0"]
 
 * "robert" is called the "group-id"
 * "hooke" is called the "artifact-id"
-* "1.0.1" is the version of the jar file you require
+* "1.1.0" is the version of the jar file you require
 
 For projects on Clojars, often the group-id is the same as the
 artifact-id, in which case you may leave it out of the Leiningen
@@ -285,10 +285,10 @@ file should look like this:
 
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "This project is MINE."
-      :dependencies [[org.clojure/clojure "1.1.0"]
-                     [org.clojure/clojure-contrib "1.1.0"]
+      :dependencies [[org.clojure/clojure "1.2.0"]
+                     [org.clojure/clojure-contrib "1.2.0"]
                      [org.apache.lucene/lucene-core "3.0.2"]
-                     [robert/hooke "1.0.1"]]
+                     [robert/hooke "1.1.0"]]
       :main myproject.core)
 
 The namespace you specify will need to contain a <tt>-main</tt>
@@ -311,9 +311,9 @@ Now we're ready to generate your uberjar:
     Copying 4 files to /home/phil/src/leiningen/myproject/lib
     Created ~/src/myproject/myproject-1.0.0.jar
     Including myproject-1.0.0-SNAPSHOT.jar
-    Including clojure-contrib-1.1.0.jar
-    Including hooke-1.0.1.jar
-    Including clojure-1.1.0.jar
+    Including clojure-contrib-1.2.0.jar
+    Including hooke-1.1.0.jar
+    Including clojure-1.2.0.jar
     Including lucene-core-3.0.2.jar
     Created myproject-1.0.0-standalone.jar
 
