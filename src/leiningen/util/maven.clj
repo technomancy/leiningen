@@ -198,10 +198,15 @@ to exclude from transitive dependencies."
   [project path-key]
   (.replace (path-key project) (str (:root project) File/separator) ""))
 
-(defmacro ^{:private true} add-a-resource [build method resource-path]
-  `(let [resource# (Resource.)]
-     (.setDirectory resource# ~resource-path)
-     (~(symbol (name method)) ~build [resource#])))
+(defn make-resource [project resource-path]
+  (doto (Resource.) (.setDirectory (relative-path project resource-path))))
+
+(defn make-build [project]
+  (doto (Build.)
+    (.setResources [(make-resource project :resources-path)])
+    (.setTestResources [(make-resource project :dev-resources-path)])
+    (.setSourceDirectory (relative-path project :source-path))
+    (.setTestSourceDirectory (relative-path project :test-path))))
 
 (defn make-model [project]
   (let [model (doto (Model.)
@@ -211,15 +216,8 @@ to exclude from transitive dependencies."
                 (.setVersion (:version project))
                 (.setGroupId (:group project))
                 (.setDescription (:description project))
-                (.setUrl (:url project)))
-        build (doto (Build.)
-                (add-a-resource :.setResources
-                                (relative-path project :resources-path))
-                (add-a-resource :.setTestResources
-                                (relative-path project :dev-resources-path))
-                (.setSourceDirectory (relative-path project :source-path))
-                (.setTestSourceDirectory (relative-path project :test-path)))]
-    (.setBuild model build)
+                (.setUrl (:url project))
+                (.setBuild (make-build project)))]
     (doseq [dep (:dependencies project)]
       (.addDependency model (make-dependency dep)))
     (doseq [repo (repositories-for project)]
