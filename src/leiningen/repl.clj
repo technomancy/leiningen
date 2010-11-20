@@ -52,7 +52,7 @@
              .start)
            (format "REPL started; server listening on %s:%s." ~host ~port)))))
 
-(defn- copy-out-loop [reader]
+(defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
     (loop []
       (.write *out* buffer 0 (.read reader buffer))
@@ -61,16 +61,17 @@
       (recur))))
 
 (defn repl-client [reader writer]
-  (let [input (read-line)]
-    (when (and input (not= "" input))
-      (.write writer (str input "\n"))
-      (.flush writer)
-      (recur reader writer))))
+  (.start (Thread. #(copy-out-loop reader)))
+  (loop [reader reader, writer writer]
+    (let [input (read-line)]
+      (when (and input (not= "" input))
+        (.write writer (str input "\n"))
+        (.flush writer)
+        (recur reader writer)))))
 
 (defn- connect-to-server [socket handler]
   (let [reader (InputStreamReader. (.getInputStream socket))
         writer (OutputStreamWriter. (.getOutputStream socket))]
-    (.start (Thread. #(copy-out-loop reader)))
     (handler reader writer)))
 
 (defn poll-repl-connection
