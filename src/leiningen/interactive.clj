@@ -1,6 +1,6 @@
 (ns leiningen.interactive
   (:require [clojure.string :as string])
-  (:use [leiningen.core :only [apply-task]]
+  (:use [leiningen.core :only [apply-task exit]]
         [leiningen.repl :only [repl-server repl-socket-on
                                copy-out-loop poll-repl-connection]]
         [leiningen.compile :only [eval-in-project]]))
@@ -27,9 +27,7 @@
     (try (eval-client-loop reader writer (make-array Character/TYPE 1000) eof)
          0
          (catch Exception e
-           (println (.getMessage e))
-           (.printStackTrace e)
-           1)
+           (.printStackTrace e) 1)
          (finally
           (.close reader)
           (.close writer)))))
@@ -54,4 +52,5 @@
                                     ~welcome)))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)]
-        (task-repl project)))))
+        (task-repl project)))
+    (exit)))

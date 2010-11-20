@@ -38,16 +38,18 @@
                                           *err* (PrintWriter. outs# true)]
                                   (try
                                     (clojure.main/repl ~@repl-options)
-                                    (catch ~'SocketException _#
-                                      (doto s#
-                                        .shutdownInput
-                                        .shutdownOutput
-                                        .close)))))
+                                    (catch ~'SocketException e#
+                                      (.printStackTrace e#))
+                                    (finally (doto s#
+                                               .shutdownInput
+                                               .shutdownOutput
+                                               .close)))))
                           .start)))]
            (doto (Thread. #(when-not (.isClosed server#)
                              (try
                                (acc# (.accept server#))
-                               (catch ~'SocketException _#))
+                               (catch ~'SocketException e#
+                                 (.printStackTrace e#)))
                              (recur)))
              .start)
            (format "REPL started; server listening on %s:%s." ~host ~port)))))

@@ -245,7 +245,7 @@ Takes major, minor and incremental versions into account."
            (load-hooks project))
          (let [value (apply-task task-name project args task-not-found)]
            (when (integer? value)
-             (System/exit value))))))
+             (exit value))))))
   ([]
      (doseq [arg-group (make-groups *command-line-args*)]
        (apply -main (or (seq arg-group) ["help"])))))
