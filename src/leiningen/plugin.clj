@@ -33,14 +33,14 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
   (leiningen.install/install project-name version)
   (.mkdirs plugins-path)
   (let [[name group] (extract-name-and-group project-name)
-        temp-project (format "%s/lein-%s" tmp-dir (java.util.UUID/randomUUID))
+        temp-project (file tmp-dir (str "lein-" (java.util.UUID/randomUUID)))
         jarfile (-> (local-repo-path name (or group name) version)
                     (.replace "$HOME" (System/getProperty "user.home")))
         _ (extract-jar (file jarfile) temp-project)
-        project (read-project (format "%s/project.clj" temp-project))
+        project (read-project (str (file temp-project "project.clj")))
         standalone-filename (plugin-standalone-filename group name version)]
     (deps project)
-    (with-open [out (-> (str plugins-path "/" standalone-filename)
+    (with-open [out (-> (file plugins-path standalone-filename)
                         (FileOutputStream.)
                         (ZipOutputStream.))]
       (let [deps (->> (.listFiles (file (:library-path project)))
