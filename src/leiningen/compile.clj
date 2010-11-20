@@ -98,6 +98,11 @@
   []
   (get-by-pattern native-names (System/getProperty "os.arch")))
 
+(defn platform-nullsink []
+  (file (if (= :windows (get-os))
+          "NUL"
+          "/dev/null")))
+
 (defn- find-native-lib-path
   "Returns a File representing the directory where native libs for the
   current platform are located."
@@ -197,11 +202,6 @@
       (.setValue (.createArg java) "-e")
       (.setValue (.createArg java) (get-readable-form java project form init))
       (.executeJava java))))
-
-(defn- platform-nullsink []
-  (file (if (= :windows (get-os))
-          "NUL"
-          "/dev/null")))
 
 (defn- has-source-package?
   "Test if the class file's package exists as a directory in :source-path."
