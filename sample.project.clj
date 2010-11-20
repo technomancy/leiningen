@@ -64,6 +64,8 @@
   :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"
+  ;; These will get passed to clojure.main/repl; see its docstring for details.
+  :repl-options {:prompt (constantly "your command, master? ")}
   ;; Customize the socket the repl task listens on.
   :repl-port 4001
   :repl-host "0.0.0.0"

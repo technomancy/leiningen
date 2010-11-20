@@ -6,14 +6,15 @@
   (:import [java.net Socket]
            [java.io OutputStreamWriter InputStreamReader File]))
 
-(defn repl-server [project host port]
+(defn repl-server [project host port & repl-options]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
                                  mn# '~(:main project)]
                              (when (and is# (.exists (File. (str is#))))
                                (load-file is#))
                              (if mn#
                                (doto mn# require in-ns)
-                               (in-ns '~'user)))]]
+                               (in-ns '~'user)))]
+        repl-options (concat init-form repl-options)]
     `(do (ns ~'user
            (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
                      ~'SocketException]
@@ -23,6 +24,7 @@
          (try ;; transitive requires don't work for stuff on bootclasspath
            (require ['~'clojure.java.shell])
            (require ['~'clojure.java.browse])
+           ;; these are new in clojure 1.2, so swallow exceptions for 1.1
            (catch Exception _#))
          (use ['~'clojure.main :only ['~'repl]])
          (let [server# (ServerSocket. ~port 0 (~'InetAddress/getByName ~host))
@@ -35,7 +37,7 @@
                                           *out* (OutputStreamWriter. outs#)
                                           *err* (PrintWriter. outs# true)]
                                   (try
-                                    (clojure.main/repl ~@init-form)
+                                    (clojure.main/repl ~@repl-options)
                                     (catch ~'SocketException _#
                                       (doto s#
                                         .shutdownInput
@@ -65,17 +67,24 @@
       (.flush writer)
       (recur reader writer))))
 
-(defn- connect-to-server [socket]
+(defn- connect-to-server [socket handler]
   (let [reader (InputStreamReader. (.getInputStream socket))
         writer (OutputStreamWriter. (.getOutputStream socket))]
     (.start (Thread. #(copy-out-loop reader)))
-    (repl-client reader writer)))
+    (handler reader writer)))
 
-(defn poll-repl-connection [port]
-  (Thread/sleep 100)
-  (when (try (connect-to-server (Socket. "localhost" port))
-             (catch java.net.ConnectException _ :retry))
-    (recur port)))
+(defn poll-repl-connection
+  ([port retries handler]
+     (when (> retries 50)
+       (throw (Exception. "Couldn't connect")))
+     (Thread/sleep 100)
+     (let [val (try (connect-to-server (Socket. "localhost" port) handler)
+                    (catch java.net.ConnectException _ ::retry))]
+       (if (= ::retry val)
+         (recur port (inc retries) handler)
+         val)))
+  ([port]
+     (poll-repl-connection port 0 repl-client)))
 
 (defn repl-socket-on [{:keys [repl-port repl-host]}]
   [(Integer. (or repl-port
@@ -92,7 +101,8 @@ chosen randomly."
   ([] (repl {}))
   ([project]
      (let [[port host] (repl-socket-on project)
-           server-form (repl-server project host port)]
+           server-form (apply repl-server project host port
+                              (:repl-options project))]
        (future (try (if (empty? project)
                       (clojure.main/with-bindings
                         (println (eval server-form)))
