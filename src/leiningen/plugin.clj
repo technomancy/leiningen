@@ -46,7 +46,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
       (let [deps (->> (.listFiles (file (:library-path project)))
                       (filter #(.endsWith (.getName %) ".jar"))
                       (cons (file jarfile)))]
-        (write-components deps out)))
+        (write-components project deps out)))
     (delete-file-recursively temp-project)
     (println "Created" standalone-filename)))
 
