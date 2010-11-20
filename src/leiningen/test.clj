@@ -24,15 +24,15 @@ each namespace and print an overall summary."
         (doseq [n# '~namespaces]
           (require n#))
         ~(form-for-hook-selectors selectors)
-        (let [summary# (apply ~'clojure.test/run-tests '~namespaces)]
+        (let [summary# (binding [clojure.test/*test-out* *out*]
+                         (apply ~'clojure.test/run-tests '~namespaces))]
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
             (shutdown-agents))
           ;; Stupid ant won't let us return anything, so write results to disk
           (with-open [w# (-> (java.io.File. ~result-file)
                              (java.io.FileOutputStream.)
                              (java.io.OutputStreamWriter.))]
-            (.write w# (pr-str summary#))))
-        (System/exit 0))))
+            (.write w# (pr-str summary#)))))))
 
 (defn- read-args [args project]
   (let [args (map read-string args)
