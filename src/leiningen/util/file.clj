@@ -3,6 +3,9 @@
 
 (def tmp-dir (System/getProperty "java.io.tmpdir"))
 
+(defn unique-lein-tmp-dir []
+  (file tmp-dir (str "lein-" (java.util.UUID/randomUUID))))
+
 ;; grumble, grumble; why didn't this make it into clojure.java.io?
 (defn delete-file-recursively
   "Delete file f. If it's a directory, recursively delete all its contents.

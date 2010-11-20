@@ -1,5 +1,10 @@
 (ns test-plugin
-  (:use [leiningen.plugin] :reload)
+  (:use [leiningen.plugin]
+        [leiningen.util.file :only (unique-lein-tmp-dir
+                                    delete-file-recursively)]
+        [leiningen.compile :only (platform-nullsink)]
+        [leiningen.core :only (read-project defproject)]
+        [clojure.java.io :only (file)])
   (:use [clojure.test]))
 
 (deftest test-plugin-standalone-filename
@@ -28,8 +33,14 @@ uninstall   Delete the plugin jarfile
             Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION\n"
          (with-out-str (plugin "help")))))
 
+(defonce test-project (read-project "test_projects/sample/project.clj"))
 
-;; TODO: figure out a clever way to actually test instaling
-;; (deftest test-install
-;; (install "lein-plugin" "0.1.0")
-;; )
+(deftest test-install
+  (with-out-str
+    (leiningen.install/install test-project)
+    (binding [plugins-path (unique-lein-tmp-dir)
+              leiningen.install/install (constantly nil)]
+      (install "nomnomnom" "0.5.0-SNAPSHOT")
+      (is (.exists (file plugins-path "nomnomnom-0.5.0-SNAPSHOT.jar")))
+      (delete-file-recursively plugins-path))))
+

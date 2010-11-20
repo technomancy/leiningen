@@ -7,7 +7,7 @@
         [leiningen.jar :only (local-repo-path
                               extract-jar
                               get-default-uberjar-name)]
-        [leiningen.util.file :only (tmp-dir)]
+        [leiningen.util.file :only (tmp-dir delete-file-recursively)]
         [clojure.java.io :only (file)])
   (:require [leiningen.install]
             [leiningen.help])
@@ -31,6 +31,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
   dependencies."
   [project-name version]
   (leiningen.install/install project-name version)
+  (.mkdirs plugins-path)
   (let [[name group] (extract-name-and-group project-name)
         temp-project (format "%s/lein-%s" tmp-dir (java.util.UUID/randomUUID))
         jarfile (-> (local-repo-path name (or group name) version)
@@ -46,6 +47,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
                       (filter #(.endsWith (.getName %) ".jar"))
                       (cons (file jarfile)))]
         (write-components deps out)))
+    (delete-file-recursively temp-project)
     (println "Created" standalone-filename)))
 
 (defn uninstall
