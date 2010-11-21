@@ -197,16 +197,21 @@ See the plugin task's help for more information.
   upon it.
 
 **Q:** What can be done to speed up launch?  
-**A:** The "server" Hotspot compiler in the JVM is optimized for
-  long-running processes and has quite a poor startup time. Leiningen
-  will try to launch a client JVM, but this only works on 32-bit JVM
-  installations. If you are on a 64-bit machine you can still use a
-  client JVM; on Ubuntu use the ia32-sun-java6-bin package. Once
-  you've installed it, set the <tt>JAVA_CMD</tt> environment variable
-  to <tt>/usr/lib/jvm/ia32-java-6-sun/bin/java</tt>. Using the
-  <tt>interactive</tt> command, the <tt>swank-clojure</tt> plugin, and
-  the socket started by the <tt>repl</tt> command are also good ways
-  to avoid paying the startup time penalty.
+**A:** The main delay involved in Leiningen comes from starting the JVM.
+  Launching "lein interactive" will give you an interactive session so
+  you can run many tasks against the same process instead of launching
+  a new one every time. Depending on your editor you may also be able
+  to take advantage of its Clojure integration.
+
+**Q:** Still too slow; what else can make startup faster?  
+**A:** There are two flavours of the JVM, client and server. The
+  server is optimized for long-running processes and has quite a poor
+  startup time. Leiningen will try to launch a client JVM, but this
+  only works on 32-bit JVM installations. If you are on a 64-bit
+  machine you can still use a client JVM if you install 32-bit
+  packages; on Ubuntu try ia32-sun-java6-bin. Once you've installed
+  it, set the <tt>JAVA_CMD</tt> environment variable to
+  <tt>/usr/lib/jvm/ia32-java-6-sun/bin/java</tt>.
 
 ## Contributing
 
@@ -222,7 +227,10 @@ You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place. If you have a
 copy of an older Leiningen version around (at least 1.1.0, installed
 as lein-stable, for example), then you can run "lein-stable deps" in
-your checkout. If Leiningen's dependencies change,
+your checkout. If Leiningen's dependencies change it will be necessary
+to remove the lib/ directory entirely before running "lein deps"
+again. (This is not necessary for most projects, but Leiningen has
+unique bootstrapping issues when working on itself.)
 
 Alternatively a <tt>lein self-install</tt> will usually get you what
 you need. However, this will occasionally fail for very new SNAPSHOT

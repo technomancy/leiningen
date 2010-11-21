@@ -51,7 +51,6 @@ See also http://github.com/technomancy/leiningen/issues
    the standard lucene index system that Maven repositories offer.
    This would also mean getting Clojars to produce those indices.
 * For 1.4
-** TODO investigate arity of lein-run
 ** DONE socket timing issues with interactive tests
 ** DONE connect to socket repl in interactive task
 ** DONE :uberjar-exclusions?
