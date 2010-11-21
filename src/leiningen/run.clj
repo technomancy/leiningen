@@ -25,8 +25,11 @@ Aliases can be defined in project.clj as
                   :alias2 another.namespace}"
   [project & [flag & args]]
   (let [flag (and flag (read-string flag))
-        alias (and (keyword? flag) (flag (:run-aliases project)))]
+        alias (and (keyword? flag) (flag (:run-aliases project)))
+        args (if (and flag (not= '-m flag))
+               (conj args flag)
+               args)]
     (cond alias           (apply run project "-m" (cons alias args))
           (= flag '-m)    (apply run-main project args)
-          (:main project) (apply run-main project (:main project) flag args)
+          (:main project) (apply run-main project (:main project) args)
           :else (abort "No :main namespace specified in project.clj."))))
