@@ -10,21 +10,21 @@
 (defn not-found [& _]
   (println "That's not a task. Use help to list all tasks."))
 
-(defn- eval-client-loop [reader writer buffer eof]
+(defn- eval-client-loop [reader writer buffer socket]
   (let [len (.read reader buffer)
         output (String. buffer)]
-    (when-not (or (neg? len) (re-find (re-pattern eof) output))
+    (when-not (neg? len)
       (.write *out* buffer 0 len)
       (flush)
-      (Thread/sleep 100)
-      (recur reader writer buffer eof))))
+      (when-not (.isClosed socket)
+        (Thread/sleep 100)
+        (recur reader writer buffer socket)))))
 
 (defn eval-in-repl [connect project form & [args]]
-  (let [[reader writer] (connect)
-        eof (str (java.util.UUID/randomUUID))]
-    (.write writer (format "%s\n:%s\n" (pr-str form) eof))
+  (let [[reader writer socket] (connect)]
+    (.write writer (str (pr-str form) "\n" '(.close *in*) "\n"))
     (.flush writer)
-    (try (eval-client-loop reader writer (make-array Character/TYPE 1000) eof)
+    (try (eval-client-loop reader writer (make-array Character/TYPE 100) socket)
          0
          (catch Exception e
            (.printStackTrace e) 1)

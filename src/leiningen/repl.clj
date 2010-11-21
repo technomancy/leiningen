@@ -62,7 +62,7 @@
       (Thread/sleep 100)
       (recur))))
 
-(defn repl-client [reader writer]
+(defn repl-client [reader writer & [socket]]
   (.start (Thread. #(copy-out-loop reader)))
   (loop [reader reader, writer writer]
     (let [input (read-line)]
@@ -74,7 +74,7 @@
 (defn- connect-to-server [socket handler]
   (let [reader (InputStreamReader. (.getInputStream socket))
         writer (OutputStreamWriter. (.getOutputStream socket))]
-    (handler reader writer)))
+    (handler reader writer socket)))
 
 (defn poll-repl-connection
   ([port retries handler]
