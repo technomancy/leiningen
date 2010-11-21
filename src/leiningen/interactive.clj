@@ -7,6 +7,8 @@
 
 (def welcome "Welcome to Leiningen. Type help for a list of commands.")
 
+(def prompt "lein> ")
+
 (defn not-found [& _]
   (println "That's not a task. Use help to list all tasks."))
 
@@ -32,24 +34,29 @@
           (.close reader)
           (.close writer)))))
 
+(defn print-prompt []
+  (flush)
+  (print prompt)
+  (flush))
+
 (defn task-repl [project]
-  (flush)
-  (print "lein> ")
-  (flush)
-  (let [input (.readLine *in*)]
+  (print-prompt)
+  (loop [input (.readLine *in*)]
     (when (and input (not= input "exit"))
       (let [[task-name & args] (string/split input #"\s")]
         (apply-task task-name project args not-found)
-        (recur project)))))
+        (print-prompt)
+        (recur (.readLine *in*))))))
 
 (defn interactive
   "Enter an interactive shell for calling tasks without relaunching new JVMs."
   [project]
   (let [[port host] (repl-socket-on project)]
+    (println welcome)
     (future
       (eval-in-project project `(do ~(repl-server project host port
                                                   :prompt '(constantly ""))
-                                    ~welcome)))
+                                    (symbol ""))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)]
         (task-repl project)))
