@@ -218,12 +218,22 @@ Now if you run "lein test" it will only run deftests that don't have
 the integration tests and "lein test :all" will run everything. You
 can include test selectors and listing test namespaces in the same run.
 
-Because it starts a new JVM process, lein test is not a good solution
-for test-driven development. For that you would either need to look
-into better editor integration (see
+Running "lein test" from the command-line is not a good solution for
+test-driven development due to the slow startup time of the JVM. For
+quick feedback, try starting an interactive session with "lein int"
+and running tests from in there. Other options include editor
+integration (see
 [clojure-test-mode](http://github.com/technomancy/clojure-mode) for
 Emacs) or keep a repl open and call <tt>run-tests</tt> from there as
 you work.
+
+Keep in mind that while keeping a single process around is convenient,
+it's easy for that process to get into a state that doesn't reflect
+the files on disk--functions that are loaded and then deleted from the
+file will remain in memory, making it easy to miss problems arising
+from missing functions (referred to as "getting slimed"). Because of
+this it's advised to do a "lein test" run with a fresh instance
+periodically, perhaps before you commit.
 
 ## Compiling
 
