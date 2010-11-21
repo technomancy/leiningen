@@ -112,4 +112,4 @@ chosen randomly."
                       (eval-in-project project server-form))
                     (catch Exception _)))
        (poll-repl-connection port)
-       (exit 0))))
+       (exit))))

@@ -58,6 +58,7 @@
                                                   :prompt '(constantly ""))
                                     (symbol ""))))
     (let [connect #(poll-repl-connection port 0 vector)]
-      (binding [eval-in-project (partial eval-in-repl connect)]
+      (binding [eval-in-project (partial eval-in-repl connect)
+                exit (fn [_] (println "\n"))]
         (task-repl project)))
     (exit)))
