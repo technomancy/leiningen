@@ -27,4 +27,4 @@
     (is (= "BRUNCH" (slurp out-file)))
     (delete-file out-file :silently)
     (is (zero? (run project ":mmm" "1")))
-    (is (= ":munched (\"1\")" (slurp out-file))))
+    (is (= ":munched (:mmm \"1\")" (slurp out-file))))
