@@ -1,6 +1,5 @@
 (ns leiningen.javac
-  "Compile java source files with Leiningen. Optionally takes a PATH argument
-in which to search for .java files."
+  "Compile Java source files."
   (:use [leiningen.classpath :only [get-classpath]])
   (:require [lancet])
   (:import [java.io File]))
@@ -34,7 +33,9 @@ in which to search for .java files."
   (lancet/mkdir {:dir (:destdir task-spec)})
   (lancet/javac task-spec))
 
-(defn javac [project & [directory]]
+(defn javac
+  "Compile Java source files."
+  [project & [directory]]
   (doseq [task (extract-javac-tasks project)
           :when (or (nil? directory) (= directory (:srcdir task)))]
     (run-javac-task task)))

@@ -1,4 +1,5 @@
 (ns leiningen.plugin
+  "Manage user-level plugins."
   (:use [leiningen.core :only (home-dir
                                read-project
                                abort)]
@@ -59,7 +60,7 @@ Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION"
                       (plugin-standalone-filename group name version))]
     (if (.exists jarfile)
       (if (.delete jarfile)
-        (println (format "Successfully uninstalled %s %s." project-name version))
+        (println (format "Uninstalled %s %s." project-name version))
         (abort (format "Failed to delete \"%s\"." (.getAbsolutePath jarfile))))
       (abort (format "Plugin \"%s %s\" doesn't appear to be installed."
                        project-name version)))))

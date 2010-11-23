@@ -1,5 +1,5 @@
 (ns leiningen.uberjar
-  "Create a jar containing the compiled code, source, and all dependencies."
+  "Package up all the project's files and dependencies into a jar file."
   (:require [clojure.xml :as xml])
   (:use [clojure.zip :only [xml-zip children]]
         [clojure.java.io :only [file copy]]

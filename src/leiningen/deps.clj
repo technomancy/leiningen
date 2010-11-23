@@ -1,5 +1,5 @@
 (ns leiningen.deps
-  "Install jars for all dependencies in lib."
+  "Download all dependencies and place them in the :library-path."
   (:require [lancet])
   (:use [leiningen.core :only [repositories-for]]
         [leiningen.util.maven :only [make-dependency]]
@@ -68,9 +68,9 @@
 (defn use-dev-deps? [project skip-dev]
   (and (not skip-dev) (seq (:dev-dependencies project))))
 
-(defn deps
-  "Download and install all :dependencies listed in project.clj.
-With an argument it will skip development dependencies."
+(defn ^{:help-arglists '([] [skip-dev])} deps
+  "Download and install all :dependencies and :dev-dependencies listed in
+project.clj. With an argument it will skip development dependencies."
   ([project skip-dev deps-set]
      (when (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
        (when-not (:disable-implicit-clean project)

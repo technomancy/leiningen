@@ -1,8 +1,5 @@
 (ns leiningen.new
-  "Create a new project skeleton.
-lein new [group-id/]artifact-id [project-dir]
-Group-id is optional. Project-dir defaults to artifact-id if not given.
-Neither group-id nor artifact-id may contain slashes."
+  "Create a new project skeleton."
   (:use [leiningen.core :only [ns->path]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]]))
@@ -39,10 +36,9 @@ Neither group-id nor artifact-id may contain slashes."
                            " License, the same as Clojure.\n")])))
 
 (defn new
-  "Create a new project skeleton.
-lein new [group-id/]artifact-id [project-dir]
-Group-id is optional. Project-dir defaults to artifact-id if not given.
-Neither group-id nor artifact-id may contain slashes."
+  "Create a new project skeleton."
+  ([project-name]
+     (leiningen.new/new project-name (name (symbol project-name))))
   ([project-name project-dir]
      (when (re-find #"(?<!clo)jure" project-name)
        (throw (IllegalArgumentException. "*jure names are no longer allowed.")))
@@ -63,6 +59,4 @@ Neither group-id nor artifact-id may contain slashes."
          (write-implementation project-dir project-clj project-ns)
          (write-test project-dir test-ns project-ns)
          (write-readme project-dir artifact-id)
-         (println "Created new project in:" project-dir))))
-  ([project-name] (leiningen.new/new project-name
-                                     (name (symbol project-name)))))
+         (println "Created new project in:" project-dir)))))

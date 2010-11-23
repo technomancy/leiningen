@@ -1,5 +1,5 @@
 (ns leiningen.jar
-  "Create a jar containing the compiled code and original source."
+  "Package up all the project's files into a jar file."
   (:require [leiningen.compile :as compile]
             [clojure.string :as string]
             [lancet])
@@ -191,9 +191,9 @@
       (copy (.getInputStream jar entry) f))))
 
 (defn jar
-  "Create a $PROJECT-$VERSION.jar file containing the compiled .class files as
-well as the source .clj files. If project.clj contains a :main symbol, it will
-be used as the main-class for an executable jar."
+  "Create a $PROJECT-$VERSION.jar file containing project's source files as well
+as .class files if applicable. If project.clj contains a :main key, the -main
+function in that namespace will be used as the main-class for executable jar."
   ([project jar-name]
      (binding [compile/*silently* true
                deps (memoize deps)]

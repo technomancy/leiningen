@@ -1,5 +1,5 @@
 (ns leiningen.install
-  "Install the project and its dependencies in your local repository."
+  "Install the current project or download the project specified."
   (:use [leiningen.core :only [home-dir default-repos read-project]]
         [leiningen.jar :only [jar manifest-map local-repo-path extract-jar]]
         [leiningen.deps :only [deps copy-dependencies]]
@@ -11,6 +11,7 @@
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import [java.util.jar JarFile]
+           [java.util UUID]
            [org.apache.maven.artifact.resolver ArtifactResolver]
            [org.apache.maven.artifact.installer ArtifactInstaller]))
 
@@ -56,7 +57,7 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
   ([project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))
            _ (standalone-download name (or group name) version)
-           temp-project (format "%s/lein-%s" tmp-dir (java.util.UUID/randomUUID))
+           temp-project (format "%s/lein-%s" tmp-dir (UUID/randomUUID))
            jarfile (-> (local-repo-path name (or group name) version)
                         (.replace "$HOME" (System/getProperty "user.home")))]
        (install-shell-wrappers (JarFile. jarfile))

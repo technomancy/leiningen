@@ -1,4 +1,5 @@
 (ns leiningen.classpath
+  "Show the classpath of the current project."
   (:use [leiningen.core :only [read-project home-dir]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
@@ -55,7 +56,7 @@
           (user-plugins)))
 
 (defn classpath
-  "Print out the classpath in which the project operates, within the
-  current directory, in a format suitable for the -classpath option."
+  "Print out the classpath in which the project operates in a format suitable
+for java's -classpath option."
   [project]
   (println (join java.io.File/pathSeparatorChar (get-classpath project))))

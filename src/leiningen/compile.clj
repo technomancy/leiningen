@@ -1,5 +1,5 @@
 (ns leiningen.compile
-  "Compile the namespaces listed in project.clj or all namespaces in src."
+  "Compile Clojure source into .class files."
   (:require lancet)
   (:use  [leiningen.deps :only [deps]]
          [leiningen.core :only [ns->path]]

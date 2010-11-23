@@ -1,4 +1,5 @@
 (ns leiningen.interactive
+  "Enter interactive shell for calling tasks without relaunching JVM."
   (:require [clojure.string :as string])
   (:use [leiningen.core :only [apply-task exit]]
         [leiningen.repl :only [repl-server repl-socket-on
@@ -35,7 +36,6 @@
           (.close writer)))))
 
 (defn print-prompt []
-  (flush)
   (print prompt)
   (flush))
 
@@ -44,12 +44,13 @@
   (loop [input (.readLine *in*)]
     (when (and input (not= input "exit"))
       (let [[task-name & args] (string/split input #"\s")]
+        ;; TODO: don't start a second repl server for repl task
         (apply-task task-name project args not-found)
         (print-prompt)
         (recur (.readLine *in*))))))
 
 (defn interactive
-  "Enter an interactive shell for calling tasks without relaunching new JVMs."
+  "Enter an interactive shell for calling tasks without relaunching JVM."
   [project]
   (let [[port host] (repl-socket-on project)]
     (println welcome)

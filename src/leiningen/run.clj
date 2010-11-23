@@ -1,4 +1,5 @@
 (ns leiningen.run
+  "Run a -main function with optional command-line arguments."
   (:use [leiningen.compile :only [eval-in-project]]
         [leiningen.core :only [abort]]))
 
@@ -9,9 +10,8 @@
      (eval-in-project project `((ns-resolve '~(symbol ns) '~'-main) ~@args)
                       nil nil `(require '~(symbol ns)))))
 
-;; TODO: use subtask help?
-(defn run
-  "Call a -main function with optional command-line arguments.
+(defn ^{:help-arglists '([])} run
+  "Run a -main function with optional command-line arguments.
 
 USAGE: lein run [ARGS...]
 Calls the -main function in the namespace specified as :main in project.clj.

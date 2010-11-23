@@ -1,5 +1,5 @@
 (ns leiningen.clean
-  "Remove compiled files and dependencies from project."
+  "Remove compiled artifacts and jars from project."
   (:use [leiningen.jar :only [get-jar-filename get-default-uberjar-name]]
         [leiningen.util.file :only [delete-file-recursively]]))
 

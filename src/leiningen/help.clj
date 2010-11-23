@@ -58,8 +58,9 @@
   [task-name]
   (let [[task-ns task] (resolve-task task-name)
         help-fn (ns-resolve task-ns 'help)]
-    (str "Arguments: " (pr-str (get-arglists task)) "\n"
-         (or (and help-fn (help-fn))
+    (str (when-not (every? empty? (get-arglists task))
+           (str "Arguments: " (pr-str (get-arglists task)) "\n"))
+         (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
              (:doc (meta task))
              (:doc (meta (find-ns task-ns))))
          (subtask-help-for task-ns task))))
@@ -68,8 +69,8 @@
 (defn help-summary-for [task-ns]
   (require task-ns)
   (let [task-name (last (.split (name task-ns) "\\."))]
-    (str task-name (apply str (repeat (- 8 (count task-name)) " "))
-         " - " (:doc (meta (find-ns task-ns))))))
+    (str task-name (apply str (repeat (- 12 (count task-name)) " "))
+         (:doc (meta (find-ns task-ns))))))
 
 (defn help
   "Display a list of tasks or help for a given task."
@@ -78,7 +79,6 @@
      (println "Leiningen is a build tool for Clojure.\n")
      (println "Several tasks are available:")
      (doseq [task-ns tasks]
-       ;; (println (help-summary-for task-ns))
-       (println " " (last (.split (name task-ns) "\\."))))
+       (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
      (println "See http://github.com/technomancy/leiningen as well.")))

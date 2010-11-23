@@ -31,7 +31,7 @@
               baos "Leiningen")
     (.getBytes (str baos))))
 
-(defn pom
+(defn ^{:help-arglists '([])} pom
   "Write a pom.xml file to disk for Maven interop."
   ([project pom-location silently?]
      (let [pom-file (file (:root project) pom-location)]
