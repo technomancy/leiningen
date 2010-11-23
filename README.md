@@ -44,7 +44,7 @@ and use self-install.
 ## Usage
 
 The
-[tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
+[tutorial](http://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
@@ -89,7 +89,7 @@ Place a <tt>project.clj</tt> file in the project root like this:
 
 The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
-[sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
+[sample.project.clj](http://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
@@ -136,7 +136,7 @@ See the plugin task's help for more information.
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](http://github.com/technomancy/leiningen/blob/master/TUTORIAL.md)
+  [tutorial](http://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
@@ -159,7 +159,7 @@ See the plugin task's help for more information.
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
   project, you should make it into a
-  [plugin](http://github.com/technomancy/leiningen/blob/master/PLUGINS.md).
+  [plugin](http://github.com/technomancy/leiningen/blob/stable/PLUGINS.md).
   You can also include one-off tasks in your src/leiningen/ directory
   if they're not worth spinning off; the plugin guide shows how.
 

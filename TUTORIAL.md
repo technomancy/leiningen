@@ -8,7 +8,7 @@ project building and JVM-land dependency management.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[README](http://github.com/technomancy/leiningen/blob/master/README.md). 
+[README](http://github.com/technomancy/leiningen/blob/stable/README.md). 
 Generating a new project is easy:
 
     $ lein new myproject
@@ -148,7 +148,7 @@ Dependencies are downloaded from Clojars, the central Maven (Java)
 repository, the [official Clojure build
 server](http://build.clojure.org), and any other repositories that you
 add to your project.clj file. See :repositories in
-[sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj).
+[sample.project.clj](http://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
 If you've confirmed that your project will work with a number of
 different versions of a given dependency, you can provide a range
@@ -242,7 +242,7 @@ If you're lucky you'll be able to get away without doing any AOT
 that require it, so if you need to use them you should add an :aot
 option into your project.clj file. It should be a seq of namespaces
 you want AOT-compiled. Again, the
-[sample.project.clj](http://github.com/technomancy/leiningen/blob/master/sample.project.clj)
+[sample.project.clj](http://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 has example usage.
 
 Like dependencies, this should happen for you automatically when
@@ -371,7 +371,7 @@ wrapper template instead of the default. The <tt>format</tt> function
 is called with the contents of this file along with the necessary
 classpath and the main namespace, so put %s in the right place. See
 [the default
-wrapper](http://github.com/technomancy/leiningen/blob/master/resources/script-template)
+wrapper](http://github.com/technomancy/leiningen/blob/stable/resources/script-template)
 for an example.
 
 ### Publishing
