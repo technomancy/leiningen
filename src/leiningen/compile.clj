@@ -19,6 +19,8 @@
 
 (def *skip-auto-compile* false)
 
+(def *exit-when-done* true)
+
 (defn- regex?
   "Returns true if we have regex class"
   [str-or-re]
@@ -141,7 +143,9 @@
                   (def ~'*classpath* ~cp)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
-                  ~form)]
+                  ~form
+                  (when ~*exit-when-done*
+                    (System/exit 0)))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
     ;; currently being passed; see
