@@ -205,16 +205,23 @@
 
 (defn- has-source-package?
   "Test if the class file's package exists as a directory in :source-path."
-  [project f]
-  (.isDirectory (file (.replace (.getParent f)
-                                (:compile-path project)
-                                (:source-path project)))))
+  [project f source-path]
+  (and source-path (.isDirectory (file (.replace (.getParent f)
+                                                 (:compile-path project)
+                                                 source-path)))))
+
+(defn- keep-class? [project f]
+  (or (has-source-package? project f (:source-path project))
+      (has-source-package? project f (:java-source-path project))
+      (.exists (file (str (.replace (.getParent f)
+                                    (:compile-path project)
+                                    (:source-path project)) ".clj")))))
 
 (defn delete-non-project-classes [project]
   (when (and (not= :all (:aot project))
              (not (:keep-non-project-classes project)))
     (doseq [f (file-seq (file (:compile-path project)))
-            :when (and (.isFile f) (not (has-source-package? project f)))]
+            :when (and (.isFile f) (not (keep-class? project f)))]
       (.delete f))))
 
 (defn- status [code msg]
