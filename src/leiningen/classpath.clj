@@ -55,8 +55,11 @@
           (find-lib-jars project)
           (user-plugins)))
 
+(defn get-classpath-string [project]
+  (join java.io.File/pathSeparatorChar (get-classpath project)))
+
 (defn classpath
   "Print out the classpath in which the project operates in a format suitable
 for java's -classpath option."
   [project]
-  (println (join java.io.File/pathSeparatorChar (get-classpath project))))
+  (println (get-classpath-string project)))

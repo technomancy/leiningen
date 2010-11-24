@@ -1,13 +1,14 @@
 (ns leiningen.javac
   "Compile Java source files."
-  (:use [leiningen.classpath :only [get-classpath]])
+  (:use [leiningen.classpath :only [get-classpath-string]])
   (:require [lancet])
   (:import [java.io File]))
 
 (def ^{:doc "Default options for the java compiler."} *default-javac-options*
   {:debug "false"
    :fork "true"
-   :include-java-runtime "yes"
+   :includejavaruntime "yes"
+   :source "1.5"
    :target "1.5"})
 
 (defn- extract-javac-task
@@ -17,7 +18,7 @@
          (:javac-options project)
          {:destdir (:compile-path project)
           :srcdir path
-          :classpath (get-classpath project)}
+          :classpath (get-classpath-string project)}
          (apply hash-map options)))
 
 (defn- extract-javac-tasks
@@ -34,7 +35,8 @@
   (lancet/javac task-spec))
 
 (defn javac
-  "Compile Java source files."
+  "Compile Java source files. Add a :java-source-path key to project.clj to
+specify where to find them."
   [project & [directory]]
   (doseq [task (extract-javac-tasks project)
           :when (or (nil? directory) (= directory (:srcdir task)))]

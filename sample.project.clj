@@ -87,6 +87,7 @@
   :jar-dir "target/"          ; where to place the project's jar file
   :jar-name "sample.jar"      ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
+  :java-source-path "src/main/java" ; location of Java source.
   ;; Leave the contents of :source-path out of jars (for AOT projects)
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars

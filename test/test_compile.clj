@@ -18,19 +18,18 @@
   (binding [*ns* (find-ns 'leiningen.core)]
     (read-project (.getAbsolutePath (file root "project.clj")))))
 
-;; (deftest test-compile
-;;   (is (zero? (compile (make-project "test_projects/sample"))))
-;;   (is (.exists (file "test_projects" "sample"
-;;                      "classes" "nom" "nom" "nom.class")))
-;;   (is (pos? (compile (make-project "test_projects/sample_failing")))))
+(deftest test-compile
+  (is (zero? (compile (make-project "test_projects/sample"))))
+  (is (.exists (file "test_projects" "sample"
+                     "classes" "nom" "nom" "nom.class")))
+  (is (pos? (compile (make-project "test_projects/sample_failing")))))
 
-;; (deftest test-plugin
-;;   (is (= (eval-in-project (assoc (make-project "test_projects/sample")
-;;                             :eval-in-leiningen true
-;;                             :main nil)
-;;                           '(do (require 'leiningen.compile)
-;;                                :compiled))
-;;          :compiled)))
+(deftest test-plugin
+  (is (zero? (eval-in-project (assoc (make-project "test_projects/sample")
+                                :eval-in-leiningen true
+                                :main nil)
+                              '(do (require 'leiningen.compile)
+                                   :compiled)))))
 
 (deftest test-cleared-transitive-aot
   (is (zero? (compile (make-project "test_projects/sample"))))
