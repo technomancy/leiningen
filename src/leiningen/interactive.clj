@@ -47,7 +47,9 @@
     (when (and input (not= input "exit"))
       (let [[task-name & args] (string/split input #"\s")]
         ;; TODO: don't start a second repl server for repl task
-        (apply-task task-name project args not-found)
+        (try (apply-task task-name project args not-found)
+             (catch Exception e
+               (println (.getMessage e))))
         (print-prompt)
         (recur (.readLine *in*))))))
 
