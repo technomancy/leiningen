@@ -4,9 +4,9 @@
   (:use [leiningen.core :only [exit]]
         [leiningen.compile :only [eval-in-project *exit-when-done*]]
         [clojure.java.io :only [copy]])
-  (:import [java.net Socket InetAddress ServerSocket SocketException]
-           [java.io OutputStreamWriter InputStreamReader File PrintWriter]
-           [clojure.lang LineNumberingPushbackReader]))
+  (:import (java.net Socket InetAddress ServerSocket SocketException)
+           (java.io OutputStreamWriter InputStreamReader File PrintWriter)
+           (clojure.lang LineNumberingPushbackReader)))
 
 (defn repl-server [project host port silently & repl-options]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)

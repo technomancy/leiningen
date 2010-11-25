@@ -6,11 +6,11 @@
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
         [clojure.java.io :only [copy file]])
-  (:import [java.util.jar Manifest JarEntry JarOutputStream]
-           [java.util.regex Pattern]
-           [java.util.jar JarFile]
-           [java.io BufferedOutputStream FileOutputStream
-            ByteArrayInputStream]))
+  (:import (java.util.jar Manifest JarEntry JarOutputStream)
+           (java.util.regex Pattern)
+           (java.util.jar JarFile)
+           (java.io BufferedOutputStream FileOutputStream
+                    ByteArrayInputStream)))
 
 (defn- read-resource [resource-name]
   (-> (.getContextClassLoader (Thread/currentThread))

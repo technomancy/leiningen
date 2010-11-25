@@ -1,18 +1,18 @@
 (ns leiningen.util.maven
   (:use [leiningen.core :only [repositories-for abort]]
         [clojure.java.io :only [file reader]])
-  (:import [java.io File]
-           [org.apache.maven.model Build Model Parent Dependency
-            Exclusion Repository Scm License MailingList Resource]
-           [org.apache.maven.project.artifact ProjectArtifactMetadata]
-           [org.apache.maven.settings MavenSettingsBuilder]
-           [org.apache.maven.artifact.repository ArtifactRepositoryFactory
-            DefaultArtifactRepository]
-           [org.apache.maven.artifact.factory ArtifactFactory]
-           [org.apache.maven.artifact.repository ArtifactRepositoryPolicy]
-           [org.apache.maven.artifact.repository.layout
-            ArtifactRepositoryLayout]
-           [org.codehaus.plexus.embed Embedder]))
+  (:import (java.io File)
+           (org.apache.maven.model Build Model Parent Dependency Resource
+                                   Exclusion Repository Scm License MailingList)
+           (org.apache.maven.project.artifact ProjectArtifactMetadata)
+           (org.apache.maven.settings MavenSettingsBuilder)
+           (org.apache.maven.artifact.repository ArtifactRepositoryFactory
+                                                 DefaultArtifactRepository)
+           (org.apache.maven.artifact.factory ArtifactFactory)
+           (org.apache.maven.artifact.repository ArtifactRepositoryPolicy)
+           (org.apache.maven.artifact.repository.layout
+            ArtifactRepositoryLayout)
+           (org.codehaus.plexus.embed Embedder)))
 
 ;; Welcome to the absurdist self-parodying world of Dependency Injection
 (def container (.getContainer (doto (Embedder.) (.start))))

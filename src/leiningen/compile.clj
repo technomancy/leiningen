@@ -10,7 +10,7 @@
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
-           java.util.regex.Pattern
+           (java.util.regex Pattern)
            (org.apache.tools.ant.types Environment$Variable)))
 
 (declare compile)

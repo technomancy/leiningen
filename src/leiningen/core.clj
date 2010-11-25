@@ -2,8 +2,7 @@
   (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
         [clojure.walk :only [walk]])
-  (:import [java.io File])
-  (:gen-class))
+  (:import (java.io File)))
 
 (def ^{:private true} project nil)
 

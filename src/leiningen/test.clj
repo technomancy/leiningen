@@ -4,7 +4,7 @@
   (:use [clojure.java.io :only [file]]
         [leiningen.util.ns :only [namespaces-in-dir]]
         [leiningen.compile :only [eval-in-project]])
-  (:import [java.io File]))
+  (:import (java.io File)))
 
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)

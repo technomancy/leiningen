@@ -10,10 +10,10 @@
         [leiningen.compile :only [get-os]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
-  (:import [java.util.jar JarFile]
-           [java.util UUID]
-           [org.apache.maven.artifact.resolver ArtifactResolver]
-           [org.apache.maven.artifact.installer ArtifactInstaller]))
+  (:import (java.util.jar JarFile)
+           (java.util UUID)
+           (org.apache.maven.artifact.resolver ArtifactResolver)
+           (org.apache.maven.artifact.installer ArtifactInstaller)))
 
 (defn bin-path []
   (doto (file (home-dir) "bin") .mkdirs))

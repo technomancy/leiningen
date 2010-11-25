@@ -4,11 +4,11 @@
   (:use [leiningen.core :only [repositories-for]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]])
-  (:import [java.io File]
-           [org.apache.maven.artifact.ant
-            Authentication DependenciesTask RemoteRepository]
-           [org.apache.maven.settings Server]
-           [org.apache.tools.ant.util FlatFileNameMapper]))
+  (:import (java.io File)
+           (org.apache.maven.artifact.ant Authentication DependenciesTask
+                                          RemoteRepository)
+           (org.apache.maven.settings Server)
+           (org.apache.tools.ant.util FlatFileNameMapper)))
 
 (defn make-repository [[id settings]]
   (let [repo (RemoteRepository.)]

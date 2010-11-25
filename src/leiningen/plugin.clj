@@ -12,8 +12,8 @@
         [clojure.java.io :only (file)])
   (:require [leiningen.install]
             [leiningen.help])
-  (:import [java.util.zip ZipOutputStream]
-           [java.io File FileOutputStream]))
+  (:import (java.util.zip ZipOutputStream)
+           (java.io File FileOutputStream)))
 
 (def plugins-path (file (home-dir) "plugins"))
 

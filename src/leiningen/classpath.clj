@@ -3,7 +3,7 @@
   (:use [leiningen.core :only [read-project home-dir]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
-  (:import org.apache.tools.ant.types.Path))
+  (:import (org.apache.tools.ant.types Path)))
 
 (defn ^:internal find-lib-jars
   "Returns a seq of Files for all the jars in the project's library directory."

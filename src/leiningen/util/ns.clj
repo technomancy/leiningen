@@ -2,8 +2,8 @@
   "Inspired by clojure.contrib.find-namespaces, but trimmed down to
   just what Leiningen needs."
   (:use [clojure.java.io :only [file reader]])
-  (:import [java.util.jar JarFile]
-           [java.io File BufferedReader PushbackReader InputStreamReader]))
+  (:import (java.util.jar JarFile)
+           (java.io File BufferedReader PushbackReader InputStreamReader)))
 
 ;; The contrib version has a couple issues: it searches the whole
 ;; classpath rather than allowing you to specify a prefix, which means

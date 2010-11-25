@@ -7,8 +7,8 @@
         [leiningen.clean :only [clean]]
         [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
         [leiningen.deps :only [deps]])
-  (:import [java.util.zip ZipFile ZipOutputStream ZipEntry]
-           [java.io File FileOutputStream PrintWriter]))
+  (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
+           (java.io File FileOutputStream PrintWriter)))
 
 (defn read-components [zipfile]
   (when-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
