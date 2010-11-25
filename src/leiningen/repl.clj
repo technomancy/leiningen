@@ -4,8 +4,9 @@
   (:use [leiningen.core :only [exit]]
         [leiningen.compile :only [eval-in-project *exit-when-done*]]
         [clojure.java.io :only [copy]])
-  (:import [java.net Socket]
-           [java.io OutputStreamWriter InputStreamReader File]))
+  (:import [java.net Socket InetAddress ServerSocket SocketException]
+           [java.io OutputStreamWriter InputStreamReader File PrintWriter]
+           [clojure.lang LineNumberingPushbackReader]))
 
 (defn repl-server [project host port silently & repl-options]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
@@ -16,19 +17,13 @@
                                (doto mn# require in-ns)
                                (in-ns '~'user)))]
         repl-options (concat init-form repl-options)]
-    `(do (ns ~'user
-           (:import [java.net ~'InetAddress ~'ServerSocket ~'Socket
-                     ~'SocketException]
-                    [java.io ~'InputStreamReader ~'OutputStream
-                     ~'OutputStreamWriter ~'PrintWriter]
-                    [clojure.lang ~'LineNumberingPushbackReader]))
-         (try ;; transitive requires don't work for stuff on bootclasspath
+    `(do (try ;; transitive requires don't work for stuff on bootclasspath
            (require ['~'clojure.java.shell])
            (require ['~'clojure.java.browse])
            ;; these are new in clojure 1.2, so swallow exceptions for 1.1
            (catch Exception _#))
          (use ['~'clojure.main :only ['~'repl]])
-         (let [server# (ServerSocket. ~port 0 (~'InetAddress/getByName ~host))
+         (let [server# (ServerSocket. ~port 0 (InetAddress/getByName ~host))
                acc# (fn [s#]
                       (let [ins# (.getInputStream s#)
                             outs# (.getOutputStream s#)]
@@ -39,7 +34,7 @@
                                           *err* (PrintWriter. outs# true)]
                                   (try
                                     (clojure.main/repl ~@repl-options)
-                                    (catch ~'SocketException e#
+                                    (catch SocketException e#
                                       (.printStackTrace e#))
                                     (finally (doto s#
                                                .shutdownInput
@@ -49,7 +44,7 @@
            (doto (Thread. #(when-not (.isClosed server#)
                              (try
                                (acc# (.accept server#))
-                               (catch ~'SocketException e#
+                               (catch SocketException e#
                                  (.printStackTrace e#)))
                              (recur)))
              .start)
