@@ -104,10 +104,9 @@ Running outside a project directory will start a standalone repl session."
            server-form (apply repl-server project host port false
                               (:repl-options project))]
        (future (binding [*exit-when-done* false]
-                 (try (if (empty? project)
-                        (clojure.main/with-bindings
-                          (println (eval server-form)))
-                        (eval-in-project project server-form))
-                      (catch Exception _))))
+                 (if (empty? project)
+                   (clojure.main/with-bindings
+                     (println (eval server-form)))
+                   (eval-in-project project server-form))))
        (poll-repl-connection port)
        (exit))))

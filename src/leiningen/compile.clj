@@ -175,7 +175,11 @@
       (require '[clojure walk repl])
       (require '[clojure.java io shell browse])
       ;; need to at least pretend to return an exit code
-      (eval form) 0)
+      (try (eval form)
+           0
+           (catch Exception e
+             (.printStackTrace e)
+             1)))
     (let [java (Java.)
           native-path (or (:native-path project)
                           (find-native-lib-path project))]
