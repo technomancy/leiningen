@@ -28,7 +28,8 @@
   (let [[reader writer socket] (connect)]
     (.write writer (str (pr-str form) "\n" '(.close *in*) "\n"))
     (.flush writer)
-    (try (eval-client-loop reader writer (make-array Character/TYPE 100) socket)
+    (try (eval-client-loop reader writer
+                           (make-array Character/TYPE 1000) socket)
          0
          (catch Exception e
            (.printStackTrace e) 1)
@@ -56,12 +57,12 @@
   (let [[port host] (repl-socket-on project)]
     (println welcome)
     (future
-      (eval-in-project project `(do ~(repl-server project host port
-                                                  :prompt '(constantly ""))
-                                    (symbol ""))))
+      (binding [*exit-when-done* false]
+        (eval-in-project project `(do ~(repl-server project host port :silently
+                                                    :prompt '(constantly ""))
+                                      (symbol "")))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
-                *exit-when-done* false
                 exit (fn [_] (println "\n"))]
         (task-repl project)))
     (exit)))
