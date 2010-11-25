@@ -107,7 +107,7 @@
   ([] (read-project "project.clj")))
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
-                    "--version" "version" "überjar" "uberjar"
+                    "--version" "version" "überjar" "uberjar" "cp" "classpath"
                     "int" "interactive"}))
 
 (defn task-not-found [& _]
