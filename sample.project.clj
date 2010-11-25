@@ -47,6 +47,10 @@
   ;; Load these namespaces on startup to pick up hooks from
   ;; them. Hooks are generally included in plugins.
   :hooks [leiningen.hooks.difftest]
+  ;; Predicates to determine whether to run a test or not. See tutorial.
+  :test-selectors {:default (fn [t] (not (or (:integration v) (:regression v))))
+                   :integration :integration
+                   :regression :regression}
   ;; Set this to true to search the classpath for hooks. Will load all
   ;; namespaces matching leiningen.hooks.*. Warning: this will cause
   ;; Leiningen to start slowly, especially with many dependencies.
