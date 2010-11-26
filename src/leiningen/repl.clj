@@ -2,13 +2,13 @@
   "Start a repl session either with the current project or standalone."
   (:require [clojure.main])
   (:use [leiningen.core :only [exit]]
-        [leiningen.compile :only [eval-in-project *exit-when-done*]]
+        [leiningen.compile :only [eval-in-project]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
            (clojure.lang LineNumberingPushbackReader)))
 
-(defn repl-server [project host port silently & repl-options]
+(defn repl-server [project host port & repl-options]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
                                  mn# '~(:main project)]
                              (when (and is# (.exists (File. (str is#))))
@@ -48,8 +48,7 @@
                                  (.printStackTrace e#)))
                              (recur)))
              .start)
-           (when-not ~silently
-             (println "REPL started; server listening on" ~host ":" ~port))))))
+           (format "REPL started; server listening on %s:%s." ~host ~port)))))
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
@@ -101,12 +100,10 @@ Running outside a project directory will start a standalone repl session."
   ([] (repl {}))
   ([project]
      (let [[port host] (repl-socket-on project)
-           server-form (apply repl-server project host port false
+           server-form (apply repl-server project host port
                               (:repl-options project))]
-       (future (binding [*exit-when-done* false]
-                 (if (empty? project)
-                   (clojure.main/with-bindings
-                     (println (eval server-form)))
-                   (eval-in-project project server-form))))
+       (future (if (empty? project)
+                 (clojure.main/with-bindings (println (eval server-form)))
+                 (eval-in-project project server-form)))
        (poll-repl-connection port)
        (exit))))

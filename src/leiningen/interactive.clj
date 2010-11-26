@@ -2,7 +2,6 @@
   "Enter interactive shell for calling tasks without relaunching JVM."
   (:require [clojure.string :as string])
   (:use [leiningen.core :only [apply-task exit]]
-        [leiningen.compile :only [*exit-when-done*]]
         [leiningen.repl :only [repl-server repl-socket-on
                                copy-out-loop poll-repl-connection]]
         [leiningen.compile :only [eval-in-project]]))
@@ -59,10 +58,9 @@
   (let [[port host] (repl-socket-on project)]
     (println welcome)
     (future
-      (binding [*exit-when-done* false]
-        (eval-in-project project `(do ~(repl-server project host port :silently
-                                                    :prompt '(constantly ""))
-                                      (symbol "")))))
+      (eval-in-project project `(do ~(repl-server project host port
+                                                  :prompt '(constantly ""))
+                                    (symbol ""))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 exit (fn [_] (println "\n"))]
