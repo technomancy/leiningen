@@ -149,7 +149,7 @@ else
         [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
-        if [ ! -x $RLWRAP ] || [ "$RLWRAP" = "" ]; then
+        if [ ! -x "$RLWRAP" ] || [ "$RLWRAP" = "" ]; then
             RLWRAP=""
             JLINE=jline.ConsoleRunner
             if [ "$OSTYPE" = "cygwin" ]; then
