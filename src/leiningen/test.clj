@@ -6,6 +6,8 @@
         [leiningen.compile :only [eval-in-project]])
   (:import (java.io File)))
 
+(def *exit-after-tests* true)
+
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
      (if-let [add-hook# (resolve 'robert.hooke/add-hook)]
@@ -32,7 +34,9 @@ each namespace and print an overall summary."
           (with-open [w# (-> (java.io.File. ~result-file)
                              (java.io.FileOutputStream.)
                              (java.io.OutputStreamWriter.))]
-            (.write w# (pr-str summary#)))))))
+            (.write w# (pr-str summary#)))
+          (when ~*exit-after-tests*
+            (System/exit 0))))))
 
 (defn- read-args [args project]
   (let [args (map read-string args)
