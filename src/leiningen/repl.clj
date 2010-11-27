@@ -48,7 +48,8 @@
                                  (.printStackTrace e#)))
                              (recur)))
              .start)
-           (format "REPL started; server listening on %s:%s." ~host ~port)))))
+           (symbol (format "REPL started; server listening on %s:%s."
+                           ~host ~port))))))
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
