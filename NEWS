@@ -1,6 +1,10 @@
 Leiningen NEWS -- history of user-visible changes
 
-= 1.4.0 / 2010-11-??
+= 1.4.0 / 2010-12-??
+
+* Support readme, tutorial, news, and copying in help task.
+
+* Show short help summaries in help task overview.
 
 * Keep project JVM running between task runs in interactive task.
 
