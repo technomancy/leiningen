@@ -227,7 +227,7 @@ Takes major, minor and incremental versions into account."
                       "\n*** Using version " (System/getenv "LEIN_VERSION")
                       " could cause problems. ***\n"
                       "\n- Get the latest verison of Leiningen at\n"
-                      "- http://github.com/technomancy/leiningen\n"
+                      "- https://github.com/technomancy/leiningen\n"
                       "- Or by executing \"lein upgrade\"\n\n")))))
 
 (defn -main

@@ -52,7 +52,7 @@ If your plugins need to do a fair amount of filesystem-y things, you
 may want to take a look at using Ant tasks to do them since the JDK
 lacks a lot of simple functionality of this kind. Using the Ant API
 directly is a pain, but it can be eased to a degree using
-[Lancet](http://github.com/stuarthalloway/lancet). Lancet is the
+[Lancet](https://github.com/stuarthalloway/lancet). Lancet is the
 Clojure adapter for Ant that is developed as the sample project in the
 [Programming
 Clojure](http://www.pragprog.com/titles/shcloj/programming-clojure)
@@ -67,7 +67,7 @@ of how to call a task from Clojure.
 
 You can modify the behaviour of built-in tasks to a degree using
 hooks. Hook functionality is provided by the [Robert
-Hooke](http://github.com/technomancy/robert-hooke) library. This is an
+Hooke](https://github.com/technomancy/robert-hooke) library. This is an
 implied dependency; as long as Leiningen 1.2 or higher is used it will
 be available.
 
@@ -93,7 +93,7 @@ used without being specified in project.clj; this is a bug. In 1.3 and
 on they are opt-in only.
 
 See [the documentation for
-Hooke](http://github.com/technomancy/robert-hooke/blob/master/README.md)
+Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
 
 ## Have Fun

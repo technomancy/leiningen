@@ -8,7 +8,7 @@
 
 Leiningen is a build tool for Clojure designed to not set your hair on fire.
 
-<img src="http://github.com/downloads/technomancy/leiningen/leiningen-banner.png" alt="Leiningen logo" title="The man himself" align="right" />
+<img src="https://github.com/downloads/technomancy/leiningen/leiningen-banner.png" alt="Leiningen logo" title="The man himself" align="right" />
 
 Building Clojure projects with tools designed for Java can be an
 exercise in frustration. With Leiningen, you describe your build with
@@ -20,31 +20,31 @@ Leiningen bootstraps itself using the <tt>lein</tt> shell script;
 there is no separate 'install script'. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](http://github.com/technomancy/leiningen/raw/stable/bin/lein).
+1. [Download the script](https://github.com/technomancy/leiningen/raw/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
 
 I like to place it in ~/bin, but it can go anywhere on the $PATH.
 To track development of Leiningen you may use [the master version of the
-script](http://github.com/technomancy/leiningen/raw/master/bin/lein)
+script](https://github.com/technomancy/leiningen/raw/master/bin/lein)
 instead. See the "Building" section below.
 
 On Windows most users can
 1. Download the Windows distribution
-[lein-win32.zip](http://github.com/downloads/technomancy/leiningen/lein-win32.zip)
+[lein-win32.zip](https://github.com/downloads/technomancy/leiningen/lein-win32.zip)
 2. Unzip in a folder of choice.
 3. Include the "lein" directory in PATH.
 
 If you have wget.exe or curl.exe already installed and in PATH, you
 can download either [the stable version
-lein.bat](http://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
+lein.bat](https://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
 or [the development
-version](http://github.com/technomancy/leiningen/raw/master/bin/lein.bat)
+version](https://github.com/technomancy/leiningen/raw/master/bin/lein.bat)
 and use self-install.
 
 ## Usage
 
 The
-[tutorial](http://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
+[tutorial](https://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
@@ -89,7 +89,7 @@ Place a <tt>project.clj</tt> file in the project root like this:
 
 The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
-[sample.project.clj](http://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
@@ -114,7 +114,7 @@ See the plugin task's help for more information.
 **Q:** How do you pronounce Leiningen?  
 **A:** It's LINE-ing-en. I think.
 
-**Q:** What does this offer over [Lancet](http://github.com/stuarthalloway/lancet)?  
+**Q:** What does this offer over [Lancet](https://github.com/stuarthalloway/lancet)?  
 **A:** Lancet is more of a library than a build tool. It doesn't predefine
    any tasks apart from what Ant itself offers, so there is nothing
    Clojure-specific in it. Leiningen builds on Lancet, but takes
@@ -136,7 +136,7 @@ See the plugin task's help for more information.
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](http://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
+  [tutorial](https://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
@@ -159,7 +159,7 @@ See the plugin task's help for more information.
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
   project, you should make it into a
-  [plugin](http://github.com/technomancy/leiningen/blob/stable/PLUGINS.md).
+  [plugin](https://github.com/technomancy/leiningen/blob/stable/PLUGINS.md).
   You can also include one-off tasks in your src/leiningen/ directory
   if they're not worth spinning off; the plugin guide shows how.
 

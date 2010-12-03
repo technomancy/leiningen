@@ -5,7 +5,7 @@
 
 Leiningen TODOs
 
-See also http://github.com/technomancy/leiningen/issues
+See also https://github.com/technomancy/leiningen/issues
 
 * Open Questions
 ** Aether: how would it integrate? Improvement over maven-ant-tasks?

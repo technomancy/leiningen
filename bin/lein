@@ -93,7 +93,7 @@ if [ "$1" = "self-install" ]; then
     echo "Downloading Leiningen now..."
     LEIN_DIR=`dirname "$LEIN_JAR"`
     mkdir -p "$LEIN_DIR"
-    LEIN_URL="http://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
+    LEIN_URL="https://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
     $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
     if [ $? != 0 ]; then
         echo "Failed to download $LEIN_URL"
@@ -120,7 +120,7 @@ elif [ "$1" = "upgrade" ]; then
             y|Y|"")
                 echo
                 echo "Upgrading..."
-                LEIN_SCRIPT_URL="http://github.com/technomancy/leiningen/raw/stable/bin/lein"
+                LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/stable/bin/lein"
                 $HTTP_CLIENT "$SCRIPT" "$LEIN_SCRIPT_URL" \
                     && chmod +x "$SCRIPT" \
                     && echo && $SCRIPT self-install && echo && echo "Now running" `$SCRIPT version`

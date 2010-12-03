@@ -101,7 +101,7 @@ if ERRORLEVEL 9009 (
     if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
     set HTTP_CLIENT=curl --insecure -f -L -o
 )
-set LEIN_JAR_URL=http://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
+set LEIN_JAR_URL=https://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
 %HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
     del "%LEIN_JAR%">nul 2>&1

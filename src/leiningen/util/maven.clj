@@ -104,7 +104,7 @@
   (when-let [[user repo] (parse-github-url url)]
     {:public-clone (str "git://github.com/" user "/" repo ".git")
      :dev-clone (str "ssh://git@github.com/" user "/" repo ".git")
-     :browse (str "http://github.com/" user "/" repo)}))
+     :browse (str "https://github.com/" user "/" repo)}))
 
 (defn- make-git-scm [git-dir]
   (try

@@ -8,7 +8,7 @@ project building and JVM-land dependency management.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[README](http://github.com/technomancy/leiningen/blob/stable/README.md). 
+[README](https://github.com/technomancy/leiningen/blob/stable/README.md). 
 Generating a new project is easy:
 
     $ lein new myproject
@@ -148,7 +148,7 @@ Dependencies are downloaded from Clojars, the central Maven (Java)
 repository, the [official Clojure build
 server](http://build.clojure.org), and any other repositories that you
 add to your project.clj file. See :repositories in
-[sample.project.clj](http://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
 If you've confirmed that your project will work with a number of
 different versions of a given dependency, you can provide a range
@@ -168,7 +168,7 @@ the project to function. Leiningen calls these
 :dev-dependencies. They're listed in project.clj alongside regular
 dependencies and downloaded when you run <tt>lein deps</tt>, but they
 are not brought along when another project depends on your
-project. Using [swank-clojure](http://github.com/technomancy/swank-clojure)
+project. Using [swank-clojure](https://github.com/technomancy/swank-clojure)
 for Emacs support would be a typical example; you may not want it
 included at runtime, but it's useful while you're hacking on the project.
 
@@ -223,7 +223,7 @@ test-driven development due to the slow startup time of the JVM. For
 quick feedback, try starting an interactive session with "lein int"
 and running tests from in there. Other options include editor
 integration (see
-[clojure-test-mode](http://github.com/technomancy/clojure-mode) for
+[clojure-test-mode](https://github.com/technomancy/clojure-mode) for
 Emacs) or keep a repl open and call <tt>run-tests</tt> from there as
 you work.
 
@@ -242,7 +242,7 @@ If you're lucky you'll be able to get away without doing any AOT
 that require it, so if you need to use them you should add an :aot
 option into your project.clj file. It should be a seq of namespaces
 you want AOT-compiled. Again, the
-[sample.project.clj](http://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 has example usage.
 
 Like dependencies, this should happen for you automatically when
@@ -371,7 +371,7 @@ wrapper template instead of the default. The <tt>format</tt> function
 is called with the contents of this file along with the necessary
 classpath and the main namespace, so put %s in the right place. See
 [the default
-wrapper](http://github.com/technomancy/leiningen/blob/stable/resources/script-template)
+wrapper](https://github.com/technomancy/leiningen/blob/stable/resources/script-template)
 for an example.
 
 ### Publishing
@@ -415,13 +415,13 @@ HTTP using something like <a href="http://nginx.net">nginx</a>.
 There are many ways to get your project deployed as a server-side
 application. Simple programs can be packaged up as tarballs with
 accompanied shell scripts using the [lein-release
-plugin](http://github.com/technomancy/lein-release) and then deployed
+plugin](https://github.com/technomancy/lein-release) and then deployed
 using [chef](http://opscode.com/chef/),
 [pallet](http://hugoduncan.github.com/pallet/), or other
 mechanisms. Web applications may be deployed using the [lein-war
-plugin](http://github.com/alienscience/leiningen-war). You can even
+plugin](https://github.com/alienscience/leiningen-war). You can even
 create [Hadoop
-projects](http://github.com/ndimiduk/lein-hadoop). These kinds of
+projects](https://github.com/ndimiduk/lein-hadoop). These kinds of
 deployments are so varied that they are better-handled using plugins
 rather than tasks that are built-in to Leiningen itself.
 
