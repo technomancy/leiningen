@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export LEIN_VERSION="1.4.0"
 
@@ -9,9 +9,9 @@ if [ "$USER" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     read
 fi
 
+# cd to the project root, if applicable
 ORIGINAL_PWD="$PWD"
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]
-do
+while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]; do
     cd ..
     if [ "$(dirname "$PWD")" = "/" ]; then
         NOT_FOUND=0
@@ -19,21 +19,29 @@ do
     fi
 done
 
-if [ "$LEIN_HOME" = "" ]; then
-    LEIN_HOME="$HOME/.lein"
-fi
+JAVA_CMD=${JAVA_CMD:-"java"}
+LEIN_HOME=${$LEIN_HOME:-"$HOME/.lein"}
 
 LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
 CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/:$CLASSPATH
-# TODO: find lein and dependencies
-LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
-CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
+CLOJURE_JAR="/usr/share/java/clojure-1.2.0.jar"
 NULL_DEVICE=/dev/null
 
-CLASSPATH="$LEIN_JAR:$CLASSPATH"
-
-JAVA_CMD=${JAVA_CMD:-"java"}
+for JAR in ant-1.7.1.jar ant-launcher-1.7.1.jar classworlds-1.1-alpha-2.jar \
+    clojure-1.2.0.jar clojure-contrib-1.2.0.jar hooke-1.1.0.jar \
+    jtidy-4aug2000r7-dev.jar maven-ant-tasks-2.0.10.jar maven-artifact-2.0.10.jar \
+    maven-artifact-manager-2.0.10.jar maven-error-diagnostics-2.0.10.jar \
+    maven-model-2.0.10.jar maven-plugin-registry-2.0.10.jar \
+    maven-profile-2.0.10.jar maven-project-2.0.10.jar \
+    maven-repository-metadata-2.0.10.jar maven-settings-2.0.10.jar \
+    plexus-container-default-1.0-alpha-9-stable-1.jar \
+    plexus-interpolation-1.1.jar plexus-utils-1.5.5.jar \
+    wagon-file-1.0-beta-2.jar wagon-http-lightweight-1.0-beta-2.jar \
+    wagon-http-shared-1.0-beta-2.jar wagon-provider-api-1.0-beta-2.jar \
+    xml-apis-1.0.b2.jar; do
+    CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR"
+done
 
 if [ $DEBUG ]; then
     echo $CLASSPATH
@@ -50,5 +58,4 @@ fi
 # doesn't exist everything will still work, it will just have a
 # slower JVM boot.
 exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
-    -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" \
-    $NULL_DEVICE $@
+    -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" /dev/null $@
