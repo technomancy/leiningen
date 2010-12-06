@@ -35,7 +35,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
   (.mkdirs plugins-path)
   (let [[name group] (extract-name-and-group project-name)
         temp-project (file tmp-dir (str "lein-" (java.util.UUID/randomUUID)))
-        jarfile (-> (local-repo-path name (or group name) version)
+        jarfile (-> (local-repo-path (or group name) name version)
                     (.replace "$HOME" (System/getProperty "user.home")))
         _ (extract-jar (file jarfile) temp-project)
         project (read-project (str (file temp-project "project.clj")))

@@ -37,3 +37,22 @@
   (install "nomnomnom" "0.5.0-SNAPSHOT")
   (is (not (empty? (.listFiles jdom-dir))))
   (is (.exists unix-shell-wrapper)))
+
+(defonce test-project-tricky-name (read-project "test_projects/tricky-name/project.clj"))
+(def tricky-m2-dir (file local-repo "org" "domain" "tricky-name" "1.0"))
+(def tricky-unix-shell-wrapper (file (home-dir) "bin" "tricky-name"))
+(def tricky-windows-shell-wrapper (file (home-dir) "bin" "tricky-name.bat"))
+(defn delete-tricky-shell-wrappers []
+  (.delete tricky-unix-shell-wrapper)
+  (.delete tricky-windows-shell-wrapper))
+
+(deftest test-tricky-name-install
+  (delete-file-recursively tricky-m2-dir true)
+  (delete-shell-wrappers)
+  (install test-project-tricky-name)
+  (install "org.domain/tricky-name" "1.0")
+  (is (not (empty? (.listFiles tricky-m2-dir))))
+  (is (.exists tricky-unix-shell-wrapper))
+  (if (= :windows (get-os))
+    (is (.exists tricky-windows-shell-wrapper))
+    (is (not (.exists tricky-windows-shell-wrapper)))))

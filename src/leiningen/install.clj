@@ -58,7 +58,7 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
      (let [[name group] ((juxt name namespace) (symbol project-name))
            _ (standalone-download name (or group name) version)
            temp-project (format "%s/lein-%s" tmp-dir (UUID/randomUUID))
-           jarfile (-> (local-repo-path name (or group name) version)
+           jarfile (-> (local-repo-path (or group name) name version)
                         (.replace "$HOME" (System/getProperty "user.home")))]
        (install-shell-wrappers (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
