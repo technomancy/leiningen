@@ -246,5 +246,7 @@ Takes major, minor and incremental versions into account."
            (when (integer? value)
              (exit value))))))
   ([]
-     (doseq [arg-group (make-groups *command-line-args*)]
-       (apply -main (or (seq arg-group) ["help"])))))
+     (doseq [[task & args] (make-groups *command-line-args*)
+             :let [result (apply -main (or task "help") args)]]
+       (when (and (number? result) (pos? result))
+         (exit result)))))
