@@ -118,12 +118,14 @@ This becomes:
 Sometimes versions will end in "-SNAPSHOT". This means that it is not
 an official release but a development build. Relying on snapshot
 dependencies is discouraged but is sometimes necessary if you need bug
-fixes, etc. that have not made their way into a release yet. Adding a
-snapshot dependency to your project will cause Leiningen to actively
-go seek out the latest version of the dependency once a day when you
-run <tt>lein deps</tt>, (whereas normal release versions are cached in
-the local repository) so if you have a lot of snapshots it will slow
-things down.
+fixes, etc. that have not made their way into a release yet. However,
+snapshot versions are not guaranteed to stick around, so it's
+important that released code never depends upon snapshot versions that
+you don't control. Adding a snapshot dependency to your project will
+cause Leiningen to actively go seek out the latest version of the
+dependency once a day when you run <tt>lein deps</tt>, (whereas normal
+release versions are cached in the local repository) so if you have a
+lot of snapshots it will slow things down.
 
 Speaking of the local repository, all the dependencies you pull in
 using Leiningen or Maven get cached in $HOME/.m2/repository since
@@ -158,7 +160,10 @@ instead of a single version:
 
 See [Maven's version range
 specification](http://maven.apache.org/plugins/maven-enforcer-plugin/rules/versionRanges.html)
-for details.
+for details. Don't do this unless you have manually confirming that it
+works with each of those versions though. You can't assume that your
+dependencies will use semantic versions; some projects even introduce
+backwards-incompatible changes in bugfix point releases.
 
 ## Dev Dependencies
 
