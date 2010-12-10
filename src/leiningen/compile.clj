@@ -151,6 +151,11 @@
       (pr-str (pr-str form))
       (prn-str form))))
 
+(defn- add-system-property [java name value]
+  (.addSysproperty java (doto (Environment$Variable.)
+                          (.setKey (name name))
+                          (.setValue (name value)))))
+
 ;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
@@ -170,6 +175,8 @@
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
       (require '[clojure walk repl])
       (require '[clojure.java io shell browse])
+      (when (:debug project)
+        (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
       (try (eval form)
            0
@@ -180,17 +187,16 @@
           native-path (or (:native-path project)
                           (find-native-lib-path project))]
       (.setProject java lancet/ant-project)
-      (.addSysproperty java (doto (Environment$Variable.)
-                              (.setKey "clojure.compile.path")
-                              (.setValue (:compile-path project))))
+      (add-system-property java :clojure.compile.path (:compile-path project))
+      (when (:debug project)
+        (add-system-property java :clojure.debug true))
       (when native-path
-        (.addSysproperty java (doto (Environment$Variable.)
-                                (.setKey "java.library.path")
-                                (.setValue (cond
-                                            (= file (class native-path))
-                                            (.getAbsolutePath native-path)
-                                            (fn? native-path) (native-path)
-                                            :default native-path)))))
+        (add-system-property
+         java "java.library.path" (cond
+                                   (= file (class native-path))
+                                   (.getAbsolutePath native-path)
+                                   (fn? native-path) (native-path)
+                                   :default native-path)))
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)
       (.setFork java true)
