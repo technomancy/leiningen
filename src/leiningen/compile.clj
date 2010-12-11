@@ -151,9 +151,9 @@
       (pr-str (pr-str form))
       (prn-str form))))
 
-(defn- add-system-property [java name value]
+(defn- add-system-property [java key value]
   (.addSysproperty java (doto (Environment$Variable.)
-                          (.setKey (name name))
+                          (.setKey (name key))
                           (.setValue (name value)))))
 
 ;; TODO: split this function up
