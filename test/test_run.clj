@@ -11,8 +11,8 @@
                (read-project "test_projects/tricky-name/project.clj")))
 
 (use-fixtures :each (fn [f]
-                      (delete-file out-file :silently)
-                      (f)))
+                      (f)
+                      (delete-file out-file :silently)))
 
 (deftest test-basic
   (is (zero? (run project "1")))
