@@ -33,6 +33,10 @@
                                :group ~(or (namespace project-name)
                                            (name project-name))
                                :version ~version
+                               :dependencies (or (:dependencies m#)
+                                                 (:deps m#))
+                               :dev-dependencies (or (:dev-dependencies m#)
+                                                     (:dev-deps m#))
                                :compile-path (normalize-path#
                                               (or (:compile-path m#) "classes"))
                                :source-path (normalize-path#
