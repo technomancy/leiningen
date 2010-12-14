@@ -219,8 +219,7 @@
                                     (:source-path project)) ".clj")))))
 
 (defn delete-non-project-classes [project]
-  (when (and (not= :all (:aot project))
-             (not (:keep-non-project-classes project)))
+  (when (:clean-non-project-classes project)
     (doseq [f (file-seq (file (:compile-path project)))
             :when (and (.isFile f) (not (keep-class? project f)))]
       (.delete f))))

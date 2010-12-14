@@ -44,10 +44,10 @@
   ;; Before fetching dependencies, the contents of the lib/ directory
   ;; will get deleted unless this is set to true.
   :disable-implicit-clean false
-  ;; Normally .class files will be deleted if they are do not have a
-  ;; correspoinding package in the src/ directory. This flag disables
-  ;; that behaviour.
-  :keep-non-project-classes false
+  ;; Delete .class files that do not have a correspoinding package in
+  ;; the src/ directory. Workaround for Clojure bug CLJ-322. Causes problems
+  ;; with protocols in upstream libraries.
+  :clean-non-project-classes true
   ;; Load these namespaces on startup to pick up hooks from
   ;; them. Hooks are generally included in plugins.
   :hooks [leiningen.hooks.difftest]
