@@ -69,6 +69,8 @@
   :aot [org.example.sample.SampleClass]
   ;; The -main function in this namespace will be run at launch if you
   ;; create an uberjar. Repl sessions will start in this namespace as well.
+  ;; Set :skip-aot metadata on this symbol to use it for other things like the
+  ;; run task or shell wrappers without bringing in AOT.
   :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"

@@ -49,7 +49,7 @@
         nses (if (= :all nses)
                (namespaces-in-dir (:source-path project))
                (find-namespaces-by-regex project nses))]
-    (if (:main project)
+    (if (and (:main project) (not (:skip-aot (meta (:main project)))))
       (conj nses (:main project))
       nses)))
 
