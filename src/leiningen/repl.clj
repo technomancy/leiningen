@@ -8,6 +8,8 @@
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
            (clojure.lang LineNumberingPushbackReader)))
 
+(def *retry-limit* 100)
+
 (defn repl-server [project host port & repl-options]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
                                  mn# '~(:main project)]
@@ -75,7 +77,7 @@
 
 (defn poll-repl-connection
   ([port retries handler]
-     (when (> retries 50)
+     (when (> retries *retry-limit*)
        (throw (Exception. "Couldn't connect")))
      (Thread/sleep 100)
      (let [val (try (connect-to-server (Socket. "localhost" port) handler)
@@ -102,9 +104,12 @@ Running outside a project directory will start a standalone repl session."
   ([project]
      (let [[port host] (repl-socket-on project)
            server-form (apply repl-server project host port
-                              (:repl-options project))]
+                              (:repl-options project))
+           ;; TODO: make this less awkward when we can break poll-repl-connection
+           retries (- *retry-limit* (project :repl-retry-limit *retry-limit*))]
        (future (if (empty? project)
                  (clojure.main/with-bindings (println (eval server-form)))
                  (eval-in-project project server-form)))
-       (poll-repl-connection port)
+       (poll-repl-connection port retries repl-client)
        (exit))))
+

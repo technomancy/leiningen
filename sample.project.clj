@@ -79,6 +79,9 @@
   ;; Customize the socket the repl task listens on.
   :repl-port 4001
   :repl-host "0.0.0.0"
+  ;; If your -main namespace takes a long time to load, it could time out the
+  ;; repl connection. Increase this to give it more time. Defaults to 100.
+  :repl-retry-limit 1000
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
   ;; Set this in order to only use the :repositories you list below.
