@@ -65,7 +65,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     LEIN_LIBS="$(find -H $LEIN_DIR/lib -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-    CLASSPATH="$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_LIBS:$CLASSPATH:$LEIN_JAR"
+    CLASSPATH="$LEIN_LIBS:$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" -a ! -r "$LEIN_JAR" ]; then
         echo "Leiningen is missing its dependencies. Please see \"Building\" in the README."
