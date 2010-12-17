@@ -20,7 +20,7 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]; do
 done
 
 JAVA_CMD=${JAVA_CMD:-"java"}
-LEIN_HOME=${$LEIN_HOME:-"$HOME/.lein"}
+LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
 LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
@@ -39,7 +39,7 @@ for JAR in ant-1.7.1.jar ant-launcher-1.7.1.jar classworlds-1.1-alpha-2.jar \
     plexus-interpolation-1.1.jar plexus-utils-1.5.5.jar \
     wagon-file-1.0-beta-2.jar wagon-http-lightweight-1.0-beta-2.jar \
     wagon-http-shared-1.0-beta-2.jar wagon-provider-api-1.0-beta-2.jar \
-    xml-apis-1.0.b2.jar; do
+    xml-apis-1.0.b2.jar leiningen-1.4.0.jar; do
     CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR"
 done
 

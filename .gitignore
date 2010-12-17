@@ -5,6 +5,7 @@ test_projects/sample/pom.xml
 classes/
 lib/
 leiningen*.jar
+leiningen*.deb
 lein-swank/lein-swank*.jar
 autodoc/
 bin/nom

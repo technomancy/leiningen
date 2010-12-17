@@ -11,5 +11,17 @@
                  [org.apache.ant/ant "1.7.1"]
                  [robert/hooke "1.1.0"]
                  [org.apache.maven/maven-ant-tasks "2.0.10" :exclusions [ant]]]
+  :dev-dependencies [[lein-deb "1.0.0-SNAPSHOT"]]
   :disable-implicit-clean true
-  :eval-in-leiningen true)
+  :eval-in-leiningen true
+  :deb {:maintainer {:name "Travis Vachon"
+                     :email "travis.vachon@gmail.com"}
+        :filesets [{:dir "."
+                    :includes "leiningen*.jar"
+                    :prefix "/usr/share/java"}
+                   {:dir "lib"
+                    :includes "*.jar"
+                    :prefix "/usr/share/java"}
+                   {:file "bin/lein"
+                    :fullpath "/usr/bin/lein"
+                    :filemode "755"}]})
