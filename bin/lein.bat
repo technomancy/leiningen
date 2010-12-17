@@ -48,7 +48,7 @@ if exist "%~f0\..\..\src\leiningen\core.clj" (
 
     if "x!LEIN_LIBS!" == "x" if not exist "%LEIN_JAR%" goto NO_DEPENDENCIES
 
-    set CLASSPATH="!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";!LEIN_LIBS!;%CLASSPATH%;"%LEIN_JAR%"
+    set CLASSPATH=!LEIN_LIBS!;%CLASSPATH%;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";"%LEIN_JAR%"
 ) else (
     rem Not running from a checkout.
     if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
