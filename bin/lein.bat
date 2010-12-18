@@ -14,6 +14,10 @@ if "x%1" == "xupgrade"      goto NO_UPGRADE
 if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
 
 set ORIGINAL_PWD=%CD%
+rem If ORIGINAL_PWD ends with a backslash (such as C:\),
+rem we need to escape it with a second backslash.
+if "%ORIGINAL_PWD:~-1%x" == "\x" set "ORIGINAL_PWD=%ORIGINAL_PWD%\"
+
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
