@@ -2,7 +2,7 @@
 
 set LEIN_VERSION=1.4.1
 
-setLocal EnableDelayedExpansion
+setLocal EnableExtensions EnableDelayedExpansion
 
 rem LEIN_JAR and LEIN_HOME variables can be set manually.
 
