@@ -6,12 +6,11 @@ setLocal EnableExtensions EnableDelayedExpansion
 
 rem LEIN_JAR and LEIN_HOME variables can be set manually.
 
-if "x%LEIN_JAR%" == "x" set LEIN_JAR="%~dp0%leiningen-!LEIN_VERSION!-standalone.jar"
+if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
+if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
 
 if "x%1" == "xself-install" goto SELF_INSTALL
 if "x%1" == "xupgrade"      goto NO_UPGRADE
-
-if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
 
 set ORIGINAL_PWD=%CD%
 rem If ORIGINAL_PWD ends with a backslash (such as C:\),
@@ -91,6 +90,9 @@ if exist %LEIN_JAR% (
     echo %LEIN_JAR% already exists. Delete and retry.
     goto EOF
 )
+for %%f in (%LEIN_JAR%) do set LEIN_INSTALL_DIR="%%~dpf"
+if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
+
 set HTTP_CLIENT=wget --no-check-certificate -O
 wget>nul 2>&1
 if ERRORLEVEL 9009 (
