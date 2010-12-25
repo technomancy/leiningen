@@ -87,6 +87,9 @@ fi
 
 JAVA_CMD=${JAVA_CMD:-"java"}
 
+# Support $JAVA_OPTS for backwards-compatibility.
+JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
+
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality.
 if [ "$1" = "self-install" ]; then
@@ -164,7 +167,7 @@ else
     # slower JVM boot.
     # TODO: add more to the boot classpath
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
-    exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
+    exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
         $NULL_DEVICE $@
