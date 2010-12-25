@@ -65,6 +65,7 @@ set JLINE=jline.ConsoleRunner
 :SKIP_JLINE
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
+if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.0\clojure-1.2.0.jar
 goto RUN
 
@@ -173,7 +174,7 @@ rem Need to disable delayed expansion because the %* variable
 rem may contain bangs (as in test!).
 setLocal DisableDelayedExpansion
 
-%JAVA_CMD% -client %JAVA_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
+%JAVA_CMD% -client %JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
 goto EOF
