@@ -43,7 +43,9 @@
   :disable-implicit-clean false
   ;; Delete .class files that do not have a correspoinding package in
   ;; the src/ directory. Workaround for Clojure bug CLJ-322. Causes problems
-  ;; with protocols in upstream libraries; false by default.
+  ;; with protocols in upstream libraries; false by default. Set to
+  ;; true to delete all non-project classes or set to a seq of regexes
+  ;; to only delete class files that match one of the regexes.
   :clean-non-project-classes true
   ;; Load these namespaces on startup to pick up hooks from them. Hooks
   ;; generally come from plugins, but may be included in your project source.

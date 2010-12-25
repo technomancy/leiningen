@@ -211,17 +211,24 @@
                                                  (:compile-path project)
                                                  source-path)))))
 
-(defn- keep-class? [project f]
+(defn- class-in-project? [project f]
   (or (has-source-package? project f (:source-path project))
       (has-source-package? project f (:java-source-path project))
       (.exists (file (str (.replace (.getParent f)
                                     (:compile-path project)
                                     (:source-path project)) ".clj")))))
 
-(defn delete-non-project-classes [project]
+(defn- blacklisted-class? [project f]
+  ;; true indicates all non-project classes are blacklisted
+  (or (true? (:clean-non-project-classes project))
+      (let [relative (subs (.getAbsolutePath f) (count (:root project)))]
+        (some #(re-find % relative) (:clean-non-project-classes project)))))
+
+(defn clean-non-project-classes [project]
   (when (:clean-non-project-classes project)
     (doseq [f (file-seq (file (:compile-path project)))
-            :when (and (.isFile f) (not (keep-class? project f)))]
+            :when (and (.isFile f) (not (class-in-project? project f))
+                       (blacklisted-class? project f))]
       (.delete f))))
 
 (defn- status [code msg]
@@ -251,7 +258,7 @@ those given as command-line arguments."
                                             (clojure.core/compile namespace#))))
                (success "Compilation succeeded.")
                (failure "Compilation failed."))
-             (finally (delete-non-project-classes project))))
+             (finally (clean-non-project-classes project))))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]
