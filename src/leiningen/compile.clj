@@ -184,7 +184,7 @@
       (when native-path
         (add-system-property
          java "java.library.path" (cond
-                                   (= file (class native-path))
+                                   (instance? java.io.File native-path)
                                    (.getAbsolutePath native-path)
                                    (fn? native-path) (native-path)
                                    :default native-path)))
