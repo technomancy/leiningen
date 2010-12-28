@@ -16,12 +16,13 @@
   :eval-in-leiningen true
   :deb {:maintainer {:name "Travis Vachon"
                      :email "travis.vachon@gmail.com"}
+        :depends "ant1.7, rlwrap, libjtidy-java"
         :filesets [{:dir "."
                     :includes "leiningen*.jar"
-                    :prefix "/usr/share/java"}
+                    :prefix "/usr/share/java/lein"}
                    {:dir "lib"
-                    :includes "*.jar"
-                    :prefix "/usr/share/java"}
+                    :includes "hooke*.jar,clojure*.jar,maven*.jar,plexus*.jar,wagon*.jar,classworlds.jar"
+                    :prefix "/usr/share/java/lein"}
                    {:file "bin/lein"
                     :fullpath "/usr/bin/lein"
                     :filemode "755"}]})
