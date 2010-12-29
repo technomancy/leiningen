@@ -1,0 +1,2 @@
+#disable autocrlf for all .bat files since they already have CRLF in raw format
+*.bat -crlf
