@@ -30,7 +30,7 @@ instead. See the "Building" section below.
 
 On Windows most users can
 1. Download the Windows distribution
-[leiningen-1.4.1-win32.zip](https://github.com/downloads/technomancy/leiningen/leiningen-1.4.1-win32.zip)
+[leiningen-1.4.2-win32.zip](https://github.com/downloads/technomancy/leiningen/leiningen-1.4.2-win32.zip)
 2. Unzip in a folder of choice.
 3. Include the "lein" directory in PATH.
 
