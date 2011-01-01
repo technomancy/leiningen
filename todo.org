@@ -12,6 +12,7 @@ See also https://github.com/technomancy/leiningen/issues
 ** Tests in Nailgun: would it require a separate shell script?
 ** How could nonlinear versions be represented?
 * For 2.0
+** TODO make it easier to hook inside eval-in-project
 ** TODO Quit using ant's Java task. It is horrible.
    Try a custom classloader approach?
 ** TODO Use Aether instead of maven-ant-tasks?
