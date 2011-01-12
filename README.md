@@ -252,7 +252,7 @@ See the file HACKING.md for instructions on contributing.
 
 ## License
 
-Copyright (C) 2009-2010 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+Copyright (C) 2009-2011 Phil Hagelberg, Alex Osborne, Dan Larkin, and
 [contributors](https://www.ohloh.net/p/leiningen/contributors).
 
 Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
