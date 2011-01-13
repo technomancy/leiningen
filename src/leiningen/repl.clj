@@ -102,6 +102,7 @@ on a socket based on the :repl-port key in project.clj or chosen randomly.
 Running outside a project directory will start a standalone repl session."
   ([] (repl {}))
   ([project]
+     ;; TODO: don't start socket server until deps
      (let [[port host] (repl-socket-on project)
            server-form (apply repl-server project host port
                               (:repl-options project))
