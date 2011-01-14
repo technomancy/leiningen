@@ -7,5 +7,5 @@
 
 (defn test!
   "Run a project's tests after cleaning and fetching dependencies."
-  [project]
-  (doto project clean deps test))
+  [project & nses]
+  (apply test (doto project clean deps) nses))

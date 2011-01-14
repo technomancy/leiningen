@@ -49,7 +49,7 @@
         nses (if (= :all nses)
                (namespaces-in-dir (:source-path project))
                (find-namespaces-by-regex project nses))]
-    (if (:main project)
+    (if (and (:main project) (not (:skip-aot (meta (:main project)))))
       (conj nses (:main project))
       nses)))
 
@@ -74,19 +74,10 @@
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))
 
-(def native-names
-     {"Mac OS X" :macosx
-      "Windows" :windows
-      "Linux" :linux
-      "FreeBSD" :freebsd
-      "SunOS" :solaris
-      "OpenBSD" :openbsd
-      "amd64" :x86_64
-      "x86_64" :x86_64
-      "x86" :x86
-      "i386" :x86
-      "arm" :arm
-      "sparc" :sparc})
+(def native-names {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
+                   "FreeBSD" :freebsd "OpenBSD" :openbsd
+                   "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
+                   "arm" :arm "SunOS" :solaris "sparc" :sparc})
 
 (defn get-os
   "Returns a keyword naming the host OS."
@@ -151,6 +142,11 @@
       (pr-str (pr-str form))
       (prn-str form))))
 
+(defn- add-system-property [java key value]
+  (.addSysproperty java (doto (Environment$Variable.)
+                          (.setKey (name key))
+                          (.setValue (name value)))))
+
 ;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
@@ -170,6 +166,8 @@
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
       (require '[clojure walk repl])
       (require '[clojure.java io shell browse])
+      (when (:debug project)
+        (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
       (try (eval form)
            0
@@ -180,17 +178,16 @@
           native-path (or (:native-path project)
                           (find-native-lib-path project))]
       (.setProject java lancet/ant-project)
-      (.addSysproperty java (doto (Environment$Variable.)
-                              (.setKey "clojure.compile.path")
-                              (.setValue (:compile-path project))))
+      (add-system-property java :clojure.compile.path (:compile-path project))
+      (when (:debug project)
+        (add-system-property java :clojure.debug true))
       (when native-path
-        (.addSysproperty java (doto (Environment$Variable.)
-                                (.setKey "java.library.path")
-                                (.setValue (cond
-                                            (= file (class native-path))
-                                            (.getAbsolutePath native-path)
-                                            (fn? native-path) (native-path)
-                                            :default native-path)))))
+        (add-system-property
+         java "java.library.path" (cond
+                                   (instance? java.io.File native-path)
+                                   (.getAbsolutePath native-path)
+                                   (fn? native-path) (native-path)
+                                   :default native-path)))
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)
       (.setFork java true)
@@ -214,18 +211,24 @@
                                                  (:compile-path project)
                                                  source-path)))))
 
-(defn- keep-class? [project f]
+(defn- class-in-project? [project f]
   (or (has-source-package? project f (:source-path project))
       (has-source-package? project f (:java-source-path project))
       (.exists (file (str (.replace (.getParent f)
                                     (:compile-path project)
                                     (:source-path project)) ".clj")))))
 
-(defn delete-non-project-classes [project]
-  (when (and (not= :all (:aot project))
-             (not (:keep-non-project-classes project)))
+(defn- blacklisted-class? [project f]
+  ;; true indicates all non-project classes are blacklisted
+  (or (true? (:clean-non-project-classes project))
+      (let [relative (subs (.getAbsolutePath f) (count (:root project)))]
+        (some #(re-find % relative) (:clean-non-project-classes project)))))
+
+(defn clean-non-project-classes [project]
+  (when (:clean-non-project-classes project)
     (doseq [f (file-seq (file (:compile-path project)))
-            :when (and (.isFile f) (not (keep-class? project f)))]
+            :when (and (.isFile f) (not (class-in-project? project f))
+                       (blacklisted-class? project f))]
       (.delete f))))
 
 (defn- status [code msg]
@@ -255,7 +258,7 @@ those given as command-line arguments."
                                             (clojure.core/compile namespace#))))
                (success "Compilation succeeded.")
                (failure "Compilation failed."))
-             (finally (delete-non-project-classes project))))
+             (finally (clean-non-project-classes project))))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))
   ([project & namespaces]

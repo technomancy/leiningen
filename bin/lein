@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export LEIN_VERSION="1.4.0"
+export LEIN_VERSION="1.5.0-SNAPSHOT"
 
 if [ "$USER" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
@@ -19,6 +19,8 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]; do
     fi
 done
 
+# Support $JAVA_OPTS for backwards-compatibility.
+JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
 JAVA_CMD=${JAVA_CMD:-"java"}
 LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
@@ -26,7 +28,6 @@ LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
 CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/:$CLASSPATH
 CLOJURE_JAR="/usr/share/java/clojure-1.2.0.jar"
-NULL_DEVICE=/dev/null
 
 for JAR in lein/'*' \
     jtidy.jar ant.jar ant-launcher.jar xml-apis.jar; do
@@ -47,5 +48,6 @@ fi
 # The -Xbootclasspath argument is optional here: if the jar
 # doesn't exist everything will still work, it will just have a
 # slower JVM boot.
-exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JAVA_OPTS \
-    -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" /dev/null $@
+exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+    -cp "$CLASSPATH" -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+    clojure.main -e "(use 'leiningen.core)(-main)" /dev/null $@

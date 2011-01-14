@@ -1,5 +1,46 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.5.0 / ???
+
+* Add deploy task.
+
+* Reload tests in interactive mode.
+
+* Make test! task accept namespace list as argument. (Joe Gallo)
+
+* Use current year in readme for project skeleton. (Joe Gallo)
+
+= 1.4.2 / 2010-12-31
+
+* Fix a bug where init to eval-in-project was ignored in interactive task.
+
+* Fix a bug in path calculation for native dependencies. (wburke)
+
+* Fix a bug where built-in tasks shadowed plugins (javac, run).
+
+* Allow a seq of regexes in :clean-non-project-classes for more flexibility.
+
+* Fix a bug where the first argument to run would be parsed wrong. (Alex Osborne)
+
+* Use JVM_OPTS environment variable instead of JAVA_OPTS, though the latter
+  is still supported for backwards-compatibility.
+
+= 1.4.1 / 2010-12-16
+
+* Allow boosting :repl-retry-limit in project.clj for slow-starting projects.
+
+* Turn :clean-non-project-classes off by default.
+
+* Support :skip-aot metadata on :main in project.clj.
+
+* Alias :deps/:dev-deps to :dependencies/:dev-dependencies in project.clj.
+
+* Support setting clojure.debug property.
+
+* Don't allow stable versions to depend upon snapshots.
+
+* Fix exit code for chained tasks.
+
 = 1.4.0 / 2010-12-02
 
 * Support readme, tutorial, news, and copying in help task.

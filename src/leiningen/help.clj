@@ -78,8 +78,8 @@
          (:doc (meta (find-ns task-ns))))))
 
 (defn help
-  "Display a list of tasks or help for a given task. Also provides readme, tutorial,
-news, and copying documentation."
+  "Display a list of tasks or help for a given task. Also provides readme,
+tutorial, news, sample, and copying documentation."
   ([task] (println (or (static-help task) (help-for task))))
   ([]
      (println "Leiningen is a build tool for Clojure.\n")
@@ -87,4 +87,4 @@ news, and copying documentation."
      (doseq [task-ns tasks]
        (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
-     (println "Also available: readme, tutorial, copying, and news.")))
+     (println "Also available: readme, tutorial, copying, sample, and news.")))

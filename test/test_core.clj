@@ -35,6 +35,6 @@
 (deftest test-unquote
   (let [project (binding [*ns* (find-ns 'leiningen.core)]
                   (read-project "test_projects/sample/project.clj"))]
-    (is (= ['org.clojure/clojure "1.1.0-master-SNAPSHOT"]
+    (is (= ['org.clojure/clojure "1.1.0"]
              (first (:dependencies project))))
     (is (= '(fn [_] (> (rand) 0.5))))))

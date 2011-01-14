@@ -24,9 +24,11 @@
         (Thread/sleep 100)
         (recur reader writer buffer socket)))))
 
-(defn eval-in-repl [connect project form & [args]]
+(defn eval-in-repl [connect project form & [_ _ init]]
   (let [[reader writer socket] (connect)]
-    (.write writer (str (pr-str form) "\n" '(.close *in*) "\n"))
+    (.write writer (str "(do " (pr-str init)
+                        (pr-str form) "\n" '
+                        (.close *in*) ")\n"))
     (.flush writer)
     (try (eval-client-loop reader writer
                            (make-array Character/TYPE 1000) socket)

@@ -13,9 +13,18 @@
   It should not be considered canonical data. For more information see
   https://github.com/technomancy/leiningen -->\n")
 
+(defn check-for-snapshot-deps [project]
+  (when (and (not (re-find #"SNAPSHOT" (:version project)))
+             (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE"))
+             (some #(re-find #"SNAPSHOT" (second %)) (:dependencies project)))
+    (throw (Exception. (str "Release versions may not depend upon snapshots."
+                            "\nSet the LEIN_SNAPSHOTS_IN_RELEASE environment"
+                            " variable to override this.")))))
+
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
+     (check-for-snapshot-deps project)
      (with-open [w (StringWriter.)]
        (.writeModel (MavenProject. (make-model project)) w)
        (when disclaimer?

@@ -23,8 +23,8 @@
         bat (slurp (.getInputStream jar-file (.getEntry jar-file
                                                         "bin/nom.bat")))]
     (is (= "bin/nom" (manifest "Leiningen-shell-wrapper")))
-    (is (re-find #"org/clojure/clojure/1\.1\.0-master-SNAPSHOT/" bin))
-    (is (re-find #"org\\clojure\\clojure\\1\.1\.0-master-SNAPSHOT" bat))
+    (is (re-find #"org/clojure/clojure/1\.1\.0/" bin))
+    (is (re-find #"org\\clojure\\clojure\\1\.1\.0" bat))
     (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bin))
     (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bat))
     (is (re-find #"\$HOME/\.m2/repository/rome/rome/0\.9/rome-0\.9\.jar" bin))

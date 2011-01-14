@@ -15,45 +15,48 @@
         identity
         args))
 
+(defn- normalize-path [project-root path]
+  (when path
+    (let [f (File. path)]
+      (.getAbsolutePath (if (.isAbsolute f) f (File. project-root path))))))
+
 (defmacro defproject [project-name version & args]
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(let [m# (apply hash-map ~(cons 'list (unquote-project args)))
          root# ~(.getParent (File. *file*))
-         normalize-path# (fn [p#] (when p# (.getPath (File. p#))))]
+         normalize-path# (partial ~normalize-path root#)]
      (alter-var-root #'project
                      (fn [_#] (assoc m#
                                :name ~(name project-name)
                                :group ~(or (namespace project-name)
                                            (name project-name))
                                :version ~version
+                               :dependencies (or (:dependencies m#)
+                                                 (:deps m#))
+                               :dev-dependencies (or (:dev-dependencies m#)
+                                                     (:dev-deps m#))
                                :compile-path (normalize-path#
-                                              (or (:compile-path m#)
-                                                  (str root# "/classes")))
+                                              (or (:compile-path m#) "classes"))
                                :source-path (normalize-path#
-                                             (or (:source-path m#)
-                                                 (str root# "/src")))
+                                             (or (:source-path m#) "src"))
                                :library-path (normalize-path#
-                                              (or (:library-path m#)
-                                                  (str root# "/lib")))
+                                              (or (:library-path m#) "lib"))
                                :test-path (normalize-path#
-                                           (or (:test-path m#)
-                                           (str root# "/test")))
+                                           (or (:test-path m#) "test"))
                                :resources-path (normalize-path#
                                                 (or (:resources-path m#)
-                                                    (str root# "/resources")))
+                                                    "resources"))
                                :dev-resources-path
-                               (normalize-path#
-                                (or (:dev-resources-path m#)
-                                    (:test-resources-path m#)
-                                    (str root# "/test-resources")))
+                               (normalize-path# (or (:dev-resources-path m#)
+                                                    (:test-resources-path m#)
+                                                    "test-resources"))
                                ;; TODO: remove in 2.0
                                :test-resources-path
-                               (normalize-path#
-                                (or (:dev-resources-path m#)
-                                    (:test-resources-path m#)
-                                    (str root# "/test-resources")))
+                               (normalize-path# (or (:dev-resources-path m#)
+                                                    (:test-resources-path m#)
+                                                    "test-resources"))
                                :target-dir (normalize-path#
                                             (or (:target-dir m#) (:jar-dir m#)
                                                 root#))
@@ -61,6 +64,8 @@
                                :jar-dir (normalize-path#
                                          (or (:target-dir m#) (:jar-dir m#)
                                              root#))
+                               :java-source-path (normalize-path#
+                                                  (:java-source-path m#))
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "
@@ -246,5 +251,7 @@ Takes major, minor and incremental versions into account."
            (when (integer? value)
              (exit value))))))
   ([]
-     (doseq [arg-group (make-groups *command-line-args*)]
-       (apply -main (or (seq arg-group) ["help"])))))
+     (doseq [[task & args] (make-groups *command-line-args*)
+             :let [result (apply -main (or task "help") args)]]
+       (when (and (number? result) (pos? result))
+         (exit result)))))

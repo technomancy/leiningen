@@ -1,28 +1,24 @@
 @echo off
 
-set LEIN_VERSION=1.4.0
+set LEIN_VERSION=1.5.0-SNAPSHOT
 
-setLocal EnableDelayedExpansion
+setLocal EnableExtensions EnableDelayedExpansion
 
 rem LEIN_JAR and LEIN_HOME variables can be set manually.
 
-if "x%LEIN_JAR%" == "x" (
-    set LEIN_DIR=%~dp0
-    set LEIN_JAR=!LEIN_DIR!leiningen-%LEIN_VERSION%-standalone.jar
-)
+if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
+if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
 
 if "x%1" == "xself-install" goto SELF_INSTALL
 if "x%1" == "xupgrade"      goto NO_UPGRADE
 
-
-if "x%LEIN_HOME%" == "x" (
-    set LEIN_HOME=%USERPROFILE%\.lein
-)
-
 set ORIGINAL_PWD=%CD%
+rem If ORIGINAL_PWD ends with a backslash (such as C:\),
+rem we need to escape it with a second backslash.
+if "%ORIGINAL_PWD:~-1%x" == "\x" set "ORIGINAL_PWD=%ORIGINAL_PWD%\"
+
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
-
 
 set LEIN_PLUGINS="
 for %%j in (".\lib\dev\*.jar") do (
@@ -46,13 +42,13 @@ if exist "%~f0\..\..\src\leiningen\core.clj" (
     for %%j in ("!LEIN_ROOT!\lib\*") do set LEIN_LIBS=!LEIN_LIBS!;%%~fj
     set LEIN_LIBS=!LEIN_LIBS!"
 
-    if "x!LEIN_LIBS!" == "x" if not exist "%LEIN_JAR%" goto NO_DEPENDENCIES
+    if "x!LEIN_LIBS!" == "x" if not exist %LEIN_JAR% goto NO_DEPENDENCIES
 
-    set CLASSPATH="!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";!LEIN_LIBS!;%CLASSPATH%;"%LEIN_JAR%"
+    set CLASSPATH=!LEIN_LIBS!;%CLASSPATH%;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
 ) else (
     rem Not running from a checkout.
-    if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
-    set CLASSPATH="%LEIN_JAR%";%CLASSPATH%
+    if not exist %LEIN_JAR% goto NO_LEIN_JAR
+    set CLASSPATH=%LEIN_JAR%;%CLASSPATH%
 )
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
@@ -69,13 +65,14 @@ set JLINE=jline.ConsoleRunner
 :SKIP_JLINE
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
+if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.0\clojure-1.2.0.jar
 goto RUN
 
 
 :NO_LEIN_JAR
 echo.
-echo "%LEIN_JAR%" can not be found.
+echo %LEIN_JAR% can not be found.
 echo You can try running "lein self-install"
 echo or change LEIN_JAR environment variable
 echo or edit lein.bat to set appropriate LEIN_JAR path.
@@ -90,10 +87,13 @@ echo.
 goto EOF
 
 :SELF_INSTALL
-if exist "%LEIN_JAR%" (
+if exist %LEIN_JAR% (
     echo %LEIN_JAR% already exists. Delete and retry.
     goto EOF
 )
+for %%f in (%LEIN_JAR%) do set LEIN_INSTALL_DIR="%%~dpf"
+if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
+
 set HTTP_CLIENT=wget --no-check-certificate -O
 wget>nul 2>&1
 if ERRORLEVEL 9009 (
@@ -102,9 +102,9 @@ if ERRORLEVEL 9009 (
     set HTTP_CLIENT=curl --insecure -f -L -o
 )
 set LEIN_JAR_URL=https://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
-%HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
+%HTTP_CLIENT% %LEIN_JAR% %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
-    del "%LEIN_JAR%">nul 2>&1
+    del %LEIN_JAR%>nul 2>&1
     goto DOWNLOAD_FAILED
 )
 goto EOF
@@ -174,7 +174,7 @@ rem Need to disable delayed expansion because the %* variable
 rem may contain bangs (as in test!).
 setLocal DisableDelayedExpansion
 
-%JAVA_CMD% -client %JAVA_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
+%JAVA_CMD% -client %JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
 goto EOF

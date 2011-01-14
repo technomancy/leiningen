@@ -7,8 +7,8 @@
 
 (use-fixtures :each
               (fn [f]
-                (.delete (java.io.File. tmp-dir "lein-test-ran"))
-                (f)))
+                (f)
+                (.delete (java.io.File. tmp-dir "lein-test-ran"))))
 
 (def project (binding [*ns* (find-ns 'leiningen.core)]
                (read-project "test_projects/sample_no_aot/project.clj")))

@@ -24,7 +24,7 @@ each namespace and print an overall summary."
   ([namespaces result-file & [selectors]]
      `(do
         (doseq [n# '~namespaces]
-          (require n#))
+          (require n# :reload))
         ~(form-for-hook-selectors selectors)
         (let [summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]

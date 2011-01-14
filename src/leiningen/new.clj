@@ -2,7 +2,8 @@
   "Create a new project skeleton."
   (:use [leiningen.core :only [ns->path]]
         [clojure.java.io :only [file]]
-        [clojure.string :only [join]]))
+        [clojure.string :only [join]])
+  (:import (java.util Calendar)))
 
 (defn write-project [project-dir project-name]
   (.mkdirs (file project-dir))
@@ -26,12 +27,15 @@
              "(deftest replace-me ;; FIXME: write\n  (is false "
              "\"No tests have been written.\"))\n")))
 
+(defn- year []
+  (.get (Calendar/getInstance) Calendar/YEAR))
+
 (defn write-readme [project-dir artifact-id]
   (spit (file project-dir "README")
         (join "\n\n" [(str "# " artifact-id)
                       "FIXME: write description"
                       "## Usage" "FIXME: write"
-                      "## License" "Copyright (C) 2010 FIXME"
+                      "## License" (str "Copyright (C) " (year) " FIXME")
                       (str "Distributed under the Eclipse Public"
                            " License, the same as Clojure.\n")])))
 
