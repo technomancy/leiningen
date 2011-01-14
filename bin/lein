@@ -36,7 +36,7 @@ fi
 
 LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
-CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/:$CLASSPATH
+CLASSPATH=$CLASSPATH:$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/
 LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
 NULL_DEVICE=/dev/null
@@ -65,7 +65,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     LEIN_LIBS="$(find -H $LEIN_DIR/lib -mindepth 2> /dev/null 1 -maxdepth 1 -print0 | tr \\0 \:)"
-    CLASSPATH="$LEIN_LIBS:$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
+    CLASSPATH="$CLASSPATH:$LEIN_LIBS:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 
     if [ "$LEIN_LIBS" = "" -a "$1" != "self-install" -a ! -r "$LEIN_JAR" ]; then
         echo "Leiningen is missing its dependencies. Please see \"Building\" in the README."
@@ -73,7 +73,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     fi
 else
     # Not running from a checkout
-    CLASSPATH="$LEIN_JAR:$CLASSPATH"
+    CLASSPATH="$CLASSPATH:$LEIN_JAR"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         "$0" self-install
