@@ -2,6 +2,8 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.5.0 / ???
 
+* Add system property for $PROJECT.version.
+
 * Add deploy task.
 
 * Reload tests in interactive mode.

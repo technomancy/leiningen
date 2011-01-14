@@ -179,6 +179,8 @@
                           (find-native-lib-path project))]
       (.setProject java lancet/ant-project)
       (add-system-property java :clojure.compile.path (:compile-path project))
+      (add-system-property java (format "%s.version" (:name project))
+                           (:version project))
       (when (:debug project)
         (add-system-property java :clojure.debug true))
       (when native-path
