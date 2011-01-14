@@ -32,7 +32,7 @@ for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
 )
 set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
-set CLASSPATH=%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src;"%CLASSPATH%"
+set CLASSPATH="%CLASSPATH%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src
 
 if exist "%~f0\..\..\src\leiningen\core.clj" (
     rem Running from source checkout.
@@ -44,11 +44,11 @@ if exist "%~f0\..\..\src\leiningen\core.clj" (
 
     if "x!LEIN_LIBS!" == "x" if not exist %LEIN_JAR% goto NO_DEPENDENCIES
 
-    set CLASSPATH=!LEIN_LIBS!;%CLASSPATH%;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
+    set CLASSPATH=%CLASSPATH%;!LEIN_LIBS!;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
 ) else (
     rem Not running from a checkout.
     if not exist %LEIN_JAR% goto NO_LEIN_JAR
-    set CLASSPATH=%LEIN_JAR%;%CLASSPATH%
+    set CLASSPATH=%CLASSPATH%;%LEIN_JAR%
 )
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
