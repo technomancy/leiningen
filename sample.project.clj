@@ -90,9 +90,10 @@
                            :username "milgrim"
                            :password "locative.1"}}
   ;; Remote repository to which to deploy. (http:// or file://)
-  :deploy-to ["http://blueant.com/archiva/repository/snapshots"
+  :deploy-to {:snapshots "http://blueant.com/archiva/repository/snapshots"
+              :releases "http://blueant.com/archiva/repository/internal"
               ;; Also supports :private-key and :passphrase.
-              :username "milgrim" :password "locative.1"]
+              :username "milgrim" :password "locative.1"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"

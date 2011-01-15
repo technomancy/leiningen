@@ -13,8 +13,11 @@
   It should not be considered canonical data. For more information see
   https://github.com/technomancy/leiningen -->\n")
 
+(defn snapshot? [project]
+  (re-find #"SNAPSHOT" (:version project)))
+
 (defn check-for-snapshot-deps [project]
-  (when (and (not (re-find #"SNAPSHOT" (:version project)))
+  (when (and (not (snapshot? project))
              (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE"))
              (some #(re-find #"SNAPSHOT" (second %)) (:dependencies project)))
     (throw (Exception. (str "Release versions may not depend upon snapshots."
