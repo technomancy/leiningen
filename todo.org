@@ -41,7 +41,6 @@ See also https://github.com/technomancy/leiningen/issues
 ** TODO re-compile all deps with current clojure version
    Another thing that's going to start becoming more important as more
    Clojure versions are introduced.
-** TODO fail gracefully when run without an Internet connection (Issue #100)
 ** TODO improve test coverage
 ** TODO merge push task based on clj-ssh
    lein-clojars task doesn't support DSA keys

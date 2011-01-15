@@ -5,6 +5,7 @@
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]])
   (:import (java.io File)
+           (java.security MessageDigest)
            (org.apache.maven.artifact.ant Authentication DependenciesTask
                                           RemoteRepository)
            (org.apache.maven.settings Server)
@@ -68,15 +69,30 @@
 (defn use-dev-deps? [project skip-dev]
   (and (not skip-dev) (seq (:dev-dependencies project))))
 
+(defn- sha1-digest [content]
+  (.toString (BigInteger. 1 (-> (MessageDigest/getInstance "SHA1")
+                                (.digest (.getBytes content)))) 16))
+
+(defn- deps-checksum [project]
+  (sha1-digest (pr-str [(:dependencies project)
+                              (:dev-dependencies project)])))
+
+(defn fetch-deps? [project deps-set skip-dev]
+  (let [deps-checksum-file (File. (:root project) ".lein-deps-sum")]
+    (and (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
+         (or (not (:checksum-deps project))
+             (empty? (.list (File. (:library-path project))))
+             (not (.exists deps-checksum-file))
+             (not= (slurp deps-checksum-file) (deps-checksum project))))))
+
 (defn ^{:help-arglists '([] [skip-dev])} deps
   "Download and install all :dependencies and :dev-dependencies listed in
 project.clj. With an argument it will skip development dependencies."
   ([project skip-dev deps-set]
-     (when (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
+     (when (fetch-deps? project deps-set skip-dev)
        (when-not (:disable-implicit-clean project)
-         (delete-file-recursively (:library-path project) true))
-       (let [deps-task (make-deps-task project deps-set)
-             _ (.execute deps-task)
+         (delete-file-recursively (:library-path project) :silently))
+       (let [deps-task (doto (make-deps-task project deps-set) .execute)
              fileset (.getReference lancet/ant-project
                                     (.getFilesetId deps-task))]
          (.mkdirs (File. (:library-path project)))
