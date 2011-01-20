@@ -63,7 +63,8 @@
     (format (if (.exists bin-file)
               (slurp bin-file)
               (read-bin-template system))
-            (script-classpath-for project deps-fileset system) main)))
+            (script-classpath-for project deps-fileset system)
+            main (:version project))))
 
 (defn- shell-wrapper-filespecs [project deps-fileset]
   (when (:shell-wrapper project)
