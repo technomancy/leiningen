@@ -20,6 +20,13 @@
          (catch Exception e
            (throw (Exception. (format "Problem loading %s" project) e))))))
 
+(defn- ensure-absolute [path root]
+  (.getCanonicalPath
+   (let [f (file path)]
+     (if (.isAbsolute f)
+       f
+       (file root f)))))
+
 (defn checkout-deps-paths [project]
   (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))
                       ;; Note that this resets the leiningen.core/project var!
@@ -27,7 +34,7 @@
                                    (read-dependency-project dep))]
                       :when proj]
                   (for [d [:source-path :compile-path :resources-path]]
-                    (proj d)))))
+                    (ensure-absolute (proj d) dep)))))
 
 (defn user-plugins []
   (for [jar (.listFiles (file (home-dir) "plugins"))

@@ -36,6 +36,13 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
+  ;; Dev dependencies are intended for use only during
+  ;; development. Projects that depend on this project will not pull
+  ;; in its dev-dependencies, and they won't be included in the uberjar.
+  :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]]
+  ;; Only re-fetch dependencies when they change in project.clj or
+  ;; when :library-path directory is empty.
+  :checksum-deps true
   ;; Warns users of earlier versions of Leiningen.
   :min-lein-version "1.3.0"
   ;; Before fetching dependencies, the contents of the lib/ directory
@@ -58,10 +65,6 @@
   ;; namespaces matching leiningen.hooks.*. Warning: this will cause
   ;; Leiningen to start slowly, especially with many dependencies.
   :implicit-hooks false
-  ;; Dev dependencies are intended for use only during
-  ;; development. Projects that depend on this project will not pull
-  ;; in its dev-dependencies, and they won't be included in the uberjar.
-  :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]]
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. :namespaces is an alias for this.
   ;; Put a regex here to compile all namespaces whose names match.
@@ -90,9 +93,10 @@
                            :username "milgrim"
                            :password "locative.1"}}
   ;; Remote repository to which to deploy. (http:// or file://)
-  :deploy-to ["http://blueant.com/archiva/repository/snapshots"
+  :deploy-to {:snapshots "http://blueant.com/archiva/repository/snapshots"
+              :releases "http://blueant.com/archiva/repository/internal"
               ;; Also supports :private-key and :passphrase.
-              :username "milgrim" :password "locative.1"]
+              :username "milgrim" :password "locative.1"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"

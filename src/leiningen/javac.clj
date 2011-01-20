@@ -5,11 +5,10 @@
   (:import (java.io File)))
 
 (def ^{:doc "Default options for the java compiler."} *default-javac-options*
-  {:debug "false"
-   :fork "true"
+  {:debug "false" :fork "true"
    :includejavaruntime "yes"
-   :source "1.5"
-   :target "1.5"})
+   :includeantruntime "false"
+   :source "1.5" :target "1.5"})
 
 (defn- extract-javac-task
   "Extract a compile task from the given spec."

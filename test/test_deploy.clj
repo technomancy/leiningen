@@ -9,7 +9,7 @@
 
 (deftest test-deploy
   (delete-file-recursively "/tmp/lein-repo" :silently)
-  (deploy test-project "file:///tmp/lein-repo")
+  (deploy test-project :snapshots "file:///tmp/lein-repo")
   (let [dir (file "/tmp/lein-repo/nomnomnom/nomnomnom/0.5.0-SNAPSHOT/")
         files (.list dir)
         year (+ 1900 (.getYear (java.util.Date.)))]
