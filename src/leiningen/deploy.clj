@@ -55,6 +55,6 @@ to avoid checking sensitive information into source control:
        (.execute)))
   ([project]
      (if-let [target (:deploy-to project)]
-       (deploy target)
+       (apply deploy project target)
        (do (println "Either set :deploy-to in project.clj or"
                     "provide deploy target options.") 1))))
