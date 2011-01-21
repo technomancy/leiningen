@@ -75,10 +75,12 @@
 
 (defn- deps-checksum [project]
   (sha1-digest (pr-str [(:dependencies project)
-                              (:dev-dependencies project)])))
+                        (:dev-dependencies project)])))
+(defn- new-deps-checksum-file [project]
+  (File. (:root project) ".lein-deps-sum"))
 
 (defn fetch-deps? [project deps-set skip-dev]
-  (let [deps-checksum-file (File. (:root project) ".lein-deps-sum")]
+  (let [deps-checksum-file (new-deps-checksum-file project)]
     (and (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
          (or (not (:checksum-deps project))
              (empty? (.list (File. (:library-path project))))
@@ -102,6 +104,7 @@ project.clj. With an argument it will skip development dependencies."
          (when (use-dev-deps? project skip-dev)
            (deps (assoc project :library-path (str (:root project) "/lib/dev"))
                  true :dev-dependencies))
+         (spit (new-deps-checksum-file project) (deps-checksum project))
          fileset)))
   ([project skip-dev] (deps project skip-dev :dependencies))
   ([project] (deps project false)))
