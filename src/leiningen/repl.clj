@@ -32,16 +32,8 @@
                         (doto (Thread.
                                #(binding [*in* (-> ins# InputStreamReader.
                                                    LineNumberingPushbackReader.)
-                                          *out* (OutputStreamWriter. outs#)
-                                          *err* (PrintWriter. outs# true)]
-                                  (try
-                                    (clojure.main/repl ~@repl-options)
-                                    (catch SocketException e#
-                                      (.printStackTrace e#))
-                                    (finally (doto s#
-                                               .shutdownInput
-                                               .shutdownOutput
-                                               .close)))))
+                                          *out* (OutputStreamWriter. outs#)]
+                                  (clojure.main/repl ~@repl-options)))
                           .start)))]
            (doto (Thread. #(when-not (.isClosed server#)
                              (try
