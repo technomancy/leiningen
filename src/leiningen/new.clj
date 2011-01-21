@@ -44,7 +44,7 @@
   ([project-name]
      (leiningen.new/new project-name (name (symbol project-name))))
   ([project-name project-dir]
-     (when (re-find #"(?<!clo)jure" project-name)
+     (when (re-find #"(?i)(?<!clo)jure" project-name)
        (throw (IllegalArgumentException. "*jure names are no longer allowed.")))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
