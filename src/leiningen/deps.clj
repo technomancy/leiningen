@@ -23,6 +23,18 @@
                                                     (.setPassword password))))))
     repo))
 
+(defn make-auth [url options]
+  (let [auth (Authentication.)
+        user-options (when-let [user-opts (resolve 'user/leiningen-auth)]
+                       (get @user-opts url))
+        {:keys [username password passphrase
+                private-key]} (merge user-options options)]
+    (when username (.setUserName auth username))
+    (when password (.setPassword auth password))
+    (when passphrase (.setPassphrase auth passphrase))
+    (when private-key (.setPrivateKey auth private-key))
+    auth))
+
 ;; Add symlinking to Lancet's toolbox.
 (lancet/define-ant-task symlink symlink)
 
@@ -60,8 +72,12 @@
     (.setBasedir lancet/ant-project (:root project))
     (.setFilesetId deps-task "dependency.fileset")
     (.setPathId deps-task (:name project))
-    (doseq [r (map make-repository (repositories-for project))]
-      (.addConfiguredRemoteRepository deps-task r))
+    (doseq [[id settings] (repositories-for project)]
+      (let [r (make-repository [id settings])
+            repo-url (if (string? settings) settings (:url settings))]
+        (when-let [auth (make-auth repo-url (if (map? settings) settings {}))]
+          (.addAuthentication r auth))
+        (.addConfiguredRemoteRepository deps-task r)))
     (doseq [dep (project deps-set)]
       (.addDependency deps-task (make-dependency dep)))
     deps-task))
