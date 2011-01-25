@@ -20,20 +20,36 @@
                                (in-ns '~'user)))]
         repl-options (concat init-form repl-options)]
     `(do (try ;; transitive requires don't work for stuff on bootclasspath
-           (require ['~'clojure.java.shell])
-           (require ['~'clojure.java.browse])
+           (require '~'clojure.java.shell)
+           (require '~'clojure.java.browse)
            ;; these are new in clojure 1.2, so swallow exceptions for 1.1
            (catch Exception _#))
-         (use ['~'clojure.main :only ['~'repl]])
          (let [server# (ServerSocket. ~port 0 (InetAddress/getByName ~host))
                acc# (fn [s#]
                       (let [ins# (.getInputStream s#)
-                            outs# (.getOutputStream s#)]
+                            outs# (.getOutputStream s#)
+                            skip-whitespace# @(ns-resolve '~'clojure.main
+                                                          '~'skip-whitespace)
+                            ;; Suppress socket closed exceptions since
+                            ;; they are part of normal operation
+                            caught# (fn [t#]
+                                      (when-not (instance? SocketException t#)
+                                        (throw t#)))]
                         (doto (Thread.
                                #(binding [*in* (-> ins# InputStreamReader.
                                                    LineNumberingPushbackReader.)
-                                          *out* (OutputStreamWriter. outs#)]
-                                  (clojure.main/repl ~@repl-options)))
+                                          *out* (OutputStreamWriter. outs#)
+                                          *err* *err*
+                                          ;; clojure.main/repl has no way
+                                          ;; to exit without signalling EOF,
+                                          ;; which we can't do with a socket.
+                                          clojure.main/skip-whitespace
+                                          (fn [s#]
+                                            (try (skip-whitespace# s#)
+                                                 (catch java.io.IOException _#
+                                                   :stream-end)))]
+                                  (clojure.main/repl :caught caught#
+                                                     ~@repl-options)))
                           .start)))]
            (doto (Thread. #(when-not (.isClosed server#)
                              (try

@@ -55,24 +55,14 @@
         (print-prompt)
         (recur (.readLine *in*))))))
 
-(def ^{:private true} repl-server-options
-  [:prompt '(constantly "")
-   :caught '(fn [t] ; TODO: too broad, probably
-              (when (instance? java.net.SocketException t)
-                ;; only way to silently exit clojure.main/repl afaict
-                ;; TODO: this causes an infinite loop; can't debug
-                ;; since we don't have access to *err*. grrrrr...
-                ;; (set! *err* (java.io.PrintWriter. (java.io.StringWriter.)))
-                (throw t)))])
-
 (defn interactive
   "Enter an interactive shell for calling tasks without relaunching JVM."
   [project]
   (let [[port host] (repl-socket-on project)]
     (println welcome)
     (future
-      (eval-in-project project `(do ~(apply repl-server project host port
-                                            repl-server-options)
+      (eval-in-project project `(do ~(repl-server project host port
+                                                  :prompt '(constantly ""))
                                     (symbol ""))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
