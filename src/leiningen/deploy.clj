@@ -5,7 +5,7 @@
         [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom snapshot?]]
         [leiningen.util.maven :only [make-model make-artifact]]
-        [leiningen.deps :only [make-repository make-auth]]
+        [leiningen.deps :only [make-repositories]]
         [clojure.java.io :only [file]])
   (:import [org.apache.maven.artifact.ant DeployTask Pom Authentication]
            [org.apache.maven.project MavenProject]))
@@ -14,36 +14,27 @@
   (doto (MavenProject. (make-model project))
     (.setArtifact (make-artifact (make-model project)))))
 
-;; for supporting command-line options
-(defn- keywordize-opts [options]
-  (let [options (apply hash-map options)]
-    (zipmap (map keyword (keys options)) (vals options))))
-
-(defn make-target-repo [project options]
-  (let [deploy-opts (merge (:deploy-to project) options)
-        repo-url (if (snapshot? project)
-                   (:snapshots deploy-opts)
-                   (:releases deploy-opts))
-        repo (make-repository ["remote repository" repo-url])]
-    (when-let [auth (make-auth repo-url options)]
-      (.addAuthentication repo auth))
-    repo))
-
 (defn deploy
-  "Build and deploy jar to remote repository. Set :deploy-to in project.clj:
+  "Build and deploy jar to remote repository.
 
-  {:snapshots \"http://secret.com/archiva/repository/snapshots\"
-   :releases \"http://secret.com/archiva/repository/internal\"
-   :username \"durin\" :password \"mellon\"}
+The target repository will be looked up in :repositories: snapshot
+versions will go to the repo named \"snapshots\" while stable versions
+will go to \"releases\". You can also deploy to another repository
+in :repositories by providing its name as an argument.
 
-SNAPSHOT versions will be deployed to :snapshots repository, releases go to
-:releases. Also supported are :private-key and :passphrase. You can
-set authentication options keyed by repository URL in ~/.lein/init.clj
-to avoid checking sensitive information into source control:
+  :repositories {\"java.net\" \"http://download.java.net/maven/2\"
+                 \"snapshots\" {:url \"https://blueant.com/archiva/snapshots\"
+                                :username \"milgrim\" :password \"locative\"}
+                 \"releases\" {:url \"https://blueant.com/archiva/internal\"
+                               :private-key \"etc/id_dsa\"}}
 
-  (def leiningen-auth {\"http://secr.et/repo\" {:password \"reindeerflotilla\"}
-                       \"file:///var/repo {:passphrase \"vorpalbunny\"}})"
-  ([project & opts]
+You can set authentication options keyed by repository name in
+~/.lein/init.clj to avoid checking sensitive information into source
+control:
+
+  (def leiningen-auth {\"releases\" {:passphrase \"vorpalbunny\"}})
+"
+  ([project repository-name]
      (doto (DeployTask.)
        (.setProject lancet/ant-project)
        (.getSupportedProtocols) ;; see note re: exceptions in deps.clj
@@ -51,10 +42,10 @@ to avoid checking sensitive information into source control:
        (.addPom (doto (Pom.)
                   (.setMavenProject (make-maven-project project))
                   (.setFile (file (pom project)))))
-       (.addRemoteRepository (make-target-repo project (keywordize-opts opts)))
+       (.addRemoteRepository ((keyword repository-name)
+                              (make-repositories project)))
        (.execute)))
   ([project]
-     (if-let [target (:deploy-to project)]
-       (apply deploy project target)
-       (do (println "Either set :deploy-to in project.clj or"
-                    "provide deploy target options.") 1))))
+     (deploy project (if (snapshot? project)
+                       "snapshots"
+                       "releases"))))

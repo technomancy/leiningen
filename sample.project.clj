@@ -89,14 +89,11 @@
   ;; Set this in order to only use the :repositories you list below.
   :omit-default-repositories true
   :repositories {"java.net" "http://download.java.net/maven/2"
-                 "bigend" {:url "http://blueant.com/archiva/repository/internal"
-                           :username "milgrim"
-                           :password "locative.1"}}
-  ;; Remote repository to which to deploy. (http:// or file://)
-  :deploy-to {:snapshots "http://blueant.com/archiva/repository/snapshots"
-              :releases "http://blueant.com/archiva/repository/internal"
-              ;; Also supports :private-key and :passphrase.
-              :username "milgrim" :password "locative.1"}
+                 "snapshots" {:url "http://blueant.com/archiva/snapshots"
+                              ;; Also supports :private-key and :passphrase.
+                              :username "milgrim" :password "locative.1"}
+                 "releases" {:url "http://blueant.com/archiva/internal"
+                             :username "milgrim" :password "locative.1"}}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"

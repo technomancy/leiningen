@@ -415,6 +415,8 @@ test! && lein install</tt> and make the hudson user's
 <tt>~/.m2/repository</tt> directory available over password-protected
 HTTP using something like <a href="http://nginx.net">nginx</a>.
 
+TODO: mention deploy task
+
 ### Server-side Projects
 
 There are many ways to get your project deployed as a server-side
