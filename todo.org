@@ -50,6 +50,10 @@ See also https://github.com/technomancy/leiningen/issues
    lein-search is cool, but it would be better to interoperate with
    the standard lucene index system that Maven repositories offer.
    This would also mean getting Clojars to produce those indices.
+* For 1.5
+** DONE unify auth options between :repositories and :deploy-to
+** DONE suppress socket closed stacktrace in interactive task
+** TODO explain how to do manual self-install if it fails
 * For 1.4
 ** DONE socket timing issues with interactive tests
 ** DONE connect to socket repl in interactive task

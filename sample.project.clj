@@ -68,7 +68,7 @@
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. :namespaces is an alias for this.
   ;; Put a regex here to compile all namespaces whose names match.
-  :aot [org.example.sample.SampleClass]
+  :aot [org.example.sample]
   ;; The -main function in this namespace will be run at launch if you
   ;; create an uberjar. Repl sessions will start in this namespace as well.
   ;; Set :skip-aot metadata on this symbol to use it for other things like the

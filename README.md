@@ -154,7 +154,7 @@ See the plugin task's help for more information.
   the <tt>mvn</tt> invocation to do this. It's _much_ better to get
   the dependency in a remote repository for repeatability reasons
   though. For teams working on private projects
-  [Hudson](http://hudson-ci.org/) works well.
+  [Archiva](http://archiva.apache.org/) works well; see the deploy task.
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
