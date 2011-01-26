@@ -1,11 +1,11 @@
 (ns leiningen.deploy
   "Build and deploy jar to remote repository."
   (:require [lancet])
-  (:use [leiningen.core :only [abort]]
+  (:use [leiningen.core :only [abort repositories-for]]
         [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom snapshot?]]
         [leiningen.util.maven :only [make-model make-artifact]]
-        [leiningen.deps :only [make-repositories]]
+        [leiningen.deps :only [make-repository]]
         [clojure.java.io :only [file]])
   (:import [org.apache.maven.artifact.ant DeployTask Pom Authentication]
            [org.apache.maven.project MavenProject]))
@@ -13,6 +13,10 @@
 (defn- make-maven-project [project]
   (doto (MavenProject. (make-model project))
     (.setArtifact (make-artifact (make-model project)))))
+
+(defn- get-repository [project repository-name]
+  (let [repositories (repositories-for project)]
+    (make-repository [repository-name (repositories repository-name)])))
 
 (defn deploy
   "Build and deploy jar to remote repository.
@@ -42,8 +46,7 @@ control:
        (.addPom (doto (Pom.)
                   (.setMavenProject (make-maven-project project))
                   (.setFile (file (pom project)))))
-       (.addRemoteRepository ((keyword repository-name)
-                              (make-repositories project)))
+       (.addRemoteRepository (get-repository project repository-name))
        (.execute)))
   ([project]
      (deploy project (if (snapshot? project)
