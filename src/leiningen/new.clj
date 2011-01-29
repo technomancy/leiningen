@@ -1,6 +1,6 @@
 (ns leiningen.new
   "Create a new project skeleton."
-  (:use [leiningen.core :only [ns->path]]
+  (:use [leiningen.core :only [ns->path abort]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
   (:import (java.util Calendar)))
@@ -38,13 +38,15 @@
                       (str "Distributed under the Eclipse Public"
                            " License, the same as Clojure.\n")])))
 
+(def project-name-blacklist #"(?i)(?<!(clo|compo))jure")
+
 (defn new
   "Create a new project skeleton."
   ([project-name]
      (leiningen.new/new project-name (name (symbol project-name))))
   ([project-name project-dir]
-     (when (re-find #"(?i)(?<!clo)jure" project-name)
-       (throw (IllegalArgumentException. "*jure names are no longer allowed.")))
+     (when (re-find project-name-blacklist project-name)
+       (abort "Sorry, *jure names are no longer allowed."))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
            artifact-id (name project-name)
