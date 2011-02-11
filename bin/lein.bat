@@ -4,6 +4,12 @@ set LEIN_VERSION=1.5.0-SNAPSHOT
 
 setLocal EnableExtensions EnableDelayedExpansion
 
+if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
+    set SNAPSHOT=YES
+) else (
+    set SNAPSHOT=NO
+)
+
 rem LEIN_JAR and LEIN_HOME variables can be set manually.
 
 if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
@@ -94,6 +100,8 @@ if exist %LEIN_JAR% (
 for %%f in (%LEIN_JAR%) do set LEIN_INSTALL_DIR="%%~dpf"
 if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
+echo Downloading Leiningen now...
+
 set HTTP_CLIENT=wget --no-check-certificate -O
 wget>nul 2>&1
 if ERRORLEVEL 9009 (
@@ -111,7 +119,8 @@ goto EOF
 
 :DOWNLOAD_FAILED
 echo.
-echo *** DOWNLOAD FAILED! Check URL/Version. ***
+echo Failed to download %LEIN_JAR_URL%
+if %SNAPSHOT% == YES echo See README.md for SNAPSHOT build instructions.
 echo.
 goto EOF
 
