@@ -108,7 +108,8 @@
 project.clj. With an argument it will skip development dependencies."
   ([project skip-dev deps-set]
      (when (fetch-deps? project deps-set skip-dev)
-       (when-not (:disable-implicit-clean project)
+       (when-not (or (:disable-deps-clean project)
+                     (:disable-implicit-clean project))
          (delete-file-recursively (:library-path project) :silently))
        (let [deps-task (doto (make-deps-task project deps-set) .execute)
              fileset (.getReference lancet/ant-project

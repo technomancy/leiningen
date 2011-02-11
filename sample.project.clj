@@ -47,7 +47,7 @@
   :min-lein-version "1.3.0"
   ;; Before fetching dependencies, the contents of the lib/ directory
   ;; will get deleted unless this is set to true.
-  :disable-implicit-clean false
+  :disable-deps-clean false
   ;; Delete .class files that do not have a correspoinding package in
   ;; the src/ directory. Workaround for Clojure bug CLJ-322. Causes problems
   ;; with protocols in upstream libraries; false by default. Set to
@@ -72,7 +72,8 @@
   ;; The -main function in this namespace will be run at launch if you
   ;; create an uberjar. Repl sessions will start in this namespace as well.
   ;; Set :skip-aot metadata on this symbol to use it for other things like the
-  ;; run task or shell wrappers without bringing in AOT.
+  ;; run task or shell wrappers without bringing in AOT if you don't need an
+  ;; executable uberjar.
   :main org.example.sample
   ;; This will get loaded automatically when you launch a repl.
   :repl-init-script "src/main/clojure/init.clj"
