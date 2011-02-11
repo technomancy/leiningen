@@ -25,8 +25,10 @@
     (is (= "bin/nom" (manifest "Leiningen-shell-wrapper")))
     (is (re-find #"org/clojure/clojure/1\.1\.0/" bin))
     (is (re-find #"org\\clojure\\clojure\\1\.1\.0" bat))
-    (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bin))
-    (is (re-find #"use 'nom\.nom\.nom\)\(apply -main .command-line-args." bat))
+    (is (re-find #"MAIN=\"nom\.nom\.nom\"" bin))
+    (is (re-find #"set MAIN=\"nom\.nom\.nom\"" bat))
+    (is (re-find #"use '\$MAIN\)\(apply -main .command-line-args." bin))
+    (is (re-find #"use '%MAIN%\)\(apply -main .command-line-args." bat))
     (is (re-find #"\$HOME/\.m2/repository/rome/rome/0\.9/rome-0\.9\.jar" bin))
     (is (re-find
          #"%USERPROFILE%\\\.m2\\repository\\rome\\rome\\0\.9\\rome-0\.9\.jar"
