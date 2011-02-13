@@ -5,6 +5,6 @@
 (defn f [x]
   (.list x))
 
-(deftest should-use-1.1.0-SNAPSHOT
-  (is (= "1.1.0-master-SNAPSHOT" (clojure-version)))
+(deftest should-use-1.1.0
+  (is (= "1.1.0" (clojure-version)))
   (f (java.io.File. "/tmp")))
