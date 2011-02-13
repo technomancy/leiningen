@@ -9,7 +9,8 @@
   :manifest {"hello" "world"})
 
 (deftest test-manifest
-  (let [manifest (manifest-map (make-manifest mock-project))]
+  (let [manifest (manifest-map (make-manifest
+                                @(resolve 'leiningen.core/project)))]
     (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
            (select-keys manifest ["hello" "Main-Class"])))))
 
