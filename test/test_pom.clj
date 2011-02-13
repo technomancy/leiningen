@@ -19,6 +19,8 @@
     (is (= "test" (-> model .getBuild .getTestSourceDirectory)))))
 
 (deftest test-snapshot-checking
-  (is (thrown? Exception (pom (assoc test-project
-                                :version "1.0"
-                                :dependencies [['clojure "1.0.0-SNAPSHOT"]])))))
+  (let [aborted? (atom false)]
+    (binding [leiningen.core/abort (partial reset! aborted?)]
+      (pom (assoc test-project :version "1.0"
+                  :dependencies [['clojure "1.0.0-SNAPSHOT"]]))
+      (is @aborted?))))
