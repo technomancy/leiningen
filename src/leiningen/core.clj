@@ -135,14 +135,13 @@
                  (namespaces-matching "leiningen.hooks")))))
 
 (defn- load-hooks [project]
-  (try (doseq [n (hook-namespaces project)]
-         (require n))
-       (catch Exception e
-         (when-not (empty? (.list (File. "lib")))
-           (println "Warning: problem requiring hooks:" (.getMessage e))
-           (when (System/getenv "DEBUG")
-             (.printStackTrace e))
-           (println "...continuing without hooks completely loaded.")))))
+  (doseq [n (hook-namespaces project)]
+    (try (require n)
+         (catch Exception e
+           (when-not (empty? (.list (File. "lib")))
+             (println "Warning: problem requiring" n "hook:" (.getMessage e))
+             (when (System/getenv "DEBUG")
+               (.printStackTrace e)))))))
 
 (defn user-init []
   (let [init-file (File. (home-dir) "init.clj")]
