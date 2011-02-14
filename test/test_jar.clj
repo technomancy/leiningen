@@ -5,14 +5,16 @@
         [leiningen.compile :only [platform-nullsink]])
   (:import [java.util.jar JarFile]))
 
-(defproject mock-project "1.0" :main foo.one-two.three-four.bar
-  :manifest {"hello" "world"})
+(def mock-project @(defproject mock-project "1.0"
+                     :main foo.one-two.three-four.bar
+                     :manifest {"hello" "world"}))
 
 (deftest test-manifest
-  (let [manifest (manifest-map (make-manifest
-                                @(resolve 'leiningen.core/project)))]
-    (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
-           (select-keys manifest ["hello" "Main-Class"])))))
+  (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
+         (-> mock-project
+             make-manifest
+             manifest-map
+             (select-keys ["hello" "Main-Class"])))))
 
 (def sample-project (binding [*ns* (the-ns 'leiningen.core)]
                       (read-project "test_projects/sample/project.clj")))

@@ -72,7 +72,8 @@
                      ":dev-resources-path.")))
      (when (:jar-dir m#)
        (println (str "WARNING: :jar-dir is deprecated; use "
-                     ":target-dir.")))))
+                     ":target-dir.")))
+     #'project))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."

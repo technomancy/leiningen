@@ -20,7 +20,7 @@
 
 (deftest test-snapshot-checking
   (let [aborted? (atom false)]
-    (binding [leiningen.core/abort (partial reset! aborted?)]
+    (binding [leiningen.core/abort #(reset! aborted? %&)]
       (pom (assoc test-project :version "1.0"
                   :dependencies [['clojure "1.0.0-SNAPSHOT"]]))
       (is @aborted?))))
