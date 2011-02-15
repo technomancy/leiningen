@@ -54,6 +54,14 @@
   ;; true to delete all non-project classes or set to a seq of regexes
   ;; to only delete class files that match one of the regexes.
   :clean-non-project-classes true
+  ;; Additional files (besides :compile-path contents and jars/uberjars)
+  ;; to be deleted during clean phase. May contain %s, which will be replaced
+  ;; with the project's current version number.
+  :extra-files-to-clean ["tmp" "sample-%s.tar"]
+  ;; If the files you want to delete can't be exact matches, you can
+  ;; use a regex that will be matched against filenames in the project root.
+  ;; Defaults to #"^$NAME-.*\.jar$".
+  :regex-to-clean #"hs_err_pid.*"
   ;; Load these namespaces on startup to pick up hooks from them. Hooks
   ;; generally come from plugins, but may be included in your project source.
   :hooks [leiningen.hooks.difftest]
