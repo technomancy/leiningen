@@ -129,3 +129,13 @@
   :jvm-opts ["-Xmx1g"]
   ;; If your project is a Leiningen plugin, set this to skip the subprocess step
   :eval-in-leiningen false)
+
+;; You can use Robert Hooke to modify behaviour of any task function,
+;; but the prepend-tasks function is shorthand that is more convenient
+;; on tasks that take a single project argument.
+(use '[leiningen.core :only [prepend-tasks]]
+     '[leiningen.deps :only [deps]]
+     '[leiningen.clean :only [clean]]
+     '[leiningen.pom :only [pom]])
+
+(prepend-tasks #'deps clean pom)

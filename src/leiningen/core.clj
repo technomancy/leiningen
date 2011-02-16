@@ -1,7 +1,8 @@
 (ns leiningen.core
   (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
-        [clojure.walk :only [walk]])
+        [clojure.walk :only [walk]]
+        [robert.hooke :only [add-hook]])
   (:import (java.io File)))
 
 (def ^{:private true} project nil)
@@ -194,6 +195,15 @@
           (abort "Couldn't find project.clj, which is needed for" task-name)
           (abort "Wrong number of arguments to" task-name "task."
                  "\nExpected" args))))))
+
+(defn prepend-tasks
+  "Add a hook to target-var to run tasks-to-add, which must be tasks
+  taking a project argument and nothing else."
+  [target-var & tasks-to-add]
+  (add-hook target-var (fn [target project & args]
+                         (doseq [t tasks-to-add]
+                           (t project))
+                         (apply target project args))))
 
 (def arg-separator ",")
 

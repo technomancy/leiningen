@@ -40,6 +40,7 @@
                                                    LineNumberingPushbackReader.)
                                           *out* (OutputStreamWriter. outs#)
                                           *err* *err*
+                                          ;; TODO: bugger; can't rebind in 1.3
                                           ;; clojure.main/repl has no way
                                           ;; to exit without signalling EOF,
                                           ;; which we can't do with a socket.
