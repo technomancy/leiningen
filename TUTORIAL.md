@@ -61,8 +61,7 @@ you.
 
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "FIXME: write"
-      :dependencies [[org.clojure/clojure "1.2.0"]
-                     [org.clojure/clojure-contrib "1.2.0"]])
+      :dependencies [[org.clojure/clojure "1.2.0"]])
 
 Fill in the :description with a short paragraph so that your project
 will show up in search results once you upload to Clojars (as
@@ -73,8 +72,8 @@ easy to swap out any version of Clojure. If you're using Clojure
 Contrib, make sure that version matches the Clojure version.
 
 If you've got a simple pure-clojure project, you will be fine with the
-default of depending only on Clojure and Contrib, but otherwise you'll
-need to list other dependencies.
+default of depending only on Clojure, but otherwise you'll need to
+list other dependencies.
 
 ## Dependencies
 
@@ -143,7 +142,7 @@ to fetch it, you can do that too:
 
     $ lein deps
 
-    Copying 4 files to ~/src/myproject/lib
+    Copying 3 files to ~/src/myproject/lib
     Copied :dependencies into ~/src/myproject/lib.
 
 Dependencies are downloaded from Clojars, the central Maven (Java)
@@ -301,7 +300,6 @@ file should look like this:
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "This project is MINE."
       :dependencies [[org.clojure/clojure "1.2.0"]
-                     [org.clojure/clojure-contrib "1.2.0"]
                      [org.apache.lucene/lucene-core "3.0.2"]
                      [robert/hooke "1.1.0"]]
       :main myproject.core)
@@ -323,10 +321,9 @@ Now we're ready to generate your uberjar:
 
     $ lein uberjar
     Cleaning up
-    Copying 4 files to /home/phil/src/leiningen/myproject/lib
+    Copying 3 files to /home/phil/src/leiningen/myproject/lib
     Created ~/src/myproject/myproject-1.0.0.jar
     Including myproject-1.0.0-SNAPSHOT.jar
-    Including clojure-contrib-1.2.0.jar
     Including hooke-1.1.0.jar
     Including clojure-1.2.0.jar
     Including lucene-core-3.0.2.jar

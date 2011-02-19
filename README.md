@@ -215,6 +215,15 @@ See the plugin task's help for more information.
   packages; on Ubuntu try ia32-sun-java6-bin. Once you've installed
   it, set the <tt>JAVA_CMD</tt> environment variable to
   <tt>/usr/lib/jvm/ia32-java-6-sun/bin/java</tt>.
+  
+**Q:** I don't have access to stdin inside my project.  
+**A:** There's a bug in the Ant library that Leiningen uses to spawn
+  new processes that blocks access to console input. This means that
+  functions like <tt>read-line</tt> will not work as expected in most
+  contexts, though the <tt>repl</tt> task necessarily includes a
+  workaround. You can also use <tt>java -cp `lein classpath`
+  my.main.namespace</tt> to launch a process with the correct
+  classpath that still has access to stdin.
 
 ## Contributing
 
