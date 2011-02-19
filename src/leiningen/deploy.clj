@@ -36,7 +36,8 @@ You can set authentication options keyed by repository name in
 ~/.lein/init.clj to avoid checking sensitive information into source
 control:
 
-  (def leiningen-auth {\"releases\" {:passphrase \"vorpalbunny\"}})
+  (def leiningen-auth {\"https://blueant.com/archiva/internal\"
+                       {:passphrase \"vorpalbunny\"}})
 "
   ([project repository-name]
      (doto (DeployTask.)

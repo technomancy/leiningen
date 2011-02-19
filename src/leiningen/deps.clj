@@ -11,9 +11,9 @@
            (org.apache.maven.settings Server)
            (org.apache.tools.ant.util FlatFileNameMapper)))
 
-(defn make-auth [id settings]
+(defn make-auth [settings]
   (let [user-options (when-let [user-opts (resolve 'user/leiningen-auth)]
-                       (get @user-opts id))
+                       (get @user-opts (:url settings)))
         {:keys [username password passphrase
                 private-key] :as settings} (merge user-options settings)
         auth (Authentication.)]
@@ -31,7 +31,7 @@
                    settings)]
     (.setId repo id)
     (.setUrl repo (:url settings))
-    (when-let [auth (make-auth id settings)]
+    (when-let [auth (make-auth settings)]
       (.addAuthentication repo auth))
     repo))
 
