@@ -59,7 +59,7 @@
              test-ns (str prefix ".test.core")
              project-clj (ns->path project-ns)]
          (spit (file project-dir ".gitignore")
-               (apply str (interleave ["pom.xml" "*jar" "lib" "classes"
+               (apply str (interleave ["pom.xml" "*jar" "/lib/" "/classes/"
                                        ".lein-deps-sum"]
                                       (repeat "\n"))))
          (write-implementation project-dir project-clj project-ns)
