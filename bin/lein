@@ -154,6 +154,10 @@ else
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
         if [ ! -x "$RLWRAP" ] || [ "$RLWRAP" = "" ]; then
+            if [ ! -r "$LEIN_HOME/.jline-warn" ]; then
+                echo "Using JLine for console I/O; install rlwrap for optimum experience."
+                touch "$LEIN_HOME/.jline-warn"
+            fi
             RLWRAP=""
             JLINE=jline.ConsoleRunner
             if [ "$OSTYPE" = "cygwin" ]; then
