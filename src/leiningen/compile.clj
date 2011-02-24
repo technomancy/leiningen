@@ -250,7 +250,6 @@ those given as command-line arguments."
        (javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-
          (binding [*skip-auto-compile* true]
            (try
              (if (zero? (eval-in-project project

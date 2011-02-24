@@ -83,7 +83,10 @@
   ;; run task or shell wrappers without bringing in AOT if you don't need an
   ;; executable uberjar.
   :main org.example.sample
-  ;; This will get loaded automatically when you launch a repl.
+  ;; This namespace will get loaded automatically when you launch a repl.
+  :repl-init sample.repl-helper
+  ;; This file will get loaded automatically when you launch a repl,
+  ;; but it's deprecated; use :repl-init above instead.
   :repl-init-script "src/main/clojure/init.clj"
   ;; These will get passed to clojure.main/repl; see its docstring for details.
   :repl-options [:prompt (fn [] (print "your command, master? ") (flush))]

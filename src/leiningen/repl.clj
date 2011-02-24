@@ -12,9 +12,14 @@
 
 (defn repl-server [project host port & repl-options]
   (let [init-form [:init `#(let [is# ~(:repl-init-script project)
+                                 in# ~(:repl-init project)
                                  mn# '~(:main project)]
                              (when (and is# (.exists (File. (str is#))))
+                               (println (str "Warning: :repl-init-script is "
+                                             "deprecated; use :repl-init."))
                                (load-file is#))
+                             (when in#
+                               (doto in# require in-ns))
                              (if mn#
                                (doto mn# require in-ns)
                                (in-ns '~'user)))]
