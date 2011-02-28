@@ -220,22 +220,36 @@
                                     (:compile-path project)
                                     (:source-path project)) ".clj")))))
 
+(defn- relative-path [project f]
+  (let [root-length (if (= \/ (last (:compile-path project)))
+                      (count (:compile-path project))
+                      (inc (count (:compile-path project))))]
+    (subs (.getAbsolutePath f) root-length)))
+
 (defn- blacklisted-class? [project f]
   ;; true indicates all non-project classes are blacklisted
   (or (true? (:clean-non-project-classes project))
-      (let [relative (subs (.getAbsolutePath f) (count (:root project)))]
-        (some #(re-find % relative) (:clean-non-project-classes project)))))
+      (some #(re-find % (relative-path project f))
+            (:clean-non-project-classes project))))
+
+(defn- whitelisted-class? [project f]
+  (or (class-in-project? project f)
+      (and (:class-file-whitelist project)
+           (re-find (:class-file-whitelist project)
+                    (relative-path project f)))))
 
 (defn clean-non-project-classes [project]
   (when (:clean-non-project-classes project)
     (doseq [f (file-seq (file (:compile-path project)))
-            :when (and (.isFile f) (not (class-in-project? project f))
+            :when (and (.isFile f)
+                       (not (whitelisted-class? project f))
                        (blacklisted-class? project f))]
       (.delete f))))
 
 (defn- status [code msg]
   (when-not *silently*
-    (.write (if (zero? code) *out* *err*) (str msg "\n")))
+    (binding [*out* (if (zero? code) *out* *err*)]
+      (println msg)))
   code)
 
 (def ^{:private true} success (partial status 0))

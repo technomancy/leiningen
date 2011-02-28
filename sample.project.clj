@@ -54,6 +54,9 @@
   ;; true to delete all non-project classes or set to a seq of regexes
   ;; to only delete class files that match one of the regexes.
   :clean-non-project-classes true
+  ;; If :clean-non-project-classes is set to true, you can set this to
+  ;; be a regex; all class filenames that match this regex will be preserved.
+  :class-file-whitelist #"^(org/example|clojure)"
   ;; Additional files (besides :compile-path contents and jars/uberjars)
   ;; to be deleted during clean phase. May contain %s, which will be replaced
   ;; with the project's current version number.
