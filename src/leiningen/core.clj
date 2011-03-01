@@ -225,6 +225,7 @@
   "Check if v1 is greater than or equal to v2, where args are version strings.
 Takes major, minor and incremental versions into account."
   [v1 v2]
+  ;; TODO: maven should expose an API for this
   (let [v1 (map #(Integer. %) (re-seq #"\d" (first (split v1 #"-" 2))))
         v2 (map #(Integer. %) (re-seq #"\d" (first (split v2 #"-" 2))))]
     (or (and (every? true? (map >= v1 v2))
@@ -245,7 +246,7 @@ Takes major, minor and incremental versions into account."
                       "- Or by executing \"lein upgrade\"\n\n")))))
 
 (defn -main
-  ([& [task-name & args]]
+  ([task-name & args]
      (user-init)
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
@@ -256,9 +257,7 @@ Takes major, minor and incremental versions into account."
        (binding [*compile-path* compile-path]
          (when project
            (load-hooks project))
-         (let [value (apply-task task-name project args task-not-found)]
-           (when (integer? value)
-             (exit value))))))
+         (apply-task task-name project args task-not-found))))
   ([]
      (doseq [[task & args] (make-groups *command-line-args*)
              :let [result (apply -main (or task "help") args)]]
