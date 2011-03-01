@@ -8,138 +8,144 @@ Leiningen TODOs
 See also https://github.com/technomancy/leiningen/issues
 
 * Open Questions
-** Aether: how would it integrate? Improvement over maven-ant-tasks?
-** Tests in Nailgun: would it require a separate shell script?
-** How could nonlinear versions be represented?
+  - Aether: how would it integrate? Improvement over maven-ant-tasks?
+  - Tests in Nailgun: would it require a separate shell script?
+  - How could nonlinear versions be represented?
 * For 2.0
-** TODO make it easier to hook inside eval-in-project
-** TODO Quit using ant's Java task. It is horrible.
-   Try a custom classloader approach?
-** TODO Use Aether instead of maven-ant-tasks?
-   http://www.sonatype.com/people/2010/08/introducing-aether/
-** TODO Rename test-resources to dev-resources
-   Breaking change; needs to wait for a major version bump.
-** TODO add option to use ~/.m2-based classpath instead of copying to lib/?
-   It looks like it would be easy to stop copying things into lib/ and
-   just use Maven's notion of the project's dependencies to construct a
-   classpath that references jars straight from ~/.m2.
-** TODO spin lancet off into its own dependency
-   I've never felt comfortable about simply keeping it inline. On the
-   other hand if we quit using ant then we can skip this.
-   Needs to not be in the default package!
-** TODO shell wrappers should support multiple versions
-   We could write out a different "foo-$VERSION" shell wrapper for each
-   version of a project that gets installed and then have the plain
-   "foo" script look for a $VERSION env var if it's set, and if not
-   just fall back to the latest.
-** TODO classifiers for specifying what clojure version to use?
-   As more versions of Clojure start to exist, libraries may want to
-   publish different branches that target different versions of
-   Clojure itself. Classifiers may be the way to separate these out?
-** TODO a list of dirs to include in the jar when building
-   Some people have requested this.
-** TODO re-compile all deps with current clojure version
-   Another thing that's going to start becoming more important as more
-   Clojure versions are introduced.
-** TODO improve test coverage
-** TODO merge push task based on clj-ssh
-   lein-clojars task doesn't support DSA keys
-** TODO integrate plugin task with lein-search
-   Would be better to be able to leave off version numbers
-** TODO add search functionality based on standard mvn lucene indexes
-   lein-search is cool, but it would be better to interoperate with
-   the standard lucene index system that Maven repositories offer.
-   This would also mean getting Clojars to produce those indices.
+  - make it easier to hook inside eval-in-project
+  - Quit using ant's Java task. It is horrible.
+    Try a custom classloader approach?
+  - Use Aether instead of maven-ant-tasks?
+    http://www.sonatype.com/people/2010/08/introducing-aether/
+  - Rename test-resources to dev-resources
+    Breaking change; needs to wait for a major version bump.
+  - add option to use ~/.m2-based classpath instead of copying to lib/?
+    It looks like it would be easy to stop copying things into lib/ and
+    just use Maven's notion of the project's dependencies to construct a
+    classpath that references jars straight from ~/.m2.
+  - spin lancet off into its own dependency
+    I've never felt comfortable about simply keeping it inline. On the
+    other hand if we quit using ant then we can skip this.
+    Needs to not be in the default package!
+  - shell wrappers should support multiple versions
+    We could write out a different "foo-$VERSION" shell wrapper for each
+    version of a project that gets installed and then have the plain
+    "foo" script look for a $VERSION env var if it's set, and if not
+    just fall back to the latest.
+  - classifiers for specifying what clojure version to use?
+    As more versions of Clojure start to exist, libraries may want to
+    publish different branches that target different versions of
+    Clojure itself. Classifiers may be the way to separate these out?
+  - a list of dirs to include in the jar when building
+    Some people have requested this.
+  - re-compile all deps with current clojure version
+    Another thing that's going to start becoming more important as more
+    Clojure versions are introduced.
+  - improve test coverage
+  - new push task based on clj-ssh
+    lein-clojars task doesn't support DSA keys
+  - add search functionality based on standard mvn lucene indexes
+    lein-search is cool, but it would be better to interoperate with
+    the standard lucene index system that Maven repositories offer.
+    This would also mean getting Clojars to produce those indices.
 * For 1.5
-** DONE unify auth options between :repositories and :deploy-to
-** DONE suppress socket closed stacktrace in interactive task
-** TODO explain how to do manual self-install if it fails
+** DONE
+  - unify auth options between :repositories and :deploy-to
+  - suppress socket closed stacktrace in interactive task
+  - checksum deps set; don't re-download if unchanged
+  - allow whitelist for post-compile class file deletion
+** TODO
+  - fix warn-on-reflection for repl task (#176)
+  - explain how to do manual self-install if it fails
+  - failure to upgrade leaves lein as a zero-length file (#153)
+  - investigate System/console breakage (#165)
+  - ensure project jar is last in uberjar (#178)
+  - investigate uberjar slowdown? (#160)
 * For 1.4
-** DONE socket timing issues with interactive tests
-** DONE connect to socket repl in interactive task
-** DONE :uberjar-exclusions?
-** DONE :all test-selector built-in
-** DONE test selectors need to support things like constantly, complement
-** DONE detect missing level of nesting in project.clj's deps/dev-deps
-** DONE clear out non-transitive .class files after AOT
-   Luc Prefontaine has code for this.
-** DONE plugin task for managing/upgrading plugins
-   Manually copying jar files into ~/.lein/plugins is pretty
-   lame. Let's get a task to handle this. It could be implemented as a
-   plugin at first, maybe.
-** DONE merge lein-run task?
-   Ditto; this is something useful that many projects need.
-** DONE expose original pwd as property
-** DONE merge lein-javac task
-   Also make the compile task run it where appropriate.
-** DONE test selectors using metadata; run a subset of tests
-   We could have a :test-selectors key in project.clj that would map
-   keywords to predicate functions. Then the test task could take a
-   keyword argument and only run the subset of the tests for which
-   calling the predicate on its metadata returns true.
+  - socket timing issues with interactive tests
+  - connect to socket repl in interactive task
+  - :uberjar-exclusions?
+  - :all test-selector built-in
+  - test selectors need to support things like constantly, complement
+  - detect missing level of nesting in project.clj's deps/dev-deps
+  - clear out non-transitive .class files after AOT
+    Luc Prefontaine has code for this.
+  - plugin task for managing/upgrading plugins
+    Manually copying jar files into ~/.lein/plugins is pretty
+    lame. Let's get a task to handle this. It could be implemented as a
+    plugin at first, maybe.
+  - merge lein-run task?
+    Ditto; this is something useful that many projects need.
+  - expose original pwd as property
+  - merge lein-javac task
+    Also make the compile task run it where appropriate.
+  - test selectors using metadata; run a subset of tests
+    We could have a :test-selectors key in project.clj that would map
+    keywords to predicate functions. Then the test task could take a
+    keyword argument and only run the subset of the tests for which
+    calling the predicate on its metadata returns true.
 * For 1.3.0
-** DONE specify min. lein version in project.clj
-** DONE :omit-source
-** DONE lein install $PROJECT (works outside project root)
-   Possibly take some of this from cljr?
-** DONE write shell wrappers on install
-** DONE include shell wrapper in jar file from template
-** DONE set arbitrary jar metadata
-** DONE errors in read-project should show filename
-** DONE user-level plugin installation and activation
-** DONE user-level config file (with hook list)
-** DONE get no-project-needed from arglist
-** DONE argument chaining
-** DONE interactive task
-** DONE resources in generated pom
+  - specify min. lein version in project.clj
+  - :omit-source
+  - lein install $PROJECT (works outside project root)
+  - write shell wrappers on install
+  - include shell wrapper in jar file from template
+  - set arbitrary jar metadata
+  - errors in read-project should show filename
+  - user-level plugin installation and activation
+  - user-level config file (with hook list)
+  - get no-project-needed from arglist
+  - argument chaining
+  - interactive task
+  - resources in generated pom
 * For 1.2.0
-** DONE Fix self-build clean problem
-** DONE Don't catch reader exceptions unless they are from ^D
-** DONE document checkout dependencies
-** DONE Re-enable rlwrap
-** DONE Move the intro into a tutorial
-** DONE bin script has stabilized; self-install for dev versions should work
-** DONE accept list of namespaces to compile from command-line options
-** DONE document version ranges
-** DONE include lib/dev in find-lib-jars
-** DONE document plugin creation
-** DONE document all known project.clj keys
-** DONE disable frickin [null] logging from ant (come on srsly)
-** DONE recover from missing test exit map gracefully
-** DONE Help task should display arglist
-** DONE walk up the filesystem to find project.clj
-** DONE make inter-task dependencies honor hooks
-** DONE wire repl task up to socket repl
-** DONE allow *warn-on-reflection* to be turned on in project.clj
-** DONE Expose hooks in built-in tasks so plugins may extend them
-** DONE make org.clojure implied for clojure/contrib deps
-** DONE better way to force setFork in eval-in-project
-** DONE rename :namespaces key in project.clj
-** DONE include version in jar filenames
-** DONE classpath task to just print configured classpath
-** DONE move repl task from shell script to clojure code
+  - Fix self-build clean problem
+  - Don't catch reader exceptions unless they are from ^D
+  - document checkout dependencies
+  - Re-enable rlwrap
+  - Move the intro into a tutorial
+  - bin script has stabilized; self-install for dev versions should work
+  - accept list of namespaces to compile from command-line options
+  - document version ranges
+  - include lib/dev in find-lib-jars
+  - document plugin creation
+  - document all known project.clj keys
+  - disable frickin [null] logging from ant (come on srsly)
+  - recover from missing test exit map gracefully
+  - Help task should display arglist
+  - walk up the filesystem to find project.clj
+  - make inter-task dependencies honor hooks
+  - wire repl task up to socket repl
+  - allow \*warn-on-reflection\* to be turned on in project.clj
+  - Expose hooks in built-in tasks so plugins may extend them
+  - make org.clojure implied for clojure/contrib deps
+  - better way to force setFork in eval-in-project
+  - rename :namespaces key in project.clj
+  - include version in jar filenames
+  - classpath task to just print configured classpath
+  - move repl task from shell script to clojure code
 * For 1.1.0
-** DONE upgrade task (patch submitted)
-** DONE doc generation (autodoc plugin)
+  - upgrade task (patch submitted)
+  - doc generation (autodoc plugin)
 * For 1.0
-** DONE Remove install task dependency on having Maven installed       :Phil:
-** DONE Use -Xbootclasspath where possible                              :Dan:
-** DONE Don't write manifest, pom, etc. to disk when jarring           :Dan:
-** DONE Don't put uberjar in ~/.m2                                     :Phil:
-** DONE Perform compilation in either a subprocess or with a separate classloader
-** DONE Allow test task to take namespaces as an argument
-** DONE Fix eval-in-project to let plugins pass in extra args
-** DONE Resources directory added to classpath (for properties, etc)
+  - Remove install task dependency on having Maven installed       :Phil:
+  - Use -Xbootclasspath where possible                              :Dan:
+  - Don't write manifest, pom, etc. to disk when jarring           :Dan:
+  - Don't put uberjar in ~/.m2                                     :Phil:
+  - Perform compilation in either a subprocess or with a separate classloader
+  - Allow test task to take namespaces as an argument
+  - Fix eval-in-project to let plugins pass in extra args
+  - Resources directory added to classpath (for properties, etc)
 * Plugin ideas
-** metrics
-*** LOC
-*** complexity
-*** time logs
+  - metrics
+   - LOC
+   - complexity
+   - time logs
 * Git-aware dependencies (experimental back-burner idea)
   Talking with Rich after Emerging Langs day 1
   Problem: you can pull in two versions of the same library
   transitively without realizing it if people fork on clojars. How do
   we detect this problem and de-dupe?
-** What if artifacts could be correlated with the git rev that produced them?
-** They have repository and sha1 metadata in their pom (but no history tree)
-** Cross-correlate with a separate revision metadata store?
+  - What if artifacts could be correlated with the git rev that produced them?
+  - They have repository and sha1 metadata in their pom (but no history tree)
+  - Cross-correlate with a separate revision metadata store?
