@@ -50,6 +50,7 @@
          (require '~'clojure.java.browse)
          ;; these are new in clojure 1.2, so swallow exceptions for 1.1
          (catch Exception _#))
+       (set! *warn-on-reflection* false)
        (let [server# (ServerSocket. ~port 0 (InetAddress/getByName ~host))
              acc# (fn [s#]
                     (let [ins# (.getInputStream s#)
@@ -60,7 +61,9 @@
                              #(binding [*in* (-> ins# InputStreamReader.
                                                  LineNumberingPushbackReader.)
                                         *out* (OutputStreamWriter. outs#)
-                                        *err* *err*]
+                                        *err* *err*
+                                        *warn-on-reflection*
+                                        ~(:warn-on-reflection project)]
                                 (clojure.main/repl
                                  ~@(repl-options project options))))
                         .start)))]
