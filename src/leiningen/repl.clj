@@ -41,8 +41,8 @@
                     (let [input# (read)]
                       (clojure.main/skip-if-eol *in*)
                       input#)))]
-    (concat [:init init :caught caught :read read]
-            (flatten (seq (dissoc options :caught :init :read))))))
+    (apply concat [:init init :caught caught :read read]
+           (dissoc options :caught :init :read))))
 
 (defn repl-server [project host port & options]
   `(do (try ;; transitive requires don't work for stuff on bootclasspath
