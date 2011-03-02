@@ -53,14 +53,14 @@
 (defn get-classpath
   "Answer a list of classpath entries for PROJECT."
   [project]
-  (concat (user-plugins)
-          [(:test-path project)
-           (:source-path project)
+  (concat [(:source-path project)
+           (:test-path project)
            (:compile-path project)
            (:dev-resources-path project)
            (:resources-path project)]
           (checkout-deps-paths project)
-          (find-lib-jars project)))
+          (find-lib-jars project)
+          (user-plugins)))
 
 (defn get-classpath-string [project]
   (join java.io.File/pathSeparatorChar (get-classpath project)))
