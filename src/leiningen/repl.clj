@@ -89,6 +89,7 @@
   (.start (Thread. #(copy-out-loop reader)))
   (loop [reader reader, writer writer]
     (let [input (read-line)]
+      ;; TODO: ^D is not being honored
       (when (and input (not= "" input))
         (.write writer (str input "\n"))
         (.flush writer)

@@ -169,7 +169,8 @@
       (when (:debug project)
         (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
-      (try (eval form)
+      (try (binding [*warn-on-reflection* (:warn-on-reflection project)]
+             (eval form))
            0
            (catch Exception e
              (.printStackTrace e)
