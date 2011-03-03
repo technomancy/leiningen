@@ -77,7 +77,7 @@ the dependency jars. Suitable for standalone distribution."
                              (ZipOutputStream.))]
            (let [deps (->> (.listFiles (file (:library-path project)))
                            (filter #(.endsWith (.getName %) ".jar")))
-                 jars (conj (vec deps) (file (get-jar-filename project)))]]
+                 jars (conj (vec deps) (file (get-jar-filename project)))]
              (write-components project jars out)))
          (println "Created" standalone-filename))
        (abort "Uberjar aborting because jar/compilation failed.")))
