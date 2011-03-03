@@ -49,11 +49,11 @@
 
 (defn write-components
   "Given a list of jarfiles, writes contents to a stream"
-  [project deps out]
+  [project jars out]
   (let [[_ components] (reduce (partial include-dep out
                                         (make-skip-pred project))
                                [#{"META-INF/plexus/components.xml"} nil]
-                               deps)]
+                               jars)]
     (when-not (empty? components)
       (.putNextEntry out (ZipEntry. "META-INF/plexus/components.xml"))
       (binding [*out* (PrintWriter. out)]
@@ -69,17 +69,16 @@
   "Create a jar like the jar task, but including the contents of each of
 the dependency jars. Suitable for standalone distribution."
   ([project uberjar-name]
-     (doto project
-       clean deps)
+     (doto project clean deps)
      (if (jar project)
        (let [standalone-filename (get-jar-filename project uberjar-name)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
            (let [deps (->> (.listFiles (file (:library-path project)))
-                           (filter #(.endsWith (.getName %) ".jar"))
-                           (cons (file (get-jar-filename project))))]
-             (write-components project deps out)))
+                           (filter #(.endsWith (.getName %) ".jar")))
+                 jars (conj (vec deps) (file (get-jar-filename project)))]]
+             (write-components project jars out)))
          (println "Created" standalone-filename))
        (abort "Uberjar aborting because jar/compilation failed.")))
   ([project] (uberjar project (get-default-uberjar-name project))))
