@@ -89,7 +89,6 @@
   (.start (Thread. #(copy-out-loop reader)))
   (loop [reader reader, writer writer]
     (let [input (read-line)]
-      ;; TODO: ^D is not being honored
       (when (and input (not= "" input))
         (.write writer (str input "\n"))
         (.flush writer)
@@ -137,4 +136,4 @@ Running outside a project directory will start a standalone repl session."
                  (clojure.main/with-bindings (println (eval server-form)))
                  (eval-in-project project server-form)))
        (poll-repl-connection port retries repl-client)
-       0)))
+       (exit))))

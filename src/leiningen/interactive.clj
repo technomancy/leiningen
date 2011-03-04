@@ -50,6 +50,9 @@
       (let [[task-name & args] (string/split input #"\s")]
         ;; TODO: don't start a second repl server for repl task
         (try (apply-task task-name project args not-found)
+             ;; TODO: not sure why, but repl seems to put an extra EOF on *in*
+             (when (= "repl" task-name)
+               (.read *in*))
              (catch Exception e
                (println (.getMessage e))))
         (print-prompt)
@@ -67,6 +70,6 @@
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 *exit-after-tests* false
-                exit (fn [_] (println "\n"))]
+                exit (fn exit [& _] (prn))]
         (task-repl project)))
     (exit)))
