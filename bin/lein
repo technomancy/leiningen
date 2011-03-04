@@ -102,7 +102,9 @@ if [ "$1" = "self-install" ]; then
     if [ $? != 0 ]; then
         echo "Failed to download $LEIN_URL"
         if [ $SNAPSHOT = "YES" ]; then
-            echo "See README.md for SNAPSHOT build instructions."
+            echo "If you have Maven installed, you can do"
+            echo "mvn dependency:copy-dependencies; mv target/dependency lib"
+            echo "See README.md for further SNAPSHOT build instructions."
         fi
         rm $LEIN_JAR 2> /dev/null
         exit 1
@@ -124,8 +126,10 @@ elif [ "$1" = "upgrade" ]; then
             y|Y|"")
                 echo
                 echo "Upgrading..."
+                TARGET="/tmp/lein-$$-upgrade"
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/stable/bin/lein"
-                $HTTP_CLIENT "$SCRIPT" "$LEIN_SCRIPT_URL" \
+                $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL" \
+                    && mv "$TARGET" "$SCRIPT" \
                     && chmod +x "$SCRIPT" \
                     && echo && $SCRIPT self-install && echo && echo "Now running" `$SCRIPT version`
                 exit $?;;
