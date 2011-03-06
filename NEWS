@@ -2,6 +2,17 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.5.0 / ???
 
+* Honor :class-file-whitelist to make classes/ deletion more manageable.
+
+* Accept :repl-init namespace in project.clj.
+
+* Warn when falling back to jline if rlwrap is not found.
+
+* Add prepend-task macro for simple hook usage.
+
+* Add flexibility to clean task with :extra-files-to-clean 
+  and :regex-to-clean.
+
 * Fix bug in interactive task that would cause infinite loop.
 
 * Add version into shell wrapper template.
