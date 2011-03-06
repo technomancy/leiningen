@@ -1,4 +1,4 @@
-(ns test-compile
+(ns leiningen.test.compile
   (:refer-clojure :exclude [compile])
   (:use [leiningen.compile] :reload)
   (:use [clojure.test]

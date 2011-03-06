@@ -1,4 +1,4 @@
-(ns test-uberjar
+(ns leiningen.test.uberjar
   (:use [leiningen.uberjar] :reload)
   (:use [clojure.test]
         [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]

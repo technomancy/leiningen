@@ -1,4 +1,4 @@
-(ns test-plugin
+(ns leiningen.test.plugin
   (:use [leiningen.plugin]
         [leiningen.util.file :only (unique-lein-tmp-dir
                                     delete-file-recursively)]

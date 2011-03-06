@@ -1,4 +1,4 @@
-(ns test-run
+(ns leiningen.test.run
   (:use [clojure.test]
         [clojure.java.io :only [delete-file]]
         [leiningen.core :only [read-project]]

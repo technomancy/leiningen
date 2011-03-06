@@ -1,4 +1,4 @@
-(ns test-jar
+(ns leiningen.test.jar
   (:use [clojure.test]
         [leiningen.core :only [defproject read-project]]
         [leiningen.jar]

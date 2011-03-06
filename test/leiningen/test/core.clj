@@ -1,4 +1,4 @@
-(ns test-core
+(ns leiningen.test.core
   (:use [leiningen.core] :reload-all)
   (:use [clojure.test]))
 

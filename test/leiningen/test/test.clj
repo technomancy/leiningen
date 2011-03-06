@@ -1,4 +1,4 @@
-(ns test-test
+(ns leiningen.test.test
   (:refer-clojure :exclude [test])
   (:use [leiningen.test]
         [leiningen.util.file :only [tmp-dir]]

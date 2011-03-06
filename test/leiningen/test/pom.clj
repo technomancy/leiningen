@@ -1,4 +1,4 @@
-(ns test-pom
+(ns leiningen.test.pom
   (:use [leiningen.core :only [read-project defproject]]
         [leiningen.util.maven :only [make-model]]
         [leiningen.pom :only [pom]])

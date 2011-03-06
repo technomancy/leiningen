@@ -1,4 +1,4 @@
-(ns test-deploy
+(ns leiningen.test.deploy
   (:use [leiningen.deploy] :reload)
   (:use [clojure.test]
         [clojure.java.io :only [file]]

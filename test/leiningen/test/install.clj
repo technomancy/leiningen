@@ -1,4 +1,4 @@
-(ns test-install
+(ns leiningen.test.install
   (:use [leiningen.core :only [read-project defproject home-dir]]
         [leiningen.compile :only [get-os]]
         [leiningen.install] :reload)

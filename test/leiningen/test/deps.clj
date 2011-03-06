@@ -1,4 +1,4 @@
-(ns test-deps
+(ns leiningen.test.deps
   (:use [leiningen.core :only [read-project defproject]]
         [leiningen.deps :only [deps]] :reload-all)
   (:use [clojure.test]

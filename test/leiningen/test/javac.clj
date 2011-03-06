@@ -1,4 +1,4 @@
-(ns test-javac
+(ns leiningen.test.javac
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.javac :only [javac]]
