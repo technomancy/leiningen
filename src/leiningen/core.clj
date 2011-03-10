@@ -16,7 +16,7 @@
         identity
         args))
 
-(defn- normalize-path [project-root path]
+(defn normalize-path [project-root path]
   (when path
     (let [f (File. path)]
       (.getAbsolutePath (if (.isAbsolute f) f (File. project-root path))))))
@@ -65,8 +65,6 @@
                                :jar-dir (normalize-path#
                                          (or (:target-dir m#) (:jar-dir m#)
                                              root#))
-                               :java-source-path (normalize-path#
-                                                  (:java-source-path m#))
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "

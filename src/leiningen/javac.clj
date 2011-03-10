@@ -1,6 +1,7 @@
 (ns leiningen.javac
   "Compile Java source files."
-  (:use [leiningen.classpath :only [get-classpath-string]])
+  (:use [leiningen.classpath :only [get-classpath-string]]
+        [leiningen.core :only [normalize-path]])
   (:require [lancet.core :as lancet])
   (:import (java.io File)))
 
@@ -16,7 +17,7 @@
   (merge *default-javac-options*
          (:javac-options project)
          {:destdir (:compile-path project)
-          :srcdir path
+          :srcdir (normalize-path (:root project) path)
           :classpath (get-classpath-string project)}
          (apply hash-map options)))
 
@@ -24,8 +25,8 @@
   "Extract all compile tasks of the project."
   [project]
   (let [specs (:java-source-path project)]
-    (map #(extract-javac-task project %)
-         (if (string? specs) [[specs]] specs))))
+    (for [spec (if (string? specs) [[specs]] specs)]
+      (extract-javac-task project spec))))
 
 (defn- run-javac-task
   "Compile the given task spec."
