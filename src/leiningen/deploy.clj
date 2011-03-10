@@ -1,6 +1,6 @@
 (ns leiningen.deploy
   "Build and deploy jar to remote repository."
-  (:require [lancet])
+  (:require [lancet.core :as lancet])
   (:use [leiningen.core :only [abort repositories-for]]
         [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom snapshot?]]

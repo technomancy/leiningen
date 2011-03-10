@@ -2,7 +2,7 @@
   "Package up all the project's files into a jar file."
   (:require [leiningen.compile :as compile]
             [clojure.string :as string]
-            [lancet])
+            [lancet.core :as lancet])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
         [clojure.java.io :only [copy file]])

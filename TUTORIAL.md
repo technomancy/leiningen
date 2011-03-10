@@ -385,7 +385,7 @@ repository or get it into Maven central, the easiest way is to publish
 it at [Clojars](http://clojars.org). Once you have created an account
 there, publishing is easy:
 
-    $ lein jar && lein pom
+    $ lein jar, pom
     $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
 
 Once that succeeds it will be available as a package on which other

@@ -1,7 +1,7 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:use [leiningen.classpath :only [get-classpath-string]])
-  (:require [lancet])
+  (:require [lancet.core :as lancet])
   (:import (java.io File)))
 
 (def ^{:doc "Default options for the java compiler."} *default-javac-options*

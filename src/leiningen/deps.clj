@@ -1,6 +1,6 @@
 (ns leiningen.deps
   "Download all dependencies and place them in the :library-path."
-  (:require [lancet])
+  (:require [lancet.core :as lancet])
   (:use [leiningen.core :only [repositories-for]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]])

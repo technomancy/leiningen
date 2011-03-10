@@ -1,12 +1,12 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:require lancet)
-  (:use  [leiningen.deps :only [deps]]
-         [leiningen.core :only [ns->path]]
-         [leiningen.javac :only [javac]]
-         [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
-         [clojure.java.io :only [file]]
-         [leiningen.util.ns :only [namespaces-in-dir]])
+  (:require [lancet.core :as lancet])
+  (:use [leiningen.deps :only [deps]]
+        [leiningen.core :only [ns->path]]
+        [leiningen.javac :only [javac]]
+        [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
+        [clojure.java.io :only [file]]
+        [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
   (:import (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
