@@ -9,7 +9,7 @@
   (.mkdirs (file project-dir))
   (spit (file project-dir "project.clj")
         (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
-             "  :description \"FIXME: write\"\n"
+             "  :description \"FIXME: write description\"\n"
              "  :dependencies [[org.clojure/clojure \"1.2.0\"]])\n")))
 
 (defn write-implementation [project-dir project-clj project-ns]
