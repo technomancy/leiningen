@@ -40,6 +40,10 @@
   ;; development. Projects that depend on this project will not pull
   ;; in its dev-dependencies, and they won't be included in the uberjar.
   :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]]
+  ;; Global exclusions are applied across the board, as an alternative
+  ;; to duplication for multiple depedencies with the same excluded libraries.
+  :exclusions [org.apache.poi/poi
+               org.apache.poi/poi-ooxml]
   ;; Only re-fetch dependencies when they change in project.clj or
   ;; when :library-path directory is empty.
   :checksum-deps true

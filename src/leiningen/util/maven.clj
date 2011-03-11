@@ -145,26 +145,29 @@ the :classifier key (if present) is the classifier on the
 dependency (as a string). The value for the :exclusions key, if
 present, is a seq of symbols, identifying group ids and artifact ids
 to exclude from transitive dependencies."
-  [dependency]
-  (when-not (vector? dependency)
-    (abort "Dependencies must be specified as vector:" dependency))
-  (let [[dep version & extras] dependency
-        extras-map (apply hash-map extras)
-        exclusions (:exclusions extras-map)
-        classifier (:classifier extras-map)
-        type (:type extras-map)
-        es (map make-exclusion exclusions)]
-    (doto (Dependency.)
-      ;; Allow org.clojure group to be omitted from clojure/contrib deps.
-      (.setGroupId (if (and (nil? (namespace dep))
-                            (re-find #"^clojure(-contrib)?$" (name dep)))
-                     "org.clojure"
-                     (or (namespace dep) (name dep))))
-      (.setArtifactId (name dep))
-      (.setVersion version)
-      (.setClassifier classifier)
-      (.setType (or type "jar"))
-      (.setExclusions es))))
+  ([dependency]
+     (make-dependency {} dependency))
+  ([project dependency]
+     (when-not (vector? dependency)
+       (abort "Dependencies must be specified as vector:" dependency))
+     (let [[dep version & extras] dependency
+           extras-map (apply hash-map extras)
+           exclusions (:exclusions extras-map)
+           classifier (:classifier extras-map)
+           type (:type extras-map)
+           es (map make-exclusion (concat exclusions
+                                          (:exclusions project)))]
+       (doto (Dependency.)
+         ;; Allow org.clojure group to be omitted from clojure/contrib deps.
+         (.setGroupId (if (and (nil? (namespace dep))
+                               (re-find #"^clojure(-contrib)?$" (name dep)))
+                        "org.clojure"
+                        (or (namespace dep) (name dep))))
+         (.setArtifactId (name dep))
+         (.setVersion version)
+         (.setClassifier classifier)
+         (.setType (or type "jar"))
+         (.setExclusions es)))))
 
 (defn make-repository [[id settings]]
   (let [repo (Repository.)]
