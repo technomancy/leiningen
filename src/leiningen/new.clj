@@ -21,7 +21,7 @@
   (.mkdirs (.getParentFile (file project-dir "test" (ns->path test-ns))))
   (spit (file project-dir "test" (ns->path test-ns))
         (str "(ns " (str test-ns)
-             "\n  (:use [" project-ns "] :reload)"
+             "\n  (:use [" project-ns "])"
              "\n  (:use [clojure.test]))\n\n"
              "(deftest replace-me ;; FIXME: write\n  (is false "
              "\"No tests have been written.\"))\n")))
