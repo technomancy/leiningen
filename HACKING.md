@@ -14,10 +14,8 @@ specifically the <tt>eval-in-project</tt> function. Any code that must
 execute within the context of the project (AOT compilation, test runs)
 needs to go through this function.
 
-The exception to this rule is the case of Leiningen plugins; they run
-in the same process and classloader as Leiningen. Setting the
-<tt>:eval-in-leiningen</tt> key to true in project.clj will make this
-happen in test runs and repl sessions.
+The exception to this rule is when <tt>:eval-in-leiningen</tt> in
+project.clj is true, as is commonly used for Leiningen plugins.
 
 TODO: what goes where? a tour through the launching of a task
 
@@ -50,7 +48,7 @@ TODO: integrate with plugin guide
 # Release Checklist
 
 * update NEWS, bin/lein, bin/lein.bat, project.clj, pom
-* rm -rf lib, generate uberjar, upload
+* rm -rf lib classes, compile :all, generate uberjar, upload
 * test self-install
 * git tag
 * push, push tags, update stable branch
