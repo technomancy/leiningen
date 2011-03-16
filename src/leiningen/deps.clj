@@ -7,9 +7,35 @@
   (:import (java.io File)
            (java.security MessageDigest)
            (org.apache.maven.artifact.ant Authentication DependenciesTask
-                                          RemoteRepository)
+                                          RemoteRepository RepositoryPolicy)
            (org.apache.maven.settings Server)
+           (org.apache.maven.artifact.repository ArtifactRepositoryPolicy)
            (org.apache.tools.ant.util FlatFileNameMapper)))
+
+(def update-policies {:daily ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
+                      :always ArtifactRepositoryPolicy/UPDATE_POLICY_ALWAYS
+                      :never ArtifactRepositoryPolicy/UPDATE_POLICY_NEVER})
+
+(def checksum-policies {:fail ArtifactRepositoryPolicy/CHECKSUM_POLICY_FAIL
+                        :ignore ArtifactRepositoryPolicy/CHECKSUM_POLICY_IGNORE
+                        :warn ArtifactRepositoryPolicy/CHECKSUM_POLICY_WARN})
+
+(defn- make-policy [policy-settings enabled?]
+  (doto (RepositoryPolicy.)
+    (.setUpdatePolicy (update-policies (:update policy-settings :daily)))
+    (.setChecksumPolicy (checksum-policies (:checksum policy-settings :fail)))
+    (.setEnabled (boolean enabled?))))
+
+(defn- set-policies [repo {:keys [snapshots releases] :as settings}]
+  (.addSnapshots repo (make-policy snapshots (:snapshots settings true)))
+  (.addReleases repo (make-policy releases (:releases settings true))))
+
+(defn- init-settings [id settings]
+  (cond (string? settings) {:url settings}
+        ;; infer snapshots/release policy from repository id
+        (= "releases" id) (merge {:snapshots false} settings)
+        (= "snapshots" id) (merge {:releases false} settings)
+        :else settings))
 
 (defn make-auth [settings]
   (let [user-options (when-let [user-opts (resolve 'user/leiningen-auth)]
@@ -26,9 +52,8 @@
 
 (defn make-repository [[id settings]]
   (let [repo (RemoteRepository.)
-        settings (if (string? settings)
-                   {:url settings}
-                   settings)]
+        settings (init-settings id settings)]
+    (set-policies repo settings)
     (.setId repo id)
     (.setUrl repo (:url settings))
     (when-let [auth (make-auth settings)]

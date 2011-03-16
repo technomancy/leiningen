@@ -40,10 +40,12 @@
         (.createDeploymentArtifactRepository
          "local" url layout true))))
 
+;; TODO: support settings from leiningen.deps/make-repository
 (defn make-remote-repo [[name url]]
   (-> (.lookup container ArtifactRepositoryFactory/ROLE)
       (.createArtifactRepository
-       name url layout policy policy)))
+       name (:url url url) ; heh
+       layout policy policy)))
 
 (defn add-metadata [artifact pomfile]
   (.addMetadata artifact (ProjectArtifactMetadata. artifact pomfile)))

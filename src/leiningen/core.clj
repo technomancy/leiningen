@@ -93,9 +93,12 @@
                             (File. (System/getProperty "user.home") ".lein"))
                       .mkdirs)))
 
-(def default-repos {"central" "http://repo1.maven.org/maven2"
-                    "clojure" "http://build.clojure.org/releases"
-                    "clojure-snapshots" "http://build.clojure.org/snapshots"
+(def default-repos {"central" {:url "http://repo1.maven.org/maven2"
+                               :snapshots false}
+                    "clojure" {:url "http://build.clojure.org/releases"
+                               :snapshots false}
+                    "clojure-snapshots" {:url "http://build.clojure.org/snapshots"
+                                         :releases false}
                     "clojars" "http://clojars.org/repo/"})
 
 (defn repositories-for [project]

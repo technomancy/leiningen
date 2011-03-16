@@ -38,7 +38,9 @@
   (is (not (empty? (.listFiles jdom-dir))))
   (is (.exists unix-shell-wrapper)))
 
-(defonce test-project-tricky-name (read-project "test_projects/tricky-name/project.clj"))
+(defonce test-project-tricky-name
+  (read-project "test_projects/tricky-name/project.clj"))
+
 (def tricky-m2-dir (file local-repo "org" "domain" "tricky-name" "1.0"))
 (def tricky-unix-shell-wrapper (file (home-dir) "bin" "tricky-name"))
 (def tricky-windows-shell-wrapper (file (home-dir) "bin" "tricky-name.bat"))
