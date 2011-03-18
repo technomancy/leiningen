@@ -1,11 +1,12 @@
 (ns leiningen.test.plugin
   (:use [leiningen.plugin]
-        [leiningen.util.file :only (unique-lein-tmp-dir
-                                    delete-file-recursively)]
-        [leiningen.compile :only (platform-nullsink)]
-        [leiningen.core :only (read-project defproject)]
-        [clojure.java.io :only (file)])
-  (:use [clojure.test]))
+        [leiningen.util.file :only [unique-lein-tmp-dir
+                                    delete-file-recursively]]
+        [leiningen.compile :only [platform-nullsink]]
+        [leiningen.core :only [read-project defproject]]
+        [leiningen.test.helper :only [sample-project]]
+        [clojure.test]
+        [clojure.java.io :only [file]]))
 
 (deftest test-plugin-standalone-filename
   (is (= (plugin-standalone-filename "tehgroup" "tehname" "0.0.1")
@@ -33,11 +34,9 @@ uninstall   Delete the plugin jarfile
             Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION\n"
          (with-out-str (plugin "help")))))
 
-(defonce test-project (read-project "test_projects/sample/project.clj"))
-
 (deftest test-install
   (with-out-str
-    (leiningen.install/install test-project)
+    (leiningen.install/install sample-project)
     (binding [plugins-path (unique-lein-tmp-dir)
               leiningen.install/install (constantly nil)]
       (install "nomnomnom" "0.5.0-SNAPSHOT")

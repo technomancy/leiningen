@@ -1,15 +1,14 @@
 (ns leiningen.test.deploy
-  (:use [leiningen.deploy] :reload)
   (:use [clojure.test]
         [clojure.java.io :only [file]]
+        [leiningen.deploy]
         [leiningen.core :only [read-project defproject]]
-        [leiningen.util.file :only [delete-file-recursively tmp-dir]]))
-
-(def test-project (read-project "test_projects/sample/project.clj"))
+        [leiningen.util.file :only [delete-file-recursively tmp-dir]]
+        [leiningen.test.helper :only [sample-project]]))
 
 (deftest test-deploy
   (delete-file-recursively (format "%s/lein-repo" tmp-dir) :silently)
-  (deploy test-project "snapshots")
+  (deploy sample-project "snapshots")
   (let [dir (file tmp-dir "lein-repo/nomnomnom/nomnomnom/0.5.0-SNAPSHOT/")
         files (.list dir)
         year (+ 1900 (.getYear (java.util.Date.)))]

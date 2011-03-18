@@ -2,7 +2,9 @@
   (:use [clojure.test]
         [leiningen.core :only [defproject read-project]]
         [leiningen.jar]
-        [leiningen.compile :only [platform-nullsink]])
+        [leiningen.compile :only [platform-nullsink]]
+        [leiningen.test.helper :only [tricky-name-project sample-failing-project
+                                      sample-no-aot-project sample-project]])
   (:import [java.util.jar JarFile]))
 
 (def mock-project @(defproject mock-project "1.0"
@@ -15,9 +17,6 @@
              make-manifest
              manifest-map
              (select-keys ["hello" "Main-Class"])))))
-
-(def sample-project (binding [*ns* (the-ns 'leiningen.core)]
-                      (read-project "test_projects/sample/project.clj")))
 
 (deftest test-jar
   (let [jar-file (JarFile. (jar sample-project))
@@ -44,28 +43,16 @@
     (is (nil? (.getEntry jar-file "bin/nom.bat")))
     (is (nil? (manifest "Leiningen-shell-wrapper")))))
 
-(def sample-failing-project
-  (binding [*ns* (the-ns 'leiningen.core)]
-    (read-project "test_projects/sample_failing/project.clj")))
-
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
     (is (not (jar sample-failing-project)))))
-
-(def sample-no-aot-project
-  (binding [*ns* (the-ns 'leiningen.core)]
-    (read-project "test_projects/sample_no_aot/project.clj")))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
     (is (jar sample-no-aot-project))))
 
-(def tricky-name
-  (binding [*ns* (the-ns 'leiningen.core)]
-    (read-project "test_projects/tricky-name/project.clj")))
-
 (deftest test-tricky-name
-  (let [jar-file (JarFile. (jar tricky-name))
+  (let [jar-file (JarFile. (jar tricky-name-project))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream
                     jar-file (.getEntry jar-file "bin/tricky-name")))
