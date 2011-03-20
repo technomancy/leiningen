@@ -97,6 +97,7 @@
                                :snapshots false}
                     "clojure" {:url "http://build.clojure.org/releases"
                                :snapshots false}
+                    ;; TODO: remove from defaults in 2.0.
                     "clojure-snapshots" {:url "http://build.clojure.org/snapshots"
                                          :releases false}
                     "clojars" "http://clojars.org/repo/"})
