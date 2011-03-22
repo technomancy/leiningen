@@ -30,13 +30,6 @@
   (.addSnapshots repo (make-policy snapshots (:snapshots settings true)))
   (.addReleases repo (make-policy releases (:releases settings true))))
 
-(defn- init-settings [id settings]
-  (cond (string? settings) {:url settings}
-        ;; infer snapshots/release policy from repository id
-        (= "releases" id) (merge {:snapshots false} settings)
-        (= "snapshots" id) (merge {:releases false} settings)
-        :else settings))
-
 (defn make-auth [settings]
   (let [user-options (when-let [user-opts (resolve 'user/leiningen-auth)]
                        (get @user-opts (:url settings)))
@@ -51,8 +44,7 @@
       auth)))
 
 (defn make-repository [[id settings]]
-  (let [repo (RemoteRepository.)
-        settings (init-settings id settings)]
+  (let [repo (RemoteRepository.)]
     (set-policies repo settings)
     (.setId repo id)
     (.setUrl repo (:url settings))

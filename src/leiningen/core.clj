@@ -100,11 +100,20 @@
                     ;; TODO: remove from defaults in 2.0.
                     "clojure-snapshots" {:url "http://build.clojure.org/snapshots"
                                          :releases false}
-                    "clojars" "http://clojars.org/repo/"})
+                    "clojars" {:url "http://clojars.org/repo/"}})
+
+(defn- init-settings [id settings]
+  (cond (string? settings) {:url settings}
+        ;; infer snapshots/release policy from repository id
+        (= "releases" id) (merge {:snapshots false} settings)
+        (= "snapshots" id) (merge {:releases false} settings)
+        :else settings))
 
 (defn repositories-for [project]
-  (merge (when-not (:omit-default-repositories project) default-repos)
-         (:repositories project)))
+  (merge (when-not (:omit-default-repositories project)
+           default-repos)
+         (into {} (for [[id settings] (:repositories project)]
+                    [id (init-settings id settings)]))))
 
 (defn read-project
   ([file]
