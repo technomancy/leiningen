@@ -17,6 +17,9 @@
 (defn snapshot? [project]
   (re-find #"SNAPSHOT" (:version project)))
 
+(def ^{:doc "For backwards-compatibility"} default-repos
+  leiningen.core/default-repos)
+
 (defn check-for-snapshot-deps [project]
   (when (and (not (snapshot? project))
              (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE"))
