@@ -111,7 +111,7 @@ See the plugin task's help for more information.
 ## FAQ
 
 **Q:** How do you pronounce Leiningen?  
-**A:** It's LINE-ing-en. I think.
+**A:** It's LINE-ing-en. ['laɪnɪŋən]
 
 **Q:** What does this offer over [Lancet](https://github.com/stuarthalloway/lancet)?  
 **A:** Lancet is more of a library than a build tool. It doesn't predefine
@@ -178,8 +178,7 @@ See the plugin task's help for more information.
 **A:** It means you have some code that was AOT (ahead-of-time)
   compiled with a different version of Clojure than the one you're
   currently using. If it persists after running <tt>lein clean</tt> then it
-  is a problem with your dependencies. If you depend on contrib, make
-  sure the contrib version matches the Clojure version. Also note for
+  is a problem with your dependencies. Note that for
   your own project that AOT compilation in Clojure is much less
   important than it is in other languages. There are a few
   language-level features that must be AOT-compiled to work, generally
