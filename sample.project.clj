@@ -108,6 +108,9 @@
   ;; Set this in order to only use the :repositories you list below.
   :omit-default-repositories true
   :repositories {"java.net" "http://download.java.net/maven/2"
+                 "sonatype"
+                 {:url "http://oss.sonatype.org/content/repositories/releases"
+                  :snapshots false}
                  "snapshots" {:url "http://blueant.com/archiva/snapshots"
                               ;; Also supports :private-key and :passphrase.
                               :username "milgrim" :password "locative.1"}
