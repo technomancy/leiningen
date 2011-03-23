@@ -30,8 +30,7 @@
 (defn checkout-deps-paths [project]
   (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))
                       ;; Note that this resets the leiningen.core/project var!
-                      :let [proj (binding [*ns* (find-ns 'leiningen.core)]
-                                   (read-dependency-project dep))]
+                      :let [proj (read-dependency-project dep)]
                       :when proj]
                   (for [d [:source-path :compile-path :resources-path]]
                     (ensure-absolute (proj d) dep)))))

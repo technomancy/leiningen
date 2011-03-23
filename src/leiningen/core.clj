@@ -117,7 +117,8 @@
 
 (defn read-project
   ([file]
-     (try (load-file file)
+     (try (binding [*ns* (the-ns 'leiningen.core)]
+            (load-file file))
           project
           (catch java.io.FileNotFoundException _)))
   ([] (read-project "project.clj")))

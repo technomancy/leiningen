@@ -63,8 +63,7 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
        (install-shell-wrappers (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
-            (binding [*ns* (the-ns 'leiningen.core)
-                      copy-dependencies (constantly nil)]
+            (binding [copy-dependencies (constantly nil)]
               (deps (read-project (format "%s/project.clj" temp-project)) true))
             (finally
              (delete-file-recursively temp-project :silently))))))
