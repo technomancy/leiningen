@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen</groupId>
   <artifactId>leiningen</artifactId>
-  <version>1.5.0-RC1</version>
+  <version>1.5.0</version>
   <name>leiningen</name>
   <description>A build tool designed not to set your hair on fire.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -13,7 +13,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>96ff4eee9eec8646ef9a749ace66258c807fcdf9</tag>
+    <tag>738703094519b5b3343fa944cbf7de94dd37e999</tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
   <build>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.2.0</version>
+      <version>1.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
