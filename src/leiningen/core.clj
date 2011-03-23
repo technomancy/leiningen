@@ -93,6 +93,13 @@
                             (File. (System/getProperty "user.home") ".lein"))
                       .mkdirs)))
 
+(defn user-settings
+  "Look up the settings map from init.clj or an empty map if it doesn't exist."
+  []
+  (if-let [settings-var (resolve 'user/settings)]
+    @settings-var
+    {}))
+
 (def default-repos {"central" {:url "http://repo1.maven.org/maven2"
                                :snapshots false}
                     "clojure" {:url "http://build.clojure.org/releases"
