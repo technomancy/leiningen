@@ -18,7 +18,7 @@ if [ "$USER" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
-    read
+    read _
 fi
 
 ORIGINAL_PWD="$PWD"
@@ -174,7 +174,6 @@ else
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
-    # TODO: add more to the boot classpath
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
     exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
