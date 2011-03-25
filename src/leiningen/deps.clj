@@ -23,7 +23,8 @@
 (defn- make-policy [policy-settings enabled?]
   (doto (RepositoryPolicy.)
     (.setUpdatePolicy (update-policies (:update policy-settings :daily)))
-    (.setChecksumPolicy (checksum-policies (:checksum policy-settings :fail)))
+    ;; TODO: change default to :fail in 2.0
+    (.setChecksumPolicy (checksum-policies (:checksum policy-settings :warn)))
     (.setEnabled (boolean enabled?))))
 
 (defn- set-policies [repo {:keys [snapshots releases] :as settings}]
