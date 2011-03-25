@@ -163,9 +163,10 @@
   ([task] (resolve-task task #'task-not-found)))
 
 (defn- hook-namespaces [project]
-  (sort (or (:hooks project)
-            (and (:implicit-hooks project)
-                 (namespaces-matching "leiningen.hooks")))))
+  (sort (concat (or (:hooks project)
+                    (and (:implicit-hooks project)
+                         (namespaces-matching "leiningen.hooks")))
+                (:hooks (user-settings)))))
 
 (defn- load-hooks [project]
   (doseq [n (hook-namespaces project)]

@@ -1,7 +1,7 @@
 (ns leiningen.deps
   "Download all dependencies and place them in the :library-path."
   (:require [lancet.core :as lancet])
-  (:use [leiningen.core :only [repositories-for]]
+  (:use [leiningen.core :only [repositories-for user-settings]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]])
   (:import (java.io File)
@@ -117,6 +117,7 @@
   (let [deps-checksum-file (new-deps-checksum-file project)]
     (and (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
          (or (not (:checksum-deps project))
+             (not (:checksum-deps (user-settings)))
              (empty? (.list (File. (:library-path project))))
              (not (.exists deps-checksum-file))
              (not= (slurp deps-checksum-file) (deps-checksum project))))))

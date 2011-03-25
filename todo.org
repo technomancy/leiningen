@@ -48,6 +48,11 @@ See also https://github.com/technomancy/leiningen/issues
     lein-search is cool, but it would be better to interoperate with
     the standard lucene index system that Maven repositories offer.
     This would also mean getting Clojars to produce those indices.
+* For 1.5.1
+  - Revert back to :warn on checksum failure.
+  - Fix LEIN_ROOT warning in bin/lein.
+  - Honor user-settings in more places.
+  - TODO: Place checksums when performing install.
 * For 1.5
   - unify auth options between :repositories and :deploy-to
   - suppress socket closed stacktrace in interactive task

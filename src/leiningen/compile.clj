@@ -2,7 +2,7 @@
   "Compile Clojure source into .class files."
   (:require [lancet.core :as lancet])
   (:use [leiningen.deps :only [deps]]
-        [leiningen.core :only [ns->path]]
+        [leiningen.core :only [ns->path user-settings]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
         [clojure.java.io :only [file]]
@@ -124,7 +124,7 @@
          (reduce join-broken-args [] (get-raw-input-args))))
 
 (defn- get-jvm-args [project]
-  (concat (get-input-args) (:jvm-opts project)))
+  (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
 
 (defn get-readable-form [java project form init]
   (let [cp (str (.getClasspath (.getCommandLine java)))
