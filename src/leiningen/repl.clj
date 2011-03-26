@@ -133,7 +133,7 @@ Running outside a project directory will start a standalone repl session."
                                       (:repl-options (user-settings))))
            ;; TODO: make this less awkward when we can break poll-repl-connection
            retries (- *retry-limit* (or (project :repl-retry-limit)
-                                        (user-settings :repl-retry-limit)
+                                        ((user-settings) :repl-retry-limit)
                                         *retry-limit*))]
        (future (if (empty? project)
                  (clojure.main/with-bindings (println (eval server-form)))
