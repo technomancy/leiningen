@@ -3,7 +3,8 @@
         [clojure.string :only [split]]
         [clojure.walk :only [walk]]
         [robert.hooke :only [add-hook]])
-  (:import (java.io File)))
+  (:import (java.io File)
+           (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
 
 (def ^{:private true} project nil)
 
@@ -252,12 +253,9 @@
   "Check if v1 is greater than or equal to v2, where args are version strings.
 Takes major, minor and incremental versions into account."
   [v1 v2]
-  ;; TODO: maven should expose an API for this
-  (let [v1 (map #(Integer. %) (re-seq #"\d" (first (split v1 #"-" 2))))
-        v2 (map #(Integer. %) (re-seq #"\d" (first (split v2 #"-" 2))))]
-    (or (and (every? true? (map >= v1 v2))
-             (>= (count v1) (count v2)))
-        (every? true? (map > v1 v2)))))
+  (>= (.compareTo (DefaultArtifactVersion. v1)
+                  (DefaultArtifactVersion. v2))
+      0))
 
 (defn verify-min-version
   [project]

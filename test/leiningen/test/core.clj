@@ -37,3 +37,10 @@
   (is (= ['org.clojure/clojure "1.1.0"]
            (first (:dependencies sample-project))))
   (is (= '(fn [_] (> (rand) 0.5)))))
+
+(deftest test-version-greater-eq
+  (is (version-greater-eq? "1.5.0" "1.4.2"))
+  (is (not (version-greater-eq? "1.4.2" "1.5.0")))
+  (is (version-greater-eq? "1.2.3" "1.1.1"))
+  (is (version-greater-eq? "1.2.0" "1.2"))
+  (is (version-greater-eq? "1.2" "1")))
