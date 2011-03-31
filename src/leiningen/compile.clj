@@ -160,7 +160,8 @@
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
       (compile project)))
-  (when (empty? (find-lib-jars project))
+  (when (or (empty? (find-lib-jars project))
+            (:checksum-deps project))
     (deps project))
   (if (:eval-in-leiningen project)
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
