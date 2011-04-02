@@ -176,7 +176,8 @@ else
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
-    exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+    exec $RLWRAP -m -q '"' \
+        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
         $NULL_DEVICE $@
