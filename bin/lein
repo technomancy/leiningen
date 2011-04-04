@@ -178,6 +178,6 @@ else
     exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
-        $NULL_DEVICE $@
+        $NULL_DEVICE "$@"
     test $CYGWIN_JLINE && stty icanon echo
 fi
