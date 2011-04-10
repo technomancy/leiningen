@@ -83,7 +83,10 @@ fi
 
 HTTP_CLIENT="wget --no-check-certificate -O"
 if type -p curl >/dev/null 2>&1; then
-    HTTP_CLIENT="curl --insecure -f -L -o"
+    if [ $https_proxy != "" ]; then
+        CURL_PROXY="-x $https_proxy"
+    fi
+    HTTP_CLIENT="curl $CURL_PROXY --insecure -f -L -o"
 fi
 
 JAVA_CMD=${JAVA_CMD:-"java"}
