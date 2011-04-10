@@ -135,10 +135,20 @@ project.clj. With an argument it will skip development dependencies."
                                     (.getFilesetId deps-task))]
          (.mkdirs (File. (:library-path project)))
          (copy-dependencies (:jar-behavior project)
-                            (:library-path project)
+                            ;; Leiningen's process only has access to lib/dev.
+                            (if (:eval-in-leiningen project)
+                              "lib/dev"
+                              (:library-path project))
                             true fileset)
          (when (use-dev-deps? project skip-dev)
-           (deps (assoc project :library-path (str (:root project) "/lib/dev"))
+           ;; TODO: skip-dev/deps-set args are nonsense; we should
+           ;; just replace :dependencies with :dev-dependencies and
+           ;; recur in 2.0.
+           (deps (assoc project :library-path (str (:root project) "/lib/dev")
+                        :disable-implicit-clean (if (:eval-in-leiningen project)
+                                                  false
+                                                  (:disable-implicit-clean
+                                                   project)))
                  true :dev-dependencies))
          (when (:checksum-deps project)
            (spit (new-deps-checksum-file project) (deps-checksum project)))
