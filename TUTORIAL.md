@@ -215,7 +215,11 @@ Then add a :test-selectors map to project.clj:
 Now if you run "lein test" it will only run deftests that don't have
 :integration metadata, while "lein test :integration" will only run
 the integration tests and "lein test :all" will run everything. You
-can include test selectors and listing test namespaces in the same run.
+can include test selectors and listing test namespaces in the same
+run. Note that this feature requires an additional entry in the
+:dependencies listing to function:
+
+    [robert/hooke "1.1.0"]
 
 Running "lein test" from the command-line is not a good solution for
 test-driven development due to the slow startup time of the JVM. For
