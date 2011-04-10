@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen</groupId>
   <artifactId>leiningen</artifactId>
-  <version>1.5.0</version>
+  <version>1.5.1-SNAPSHOT</version>
   <name>leiningen</name>
   <description>A build tool designed not to set your hair on fire.</description>
   <url>https://github.com/technomancy/leiningen</url>

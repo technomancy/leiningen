@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LEIN_VERSION="1.5.0"
+LEIN_VERSION="1.5.1-SNAPSHOT"
 export LEIN_VERSION
 
 case $LEIN_VERSION in
@@ -110,6 +110,7 @@ if [ "$1" = "self-install" ]; then
         exit 1
     fi
 elif [ "$1" = "upgrade" ]; then
+    # TODO: ensure we're not running from a checkout
     if [ $SNAPSHOT = "YES" ]; then
         echo "The upgrade task is only meant for stable releases."
         echo "See the \"Hacking\" section of the README."
