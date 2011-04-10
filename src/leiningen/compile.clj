@@ -127,7 +127,9 @@
   (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
 
 (defn get-readable-form [java project form init]
-  (let [cp (str (.getClasspath (.getCommandLine java)))
+  (let [cp (if java
+             (str (.getClasspath (.getCommandLine java)))
+             (System/getProperty "java.class.path"))
         form `(do ~init
                   (def ~'*classpath* ~cp)
                   (set! ~'*warn-on-reflection*
@@ -171,7 +173,7 @@
         (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
       (try (binding [*warn-on-reflection* (:warn-on-reflection project)]
-             (eval form))
+             (eval (read-string (get-readable-form nil project form init))))
            0
            (catch Exception e
              (.printStackTrace e)
