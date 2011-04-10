@@ -147,11 +147,13 @@ the :classifier key (if present) is the classifier on the
 dependency (as a string). The value for the :exclusions key, if
 present, is a seq of symbols, identifying group ids and artifact ids
 to exclude from transitive dependencies."
-  ([dependency scope]
-     (make-dependency {} dependency scope))
-  ([project dependency scope]
-     (when-not (vector? dependency)
-       (abort "Dependencies must be specified as vector:" dependency))
+  ([dependency]
+     (make-dependency dependency {}))
+  ([dependency project]
+     (make-dependency dependency project nil))
+  ([dependency project scope]
+     (when (and dependency (not (vector? dependency)))
+       (throw (Exception. "Dependencies must be specified as vector:" #_dependency)))
      (let [[dep version & extras] dependency
            extras-map (apply hash-map extras)
            exclusions (:exclusions extras-map)
@@ -167,7 +169,7 @@ to exclude from transitive dependencies."
                         (or (namespace dep) (name dep))))
          (.setArtifactId (name dep))
          (.setVersion version)
-         (.setScope scope) 
+         (.setScope scope)
          (.setClassifier classifier)
          (.setType (or type "jar"))
          (.setExclusions es)))))
@@ -225,9 +227,9 @@ to exclude from transitive dependencies."
                 (.setUrl (:url project))
                 (.setBuild (make-build project)))]
     (doseq [dep (:dependencies project)]
-      (.addDependency model (make-dependency dep nil)))
+      (.addDependency model (make-dependency dep project)))
     (doseq [dev (:dev-dependencies project)]
-      (.addDependency model (make-dependency dev "test")))
+      (.addDependency model (make-dependency dev project "test")))
     (doseq [repo (repositories-for project)]
       (.addRepository model (make-repository repo)))
     (when-let [scm (make-git-scm (file (:root project) ".git"))]

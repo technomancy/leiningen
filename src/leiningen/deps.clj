@@ -96,7 +96,7 @@
     (doseq [repo (make-repositories project)]
       (.addConfiguredRemoteRepository deps-task repo))
     (doseq [dep (project deps-set)]
-      (.addDependency deps-task (make-dependency project dep)))
+      (.addDependency deps-task (make-dependency dep project)))
     deps-task))
 
 (defn use-dev-deps? [project skip-dev]
