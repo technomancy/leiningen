@@ -10,11 +10,10 @@
 
 (def *retry-limit* 100)
 
-;; TODO: test custom options, repl in interactive
 (defn repl-options [project options]
   (let [options (apply hash-map options)
         init `#(let [is# ~(:repl-init-script project)
-                     in# ~(:repl-init project)
+                     in# '~(:repl-init project)
                      mn# '~(:main project)]
                  ~(:init options)
                  (when (and is# (.exists (File. (str is#))))
