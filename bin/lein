@@ -172,6 +172,8 @@ else
                 JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
                 CYGWIN_JLINE=y
             fi
+        else
+            RLWRAP="$RLWRAP -m -q '\"'"
         fi
     fi
 
