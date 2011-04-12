@@ -1,5 +1,33 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.5.1 / ???
+
+* Improve rlwrap quote support. (Ambrose Bonnaire-Sergeant)
+
+* Prevent ns load exceptions from halting help.
+
+* Fix :repl-init namespace handling.
+
+* Make deps for :eval-in-leiningen projects available to lein process.
+
+* Pass $https_proxy environment variable to curl.
+
+* Fix :eval-in-leiningen when used with init arg.
+
+* Pom now includes dev-dependencies as test-scoped. (Thomas Engelschmidt)
+
+* Fix handling of arguments with spaces. (Stuart Fehr)
+
+* Fix a plugin bug where it would look for dev-dependencies.
+
+* Fix :min-lein-version checking. (Colin Jones)
+
+* Honor user settings in more places.
+
+* Fix running-as-root warning.
+
+* Revert back to warning when repository checksums don't match.
+
 = 1.5.0 / 2011-03-22
 
 * New projects now use Clojure 1.2.1.
