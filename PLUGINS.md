@@ -36,12 +36,13 @@ same version of Clojure that Leiningen is using. So for instance, if
 your plugin depends on defprotocol, then you should make it clear in
 your documentation that it only works with Leiningen 1.2.0 and higher.
 
-The "lein help" task will display the namespace's docstring as the
-summary for a given task. Then "lein help $TASK" will use the task
-function's docstring for detailed help. The function's arglists will
-also be shown, so pick argument names that are clear and
+The "lein help" task will display the first line of the task
+function's docstring as a summary.  Then "lein help $TASK" will use
+the task function's full docstring for detailed help. The function's
+arglists will also be shown, so pick argument names that are clear and
 descriptive. If you set :help-arglists in the function's metadata, it
-will be used instead.
+will be used instead for those cases where alternate arities exist
+that aren't intended to be exposed to the user.
 
 If your task returns an integer, it will be used as the exit code for
 the process.

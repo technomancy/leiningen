@@ -120,9 +120,11 @@
        "localhost")])
 
 (defn repl
-  "Start a repl session. A socket-repl will also be launched in the background
-on a socket based on the :repl-port key in project.clj or chosen randomly.
-Running outside a project directory will start a standalone repl session."
+  "Start a repl session either with the current project or standalone.
+
+A socket-repl will also be launched in the background on a socket based on the
+:repl-port key in project.clj or chosen randomly. Running outside a project
+directory will start a standalone repl session."
   ([] (repl {}))
   ([project]
      ;; TODO: don't start socket server until deps

@@ -260,8 +260,10 @@
 (def ^{:private true} failure (partial status 1))
 
 (defn compile
-  "Ahead-of-time compile the namespaces given under :aot in project.clj or
-those given as command-line arguments."
+  "Compile Clojure source into .class files.
+
+Uses the namespaces specified under :aot in project.clj or those given
+as command-line arguments."
   ([project]
      (.mkdir (file (:compile-path project)))
      (when (:java-source-path project)

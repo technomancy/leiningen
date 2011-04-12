@@ -21,8 +21,7 @@
          ["tehname" nil])))
 
 (deftest test-help
-  (is (= "Arguments: ([subtask project-name version])
-Manage user-level plugins.
+  (is (= "Manage user-level plugins.
 
 Subtasks available:
 install     Download, package, and install plugin jarfile into
@@ -31,7 +30,9 @@ install     Download, package, and install plugin jarfile into
               You can use the same syntax here as when listing Leiningen
               dependencies.
 uninstall   Delete the plugin jarfile
-            Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION\n"
+            Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION
+
+Arguments: ([subtask project-name version])\n"
          (with-out-str (plugin "help")))))
 
 (deftest test-install

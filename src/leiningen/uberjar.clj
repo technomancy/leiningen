@@ -1,5 +1,5 @@
 (ns leiningen.uberjar
-  "Package up all the project's files and dependencies into a jar file."
+  "Package up the project files and deps into a jar file."
   (:require [clojure.xml :as xml])
   (:use [clojure.zip :only [xml-zip children]]
         [clojure.java.io :only [file copy]]
@@ -66,8 +66,10 @@
       (.closeEntry out))))
 
 (defn uberjar
-  "Create a jar like the jar task, but including the contents of each of
-the dependency jars. Suitable for standalone distribution."
+  "Package up the project files and deps into a jar file.
+
+Includes the contents of each of the dependency jars. Suitable for standalone
+distribution."
   ([project uberjar-name]
      (doto project clean deps)
      (if (jar project)

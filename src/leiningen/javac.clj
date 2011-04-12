@@ -35,8 +35,9 @@
   (lancet/javac task-spec))
 
 (defn javac
-  "Compile Java source files. Add a :java-source-path key to project.clj to
-specify where to find them."
+  "Compile Java source files.
+
+Add a :java-source-path key to project.clj to specify where to find them."
   [project & [directory]]
   (doseq [task (extract-javac-tasks project)
           :when (or (nil? directory) (= directory (:srcdir task)))]

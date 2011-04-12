@@ -15,8 +15,9 @@
             (format f (:version project)))))
 
 (defn clean
-  "Remove compiled class files and jars from project. Set
-:extra-files-to-clean in project.clj to delete other files. Dependency
+  "Remove compiled class files and jars from project.
+
+Set :extra-files-to-clean in project.clj to delete other files. Dependency
 jars are not deleted; run deps task to delete all jars and get fresh ones."
   [project]
   (println "Cleaning up.")

@@ -1,5 +1,5 @@
 (ns leiningen.deps
-  "Download all dependencies and place them in the :library-path."
+  "Download all dependencies and put them in :library-path."
   (:require [lancet.core :as lancet])
   (:use [leiningen.core :only [repositories-for user-settings]]
         [leiningen.util.maven :only [make-dependency]]
@@ -122,9 +122,8 @@
              (not (.exists deps-checksum-file))
              (not= (slurp deps-checksum-file) (deps-checksum project))))))
 
-(defn ^{:help-arglists '([] [skip-dev])} deps
-  "Download and install all :dependencies and :dev-dependencies listed in
-project.clj. With an argument it will skip development dependencies."
+(defn ^{:help-arglists '([])} deps
+  "Download :dependencies and put them in :library-path."
   ([project skip-dev deps-set]
      (when (fetch-deps? project deps-set skip-dev)
        (when-not (or (:disable-deps-clean project)

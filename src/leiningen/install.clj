@@ -39,9 +39,12 @@
                   (make-local-repo)))
 
 (defn install
-  "With no arguments, installs the current project and its dependencies in
-your local repository. With two arguments, downloads and installs a project
-from a remote repository. May place shell wrappers in ~/.lein/bin."
+  "Install current project or download specified project.
+
+With no arguments, installs the current project and its dependencies
+in your local repository. With two arguments, (group/name and version)
+downloads and installs a project from a remote repository. Places
+shell wrappers in ~/.lein/bin when provided."
   ([project]
      (let [jarfile (file (jar project))
            model (make-model project)

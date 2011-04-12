@@ -54,8 +54,10 @@ each namespace and print an overall summary."
     [nses selectors]))
 
 (defn test
-  "Run the project's tests. Accepts either a list of test namespaces to run or
-a list of test selectors. With no arguments, runs all tests."
+  "Run the project's tests.
+
+Accepts either a list of test namespaces to run or a list of test
+selectors. With no arguments, runs all tests."
   [project & tests]
   (when (:eval-in-leiningen project)
     (require '[clojure walk template stacktrace]))
