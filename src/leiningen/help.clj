@@ -73,8 +73,9 @@
 ;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
 (defn help-summary-for [task-ns]
   (try (require task-ns)
-       (catch Error e
-         (println (format "Failed to load %s: %s" task-ns (.getMessage e)))))
+       (catch Throwable e
+         (binding [*out* *err*]
+           (println "  Problem loading" task-ns "-" (.getMessage e)))))
   (let [task-name (last (.split (name task-ns) "\\."))]
     (str task-name (apply str (repeat (- 12 (count task-name)) " "))
          (:doc (meta (find-ns task-ns))))))
