@@ -110,7 +110,16 @@
   :repositories {"java.net" "http://download.java.net/maven/2"
                  "sonatype"
                  {:url "http://oss.sonatype.org/content/repositories/releases"
-                  :snapshots false}
+                  ;; If a repository contains  releases only; setting :snapshots
+                  ;; to false will speed up dependency checking.
+                  :snapshots false
+                  ;; You can also set the policies for how to handle :checksum
+                  ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
+                  ;; :always, and :never are supported.
+                  :releases {:checksum :fail
+                             :update :always}}
+                 ;; Repositories named "snapshots" and "releases" automatically
+                 ;; have their :snapshots and :releases disabled as appropriate.
                  "snapshots" {:url "http://blueant.com/archiva/snapshots"
                               ;; Also supports :private-key and :passphrase.
                               :username "milgrim" :password "locative.1"}
