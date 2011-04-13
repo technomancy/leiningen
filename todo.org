@@ -43,7 +43,7 @@ See also https://github.com/technomancy/leiningen/issues
   - merge lucene-based lein-search plugin
 * For 1.5.1
 ** TODO
-   - [ ] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
+   - [x] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
    - [x] Put :eval-in-lein deps in lib/dev for leiningen process access.
    - [x] Revert back to :warn on checksum failure.
    - [x] Fix LEIN_ROOT warning in bin/lein.

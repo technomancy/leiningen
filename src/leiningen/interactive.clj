@@ -1,5 +1,5 @@
 (ns leiningen.interactive
-  "Enter interactive shell for calling tasks without relaunching JVM."
+  "Enter interactive task shell."
   (:require [clojure.string :as string])
   (:use [leiningen.core :only [apply-task exit]]
         [leiningen.test :only [*exit-after-tests*]]
@@ -59,7 +59,7 @@
         (recur (.readLine *in*))))))
 
 (defn interactive
-  "Enter an interactive shell for calling tasks without relaunching JVM."
+  "Enter an interactive task shell."
   [project]
   (let [[port host] (repl-socket-on project)]
     (println welcome)
