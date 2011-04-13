@@ -71,7 +71,8 @@
 Includes the contents of each of the dependency jars. Suitable for standalone
 distribution."
   ([project uberjar-name]
-     (doto project clean deps)
+     (when-not (:disable-implicit-clean project)
+       (doto project clean deps))
      (if (jar project)
        (let [standalone-filename (get-jar-filename project uberjar-name)]
          (with-open [out (-> standalone-filename
