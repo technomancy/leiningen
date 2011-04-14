@@ -174,7 +174,12 @@ else
                 CYGWIN_JLINE=y
             fi
         else
-            RLWRAP="$RLWRAP -m -q '\"'"
+            # Test to see if rlwrap supports custom quote chars
+            rlwrap -m -q '"' echo "hi" > /dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                echo "dash q"
+                RLWRAP="$RLWRAP -m -q '\"'"
+            fi
         fi
     fi
 
