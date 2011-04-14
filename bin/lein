@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LEIN_VERSION="1.5.1"
+LEIN_VERSION="1.5.2"
 export LEIN_VERSION
 
 case $LEIN_VERSION in
@@ -177,7 +177,6 @@ else
             # Test to see if rlwrap supports custom quote chars
             rlwrap -m -q '"' echo "hi" > /dev/null 2>&1
             if [ $? -eq 0 ]; then
-                echo "dash q"
                 RLWRAP="$RLWRAP -m -q '\"'"
             fi
         fi

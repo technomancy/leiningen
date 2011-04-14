@@ -1,5 +1,13 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.5.2 / 2011-04-13
+
+* Check rlwrap for support of custom quotes before using.
+
+* Improve Solaris support. (Donald Clark Jackson)
+
+* Fix curl error relating to missing $https_proxy. (Pirmin Fix)
+
 = 1.5.1 / 2011-04-12
 
 * Improve rlwrap quote support. (Ambrose Bonnaire-Sergeant)
