@@ -140,7 +140,7 @@
     ;; currently being passed; see
     ;; http://www.perlmonks.org/?node_id=300286 for some of the
     ;; landmines involved in doing it properly
-    (if (= (get-os) :windows)
+    (if (and (= (get-os) :windows) java)
       (pr-str (pr-str form))
       (prn-str form))))
 
