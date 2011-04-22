@@ -112,11 +112,6 @@
 
 (def default-repos {"central" {:url "http://repo1.maven.org/maven2"
                                :snapshots false}
-                    "clojure" {:url "http://build.clojure.org/releases"
-                               :snapshots false}
-                    ;; TODO: remove from defaults in 2.0.
-                    "clojure-snapshots" {:url "http://build.clojure.org/snapshots"
-                                         :releases false}
                     ;; TODO: possibly separate releases/snapshots in 2.0.
                     "clojars" {:url "http://clojars.org/repo/"}})
 
