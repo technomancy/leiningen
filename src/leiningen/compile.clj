@@ -131,7 +131,6 @@
              (str (.getClasspath (.getCommandLine java)))
              (System/getProperty "java.class.path"))
         form `(do ~init
-                  (def ~'*classpath* ~cp)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
                   ~form)]
