@@ -131,9 +131,10 @@
   :test-path "src/test/clojure"
   :resources-path "src/main/resource" ; non-code files included in classpath/jar
   :dev-resources-path "src/test/resource" ; added to dev classpath but not jar
-  :native-path "src/native"      ; where to look for native dependencies
-  :target-dir "target/"          ; where to place the project's jar file
-  :jar-name "sample.jar"         ; name of the jar produced by 'lein jar'
+  :native-path "src/native"        ; where to look for native dependencies
+  :target-dir "target/  "          ; where to place the project's jar file
+  :extra-classpath-dirs ["script"] ; more classpath entries not included in jar
+  :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Options to pass to java compiler for java source
   ;; See http://ant.apache.org/manual/Tasks/javac.html

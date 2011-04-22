@@ -57,6 +57,7 @@
            (:compile-path project)
            (:dev-resources-path project)
            (:resources-path project)]
+          (:extra-classpath-dirs project)
           (checkout-deps-paths project)
           (find-lib-jars project)
           (user-plugins)))
