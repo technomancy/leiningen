@@ -7,6 +7,8 @@
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
   ([project ns & args]
+     ;; TODO: support ns/fn for clojure.main/main
+     ;; TODO: better explanation for nses that don't contain a -main defn
      (eval-in-project project `((ns-resolve '~(symbol ns) '~'-main) ~@args)
                       nil nil `(require '~(symbol ns)))))
 

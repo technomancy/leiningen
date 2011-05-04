@@ -41,6 +41,13 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
   - merge lucene-based lein-search plugin
+* For 1.6
+  - Merge lein-search
+  - Merge lein-retest
+  - Merge native-deps
+  - Add leiningen.util.inject namespace
+  - Trampoline functionality
+    http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
 * For 1.5.1
 ** TODO
    - [x] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
