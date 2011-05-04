@@ -25,7 +25,8 @@ Generating a new project is easy:
     |       `-- core.clj
     `-- test
         `-- myproject
-            `-- core_test.clj
+            `-- test
+                `-- core.clj
 
 Here we've got your project's README, a src/ directory containing the
 code, a test/ directory, and a project.clj file which describes your
@@ -33,11 +34,10 @@ project to Leiningen. The src/myproject/core.clj file corresponds to
 the myproject.core namespace.
 
 Note that we use myproject.core instead of just myproject since
-single-segment namespaces are discouraged in Clojure. Also the file
-test/myproject/core_test.clj corresponds with the myproject.core-test
-namespace--you need to remember to replace dashes in namespace names
-with underscores in file names on disk since the JVM has trouble
-loading files with dashes in the name.
+single-segment namespaces are discouraged in Clojure. Also if you have
+namespaces with dashes in the name, the corresponding file will need
+to use underscores instead since the JVM has trouble loading files
+with dashes in the name.
 
 ## Packaging
 
@@ -64,11 +64,11 @@ repositories for you.
       :dependencies [[org.clojure/clojure "1.2.0"]])
 
 Fill in the :description with a short paragraph so that your project
-will show up in search results once you upload to Clojars as
-described below. At some point you'll need to flesh out the README
-too, but for now let's skip ahead to setting :dependencies.  Note that
-Clojure is just another dependency here. Unlike most languages, it's
-easy to swap out any version of Clojure.
+will show up in search results once you publish it. At some point
+you'll need to flesh out the README too, but for now let's skip ahead
+to setting :dependencies.  Note that Clojure is just another
+dependency here. Unlike most languages, it's easy to swap out any
+version of Clojure.
 
 If you've got a simple pure-clojure project, you will be fine with the
 default of depending only on Clojure, but otherwise you'll need to
@@ -91,7 +91,7 @@ The "artifact id" here is "lancet", and "1.0.0" is the version you
 require. Every library also has a "group id", though for Clojure
 libraries it is often the same as the artifact-id, in which case you
 may leave it out of the Leiningen dependency notation. For Java
-libraries often a domain name is used as the group id.
+libraries often a reversed domain name is used as the group id.
 
 Many Java libraries can be found by searching
 [Jarvana](http://jarvana.com), though you'll need to translate the
@@ -131,6 +131,11 @@ current project in the local repository with this command:
     Wrote pom.xml
     [INFO] Installing myproject-1.0.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/1.0.0-SNAPSHOT/myproject-1.0.0-SNAPSHOT.jar
 
+Note that some libraries make their group-id and artifact-id
+correspond with the namespace they provide inside the jar, but this is
+just a convention. There is no guarantee they will match up at all, so
+consult the library's documentation before writing your :require clauses.
+
 Generally Leiningen will fetch your dependencies when they're needed,
 but if you have just added a new dependency and you want to force it
 to fetch it, you can do that too:
@@ -141,9 +146,8 @@ to fetch it, you can do that too:
     Copied :dependencies into ~/src/myproject/lib.
 
 Dependencies are downloaded from Clojars, the central Maven (Java)
-repository, the [official Clojure build
-server](http://build.clojure.org), and any other repositories that you
-add to your project.clj file. See :repositories in
+repository, and any other repositories that you add to your
+project.clj file. See :repositories in
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
 If you've confirmed that your project will work with a number of
@@ -154,7 +158,7 @@ instead of a single version:
 
 See [Maven's version range
 specification](http://maven.apache.org/plugins/maven-enforcer-plugin/rules/versionRanges.html)
-for details. Don't do this unless you have manually confirming that it
+for details. Don't do this unless you have manually confirmed that it
 works with each of those versions though. You can't assume that your
 dependencies will use semantic versions; some projects even introduce
 backwards-incompatible changes in bugfix point releases.
@@ -167,14 +171,21 @@ the project to function. Leiningen calls these
 :dev-dependencies. They're listed in project.clj alongside regular
 dependencies and downloaded when you run <tt>lein deps</tt>, but they
 are not brought along when another project depends on your
-project. Using [swank-clojure](https://github.com/technomancy/swank-clojure)
+project.
+
+Using [swank-clojure](https://github.com/technomancy/swank-clojure)
 for Emacs support would be a typical example; you may not want it
-included at runtime, but it's useful while you're hacking on the project.
+included at runtime, but it's useful while you're hacking on the
+project.
+
+Dev dependencies may include plugin code that runs in Leiningen's
+process (providing additional tasks or augmenting existing ones)
+or code that runs in the context of your project.
 
 ## Writing the Code
 
 This is the part Leiningen can't really help you with; you're on your
-own here. Well--not quite. Leiningen can help you with running your
+own here. Well—not quite. Leiningen can help you with running your
 tests.
 
     $ lein test
@@ -227,18 +238,18 @@ quick feedback, try starting an interactive session with "lein int"
 and running tests from in there. Other options include editor
 integration (see
 [clojure-test-mode](https://github.com/technomancy/clojure-mode) for
-Emacs) or keep a repl open and call <tt>run-tests</tt> from there as
-you work.
+Emacs) or keeping a repl open and calling <tt>run-tests</tt> from
+there as you work.
 
 Keep in mind that while keeping a single process around is convenient,
 it's easy for that process to get into a state that doesn't reflect
-the files on disk--functions that are loaded and then deleted from the
+the files on disk—functions that are loaded and then deleted from the
 file will remain in memory, making it easy to miss problems arising
-from missing functions (referred to as "getting slimed"). Because of
-this it's advised to do a "lein test" run with a fresh instance
-periodically, perhaps before you commit.
+from missing functions (often referred to as "getting
+slimed"). Because of this it's advised to do a "lein test" run with a
+fresh instance periodically, perhaps before you commit.
 
-## Compiling
+## AOT Compiling
 
 If you're lucky you'll be able to get away without doing any AOT
 (ahead-of-time) compilation. But there are some Java interop features
@@ -257,7 +268,7 @@ needed, but if you need to force it you can:
 
 For your code to compile, it must be run. This means that you
 shouldn't have any code with side-effects in the top-level. Anything
-that doesn't start with <tt>def</tt> outside a function definition is
+outside a function definition that doesn't start with <tt>def</tt> is
 suspect. If you have code that should run on startup, place it in a
 <tt>-main</tt> function as explained below under "Uberjar".
 
@@ -397,10 +408,11 @@ plugins rather than tasks that are built-in to Leiningen itself.
 
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
-a public repository. While it's possible to maintain your own
-repository or get it into Maven central, the easiest way is to publish
-it at [Clojars](http://clojars.org). Once you have created an account
-there, publishing is easy:
+a public repository. While it's possible to
+[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
+or get it into Maven central, the easiest way is to publish it at
+[Clojars](http://clojars.org). Once you have created an account there,
+publishing is easy:
 
     $ lein jar, pom
     $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
