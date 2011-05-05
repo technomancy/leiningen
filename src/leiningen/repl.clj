@@ -53,9 +53,7 @@
        (let [server# (ServerSocket. ~port 0 (InetAddress/getByName ~host))
              acc# (fn [s#]
                     (let [ins# (.getInputStream s#)
-                          outs# (.getOutputStream s#)
-                          skip-whitespace# @(ns-resolve '~'clojure.main
-                                                        '~'skip-whitespace)]
+                          outs# (.getOutputStream s#)]
                       (doto (Thread.
                              #(binding [*in* (-> ins# InputStreamReader.
                                                  LineNumberingPushbackReader.)
