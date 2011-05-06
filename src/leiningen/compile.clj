@@ -5,10 +5,11 @@
         [leiningen.core :only [ns->path user-settings]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
-        [clojure.java.io :only [file]]
+        [clojure.java.io :only [file resource reader]]
         [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
-  (:import (org.apache.tools.ant.taskdefs Java)
+  (:import (java.io PushbackReader)
+           (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
            (java.util.regex Pattern)
            (org.apache.tools.ant.types Environment$Variable)))
@@ -18,6 +19,9 @@
 (def *silently* false)
 
 (def *skip-auto-compile* false)
+
+(def ^{:doc "A list of namespaces to inject into project subprocesses."}
+  injected-namespaces (atom ['robert.hooke]))
 
 (defn- regex?
   "Returns true if we have regex class"
@@ -126,11 +130,21 @@
 (defn- get-jvm-args [project]
   (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
 
+(defn- injected-namespace-forms [ns-name]
+  (with-open [rdr (-> ns-name ns->path resource reader PushbackReader.)]
+    (doall (take-while #(not= ::done %)
+                       (repeatedly #(read rdr false ::done))))))
+
+(defn- get-injected-form [injected-namespaces]
+  ;; Note: there's a posibility of conflicts here if a project
+  ;; requires a newer (say) hooke than Leiningen's, but since this
+  ;; injection doesn't affect clojure.core/*loaded-libs*, if the
+  ;; project requires hooke, it will load over the injected copy.
+  (mapcat injected-namespace-forms injected-namespaces))
+
 (defn get-readable-form [java project form init]
-  (let [cp (if java
-             (str (.getClasspath (.getCommandLine java)))
-             (System/getProperty "java.class.path"))
-        form `(do ~init
+  (let [form `(do ~init
+                  ~@(get-injected-form @injected-namespaces)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
                   ~form)]
