@@ -19,11 +19,11 @@
 (defn index-location [url]
   (io/file (home-dir) "indices" (string/replace url #"[:/]" "_")))
 
-(defn remote-index-location [url]
-  (format "%s/.index/nexus-maven-repository-index.zip" url))
+(defn remote-index-url [url]
+  (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))
 
 (defn- download-index [[id {url :url}]]
-  (with-open [stream (.openStream (URL. (remote-index-location url)))]
+  (with-open [stream (.openStream (remote-index-url url))]
     (println "Downloading index from" id "-" url)
     (let [tmp (java.io.File/createTempFile "lein" "index")]
       (try (io/copy stream tmp)

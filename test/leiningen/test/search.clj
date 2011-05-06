@@ -3,13 +3,11 @@
   (:use [clojure.test]
         [leiningen.search]))
 
-(deftest test-download
-  (is (= ["segments.gen" "_0.cfx" "timestamp" "_0.cfs" "segments_2"]
-           (vec (.list (index-location "http://example.com/repo"))))))
-
 (deftest test-searchy
-  (binding [remote-index-location (constantly "file://test/sample-index.zip")]
+  (binding [remote-index-url (constantly (io/resource "test/sample-index.zip"))]
     (ensure-fresh-index ["test" {:url "http://example.com/repo"}])
+    (is (= ["segments.gen" "_0.cfx" "timestamp" "_0.cfs" "segments_2"]
+             (vec (.list (index-location "http://example.com/repo")))))
     (let [results (search-repository ["test" {:url "http://example.com/repo"}]
                                      "hooke")]
       (is (= '#{[[robert/hooke "1.0.0"] "Hooke your functions!"]
