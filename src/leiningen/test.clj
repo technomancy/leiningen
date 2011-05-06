@@ -25,8 +25,18 @@ each namespace and print an overall summary."
         (doseq [n# '~namespaces]
           (require n# :reload))
         ~(form-for-hook-selectors selectors)
-        (let [summary# (binding [clojure.test/*test-out* *out*]
+        (let [failures# (atom #{})
+              ;; _# (robert.hooke/add-hook
+              ;;     #'clojure.test/report
+              ;;     (fn report-with-failures [report# m# & args#]
+              ;;       (when (#{:error :fail} (:type m#))
+              ;;         (swap! failures# conj
+              ;;                (-> clojure.test/*testing-vars*
+              ;;                    first meta :ns ns-name)))
+              ;;       (apply report# m# args#)))
+              summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
+          (spit ".lein-failures" (pr-str @failures#))
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
             (shutdown-agents))
           ;; Stupid ant won't let us return anything, so write results to disk

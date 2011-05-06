@@ -8,3 +8,4 @@ leiningen*.jar
 lein-swank/lein-swank*.jar
 autodoc/
 bin/nom
+.lein-failures
