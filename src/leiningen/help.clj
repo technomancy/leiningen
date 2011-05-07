@@ -72,16 +72,15 @@
 
 ;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
 (defn help-summary-for [task-ns]
-  (try (require task-ns)
+  (try (let [task-name (last (.split (name task-ns) "\\."))
+             ns-summary (:doc (meta (find-ns (doto task-ns require))))
+             first-line (first (.split (help-for task-name) "\n"))]
+         ;; Use first line of task docstring if ns metadata isn't present
+         (str task-name (apply str (repeat (- 12 (count task-name)) " "))
+              (or ns-summary first-line)))
        (catch Throwable e
          (binding [*out* *err*]
-           (println "  Problem loading" task-ns "-" (.getMessage e)))))
-  (let [task-name (last (.split (name task-ns) "\\."))
-        ns-summary (:doc (meta (find-ns task-ns)))
-        first-line (first (.split (help-for task-name) "\n"))]
-    ;; Use first line of task docstring if ns metadata isn't present
-    (str task-name (apply str (repeat (- 12 (count task-name)) " "))
-         (or ns-summary first-line))))
+           (str task-ns "  Problem loading: " (.getMessage e))))))
 
 (defn help
   "Display a list of tasks or help for a given task.
