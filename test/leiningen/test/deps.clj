@@ -25,8 +25,7 @@
   (let [jars (set (map #(.getName %)
                        (.listFiles (file (:root dev-deps-project)
                                          "lib" "dev"))))]
-    (doseq [j ["clojure-1.2.0.jar"]]
-      (is (jars j)))))
+    (is (contains? jars "clojure-1.2.0.jar"))))
 
 (deftest test-snapshots-releases
   (try

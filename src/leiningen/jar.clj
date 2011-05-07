@@ -202,7 +202,8 @@ function in that namespace will be used as the main-class for executable jar."
                deps (memoize deps)]
        (when (zero? (compile/compile project))
          (let [jar-path (get-jar-filename project jar-name)
-               deps-fileset (deps project)]
+               deps-fileset (deps (dissoc project :dev-dependencies
+                                          :native-dependencies))]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
            jar-path))))

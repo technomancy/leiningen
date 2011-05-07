@@ -37,7 +37,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
         _ (extract-jar (file jarfile) temp-project)
         project (read-project (str (file temp-project "project.clj")))
         standalone-filename (plugin-standalone-filename group name version)]
-    (deps (dissoc project :dev-dependencies))
+    (deps (dissoc project :dev-dependencies :native-dependencies))
     (with-open [out (-> (file plugins-path standalone-filename)
                         (FileOutputStream.)
                         (ZipOutputStream.))]

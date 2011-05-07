@@ -77,7 +77,7 @@
       (symlink {:link destination
                 :resource (.getCanonicalPath (File. dir f))}))))
 
-(defn make-deps-task [project deps-set]
+(defn make-deps-task [project & [deps-set]]
   (let [deps-task (DependenciesTask.)]
     (.setProject deps-task lancet/ant-project)
     ;; in maven-ant-tasks (at least 2.0.10 and 2.1.1) if there's an
@@ -95,12 +95,9 @@
     (.setPathId deps-task (:name project))
     (doseq [repo (make-repositories project)]
       (.addConfiguredRemoteRepository deps-task repo))
-    (doseq [dep (project deps-set)]
+    (doseq [dep (project (or deps-set :dependencies))]
       (.addDependency deps-task (make-dependency dep project)))
     deps-task))
-
-(defn use-dev-deps? [project skip-dev]
-  (and (not skip-dev) (seq (:dev-dependencies project))))
 
 (defn- sha1-digest [content]
   (.toString (BigInteger. 1 (-> (MessageDigest/getInstance "SHA1")
@@ -108,49 +105,54 @@
 
 (defn- deps-checksum [project]
   (sha1-digest (pr-str [(:dependencies project)
-                        (:dev-dependencies project)])))
+                        (:dev-dependencies project)
+                        (:native-dependencies project)])))
 
 (defn- new-deps-checksum-file [project]
   (File. (:root project) ".lein-deps-sum"))
 
-(defn fetch-deps? [project deps-set skip-dev]
+(defn- has-dependencies? [project]
+  (some (comp seq project) [:dependencies :dev-dependencies
+                            :native-dependencies]))
+
+(defn fetch-deps? [project]
   (let [deps-checksum-file (new-deps-checksum-file project)]
-    (and (or (seq (project deps-set)) (use-dev-deps? project skip-dev))
-         (or (not (:checksum-deps project))
-             (not (:checksum-deps (user-settings)))
-             (empty? (.list (File. (:library-path project))))
+    (and (has-dependencies? project)
+         (or (empty? (.list (File. (:library-path project))))
+             (not (:checksum-deps project (:checksum-deps (user-settings))))
              (not (.exists deps-checksum-file))
              (not= (slurp deps-checksum-file) (deps-checksum project))))))
 
-(defn ^{:help-arglists '([])} deps
+(defn deps
   "Download :dependencies and put them in :library-path."
-  ([project skip-dev deps-set]
-     (when (fetch-deps? project deps-set skip-dev)
-       (when-not (or (:disable-deps-clean project)
-                     (:disable-implicit-clean project))
-         (delete-file-recursively (:library-path project) :silently))
-       (let [deps-task (doto (make-deps-task project deps-set) .execute)
-             fileset (.getReference lancet/ant-project
-                                    (.getFilesetId deps-task))]
-         (.mkdirs (File. (:library-path project)))
-         (copy-dependencies (:jar-behavior project)
-                            ;; Leiningen's process only has access to lib/dev.
-                            (if (:eval-in-leiningen project)
-                              "lib/dev"
-                              (:library-path project))
-                            true fileset)
-         (when (use-dev-deps? project skip-dev)
-           ;; TODO: skip-dev/deps-set args are nonsense; we should
-           ;; just replace :dependencies with :dev-dependencies and
-           ;; recur in 2.0.
-           (deps (assoc project :library-path (str (:root project) "/lib/dev")
-                        :disable-implicit-clean (if (:eval-in-leiningen project)
-                                                  false
-                                                  (:disable-implicit-clean
-                                                   project)))
-                 true :dev-dependencies))
-         (when (:checksum-deps project)
-           (spit (new-deps-checksum-file project) (deps-checksum project)))
-         fileset)))
-  ([project skip-dev] (deps project skip-dev :dependencies))
-  ([project] (deps project false)))
+  [project]
+  (when (fetch-deps? project)
+    (when-not (or (:disable-deps-clean project)
+                  (:disable-implicit-clean project))
+      (delete-file-recursively (:library-path project) :silently))
+    (let [deps-task (make-deps-task project)]
+      (when (seq (:dependencies project))
+        (.execute deps-task)
+        (.mkdirs (File. (:library-path project)))
+        (copy-dependencies (:jar-behavior project)
+                           ;; Leiningen's process only has access to lib/dev.
+                           (if (:eval-in-leiningen project)
+                             "lib/dev"
+                             (:library-path project))
+                           true (.getReference lancet/ant-project
+                                               (.getFilesetId deps-task))))
+      (when (seq (:native-dependencies project))
+        (deps (assoc project :disable-deps-clean true
+                     :dependencies (:native-dependencies project)
+                     :native-dependencies nil :dev-dependencies nil)))
+      (when (seq (:dev-dependencies project))
+        (deps (assoc project :library-path (str (:root project) "/lib/dev")
+                     :dependencies (:dev-dependencies project)
+                     :native-dependencies nil :dev-dependencies nil
+                     :disable-implicit-clean (if (:eval-in-leiningen project)
+                                               false
+                                               (:disable-implicit-clean
+                                                project)))))
+      (when (:checksum-deps project)
+        (spit (new-deps-checksum-file project) (deps-checksum project)))
+      (.getReference lancet/ant-project (.getFilesetId deps-task)))))
