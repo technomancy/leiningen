@@ -1,5 +1,21 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.6.0 / ???
+
+* Fix a bug where help output could be truncated by plugin issues.
+
+* Support native dependencies.
+
+* Add retest task.
+
+* Add search task.
+
+* Remove deprecated build.clojure.org repositories.
+
+* Remove user/*classpath* var.
+
+* Support :extra-classpath-dirs in project.clj.
+
 = 1.5.2 / 2011-04-13
 
 * Check rlwrap for support of custom quotes before using.
