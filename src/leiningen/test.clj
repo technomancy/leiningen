@@ -26,14 +26,14 @@ each namespace and print an overall summary."
           (require n# :reload))
         ~(form-for-hook-selectors selectors)
         (let [failures# (atom #{})
-              ;; _# (robert.hooke/add-hook
-              ;;     #'clojure.test/report
-              ;;     (fn report-with-failures [report# m# & args#]
-              ;;       (when (#{:error :fail} (:type m#))
-              ;;         (swap! failures# conj
-              ;;                (-> clojure.test/*testing-vars*
-              ;;                    first meta :ns ns-name)))
-              ;;       (apply report# m# args#)))
+              _# (leiningen.util.injected/add-hook
+                  #'clojure.test/report
+                  (fn report-with-failures [report# m# & args#]
+                    (when (#{:error :fail} (:type m#))
+                      (swap! failures# conj
+                             (-> clojure.test/*testing-vars*
+                                 first meta :ns ns-name)))
+                    (apply report# m# args#)))
               summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
           (spit ".lein-failures" (pr-str @failures#))
