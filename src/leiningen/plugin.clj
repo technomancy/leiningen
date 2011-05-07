@@ -1,15 +1,12 @@
 (ns leiningen.plugin
   "Manage user-level plugins."
-  (:use [leiningen.core :only (home-dir
-                               read-project
-                               abort)]
-        [leiningen.uberjar :only (write-components)]
-        [leiningen.deps :only (deps)]
-        [leiningen.jar :only (local-repo-path
-                              extract-jar
-                              get-default-uberjar-name)]
-        [leiningen.util.file :only (tmp-dir delete-file-recursively)]
-        [clojure.java.io :only (file)])
+  (:use [leiningen.core :only [home-dir read-project abort]]
+        [leiningen.uberjar :only [write-components]]
+        [leiningen.deps :only [deps]]
+        [leiningen.jar :only [local-repo-path extract-jar
+                              get-default-uberjar-name]]
+        [leiningen.util.file :only [tmp-dir delete-file-recursively]]
+        [clojure.java.io :only [file]])
   (:require [leiningen.install]
             [leiningen.help])
   (:import (java.util.zip ZipOutputStream)
