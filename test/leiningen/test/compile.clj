@@ -64,3 +64,7 @@
   (delete-file-recursively (file (:root tricky-name-project) "classes") :silent)
   (is (zero? (compile tricky-name-project)))
   (is (empty? (.list (file (:root tricky-name-project) "classes")))))
+
+(deftest test-injection
+  (is (zero? (eval-in-project sample-project
+                              '#'leiningen.util.injected/add-hook))))

@@ -10,7 +10,7 @@
 
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
-     (robert.hooke/add-hook
+     (leiningen.util.injected/add-hook
       (resolve 'clojure.test/test-var)
       (fn test-var-with-selector [test-var# var#]
         (when (reduce #(or %1 (%2 (assoc (meta var#) ::var var#)))

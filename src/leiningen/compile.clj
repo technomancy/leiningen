@@ -20,9 +20,6 @@
 
 (def *skip-auto-compile* false)
 
-(def ^{:doc "A list of namespaces to inject into project subprocesses."}
-  injected-namespaces (atom ['robert.hooke]))
-
 (defn- regex?
   "Returns true if we have regex class"
   [str-or-re]
@@ -130,21 +127,15 @@
 (defn- get-jvm-args [project]
   (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
 
-(defn- injected-namespace-forms [ns-name]
-  (with-open [rdr (-> ns-name ns->path resource reader PushbackReader.)]
-    (doall (take-while #(not= ::done %)
-                       (repeatedly #(read rdr false ::done))))))
-
-(defn- get-injected-form [injected-namespaces]
-  ;; Note: there's a posibility of conflicts here if a project
-  ;; requires a newer (say) hooke than Leiningen's, but since this
-  ;; injection doesn't affect clojure.core/*loaded-libs*, if the
-  ;; project requires hooke, it will load over the injected copy.
-  (mapcat injected-namespace-forms injected-namespaces))
+(defn- injected-forms []
+  (with-open [rdr (-> "robert/hooke.clj" resource reader PushbackReader.)]
+    `(do (ns ~'leiningen.util.injected)
+         ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
+         (ns ~'user))))
 
 (defn get-readable-form [java project form init]
   (let [form `(do ~init
-                  ~@(get-injected-form @injected-namespaces)
+                  ~(injected-forms)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
                   ~form)]
@@ -165,9 +156,8 @@
 ;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
-  set correctly for the project. Pass in a handler function to have it called
-  with the java task right before executing if you need to customize any of its
-  properties (classpath, library-path, etc)."
+  set correctly for the project. If the form depends on any requires, put them
+  in the init arg to avoid the Gilardi Scenario: http://technomancy.us/143"
   [project form & [handler skip-auto-compile init]]
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
