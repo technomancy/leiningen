@@ -50,7 +50,7 @@
 (defn parse-result [{:keys [u d]}]
   (let [[group artifact version classifier] (.split u "\\|")
         group (if (not= group artifact) group)
-        identifier [(symbol group artifact) version]]
+        identifier [(symbol group artifact) (format "\"%s\"" version)]]
     (if d
       [identifier d]
       [identifier])))
