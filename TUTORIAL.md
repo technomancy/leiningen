@@ -293,7 +293,7 @@ of Leiningen projects:
 
 * An application you can distribute to end-users
 * A server-side application
-* A library
+* A library for other Clojure projects to consume
 
 For the first, you typically either build an uberjar or use a
 shell-wrapper.  For libraries, you will want to have them published to
@@ -397,12 +397,22 @@ deployed using [pallet](http://hugoduncan.github.com/pallet/),
 [chef](http://opscode.com/chef/), or other mechanisms. Debian packages
 can be created with
 [lein-deb](https://github.com/travis/lein-deb). Web applications may
-be deployed using the
+be deployed using .war (web application archive) files created by the
 [lein-ring plugin](https://github.com/weavejester/lein-ring). You
 can even create
 [Hadoop projects](https://github.com/ndimiduk/lein-hadoop). These
 kinds of deployments are so varied that they are better-handled using
 plugins rather than tasks that are built-in to Leiningen itself.
+
+It may be tempting to deploy by just checking out your project and
+using "lein run" on production servers. However, it's much better to
+use Leiningen to create a deployable artifact in a continuous
+integration setting instead. This makes deployments much more
+repeatable. For example, you could have a
+[Jenkins](http://jenkins-ci.org) CI server run your project's full
+test suite, and if it passes, upload a tarball to S3. Then deployment
+is just a matter of pulling down and extracting the known-good tarball
+on your production servers.
 
 ### Publishing Libraries
 

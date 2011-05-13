@@ -21,6 +21,14 @@ Clojars) or it will conflict with the same artifact on other
 repositories. You should use "org.clojars.$USERNAME" as the group-id
 instead.
 
+If it's a Clojure project that already has a project.clj file, it's
+easy enough to just follow the regular <tt>lein jar, pom; scp
+[...]</tt> path. If you don't have a readily-available pom, you can
+create a dummy project with <tt>lein new</tt>. Edit project.clj to
+include your org.clojars.$USERNAME group-id, the project's original
+artifact name, and the version. Then you can use the output from
+<tt>lein pom</tt> to upload to clojars.
+
 ## Private Repositories
 
 There may be times when you want to make a library available to your
