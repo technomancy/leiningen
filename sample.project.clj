@@ -136,6 +136,8 @@
   :extra-classpath-dirs ["script"] ; more classpath entries not included in jar
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
+  ;; Construct classpath from jars in ~/.m2 rather than copying to :library-path
+  :local-repo-classpath true
   ;; Options to pass to java compiler for java source
   ;; See http://ant.apache.org/manual/Tasks/javac.html
   :javac-options {:destdir "classes/"}

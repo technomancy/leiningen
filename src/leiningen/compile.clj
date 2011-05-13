@@ -4,7 +4,7 @@
   (:use [leiningen.deps :only [deps]]
         [leiningen.core :only [ns->path user-settings]]
         [leiningen.javac :only [javac]]
-        [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
+        [leiningen.classpath :only [make-path find-jars get-classpath]]
         [clojure.java.io :only [file resource reader]]
         [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
@@ -165,7 +165,7 @@
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
       (compile project)))
-  (when (or (empty? (find-lib-jars project))
+  (when (or (empty? (find-jars project))
             (:checksum-deps project))
     (deps project))
   (if (:eval-in-leiningen project)

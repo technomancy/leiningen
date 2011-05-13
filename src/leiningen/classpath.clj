@@ -1,15 +1,35 @@
 (ns leiningen.classpath
   "Print the classpath of the current project."
   (:use [leiningen.core :only [read-project home-dir]]
+        [leiningen.deps :only [do-deps]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
+  (:require [lancet.core :as lancet]
+            [clojure.string :as string])
   (:import (org.apache.tools.ant.types Path)))
 
-(defn ^:internal find-lib-jars
+(defn ^{:internal true} fileset-paths [fileset]
+  (-> fileset
+      (.getDirectoryScanner lancet/ant-project)
+      (.getIncludedFiles)))
+
+(defn- find-lib-jars [project]
+  (.listFiles (file (:library-path project))))
+
+(defn- find-local-repo-jars [project]
+  ;; TODO: Shut up, ant. You are useless. Nobody cares about what you say.
+  ;; Removing ant-project loggers and redirecting their output streams
+  ;; does nothing. How to suppress output?
+  (for [path (fileset-paths (do-deps project :dependencies))]
+    (file (System/getProperty "user.home") ".m2" "repository" path)))
+
+(defn ^:internal find-jars
   "Returns a seq of Files for all the jars in the project's library directory."
   [project]
   (filter #(.endsWith (.getName %) ".jar")
-          (concat (.listFiles (file (:library-path project)))
+          (concat (if (:local-repo-classpath project)
+                    (find-local-repo-jars project)
+                    (find-lib-jars project))
                   ;; This must be hard-coded because it's used in
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
@@ -59,7 +79,7 @@
            (:resources-path project)]
           (:extra-classpath-dirs project)
           (checkout-deps-paths project)
-          (find-lib-jars project)
+          (find-jars project)
           (user-plugins)))
 
 (defn get-classpath-string [project]

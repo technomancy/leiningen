@@ -127,15 +127,17 @@
   (let [deps-task (make-deps-task project deps-set)]
     (when (seq (deps-set project))
       (.execute deps-task)
-      (.mkdirs (File. (:library-path project)))
-      (copy-dependencies (:jar-behavior project)
-                         ;; Leiningen's process only has access to lib/dev.
-                         (if (or (= :dev-dependencies deps-set)
-                                 (:eval-in-leiningen project))
-                           (str (:root project) "/lib/dev")
-                           (:library-path project))
-                         true (.getReference lancet/ant-project
-                                             (.getFilesetId deps-task))))
+      (when-not (or (:local-repo-classpath project)
+                    (:eval-in-leiningen project))
+        (.mkdirs (File. (:library-path project)))
+        (copy-dependencies (:jar-behavior project)
+                           ;; Leiningen's process only has access to lib/dev.
+                           (if (or (= :dev-dependencies deps-set)
+                                   (:eval-in-leiningen project))
+                             (str (:root project) "/lib/dev")
+                             (:library-path project))
+                           true (.getReference lancet/ant-project
+                                               (.getFilesetId deps-task)))))
     (.getReference lancet/ant-project (.getFilesetId deps-task))))
 
 (defn native-deps [project]
