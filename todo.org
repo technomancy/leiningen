@@ -19,10 +19,6 @@ See also https://github.com/technomancy/leiningen/issues
     http://www.sonatype.com/people/2010/08/introducing-aether/
   - Rename test-resources to dev-resources
     Breaking change; needs to wait for a major version bump.
-  - add option to use ~/.m2-based classpath instead of copying to lib/?
-    It looks like it would be easy to stop copying things into lib/ and
-    just use Maven's notion of the project's dependencies to construct a
-    classpath that references jars straight from ~/.m2.
   - shell wrappers should support multiple versions
     We could write out a different "foo-$VERSION" shell wrapper for each
     version of a project that gets installed and then have the plain
@@ -41,10 +37,17 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
-  - Merge lein-search
-  - Merge lein-retest
-  - Merge native-deps
-  - Add leiningen.util.injected namespace
+  - [x] add option to use ~/.m2-based classpath instead of copying to
+        lib/? It looks like it would be easy to stop copying things
+        into lib/ and just use Maven's notion of the project's
+        dependencies to construct a classpath that references jars
+        straight from ~/.m2.
+  - [x] Merge lein-search
+  - [x] Merge lein-retest
+  - [ ] Add support for N retries
+  - [x] Merge native-deps
+  - [ ] transitive native-deps support
+  - [x] Add leiningen.util.injected namespace
   - Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
 * For 1.5.1
