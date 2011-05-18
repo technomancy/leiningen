@@ -1,16 +1,30 @@
 (ns leiningen.new
   "Create a new project skeleton."
-  (:use [leiningen.core :only [ns->path abort]]
+  (:use [leiningen.core :only [ns->path abort user-settings]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
   (:import (java.util Calendar)))
 
+(defn format-settings [settings]
+  (letfn [(format-map [m]
+            (map #(str "  " %1 " " %2)
+                 (map str (keys m))
+                 (map str (vals m))))]
+    (apply str
+           (interpose "\n"
+                      (format-map settings)))))
+
 (defn write-project [project-dir project-name]
-  (.mkdirs (file project-dir))
-  (spit (file project-dir "project.clj")
-        (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
-             "  :description \"FIXME: write description\"\n"
-             "  :dependencies [[org.clojure/clojure \"1.2.1\"]])\n")))
+  (let [default-settings {:dependencies [['org.clojure/clojure "1.2.1"]]}
+        settings  (merge-with #(if %2 %2 %1)
+                              default-settings
+                              (user-settings))]
+    (.mkdirs (file project-dir))
+    (spit (file project-dir "project.clj")
+          (str "(defproject " 'project-name " \"1.0.0-SNAPSHOT\"\n"
+               "  :description \"FIXME: write description\"\n"
+               (format-settings (into (sorted-map) settings))
+               ")" ))))
 
 (defn write-implementation [project-dir project-clj project-ns]
   (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
