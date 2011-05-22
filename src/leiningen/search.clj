@@ -7,6 +7,8 @@
   (:import (java.util.zip ZipFile)
            (java.net URL)))
 
+;;; Fetching Indices
+
 (defn- unzip [source target-dir]
   (let [zip (ZipFile. source)
         entries (enumeration-seq (.entries zip))
@@ -40,6 +42,8 @@
        (catch java.io.FileNotFoundException _
          false)))
 
+;;; Searching
+
 (defn search-repository [[id {:keys [url]} :as repo] query]
   (if (ensure-fresh-index repo)
     (clucy/search (clucy/disk-index (.getAbsolutePath (index-location url)))
@@ -56,8 +60,10 @@
       [identifier])))
 
 (defn- print-results [results]
-  (doseq [result (sort-by ffirst (map parse-result results))]
-    (apply println result)))
+  (doseq [result (apply sorted-set (map parse-result results))]
+    (apply println result))
+  ;; TODO: show if there were more hits than would fit on the page
+  )
 
 (defn search
   "Search remote repository contents.
@@ -65,7 +71,7 @@
 The first run will download a set of indices, which will take a
 while. Pass in --update as the query to force a fresh download of all
 indices."
-  [project query]
+  [project query] ;; TODO: support custom page size?
   ;; you know what would be just super? pattern matching.
   (if (= "--update" query)
     (doseq [[_ {url :url} :as repo] (repositories-for project)]
