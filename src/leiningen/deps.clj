@@ -127,7 +127,8 @@
   (let [deps-task (make-deps-task project deps-set)]
     (when (seq (deps-set project))
       (.execute deps-task)
-      (when-not (or (:local-repo-classpath project)
+      (when-not (or (and (:local-repo-classpath project)
+                         (= :dependencies deps-set))
                     (:eval-in-leiningen project))
         (.mkdirs (File. (:library-path project)))
         (copy-dependencies (:jar-behavior project)
