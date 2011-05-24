@@ -44,10 +44,15 @@
 
 ;;; Searching
 
-(defn search-repository [[id {:keys [url]} :as repo] query]
+(def ^{:private true} page-size (:search-page-size (user-settings) 10))
+
+(defn search-repository [[id {:keys [url]} :as repo] query page]
   (if (ensure-fresh-index repo)
-    (clucy/search (clucy/disk-index (.getAbsolutePath (index-location url)))
-                  query (:search-page-size (user-settings) 25) :a)
+    (let [location (.getAbsolutePath (index-location url))
+          fetch-count (* page page-size)
+          offset (* (dec page) page-size)]
+      (drop offset (clucy/search (clucy/disk-index location)
+                                 query fetch-count :a)))
     (binding [*out* *err*]
       (println "Warning: couldn't download index for" url))))
 
@@ -59,23 +64,29 @@
       [identifier d]
       [identifier])))
 
-(defn- print-results [results]
-  (doseq [result (apply sorted-set (map parse-result results))]
-    (apply println result))
-  ;; TODO: show if there were more hits than would fit on the page
-  )
+(defn- print-results [[id] results page]
+  (when (seq results)
+    (println " == Results from" id "-" "Showing page" page
+             ;; TODO: expose total-hits from clucy. pull request submitted
+             ;; "of" (int (/ (:total-hits results page-size) page-size))
+             )
+    (doseq [result (map parse-result results)]
+      (apply println result))
+    (prn)))
 
 (defn search
   "Search remote repository contents.
 
 The first run will download a set of indices, which will take a
 while. Pass in --update as the query to force a fresh download of all
-indices."
-  [project query] ;; TODO: support custom page size?
-  ;; you know what would be just super? pattern matching.
-  (if (= "--update" query)
-    (doseq [[_ {url :url} :as repo] (repositories-for project)]
-      (delete-file-recursively (index-location url) :silently)
-      (ensure-fresh-index repo))
-    (doseq [repo (repositories-for project)]
-      (print-results (search-repository repo query)))))
+indices. Also accepts a second parameter for fetching successive pages."
+  ([project query] (search project query 1))
+  ([project query page]
+     ;; you know what would be just super? pattern matching.
+     (if (= "--update" query)
+       (doseq [[_ {url :url} :as repo] (repositories-for project)]
+         (delete-file-recursively (index-location url) :silently)
+         (ensure-fresh-index repo))
+       (doseq [repo (repositories-for project)
+               :let [page (Integer. page)]]
+         (print-results repo (search-repository repo query page) page)))))
