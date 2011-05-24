@@ -78,6 +78,7 @@
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
   ([code]
+     (shutdown-agents)
      (System/exit code))
   ([] (exit 0)))
 
@@ -282,4 +283,5 @@ Takes major, minor and incremental versions into account."
      (doseq [[task & args] (make-groups *command-line-args*)
              :let [result (apply -main (or task "help") args)]]
        (when (and (number? result) (pos? result))
-         (exit result)))))
+         (exit result)))
+     (exit 0)))
