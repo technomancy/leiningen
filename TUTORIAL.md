@@ -93,10 +93,10 @@ libraries it is often the same as the artifact-id, in which case you
 may leave it out of the Leiningen dependency notation. For Java
 libraries often a reversed domain name is used as the group id.
 
-Many Java libraries can be found by searching
-[Jarvana](http://jarvana.com), though you'll need to translate the
+Most Java libraries can be found by searching
+[Maven Central](http://search.maven.org), though you'll need to translate the
 Maven XML notation into
-Leiningen's. [Lucene](http://jarvana.com/jarvana/archive-details/org/apache/lucene/lucene-core/3.0.2/lucene-core-3.0.2.jar)
+Leiningen's. [Lucene](http://search.maven.org/#artifactdetails%7Corg.apache.lucene%7Clucene-core%7C3.0.2%7Cjar)
 is a typical example:
 
     <dependency>

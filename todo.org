@@ -37,8 +37,15 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
-  - [x] support ns/name in run task
+  - [ ] investigate problems running deeper inside project dir
+  - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
+  - [ ] make :repl-init change initial ns of repl and swank
   - [ ] take care of multiple versions of plugins in ~/.lein/plugins
+  - [ ] transitive native-deps support
+  - [ ] Trampoline functionality
+    http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] more flexibility in search results
+  - [x] support ns/name in run task
   - [x] add option to use ~/.m2-based classpath instead of copying to
         lib/? It looks like it would be easy to stop copying things
         into lib/ and just use Maven's notion of the project's
@@ -46,12 +53,8 @@ See also https://github.com/technomancy/leiningen/issues
         straight from ~/.m2.
   - [x] Merge lein-search
   - [x] Merge lein-retest
-  - [ ] Add support for N retries
   - [x] Merge native-deps
-  - [ ] transitive native-deps support
   - [x] Add leiningen.util.injected namespace
-  - Trampoline functionality
-    http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
 * For 1.5.1
 ** TODO
    - [x] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
