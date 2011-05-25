@@ -37,7 +37,6 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
-  - [ ] investigate problems running deeper inside project dir
   - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
   - [ ] make :repl-init change initial ns of repl and swank
   - [ ] take care of multiple versions of plugins in ~/.lein/plugins
