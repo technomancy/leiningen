@@ -1,8 +1,14 @@
 @echo off
 
-set LEIN_VERSION=1.5.0-SNAPSHOT
+set LEIN_VERSION=1.6.0-SNAPSHOT
 
 setLocal EnableExtensions EnableDelayedExpansion
+
+if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
+    set SNAPSHOT=YES
+) else (
+    set SNAPSHOT=NO
+)
 
 rem LEIN_JAR and LEIN_HOME variables can be set manually.
 
@@ -32,7 +38,7 @@ for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
 )
 set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
-set CLASSPATH=%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src;"%CLASSPATH%"
+set CLASSPATH="%CLASSPATH%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src
 
 if exist "%~f0\..\..\src\leiningen\core.clj" (
     rem Running from source checkout.
@@ -44,11 +50,11 @@ if exist "%~f0\..\..\src\leiningen\core.clj" (
 
     if "x!LEIN_LIBS!" == "x" if not exist %LEIN_JAR% goto NO_DEPENDENCIES
 
-    set CLASSPATH=!LEIN_LIBS!;%CLASSPATH%;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
+    set CLASSPATH=%CLASSPATH%;!LEIN_LIBS!;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
 ) else (
     rem Not running from a checkout.
     if not exist %LEIN_JAR% goto NO_LEIN_JAR
-    set CLASSPATH=%LEIN_JAR%;%CLASSPATH%
+    set CLASSPATH=%CLASSPATH%;%LEIN_JAR%
 )
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
@@ -94,6 +100,8 @@ if exist %LEIN_JAR% (
 for %%f in (%LEIN_JAR%) do set LEIN_INSTALL_DIR="%%~dpf"
 if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
+echo Downloading Leiningen now...
+
 set HTTP_CLIENT=wget --no-check-certificate -O
 wget>nul 2>&1
 if ERRORLEVEL 9009 (
@@ -111,7 +119,8 @@ goto EOF
 
 :DOWNLOAD_FAILED
 echo.
-echo *** DOWNLOAD FAILED! Check URL/Version. ***
+echo Failed to download %LEIN_JAR_URL%
+if %SNAPSHOT% == YES echo See README.md for SNAPSHOT build instructions.
 echo.
 goto EOF
 

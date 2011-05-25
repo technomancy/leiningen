@@ -1,14 +1,15 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:require lancet)
-  (:use  [leiningen.deps :only [deps]]
-         [leiningen.core :only [ns->path]]
-         [leiningen.javac :only [javac]]
-         [leiningen.classpath :only [make-path find-lib-jars get-classpath]]
-         [clojure.java.io :only [file]]
-         [leiningen.util.ns :only [namespaces-in-dir]])
+  (:require [lancet.core :as lancet])
+  (:use [leiningen.deps :only [deps]]
+        [leiningen.core :only [ns->path user-settings]]
+        [leiningen.javac :only [javac]]
+        [leiningen.classpath :only [make-path find-jars get-classpath]]
+        [clojure.java.io :only [file resource reader]]
+        [leiningen.util.ns :only [namespaces-in-dir]])
   (:refer-clojure :exclude [compile])
-  (:import (org.apache.tools.ant.taskdefs Java)
+  (:import (java.io PushbackReader)
+           (org.apache.tools.ant.taskdefs Java)
            (java.lang.management ManagementFactory)
            (java.util.regex Pattern)
            (org.apache.tools.ant.types Environment$Variable)))
@@ -124,12 +125,17 @@
          (reduce join-broken-args [] (get-raw-input-args))))
 
 (defn- get-jvm-args [project]
-  (concat (get-input-args) (:jvm-opts project)))
+  (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
+
+(defn- injected-forms []
+  (with-open [rdr (-> "robert/hooke.clj" resource reader PushbackReader.)]
+    `(do (ns ~'leiningen.util.injected)
+         ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
+         (ns ~'user))))
 
 (defn get-readable-form [java project form init]
-  (let [cp (str (.getClasspath (.getCommandLine java)))
-        form `(do ~init
-                  (def ~'*classpath* ~cp)
+  (let [form `(do ~init
+                  ~(injected-forms)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
                   ~form)]
@@ -138,7 +144,7 @@
     ;; currently being passed; see
     ;; http://www.perlmonks.org/?node_id=300286 for some of the
     ;; landmines involved in doing it properly
-    (if (= (get-os) :windows)
+    (if (and (= (get-os) :windows) java)
       (pr-str (pr-str form))
       (prn-str form))))
 
@@ -150,9 +156,8 @@
 ;; TODO: split this function up
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
-  set correctly for the project. Pass in a handler function to have it called
-  with the java task right before executing if you need to customize any of its
-  properties (classpath, library-path, etc)."
+  set correctly for the project. If the form depends on any requires, put them
+  in the init arg to avoid the Gilardi Scenario: http://technomancy.us/143"
   [project form & [handler skip-auto-compile init]]
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
@@ -160,7 +165,8 @@
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
       (compile project)))
-  (when (empty? (find-lib-jars project))
+  (when (or (empty? (find-jars project))
+            (:checksum-deps project))
     (deps project))
   (if (:eval-in-leiningen project)
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
@@ -169,7 +175,8 @@
       (when (:debug project)
         (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
-      (try (eval form)
+      (try (binding [*warn-on-reflection* (:warn-on-reflection project)]
+             (eval (read-string (get-readable-form nil project form init))))
            0
            (catch Exception e
              (.printStackTrace e)
@@ -179,6 +186,8 @@
                           (find-native-lib-path project))]
       (.setProject java lancet/ant-project)
       (add-system-property java :clojure.compile.path (:compile-path project))
+      (add-system-property java (format "%s.version" (:name project))
+                           (:version project))
       (when (:debug project)
         (add-system-property java :clojure.debug true))
       (when native-path
@@ -218,37 +227,52 @@
                                     (:compile-path project)
                                     (:source-path project)) ".clj")))))
 
+(defn- relative-path [project f]
+  (let [root-length (if (= \/ (last (:compile-path project)))
+                      (count (:compile-path project))
+                      (inc (count (:compile-path project))))]
+    (subs (.getAbsolutePath f) root-length)))
+
 (defn- blacklisted-class? [project f]
   ;; true indicates all non-project classes are blacklisted
   (or (true? (:clean-non-project-classes project))
-      (let [relative (subs (.getAbsolutePath f) (count (:root project)))]
-        (some #(re-find % relative) (:clean-non-project-classes project)))))
+      (some #(re-find % (relative-path project f))
+            (:clean-non-project-classes project))))
+
+(defn- whitelisted-class? [project f]
+  (or (class-in-project? project f)
+      (and (:class-file-whitelist project)
+           (re-find (:class-file-whitelist project)
+                    (relative-path project f)))))
 
 (defn clean-non-project-classes [project]
   (when (:clean-non-project-classes project)
     (doseq [f (file-seq (file (:compile-path project)))
-            :when (and (.isFile f) (not (class-in-project? project f))
+            :when (and (.isFile f)
+                       (not (whitelisted-class? project f))
                        (blacklisted-class? project f))]
       (.delete f))))
 
 (defn- status [code msg]
   (when-not *silently*
-    (.write (if (zero? code) *out* *err*) (str msg "\n")))
+    (binding [*out* (if (zero? code) *out* *err*)]
+      (println msg)))
   code)
 
 (def ^{:private true} success (partial status 0))
 (def ^{:private true} failure (partial status 1))
 
 (defn compile
-  "Ahead-of-time compile the namespaces given under :aot in project.clj or
-those given as command-line arguments."
+  "Compile Clojure source into .class files.
+
+Uses the namespaces specified under :aot in project.clj or those given
+as command-line arguments."
   ([project]
      (.mkdir (file (:compile-path project)))
      (when (:java-source-path project)
        (javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
-
          (binding [*skip-auto-compile* true]
            (try
              (if (zero? (eval-in-project project

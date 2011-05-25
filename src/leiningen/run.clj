@@ -3,12 +3,21 @@
   (:use [leiningen.compile :only [eval-in-project]]
         [leiningen.core :only [abort]]))
 
+(defn- get-ns-and-fn [given]
+  (if (= 'clojure.main given) ; special-case this oddity
+    ['clojure.main 'main]
+    (let [[given-ns given-sym] ((juxt namespace name) given)]
+      (map symbol (if given-ns
+                    [given-ns given-sym]
+                    [given-sym "-main"])))))
+
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
-  ([project ns & args]
-     (eval-in-project project `((ns-resolve '~(symbol ns) '~'-main) ~@args)
-                      nil nil `(require '~(symbol ns)))))
+  ([project given-main & args]
+     (let [[main-ns main-fn] (get-ns-and-fn (symbol given-main))]
+          (eval-in-project project `((ns-resolve '~main-ns '~main-fn) ~@args)
+                           nil nil `(require '~main-ns)))))
 
 (defn ^{:help-arglists '([])} run
   "Run a -main function with optional command-line arguments.
@@ -16,13 +25,15 @@
 USAGE: lein run [--] [ARGS...]
 Calls the -main function in the namespace specified as :main in project.clj.
 You may use -- to escape the first argument in case it begins with `-' or `:'.
+If your main function is not called \"-main\", you may use a namespaced symbol
+like clojure.main/main.
 
-USAGE: lein run -m NAMESPACE [ARGS...]
-Calls the -main function in the specified namespace.
+USAGE: lein run -m NAMESPACE[/MAIN_FUNCTION] [ARGS...]
+Calls the main function in the specified namespace.
 
 USAGE: lein run :alias [ARGS...]
 Aliases can be defined in project.clj as
-    :run-aliases {:alias a.namespace
+    :run-aliases {:alias a.namespace/my-main
                   :alias2 another.namespace}"
   [project & [flag & args :as all-args]]
   (let [kw (when (= (first flag) \:) (keyword (subs flag 1)))

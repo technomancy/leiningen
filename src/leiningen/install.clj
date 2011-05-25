@@ -39,9 +39,12 @@
                   (make-local-repo)))
 
 (defn install
-  "With no arguments, installs the current project and its dependencies in
-your local repository. With two arguments, downloads and installs a project
-from a remote repository. May place shell wrappers in ~/.lein/bin."
+  "Install current project or download specified project.
+
+With no arguments, installs the current project and its dependencies
+in your local repository. With two arguments, (group/name and version)
+downloads and installs a project from a remote repository. Places
+shell wrappers in ~/.lein/bin when provided."
   ([project]
      (let [jarfile (file (jar project))
            model (make-model project)
@@ -63,8 +66,8 @@ from a remote repository. May place shell wrappers in ~/.lein/bin."
        (install-shell-wrappers (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
-            (binding [*ns* (the-ns 'leiningen.core)
-                      copy-dependencies (constantly nil)]
-              (deps (read-project (format "%s/project.clj" temp-project)) true))
+            (binding [copy-dependencies (constantly nil)]
+              (deps (dissoc (read-project (format "%s/project.clj" temp-project))
+                            :dev-dependencies :native-dependencies)))
             (finally
              (delete-file-recursively temp-project :silently))))))

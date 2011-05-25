@@ -4,6 +4,8 @@
            (java.util.concurrent CountDownLatch)
            (org.apache.tools.ant.types Path)))
 
+(println "WARNING: lancet namespace is deprecated; use lancet.core.")
+
 (def #^{:doc "Dummy ant project to keep Ant tasks happy"}
   ant-project
   (let [proj (org.apache.tools.ant.Project.)

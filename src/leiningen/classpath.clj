@@ -1,15 +1,35 @@
 (ns leiningen.classpath
-  "Show the classpath of the current project."
+  "Print the classpath of the current project."
   (:use [leiningen.core :only [read-project home-dir]]
+        [leiningen.deps :only [do-deps]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
+  (:require [lancet.core :as lancet]
+            [clojure.string :as string])
   (:import (org.apache.tools.ant.types Path)))
 
-(defn ^:internal find-lib-jars
+(defn ^{:internal true} fileset-paths [fileset]
+  (-> fileset
+      (.getDirectoryScanner lancet/ant-project)
+      (.getIncludedFiles)))
+
+(defn- find-lib-jars [project]
+  (.listFiles (file (:library-path project))))
+
+(defn- find-local-repo-jars [project]
+  ;; TODO: Shut up, ant. You are useless. Nobody cares about what you say.
+  ;; Removing ant-project loggers and redirecting their output streams
+  ;; does nothing. How to suppress output?
+  (for [path (fileset-paths (do-deps project :dependencies))]
+    (file (System/getProperty "user.home") ".m2" "repository" path)))
+
+(defn ^:internal find-jars
   "Returns a seq of Files for all the jars in the project's library directory."
   [project]
   (filter #(.endsWith (.getName %) ".jar")
-          (concat (.listFiles (file (:library-path project)))
+          (concat (if (:local-repo-classpath project)
+                    (find-local-repo-jars project)
+                    (find-lib-jars project))
                   ;; This must be hard-coded because it's used in
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
@@ -20,14 +40,20 @@
          (catch Exception e
            (throw (Exception. (format "Problem loading %s" project) e))))))
 
+(defn- ensure-absolute [path root]
+  (.getCanonicalPath
+   (let [f (file path)]
+     (if (.isAbsolute f)
+       f
+       (file root f)))))
+
 (defn checkout-deps-paths [project]
   (apply concat (for [dep (.listFiles (file (:root project) "checkouts"))
                       ;; Note that this resets the leiningen.core/project var!
-                      :let [proj (binding [*ns* (find-ns 'leiningen.core)]
-                                   (read-dependency-project dep))]
+                      :let [proj (read-dependency-project dep)]
                       :when proj]
                   (for [d [:source-path :compile-path :resources-path]]
-                    (proj d)))))
+                    (ensure-absolute (proj d) dep)))))
 
 (defn user-plugins []
   (for [jar (.listFiles (file (home-dir) "plugins"))
@@ -51,15 +77,17 @@
            (:compile-path project)
            (:dev-resources-path project)
            (:resources-path project)]
+          (:extra-classpath-dirs project)
           (checkout-deps-paths project)
-          (find-lib-jars project)
+          (find-jars project)
           (user-plugins)))
 
 (defn get-classpath-string [project]
   (join java.io.File/pathSeparatorChar (get-classpath project)))
 
 (defn classpath
-  "Print out the classpath in which the project operates in a format suitable
-for java's -classpath option."
+  "Print the classpath of the current project.
+
+Suitable for java's -classpath option."
   [project]
   (println (get-classpath-string project)))

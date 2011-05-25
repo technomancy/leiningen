@@ -29,8 +29,9 @@ script](https://github.com/technomancy/leiningen/raw/master/bin/lein)
 instead. See the "Building" section below.
 
 On Windows most users can
+
 1. Download the Windows distribution
-[leiningen-1.4.2-win32.zip](https://github.com/downloads/technomancy/leiningen/leiningen-1.4.2-win32.zip)
+[leiningen-1.5.2-win.zip](https://github.com/downloads/technomancy/leiningen/leiningen-1.5.2-win.zip)
 2. Unzip in a folder of choice.
 3. Include the "lein" directory in PATH.
 
@@ -49,8 +50,6 @@ has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
     $ lein new NAME # generate a new project skeleton
-
-    $ lein deps # install dependencies in lib/
 
     $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
 
@@ -80,7 +79,7 @@ advantage of this, you should put it on your <tt>$PATH</tt>.
 
 Place a <tt>project.clj</tt> file in the project root like this:
 
-    (defproject leiningen "0.5.0-SNAPSHOT"
+    (defproject myproject "0.5.0-SNAPSHOT"
       :description "A build tool designed to not set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
       :dependencies [[org.clojure/clojure "1.1.0"]
@@ -96,7 +95,7 @@ You can also have user-level configuration that applies for all
 projects. The <tt>~/.lein/init.clj</tt> file will be loaded every time
 Leiningen launches; any arbitrary code may go there. This code is
 executed inside Leiningen itself, not in your project. Set the
-<tt>:repl-init-script</tt> key in project.clj to point to a file if
+<tt>:repl-init</tt> key in project.clj to point to a namespace if
 you want code executed inside your project.
 
 You can also manage your plugins with the <tt>plugin</tt> task. Use
@@ -112,7 +111,7 @@ See the plugin task's help for more information.
 ## FAQ
 
 **Q:** How do you pronounce Leiningen?  
-**A:** It's LINE-ing-en. I think.
+**A:** It's LINE-ing-en. ['laɪnɪŋən]
 
 **Q:** What does this offer over [Lancet](https://github.com/stuarthalloway/lancet)?  
 **A:** Lancet is more of a library than a build tool. It doesn't predefine
@@ -123,8 +122,8 @@ See the plugin task's help for more information.
 
 **Q:** But Maven is terrifying!  
 **A:** That's not a question. Anyway, Leiningen only uses the dependency
-   resolution parts of Maven, which are quite tame. For the actual
-   task execution cycles it uses Ant under the covers via Lancet.
+   resolution parts of Maven, which are quite tame. For some other
+   build-related functionality it uses Ant under the covers via Lancet.
 
 **Q:** But Ant is terrifying!  
 **A:** That's [true](http://www.defmacro.org/ramblings/lisp.html). Ant is
@@ -142,19 +141,14 @@ See the plugin task's help for more information.
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).
 
+**Q:** It says a required artifact is missing for "super-pom". What's that?  
+**A:** The Maven API that Leiningen uses refers to your project as
+  "super-pom". It's just a quirk of the API. It probably means there
+  is a typo in your :dependency declaration in project.clj.
+
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** Open-source jars can be uploaded to Clojars (see "Publishing"
-  in the tutorial), though be sure to use the group-id of
-  "org.clojars.$USERNAME" in order to avoid conflicts and to allow the
-  original authors to claim it in the future once they get around to
-  uploading. Alternatively you can do a one-off install into your
-  local repository in ~/.m2 with Maven. Add a dependency to
-  project.clj that doesn't exist in any remote repository and run
-  <tt>lein deps</tt>. It won't succeed, but the output will include
-  the <tt>mvn</tt> invocation to do this. It's _much_ better to get
-  the dependency in a remote repository for repeatability reasons
-  though. For teams working on private projects
-  [Hudson](http://hudson-ci.org/) works well.
+**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
+  explains how to set up a private repository.
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
@@ -164,7 +158,6 @@ See the plugin task's help for more information.
   if they're not worth spinning off; the plugin guide shows how.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
-
 **A:** Use a feature called _checkout dependencies_. If you create a
   directory called <tt>checkouts</tt> in your project root and symlink
   some other project roots into it, Leiningen will allow you to hack
@@ -172,7 +165,7 @@ See the plugin task's help for more information.
   visible in the main project without having to go through the whole
   install/switch-projects/deps/restart-swank cycle. Note that this is
   not a replacement for listing the project in :dependencies; it
-  simply supplements that.
+  simply supplements that for tighter change cycles.
 
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes. Some libraries, such as log4j, depend on projects that are
@@ -181,17 +174,11 @@ See the plugin task's help for more information.
   any of their dependencies by using the :exclusions key. See
   sample.project.clj for details.
 
-**Q:** It says a required artifact is missing for "super-pom". What's that?  
-**A:** The Maven API that Leiningen uses refers to your project as
-  "super-pom". It's just a quirk of the API. It probably means there
-  is a typo in your :dependency declaration in project.clj.
-
 **Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
   compiled with a different version of Clojure than the one you're
   currently using. If it persists after running <tt>lein clean</tt> then it
-  is a problem with your dependencies. If you depend on contrib, make
-  sure the contrib version matches the Clojure version. Also note for
+  is a problem with your dependencies. Note that for
   your own project that AOT compilation in Clojure is much less
   important than it is in other languages. There are a few
   language-level features that must be AOT-compiled to work, generally
@@ -200,11 +187,13 @@ See the plugin task's help for more information.
   upon it.
 
 **Q:** What can be done to speed up launch?  
-**A:** The main delay involved in Leiningen comes from starting the JVM.
-  Launching "lein interactive" will give you an interactive session so
-  you can run many tasks against the same process instead of launching
-  a new one every time. Depending on your editor you may also be able
-  to take advantage of its Clojure integration.
+**A:** The main delay involved in Leiningen comes from starting the
+  JVM.  Launching "lein interactive" will give you an interactive
+  session so you can run many tasks against the same process instead
+  of launching a new one every time. Depending on your editor you may
+  also be able to take advantage of its Clojure integration. (See
+  [swank-clojure](http://github.com/technomancy/swank-clojure) or
+  [VimClojure](https://bitbucket.org/kotarak/vimclojure), for example.)
 
 **Q:** Still too slow; what else can make startup faster?  
 **A:** There are two flavours of the JVM, client and server. The
@@ -213,8 +202,16 @@ See the plugin task's help for more information.
   only works on 32-bit JVM installations. If you are on a 64-bit
   machine you can still use a client JVM if you install 32-bit
   packages; on Ubuntu try ia32-sun-java6-bin. Once you've installed
-  it, set the <tt>JAVA_CMD</tt> environment variable to
-  <tt>/usr/lib/jvm/ia32-java-6-sun/bin/java</tt>.
+  it, run <tt>sudo update-java-alternatives -s ia32-java-6-sun</tt>.
+  
+**Q:** I don't have access to stdin inside my project.  
+**A:** There's a bug in the Ant library that Leiningen uses to spawn
+  new processes that blocks access to console input. This means that
+  functions like <tt>read-line</tt> will not work as expected in most
+  contexts, though the <tt>repl</tt> task necessarily includes a
+  workaround. You can also use <tt>java -cp \`lein classpath\`
+  my.main.namespace</tt> to launch a process with the correct
+  classpath that still has access to stdin.
 
 ## Contributing
 
@@ -227,17 +224,18 @@ HACKING.md for more details on how Leiningen's codebase is structured.
 ## Building
 
 You don't need to "build" Leiningen per se, but when you're using a
-checkout you will need to get its dependencies in place. If you have a
-copy of an older Leiningen version around (at least 1.1.0, installed
-as lein-stable, for example), then you can run "lein-stable deps" in
-your checkout. If Leiningen's dependencies change it will be necessary
-to remove the lib/ directory entirely before running "lein deps"
-again. (This is not necessary for most projects, but Leiningen has
-unique bootstrapping issues when working on itself.)
+checkout you will need to get its dependencies in place. In most cases
+a <tt>lein self-install</tt> will usually get you what you
+need. However, this will occasionally fail for very new SNAPSHOT
+versions since the standalone jar will not have been uploaded yet. 
 
-Alternatively a <tt>lein self-install</tt> will usually get you what
-you need. However, this will occasionally fail for very new SNAPSHOT
-versions since the standalone jar will not have been uploaded yet.
+Alternatively if you have a copy of an older Leiningen version around
+(at least 1.1.0, installed as lein-stable, for example), then you can
+run "lein-stable deps" in your checkout. If Leiningen's dependencies
+change it will be necessary to remove the lib/ directory entirely
+before running "lein deps" again. (This is not necessary for most
+projects, but Leiningen has unique bootstrapping issues when working
+on itself.)
 
 You can also use Maven, just for variety's sake:
 
@@ -246,14 +244,12 @@ You can also use Maven, just for variety's sake:
 
 Symlink bin/lein from your checkout into a location on the $PATH. The
 script can figure out when it's being called from inside a checkout
-and use the checkout rather than the self-install uberjar.
-
-See the file HACKING.md for instructions on contributing.
+and use the checkout rather than the self-install uberjar if necessary.
 
 ## License
 
-Copyright (C) 2009-2011 Phil Hagelberg, Alex Osborne, Dan Larkin, and
-[contributors](https://www.ohloh.net/p/leiningen/contributors).
+Copyright © 2009-2011 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+[other contributors](https://www.ohloh.net/p/leiningen/contributors).
 
 Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
 me that good builds are important.

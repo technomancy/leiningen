@@ -1,4 +1,4 @@
-(ns test-help
+(ns leiningen.test.help
   (:use [leiningen.help]
         [clojure.test]))
 

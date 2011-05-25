@@ -1,6 +1,88 @@
 Leiningen NEWS -- history of user-visible changes
 
-= 1.5.0 / ???
+= 1.6.0 / ???
+
+* Fix a bug where help output could be truncated by plugin issues.
+
+* Support native dependencies.
+
+* Add retest task.
+
+* Add search task.
+
+* Remove deprecated build.clojure.org repositories.
+
+* Remove user/*classpath* var.
+
+* Support :extra-classpath-dirs in project.clj.
+
+= 1.5.2 / 2011-04-13
+
+* Check rlwrap for support of custom quotes before using.
+
+* Improve Solaris support. (Donald Clark Jackson)
+
+* Fix curl error relating to missing $https_proxy. (Pirmin Fix)
+
+= 1.5.1 / 2011-04-12
+
+* Improve rlwrap quote support. (Ambrose Bonnaire-Sergeant)
+
+* Prevent ns load exceptions from halting help.
+
+* Fix :repl-init namespace handling.
+
+* Make deps for :eval-in-leiningen projects available to lein process.
+
+* Pass $https_proxy environment variable to curl.
+
+* Fix :eval-in-leiningen when used with init arg.
+
+* Pom now includes dev-dependencies as test-scoped. (Thomas Engelschmidt)
+
+* Fix handling of arguments with spaces. (Stuart Fehr)
+
+* Fix a plugin bug where it would look for dev-dependencies.
+
+* Fix :min-lein-version checking. (Colin Jones)
+
+* Honor user settings in more places.
+
+* Fix running-as-root warning.
+
+* Revert back to warning when repository checksums don't match.
+
+= 1.5.0 / 2011-03-22
+
+* New projects now use Clojure 1.2.1.
+
+* Honor per-repository :update/:checksum policies.
+
+* Allow some repositories to be releases/snapshots-only.
+
+* Honor global :exclusions. (Joe Gallo)
+
+* Honor :class-file-whitelist to make classes/ deletion more manageable.
+
+* Accept :repl-init namespace in project.clj.
+
+* Warn when falling back to jline if rlwrap is not found.
+
+* Add prepend-task macro for simple hook usage.
+
+* Add flexibility to clean task with :extra-files-to-clean 
+  and :regex-to-clean.
+
+* Fix bug in interactive task that would cause infinite loop.
+
+* Add version into shell wrapper template.
+
+* Add pcmpl-lein.el for eshell completion.
+
+* Skip fetching dependencies when they haven't changed in project.clj
+  if :checksum-deps is set.
+
+* Add system property for $PROJECT.version.
 
 * Add deploy task.
 

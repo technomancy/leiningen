@@ -6,6 +6,8 @@ setLocal
 
 if "x%%JVM_OPTS%%" == "x" set JVM_OPTS=%%JAVA_OPTS%%
 set CLASSPATH="%s"
+set MAIN="%s"
+set VERSION="%s"
 
-java -cp "%%CLASSPATH%%" %%JVM_OPTS%% ^
- clojure.main -e "(use '%s)(apply -main *command-line-args*)" NUL %%*
+java -cp "%%CLASSPATH%%" %%JVM_OPTS%% -Dproject.version=%%VERSION%%^
+ clojure.main -e "(use '%%MAIN%%)(apply -main *command-line-args*)" NUL %%*

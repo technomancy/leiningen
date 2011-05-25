@@ -1,6 +1,7 @@
-(ns test-core
-  (:use [leiningen.core] :reload-all)
-  (:use [clojure.test]))
+(ns leiningen.test.core
+  (:use [clojure.test]
+        [leiningen.core]
+        [leiningen.test.helper :only [sample-project]]))
 
 (deftest test-make-groups-empty-args
   (is (= [[]] (make-groups []))))
@@ -33,8 +34,13 @@
   (is (not (matching-arity? "test" nil ["test-core"]))))
 
 (deftest test-unquote
-  (let [project (binding [*ns* (find-ns 'leiningen.core)]
-                  (read-project "test_projects/sample/project.clj"))]
-    (is (= ['org.clojure/clojure "1.1.0"]
-             (first (:dependencies project))))
-    (is (= '(fn [_] (> (rand) 0.5))))))
+  (is (= ['org.clojure/clojure "1.1.0"]
+           (first (:dependencies sample-project))))
+  (is (= '(fn [_] (> (rand) 0.5)))))
+
+(deftest test-version-greater-eq
+  (is (version-greater-eq? "1.5.0" "1.4.2"))
+  (is (not (version-greater-eq? "1.4.2" "1.5.0")))
+  (is (version-greater-eq? "1.2.3" "1.1.1"))
+  (is (version-greater-eq? "1.2.0" "1.2"))
+  (is (version-greater-eq? "1.2" "1")))

@@ -63,23 +63,29 @@
   [task-name]
   (let [[task-ns task] (resolve-task task-name)
         help-fn (ns-resolve task-ns 'help)]
-    (str (when-not (every? empty? (get-arglists task))
-           (str "Arguments: " (pr-str (get-arglists task)) "\n"))
-         (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
+    (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
              (:doc (meta task))
              (:doc (meta (find-ns task-ns))))
-         (subtask-help-for task-ns task))))
+         (subtask-help-for task-ns task)
+         (when (some seq (get-arglists task))
+           (str "\n\nArguments: " (pr-str (get-arglists task)))))))
 
 ;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
 (defn help-summary-for [task-ns]
-  (require task-ns)
-  (let [task-name (last (.split (name task-ns) "\\."))]
-    (str task-name (apply str (repeat (- 12 (count task-name)) " "))
-         (:doc (meta (find-ns task-ns))))))
+  (try (let [task-name (last (.split (name task-ns) "\\."))
+             ns-summary (:doc (meta (find-ns (doto task-ns require))))
+             first-line (first (.split (help-for task-name) "\n"))]
+         ;; Use first line of task docstring if ns metadata isn't present
+         (str task-name (apply str (repeat (- 12 (count task-name)) " "))
+              (or ns-summary first-line)))
+       (catch Throwable e
+         (binding [*out* *err*]
+           (str task-ns "  Problem loading: " (.getMessage e))))))
 
 (defn help
-  "Display a list of tasks or help for a given task. Also provides readme,
-tutorial, news, sample, and copying documentation."
+  "Display a list of tasks or help for a given task.
+
+Also provides readme, tutorial, news, sample, and copying documentation."
   ([task] (println (or (static-help task) (help-for task))))
   ([]
      (println "Leiningen is a build tool for Clojure.\n")

@@ -1,15 +1,12 @@
 (ns leiningen.plugin
   "Manage user-level plugins."
-  (:use [leiningen.core :only (home-dir
-                               read-project
-                               abort)]
-        [leiningen.uberjar :only (write-components)]
-        [leiningen.deps :only (deps)]
-        [leiningen.jar :only (local-repo-path
-                              extract-jar
-                              get-default-uberjar-name)]
-        [leiningen.util.file :only (tmp-dir delete-file-recursively)]
-        [clojure.java.io :only (file)])
+  (:use [leiningen.core :only [home-dir read-project abort]]
+        [leiningen.uberjar :only [write-components]]
+        [leiningen.deps :only [deps]]
+        [leiningen.jar :only [local-repo-path extract-jar
+                              get-default-uberjar-name]]
+        [leiningen.util.file :only [tmp-dir delete-file-recursively]]
+        [clojure.java.io :only [file]])
   (:require [leiningen.install]
             [leiningen.help])
   (:import (java.util.zip ZipOutputStream)
@@ -40,7 +37,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
         _ (extract-jar (file jarfile) temp-project)
         project (read-project (str (file temp-project "project.clj")))
         standalone-filename (plugin-standalone-filename group name version)]
-    (deps project)
+    (deps (dissoc project :dev-dependencies :native-dependencies))
     (with-open [out (-> (file plugins-path standalone-filename)
                         (FileOutputStream.)
                         (ZipOutputStream.))]

@@ -1,17 +1,19 @@
 #!/bin/bash
 
-export LEIN_VERSION="1.5.0-SNAPSHOT"
+LEIN_VERSION="1.6.0-SNAPSHOT"
+export LEIN_VERSION
 
-if [ "$USER" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
+if [ `whoami` = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
-    read
+    read _
 fi
 
 # cd to the project root, if applicable
+NOT_FOUND=1
 ORIGINAL_PWD="$PWD"
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ ! $NOT_FOUND ]; do
+while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; do
     cd ..
     if [ "$(dirname "$PWD")" = "/" ]; then
         NOT_FOUND=0
@@ -26,8 +28,8 @@ LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
 LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
 LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
-CLASSPATH=$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/:$CLASSPATH
-CLOJURE_JAR="/usr/share/java/clojure-1.2.0.jar"
+CLASSPATH=$CLASSPATH:$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/
+CLOJURE_JAR="/usr/share/java/clojure-1.2.1.jar"
 
 for JAR in lein/'*' \
     jtidy.jar ant.jar ant-launcher.jar xml-apis.jar; do
@@ -43,6 +45,7 @@ fi
 if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
     [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
     RLWRAP=`which rlwrap`
+    RLWRAP="$RLWRAP -m -q '\"'" # custom quote chars
 fi
 
 # The -Xbootclasspath argument is optional here: if the jar

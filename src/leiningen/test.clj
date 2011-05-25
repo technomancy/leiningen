@@ -10,13 +10,12 @@
 
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
-     (if-let [add-hook# (resolve 'robert.hooke/add-hook)]
-       (add-hook# (resolve 'clojure.test/test-var)
-                  (fn test-var-with-selector [test-var# var#]
-                    (when (reduce #(or %1 (%2 (assoc (meta var#) ::var var#)))
-                                  false ~selectors)
-                      (test-var# var#))))
-       (throw (Exception. "Test selectors require robert/hooke dep.")))))
+     (leiningen.util.injected/add-hook
+      (resolve 'clojure.test/test-var)
+      (fn test-var-with-selector [test-var# var#]
+        (when (reduce #(or %1 (%2 (assoc (meta var#) ::var var#)))
+                      false ~selectors)
+          (test-var# var#))))))
 
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
@@ -26,8 +25,18 @@ each namespace and print an overall summary."
         (doseq [n# '~namespaces]
           (require n# :reload))
         ~(form-for-hook-selectors selectors)
-        (let [summary# (binding [clojure.test/*test-out* *out*]
+        (let [failures# (atom #{})
+              _# (leiningen.util.injected/add-hook
+                  #'clojure.test/report
+                  (fn report-with-failures [report# m# & args#]
+                    (when (#{:error :fail} (:type m#))
+                      (swap! failures# conj
+                             (-> clojure.test/*testing-vars*
+                                 first meta :ns ns-name)))
+                    (apply report# m# args#)))
+              summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
+          (spit ".lein-failures" (pr-str @failures#))
           (when-not (= "1.5" (System/getProperty "java.specification.version"))
             (shutdown-agents))
           ;; Stupid ant won't let us return anything, so write results to disk
@@ -54,8 +63,10 @@ each namespace and print an overall summary."
     [nses selectors]))
 
 (defn test
-  "Run the project's tests. Accepts either a list of test namespaces to run or
-a list of test selectors. With no arguments, runs all tests."
+  "Run the project's tests.
+
+Accepts either a list of test namespaces to run or a list of test
+selectors. With no arguments, runs all tests."
   [project & tests]
   (when (:eval-in-leiningen project)
     (require '[clojure walk template stacktrace]))
@@ -63,9 +74,7 @@ a list of test selectors. With no arguments, runs all tests."
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)]
     (eval-in-project project (form-for-testing-namespaces
                               nses (.getAbsolutePath result) (vec selectors))
-                     nil nil `(do (require '~'clojure.test)
-                                  ~(when (seq selectors)
-                                     '(require 'robert.hooke))))
+                     nil nil '(require 'clojure.test))
     (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))
             success? (zero? (+ (:error summary) (:fail summary)))]

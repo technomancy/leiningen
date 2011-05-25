@@ -40,10 +40,12 @@
         (.createDeploymentArtifactRepository
          "local" url layout true))))
 
+;; TODO: support settings from leiningen.deps/make-repository
 (defn make-remote-repo [[name url]]
   (-> (.lookup container ArtifactRepositoryFactory/ROLE)
       (.createArtifactRepository
-       name url layout policy policy)))
+       name (:url url url) ; heh
+       layout policy policy)))
 
 (defn add-metadata [artifact pomfile]
   (.addMetadata artifact (ProjectArtifactMetadata. artifact pomfile)))
@@ -145,26 +147,32 @@ the :classifier key (if present) is the classifier on the
 dependency (as a string). The value for the :exclusions key, if
 present, is a seq of symbols, identifying group ids and artifact ids
 to exclude from transitive dependencies."
-  [dependency]
-  (when-not (vector? dependency)
-    (abort "Dependencies must be specified as vector:" dependency))
-  (let [[dep version & extras] dependency
-        extras-map (apply hash-map extras)
-        exclusions (:exclusions extras-map)
-        classifier (:classifier extras-map)
-        type (:type extras-map)
-        es (map make-exclusion exclusions)]
-    (doto (Dependency.)
-      ;; Allow org.clojure group to be omitted from clojure/contrib deps.
-      (.setGroupId (if (and (nil? (namespace dep))
-                            (re-find #"^clojure(-contrib)?$" (name dep)))
-                     "org.clojure"
-                     (or (namespace dep) (name dep))))
-      (.setArtifactId (name dep))
-      (.setVersion version)
-      (.setClassifier classifier)
-      (.setType (or type "jar"))
-      (.setExclusions es))))
+  ([dependency]
+     (make-dependency dependency {}))
+  ([dependency project]
+     (make-dependency dependency project nil))
+  ([dependency project scope]
+     (when (and dependency (not (vector? dependency)))
+       (throw (Exception. "Dependencies must be specified as vector:" #_dependency)))
+     (let [[dep version & extras] dependency
+           extras-map (apply hash-map extras)
+           exclusions (:exclusions extras-map)
+           classifier (:classifier extras-map)
+           type (:type extras-map)
+           es (map make-exclusion (concat exclusions
+                                          (:exclusions project)))]
+       (doto (Dependency.)
+         ;; Allow org.clojure group to be omitted from clojure/contrib deps.
+         (.setGroupId (if (and (nil? (namespace dep))
+                               (re-find #"^clojure(-contrib)?$" (name dep)))
+                        "org.clojure"
+                        (or (namespace dep) (name dep))))
+         (.setArtifactId (name dep))
+         (.setVersion version)
+         (.setScope scope)
+         (.setClassifier classifier)
+         (.setType (or type "jar"))
+         (.setExclusions es)))))
 
 (defn make-repository [[id settings]]
   (let [repo (Repository.)]
@@ -219,7 +227,9 @@ to exclude from transitive dependencies."
                 (.setUrl (:url project))
                 (.setBuild (make-build project)))]
     (doseq [dep (:dependencies project)]
-      (.addDependency model (make-dependency dep)))
+      (.addDependency model (make-dependency dep project)))
+    (doseq [dev (:dev-dependencies project)]
+      (.addDependency model (make-dependency dev project "test")))
     (doseq [repo (repositories-for project)]
       (.addRepository model (make-repository repo)))
     (when-let [scm (make-git-scm (file (:root project) ".git"))]

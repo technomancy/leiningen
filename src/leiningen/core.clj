@@ -1,8 +1,10 @@
 (ns leiningen.core
   (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
-        [clojure.walk :only [walk]])
-  (:import (java.io File)))
+        [clojure.walk :only [walk]]
+        [robert.hooke :only [add-hook]])
+  (:import (java.io File)
+           (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
 
 (def ^{:private true} project nil)
 
@@ -15,7 +17,7 @@
         identity
         args))
 
-(defn- normalize-path [project-root path]
+(defn ^{:internal true} normalize-path [project-root path]
   (when path
     (let [f (File. path)]
       (.getAbsolutePath (if (.isAbsolute f) f (File. project-root path))))))
@@ -64,8 +66,6 @@
                                :jar-dir (normalize-path#
                                          (or (:target-dir m#) (:jar-dir m#)
                                              root#))
-                               :java-source-path (normalize-path#
-                                                  (:java-source-path m#))
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "
@@ -73,15 +73,18 @@
      (when (:jar-dir m#)
        (println (str "WARNING: :jar-dir is deprecated; use "
                      ":target-dir.")))
-     (def ~(symbol (name project-name)) @#'project)))
+     #'project))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
   ([code]
+     (shutdown-agents)
      (System/exit code))
   ([] (exit 0)))
 
-(defn abort [& msg]
+(defn abort
+  "Print msg to standard err and exit with a value of 1."
+  [& msg]
   (binding [*out* *err*]
     (apply println msg)
     (exit 1)))
@@ -94,18 +97,44 @@
                             (File. (System/getProperty "user.home") ".lein"))
                       .mkdirs)))
 
-(def default-repos {"central" "http://repo1.maven.org/maven2"
-                    "clojure" "http://build.clojure.org/releases"
-                    "clojure-snapshots" "http://build.clojure.org/snapshots"
-                    "clojars" "http://clojars.org/repo/"})
+(defn user-init
+  "Load the user's ~/.lein/init.clj file, if present."
+  []
+  (let [init-file (File. (home-dir) "init.clj")]
+    (when (.exists init-file)
+      (load-file (.getAbsolutePath init-file)))))
 
-(defn repositories-for [project]
-  (merge (when-not (:omit-default-repositories project) default-repos)
-         (:repositories project)))
+(defn user-settings
+  "Look up the settings map from init.clj or an empty map if it doesn't exist."
+  []
+  (if-let [settings-var (resolve 'user/settings)]
+    @settings-var
+    {}))
+
+(def default-repos {"central" {:url "http://repo1.maven.org/maven2"
+                               :snapshots false}
+                    ;; TODO: possibly separate releases/snapshots in 2.0.
+                    "clojars" {:url "http://clojars.org/repo/"}})
+
+(defn- init-settings [id settings]
+  (cond (string? settings) {:url settings}
+        ;; infer snapshots/release policy from repository id
+        (= "releases" id) (merge {:snapshots false} settings)
+        (= "snapshots" id) (merge {:releases false} settings)
+        :else settings))
+
+(defn repositories-for
+  "Return a map of repositories including or excluding defaults."
+  [project]
+  (merge (when-not (:omit-default-repositories project)
+           default-repos)
+         (into {} (for [[id settings] (:repositories project)]
+                    [id (init-settings id settings)]))))
 
 (defn read-project
   ([file]
-     (try (load-file file)
+     (try (binding [*ns* (the-ns 'leiningen.core)]
+            (load-file file))
           project
           (catch java.io.FileNotFoundException _)))
   ([] (read-project "project.clj")))
@@ -131,24 +160,19 @@
   ([task] (resolve-task task #'task-not-found)))
 
 (defn- hook-namespaces [project]
-  (sort (or (:hooks project)
-            (and (:implicit-hooks project)
-                 (namespaces-matching "leiningen.hooks")))))
+  (sort (concat (or (:hooks project)
+                    (and (:implicit-hooks project)
+                         (namespaces-matching "leiningen.hooks")))
+                (:hooks (user-settings)))))
 
 (defn- load-hooks [project]
-  (try (doseq [n (hook-namespaces project)]
-         (require n))
-       (catch Exception e
-         (when-not (empty? (.list (File. "lib")))
-           (println "Warning: problem requiring hooks:" (.getMessage e))
-           (when (System/getenv "DEBUG")
-             (.printStackTrace e))
-           (println "...continuing without hooks completely loaded.")))))
-
-(defn user-init []
-  (let [init-file (File. (home-dir) "init.clj")]
-    (when (.exists init-file)
-      (load-file (.getAbsolutePath init-file)))))
+  (doseq [n (hook-namespaces project)]
+    (try (require n)
+         (catch Exception e
+           (when-not (empty? (.list (File. "lib")))
+             (println "Warning: problem requiring" n "hook:" (.getMessage e))
+             (when (System/getenv "DEBUG")
+               (.printStackTrace e)))))))
 
 (defn ns->path [n]
   (str (.. (str n)
@@ -196,6 +220,15 @@
           (abort "Wrong number of arguments to" task-name "task."
                  "\nExpected" args))))))
 
+(defn prepend-tasks
+  "Add a hook to target-var to run tasks-to-add, which must be tasks
+  taking a project argument and nothing else."
+  [target-var & tasks-to-add]
+  (add-hook target-var (fn [target project & args]
+                         (doseq [t tasks-to-add]
+                           (t project))
+                         (apply target project args))))
+
 (def arg-separator ",")
 
 (defn- append-to-group [groups arg]
@@ -216,11 +249,9 @@
   "Check if v1 is greater than or equal to v2, where args are version strings.
 Takes major, minor and incremental versions into account."
   [v1 v2]
-  (let [v1 (map #(Integer. %) (re-seq #"\d" (first (split v1 #"-" 2))))
-        v2 (map #(Integer. %) (re-seq #"\d" (first (split v2 #"-" 2))))]
-    (or (and (every? true? (map >= v1 v2))
-             (>= (count v1) (count v2)))
-        (every? true? (map > v1 v2)))))
+  (>= (.compareTo (DefaultArtifactVersion. v1)
+                  (DefaultArtifactVersion. v2))
+      0))
 
 (defn verify-min-version
   [project]
@@ -236,7 +267,7 @@ Takes major, minor and incremental versions into account."
                       "- Or by executing \"lein upgrade\"\n\n")))))
 
 (defn -main
-  ([& [task-name & args]]
+  ([task-name & args]
      (user-init)
      (let [task-name (or (@aliases task-name) task-name "help")
            project (if (.exists (File. "project.clj")) (read-project))
@@ -247,11 +278,10 @@ Takes major, minor and incremental versions into account."
        (binding [*compile-path* compile-path]
          (when project
            (load-hooks project))
-         (let [value (apply-task task-name project args task-not-found)]
-           (when (integer? value)
-             (exit value))))))
+         (apply-task task-name project args task-not-found))))
   ([]
      (doseq [[task & args] (make-groups *command-line-args*)
              :let [result (apply -main (or task "help") args)]]
        (when (and (number? result) (pos? result))
-         (exit result)))))
+         (exit result)))
+     (exit 0)))

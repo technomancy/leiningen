@@ -1,4 +1,4 @@
-(ns test-new
+(ns leiningen.test.new
   (:require [leiningen.new] :reload)
   (:use [clojure.test]
         [clojure.java.io :only [file]]

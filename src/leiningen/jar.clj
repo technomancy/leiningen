@@ -2,7 +2,7 @@
   "Package up all the project's files into a jar file."
   (:require [leiningen.compile :as compile]
             [clojure.string :as string]
-            [lancet])
+            [lancet.core :as lancet])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
         [clojure.java.io :only [copy file]])
@@ -63,7 +63,8 @@
     (format (if (.exists bin-file)
               (slurp bin-file)
               (read-bin-template system))
-            (script-classpath-for project deps-fileset system) main)))
+            (script-classpath-for project deps-fileset system)
+            main (:version project))))
 
 (defn- shell-wrapper-filespecs [project deps-fileset]
   (when (:shell-wrapper project)
@@ -191,7 +192,9 @@
       (copy (.getInputStream jar entry) f))))
 
 (defn jar
-  "Create a $PROJECT-$VERSION.jar file containing project's source files as well
+  "Package up all the project's files into a jar file.
+
+Create a $PROJECT-$VERSION.jar file containing project's source files as well
 as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   ([project jar-name]
@@ -199,7 +202,8 @@ function in that namespace will be used as the main-class for executable jar."
                deps (memoize deps)]
        (when (zero? (compile/compile project))
          (let [jar-path (get-jar-filename project jar-name)
-               deps-fileset (deps project)]
+               deps-fileset (deps (dissoc project :dev-dependencies
+                                          :native-dependencies))]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
            jar-path))))

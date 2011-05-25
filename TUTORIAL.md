@@ -25,7 +25,8 @@ Generating a new project is easy:
     |       `-- core.clj
     `-- test
         `-- myproject
-            `-- core_test.clj
+            `-- test
+                `-- core.clj
 
 Here we've got your project's README, a src/ directory containing the
 code, a test/ directory, and a project.clj file which describes your
@@ -33,11 +34,10 @@ project to Leiningen. The src/myproject/core.clj file corresponds to
 the myproject.core namespace.
 
 Note that we use myproject.core instead of just myproject since
-single-segment namespaces are discouraged in Clojure. Also the file
-test/myproject/core_test.clj corresponds with the myproject.core-test
-namespace--you need to remember to replace dashes in namespace names
-with underscores in file names on disk since the JVM has trouble
-loading files with dashes in the name.
+single-segment namespaces are discouraged in Clojure. Also if you have
+namespaces with dashes in the name, the corresponding file will need
+to use underscores instead since the JVM has trouble loading files
+with dashes in the name.
 
 ## Packaging
 
@@ -52,29 +52,27 @@ Libraries for the JVM are packaged up as .jar files, which are
 basically just .zip files with a little extra JVM-specific metadata.
 They usually contain .class files (JVM bytecode) and .clj source
 files, but they can also contain other things like config
-files. Leiningen downloads them from remote Maven repositories for
-you.
+files. Leiningen downloads jar files of dependencies from remote Maven
+repositories for you.
 
 ## project.clj
 
     $ cat project.clj
 
     (defproject myproject "1.0.0-SNAPSHOT"
-      :description "FIXME: write"
-      :dependencies [[org.clojure/clojure "1.2.0"]
-                     [org.clojure/clojure-contrib "1.2.0"]])
+      :description "FIXME: write description"
+      :dependencies [[org.clojure/clojure "1.2.0"]])
 
 Fill in the :description with a short paragraph so that your project
-will show up in search results once you upload to Clojars (as
-described below). At some point you'll need to flesh out the README
-too, but for now let's skip ahead to setting :dependencies.  Note that
-Clojure is just another dependency here. Unlike most languages, it's
-easy to swap out any version of Clojure. If you're using Clojure
-Contrib, make sure that version matches the Clojure version.
+will show up in search results once you publish it. At some point
+you'll need to flesh out the README too, but for now let's skip ahead
+to setting :dependencies.  Note that Clojure is just another
+dependency here. Unlike most languages, it's easy to swap out any
+version of Clojure.
 
 If you've got a simple pure-clojure project, you will be fine with the
-default of depending only on Clojure and Contrib, but otherwise you'll
-need to list other dependencies.
+default of depending only on Clojure, but otherwise you'll need to
+list other dependencies.
 
 ## Dependencies
 
@@ -82,27 +80,23 @@ need to list other dependencies.
 jar repository, and it's where you'll find Clojure dependencies for your
 project. Each dependency even lists out the snippet you'll need to put
 in your project.clj to use it. Let's take a look at what it would take
-to add a library named Robert Hooke:
+to add a library named Lancet:
 
-It's [available on Clojars](http://clojars.org/robert/hooke) with the
+It's [available on Clojars](http://clojars.org/lancet) with the
 Leiningen dependency notation shown as below:
 
-    [robert/hooke "1.1.0"]
+    [lancet "1.0.0"]
 
-* "robert" is called the "group-id"
-* "hooke" is called the "artifact-id"
-* "1.1.0" is the version of the jar file you require
+The "artifact id" here is "lancet", and "1.0.0" is the version you
+require. Every library also has a "group id", though for Clojure
+libraries it is often the same as the artifact-id, in which case you
+may leave it out of the Leiningen dependency notation. For Java
+libraries often a reversed domain name is used as the group id.
 
-For projects on Clojars, often the group-id is the same as the
-artifact-id, in which case you may leave it out of the Leiningen
-dependency notation. For Java libraries often a domain name is used as
-the group-id. The group and artifact names and version at the top of
-the defproject form in project.clj follows the same rules.
-
-Java libraries can be found by searching
-[Jarvana](http://jarvana.com), though you'll need to translate the
+Most Java libraries can be found by searching
+[Maven Central](http://search.maven.org), though you'll need to translate the
 Maven XML notation into
-Leiningen's. [Lucene](http://jarvana.com/jarvana/archive-details/org/apache/lucene/lucene-core/3.0.2/lucene-core-3.0.2.jar)
+Leiningen's. [Lucene](http://search.maven.org/#artifactdetails%7Corg.apache.lucene%7Clucene-core%7C3.0.2%7Cjar)
 is a typical example:
 
     <dependency>
@@ -137,19 +131,23 @@ current project in the local repository with this command:
     Wrote pom.xml
     [INFO] Installing myproject-1.0.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/1.0.0-SNAPSHOT/myproject-1.0.0-SNAPSHOT.jar
 
+Note that some libraries make their group-id and artifact-id
+correspond with the namespace they provide inside the jar, but this is
+just a convention. There is no guarantee they will match up at all, so
+consult the library's documentation before writing your :require clauses.
+
 Generally Leiningen will fetch your dependencies when they're needed,
 but if you have just added a new dependency and you want to force it
 to fetch it, you can do that too:
 
     $ lein deps
 
-    Copying 4 files to ~/src/myproject/lib
+    Copying 3 files to ~/src/myproject/lib
     Copied :dependencies into ~/src/myproject/lib.
 
 Dependencies are downloaded from Clojars, the central Maven (Java)
-repository, the [official Clojure build
-server](http://build.clojure.org), and any other repositories that you
-add to your project.clj file. See :repositories in
+repository, and any other repositories that you add to your
+project.clj file. See :repositories in
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
 If you've confirmed that your project will work with a number of
@@ -160,7 +158,7 @@ instead of a single version:
 
 See [Maven's version range
 specification](http://maven.apache.org/plugins/maven-enforcer-plugin/rules/versionRanges.html)
-for details. Don't do this unless you have manually confirming that it
+for details. Don't do this unless you have manually confirmed that it
 works with each of those versions though. You can't assume that your
 dependencies will use semantic versions; some projects even introduce
 backwards-incompatible changes in bugfix point releases.
@@ -173,14 +171,21 @@ the project to function. Leiningen calls these
 :dev-dependencies. They're listed in project.clj alongside regular
 dependencies and downloaded when you run <tt>lein deps</tt>, but they
 are not brought along when another project depends on your
-project. Using [swank-clojure](https://github.com/technomancy/swank-clojure)
+project.
+
+Using [swank-clojure](https://github.com/technomancy/swank-clojure)
 for Emacs support would be a typical example; you may not want it
-included at runtime, but it's useful while you're hacking on the project.
+included at runtime, but it's useful while you're hacking on the
+project.
+
+Dev dependencies may include plugin code that runs in Leiningen's
+process (providing additional tasks or augmenting existing ones)
+or code that runs in the context of your project.
 
 ## Writing the Code
 
 This is the part Leiningen can't really help you with; you're on your
-own here. Well--not quite. Leiningen can help you with running your
+own here. Well—not quite. Leiningen can help you with running your
 tests.
 
     $ lein test
@@ -221,7 +226,11 @@ Then add a :test-selectors map to project.clj:
 Now if you run "lein test" it will only run deftests that don't have
 :integration metadata, while "lein test :integration" will only run
 the integration tests and "lein test :all" will run everything. You
-can include test selectors and listing test namespaces in the same run.
+can include test selectors and listing test namespaces in the same
+run. Note that this feature requires an additional entry in the
+:dependencies listing to function:
+
+    [robert/hooke "1.1.0"]
 
 Running "lein test" from the command-line is not a good solution for
 test-driven development due to the slow startup time of the JVM. For
@@ -229,18 +238,18 @@ quick feedback, try starting an interactive session with "lein int"
 and running tests from in there. Other options include editor
 integration (see
 [clojure-test-mode](https://github.com/technomancy/clojure-mode) for
-Emacs) or keep a repl open and call <tt>run-tests</tt> from there as
-you work.
+Emacs) or keeping a repl open and calling <tt>run-tests</tt> from
+there as you work.
 
 Keep in mind that while keeping a single process around is convenient,
 it's easy for that process to get into a state that doesn't reflect
-the files on disk--functions that are loaded and then deleted from the
+the files on disk—functions that are loaded and then deleted from the
 file will remain in memory, making it easy to miss problems arising
-from missing functions (referred to as "getting slimed"). Because of
-this it's advised to do a "lein test" run with a fresh instance
-periodically, perhaps before you commit.
+from missing functions (often referred to as "getting
+slimed"). Because of this it's advised to do a "lein test" run with a
+fresh instance periodically, perhaps before you commit.
 
-## Compiling
+## AOT Compiling
 
 If you're lucky you'll be able to get away without doing any AOT
 (ahead-of-time) compilation. But there are some Java interop features
@@ -258,9 +267,10 @@ needed, but if you need to force it you can:
     Compiling myproject.core
 
 For your code to compile, it must be run. This means that you
-shouldn't have any code with side-effects in the top-level. If you
-have code that should run on startup, place it in a <tt>-main</tt>
-function as explained below under "Uberjar".
+shouldn't have any code with side-effects in the top-level. Anything
+outside a function definition that doesn't start with <tt>def</tt> is
+suspect. If you have code that should run on startup, place it in a
+<tt>-main</tt> function as explained below under "Uberjar".
 
 For projects that include some Java code, you can set the
 <tt>:java-source-path</tt> key in project.clj to a directory
@@ -268,13 +278,13 @@ containing Java files. Then the javac compiler will run before your
 Clojure code is AOT-compiled, or you can run it manually with the
 <tt>javac</tt> task.
 
-There's [a problem in
-Clojure](http://dev.clojure.org/jira/browse/CLJ-322) where
-AOT-compiling a namespace will also AOT compile all the namespaces it
-depends upon. This has often caused unrelated compilation artifacts to
-be included in the jars, but Leiningen will now only keep class files
-for which a directory exists in src/ corresponding to the class's
-package.
+There's
+[a problem in Clojure](http://dev.clojure.org/jira/browse/CLJ-322)
+where AOT-compiling a namespace will also AOT compile all the
+namespaces it depends upon. This often causes unrelated compilation
+artifacts to be included in the jars, but you can set
+:class-file-whitelist to a regex which will be matched against .class
+file names you want to keep in order to remove the unwanted file.
 
 ## What to do with it
 
@@ -282,13 +292,13 @@ Generally speaking, there are three different goals that are typical
 of Leiningen projects:
 
 * An application you can distribute to end-users
-* A library
 * A server-side application
+* A library for other Clojure projects to consume
 
-For the first, you can either build an uberjar or use a shell-wrapper.
-For libraries, you will want to have them published to a repository
-like Clojars. For server-side applications it varies as described
-below.
+For the first, you typically either build an uberjar or use a
+shell-wrapper.  For libraries, you will want to have them published to
+a repository like Clojars or a private repository. For server-side
+applications it varies as described below.
 
 ### Uberjar
 
@@ -301,9 +311,8 @@ file should look like this:
     (defproject myproject "1.0.0-SNAPSHOT"
       :description "This project is MINE."
       :dependencies [[org.clojure/clojure "1.2.0"]
-                     [org.clojure/clojure-contrib "1.2.0"]
                      [org.apache.lucene/lucene-core "3.0.2"]
-                     [robert/hooke "1.1.0"]]
+                     [lancet "1.0.0"]]
       :main myproject.core)
 
 The namespace you specify will need to contain a <tt>-main</tt>
@@ -323,11 +332,10 @@ Now we're ready to generate your uberjar:
 
     $ lein uberjar
     Cleaning up
-    Copying 4 files to /home/phil/src/leiningen/myproject/lib
+    Copying 3 files to /home/phil/src/leiningen/myproject/lib
     Created ~/src/myproject/myproject-1.0.0.jar
     Including myproject-1.0.0-SNAPSHOT.jar
-    Including clojure-contrib-1.2.0.jar
-    Including hooke-1.1.0.jar
+    Including lancet-1.0.0.jar
     Including clojure-1.2.0.jar
     Including lucene-core-3.0.2.jar
     Created myproject-1.0.0-standalone.jar
@@ -379,16 +387,44 @@ classpath and the main namespace, so put %s in the right place. See
 wrapper](https://github.com/technomancy/leiningen/blob/stable/resources/script-template)
 for an example.
 
-### Publishing
+### Server-side Projects
+
+There are many ways to get your project deployed as a server-side
+application. Simple programs can be packaged up as tarballs with
+accompanied shell scripts using the
+[lein-tar plugin](https://github.com/technomancy/lein-tar) and then
+deployed using [pallet](http://hugoduncan.github.com/pallet/),
+[chef](http://opscode.com/chef/), or other mechanisms. Debian packages
+can be created with
+[lein-deb](https://github.com/travis/lein-deb). Web applications may
+be deployed using .war (web application archive) files created by the
+[lein-ring plugin](https://github.com/weavejester/lein-ring). You
+can even create
+[Hadoop projects](https://github.com/ndimiduk/lein-hadoop). These
+kinds of deployments are so varied that they are better-handled using
+plugins rather than tasks that are built-in to Leiningen itself.
+
+It may be tempting to deploy by just checking out your project and
+using "lein run" on production servers. However, it's much better to
+use Leiningen to create a deployable artifact in a continuous
+integration setting instead. This makes deployments much more
+repeatable. For example, you could have a
+[Jenkins](http://jenkins-ci.org) CI server run your project's full
+test suite, and if it passes, upload a tarball to S3. Then deployment
+is just a matter of pulling down and extracting the known-good tarball
+on your production servers.
+
+### Publishing Libraries
 
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
-a public repository. While it's possible to maintain your own
-repository or get it into Maven central, the easiest way is to publish
-it at [Clojars](http://clojars.org). Once you have created an account
-there, publishing is easy:
+a public repository. While it's possible to
+[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
+or get it into Maven central, the easiest way is to publish it at
+[Clojars](http://clojars.org). Once you have created an account there,
+publishing is easy:
 
-    $ lein jar && lein pom
+    $ lein jar, pom
     $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
 
 Once that succeeds it will be available as a package on which other
@@ -397,41 +433,9 @@ the project's group-id under Clojars, though if that group-id doesn't
 exist yet then Clojars will automatically create it and give you
 permissions.
 
-Sometimes you'll need to publish libraries that you don't directly
-maintain, either because the original maintainer hasn't published it
-or because you need some bugfixes that haven't been applied upstream
-yet. In this case you don't want to publish it under its original
-group-id, since this will prevent the true maintainer from using that
-group-id once they publish it. You should use "org.clojars.$USERNAME"
-as the group-id instead.
-
-There may be times when you want to make your project available from a
-repository that's private for internal use. The simplest thing to do
-in this case is to set up a continuous integration server running
-[Hudson](http://hudson-ci.org), which can take care of both running
-the tests in a neutral environment and acting as a private repository
-server. Simply set up a task that polls your SCM and runs <tt>lein
-test! && lein install</tt> and make the hudson user's
-<tt>~/.m2/repository</tt> directory available over password-protected
-HTTP using something like <a href="http://nginx.net">nginx</a>.
-
-### Server-side Projects
-
-There are many ways to get your project deployed as a server-side
-application. Simple programs can be packaged up as tarballs with
-accompanied shell scripts using the [lein-release
-plugin](https://github.com/technomancy/lein-release) and then deployed
-using [chef](http://opscode.com/chef/),
-[pallet](http://hugoduncan.github.com/pallet/), or other
-mechanisms. Web applications may be deployed using the [lein-war
-plugin](https://github.com/alienscience/leiningen-war). You can even
-create [Hadoop
-projects](https://github.com/ndimiduk/lein-hadoop). These kinds of
-deployments are so varied that they are better-handled using plugins
-rather than tasks that are built-in to Leiningen itself.
+For further details about publishing including setting up private
+repositories, see the [deploy guide](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
 
 ## That's It!
 
-If you prefer a visual introduction, try the Full Disclojure
-screencast on [project management](http://vimeo.com/8934942). Now go
-start coding your next project!
+Now go start coding your next project!

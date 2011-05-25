@@ -1,9 +1,9 @@
 (ns leiningen.deploy
   "Build and deploy jar to remote repository."
-  (:require [lancet])
-  (:use [leiningen.core :only [abort]]
+  (:require [lancet.core :as lancet])
+  (:use [leiningen.core :only [abort repositories-for]]
         [leiningen.jar :only [jar]]
-        [leiningen.pom :only [pom]]
+        [leiningen.pom :only [pom snapshot?]]
         [leiningen.util.maven :only [make-model make-artifact]]
         [leiningen.deps :only [make-repository]]
         [clojure.java.io :only [file]])
@@ -14,43 +14,32 @@
   (doto (MavenProject. (make-model project))
     (.setArtifact (make-artifact (make-model project)))))
 
-;; for supporting command-line options
-(defn- keywordize-opts [options]
-  (let [options (apply hash-map options)]
-    (zipmap (map keyword (keys options)) (vals options))))
-
-(defn make-auth [url options]
-  (let [auth (Authentication.)
-        user-options (when-let [user-opts (resolve 'user/leiningen-auth)]
-                       (get @user-opts url))
-        {:keys [username password passphrase
-                private-key]} (merge user-options options)]
-    (when username (.setUserName auth username))
-    (when password (.setPassword auth password))
-    (when passphrase (.setPassphrase auth passphrase))
-    (when private-key (.setPrivateKey auth private-key))
-    auth))
-
-(defn make-target-repo [repo-url auth-options]
-  (let [repo (make-repository ["remote repository" repo-url])]
-    (when-let [auth (make-auth repo-url auth-options)]
-      (.addAuthentication repo auth))
-    repo))
+(defn- get-repository [project repository-name]
+  (let [repositories (repositories-for project)]
+    (make-repository [repository-name (repositories repository-name)])))
 
 (defn deploy
-  "Build and deploy jar to remote repository. Takes target repository
-URL as an argument or set :deploy-to in project.clj to a URL or auth vector:
+  "Build and deploy jar to remote repository.
 
-  [\"http://secret.com/archiva/repository/snapshots/\"
-   :username \"durin\" :password \"mellon\"].
+The target repository will be looked up in :repositories: snapshot
+versions will go to the repo named \"snapshots\" while stable versions
+will go to \"releases\". You can also deploy to another repository
+in :repositories by providing its name as an argument.
 
-Also supported are :private-key and :passphrase. You can set
-authentication options in ~/.lein/init.clj as well to avoid checking
-sensitive information into source control:
+  :repositories {\"java.net\" \"http://download.java.net/maven/2\"
+                 \"snapshots\" {:url \"https://blueant.com/archiva/snapshots\"
+                                :username \"milgrim\" :password \"locative\"}
+                 \"releases\" {:url \"https://blueant.com/archiva/internal\"
+                               :private-key \"etc/id_dsa\"}}
 
-  (def leiningen-auth {\"http://secr.et/repo\" {:password \"reindeerflotilla\"}
-                       \"file:///var/repo {:passphrase \"vorpalbunny\"}})"
-  ([project repo-url & auth]
+You can set authentication options keyed by repository name in
+~/.lein/init.clj to avoid checking sensitive information into source
+control:
+
+  (def leiningen-auth {\"https://blueant.com/archiva/internal\"
+                       {:passphrase \"vorpalbunny\"}})
+"
+  ([project repository-name]
      (doto (DeployTask.)
        (.setProject lancet/ant-project)
        (.getSupportedProtocols) ;; see note re: exceptions in deps.clj
@@ -58,11 +47,9 @@ sensitive information into source control:
        (.addPom (doto (Pom.)
                   (.setMavenProject (make-maven-project project))
                   (.setFile (file (pom project)))))
-       (.addRemoteRepository (make-target-repo repo-url (keywordize-opts auth)))
+       (.addRemoteRepository (get-repository project repository-name))
        (.execute)))
   ([project]
-     (when-not (:deploy-to project)
-       (abort "Can't deploy without :deploy-to set in project.clj."))
-     (if (string? (:deploy-to project))
-       (deploy project (:deploy-to project))
-       (apply project (:deploy-to project)))))
+     (deploy project (if (snapshot? project)
+                       "snapshots"
+                       "releases"))))

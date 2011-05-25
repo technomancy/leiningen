@@ -1,17 +1,30 @@
 (ns leiningen.new
   "Create a new project skeleton."
-  (:use [leiningen.core :only [ns->path]]
+  (:use [leiningen.core :only [ns->path abort user-settings]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
   (:import (java.util Calendar)))
 
+(defn format-settings [settings]
+  (letfn [(format-map [m]
+            (map #(str "  " %1 " " %2)
+                 (map str (keys m))
+                 (map str (vals m))))]
+    (apply str
+           (interpose "\n"
+                      (format-map settings)))))
+
 (defn write-project [project-dir project-name]
-  (.mkdirs (file project-dir))
-  (spit (file project-dir "project.clj")
-        (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
-             "  :description \"FIXME: write\"\n"
-             "  :dependencies [[org.clojure/clojure \"1.2.0\"]\n"
-             "                 [org.clojure/clojure-contrib \"1.2.0\"]])\n")))
+  (let [default-settings {:dependencies [['org.clojure/clojure "1.2.1"]]}
+        settings  (merge-with #(if %2 %2 %1)
+                              default-settings
+                              (user-settings))]
+    (.mkdirs (file project-dir))
+    (spit (file project-dir "project.clj")
+          (str "(defproject " 'project-name " \"1.0.0-SNAPSHOT\"\n"
+               "  :description \"FIXME: write description\"\n"
+               (format-settings (into (sorted-map) settings))
+               ")" ))))
 
 (defn write-implementation [project-dir project-clj project-ns]
   (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
@@ -22,7 +35,7 @@
   (.mkdirs (.getParentFile (file project-dir "test" (ns->path test-ns))))
   (spit (file project-dir "test" (ns->path test-ns))
         (str "(ns " (str test-ns)
-             "\n  (:use [" project-ns "] :reload)"
+             "\n  (:use [" project-ns "])"
              "\n  (:use [clojure.test]))\n\n"
              "(deftest replace-me ;; FIXME: write\n  (is false "
              "\"No tests have been written.\"))\n")))
@@ -39,13 +52,15 @@
                       (str "Distributed under the Eclipse Public"
                            " License, the same as Clojure.\n")])))
 
+(def project-name-blacklist #"(?i)(?<!(clo|compo))jure")
+
 (defn new
   "Create a new project skeleton."
   ([project-name]
      (leiningen.new/new project-name (name (symbol project-name))))
   ([project-name project-dir]
-     (when (re-find #"(?<!clo)jure" project-name)
-       (throw (IllegalArgumentException. "*jure names are no longer allowed.")))
+     (when (re-find project-name-blacklist project-name)
+       (abort "Sorry, *jure names are no longer allowed."))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
            artifact-id (name project-name)
@@ -58,7 +73,8 @@
              test-ns (str prefix ".test.core")
              project-clj (ns->path project-ns)]
          (spit (file project-dir ".gitignore")
-               (apply str (interleave ["pom.xml" "*jar" "lib" "classes"]
+               (apply str (interleave ["pom.xml" "*jar" "/lib/" "/classes/"
+                                       ".lein-failures" ".lein-deps-sum"]
                                       (repeat "\n"))))
          (write-implementation project-dir project-clj project-ns)
          (write-test project-dir test-ns project-ns)
