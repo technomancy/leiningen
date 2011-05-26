@@ -236,7 +236,7 @@ to exclude from transitive dependencies."
       (.setScm model scm))
     (when-let [parent (:parent project)]
       (.setParent model (apply make-parent parent)))
-    (doseq [license (concat (filter project [:licence :license])
+    (doseq [license (concat (map project (filter project [:licence :license]))
                             (:licences project)
                             (:licenses project))]
       (.addLicense model (make-license license)))
