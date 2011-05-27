@@ -143,11 +143,8 @@
 
 (defn native-deps [project]
   (when (seq (:native-dependencies project))
-    (let [deps-task (make-deps-task project :native-dependencies)]
-      (.execute deps-task)
-      (lancet/unjar {:dest (:root project)}
-                    (.getReference lancet/ant-project
-                                   (.getFilesetId deps-task))))))
+    (let [fileset (do-deps project :native-dependencies)]
+      (lancet/unjar {:dest (:root project)} fileset))))
 
 (defn deps
   "Download :dependencies and put them in :library-path."
@@ -155,7 +152,8 @@
   (when (fetch-deps? project)
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
-      (delete-file-recursively (:library-path project) :silently))
+      (delete-file-recursively (:library-path project) :silently)
+      (delete-file-recursively (File. (:root project) "native") :silently))
     (let [fileset (do-deps project :dependencies)]
       (do-deps project :dev-dependencies)
       (native-deps project)

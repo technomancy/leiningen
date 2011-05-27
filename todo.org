@@ -38,11 +38,10 @@ See also https://github.com/technomancy/leiningen/issues
     lein-clojars task doesn't support DSA keys
 * For 1.6
   - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
-  - [ ] make :repl-init change initial ns of repl and swank
-  - [ ] take care of multiple versions of plugins in ~/.lein/plugins
   - [ ] transitive native-deps support
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] make :repl-init change initial ns of repl and swank
   - [x] more flexibility in search results
   - [x] support ns/name in run task
   - [x] add option to use ~/.m2-based classpath instead of copying to
