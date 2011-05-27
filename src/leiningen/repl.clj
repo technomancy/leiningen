@@ -21,10 +21,10 @@
                                  "deprecated; use :repl-init."))
                    (load-file is#))
                  (when in#
-                   (doto in# require in-ns))
-                 (if mn#
-                   (doto mn# require in-ns)
-                   (in-ns '~'user)))
+                   (require in#))
+                 (when mn#
+                   (require mn#))
+                 (in-ns (or in# mn# '~'user)))
         ;; Suppress socket closed since it's part of normal operation
         caught `(fn [t#]
                   (when-not (instance? SocketException t#)
