@@ -2,9 +2,42 @@
   (:use [leiningen.util.ns :only [namespaces-matching]]
         [clojure.string :only [split]]
         [clojure.walk :only [walk]]
-        [robert.hooke :only [add-hook]])
+        [robert.hooke :only [add-hook]]
+        [clojure.java.io :only [file]])
+  (:require [lancet.core :as lancet]
+            [leiningen.util.paths :as paths])
   (:import (java.io File)
            (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
+
+(defmacro defdeprecated [old new]
+  `(let [new# ~(str (.getName (:ns (meta (resolve new)))) "/" (name new))
+         warn# (delay (println "Warning:" '~old "is deprecated; use" new#))]
+     (defn ~(vary-meta old assoc :doc (format "Compatibility alias for %s" new))
+       [& args#]
+       (force warn#)
+       (apply ~(resolve new) args#))))
+
+(defdeprecated home-dir paths/leiningen-home)
+
+(defdeprecated ns->path paths/ns->path)
+
+(defdeprecated normalize-path paths/normalize-path)
+
+(defn user-init
+  "Load the user's ~/.lein/init.clj file, if present."
+  []
+  (let [init-file (File. (paths/leiningen-home) "init.clj")]
+    (when (.exists init-file)
+      (load-file (.getAbsolutePath init-file)))))
+
+(defn user-settings
+  "Look up the settings map from init.clj or an empty map if it doesn't exist."
+  []
+  (if-let [settings-var (resolve 'user/settings)]
+    @settings-var
+    {}))
+
+;;; defproject
 
 (def ^{:private true} project nil)
 
@@ -17,18 +50,13 @@
         identity
         args))
 
-(defn ^{:internal true} normalize-path [project-root path]
-  (when path
-    (let [f (File. path)]
-      (.getAbsolutePath (if (.isAbsolute f) f (File. project-root path))))))
-
 (defmacro defproject [project-name version & args]
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
   ;; def or we would not have access to it once load-file returned.
   `(let [m# (apply hash-map ~(cons 'list (unquote-project args)))
          root# ~(.getParent (File. *file*))
-         normalize-path# (partial ~normalize-path root#)]
+         normalize-path# (partial ~paths/normalize-path root#)]
      (alter-var-root #'project
                      (fn [_#] (assoc m#
                                :name ~(name project-name)
@@ -75,41 +103,13 @@
                      ":target-dir.")))
      #'project))
 
-(defn exit
-  "Call System/exit. Defined as a function so that rebinding is possible."
-  ([code]
-     (shutdown-agents)
-     (System/exit code))
-  ([] (exit 0)))
-
-(defn abort
-  "Print msg to standard err and exit with a value of 1."
-  [& msg]
-  (binding [*out* *err*]
-    (apply println msg)
-    (exit 1)))
-
-(defn home-dir
-  "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
-  []
-  (.getAbsolutePath (doto (if-let [lein-home (System/getenv "LEIN_HOME")]
-                            (File. lein-home)
-                            (File. (System/getProperty "user.home") ".lein"))
-                      .mkdirs)))
-
-(defn user-init
-  "Load the user's ~/.lein/init.clj file, if present."
-  []
-  (let [init-file (File. (home-dir) "init.clj")]
-    (when (.exists init-file)
-      (load-file (.getAbsolutePath init-file)))))
-
-(defn user-settings
-  "Look up the settings map from init.clj or an empty map if it doesn't exist."
-  []
-  (if-let [settings-var (resolve 'user/settings)]
-    @settings-var
-    {}))
+(defn read-project
+  ([file]
+     (try (binding [*ns* (the-ns 'leiningen.core)]
+            (load-file file))
+          project
+          (catch java.io.FileNotFoundException _)))
+  ([] (read-project "project.clj")))
 
 (def default-repos {"central" {:url "http://repo1.maven.org/maven2"
                                :snapshots false}
@@ -131,13 +131,21 @@
          (into {} (for [[id settings] (:repositories project)]
                     [id (init-settings id settings)]))))
 
-(defn read-project
-  ([file]
-     (try (binding [*ns* (the-ns 'leiningen.core)]
-            (load-file file))
-          project
-          (catch java.io.FileNotFoundException _)))
-  ([] (read-project "project.clj")))
+(defn exit
+  "Call System/exit. Defined as a function so that rebinding is possible."
+  ([code]
+     (shutdown-agents)
+     (System/exit code))
+  ([] (exit 0)))
+
+(defn abort
+  "Print msg to standard err and exit with a value of 1."
+  [& msg]
+  (binding [*out* *err*]
+    (apply println msg)
+    (exit 1)))
+
+;;; Task execution
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
                     "--version" "version" "überjar" "uberjar" "cp" "classpath"
@@ -173,17 +181,6 @@
              (println "Warning: problem requiring" n "hook:" (.getMessage e))
              (when (System/getenv "DEBUG")
                (.printStackTrace e)))))))
-
-(defn ns->path [n]
-  (str (.. (str n)
-           (replace \- \_)
-           (replace \. \/))
-       ".clj"))
-
-(defn path->ns [path]
-  (.. (.replaceAll path "\\.clj" "")
-      (replace \_ \-)
-      (replace \/ \.)))
 
 (defn arglists [task-name]
   (:arglists (meta (resolve-task task-name))))
