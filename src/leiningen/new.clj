@@ -1,6 +1,7 @@
 (ns leiningen.new
   "Create a new project skeleton."
-  (:use [leiningen.core :only [ns->path abort user-settings]]
+  (:use [leiningen.core :only [abort user-settings]]
+        [leiningen.util.paths :only [ns->path]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
   (:import (java.util Calendar)))

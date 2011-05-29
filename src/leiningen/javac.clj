@@ -1,7 +1,7 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:use [leiningen.classpath :only [get-classpath-string]]
-        [leiningen.core :only [normalize-path]])
+        [leiningen.util.paths :only [normalize-path]])
   (:require [lancet.core :as lancet])
   (:import (java.io File)))
 

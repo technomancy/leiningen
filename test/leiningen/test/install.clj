@@ -1,6 +1,6 @@
 (ns leiningen.test.install
   (:use [leiningen.core :only [read-project home-dir]]
-        [leiningen.compile :only [get-os]]
+        [leiningen.util.paths :only [get-os]]
         [leiningen.install] :reload)
   (:use [clojure.test]
         [leiningen.test.helper]

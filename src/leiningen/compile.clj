@@ -1,15 +1,18 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:require [lancet.core :as lancet])
-  (:use [leiningen.deps :only [deps]]
-        [leiningen.core :only [ns->path user-settings]]
+  (:use [leiningen.deps :only [deps find-jars]]
+        [leiningen.core :only [defdeprecated user-settings]]
         [leiningen.javac :only [javac]]
-        [leiningen.classpath :only [make-path find-jars get-classpath]]
+        [leiningen.classpath :only [make-path get-classpath]]
+        
         [clojure.java.io :only [file resource reader]]
         [leiningen.util.ns :only [namespaces-in-dir]])
+  (:require [leiningen.util.paths :as paths]
+            [lancet.core :as lancet])
   (:refer-clojure :exclude [compile])
   (:import (java.io PushbackReader)
            (org.apache.tools.ant.taskdefs Java)
+           (org.apache.tools.ant.types ZipFileSet)
            (java.lang.management ManagementFactory)
            (java.util.regex Pattern)
            (org.apache.tools.ant.types Environment$Variable)))
@@ -60,7 +63,7 @@
   [project]
   (filter
    (fn [n]
-     (let [clj-path (ns->path n)
+     (let [clj-path (paths/ns->path n)
            class-file (file (:compile-path project)
                             (.replace clj-path "\\.clj" "__init.class"))]
        (or (not (.exists class-file))
@@ -68,30 +71,12 @@
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
-(defn get-by-pattern
-  "Gets a value from map m, but uses the keys as regex patterns, trying
-   to match against k instead of doing an exact match."
-  [m k]
-  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
-                        (keys m)))))
+(defdeprecated get-os paths/get-os)
 
-(def native-names {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
-                   "FreeBSD" :freebsd "OpenBSD" :openbsd
-                   "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
-                   "arm" :arm "SunOS" :solaris "sparc" :sparc})
-
-(defn get-os
-  "Returns a keyword naming the host OS."
-  []
-  (get-by-pattern native-names (System/getProperty "os.name")))
-
-(defn get-arch
-  "Returns a keyword naming the host architecture"
-  []
-  (get-by-pattern native-names (System/getProperty "os.arch")))
+(defdeprecated get-os paths/get-arch)
 
 (defn platform-nullsink []
-  (file (if (= :windows (get-os))
+  (file (if (= :windows (paths/get-os))
           "NUL"
           "/dev/null")))
 
@@ -99,9 +84,9 @@
   "Returns a File representing the directory where native libs for the
   current platform are located."
   [project]
-  (when (and (get-os) (get-arch))
-    (let [osdir (name (get-os))
-          archdir (name (get-arch))
+  (when (and (paths/get-os) (paths/get-arch))
+    (let [osdir (name (paths/get-os))
+          archdir (name (paths/get-arch))
           f (file "native" osdir archdir)]
       (if (.exists f)
         f
@@ -144,7 +129,7 @@
     ;; currently being passed; see
     ;; http://www.perlmonks.org/?node_id=300286 for some of the
     ;; landmines involved in doing it properly
-    (if (and (= (get-os) :windows) java)
+    (if (and (= (paths/get-os) :windows) java)
       (pr-str (pr-str form))
       (prn-str form))))
 

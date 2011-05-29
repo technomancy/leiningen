@@ -1,6 +1,7 @@
 (ns leiningen.search
-  (:use [leiningen.core :only [home-dir repositories-for user-settings]]
-        [leiningen.util.file :only [delete-file-recursively]])
+  (:use [leiningen.core :only [repositories-for user-settings]]
+        [leiningen.util.file :only [delete-file-recursively]]
+        [leiningen.util.paths :only [leiningen-home]])
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clucy.core :as clucy])
@@ -19,7 +20,7 @@
       (io/copy (.getInputStream zip entry) f))))
 
 (defn index-location [url]
-  (io/file (home-dir) "indices" (string/replace url #"[:/]" "_")))
+  (io/file (leiningen-home) "indices" (string/replace url #"[:/]" "_")))
 
 (defn remote-index-url [url]
   (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))

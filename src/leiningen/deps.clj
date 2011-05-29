@@ -3,7 +3,8 @@
   (:require [lancet.core :as lancet])
   (:use [leiningen.core :only [repositories-for user-settings]]
         [leiningen.util.maven :only [make-dependency]]
-        [leiningen.util.file :only [delete-file-recursively]])
+        [leiningen.util.file :only [delete-file-recursively]]
+        [clojure.java.io :only [file]])
   (:import (java.io File)
            (java.security MessageDigest)
            (org.apache.maven.artifact.ant Authentication DependenciesTask
@@ -105,15 +106,13 @@
 
 (defn- deps-checksum [project]
   (sha1-digest (pr-str [(:dependencies project)
-                        (:dev-dependencies project)
-                        (:native-dependencies project)])))
+                        (:dev-dependencies project)])))
 
 (defn- new-deps-checksum-file [project]
   (File. (:root project) ".lein-deps-sum"))
 
 (defn- has-dependencies? [project]
-  (some (comp seq project) [:dependencies :dev-dependencies
-                            :native-dependencies]))
+  (some (comp seq project) [:dependencies :dev-dependencies]))
 
 (defn fetch-deps? [project]
   (let [deps-checksum-file (new-deps-checksum-file project)]
@@ -141,10 +140,36 @@
                                                (.getFilesetId deps-task)))))
     (.getReference lancet/ant-project (.getFilesetId deps-task))))
 
-(defn native-deps [project]
-  (when (seq (:native-dependencies project))
-    (let [fileset (do-deps project :native-dependencies)]
-      (lancet/unjar {:dest (:root project)} fileset))))
+(defn- fileset-paths [fileset]
+  (-> fileset
+      (.getDirectoryScanner lancet/ant-project)
+      (.getIncludedFiles)))
+
+(defn- find-local-repo-jars [project]
+  ;; TODO: Shut up, ant. You are useless. Nobody cares about what you say.
+  ;; Removing ant-project loggers and redirecting their output streams
+  ;; does nothing. How to suppress output?
+  (for [path (fileset-paths (do-deps project :dependencies))]
+    (file (System/getProperty "user.home") ".m2" "repository" path)))
+
+(defn- find-lib-jars [project]
+  (.listFiles (file (:library-path project))))
+
+(defn ^{:internal true} find-jars
+  "Returns a seq of Files for all the jars in the project's library directory."
+  [project]
+  (filter #(.endsWith (.getName %) ".jar")
+          (concat (if (:local-repo-classpath project)
+                    (find-local-repo-jars project)
+                    (find-lib-jars project))
+                  ;; This must be hard-coded because it's used in
+                  ;; bin/lein and thus can't be changed in project.clj.
+                  (.listFiles (file (:root project) "lib/dev")))))
+
+;; (defn extract-native-deps [project]
+;;   (doseq [jar (find-jars project)]
+;;     (lancet/copy {:todir native-dir :flatten true}
+;;                  (make-fileset {:src jar :includes (native-path project)}))))
 
 (defn deps
   "Download :dependencies and put them in :library-path."
@@ -156,7 +181,7 @@
       (delete-file-recursively (File. (:root project) "native") :silently))
     (let [fileset (do-deps project :dependencies)]
       (do-deps project :dev-dependencies)
-      (native-deps project)
+      ;; (extract-native-deps project)
       (when (:checksum-deps project)
         (spit (new-deps-checksum-file project) (deps-checksum project)))
       fileset)))

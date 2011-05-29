@@ -1,18 +1,19 @@
 (ns leiningen.plugin
   "Manage user-level plugins."
-  (:use [leiningen.core :only [home-dir read-project abort]]
+  (:use [leiningen.core :only [read-project abort]]
         [leiningen.uberjar :only [write-components]]
         [leiningen.deps :only [deps]]
         [leiningen.jar :only [local-repo-path extract-jar
                               get-default-uberjar-name]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
+        [leiningen.util.paths :only [leiningen-home]]
         [clojure.java.io :only [file]])
   (:require [leiningen.install]
             [leiningen.help])
   (:import (java.util.zip ZipOutputStream)
            (java.io File FileOutputStream)))
 
-(def plugins-path (file (home-dir) "plugins"))
+(def plugins-path (file (leiningen-home) "plugins"))
 
 (defn plugin-standalone-filename [group name version]
   (str (if group (str group "-") nil) name "-" version ".jar"))
