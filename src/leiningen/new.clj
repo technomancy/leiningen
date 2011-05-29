@@ -22,7 +22,7 @@
                               (user-settings))]
     (.mkdirs (file project-dir))
     (spit (file project-dir "project.clj")
-          (str "(defproject " 'project-name " \"1.0.0-SNAPSHOT\"\n"
+          (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
                "  :description \"FIXME: write description\"\n"
                (format-settings (into (sorted-map) settings))
                ")" ))))
