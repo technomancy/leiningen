@@ -29,18 +29,6 @@
   []
   (get-by-pattern native-names (System/getProperty "os.arch")))
 
-(defn native-path
-  "Returns a File representing the directory where native libs for the
-  current platform are located."
-  [project]
-  (when (and (get-os) (get-arch))
-    (let [osdir (name (get-os))
-          archdir (name (get-arch))
-          f (file "native" osdir archdir)]
-      (if (.exists f)
-        f
-        nil))))
-
 (defn leiningen-home
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
   []

@@ -87,6 +87,8 @@
                                (normalize-path# (or (:dev-resources-path m#)
                                                     (:test-resources-path m#)
                                                     "test-resources"))
+                               :native-path (normalize-path#
+                                             (:native-path m# "native"))
                                :target-dir (normalize-path#
                                             (or (:target-dir m#) (:jar-dir m#)
                                                 root#))

@@ -80,18 +80,6 @@
           "NUL"
           "/dev/null")))
 
-(defn- find-native-lib-path
-  "Returns a File representing the directory where native libs for the
-  current platform are located."
-  [project]
-  (when (and (paths/get-os) (paths/get-arch))
-    (let [osdir (name (paths/get-os))
-          archdir (name (paths/get-arch))
-          f (file "native" osdir archdir)]
-      (if (.exists f)
-        f
-        nil))))
-
 ;; Split this function out for better testability.
 (defn- get-raw-input-args []
   (.getInputArguments (ManagementFactory/getRuntimeMXBean)))
@@ -166,22 +154,16 @@
            (catch Exception e
              (.printStackTrace e)
              1)))
-    (let [java (Java.)
-          native-path (or (:native-path project)
-                          (find-native-lib-path project))]
+    (let [java (Java.)]
       (.setProject java lancet/ant-project)
       (add-system-property java :clojure.compile.path (:compile-path project))
       (add-system-property java (format "%s.version" (:name project))
                            (:version project))
       (when (:debug project)
         (add-system-property java :clojure.debug true))
-      (when native-path
-        (add-system-property
-         java "java.library.path" (cond
-                                   (instance? java.io.File native-path)
-                                   (.getAbsolutePath native-path)
-                                   (fn? native-path) (native-path)
-                                   :default native-path)))
+      (when (.exists (file (:native-path project)))
+        ;; TODO: support fn in :native-path?
+        (add-system-property java "java.library.path" (:native-path project)))
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)
       (.setFork java true)
