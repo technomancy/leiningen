@@ -51,9 +51,11 @@
   (if (ensure-fresh-index repo)
     (let [location (.getAbsolutePath (index-location url))
           fetch-count (* page page-size)
-          offset (* (dec page) page-size)]
-      (drop offset (clucy/search (clucy/disk-index location)
-                                 query fetch-count :a)))
+          offset (* (dec page) page-size)
+          results (clucy/search (clucy/disk-index location)
+                                ;; TODO: doesn't seem to include description
+                                query fetch-count :default-field :a)]
+      (with-meta (drop offset results) (meta results)))
     (binding [*out* *err*]
       (println "Warning: couldn't download index for" url))))
 
@@ -67,10 +69,8 @@
 
 (defn- print-results [[id] results page]
   (when (seq results)
-    (println " == Results from" id "-" "Showing page" page
-             ;; TODO: expose total-hits from clucy. pull request submitted
-             ;; "of" (int (/ (:total-hits results page-size) page-size))
-             )
+    (println " == Results from" id "-" "Showing page" page "/"
+             (:_total-hits (meta results) page-size) "total")
     (doseq [result (map parse-result results)]
       (apply println result))
     (prn)))
