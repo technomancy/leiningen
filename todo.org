@@ -38,9 +38,14 @@ See also https://github.com/technomancy/leiningen/issues
     lein-clojars task doesn't support DSA keys
 * For 1.6
   - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
-  - [ ] transitive native-deps support
+  - [ ] clear up home directory duality in Windows/MinGW
+  - [ ] fix missing rlwrap warning
+  - [ ] ensure functions in :repl-options work
+  - [ ] don't blow away lib/dev when uberjarring
+  - [ ] show total result count in search results
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] transitive native-deps support
   - [x] make :repl-init change initial ns of repl and swank
   - [x] more flexibility in search results
   - [x] support ns/name in run task

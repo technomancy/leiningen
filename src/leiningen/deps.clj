@@ -4,8 +4,10 @@
   (:use [leiningen.core :only [repositories-for user-settings]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]]
-        [clojure.java.io :only [file]])
+        [leiningen.util.paths :only [get-os get-arch]]
+        [clojure.java.io :only [file copy]])
   (:import (java.io File)
+           (java.util.jar JarFile)
            (java.security MessageDigest)
            (org.apache.maven.artifact.ant Authentication DependenciesTask
                                           RemoteRepository RepositoryPolicy)
@@ -155,6 +157,7 @@
 (defn- find-lib-jars [project]
   (.listFiles (file (:library-path project))))
 
+;; TODO: memoize when not in tests
 (defn ^{:internal true} find-jars
   "Returns a seq of Files for all the jars in the project's library directory."
   [project]
@@ -166,10 +169,17 @@
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
 
-;; (defn extract-native-deps [project]
-;;   (doseq [jar (find-jars project)]
-;;     (lancet/copy {:todir native-dir :flatten true}
-;;                  (make-fileset {:src jar :includes (native-path project)}))))
+(def native-subdir (format "native/%s/%s/" (name (get-os)) (name (get-arch))))
+
+(defn extract-native-deps [project]
+  (doseq [jar (map #(JarFile. %) (find-jars project))
+          entry (enumeration-seq (.entries jar))
+          :when (.startsWith (.getName entry) native-subdir)]
+    (let [f (file (:native-path project)
+                  (subs (.getName entry) (count native-subdir)))]
+      (if (.isDirectory entry)
+        (.mkdirs f)
+        (copy (.getInputStream jar entry) f)))))
 
 (defn deps
   "Download :dependencies and put them in :library-path."
@@ -181,7 +191,7 @@
       (delete-file-recursively (File. (:root project) "native") :silently))
     (let [fileset (do-deps project :dependencies)]
       (do-deps project :dev-dependencies)
-      ;; (extract-native-deps project)
+      (extract-native-deps project)
       (when (:checksum-deps project)
         (spit (new-deps-checksum-file project) (deps-checksum project)))
       fileset)))

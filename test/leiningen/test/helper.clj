@@ -23,6 +23,8 @@
 
 (def tricky-name-project (read-test-project "tricky-name"))
 
+(def native-project (read-test-project "native"))
+
 (def logger (first (.getBuildListeners lancet/ant-project)))
 
 (defmacro with-no-log [& body]
