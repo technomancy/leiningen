@@ -36,9 +36,34 @@ if [ "$LEIN_HOME" = "" ]; then
     LEIN_HOME="$HOME/.lein"
 fi
 
-LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
-LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
-CLASSPATH=$CLASSPATH:$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/
+DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
+USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null)"
+
+artifact_name () {
+    echo /$1 | sed -e "s/.*\/\(.*\)\.jar/\1/" | rev | \
+        sed -e "s/[-[:digit:].]*-\(.*\)/\1/" | rev
+}
+
+echo_duplicates () {
+    echo $@ | tr ' ' \\n | sort | uniq -d
+}
+
+unique_user_plugins () {
+    plugins="$DEV_PLUGINS $USER_PLUGINS"
+    artifacts="$(for i in $plugins; do echo $(artifact_name $i); done)"
+    duplicates="$(echo_duplicates $artifacts)"
+    if [ -z "$duplicates" ]; then
+        echo $USER_PLUGINS
+    else
+        for i in $USER_PLUGINS; do
+            [ -z "$(echo_duplicates $(artifact_name $i) $duplicates)" ] && echo $i
+        done
+    fi
+}
+
+LEIN_PLUGIN_PATH="$(echo $DEV_PLUGINS | tr ' ' :)"
+LEIN_USER_PLUGIN_PATH="$(echo $(unique_user_plugins) | tr ' ' :)"
+CLASSPATH=$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/
 LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
 NULL_DEVICE=/dev/null
