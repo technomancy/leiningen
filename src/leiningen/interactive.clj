@@ -11,6 +11,8 @@
 
 (def prompt "lein> ")
 
+(def *interactive* false)
+
 (defn not-found [& _]
   (println "That's not a task. Use help to list all tasks."))
 
@@ -70,6 +72,7 @@
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 *exit-after-tests* false
+                *interactive* true
                 exit (fn exit [& _] (prn))]
         (task-repl project)))
     (exit)))
