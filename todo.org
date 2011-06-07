@@ -43,7 +43,6 @@ See also https://github.com/technomancy/leiningen/issues
   - [ ] clear up home directory duality in Windows/MinGW
   - [ ] fix missing rlwrap warning
   - [ ] ensure functions in :repl-options work
-  - [ ] don't blow away lib/dev when uberjarring
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
   - [x] show total result count in search results

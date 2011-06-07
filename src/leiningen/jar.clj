@@ -120,7 +120,7 @@
     (doseq [child (file-seq (file (:path spec)))]
       (let [path (reduce trim-leading-str (unix-path (str child))
                          [root resources classes src "/"])]
-        (when-not (skip-file? child path (:jar-exclusions project))
+        (when-not (skip-file? child path (:jar-exclusions project [#"^."]))
           (.putNextEntry jar-os (doto (JarEntry. path)
                                   (.setTime (.lastModified child))))
           (copy child jar-os))))))
