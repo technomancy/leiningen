@@ -17,6 +17,7 @@ See also https://github.com/technomancy/leiningen/issues
     Try a custom classloader approach?
   - Use Aether instead of maven-ant-tasks?
     http://www.sonatype.com/people/2010/08/introducing-aether/
+    Could also allow us to fix :omit-default-repositories wrt central
   - Rename test-resources to dev-resources
     Breaking change; needs to wait for a major version bump.
   - shell wrappers should support multiple versions
@@ -37,14 +38,15 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
+  - [ ] make search work outside project
   - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
   - [ ] clear up home directory duality in Windows/MinGW
   - [ ] fix missing rlwrap warning
   - [ ] ensure functions in :repl-options work
   - [ ] don't blow away lib/dev when uberjarring
-  - [ ] show total result count in search results
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] show total result count in search results
   - [x] transitive native-deps support
   - [x] make :repl-init change initial ns of repl and swank
   - [x] more flexibility in search results

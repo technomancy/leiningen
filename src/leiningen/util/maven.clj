@@ -164,6 +164,7 @@ to exclude from transitive dependencies."
        (doto (Dependency.)
          ;; Allow org.clojure group to be omitted from clojure/contrib deps.
          (.setGroupId (if (and (nil? (namespace dep))
+                               ;; TODO: drop contrib special-case in 2.0
                                (re-find #"^clojure(-contrib)?$" (name dep)))
                         "org.clojure"
                         (or (namespace dep) (name dep))))
