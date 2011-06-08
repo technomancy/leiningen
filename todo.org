@@ -40,10 +40,8 @@ See also https://github.com/technomancy/leiningen/issues
 * For 1.6
   - [ ] make search work outside project
   - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
-  - [ ] clear up home directory duality in Windows/MinGW
-  - [ ] fix missing rlwrap warning
-  - [ ] ensure functions in :repl-options work
   - [ ] Trampoline functionality
+  - [x] clear up home directory duality in Windows/MinGW
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
   - [x] show total result count in search results
   - [x] transitive native-deps support

@@ -30,11 +30,12 @@
   (get-by-pattern native-names (System/getProperty "os.arch")))
 
 (defn leiningen-home
-  "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein) if it exists"
+  "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein)."
   []
   (.getAbsolutePath (doto (if-let [lein-home (System/getenv "LEIN_HOME")]
                             (file lein-home)
-                            (file (System/getProperty "user.home") ".lein"))
+                            (file (or (System/getenv "HOME")
+                                      (System/getenv "USERPROFILE")) ".lein"))
                       .mkdirs)))
 
 (defn ns->path [n]
