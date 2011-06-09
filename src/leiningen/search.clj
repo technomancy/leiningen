@@ -75,13 +75,18 @@
       (apply println result))
     (prn)))
 
-(defn search
+(defn ^{:help-arglists '([query] [query page])} search
   "Search remote repository contents.
 
 The first run will download a set of indices, which will take a
 while. Pass in --update as the query to force a fresh download of all
 indices. Also accepts a second parameter for fetching successive pages."
-  ([project query] (search project query 1))
+  ([query] (search {} query))
+  ;; support running outside project
+  ([project-or-query query-or-page]
+     (if (map? project-or-query)
+       (search project-or-query query-or-page 1)
+       (search {} project-or-query query-or-page)))
   ([project query page]
      ;; you know what would be just super? pattern matching.
      (if (= "--update" query)
