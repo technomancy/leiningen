@@ -15,8 +15,10 @@
     (.setArtifact (make-artifact (make-model project)))))
 
 (defn- get-repository [project repository-name]
-  (let [repositories (repositories-for project)]
-    (make-repository [repository-name (repositories repository-name)])))
+  (let [repositories (repositories-for project)
+        repository (or (repositories repository-name)
+                       {:url repository-name})]
+    (make-repository [repository-name repository])))
 
 (defn deploy
   "Build and deploy jar to remote repository.
