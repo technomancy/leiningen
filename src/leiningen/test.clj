@@ -38,7 +38,9 @@ each namespace and print an overall summary."
               summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
           (spit ".lein-failures" (pr-str @failures#))
-          (when-not (= "1.5" (System/getProperty "java.specification.version"))
+          (when (and (not= "1.5" (System/getProperty
+                                  "java.specification.version"))
+                     ~*exit-after-tests*)
             (shutdown-agents))
           ;; Stupid ant won't let us return anything, so write results to disk
           (with-open [w# (-> (java.io.File. ~result-file)
