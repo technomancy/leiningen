@@ -7,8 +7,9 @@
         [leiningen.util.maven :only [make-model make-artifact]]
         [leiningen.deps :only [make-repository]]
         [clojure.java.io :only [file]])
-  (:import [org.apache.maven.artifact.ant DeployTask Pom Authentication]
-           [org.apache.maven.project MavenProject]))
+  (:import (org.apache.maven.artifact.ant DeployTask Pom Authentication)
+           (org.apache.tools.ant BuildException)
+           (org.apache.maven.project MavenProject)))
 
 (defn- make-maven-project [project]
   (doto (MavenProject. (make-model project))
@@ -42,15 +43,16 @@ control:
                        {:passphrase \"vorpalbunny\"}})
 "
   ([project repository-name]
-     (doto (DeployTask.)
-       (.setProject lancet/ant-project)
-       (.getSupportedProtocols) ;; see note re: exceptions in deps.clj
-       (.setFile (file (jar project)))
-       (.addPom (doto (Pom.)
-                  (.setMavenProject (make-maven-project project))
-                  (.setFile (file (pom project)))))
-       (.addRemoteRepository (get-repository project repository-name))
-       (.execute)))
+     (try (doto (DeployTask.)
+            (.setProject lancet/ant-project)
+            (.getSupportedProtocols) ;; see note re: exceptions in deps.clj
+            (.setFile (file (jar project)))
+            (.addPom (doto (Pom.)
+                       (.setMavenProject (make-maven-project project))
+                       (.setFile (file (pom project)))))
+            (.addRemoteRepository (get-repository project repository-name))
+            (.execute))
+          (catch BuildException _ 1)))
   ([project]
      (deploy project (if (snapshot? project)
                        "snapshots"
