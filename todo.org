@@ -39,12 +39,11 @@ See also https://github.com/technomancy/leiningen/issues
     lein-clojars task doesn't support DSA keys
 * For 1.6
   - [ ] move exit-after-tests check to eval-in-project (discuss on list?)
-  - [ ] don't freak out when attempting to download non-existent indices
-  - [ ] look into using slim clojure to leave out src
   - [ ] upgrade new task
   - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] don't freak out when attempting to download non-existent indices
   - [x] improve error message for unconfigured deploy
   - [x] make search work outside project
   - [x] clear up home directory duality in Windows/MinGW
