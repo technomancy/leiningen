@@ -1,7 +1,7 @@
 (ns leiningen.classpath
   "Print the classpath of the current project."
   (:use [leiningen.core :only [read-project]]
-        [leiningen.deps :only [do-deps find-jars]]
+        [leiningen.deps :only [find-jars]]
         [leiningen.util.paths :only [leiningen-home]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
@@ -61,6 +61,10 @@
 (defn classpath
   "Print the classpath of the current project.
 
-Suitable for java's -classpath option."
+Suitable for java's -classpath option.
+
+Warning: due to a bug in ant, calling this task with :local-repo-classpath set
+when the dependencies have not been fetched will result in spurious output before
+the classpath. In such cases, pipe to tail -n 1."
   [project]
   (println (get-classpath-string project)))

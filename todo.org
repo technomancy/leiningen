@@ -20,25 +20,17 @@ See also https://github.com/technomancy/leiningen/issues
     Could also allow us to fix :omit-default-repositories wrt central
   - Rename test-resources to dev-resources
     Breaking change; needs to wait for a major version bump.
-  - shell wrappers should support multiple versions
-    We could write out a different "foo-$VERSION" shell wrapper for each
-    version of a project that gets installed and then have the plain
-    "foo" script look for a $VERSION env var if it's set, and if not
-    just fall back to the latest.
   - classifiers for specifying what clojure version to use?
     As more versions of Clojure start to exist, libraries may want to
     publish different branches that target different versions of
     Clojure itself. Classifiers may be the way to separate these out?
   - a list of dirs to include in the jar when building
     Some people have requested this.
-  - re-compile all deps with current clojure version
-    Another thing that's going to start becoming more important as more
-    Clojure versions are introduced.
   - improve test coverage
+  - suppress useless ant output in classpath calculation for :local-repo-classpath
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
-  - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
   - [x] move exit-after-tests check to eval-in-project (discuss on list?)
