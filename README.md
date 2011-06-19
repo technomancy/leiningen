@@ -77,13 +77,13 @@ advantage of this, you should put it on your <tt>$PATH</tt>.
 
 ## Configuration
 
-Place a <tt>project.clj</tt> file in the project root like this:
+The <tt>project.clj</tt> file in the project root should look like this:
 
     (defproject myproject "0.5.0-SNAPSHOT"
       :description "A build tool designed to not set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
-      :dependencies [[org.clojure/clojure "1.1.0"]
-                     [org.clojure/clojure-contrib "1.1.0"]]
+      :dependencies [[org.clojure/clojure "1.2.1"]
+                     [org.clojure/clojure-contrib "1.2.0"]]
       :dev-dependencies [[swank-clojure "1.2.1"]])
 
 The <tt>lein new</tt> task generates a project skeleton with an

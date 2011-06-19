@@ -68,6 +68,7 @@
   (lancet/copy {:todir destination :flatten (if flatten? "on" "off")}
                fileset))
 
+;; TODO: remove in 2.0; with local-repo-classpath it's unnecessary
 (defmethod copy-dependencies :symlink [k destination flatten? fileset]
   (let [files (.getIncludedFiles
                (.getDirectoryScanner fileset lancet/ant-project))

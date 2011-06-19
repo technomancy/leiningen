@@ -1,7 +1,7 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
   (:use [leiningen.deps :only [deps find-jars]]
-        [leiningen.core :only [defdeprecated user-settings]]
+        [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [make-path get-classpath]]
         
@@ -111,7 +111,14 @@
                   ~(injected-forms)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
-                  ~form)]
+                  (try ~form
+                       ;; non-daemon threads will prevent process from exiting;
+                       ;; see http://tinyurl.com/2ueqjkl
+                       (finally
+                        (when-not (or (= "1.5" (System/getProperty
+                                                "java.specification.version"))
+                                      ~*interactive?*)
+                          (shutdown-agents)))))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
     ;; currently being passed; see
@@ -162,7 +169,6 @@
       (when (:debug project)
         (add-system-property java :clojure.debug true))
       (when (.exists (file (:native-path project)))
-        ;; TODO: support fn in :native-path?
         (add-system-property java "java.library.path" (:native-path project)))
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)

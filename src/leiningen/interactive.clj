@@ -1,7 +1,7 @@
 (ns leiningen.interactive
   "Enter interactive task shell."
   (:require [clojure.string :as string])
-  (:use [leiningen.core :only [apply-task exit]]
+  (:use [leiningen.core :only [apply-task exit *interactive*]]
         [leiningen.test :only [*exit-after-tests*]]
         [leiningen.repl :only [repl-server repl-socket-on
                                copy-out-loop poll-repl-connection]]
@@ -10,8 +10,6 @@
 (def welcome "Welcome to Leiningen. Type help for a list of commands.")
 
 (def prompt "lein> ")
-
-(def *interactive* false)
 
 (defn not-found [& _]
   (println "That's not a task. Use help to list all tasks."))

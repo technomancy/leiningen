@@ -2,6 +2,7 @@
   "Run the project's tests."
   (:refer-clojure :exclude [test])
   (:use [clojure.java.io :only [file]]
+        [leiningen.core :only [*interactive?*]]
         [leiningen.util.ns :only [namespaces-in-dir]]
         [leiningen.compile :only [eval-in-project]])
   (:import (java.io File)))
@@ -38,16 +39,12 @@ each namespace and print an overall summary."
               summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
           (spit ".lein-failures" (pr-str @failures#))
-          (when (and (not= "1.5" (System/getProperty
-                                  "java.specification.version"))
-                     ~*exit-after-tests*)
-            (shutdown-agents))
           ;; Stupid ant won't let us return anything, so write results to disk
           (with-open [w# (-> (java.io.File. ~result-file)
                              (java.io.FileOutputStream.)
                              (java.io.OutputStreamWriter.))]
             (.write w# (pr-str summary#)))
-          (when ~*exit-after-tests*
+          (when-not ~*interactive?*
             (System/exit 0))))))
 
 (defn- read-args [args project]

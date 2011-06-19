@@ -9,6 +9,8 @@
   (:import (java.io File)
            (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
 
+(def *interactive?* false)
+
 (defmacro defdeprecated [old new]
   `(let [new# ~(str (.getName (:ns (meta (resolve new)))) "/" (name new))
          warn# (delay (println "Warning:" '~old "is deprecated; use" new#))]
