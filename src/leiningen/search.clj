@@ -83,7 +83,12 @@ while. Pass in --update as the query to force a fresh download of all
 indices. Also accepts a second parameter for fetching successive pages."
   ;; support running outside project
   ([query] (search {} query))
-  ([project query] (search project query 1))
+  ([project-or-query query-or-page]
+     ;; this arity does double-duty: simple query inside project or
+     ;; query+page outside project
+     (if (string? project-or-query)
+       (search {} project-or-query query-or-page)
+       (search project-or-query query-or-page 1)))
   ([project query page]
      ;; you know what would be just super? pattern matching.
      (if (= "--update" query)

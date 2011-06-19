@@ -194,8 +194,12 @@
     (= 'project (first parameters))
     (every? project-needed? parameters)))
 
+(defn- project-accepted? [parameters]
+  (and (first parameters)
+       (.startsWith (name (first parameters)) "project")))
+
 (defn- arg-count [parameters project]
-  (if (and project (project-needed? parameters))
+  (if (and project (project-accepted? parameters))
     (dec (count parameters))
     (count parameters)))
 
@@ -212,7 +216,7 @@
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
     (if-let [parameters (matching-arity? task-name project args)]
-      (if (project-needed? parameters)
+      (if (project-accepted? parameters)
         (apply task project args)
         (apply task args))
       (let [args (arglists task-name)]
