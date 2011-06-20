@@ -196,7 +196,7 @@
 
 (defn- project-accepted? [parameters]
   (and (first parameters)
-       (.startsWith (name (first parameters)) "project-or")))
+       (re-find #"^project($|-or-)" (name (first parameters)))))
 
 (defn- arg-count [parameters project]
   (if (and project (project-accepted? parameters))
