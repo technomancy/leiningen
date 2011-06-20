@@ -22,6 +22,8 @@
 provided task and run it after Leiningen's own process has exited
 rather than as a subprocess of Leiningen's project.
 
+ALPHA: subject to change without warning.
+
 Use this to save memory or to work around things like Ant's stdin
 issues. Not compatible with chaining."
   [project task-name & args]
