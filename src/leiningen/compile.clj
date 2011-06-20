@@ -84,9 +84,10 @@
 (defn- get-raw-input-args []
   (.getInputArguments (ManagementFactory/getRuntimeMXBean)))
 
-(defn- get-input-args
+(defn ^{:internal true} get-input-args
   "Returns a vector of input arguments, accounting for a bug in RuntimeMXBean
-  that splits arguments which contain spaces."
+  that splits arguments which contain spaces. Removes -Xbootclasspath as it
+  requires special handling on the called code."
   []
   ;; RuntimeMXBean.getInputArguments() is buggy when an input argument
   ;; contains spaces. For an input argument of -Dprop="hello world" it
@@ -95,7 +96,8 @@
                                       (conj v arg)
                                       (conj (vec (butlast v))
                                             (format "%s %s" (last v) arg))))]
-         (reduce join-broken-args [] (get-raw-input-args))))
+    (remove #(re-find #"^-Xbootclasspath.+" %)
+            (reduce join-broken-args [] (get-raw-input-args)))))
 
 (defn- get-jvm-args [project]
   (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
@@ -175,8 +177,7 @@
       (.setFork java true)
       (.setDir java (file (:root project)))
       (doseq [arg (get-jvm-args project)]
-        (when-not (re-matches #"^-Xbootclasspath.+" arg)
-          (.setValue (.createJvmarg java) arg)))
+        (.setValue (.createJvmarg java) arg))
       (.setClassname java "clojure.main")
       ;; to allow plugins and other tasks to customize
       (when handler

@@ -119,10 +119,10 @@ if type -p curl >/dev/null 2>&1; then
     HTTP_CLIENT="curl $CURL_PROXY --insecure -f -L -o"
 fi
 
-JAVA_CMD=${JAVA_CMD:-"java"}
+export JAVA_CMD=${JAVA_CMD:-"java"}
 
 # Support $JAVA_OPTS for backwards-compatibility.
-JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
+export JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
 
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality.
@@ -215,9 +215,23 @@ else
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
-    exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
-        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-        -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
-        $NULL_DEVICE "$@"
-    test $CYGWIN_JLINE && stty icanon echo
+    if [ "$1" = "trampoline" ]; then
+        TRAMPOLINE_COMMAND_FILE="/tmp/lein-trampoline-$$"
+        CMD=`$JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -Dleiningen.trampoline-file=$TRAMPOLINE_COMMAND_FILE \
+            -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
+            $NULL_DEVICE "$@"`
+        if [ -r $TRAMPOLINE_COMMAND_FILE ]; then
+            TRAMPOLINE_COMMAND=`cat $TRAMPOLINE_COMMAND_FILE`
+            rm $TRAMPOLINE_COMMAND_FILE
+            exec $TRAMPOLINE_COMMAND
+        fi
+    else
+        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
+            $NULL_DEVICE "$@"
+        test $CYGWIN_JLINE && stty icanon echo
+    fi
 fi
