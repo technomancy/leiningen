@@ -196,7 +196,7 @@
 
 (defn- project-accepted? [parameters]
   (and (first parameters)
-       (.startsWith (name (first parameters)) "project")))
+       (.startsWith (name (first parameters)) "project-or")))
 
 (defn- arg-count [parameters project]
   (if (and project (project-accepted? parameters))
