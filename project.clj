@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
                  [clucy "0.2.1"]
-                 [lancet "1.0.0"]
+                 [lancet "1.0.1"]
                  [jline "0.9.94" :exclusions [junit]]
                  [robert/hooke "1.1.1"]
                  [org.apache.maven/maven-ant-tasks "2.0.10" :exclusions [ant]]]
