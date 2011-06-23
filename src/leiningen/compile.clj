@@ -152,7 +152,7 @@
   [project form & [handler skip-auto-compile init]]
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
-  (prep project)
+  (prep project skip-auto-compile)
   (if (:eval-in-leiningen project)
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
       (require '[clojure walk repl])
