@@ -8,7 +8,7 @@
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
            (clojure.lang LineNumberingPushbackReader)))
 
-(def *retry-limit* 100)
+(def *retry-limit* 200)
 
 (defn repl-options [project options]
   (let [options (apply hash-map options)
