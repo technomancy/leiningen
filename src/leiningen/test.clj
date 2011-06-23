@@ -44,7 +44,7 @@ each namespace and print an overall summary."
                              (java.io.FileOutputStream.)
                              (java.io.OutputStreamWriter.))]
             (.write w# (pr-str summary#)))
-          (when-not ~*interactive?*
+          (when (or ~*exit-after-tests* (not ~*interactive?*))
             (System/exit 0))))))
 
 (defn- read-args [args project]
