@@ -62,6 +62,9 @@
   ([project-name project-dir]
      (when (re-find project-name-blacklist project-name)
        (abort "Sorry, *jure names are no longer allowed."))
+     (try (read-string project-name)
+          (catch Exception _
+            (abort "Sorry, project names must be valid Clojure symbols.")))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
            artifact-id (name project-name)
