@@ -216,16 +216,15 @@ else
     # slower JVM boot.
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
     if [ "$1" = "trampoline" ]; then
-        TRAMPOLINE_COMMAND_FILE="/tmp/lein-trampoline-$$"
-        CMD=`$JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+        TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -Dleiningen.trampoline-file=$TRAMPOLINE_COMMAND_FILE \
-            -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
-            $NULL_DEVICE "$@"`
-        if [ -r $TRAMPOLINE_COMMAND_FILE ]; then
-            TRAMPOLINE_COMMAND=`cat $TRAMPOLINE_COMMAND_FILE`
-            rm $TRAMPOLINE_COMMAND_FILE
-            exec $TRAMPOLINE_COMMAND
+            -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
+            $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
+            $NULL_DEVICE "$@"
+        if [ -r $TRAMPOLINE_FILE ]; then
+            # TODO: this leaks files
+            exec sh $TRAMPOLINE_FILE
         fi
     else
         exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \

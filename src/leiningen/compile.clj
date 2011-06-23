@@ -130,6 +130,15 @@
       (pr-str (pr-str form))
       (prn-str form))))
 
+(defn prep [project skip-auto-compile]
+  (when (and (not (or *skip-auto-compile* skip-auto-compile))
+             (empty? (.list (file (:compile-path project)))))
+    (binding [*silently* true]
+      (compile project)))
+  (when (or (empty? (find-jars project))
+            (:checksum-deps project))
+    (deps project)))
+
 (defn- add-system-property [java key value]
   (.addSysproperty java (doto (Environment$Variable.)
                           (.setKey (name key))
@@ -143,13 +152,7 @@
   [project form & [handler skip-auto-compile init]]
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
-  (when (and (not (or *skip-auto-compile* skip-auto-compile))
-             (empty? (.list (file (:compile-path project)))))
-    (binding [*silently* true]
-      (compile project)))
-  (when (or (empty? (find-jars project))
-            (:checksum-deps project))
-    (deps project))
+  (prep project)
   (if (:eval-in-leiningen project)
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
       (require '[clojure walk repl])

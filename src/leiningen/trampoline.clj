@@ -1,15 +1,15 @@
 (ns leiningen.trampoline
   (:refer-clojure :exclude [trampoline])
   (:use [leiningen.core :only [apply-task task-not-found abort]]
-        [leiningen.compile :only [get-input-args eval-in-project
-                                  get-readable-form]]
+        [leiningen.compile :only [get-input-args get-readable-form
+                                  prep eval-in-project]]
         [leiningen.classpath :only [get-classpath-string]])
   (:require [clojure.string :as string]))
 
 (defn escape [form-string]
   (format "\"%s\"" (.replaceAll form-string "\"" "\\\\\"")))
 
-(defn command-string [project java-cmd jvm-opts [_ form _ _ init]]
+(defn command-string [project java-cmd jvm-opts [form init]]
   (string/join " " [java-cmd "-cp" (get-classpath-string project)
                     "clojure.main" "-e"
                     (escape (get-readable-form nil project form init))]))
@@ -33,7 +33,11 @@ issues. Not compatible with chaining."
                    (conj jvm-opts "-Dclojure.debug=true")
                    jvm-opts)
         eval-args (atom nil)]
-    (binding [eval-in-project #(do (reset! eval-args %&) 0)]
+    (when (:eval-in-leiningen project)
+      (println "Warning: trampoline has no effect with :eval-in-leiningen."))
+    (binding [eval-in-project (fn [project form & [_ _ init]]
+                                (prep project true)
+                                (reset! eval-args [form init]) 0)]
       (apply-task task-name project args task-not-found))
     (if @eval-args
       (write-trampoline (command-string project java-cmd jvm-opts @eval-args))
