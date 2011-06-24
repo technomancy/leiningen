@@ -223,8 +223,7 @@ else
             $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
             $NULL_DEVICE "$@"
         if [ -r $TRAMPOLINE_FILE ]; then
-            # TODO: this leaks files
-            exec sh $TRAMPOLINE_FILE
+            (cat $TRAMPOLINE_FILE; rm $TRAMPOLINE_FILE) | exec sh -s
         fi
     else
         exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
