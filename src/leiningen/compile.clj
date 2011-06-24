@@ -160,7 +160,8 @@
       (when (:debug project)
         (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
-      (try (binding [*warn-on-reflection* (:warn-on-reflection project)]
+      (try (binding [*warn-on-reflection* (:warn-on-reflection project)
+                     *ns* *ns*]
              (eval (read-string (get-readable-form nil project form init))))
            0
            (catch Exception e

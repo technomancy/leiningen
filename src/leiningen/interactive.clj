@@ -64,11 +64,10 @@
   (let [[port host] (repl-socket-on project)]
     (println welcome)
     (future
-      (binding [*ns* *ns*]
-        (eval-in-project project `(do ~(repl-server project host port
-                                                    :prompt '(constantly ""))
-                                      ;; can't stop return value from printing
-                                      (symbol "")))))
+      (eval-in-project project `(do ~(repl-server project host port
+                                                  :prompt '(constantly ""))
+                                    ;; can't stop return value from printing
+                                    (symbol ""))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 *exit-after-tests* false
