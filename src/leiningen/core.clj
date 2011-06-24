@@ -25,6 +25,13 @@
 
 (defdeprecated normalize-path paths/normalize-path)
 
+(defn no-dev?
+  "Should the dev dependencies and directories be ignored?
+
+Warning: alpha; subject to change."
+  []
+  (System/getenv "LEIN_NO_DEV"))
+
 (defn user-init
   "Load the user's ~/.lein/init.clj file, if present."
   []

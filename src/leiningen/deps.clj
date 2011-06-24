@@ -1,7 +1,7 @@
 (ns leiningen.deps
   "Download all dependencies and put them in :library-path."
   (:require [lancet.core :as lancet])
-  (:use [leiningen.core :only [repositories-for user-settings]]
+  (:use [leiningen.core :only [repositories-for user-settings no-dev?]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.util.paths :only [get-os get-arch]]
@@ -190,7 +190,8 @@
       (delete-file-recursively (:library-path project) :silently)
       (delete-file-recursively (File. (:root project) "native") :silently))
     (let [fileset (do-deps project :dependencies)]
-      (do-deps project :dev-dependencies)
+      (when-not (no-dev?)
+        (do-deps project :dev-dependencies))
       (extract-native-deps project)
       (when (:checksum-deps project)
         (spit (new-deps-checksum-file project) (deps-checksum project)))

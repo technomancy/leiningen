@@ -1,6 +1,6 @@
 (ns leiningen.classpath
   "Print the classpath of the current project."
-  (:use [leiningen.core :only [read-project]]
+  (:use [leiningen.core :only [read-project no-dev?]]
         [leiningen.deps :only [find-jars]]
         [leiningen.util.paths :only [leiningen-home]]
         [clojure.java.io :only [file]]
@@ -45,15 +45,17 @@
 (defn get-classpath
   "Answer a list of classpath entries for PROJECT."
   [project]
-  (concat [(:source-path project)
-           (:test-path project)
+  (concat (if-not (no-dev?)
+            [(:test-path project)
+             (:dev-resources-path project)])
+          [(:source-path project)
            (:compile-path project)
-           (:dev-resources-path project)
            (:resources-path project)]
           (:extra-classpath-dirs project)
           (checkout-deps-paths project)
           (find-jars project)
-          (user-plugins)))
+          (if-not (no-dev?)
+            (user-plugins))))
 
 (defn get-classpath-string [project]
   (join java.io.File/pathSeparatorChar (get-classpath project)))
