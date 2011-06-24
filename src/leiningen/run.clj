@@ -20,7 +20,7 @@
                            nil nil `(require '~main-ns)))))
 
 (defn ^{:help-arglists '([])} run
-  "Run a -main function with optional command-line arguments.
+  "Run the project's -main function.
 
 USAGE: lein run [--] [ARGS...]
 Calls the -main function in the namespace specified as :main in project.clj.

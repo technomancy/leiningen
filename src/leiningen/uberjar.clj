@@ -66,7 +66,7 @@
       (.closeEntry out))))
 
 (defn uberjar
-  "Package up the project files and deps into a jar file.
+  "Package up the project files and all dependencies into a jar file.
 
 Includes the contents of each of the dependency jars. Suitable for standalone
 distribution."

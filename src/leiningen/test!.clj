@@ -1,5 +1,5 @@
 (ns leiningen.test!
-  "Run a project's tests after cleaning and fetching dependencies."
+  "Run the project's tests after cleaning and fetching dependencies."
   (:refer-clojure :exclude [test])
   (:use [leiningen.clean :only [clean]]
         [leiningen.deps :only [deps]]

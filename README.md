@@ -209,9 +209,9 @@ See the plugin task's help for more information.
   new processes that blocks access to console input. This means that
   functions like <tt>read-line</tt> will not work as expected in most
   contexts, though the <tt>repl</tt> task necessarily includes a
-  workaround. You can also use <tt>java -cp \`lein classpath\`
-  my.main.namespace</tt> to launch a process with the correct
-  classpath that still has access to stdin.
+  workaround. You can also use the <tt>trampoline</tt> task to
+  launch your project's JVM after Leiningen's has exited rather than
+  launching it as a subprocess
 
 ## Contributing
 

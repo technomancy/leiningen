@@ -22,7 +22,7 @@
     (make-repository [repository-name repository])))
 
 (defn deploy
-  "Build and deploy jar to remote repository.
+  "Build jar and deploy to remote repository.
 
 The target repository will be looked up in :repositories: snapshot
 versions will go to the repo named \"snapshots\" while stable versions

@@ -76,7 +76,7 @@
     (prn)))
 
 (defn ^{:help-arglists '([query] [query page])} search
-  "Search remote repository contents.
+  "Search remote repositories.
 
 The first run will download a set of indices, which will take a
 while. Pass in --update as the query to force a fresh download of all

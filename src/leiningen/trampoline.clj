@@ -18,14 +18,16 @@
   (spit (System/getProperty "leiningen.trampoline-file") command))
 
 (defn trampoline
-  "Calculate what needs to run in the project's process for the
-provided task and run it after Leiningen's own process has exited
-rather than as a subprocess of Leiningen's project.
+  "Run a task without nesting the project's JVM inside Leiningen's.
 
-ALPHA: subject to change without warning.
+Calculates what needs to run in the project's process for the provided
+task and runs it after Leiningen's own JVM process has exited rather
+than as a subprocess of Leiningen's project.
 
 Use this to save memory or to work around things like Ant's stdin
-issues. Not compatible with chaining."
+issues. Not compatible with chaining.
+
+ALPHA: subject to change without warning."
   [project task-name & args]
   (let [java-cmd (format "%s/bin/java" (System/getProperty "java.home"))
         jvm-opts (get-input-args)
