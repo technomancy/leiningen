@@ -16,6 +16,8 @@ Leiningen NEWS -- history of user-visible changes
 
 * Support native dependencies.
 
+* Test selectors no longer require additional hooke dependency.
+
 * Add retest task.
 
 * Add search task.

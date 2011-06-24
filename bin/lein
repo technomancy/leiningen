@@ -124,6 +124,7 @@ export JAVA_CMD=${JAVA_CMD:-"java"}
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
 
+# TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality.
 if [ "$1" = "self-install" ]; then
