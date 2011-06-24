@@ -143,7 +143,10 @@ if [ "$1" = "self-install" ]; then
         exit 1
     fi
 elif [ "$1" = "upgrade" ]; then
-    # TODO: ensure we're not running from a checkout
+    if [ "$LEIN_DIR" != "" ]; then
+        echo "The upgrade task is not meant to be run from a checkout."
+        exit 1
+    fi
     if [ $SNAPSHOT = "YES" ]; then
         echo "The upgrade task is only meant for stable releases."
         echo "See the \"Hacking\" section of the README."
