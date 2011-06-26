@@ -4,6 +4,7 @@
   (:use [leiningen.core :only [exit user-settings]]
         [leiningen.compile :only [eval-in-project]]
         [leiningen.deps :only [find-jars deps]]
+        [leiningen.trampoline :only [*trampoline?*]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
@@ -73,7 +74,9 @@
                            (recur)))
            .start)
          (symbol (format "REPL started; server listening on %s:%s."
-                         ~host ~port)))))
+                         ~host ~port)))
+       (if ~*trampoline?*
+         (clojure.main/repl ~@options))))
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
@@ -137,8 +140,10 @@ directory will start a standalone repl session."
            retries (- *retry-limit* (or (project :repl-retry-limit)
                                         ((user-settings) :repl-retry-limit)
                                         *retry-limit*))]
-       (future (if (empty? project)
-                 (clojure.main/with-bindings (println (eval server-form)))
-                 (eval-in-project project server-form)))
-       (poll-repl-connection port retries repl-client)
-       (exit))))
+       (if *trampoline?*
+         (eval-in-project project server-form)
+         (do (future (if (empty? project)
+                       (clojure.main/with-bindings (println (eval server-form)))
+                       (eval-in-project project server-form)))
+             (poll-repl-connection port retries repl-client)
+             (exit))))))
