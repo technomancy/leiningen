@@ -135,7 +135,8 @@
         (copy-dependencies (:jar-behavior project)
                            ;; Leiningen's process only has access to lib/dev.
                            (if (or (= :dev-dependencies deps-set)
-                                   (:eval-in-leiningen project))
+                                   (and (:eval-in-leiningen project)
+                                        (not= "leiningen" (:name project))))
                              (str (:root project) "/lib/dev")
                              (:library-path project))
                            true (.getReference lancet/ant-project
