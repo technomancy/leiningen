@@ -3,6 +3,7 @@
   (:require [clojure.main])
   (:use [leiningen.core :only [exit user-settings]]
         [leiningen.compile :only [eval-in-project]]
+        [leiningen.deps :only [find-jars deps]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
@@ -125,7 +126,9 @@ A socket-repl will also be launched in the background on a socket based on the
 directory will start a standalone repl session."
   ([] (repl {}))
   ([project]
-     ;; TODO: don't start socket server until deps
+     (when (or (empty? (find-jars project))
+               (:checksum-deps project))
+       (deps project))
      (let [[port host] (repl-socket-on project)
            server-form (apply repl-server project host port
                               (concat (:repl-options project)
