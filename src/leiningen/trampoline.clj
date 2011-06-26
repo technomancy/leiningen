@@ -6,6 +6,8 @@
         [leiningen.classpath :only [get-classpath-string]])
   (:require [clojure.string :as string]))
 
+(def *trampoline* false)
+
 (defn escape [form-string]
   (format "\"%s\"" (.replaceAll form-string "\"" "\\\\\"")))
 
@@ -37,7 +39,8 @@ ALPHA: subject to change without warning."
         eval-args (atom nil)]
     (when (:eval-in-leiningen project)
       (println "Warning: trampoline has no effect with :eval-in-leiningen."))
-    (binding [eval-in-project (fn [project form & [_ _ init]]
+    (binding [*trampoline* true
+              eval-in-project (fn [project form & [_ _ init]]
                                 (prep project true)
                                 (reset! eval-args [form init]) 0)]
       (apply-task task-name project args task-not-found))
