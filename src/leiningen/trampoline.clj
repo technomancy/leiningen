@@ -13,7 +13,7 @@
 
 (defn command-string [project java-cmd jvm-opts [form init]]
   (string/join " " ["exec" java-cmd "-cp" (get-classpath-string project)
-                    "clojure.main" "-e"
+                    (string/join " " jvm-opts) "clojure.main" "-e"
                     (escape (get-readable-form nil project form init))]))
 
 (defn write-trampoline [command]
