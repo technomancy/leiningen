@@ -67,7 +67,7 @@ shell wrappers in ~/.lein/bin when provided."
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
             (binding [copy-dependencies (constantly nil)]
-              (deps (dissoc (read-project (format "%s/project.clj" temp-project))
-                            :dev-dependencies :native-dependencies)))
+              (when-let [p (read-project (str temp-project "/project.clj"))]
+                (deps (dissoc p :dev-dependencies :native-dependencies))))
             (finally
              (delete-file-recursively temp-project :silently))))))
