@@ -4,9 +4,21 @@
         [leiningen.compile :only [get-input-args get-readable-form
                                   prep eval-in-project]]
         [leiningen.classpath :only [get-classpath-string]])
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io]
+            [leiningen.util.paths :as paths]))
 
 (def *trampoline?* false)
+
+(defn get-jvm-opts [project]
+  (let [legacy-native (paths/legacy-native-path project)]
+    (concat (get-input-args)
+          (if (:debug project)
+            ["-Dclojure.debug=true"])
+          (if (.exists (io/file (:native-path project)))
+            [(str "-Djava.library.path=" (:native-path project))])
+          (if (.exists (io/file legacy-native))
+            [(str "-Djava.library.path=" legacy-native)]))))
 
 (defn escape [form-string]
   (format "\"%s\"" (.replaceAll form-string "\"" "\\\\\"")))
@@ -32,10 +44,7 @@ issues. Not compatible with chaining.
 ALPHA: subject to change without warning."
   [project task-name & args]
   (let [java-cmd (format "%s/bin/java" (System/getProperty "java.home"))
-        jvm-opts (get-input-args)
-        jvm-opts (if (:debug project)
-                   (conj jvm-opts "-Dclojure.debug=true")
-                   jvm-opts)
+        jvm-opts (get-jvm-opts project)
         eval-args (atom nil)]
     (when (:eval-in-leiningen project)
       (println "Warning: trampoline has no effect with :eval-in-leiningen."))
