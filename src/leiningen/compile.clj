@@ -176,6 +176,11 @@
         (add-system-property java :clojure.debug true))
       (when (.exists (file (:native-path project)))
         (add-system-property java "java.library.path" (:native-path project)))
+      ;; TODO: remove in 2.0?
+      (when (and (paths/legacy-native-path project)
+                 (.exists (file (paths/legacy-native-path project))))
+        (add-system-property java "java.library.path"
+                             (str (paths/legacy-native-path project))))
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)
       (.setFork java true)

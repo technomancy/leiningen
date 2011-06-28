@@ -29,6 +29,14 @@
   []
   (get-by-pattern native-names (System/getProperty "os.arch")))
 
+(defn legacy-native-path
+  "Deeply-nested path to native libraries used by native-deps plugin.
+  Kept for backwards-compatibility; libraries are encouraged to switch
+  to Leiningen's improved built-in native dependency support."
+  [project]
+  (when (and (get-os) (get-arch))
+    (file (:native-path project) (name (get-os)) (name (get-arch)))))
+
 (defn leiningen-home
   "Returns full path to Lein home dir ($LEIN_HOME or $HOME/.lein)."
   []
