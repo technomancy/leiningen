@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+clean:
+	rm -rf classes *jar *deb
+
+build:
+	bin/lein uberjar
+
+binary:
+	# TODO

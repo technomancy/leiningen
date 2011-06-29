@@ -1,0 +1,3 @@
+usr/share/leiningen/leiningen.jar:
+ Main-Class: <Main Class>
+ Debian-Java-Home: /usr/lib/jvm/java-6-sun

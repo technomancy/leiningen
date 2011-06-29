@@ -1,0 +1,17 @@
+Source: leiningen
+Section: devel
+Priority: optional
+Maintainer: Phil Hagelberg <technomancy@gmail.com>
+Build-Depends: debhelper (>> 7), javahelper (>= 0.32) 
+Build-Depends-Indep: clojure1.2, java2-runtime
+Standards-Version: 3.8.3
+Homepage: https://github.com/technomancy/leiningen
+
+Package: leiningen
+Architecture: all
+Depends: java2-runtime, clojure1.2, ant1.7, libmaven-ant-tasks-java, liblucene2-java
+Recommends: rlwrap
+Description: A Clojure build tool designed not to set your hair on fire.
+ Building Clojure projects with tools designed for Java can be an
+ exercise in frustration. With Leiningen, you describe your build with
+ Clojure.
