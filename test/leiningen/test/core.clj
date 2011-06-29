@@ -26,12 +26,16 @@
 (deftest test-matching-arity-with-project
   (is (matching-arity? "test" {} []))
   (is (matching-arity? "test" {} ["test-core"]))
-  (is (not (matching-arity? "version" {} ["bogus" "arg" "s"]))))
+  (is (not (matching-arity? "version" {} ["bogus" "arg" "s"])))
+  (is (matching-arity? "search" {} ["clojure"]))
+  (is (matching-arity? "search" {} ["clojure" "2"])))
 
 (deftest test-matching-arity-without-project
   (is (matching-arity? "version" nil []))
   (is (not (matching-arity? "test" nil [])))
-  (is (not (matching-arity? "test" nil ["test-core"]))))
+  (is (not (matching-arity? "test" nil ["test-core"])))
+  (is (matching-arity? "search" nil ["clojure"]))
+  (is (matching-arity? "search" nil ["clojure" "2"])))
 
 (deftest test-unquote
   (is (= ['org.clojure/clojure "1.1.0"]

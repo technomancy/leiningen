@@ -66,7 +66,7 @@
       (.closeEntry out))))
 
 (defn uberjar
-  "Package up the project files and deps into a jar file.
+  "Package up the project files and all dependencies into a jar file.
 
 Includes the contents of each of the dependency jars. Suitable for standalone
 distribution."
@@ -82,6 +82,7 @@ distribution."
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (file (get-jar-filename project)) deps)]
              (write-components project jars out)))
-         (println "Created" standalone-filename))
+         (println "Created" standalone-filename)
+         standalone-filename)
        (abort "Uberjar aborting because jar/compilation failed.")))
   ([project] (uberjar project (get-default-uberjar-name project))))

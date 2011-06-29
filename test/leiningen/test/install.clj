@@ -1,14 +1,14 @@
 (ns leiningen.test.install
-  (:use [leiningen.core :only [read-project home-dir]]
-        [leiningen.compile :only [get-os]]
+  (:use [leiningen.core :only [read-project]]
+        [leiningen.util.paths :only [get-os leiningen-home]]
         [leiningen.install] :reload)
   (:use [clojure.test]
         [leiningen.test.helper]
         [clojure.java.io :only [file]]
         [leiningen.util.file :only [delete-file-recursively]]))
 
-(def unix-shell-wrapper (file (home-dir) "bin" "nom"))
-(def windows-shell-wrapper (file (home-dir) "bin" "nom.bat"))
+(def unix-shell-wrapper (file (leiningen-home) "bin" "nom"))
+(def windows-shell-wrapper (file (leiningen-home) "bin" "nom.bat"))
 
 (defn delete-shell-wrappers []
   (.delete unix-shell-wrapper)
@@ -34,8 +34,8 @@
   (is (.exists unix-shell-wrapper)))
 
 (def tricky-m2-dir (file local-repo "org" "domain" "tricky-name" "1.0"))
-(def tricky-unix-shell-wrapper (file (home-dir) "bin" "tricky-name"))
-(def tricky-windows-shell-wrapper (file (home-dir) "bin" "tricky-name.bat"))
+(def tricky-unix-shell-wrapper (file (leiningen-home) "bin" "tricky-name"))
+(def tricky-windows-shell-wrapper (file (leiningen-home) "bin" "tricky-name.bat"))
 
 (defn delete-tricky-shell-wrappers []
   (.delete tricky-unix-shell-wrapper)

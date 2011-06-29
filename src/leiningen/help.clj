@@ -88,7 +88,7 @@
 Also provides readme, tutorial, news, sample, and copying documentation."
   ([task] (println (or (static-help task) (help-for task))))
   ([]
-     (println "Leiningen is a build tool for Clojure.\n")
+     (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
      (doseq [task-ns tasks]
        (println (help-summary-for task-ns)))

@@ -3,12 +3,14 @@
   (:require [clojure.main])
   (:use [leiningen.core :only [exit user-settings]]
         [leiningen.compile :only [eval-in-project]]
+        [leiningen.deps :only [find-jars deps]]
+        [leiningen.trampoline :only [*trampoline?*]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
            (clojure.lang LineNumberingPushbackReader)))
 
-(def *retry-limit* 100)
+(def *retry-limit* 200)
 
 (defn repl-options [project options]
   (let [options (apply hash-map options)
@@ -21,10 +23,10 @@
                                  "deprecated; use :repl-init."))
                    (load-file is#))
                  (when in#
-                   (doto in# require in-ns))
-                 (if mn#
-                   (doto mn# require in-ns)
-                   (in-ns '~'user)))
+                   (require in#))
+                 (when mn#
+                   (require mn#))
+                 (in-ns (or in# mn# '~'user)))
         ;; Suppress socket closed since it's part of normal operation
         caught `(fn [t#]
                   (when-not (instance? SocketException t#)
@@ -72,7 +74,9 @@
                            (recur)))
            .start)
          (symbol (format "REPL started; server listening on %s:%s."
-                         ~host ~port)))))
+                         ~host ~port)))
+       (if ~*trampoline?*
+         (clojure.main/repl ~@options))))
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
@@ -125,7 +129,9 @@ A socket-repl will also be launched in the background on a socket based on the
 directory will start a standalone repl session."
   ([] (repl {}))
   ([project]
-     ;; TODO: don't start socket server until deps
+     (when (or (empty? (find-jars project))
+               (:checksum-deps project))
+       (deps project))
      (let [[port host] (repl-socket-on project)
            server-form (apply repl-server project host port
                               (concat (:repl-options project)
@@ -134,8 +140,10 @@ directory will start a standalone repl session."
            retries (- *retry-limit* (or (project :repl-retry-limit)
                                         ((user-settings) :repl-retry-limit)
                                         *retry-limit*))]
-       (future (if (empty? project)
-                 (clojure.main/with-bindings (println (eval server-form)))
-                 (eval-in-project project server-form)))
-       (poll-repl-connection port retries repl-client)
-       (exit))))
+       (if *trampoline?*
+         (eval-in-project project server-form)
+         (do (future (if (empty? project)
+                       (clojure.main/with-bindings (println (eval server-form)))
+                       (eval-in-project project server-form)))
+             (poll-repl-connection port retries repl-client)
+             (exit))))))

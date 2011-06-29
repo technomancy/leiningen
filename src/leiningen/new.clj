@@ -1,6 +1,7 @@
 (ns leiningen.new
   "Create a new project skeleton."
-  (:use [leiningen.core :only [ns->path abort user-settings]]
+  (:use [leiningen.core :only [abort user-settings]]
+        [leiningen.util.paths :only [ns->path]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
   (:import (java.util Calendar)))
@@ -21,7 +22,7 @@
                               (user-settings))]
     (.mkdirs (file project-dir))
     (spit (file project-dir "project.clj")
-          (str "(defproject " 'project-name " \"1.0.0-SNAPSHOT\"\n"
+          (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
                "  :description \"FIXME: write description\"\n"
                (format-settings (into (sorted-map) settings))
                ")" ))))
@@ -61,6 +62,9 @@
   ([project-name project-dir]
      (when (re-find project-name-blacklist project-name)
        (abort "Sorry, *jure names are no longer allowed."))
+     (try (read-string project-name)
+          (catch Exception _
+            (abort "Sorry, project names must be valid Clojure symbols.")))
      (let [project-name (symbol project-name)
            group-id (namespace project-name)
            artifact-id (name project-name)

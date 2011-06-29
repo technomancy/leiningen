@@ -5,7 +5,7 @@
         [clojure.java.io :only [file]]
         [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.test.helper :only [sample-project dev-deps-project
-                                      m2-dir with-no-log]]))
+                                      m2-dir with-no-log native-project]]))
 
 (defn lib-populated? [project re]
   (some #(re-find re (.getName %))
@@ -51,3 +51,15 @@
         (is (thrown? Exception (with-no-log (deps rel-repo-snaps-dep))))))
     (finally
        (delete-file-recursively (file (:root sample-project) "lib")))))
+
+(deftest test-native-deps
+  (delete-file-recursively (:library-path native-project) true)
+  (delete-file-recursively (:native-path native-project) true)
+  (deps native-project)
+  (is (= #{"liblwjgl.so" "libopenal.so" "libjtokyocabinet.so"
+           "libtokyocabinet.so.9" "libjtokyocabinet.so.1" "libtokyocabinet.so"
+           "libjinput-linux.so" "libtokyocabinet.so.9.8.0" ".gitkeep"
+           "libtokyocabinet.so.9.10.0" "librxtxSerial.so" "libtokyocabinet.a"
+           "libjri.so" "libjtokyocabinet.so.1.1.0"}
+         (set (for [f (rest (file-seq (file (:native-path native-project))))]
+                (.getName f))))))

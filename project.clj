@@ -8,9 +8,9 @@
   :license {:name "Eclipse Public License"}
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
-                 [clucy "0.2.0"]
-                 [lancet "1.0.0"]
-                 [robert/hooke "1.1.0"]
+                 [clucy "0.2.1"]
+                 [lancet "1.0.1"]
+                 [robert/hooke "1.1.1"]
                  [org.apache.maven/maven-ant-tasks "2.0.10" :exclusions [ant]]]
   :dev-dependencies [[lein-deb "1.0.0-SNAPSHOT"]]
   :disable-implicit-clean true

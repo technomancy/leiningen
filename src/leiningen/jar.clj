@@ -120,7 +120,7 @@
     (doseq [child (file-seq (file (:path spec)))]
       (let [path (reduce trim-leading-str (unix-path (str child))
                          [root resources classes src "/"])]
-        (when-not (skip-file? child path (:jar-exclusions project))
+        (when-not (skip-file? child path (:jar-exclusions project [#"^\."]))
           (.putNextEntry jar-os (doto (JarEntry. path)
                                   (.setTime (.lastModified child))))
           (copy child jar-os))))))
@@ -128,9 +128,6 @@
 (defmethod copy-to-jar :bytes [project jar-os spec]
   (.putNextEntry jar-os (JarEntry. (:path spec)))
   (copy (ByteArrayInputStream. (:bytes spec)) jar-os))
-
-;; TODO: hacky; needed for conditional :resources-path below
-(defmethod copy-to-jar nil [project jar-os spec])
 
 (defn write-jar [project out-filename filespecs]
   (let [manifest (make-manifest project)]
@@ -168,11 +165,11 @@
                    (:group project)
                    (:name project))
      :bytes (make-pom-properties project)}
-    (when (and (:resources-path project)
-               (.exists (file (:resources-path project))))
-      {:type :path :path (:resources-path project)})
     {:type :path :path (:compile-path project)}
     {:type :path :path (str (:root project) "/project.clj")}]
+   (when (and (:resources-path project)
+              (.exists (file (:resources-path project))))
+     [{:type :path :path (:resources-path project)}])
    (when-not (:omit-source project)
      [{:type :path :path (:source-path project)}])
    (shell-wrapper-filespecs project deps-fileset)))

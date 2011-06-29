@@ -77,13 +77,13 @@ advantage of this, you should put it on your <tt>$PATH</tt>.
 
 ## Configuration
 
-Place a <tt>project.clj</tt> file in the project root like this:
+The <tt>project.clj</tt> file in the project root should look like this:
 
     (defproject myproject "0.5.0-SNAPSHOT"
       :description "A build tool designed to not set your hair on fire."
       :url "http://github.com/technomancy/leiningen"
-      :dependencies [[org.clojure/clojure "1.1.0"]
-                     [org.clojure/clojure-contrib "1.1.0"]]
+      :dependencies [[org.clojure/clojure "1.2.1"]
+                     [org.clojure/clojure-contrib "1.2.0"]]
       :dev-dependencies [[swank-clojure "1.2.1"]])
 
 The <tt>lein new</tt> task generates a project skeleton with an
@@ -209,9 +209,9 @@ See the plugin task's help for more information.
   new processes that blocks access to console input. This means that
   functions like <tt>read-line</tt> will not work as expected in most
   contexts, though the <tt>repl</tt> task necessarily includes a
-  workaround. You can also use <tt>java -cp \`lein classpath\`
-  my.main.namespace</tt> to launch a process with the correct
-  classpath that still has access to stdin.
+  workaround. You can also use the <tt>trampoline</tt> task to
+  launch your project's JVM after Leiningen's has exited rather than
+  launching it as a subprocess
 
 ## Contributing
 

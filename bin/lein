@@ -26,14 +26,52 @@ JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
 JAVA_CMD=${JAVA_CMD:-"java"}
 LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
-LEIN_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null | tr \\n \:)"
-LEIN_USER_PLUGINS="$(ls -1 $LEIN_HOME/plugins/*jar 2> /dev/null | tr \\n \:)"
-CLASSPATH=$CLASSPATH:$LEIN_USER_PLUGINS:$LEIN_PLUGINS:test/:src/
-CLOJURE_JAR="/usr/share/java/clojure-1.2.1.jar"
+DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
+USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
+
+artifact_name () {
+    echo "$1" | sed -e "s/.*\/\(.*\)/\1/" | \
+        rev | sed -e "s/raj[-[:digit:].]*-\(.*\)/\1/" | rev
+}
+
+unique_user_plugins () {
+    saveIFS="$IFS"
+    IFS="$(printf '\n\t')"
+
+    plugins="$(echo "$DEV_PLUGINS"; echo "$USER_PLUGINS")"
+    artifacts="$(for i in $plugins; do echo "$(artifact_name "$i")"; done)"
+    duplicates="$(echo "$artifacts" | sort | uniq -d)"
+
+    if [ -z "$duplicates" ]; then
+        echo "$USER_PLUGINS"
+    else
+        for i in $USER_PLUGINS; do
+            artifact="$(artifact_name "$i")"
+            if ! echo "$duplicates" | grep -xq "$artifact"; then
+                echo "$i"
+            fi
+        done
+    fi
+    IFS="$saveIFS"
+}
+
+LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
+LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
+CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/"
+LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
+CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
+NULL_DEVICE=/dev/null
+
+# normalize $0 on certain BSDs
+if [ "$(dirname "$0")" = "." ]; then
+    SCRIPT="$(which $(basename "$0"))"
+else
+    SCRIPT="$0"
+fi
 
 for JAR in lein/'*' \
-    jtidy.jar ant.jar ant-launcher.jar xml-apis.jar; do
-    CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR"
+    ant.jar ant-launcher.jar xml-apis.jar; do
+    CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR:lib/*"
 done
 
 if [ $DEBUG ]; then
@@ -48,9 +86,29 @@ if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
     RLWRAP="$RLWRAP -m -q '\"'" # custom quote chars
 fi
 
-# The -Xbootclasspath argument is optional here: if the jar
-# doesn't exist everything will still work, it will just have a
-# slower JVM boot.
-exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
-    -cp "$CLASSPATH" -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-    clojure.main -e "(use 'leiningen.core)(-main)" /dev/null $@
+# Use rlwrap when appropriate
+if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
+    [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
+    which rlwrap
+    if [ $? -eq 0 ]; then
+        RLWRAP="rlwrap -m -q '\"'" # custom quote chars
+    fi
+
+elif [ "$1" = "trampoline" ]; then
+        TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
+            clojure.main -e "(use 'leiningen.core)(-main)" \
+            $NULL_DEVICE "$@"
+        if [ -r $TRAMPOLINE_FILE ]; then
+            TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+            rm $TRAMPOLINE_FILE
+            exec sh -c "$TRAMPOLINE"
+        fi
+else
+        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" \
+            $NULL_DEVICE "$@"
+fi

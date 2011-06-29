@@ -1,7 +1,7 @@
 (ns leiningen.interactive
   "Enter interactive task shell."
   (:require [clojure.string :as string])
-  (:use [leiningen.core :only [apply-task exit]]
+  (:use [leiningen.core :only [apply-task exit *interactive?*]]
         [leiningen.test :only [*exit-after-tests*]]
         [leiningen.repl :only [repl-server repl-socket-on
                                copy-out-loop poll-repl-connection]]
@@ -66,10 +66,12 @@
     (future
       (eval-in-project project `(do ~(repl-server project host port
                                                   :prompt '(constantly ""))
+                                    ;; can't stop return value from printing
                                     (symbol ""))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 *exit-after-tests* false
+                *interactive?* true
                 exit (fn exit [& _] (prn))]
         (task-repl project)))
     (exit)))

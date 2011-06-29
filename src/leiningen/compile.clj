@@ -1,15 +1,18 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:require [lancet.core :as lancet])
-  (:use [leiningen.deps :only [deps]]
-        [leiningen.core :only [ns->path user-settings]]
+  (:use [leiningen.deps :only [deps find-jars]]
+        [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
-        [leiningen.classpath :only [make-path find-jars get-classpath]]
+        [leiningen.classpath :only [make-path get-classpath]]
+        
         [clojure.java.io :only [file resource reader]]
         [leiningen.util.ns :only [namespaces-in-dir]])
+  (:require [leiningen.util.paths :as paths]
+            [lancet.core :as lancet])
   (:refer-clojure :exclude [compile])
   (:import (java.io PushbackReader)
            (org.apache.tools.ant.taskdefs Java)
+           (org.apache.tools.ant.types ZipFileSet)
            (java.lang.management ManagementFactory)
            (java.util.regex Pattern)
            (org.apache.tools.ant.types Environment$Variable)))
@@ -60,7 +63,7 @@
   [project]
   (filter
    (fn [n]
-     (let [clj-path (ns->path n)
+     (let [clj-path (paths/ns->path n)
            class-file (file (:compile-path project)
                             (.replace clj-path "\\.clj" "__init.class"))]
        (or (not (.exists class-file))
@@ -68,52 +71,23 @@
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
-(defn get-by-pattern
-  "Gets a value from map m, but uses the keys as regex patterns, trying
-   to match against k instead of doing an exact match."
-  [m k]
-  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
-                        (keys m)))))
+(defdeprecated get-os paths/get-os)
 
-(def native-names {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
-                   "FreeBSD" :freebsd "OpenBSD" :openbsd
-                   "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
-                   "arm" :arm "SunOS" :solaris "sparc" :sparc})
-
-(defn get-os
-  "Returns a keyword naming the host OS."
-  []
-  (get-by-pattern native-names (System/getProperty "os.name")))
-
-(defn get-arch
-  "Returns a keyword naming the host architecture"
-  []
-  (get-by-pattern native-names (System/getProperty "os.arch")))
+(defdeprecated get-os paths/get-arch)
 
 (defn platform-nullsink []
-  (file (if (= :windows (get-os))
+  (file (if (= :windows (paths/get-os))
           "NUL"
           "/dev/null")))
-
-(defn- find-native-lib-path
-  "Returns a File representing the directory where native libs for the
-  current platform are located."
-  [project]
-  (when (and (get-os) (get-arch))
-    (let [osdir (name (get-os))
-          archdir (name (get-arch))
-          f (file "native" osdir archdir)]
-      (if (.exists f)
-        f
-        nil))))
 
 ;; Split this function out for better testability.
 (defn- get-raw-input-args []
   (.getInputArguments (ManagementFactory/getRuntimeMXBean)))
 
-(defn- get-input-args
+(defn ^{:internal true} get-input-args
   "Returns a vector of input arguments, accounting for a bug in RuntimeMXBean
-  that splits arguments which contain spaces."
+  that splits arguments which contain spaces. Removes -Xbootclasspath as it
+  requires special handling on the called code."
   []
   ;; RuntimeMXBean.getInputArguments() is buggy when an input argument
   ;; contains spaces. For an input argument of -Dprop="hello world" it
@@ -122,7 +96,8 @@
                                       (conj v arg)
                                       (conj (vec (butlast v))
                                             (format "%s %s" (last v) arg))))]
-         (reduce join-broken-args [] (get-raw-input-args))))
+    (remove #(re-find #"^-Xbootclasspath.+" %)
+            (reduce join-broken-args [] (get-raw-input-args)))))
 
 (defn- get-jvm-args [project]
   (concat (get-input-args) (:jvm-opts project) (:jvm-opts (user-settings))))
@@ -138,15 +113,31 @@
                   ~(injected-forms)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))
-                  ~form)]
+                  (try ~form
+                       ;; non-daemon threads will prevent process from exiting;
+                       ;; see http://tinyurl.com/2ueqjkl
+                       (finally
+                        (when-not (or (= "1.5" (System/getProperty
+                                                "java.specification.version"))
+                                      ~*interactive?*)
+                          (shutdown-agents)))))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
     ;; currently being passed; see
     ;; http://www.perlmonks.org/?node_id=300286 for some of the
     ;; landmines involved in doing it properly
-    (if (and (= (get-os) :windows) java)
+    (if (and (= (paths/get-os) :windows) java)
       (pr-str (pr-str form))
       (prn-str form))))
+
+(defn prep [project skip-auto-compile]
+  (when (and (not (or *skip-auto-compile* skip-auto-compile))
+             (empty? (.list (file (:compile-path project)))))
+    (binding [*silently* true]
+      (compile project)))
+  (when (or (empty? (find-jars project))
+            (:checksum-deps project))
+    (deps project)))
 
 (defn- add-system-property [java key value]
   (.addSysproperty java (doto (Environment$Variable.)
@@ -161,13 +152,7 @@
   [project form & [handler skip-auto-compile init]]
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
-  (when (and (not (or *skip-auto-compile* skip-auto-compile))
-             (empty? (.list (file (:compile-path project)))))
-    (binding [*silently* true]
-      (compile project)))
-  (when (or (empty? (find-jars project))
-            (:checksum-deps project))
-    (deps project))
+  (prep project skip-auto-compile)
   (if (:eval-in-leiningen project)
     (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
       (require '[clojure walk repl])
@@ -175,35 +160,33 @@
       (when (:debug project)
         (System/setProperty "clojure.debug" "true"))
       ;; need to at least pretend to return an exit code
-      (try (binding [*warn-on-reflection* (:warn-on-reflection project)]
+      (try (binding [*warn-on-reflection* (:warn-on-reflection project)
+                     *ns* *ns*]
              (eval (read-string (get-readable-form nil project form init))))
            0
            (catch Exception e
              (.printStackTrace e)
              1)))
-    (let [java (Java.)
-          native-path (or (:native-path project)
-                          (find-native-lib-path project))]
+    (let [java (Java.)]
       (.setProject java lancet/ant-project)
       (add-system-property java :clojure.compile.path (:compile-path project))
       (add-system-property java (format "%s.version" (:name project))
                            (:version project))
       (when (:debug project)
         (add-system-property java :clojure.debug true))
-      (when native-path
-        (add-system-property
-         java "java.library.path" (cond
-                                   (instance? java.io.File native-path)
-                                   (.getAbsolutePath native-path)
-                                   (fn? native-path) (native-path)
-                                   :default native-path)))
+      (when (.exists (file (:native-path project)))
+        (add-system-property java "java.library.path" (:native-path project)))
+      ;; TODO: remove in 2.0?
+      (when (and (paths/legacy-native-path project)
+                 (.exists (file (paths/legacy-native-path project))))
+        (add-system-property java "java.library.path"
+                             (str (paths/legacy-native-path project))))
       (.setClasspath java (apply make-path (get-classpath project)))
       (.setFailonerror java true)
       (.setFork java true)
       (.setDir java (file (:root project)))
       (doseq [arg (get-jvm-args project)]
-        (when-not (re-matches #"^-Xbootclasspath.+" arg)
-          (.setValue (.createJvmarg java) arg)))
+        (.setValue (.createJvmarg java) arg))
       (.setClassname java "clojure.main")
       ;; to allow plugins and other tasks to customize
       (when handler

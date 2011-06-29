@@ -17,33 +17,30 @@ See also https://github.com/technomancy/leiningen/issues
     Try a custom classloader approach?
   - Use Aether instead of maven-ant-tasks?
     http://www.sonatype.com/people/2010/08/introducing-aether/
+    Could also allow us to fix :omit-default-repositories wrt central
   - Rename test-resources to dev-resources
     Breaking change; needs to wait for a major version bump.
-  - shell wrappers should support multiple versions
-    We could write out a different "foo-$VERSION" shell wrapper for each
-    version of a project that gets installed and then have the plain
-    "foo" script look for a $VERSION env var if it's set, and if not
-    just fall back to the latest.
   - classifiers for specifying what clojure version to use?
     As more versions of Clojure start to exist, libraries may want to
     publish different branches that target different versions of
     Clojure itself. Classifiers may be the way to separate these out?
   - a list of dirs to include in the jar when building
     Some people have requested this.
-  - re-compile all deps with current clojure version
-    Another thing that's going to start becoming more important as more
-    Clojure versions are introduced.
   - improve test coverage
+  - suppress useless ant output in classpath calculation for :local-repo-classpath
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
-  - [ ] investigate problems running deeper inside project dir
-  - [ ] suppress useless ant output in classpath calculation for :local-repo-classpath
-  - [ ] make :repl-init change initial ns of repl and swank
-  - [ ] take care of multiple versions of plugins in ~/.lein/plugins
-  - [ ] transitive native-deps support
   - [ ] Trampoline functionality
     http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] move exit-after-tests check to eval-in-project (discuss on list?)
+  - [x] don't freak out when attempting to download non-existent indices
+  - [x] improve error message for unconfigured deploy
+  - [x] make search work outside project
+  - [x] clear up home directory duality in Windows/MinGW
+  - [x] show total result count in search results
+  - [x] transitive native-deps support
+  - [x] make :repl-init change initial ns of repl and swank
   - [x] more flexibility in search results
   - [x] support ns/name in run task
   - [x] add option to use ~/.m2-based classpath instead of copying to

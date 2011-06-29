@@ -164,6 +164,7 @@ to exclude from transitive dependencies."
        (doto (Dependency.)
          ;; Allow org.clojure group to be omitted from clojure/contrib deps.
          (.setGroupId (if (and (nil? (namespace dep))
+                               ;; TODO: drop contrib special-case in 2.0
                                (re-find #"^clojure(-contrib)?$" (name dep)))
                         "org.clojure"
                         (or (namespace dep) (name dep))))
@@ -236,7 +237,7 @@ to exclude from transitive dependencies."
       (.setScm model scm))
     (when-let [parent (:parent project)]
       (.setParent model (apply make-parent parent)))
-    (doseq [license (concat (filter project [:licence :license])
+    (doseq [license (concat (map project (filter project [:licence :license]))
                             (:licences project)
                             (:licenses project))]
       (.addLicense model (make-license license)))

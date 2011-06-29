@@ -20,7 +20,7 @@
                            nil nil `(require '~main-ns)))))
 
 (defn ^{:help-arglists '([])} run
-  "Run a -main function with optional command-line arguments.
+  "Run the project's -main function.
 
 USAGE: lein run [--] [ARGS...]
 Calls the -main function in the namespace specified as :main in project.clj.
@@ -34,7 +34,9 @@ Calls the main function in the specified namespace.
 USAGE: lein run :alias [ARGS...]
 Aliases can be defined in project.clj as
     :run-aliases {:alias a.namespace/my-main
-                  :alias2 another.namespace}"
+                  :alias2 another.namespace}
+
+See also \"lein help trampoline\" for a way to save memory using this task."
   [project & [flag & args :as all-args]]
   (let [kw (when (= (first flag) \:) (keyword (subs flag 1)))
         alias (get (:run-aliases project) kw)

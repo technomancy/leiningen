@@ -2,9 +2,21 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.6.0 / ???
 
+* Enforce project names as readable symbols.
+
+* Add trampoline task.
+
+* Fix a bug where plugins would be unavailable in MinGW.
+
+* Allow functions other than -main to be called using run task.
+
+* Support constructing classpath out of ~/.m2 instead of copying to lib/.
+
 * Fix a bug where help output could be truncated by plugin issues.
 
 * Support native dependencies.
+
+* Test selectors no longer require additional hooke dependency.
 
 * Add retest task.
 
