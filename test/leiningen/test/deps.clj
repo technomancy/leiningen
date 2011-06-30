@@ -4,6 +4,7 @@
         [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.util.file :only [delete-file-recursively]]
+        [leiningen.util.paths :only [get-os get-arch]]
         [leiningen.test.helper :only [sample-project dev-deps-project
                                       m2-dir with-no-log native-project]]))
 
@@ -57,14 +58,45 @@
      (System/gc)
      (delete-file-recursively (file (:root sample-project) "lib")))))
 
+(def native-lib-files-map
+     {:linux {:x86 #{"libjri.so" "libjinput-linux.so" "libljwgl.so" "libopenal.so"
+                     "librxtxSerial.so" "libjtokyocabinet.so"
+                     "libjtokyocabinet.so.1" "libjtokyocabinet.so.1.1.0"
+                     "libtokyocabinet.a" "libtokyocabinet.so"
+                     "libtokyocabinet.so.9" "libtokyocabinet.so.9.10.0"
+                     "libtokyocabinet.so.9.8.0"}
+              :x86_64 #{"libjri.so" "libjinput-linux64.so" "libljwgl64.so"
+                        "libopenal64.so" "librxtxSerial.so" "libjtokyocabinet.so"
+                        "libjtokyocabinet.so.1" "libjtokyocabinet.so.1.1.0"
+                        "libtokyocabinet.a" "libtokyocabinet.so"
+                        "libtokyocabinet.so.9" "libtokyocabinet.so.9.10.0"
+                        "libtokyocabinet.so.9.8.0"}}
+      :macosx {:x86 #{"libjri.jnilib" "libjinput-osx.jnilib" "libljwg.jnilib"
+                      "openal.dylib" "librxtxSerial.jnilib"
+                      "libjtokyocabinet.1.1.0.dylib" "libjtokyocabinet.1.dylib"
+                      "libjtokyocabinet.dylib" "libjtokyocabinet.jnilib"
+                      "libtokyocabinet.9.10.0.dylib"
+                      "libtokyocabinet.9.8.0.dylib" "libtokyocabinet.9.dylib"
+                      "libtokyocabinet.a" "libtokyocabinet.dylib"}
+               :x86_64 #{"libjri.jnilib" "libjinput-osx.jnilib" "libljwg.jnilib"
+                         "openal.dylib" "librxtxSerial.jnilib"
+                         "libjtokyocabinet.1.1.0.dylib" "libjtokyocabinet.1.dylib"
+                         "libjtokyocabinet.dylib" "libjtokyocabinet.jnilib"
+                         "libtokyocabinet.9.10.0.dylib"
+                         "libtokyocabinet.9.8.0.dylib" "libtokyocabinet.9.dylib"
+                         "libtokyocabinet.a" "libtokyocabinet.dylib"}}
+      :windows {:x86 #{"jri.dll" "rJava.dll" "jinput-dx8.dll" "jinput-raw.dll"
+                       "lwjgl.dll" "OpenAL32.dll" "rxtxSerial.dll"}
+                :x86_64 #{"jri.dll rJava.dll" "jinput-dx8_64.dll"
+                          "jinput-raw_64.dll" "lwjgl64.dll" "OpenAL64.dll"
+                          "rxtxSerial.dll"}}
+      :solaris {:x86 #{"libljwgl.so" "libopenal.so"}
+                :x86_64 #{"libljwgl64.so" "libopenal.so"}}})
+
 (deftest test-native-deps
   (delete-file-recursively (:library-path native-project) true)
   (delete-file-recursively (:native-path native-project) true)
   (deps native-project)
-  (is (= #{"liblwjgl.so" "libopenal.so" "libjtokyocabinet.so"
-           "libtokyocabinet.so.9" "libjtokyocabinet.so.1" "libtokyocabinet.so"
-           "libjinput-linux.so" "libtokyocabinet.so.9.8.0" ".gitkeep"
-           "libtokyocabinet.so.9.10.0" "librxtxSerial.so" "libtokyocabinet.a"
-           "libjri.so" "libjtokyocabinet.so.1.1.0"}
+  (is (= (conj (get-in native-lib-files-map [(get-os) (get-arch)]) ".gitkeep")
          (set (for [f (rest (file-seq (file (:native-path native-project))))]
                 (.getName f))))))
