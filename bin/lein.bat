@@ -72,7 +72,7 @@ set JLINE=jline.ConsoleRunner
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
-set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.0\clojure-1.2.0.jar
+set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.1\clojure-1.2.1.jar
 goto RUN
 
 
