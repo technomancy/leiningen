@@ -105,6 +105,9 @@ Warning: alpha; subject to change."
                                :jar-dir (normalize-path#
                                          (or (:target-dir m#) (:jar-dir m#)
                                              root#))
+                               :jar-exclusions (:jar-exclusions m# [#"^\."])
+                               :uberjar-exclusions (:uberjar-exclusions
+                                                    m# [#"^META-INF/DUMMY.SF"])
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "
