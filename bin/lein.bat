@@ -40,6 +40,11 @@ set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
 set CLASSPATH="%CLASSPATH%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src
 
+rem Apply context specific CLASSPATH entries
+set CONTEXT_CP=""
+if exist ".classpath" set /P CONTEXT_CP=<.classpath
+if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
+
 if exist "%~f0\..\..\src\leiningen\core.clj" (
     rem Running from source checkout.
     call :SET_LEIN_ROOT "%~f0\..\.."
