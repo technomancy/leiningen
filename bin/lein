@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LEIN_VERSION="1.6.0-SNAPSHOT"
+LEIN_VERSION="1.6.0"
 export LEIN_VERSION
 
 if [ `whoami` = "root" ] && [ "$LEIN_ROOT" = "" ]; then
@@ -22,7 +22,7 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; 
 done
 
 # Support $JAVA_OPTS for backwards-compatibility.
-JVM_OPTS=${JVM_OPTS:-$JAVA_OPTS}
+JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
 LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
@@ -59,7 +59,7 @@ LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
 LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
 CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/"
 LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
-CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.0/clojure-1.2.0.jar"
+CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.1/clojure-1.2.1.jar"
 NULL_DEVICE=/dev/null
 
 # normalize $0 on certain BSDs

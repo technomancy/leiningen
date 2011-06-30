@@ -4,7 +4,6 @@
         [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [make-path get-classpath]]
-        
         [clojure.java.io :only [file resource reader]]
         [leiningen.util.ns :only [namespaces-in-dir]])
   (:require [leiningen.util.paths :as paths]
@@ -110,6 +109,9 @@
 
 (defn get-readable-form [java project form init]
   (let [form `(do ~init
+                  ~@(let [user-clj (file (paths/leiningen-home) "user.clj")]
+                      (if (.exists user-clj)
+                        [(list 'load-file (str user-clj))]))
                   ~(injected-forms)
                   (set! ~'*warn-on-reflection*
                         ~(:warn-on-reflection project))

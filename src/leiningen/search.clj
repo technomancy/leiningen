@@ -53,7 +53,6 @@
           fetch-count (* page page-size)
           offset (* (dec page) page-size)
           results (clucy/search (clucy/disk-index location)
-                                ;; TODO: doesn't seem to include description
                                 query fetch-count :default-field :a)]
       (with-meta (drop offset results) (meta results)))
     (binding [*out* *err*]
@@ -70,6 +69,7 @@
 (defn- print-results [[id] results page]
   (when (seq results)
     (println " == Results from" id "-" "Showing page" page "/"
+             ;; TODO: divide by page size?
              (:_total-hits (meta results) page-size) "total")
     (doseq [result (map parse-result results)]
       (apply println result))

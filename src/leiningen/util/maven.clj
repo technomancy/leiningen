@@ -227,10 +227,10 @@ to exclude from transitive dependencies."
                 (.setDescription (:description project))
                 (.setUrl (:url project))
                 (.setBuild (make-build project)))]
-    (doseq [dep (:dependencies project)]
-      (.addDependency model (make-dependency dep project)))
     (doseq [dev (:dev-dependencies project)]
       (.addDependency model (make-dependency dev project "test")))
+    (doseq [dep (:dependencies project)]
+      (.addDependency model (make-dependency dep project)))
     (doseq [repo (repositories-for project)]
       (.addRepository model (make-repository repo)))
     (when-let [scm (make-git-scm (file (:root project) ".git"))]

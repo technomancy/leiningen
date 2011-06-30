@@ -25,8 +25,6 @@ See also https://github.com/technomancy/leiningen/issues
   - Use Aether instead of maven-ant-tasks?
     http://www.sonatype.com/people/2010/08/introducing-aether/
     Could also allow us to fix :omit-default-repositories wrt central
-  - Rename test-resources to dev-resources
-    Breaking change; needs to wait for a major version bump.
   - classifiers for specifying what clojure version to use?
     As more versions of Clojure start to exist, libraries may want to
     publish different branches that target different versions of
@@ -38,8 +36,7 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6
-  - [ ] Trampoline functionality
-    http://groups.google.com/group/leiningen/browse_thread/thread/a07a7f10edb77c9b
+  - [x] Trampoline functionality
   - [x] move exit-after-tests check to eval-in-project (discuss on list?)
   - [x] don't freak out when attempting to download non-existent indices
   - [x] improve error message for unconfigured deploy

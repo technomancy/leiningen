@@ -41,7 +41,7 @@ than as a subprocess of Leiningen's project.
 Use this to save memory or to work around things like Ant's stdin
 issues. Not compatible with chaining.
 
-ALPHA: subject to change without warning."
+ALPHA: subject to change without warning. Incompatible with lein.bat."
   [project task-name & args]
   (let [java-cmd (format "%s/bin/java" (System/getProperty "java.home"))
         jvm-opts (get-jvm-opts project)
