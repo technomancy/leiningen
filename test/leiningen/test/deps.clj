@@ -50,7 +50,12 @@
       (let [rel-repo-snaps-dep (assoc pr :dependencies [clj-time])]
         (is (thrown? Exception (with-no-log (deps rel-repo-snaps-dep))))))
     (finally
-       (delete-file-recursively (file (:root sample-project) "lib")))))
+     ;; Without triggering the GC, joda jar cannot be deleted on
+     ;; Windows, which causes all sorts of seemingly unrelated test
+     ;; failures. If anybody knows how to fix this properly, please do
+     ;; it.
+     (System/gc)
+     (delete-file-recursively (file (:root sample-project) "lib")))))
 
 (deftest test-native-deps
   (delete-file-recursively (:library-path native-project) true)
