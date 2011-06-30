@@ -4,7 +4,6 @@
         [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [make-path get-classpath]]
-        
         [clojure.java.io :only [file resource reader]]
         [leiningen.util.ns :only [namespaces-in-dir]])
   (:require [leiningen.util.paths :as paths]

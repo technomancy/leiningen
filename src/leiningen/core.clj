@@ -1,11 +1,9 @@
 (ns leiningen.core
   (:use [leiningen.util.ns :only [namespaces-matching]]
-        [clojure.string :only [split]]
         [clojure.walk :only [walk]]
         [robert.hooke :only [add-hook]]
         [clojure.java.io :only [file]])
-  (:require [lancet.core :as lancet]
-            [leiningen.util.paths :as paths])
+  (:require [leiningen.util.paths :as paths])
   (:import (java.io File)
            (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
 
