@@ -73,10 +73,10 @@
                                (.printStackTrace e#)))
                            (recur)))
            .start)
-         (symbol (format "REPL started; server listening on %s:%s."
-                         ~host ~port)))
-       (if ~*trampoline?*
-         (clojure.main/repl ~@options))))
+         (if ~*trampoline?*
+           (clojure.main/repl ~@options)
+           (symbol (format "REPL started; server listening on %s:%s."
+                           ~host ~port))))))
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
@@ -127,17 +127,17 @@
 A socket-repl will also be launched in the background on a socket based on the
 :repl-port key in project.clj or chosen randomly. Running outside a project
 directory will start a standalone repl session."
-  ([] (repl {}))
+  ([] (repl nil))
   ([project]
-     (when (or (empty? (find-jars project))
-               (:checksum-deps project))
+     (when (and project (or (empty? (find-jars project))
+                            (:checksum-deps project)))
        (deps project))
      (let [[port host] (repl-socket-on project)
            server-form (apply repl-server project host port
                               (concat (:repl-options project)
                                       (:repl-options (user-settings))))
            ;; TODO: make this less awkward when we can break poll-repl-connection
-           retries (- *retry-limit* (or (project :repl-retry-limit)
+           retries (- *retry-limit* (or (:repl-retry-limit project)
                                         ((user-settings) :repl-retry-limit)
                                         *retry-limit*))]
        (if *trampoline?*
