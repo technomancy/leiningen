@@ -85,7 +85,7 @@
 (defn help
   "Display a list of tasks or help for a given task.
 
-Also provides readme, tutorial, news, sample, and copying documentation."
+Also provides readme, tutorial, news, sample, deploy and copying documentation."
   ([task] (println (or (static-help task) (help-for task))))
   ([]
      (println "Leiningen is a tool for working with Clojure projects.\n")
@@ -93,4 +93,4 @@ Also provides readme, tutorial, news, sample, and copying documentation."
      (doseq [task-ns tasks]
        (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
-     (println "Also available: readme, tutorial, copying, sample, and news.")))
+     (println "See also: readme, tutorial, copying, sample, deploy and news.")))

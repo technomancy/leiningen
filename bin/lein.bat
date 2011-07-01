@@ -1,6 +1,6 @@
 @echo off
 
-set LEIN_VERSION=1.6.0-SNAPSHOT
+set LEIN_VERSION=1.6.0
 
 setLocal EnableExtensions EnableDelayedExpansion
 
@@ -40,6 +40,11 @@ set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
 
 set CLASSPATH="%CLASSPATH%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src
 
+rem Apply context specific CLASSPATH entries
+set CONTEXT_CP=""
+if exist ".classpath" set /P CONTEXT_CP=<.classpath
+if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
+
 if exist "%~f0\..\..\src\leiningen\core.clj" (
     rem Running from source checkout.
     call :SET_LEIN_ROOT "%~f0\..\.."
@@ -72,7 +77,7 @@ set JLINE=jline.ConsoleRunner
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
-set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.0\clojure-1.2.0.jar
+set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.1\clojure-1.2.1.jar
 goto RUN
 
 
