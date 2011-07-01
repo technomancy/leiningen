@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen</groupId>
   <artifactId>leiningen</artifactId>
-  <version>1.6.0</version>
+  <version>1.6.1-SNAPSHOT</version>
   <name>leiningen</name>
   <description>A build tool designed not to set your hair on fire.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -15,7 +15,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>868441c25ff304912ff644a831423be385bae7a9</tag>
+    <tag>c96c74f5eb5721b621e51f4a70c6ff0211e0d9a0</tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
   <build>
