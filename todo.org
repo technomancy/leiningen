@@ -12,12 +12,15 @@ See also https://github.com/technomancy/leiningen/issues
   - Tests in Nailgun: would it require a separate shell script?
   - How could nonlinear versions be represented?
 * Debian packaging
-  - [ ] fix libmaven-ant-tasks-java
+  - [ ] ITP
   - [ ] package contrib 1.2
-  - [ ] package clucy, lancet, hooke?
-        jh_installlibs
-  - [ ] convert NEWS to changelog
+  - [x] package simple libs
+        need clucy license clarification
+        need lancet pushed upstream to stu
+  - [x] man page
   - [ ] rules: binary
+        handle bin script, (package.install?) version in jar filename
+  - [ ] please please don't make me depend on groovy
 * For 2.0
   - make it easier to hook inside eval-in-project
   - Quit using ant's Java task. It is horrible.

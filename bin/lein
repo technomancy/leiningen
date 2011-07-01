@@ -69,13 +69,17 @@ else
     SCRIPT="$0"
 fi
 
-for JAR in lein/'*' \
-    ant.jar ant-launcher.jar xml-apis.jar; do
-    CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR:lib/*"
+SHARE_JARS="ant ant-launcher classworlds clojure1.2 lucene-core lucene-highlighter \
+lucene-memory mamven-ant-tasks maven-artifact maven-artifact-manager \
+maven-error-diagnostics maven-model maven-plugin-repository maven-settings \
+plexus-container-default plexus-interpolation plexus-utils \
+wagon-file wagon-http-lightweight wagon-http-shared wagon-provider-api xml-apis"
+for JAR in $SHARE_JARS; do
+    CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR.jar"
 done
 
 # to package
-for JAR in clojure-contrib-1.2.0 clucy-0.2.1 hooke-1.1.1 lancet-1.0.1; do
+for JAR in clojure-contrib-1.2.0 clucy-0.2.1 hooke-1.1.2 lancet-1.0.1; do
     CLASSPATH="$CLASSPATH":"fake-lib/$JAR.jar"
 done
 
@@ -101,7 +105,6 @@ if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
     if [ $? -eq 0 ]; then
         RLWRAP="rlwrap -m -q '\"'" # custom quote chars
     fi
-
 elif [ "$1" = "trampoline" ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
         $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \

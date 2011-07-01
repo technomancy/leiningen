@@ -3,8 +3,29 @@
 clean:
 	rm -rf classes *jar *deb
 
-build:
-	bin/lein uberjar
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
 
-binary:
-	# TODO
+build:
+	bin/lein jar
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_install -i
+	dh_installdocs -i
+	dh_installchangelogs -i
+	jh_installlibs -i
+	jh_depends -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+binary: binary-indep

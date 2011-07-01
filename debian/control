@@ -9,7 +9,8 @@ Homepage: https://github.com/technomancy/leiningen
 
 Package: leiningen
 Architecture: all
-Depends: java2-runtime, clojure1.2, ant1.7, libmaven-ant-tasks-java, liblucene2-java
+Depends: java2-runtime, clojure1.2, libmaven-ant-tasks-java, 
+         libmaven2-core-java, librobert-hooke, libclucy
 Recommends: rlwrap
 Description: A Clojure build tool designed not to set your hair on fire.
  Building Clojure projects with tools designed for Java can be an
