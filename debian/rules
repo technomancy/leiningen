@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 clean:
-	rm -rf classes *jar *deb
+	rm -rf classes *jar *deb debian/leiningen/
 
 install: build
 	dh_testdir
@@ -10,17 +10,16 @@ install: build
 	dh_installdirs
 
 build:
-	bin/lein jar
+	LEIN_ROOT=y bin/lein compile :all, jar
 
 binary-indep: build install
 	dh_testdir
 	dh_testroot
 	dh_prep
-	dh_install -i
+	dh_install -i bin/lein /usr/bin/
 	dh_installdocs -i
 	dh_installchangelogs -i
-	jh_installlibs -i
-	jh_depends -i
+	jh_installlibs -i leiningen-1.6.0.jar
 	dh_compress -i
 	dh_fixperms -i
 	dh_installdeb -i

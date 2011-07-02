@@ -59,7 +59,7 @@ LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
 LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
 CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/"
 LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
-CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.1/clojure-1.2.1.jar"
+CLOJURE_JAR="/usr/share/java/clojure-1.2.jar:/usr/share/java/asm3.jar"
 NULL_DEVICE=/dev/null
 
 # apply context specific CLASSPATH entries
@@ -74,20 +74,16 @@ else
     SCRIPT="$0"
 fi
 
-SHARE_JARS="ant ant-launcher classworlds clojure1.2 lucene-core lucene-highlighter \
-lucene-memory mamven-ant-tasks maven-artifact maven-artifact-manager \
-maven-error-diagnostics maven-model maven-plugin-repository maven-settings \
-plexus-container-default plexus-interpolation plexus-utils \
-wagon-file wagon-http-lightweight wagon-http-shared wagon-provider-api xml-apis"
+SHARE_JARS="ant ant-launcher classworlds clojure-1.2 \
+lucene-memory maven-ant-tasks maven-artifact maven-artifact-manager \
+maven-error-diagnostics maven-model maven-settings maven-project maven-profile \
+plexus-container-default-alpha plexus-interpolation plexus-utils \
+wagon-file wagon-http-lightweight wagon-http-shared wagon-provider-api xml-apis
+lucene-core lucene-highlighter clucy robert-hooke lancet leiningen
+backport-util-concurrent" # NFI why that last one is necessary
 for JAR in $SHARE_JARS; do
     CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR.jar"
 done
-
-# to package
-for JAR in clojure-contrib-1.2.0 clucy-0.2.1 hooke-1.1.2 lancet-1.0.1; do
-    CLASSPATH="$CLASSPATH":"fake-lib/$JAR.jar"
-done
-
 
 if [ $DEBUG ]; then
     echo $CLASSPATH
@@ -97,20 +93,13 @@ fi
 # Use rlwrap if appropriate
 if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
     [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
-    which rlwrap
+    which rlwrap > /dev/null
     if [ $? -eq 0 ]; then
         RLWRAP="rlwrap -m -q '\"'" # custom quote chars
     fi
 fi
 
-# Use rlwrap when appropriate
-if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
-    [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
-    which rlwrap
-    if [ $? -eq 0 ]; then
-        RLWRAP="rlwrap -m -q '\"'" # custom quote chars
-    fi
-elif [ "$1" = "trampoline" ]; then
+if [ "$1" = "trampoline" ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
         $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \

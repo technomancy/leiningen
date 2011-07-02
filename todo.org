@@ -11,16 +11,14 @@ See also https://github.com/technomancy/leiningen/issues
   - Aether: how would it integrate? Improvement over maven-ant-tasks?
   - Tests in Nailgun: would it require a separate shell script?
   - How could nonlinear versions be represented?
-* Debian packaging
-  - [ ] ITP
-  - [ ] package contrib 1.2
+* Debian packaging 
   - [x] package simple libs
-        need clucy license clarification
-        need lancet pushed upstream to stu
-  - [x] man page
-  - [ ] rules: binary
-        handle bin script, (package.install?) version in jar filename
-  - [ ] please please don't make me depend on groovy
+  - [ ] man page (written, but not getting installed)
+  - [ ] fix clucy to not hardcode lucene 3
+  - [ ] package contrib 1.2
+  - [ ] ITP for deps
+  - [ ] don't hard-code version in rules/binary
+  - [ ] investigate jh_depends
 * For 2.0
   - make it easier to hook inside eval-in-project
   - Quit using ant's Java task. It is horrible.
