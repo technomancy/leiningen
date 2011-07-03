@@ -109,6 +109,7 @@
 
 (defn get-readable-form [java project form init]
   (let [form `(do ~init
+                  ~(:project-init project)
                   ~@(let [user-clj (file (paths/leiningen-home) "user.clj")]
                       (if (.exists user-clj)
                         [(list 'load-file (str user-clj))]))
