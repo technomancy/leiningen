@@ -30,7 +30,7 @@ See also https://github.com/technomancy/leiningen/issues
 * For 1.6.1
   - [X] upgrade hooke
   - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]
-  - [ ] fix shutdown-agents with repl
+  - [X] fix shutdown-agents with repl
   - [ ] investigate lein-multi failure
   - [ ] don't clear out lib/dev upon jarring (221)
 * For 1.6

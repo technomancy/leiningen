@@ -75,8 +75,9 @@
            .start)
          (if ~*trampoline?*
            (clojure.main/repl ~@options)
-           (symbol (format "REPL started; server listening on %s:%s."
-                           ~host ~port))))))
+           (do (println "REPL started; server listening on" ~host "port" ~port)
+               ;; block to avoid shutdown-agents
+               @(promise))))))
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
