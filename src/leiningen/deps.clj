@@ -184,7 +184,9 @@
 
 (defn deps
   "Download :dependencies and put them in :library-path."
-  [project]
+  [project & _]
+  (when (seq _)
+    (println "WARNING: passing an argument to deps is deprecated."))
   (when (fetch-deps? project)
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
