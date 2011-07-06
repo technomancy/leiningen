@@ -41,7 +41,7 @@ and use self-install.
 ## Usage
 
 The
-[tutorial](https://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
+[tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
@@ -131,7 +131,7 @@ See the plugin task's help for more information.
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](https://github.com/technomancy/leiningen/blob/stable/TUTORIAL.md)
+  [tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
@@ -143,14 +143,14 @@ See the plugin task's help for more information.
   is a typo in your :dependency declaration in project.clj.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
+**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
   explains how to set up a private repository. If you are not sharing
   them with a team you could also just [install locally.](http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
   project, you should make it into a
-  [plugin](https://github.com/technomancy/leiningen/blob/stable/PLUGINS.md).
+  [plugin](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md).
   You can also include one-off tasks in your src/leiningen/ directory
   if they're not worth spinning off; the plugin guide shows how.
 
