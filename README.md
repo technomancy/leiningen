@@ -6,13 +6,12 @@
 > fiend from hell..."
 > -- from Leiningen Versus the Ants by Carl Stephenson
 
-Leiningen is a build tool for Clojure designed to not set your hair on fire.
+Leiningen is for automating Clojure projects without setting your hair on fire.
 
 <img src="https://github.com/downloads/technomancy/leiningen/leiningen-banner.png" alt="Leiningen logo" title="The man himself" align="right" />
 
-Building Clojure projects with tools designed for Java can be an
-exercise in frustration. With Leiningen, you describe your build with
-Clojure.
+Working on Clojure projects with tools designed for Java can be an
+exercise in frustration. With Leiningen, you just write Clojure.
 
 ## Installation
 
@@ -24,9 +23,6 @@ upon the first run on unix, so the first run will take longer.
 2. Place it on your path and chmod it to be executable.
 
 I like to place it in ~/bin, but it can go anywhere on the $PATH.
-To track development of Leiningen you may use [the master version of the
-script](https://github.com/technomancy/leiningen/raw/master/bin/lein)
-instead. See the "Building" section below.
 
 On Windows most users can
 
@@ -80,11 +76,11 @@ advantage of this, you should put it on your <tt>$PATH</tt>.
 The <tt>project.clj</tt> file in the project root should look like this:
 
     (defproject myproject "0.5.0-SNAPSHOT"
-      :description "A build tool designed to not set your hair on fire."
-      :url "http://github.com/technomancy/leiningen"
+      :description "A project for doing things."
+      :url "http://github.com/technomancy/myproject"
       :dependencies [[org.clojure/clojure "1.2.1"]
                      [org.clojure/clojure-contrib "1.2.0"]]
-      :dev-dependencies [[swank-clojure "1.2.1"]])
+      :dev-dependencies [[lein-ring "0.4.5"]])
 
 The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
@@ -102,7 +98,7 @@ You can also manage your plugins with the <tt>plugin</tt> task. Use
 the same arguments you would put in the Leiningen :dev-dependencies if
 you were only using the plugin on a single project.
 
-    $ lein plugin install lein-clojars/lein-clojars "0.6.0"
+    $ lein plugin install lein-clojars "0.6.0"
 
 See the plugin task's help for more information.
 
@@ -148,7 +144,8 @@ See the plugin task's help for more information.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
-  explains how to set up a private repository.
+  explains how to set up a private repository. If you are not sharing
+  them with a team you could also just [install locally.](http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
@@ -163,7 +160,7 @@ See the plugin task's help for more information.
   some other project roots into it, Leiningen will allow you to hack
   on them in parallel. That means changes in the dependency will be
   visible in the main project without having to go through the whole
-  install/switch-projects/deps/restart-swank cycle. Note that this is
+  install/switch-projects/deps/restart-repl cycle. Note that this is
   not a replacement for listing the project in :dependencies; it
   simply supplements that for tighter change cycles.
 
@@ -201,7 +198,7 @@ See the plugin task's help for more information.
   startup time. Leiningen will try to launch a client JVM, but this
   only works on 32-bit JVM installations. If you are on a 64-bit
   machine you can still use a client JVM if you install 32-bit
-  packages; on Ubuntu try ia32-sun-java6-bin. Once you've installed
+  packages; on Debian try ia32-sun-java6-bin. Once you've installed
   it, run <tt>sudo update-java-alternatives -s ia32-java-6-sun</tt>.
   
 **Q:** I don't have access to stdin inside my project.  

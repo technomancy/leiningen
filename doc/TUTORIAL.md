@@ -3,7 +3,7 @@
 For those of you new to the JVM who have never touched Ant or Maven in
 anger: don't panic. Leiningen is designed with you in mind. This
 tutorial will help you get started and explain Leiningen's take on
-project building and JVM-land dependency management.
+project automation and JVM-land dependency management.
 
 ## Creating a Project
 

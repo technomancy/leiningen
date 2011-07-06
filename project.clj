@@ -3,7 +3,7 @@
 ;; loading other task definitions.
 
 (defproject leiningen "1.6.1-SNAPSHOT"
-  :description "A build tool designed not to set your hair on fire."
+  :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"}
   :dependencies [[org.clojure/clojure "1.2.1"]
