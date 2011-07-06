@@ -183,6 +183,11 @@ See the plugin task's help for more information.
   should not AOT-compile your project if other projects may depend
   upon it.
 
+**Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
+**A:** Currently you need to configure the underlying Maven library by
+  creating <tt>~/.m2/settings.xml</tt> as explained in the
+  [Maven guide](http://maven.apache.org/guides/mini/guide-proxies.html).
+
 **Q:** What can be done to speed up launch?  
 **A:** The main delay involved in Leiningen comes from starting the
   JVM.  Launching "lein interactive" will give you an interactive
