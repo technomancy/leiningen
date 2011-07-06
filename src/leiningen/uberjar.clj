@@ -69,12 +69,17 @@
   "Package up the project files and all dependencies into a jar file.
 
 Includes the contents of each of the dependency jars. Suitable for standalone
-distribution."
-  ([project uberjar-name]
+distribution.
+
+With an argument, the uberjar will be built with an alternate main."
+  ([project main]
      (when-not (:disable-implicit-clean project)
-       (doto project clean deps))
-     (if (jar project)
-       (let [standalone-filename (get-jar-filename project uberjar-name)]
+       (clean project))
+     (if (jar (if main
+                (assoc project :main (symbol main))
+                project))
+       (let [uberjar-name (get-default-uberjar-name project)
+             standalone-filename (get-jar-filename project uberjar-name)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
@@ -85,4 +90,4 @@ distribution."
          (println "Created" standalone-filename)
          standalone-filename)
        (abort "Uberjar aborting because jar/compilation failed.")))
-  ([project] (uberjar project (get-default-uberjar-name project))))
+  ([project] (uberjar project nil)))

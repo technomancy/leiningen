@@ -188,19 +188,20 @@
       (.mkdirs (.getParentFile f))
       (copy (.getInputStream jar entry) f))))
 
-(defn jar
+(defn ^{:help-arglists '([])} jar
   "Package up all the project's files into a jar file.
 
 Create a $PROJECT-$VERSION.jar file containing project's source files as well
 as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   ([project jar-name]
-     (binding [compile/*silently* true
-               deps (memoize deps)]
+     (when jar-name
+       (println "WARNING: Using the jar task with an argument is deprecated."))
+     (binding [compile/*silently* true]
        (when (zero? (compile/compile project))
-         (let [jar-path (get-jar-filename project jar-name)
+         (let [jar-path (get-jar-filename project (get-default-jar-name project))
                deps-fileset (deps project)]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
            jar-path))))
-  ([project] (jar project (get-default-jar-name project))))
+  ([project] (jar project nil)))

@@ -32,7 +32,7 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]
   - [X] fix shutdown-agents with repl
   - [X] don't clear out lib/dev upon jarring (221)
-  - [ ] investigate lein-multi failure
+  - [X] support alternate main namespace for uberjar.
 * For 1.6
   - [X] Trampoline functionality
   - [X] move exit-after-tests check to eval-in-project (discuss on list?)
