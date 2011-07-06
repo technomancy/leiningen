@@ -69,13 +69,14 @@
   ;; use a regex that will be matched against filenames in the project root.
   ;; Defaults to #"^$NAME-.*\.jar$".
   :regex-to-clean #"hs_err_pid.*"
-  ;; Load dependencies from checkouts/ directory. Set this to be a vector of
-  ;; functions that take the target project as argument.
-  ;; The default is [:source-path :compile-path :resources-path]
-  ;; but you could also add, for instance, :test-path to share tests, or
-  ;; ~(fn [p] (str (:root p) "/lib/dev/*")) to load also development dependencies
-  ;; from the checked out project (Java 1.6+)
-  :checkout-deps-shares
+  ;; Paths to include on the classpath from each project in the
+  ;; checkouts/ directory. (See the FAQ in the Readme for more details
+  ;; about checkout dependencies.) Set this to be a vector of
+  ;; functions that take the target project as argument. Defaults to
+  ;; [:source-path :compile-path :resources-path], but you could use
+  ;; the following to share code from the test suite:
+  :checkout-deps-shares [:source-path :test-path
+                         ~(fn [p] (str (:root p) "/lib/dev/*"))]
   ;; Load these namespaces on startup to pick up hooks from them. Hooks
   ;; generally come from plugins, but may be included in your project source.
   :hooks [leiningen.hooks.difftest]
