@@ -1,6 +1,6 @@
 Leiningen NEWS -- history of user-visible changes
 
-= 1.6.1 / TBD
+= 1.6.1 / 2011-07-06
 
 * Allow alternate main namespace to be used during uberjar creation.
 
