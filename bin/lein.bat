@@ -65,7 +65,7 @@ if not "x%INSIDE_EMACS%" == "x" goto SKIP_JLINE
 if "x%1" == "xrepl"             goto SET_JLINE
 if "x%1" == "xinteractive"      goto SET_JLINE
 if "x%1" == "xint"              goto SET_JLINE
-goto :SKIP_JLINE
+goto SKIP_JLINE
 
 :SET_JLINE
 set JLINE=jline.ConsoleRunner
@@ -90,7 +90,7 @@ for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
     )
 )
 set UNIQUE_USER_PLUGINS=!UNIQUE_USER_PLUGINS!"
-goto :EOF
+goto EOF
 
 :: Builds a search string to match against when ensuring
 :: plugin uniqueness.
@@ -100,7 +100,7 @@ for %%j in (".\lib\dev\*.jar") do (
     set PLUGIN_SEARCH_STRING=!PLUGIN_SEARCH_STRING!;!SEARCH_TOKEN!
 )
 set PLUGIN_SEARCH_STRING=%PLUGIN_SEARCH_STRING%;
-goto :EOF
+goto EOF
 
 :: Takes a jar filename and returns a reversed jar name without version.
 :: Example: lein-multi-0.1.1.jar -> itlum-niel
@@ -108,7 +108,7 @@ goto :EOF
 call :REVERSE_STRING %1
 call :STRIP_VERSION !RSTRING!
 set SEARCH_TOKEN=!VERSIONLESS!
-goto :EOF
+goto EOF
 
 :: Reverses a string.
 :REVERSE_STRING
@@ -122,14 +122,14 @@ if not "x%TMPCHR%" == "x" (
     set RSTRING=%TMPCHR%%RSTRING%
     goto REVERSE_STRING_LOOP
 )
-goto :EOF
+goto EOF
 
 :: Takes a string and removes everything from the beginning up to
 :: and including the first dash character.
 :STRIP_VERSION
 set INPUT=%1
 for /F "delims=- tokens=1*" %%a in ("%INPUT%") do set VERSIONLESS=%%b
-goto :EOF
+goto EOF
 
 
 :NO_LEIN_JAR
@@ -216,22 +216,22 @@ set LAST_DIR=
 if "%DIR_CONTAINING%" == "%LAST_DIR%" (
     :: didn't find it
     set DIR_CONTAINING=
-    goto :EOF
+    goto EOF
 )
 
 if EXIST "%DIR_CONTAINING%\%1" (
     :: found it - use result in DIR_CONTAINING
-    goto :EOF
+    goto EOF
 )
 
 set LAST_DIR=%DIR_CONTAINING%
 call :GET_PARENT_PATH "%DIR_CONTAINING%\.."
 set DIR_CONTAINING=%PARENT_PATH%
-goto :LOOK_AGAIN
+goto LOOK_AGAIN
 
 :GET_PARENT_PATH
 set PARENT_PATH=%~f1
-goto :EOF
+goto EOF
 
 
 :RUN
