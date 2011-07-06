@@ -1,7 +1,7 @@
 (ns leiningen.repl
   "Start a repl session either with the current project or standalone."
   (:require [clojure.main])
-  (:use [leiningen.core :only [exit user-settings]]
+  (:use [leiningen.core :only [exit user-settings *interactive?*]]
         [leiningen.compile :only [eval-in-project]]
         [leiningen.deps :only [find-jars deps]]
         [leiningen.trampoline :only [*trampoline?*]]
@@ -75,7 +75,9 @@
            .start)
          (if ~*trampoline?*
            (clojure.main/repl ~@options)
-           (do (println "REPL started; server listening on" ~host "port" ~port)
+           (do (when-not ~*interactive?*
+                 (println "REPL started; server listening on"
+                          ~host "port" ~port))
                ;; block to avoid shutdown-agents
                @(promise))))))
 
