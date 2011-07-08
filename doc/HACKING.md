@@ -21,7 +21,7 @@ TODO: what goes where? a tour through the launching of a task
 
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
-<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](https://github.com/technomancy/leiningen/blob/master/PLUGINS.md) for details.
+<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md) for details.
 
 The [mailing list](http://groups.google.com/group/leiningen) and the
 leiningen or clojure channels on Freenode are the best places to

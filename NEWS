@@ -1,6 +1,16 @@
 Leiningen NEWS -- history of user-visible changes
 
-= 1.6.1 / TBD
+= 1.6.1 / 2011-07-06
+
+* Allow alternate main namespace to be used during uberjar creation.
+
+* Add :checkout-deps-shares to share more directories in checkout dependencies.
+
+* Fix a bug where agent thread pool would be shut down in repl task.
+
+* Support :project-init in project.clj to allow pprint to be used in :repl-options.
+
+* Fix a bug where tests would not run using Clojure 1.3.
 
 * Support for .classpath file to include context specific classpath elements.
 

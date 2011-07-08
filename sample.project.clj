@@ -69,6 +69,14 @@
   ;; use a regex that will be matched against filenames in the project root.
   ;; Defaults to #"^$NAME-.*\.jar$".
   :regex-to-clean #"hs_err_pid.*"
+  ;; Paths to include on the classpath from each project in the
+  ;; checkouts/ directory. (See the FAQ in the Readme for more details
+  ;; about checkout dependencies.) Set this to be a vector of
+  ;; functions that take the target project as argument. Defaults to
+  ;; [:source-path :compile-path :resources-path], but you could use
+  ;; the following to share code from the test suite:
+  :checkout-deps-shares [:source-path :test-path
+                         ~(fn [p] (str (:root p) "/lib/dev/*"))]
   ;; Load these namespaces on startup to pick up hooks from them. Hooks
   ;; generally come from plugins, but may be included in your project source.
   :hooks [leiningen.hooks.difftest]
@@ -100,6 +108,9 @@
   ;; Customize the socket the repl task listens on.
   :repl-port 4001
   :repl-host "0.0.0.0"
+  ;; A form to prepend to every form that is evaluated inside your project.
+  ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
+  :project-init (require 'clojure.pprint)
   ;; If your -main namespace takes a long time to load, it could time out the
   ;; repl connection. Increase this to give it more time. Defaults to 100.
   :repl-retry-limit 1000

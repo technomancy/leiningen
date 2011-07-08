@@ -1,0 +1,91 @@
+./"to render: groff -Tascii -man doc/lein.1 > lein.man"
+.TH LEININGEN 1 "2011 June 30"
+.SH NAME
+lein \- Automate Clojure projects
+
+.SH SYNOPSIS
+
+.B lein
+[\fITASK\fR [\fIARGS\fR] [\fI, TASK2\fR [\fIARGS\fR] ...\fR]\fR]
+
+.SH DESCRIPTION
+
+Leiningen is for automating Clojure projects without setting your hair
+on fire.
+
+Working on Clojure projects with tools designed for Java can be an
+exercise in frustration. With Leiningen, you just write Clojure.
+
+.SH TASKS
+
+.B lein help
+will show the complete list of tasks, while
+.B lein help TASK
+shows usage for a specific one.
+
+.B lein help tutorial
+has a detailed walk-through of the various tasks, but the most
+commonly-used are:
+
+.TP
+\fBlein new NAME\fR
+generate a new project skeleton
+.TP
+\fBlein test [TESTS]\fR
+run the tests in the TESTS namespaces, or all tests
+.TP
+\fBlein repl\fR
+launch an interactive REPL session and socket server
+.TP
+\fBlein jar\fR
+package up the whole project as a .jar file
+.TP
+\fBlein install [NAME VERSION]\fR
+install a project
+
+.SH CONFIGURATION
+
+Leiningen reads its configuration from the
+.B project.clj
+file in your project root. Either use
+.B lein new
+to create a fresh project from which to work, or see the exhaustive
+list of configuration options with
+.B lein help sample.
+
+You can also have user-level configuration that applies for all
+projects. The 
+.B ~/.lein/init.clj
+file will be loaded every time
+Leiningen launches; any arbitrary code may go there. This code is
+executed inside Leiningen itself, not in your project. Set the
+.B :repl-init
+key in project.clj to point to a namespace if you want code executed
+inside your project.
+
+You can also manage user-level plugins with the plugin task; see
+.B lein help plugin
+
+.SH BUGS
+
+Check https://github.com/technomancy/leiningen/issues to see if your
+problem is a known issue. If not, please open a new issue on that site
+or join the mailing list at
+http://groups.google.com/group/leiningen/. Please include the output of
+.B lein version
+as well as your
+.B project.clj
+file and as much of the relevant code from your project as possible.
+
+.SH COPYING
+
+Copyright
+.if t \(co
+.if n (C)
+2009-2011 Phil Hagelberg and contributors.
+
+Distributed under the Eclipse Public License, the same as Clojure
+uses. See the file /usr/share/doc/leiningen/copyright.
+
+.SH AUTHOR
+This manpage is written by Phil Hagelberg <technomancy@gmail.com>

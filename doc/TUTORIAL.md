@@ -3,7 +3,7 @@
 For those of you new to the JVM who have never touched Ant or Maven in
 anger: don't panic. Leiningen is designed with you in mind. This
 tutorial will help you get started and explain Leiningen's take on
-project building and JVM-land dependency management.
+project automation and JVM-land dependency management.
 
 ## Creating a Project
 
@@ -416,7 +416,7 @@ on your production servers.
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to
-[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
+[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
 or get it into Maven central, the easiest way is to publish it at
 [Clojars](http://clojars.org). Once you have created an account there,
 publishing is easy:
@@ -431,7 +431,7 @@ exist yet then Clojars will automatically create it and give you
 permissions.
 
 For further details about publishing including setting up private
-repositories, see the [deploy guide](https://github.com/technomancy/leiningen/blob/stable/DEPLOY.md)
+repositories, see the [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
 
 ## That's It!
 
