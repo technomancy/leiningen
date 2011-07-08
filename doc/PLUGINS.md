@@ -100,8 +100,8 @@ for more details.
 ## CLASSPATH
 
 Custom classpath elements can be added to Leiningen's startup command
-by adding a '.classpath' file the the working directory.  When present,
-the content from '.classpath' will be prepended to the classpath before
+by adding a '.lein_classpath' file the the working directory.  When present,
+the content from '.lein_.classclasspath' will be prepended to the classpath before
 invoking the JVM.
 
 ## Have Fun
