@@ -235,13 +235,30 @@ goto EOF
 
 
 :RUN
-:: Need to disable delayed expansion because the %* variable
-:: may contain bangs (as in test!).
+:: We need to disable delayed expansion here because the %* variable
+:: may contain bangs (as in test!). There may also be special
+:: characters inside the TRAMPOLINE_FILE.
 setLocal DisableDelayedExpansion
+
+if "x%1" == "xtrampoline" goto RUN_TRAMPOLINE else goto RUN_NORMAL
+
+:RUN_TRAMPOLINE
+set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 
 %JAVA_CMD% -client %JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
+ -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
  -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+
+if not exist "%TRAMPOLINE_FILE%" goto EOF
+call "%TRAMPOLINE_FILE%"
+del "%TRAMPOLINE_FILE%"
 goto EOF
+
+:RUN_NORMAL
+%JAVA_CMD% -client %JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
+ -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
+ -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+
 
 :EOF

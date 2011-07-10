@@ -20,13 +20,23 @@
           (if (.exists (io/file legacy-native))
             [(str "-Djava.library.path=" legacy-native)]))))
 
+(defn win-batch? []
+  (.endsWith (System/getProperty "leiningen.trampoline-file") ".bat"))
+
 (defn escape [form-string]
-  (format "\"%s\"" (.replaceAll form-string "\"" "\\\\\"")))
+  (if (win-batch?)
+    form-string
+    (format "\"%s\"" (.replaceAll form-string "\"" "\\\\\""))))
+
+(defn quote-path [string]
+  (format "\"%s\"" (if (win-batch?) string (.replace string "\\" "\\\\"))))
 
 (defn command-string [project java-cmd jvm-opts [form init]]
-  (string/join " " ["exec" java-cmd "-cp" (get-classpath-string project)
-                    (string/join " " jvm-opts) "clojure.main" "-e"
-                    (escape (get-readable-form nil project form init))]))
+  (string/join " " [(quote-path java-cmd)
+                    "-cp" (quote-path (get-classpath-string project))
+                    (string/join " " (map quote-path jvm-opts))
+                    "clojure.main" "-e"
+                    (escape (get-readable-form (win-batch?) project form init))]))
 
 (defn write-trampoline [command]
   (spit (System/getProperty "leiningen.trampoline-file") command))
@@ -41,7 +51,7 @@ than as a subprocess of Leiningen's project.
 Use this to save memory or to work around things like Ant's stdin
 issues. Not compatible with chaining.
 
-ALPHA: subject to change without warning. Incompatible with lein.bat."
+ALPHA: subject to change without warning."
   [project task-name & args]
   (let [java-cmd (format "%s/bin/java" (System/getProperty "java.home"))
         jvm-opts (get-jvm-opts project)

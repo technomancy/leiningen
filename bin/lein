@@ -226,6 +226,9 @@ else
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
     if [ "$1" = "trampoline" ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+        if [ "$OSTYPE" = "cygwin" ]; then
+            TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
+        fi
         $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
@@ -234,13 +237,13 @@ else
         if [ -r $TRAMPOLINE_FILE ]; then
             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
             rm $TRAMPOLINE_FILE
-            exec sh -c "$TRAMPOLINE"
+            exec sh -c "exec $TRAMPOLINE"
         fi
     else
         exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
             $NULL_DEVICE "$@"
-        test $CYGWIN_JLINE && stty icanon echo
     fi
+    test $CYGWIN_JLINE && stty icanon echo
 fi
