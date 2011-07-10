@@ -15,8 +15,8 @@ if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
 if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
 if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
 
-if "x%1" == "xself-install" goto SELF_INSTALL
-if "x%1" == "xupgrade"      goto NO_UPGRADE
+if "%1" == "self-install" goto SELF_INSTALL
+if "%1" == "upgrade"      goto NO_UPGRADE
 
 set ORIGINAL_PWD=%CD%
 :: If ORIGINAL_PWD ends with a backslash (such as C:\),
@@ -62,9 +62,9 @@ if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 :: ##################################################
 
 if not "x%INSIDE_EMACS%" == "x" goto SKIP_JLINE
-if "x%1" == "xrepl"             goto SET_JLINE
-if "x%1" == "xinteractive"      goto SET_JLINE
-if "x%1" == "xint"              goto SET_JLINE
+if "%1" == "repl"             goto SET_JLINE
+if "%1" == "interactive"      goto SET_JLINE
+if "%1" == "int"              goto SET_JLINE
 goto SKIP_JLINE
 
 :SET_JLINE
@@ -240,7 +240,7 @@ goto EOF
 :: characters inside the TRAMPOLINE_FILE.
 setLocal DisableDelayedExpansion
 
-if "x%1" == "xtrampoline" goto RUN_TRAMPOLINE else goto RUN_NORMAL
+if "%1" == "trampoline" goto RUN_TRAMPOLINE else goto RUN_NORMAL
 
 :RUN_TRAMPOLINE
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
