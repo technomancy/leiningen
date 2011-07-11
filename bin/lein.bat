@@ -37,7 +37,7 @@ call :BUILD_UNIQUE_USER_PLUGINS
 set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src
 
 :: Apply context specific CLASSPATH entries
-set CONTEXT_CP=""
+set CONTEXT_CP=
 if exist ".classpath" set /P CONTEXT_CP=<.classpath
 if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
 
