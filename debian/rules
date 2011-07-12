@@ -19,7 +19,7 @@ binary-indep: build install
 	dh_install -i bin/lein /usr/bin/
 	dh_installdocs -i
 	dh_installchangelogs -i
-	jh_installlibs -i leiningen-1.6.0.jar
+	jh_installlibs -i leiningen-1.6.1.jar
 	dh_compress -i
 	dh_fixperms -i
 	dh_installdeb -i

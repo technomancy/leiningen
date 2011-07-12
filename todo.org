@@ -13,14 +13,14 @@ See also https://github.com/technomancy/leiningen/issues
   - How could nonlinear versions be represented?
 * Debian packaging 
   - [x] package simple libs
+  - [ ] lancet.core
   - [ ] man page (written, but not getting installed)
-  - [ ] fix clucy to not hardcode lucene 3
+  - [x] fix clucy to not hardcode lucene 3
   - [ ] package contrib 1.2
-  - [ ] ITP for deps
+  - [x] ITP for deps
   - [ ] don't hard-code version in rules/binary
   - [ ] investigate jh_depends
 * For 2.0
-  - make it easier to hook inside eval-in-project
   - Quit using ant's Java task. It is horrible.
     Try a custom classloader approach?
   - Use Aether instead of maven-ant-tasks?
@@ -36,34 +36,40 @@ See also https://github.com/technomancy/leiningen/issues
   - suppress useless ant output in classpath calculation for :local-repo-classpath
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
+* For 1.6.1
+  - [X] upgrade hooke
+  - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]
+  - [X] fix shutdown-agents with repl
+  - [X] don't clear out lib/dev upon jarring (221)
+  - [X] support alternate main namespace for uberjar.
 * For 1.6
-  - [x] Trampoline functionality
-  - [x] move exit-after-tests check to eval-in-project (discuss on list?)
-  - [x] don't freak out when attempting to download non-existent indices
-  - [x] improve error message for unconfigured deploy
-  - [x] make search work outside project
-  - [x] clear up home directory duality in Windows/MinGW
-  - [x] show total result count in search results
-  - [x] transitive native-deps support
-  - [x] make :repl-init change initial ns of repl and swank
-  - [x] more flexibility in search results
-  - [x] support ns/name in run task
-  - [x] add option to use ~/.m2-based classpath instead of copying to
+  - [X] Trampoline functionality
+  - [X] move exit-after-tests check to eval-in-project (discuss on list?)
+  - [X] don't freak out when attempting to download non-existent indices
+  - [X] improve error message for unconfigured deploy
+  - [X] make search work outside project
+  - [X] clear up home directory duality in Windows/MinGW
+  - [X] show total result count in search results
+  - [X] transitive native-deps support
+  - [X] make :repl-init change initial ns of repl and swank
+  - [X] more flexibility in search results
+  - [X] support ns/name in run task
+  - [X] add option to use ~/.m2-based classpath instead of copying to
         lib/? It looks like it would be easy to stop copying things
         into lib/ and just use Maven's notion of the project's
         dependencies to construct a classpath that references jars
         straight from ~/.m2.
-  - [x] Merge lein-search
-  - [x] Merge lein-retest
-  - [x] Merge native-deps
-  - [x] Add leiningen.util.injected namespace
+  - [X] Merge lein-search
+  - [X] Merge lein-retest
+  - [X] Merge native-deps
+  - [X] Add leiningen.util.injected namespace
 * For 1.5.1
 ** TODO
-   - [x] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
-   - [x] Put :eval-in-lein deps in lib/dev for leiningen process access.
-   - [x] Revert back to :warn on checksum failure.
-   - [x] Fix LEIN_ROOT warning in bin/lein.
-   - [x] Honor user-settings in more places.
+   - [X] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
+   - [X] Put :eval-in-lein deps in lib/dev for leiningen process access.
+   - [X] Revert back to :warn on checksum failure.
+   - [X] Fix LEIN_ROOT warning in bin/lein.
+   - [X] Honor user-settings in more places.
 * For 1.5
   - unify auth options between :repositories and :deploy-to
   - suppress socket closed stacktrace in interactive task

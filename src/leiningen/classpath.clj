@@ -25,8 +25,10 @@
                       ;; Note that this resets the leiningen.core/project var!
                       :let [proj (read-dependency-project dep)]
                       :when proj]
-                  (for [d [:source-path :compile-path :resources-path]]
-                    (ensure-absolute (proj d) dep)))))
+                  (for [d (:checkout-deps-shares project [:source-path
+                                                          :compile-path
+                                                          :resources-path])]
+                    (ensure-absolute (d proj) dep)))))
 
 (defn user-plugins []
   (for [jar (.listFiles (file (leiningen-home) "plugins"))

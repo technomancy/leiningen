@@ -1,6 +1,6 @@
 @echo off
 
-set LEIN_VERSION=1.6.0
+set LEIN_VERSION=1.6.1
 
 setLocal EnableExtensions EnableDelayedExpansion
 
@@ -10,43 +10,39 @@ if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=NO
 )
 
-rem LEIN_JAR and LEIN_HOME variables can be set manually.
+:: LEIN_JAR and LEIN_HOME variables can be set manually.
 
 if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
 if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
 
-if "x%1" == "xself-install" goto SELF_INSTALL
-if "x%1" == "xupgrade"      goto NO_UPGRADE
+if "%1" == "self-install" goto SELF_INSTALL
+if "%1" == "upgrade"      goto NO_UPGRADE
 
 set ORIGINAL_PWD=%CD%
-rem If ORIGINAL_PWD ends with a backslash (such as C:\),
-rem we need to escape it with a second backslash.
+:: If ORIGINAL_PWD ends with a backslash (such as C:\),
+:: we need to escape it with a second backslash.
 if "%ORIGINAL_PWD:~-1%x" == "\x" set "ORIGINAL_PWD=%ORIGINAL_PWD%\"
 
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
-set LEIN_PLUGINS="
+
+set DEV_PLUGINS="
 for %%j in (".\lib\dev\*.jar") do (
-    set LEIN_PLUGINS=!LEIN_PLUGINS!;%%~fj
+    set DEV_PLUGINS=!DEV_PLUGINS!;%%~fj
 )
-set LEIN_PLUGINS=!LEIN_PLUGINS!"
+set DEV_PLUGINS=!DEV_PLUGINS!"
 
-set LEIN_USER_PLUGINS="
-for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
-    set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!;%%~fj
-)
-set LEIN_USER_PLUGINS=!LEIN_USER_PLUGINS!"
+call :BUILD_UNIQUE_USER_PLUGINS
+set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src
 
-set CLASSPATH="%CLASSPATH%";%LEIN_USER_PLUGINS%;%LEIN_PLUGINS%;test;src
-
-rem Apply context specific CLASSPATH entries
-set CONTEXT_CP=""
+:: Apply context specific CLASSPATH entries
+set CONTEXT_CP=
 if exist ".classpath" set /P CONTEXT_CP=<.classpath
 if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
 
 if exist "%~f0\..\..\src\leiningen\core.clj" (
-    rem Running from source checkout.
+    :: Running from source checkout.
     call :SET_LEIN_ROOT "%~f0\..\.."
 
     set LEIN_LIBS="
@@ -57,19 +53,19 @@ if exist "%~f0\..\..\src\leiningen\core.clj" (
 
     set CLASSPATH=%CLASSPATH%;!LEIN_LIBS!;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
 ) else (
-    rem Not running from a checkout.
+    :: Not running from a checkout.
     if not exist %LEIN_JAR% goto NO_LEIN_JAR
     set CLASSPATH=%CLASSPATH%;%LEIN_JAR%
 )
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
-rem ##################################################
+:: ##################################################
 
 if not "x%INSIDE_EMACS%" == "x" goto SKIP_JLINE
-if "x%1" == "xrepl"             goto SET_JLINE
-if "x%1" == "xinteractive"      goto SET_JLINE
-if "x%1" == "xint"              goto SET_JLINE
-goto :SKIP_JLINE
+if "%1" == "repl"             goto SET_JLINE
+if "%1" == "interactive"      goto SET_JLINE
+if "%1" == "int"              goto SET_JLINE
+goto SKIP_JLINE
 
 :SET_JLINE
 set JLINE=jline.ConsoleRunner
@@ -79,6 +75,61 @@ if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 set CLOJURE_JAR=%USERPROFILE%\.m2\repository\org\clojure\clojure\1.2.1\clojure-1.2.1.jar
 goto RUN
+
+
+:: Builds a classpath fragment consisting of user plugins
+:: which aren't already present as a dev dependency.
+:BUILD_UNIQUE_USER_PLUGINS
+call :BUILD_PLUGIN_SEARCH_STRING %DEV_PLUGINS%
+set UNIQUE_USER_PLUGINS="
+for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
+    call :MAKE_SEARCH_TOKEN %%~nj
+    echo %PLUGIN_SEARCH_STRING%|findstr ;!SEARCH_TOKEN!; > NUL
+    if !ERRORLEVEL! == 1 (
+        set UNIQUE_USER_PLUGINS=!UNIQUE_USER_PLUGINS!;%%~fj
+    )
+)
+set UNIQUE_USER_PLUGINS=!UNIQUE_USER_PLUGINS!"
+goto EOF
+
+:: Builds a search string to match against when ensuring
+:: plugin uniqueness.
+:BUILD_PLUGIN_SEARCH_STRING
+for %%j in (".\lib\dev\*.jar") do (
+    call :MAKE_SEARCH_TOKEN %%~nj
+    set PLUGIN_SEARCH_STRING=!PLUGIN_SEARCH_STRING!;!SEARCH_TOKEN!
+)
+set PLUGIN_SEARCH_STRING=%PLUGIN_SEARCH_STRING%;
+goto EOF
+
+:: Takes a jar filename and returns a reversed jar name without version.
+:: Example: lein-multi-0.1.1.jar -> itlum-niel
+:MAKE_SEARCH_TOKEN
+call :REVERSE_STRING %1
+call :STRIP_VERSION !RSTRING!
+set SEARCH_TOKEN=!VERSIONLESS!
+goto EOF
+
+:: Reverses a string.
+:REVERSE_STRING
+set NUM=0
+set INPUTSTR=%1
+set RSTRING=
+:REVERSE_STRING_LOOP
+call set TMPCHR=%%INPUTSTR:~%NUM%,1%%%
+set /A NUM+=1
+if not "x%TMPCHR%" == "x" (
+    set RSTRING=%TMPCHR%%RSTRING%
+    goto REVERSE_STRING_LOOP
+)
+goto EOF
+
+:: Takes a string and removes everything from the beginning up to
+:: and including the first dash character.
+:STRIP_VERSION
+set INPUT=%1
+for /F "delims=- tokens=1*" %%a in ("%INPUT%") do set VERSIONLESS=%%b
+goto EOF
 
 
 :NO_LEIN_JAR
@@ -152,45 +203,62 @@ goto EOF
 set LEIN_ROOT=%~f1
 goto EOF
 
-rem Find directory containing filename supplied in first argument
-rem looking in current directory, and looking up the parent
-rem chain until we find it, or run out
-rem returns result in %DIR_CONTAINING%
-rem empty string if we don't find it
+:: Find directory containing filename supplied in first argument
+:: looking in current directory, and looking up the parent
+:: chain until we find it, or run out
+:: returns result in %DIR_CONTAINING%
+:: empty string if we don't find it
 :FIND_DIR_CONTAINING_UPWARDS
 set DIR_CONTAINING=%CD%
 set LAST_DIR=
 
 :LOOK_AGAIN
 if "%DIR_CONTAINING%" == "%LAST_DIR%" (
-    rem didn't find it
+    :: didn't find it
     set DIR_CONTAINING=
-    goto :EOF
+    goto EOF
 )
 
 if EXIST "%DIR_CONTAINING%\%1" (
-    rem found it - use result in DIR_CONTAINING
-    goto :EOF
+    :: found it - use result in DIR_CONTAINING
+    goto EOF
 )
 
 set LAST_DIR=%DIR_CONTAINING%
 call :GET_PARENT_PATH "%DIR_CONTAINING%\.."
 set DIR_CONTAINING=%PARENT_PATH%
-goto :LOOK_AGAIN
+goto LOOK_AGAIN
 
 :GET_PARENT_PATH
 set PARENT_PATH=%~f1
-goto :EOF
+goto EOF
 
 
 :RUN
-rem Need to disable delayed expansion because the %* variable
-rem may contain bangs (as in test!).
+:: We need to disable delayed expansion here because the %* variable
+:: may contain bangs (as in test!). There may also be special
+:: characters inside the TRAMPOLINE_FILE.
 setLocal DisableDelayedExpansion
+
+if "%1" == "trampoline" goto RUN_TRAMPOLINE else goto RUN_NORMAL
+
+:RUN_TRAMPOLINE
+set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 
 %JAVA_CMD% -client %JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
+ -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
  -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+
+if not exist "%TRAMPOLINE_FILE%" goto EOF
+call "%TRAMPOLINE_FILE%"
+del "%TRAMPOLINE_FILE%"
 goto EOF
+
+:RUN_NORMAL
+%JAVA_CMD% -client %JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
+ -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
+ -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+
 
 :EOF

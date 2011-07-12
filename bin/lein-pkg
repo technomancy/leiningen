@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This variant of the lein script is meant for downstream packagers.
+# It has all the cross-platform stuff stripped out as well as the
+# logic for running from checkouts and self-upgrading.
+
 LEIN_VERSION="1.6.1"
 export LEIN_VERSION
 
@@ -77,9 +81,9 @@ fi
 SHARE_JARS="ant ant-launcher classworlds clojure-1.2 \
 lucene-memory maven-ant-tasks maven-artifact maven-artifact-manager \
 maven-error-diagnostics maven-model maven-settings maven-project maven-profile \
-maven-repository-metadataplexus-container-default-alpha plexus-interpolation \
-plexus-utils wagon-file wagon-http-lightweight wagon-http-shared wagon-provider-api \
-xml-apis lucene-core lucene-highlighter clucy robert-hooke lancet leiningen
+plexus-container-default-alpha plexus-interpolation plexus-utils \
+wagon-file wagon-http-lightweight wagon-http-shared wagon-provider-api xml-apis
+lucene-core lucene-highlighter clucy robert-hooke lancet leiningen
 backport-util-concurrent" # NFI why that last one is necessary
 for JAR in $SHARE_JARS; do
     CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR.jar"
@@ -101,9 +105,6 @@ fi
 
 if [ "$1" = "trampoline" ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-        if [ "$OSTYPE" = "cygwin" ]; then
-            TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
-        fi
         $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
@@ -112,7 +113,7 @@ if [ "$1" = "trampoline" ]; then
         if [ -r $TRAMPOLINE_FILE ]; then
             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
             rm $TRAMPOLINE_FILE
-            exec sh -c "exec $TRAMPOLINE"
+            exec sh -c "$TRAMPOLINE"
         fi
 else
         exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \

@@ -1,5 +1,5 @@
-leiningen (1.6.0-1) unstable; urgency=low
+leiningen (1.6.1-1) unstable; urgency=low
 
-  * Initial release. (Closes: #XXXXXX)
+  * Initial release. (Closes: #566963)
 
- -- Phil Hagelberg <phil@enigma.home.hagelb.org>  Tue, 28 Jun 2011 16:02:58 -0700
+ -- Phil Hagelberg <technomancy@gmail.com>  Tue, 28 Jun 2011 16:02:58 -0700

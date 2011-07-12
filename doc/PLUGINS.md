@@ -97,6 +97,13 @@ See [the documentation for
 Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
 
+## CLASSPATH
+
+Custom classpath elements can be added to Leiningen's startup command
+by adding a '.classpath' file the the working directory.  When present,
+the content from '.classpath' will be prepended to the classpath before
+invoking the JVM.
+
 ## Have Fun
 
 Please add your plugins to [the list on the
