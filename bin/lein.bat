@@ -38,7 +38,7 @@ set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src
 
 :: Apply context specific CLASSPATH entries
 set CONTEXT_CP=
-if exist ".classpath" set /P CONTEXT_CP=<.classpath
+if exist ".lein_classpath" set /P CONTEXT_CP=<.lein_classpath
 if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
 
 if exist "%~f0\..\..\src\leiningen\core.clj" (
