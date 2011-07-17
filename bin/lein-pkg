@@ -81,7 +81,7 @@ fi
 SHARE_JARS="ant ant-launcher classworlds clojure-1.2 \
 lucene-memory maven-ant-tasks maven-artifact maven-artifact-manager \
 maven-error-diagnostics maven-model maven-settings maven-project maven-profile \
-maven-repository-metadataplexus-container-default-alpha plexus-interpolation \
+maven-repository-metadata plexus-container-default-alpha plexus-interpolation \
 plexus-utils wagon-file wagon-http-lightweight wagon-http-shared wagon-provider-api \
 xml-apis lucene-core lucene-highlighter clucy robert-hooke lancet leiningen
 backport-util-concurrent" # NFI why that last one is necessary
