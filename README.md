@@ -198,13 +198,14 @@ See the plugin task's help for more information.
   [VimClojure](https://bitbucket.org/kotarak/vimclojure), for example.)
 
 **Q:** Still too slow; what else can make startup faster?  
-**A:** There are two flavours of the JVM, client and server. The
-  server is optimized for long-running processes and has quite a poor
-  startup time. Leiningen will try to launch a client JVM, but this
-  only works on 32-bit JVM installations. If you are on a 64-bit
-  machine you can still use a client JVM if you install 32-bit
-  packages; on Debian try ia32-sun-java6-bin. Once you've installed
-  it, run <tt>sudo update-java-alternatives -s ia32-java-6-sun</tt>.
+**A:** There are two flavours of Hotspot (Oracle/OpenJDK's JVM),
+  client and server. The server is optimized for long-running
+  processes and has quite a poor startup time. Leiningen will try to
+  launch a client JVM, but this only works on 32-bit Hotspot. If you
+  are on a 64-bit machine you can still use a client JVM if you
+  install 32-bit packages; on Debian try ia32-sun-java6-bin. Once
+  you've installed it, run <tt>sudo update-java-alternatives -s
+  ia32-java-6-sun</tt>.
   
 **Q:** I don't have access to stdin inside my project.  
 **A:** There's a bug in the Ant library that Leiningen uses to spawn
@@ -222,6 +223,22 @@ tracker](https://github.com/technomancy/leiningen/issues) or the
 [mailing list](http://groups.google.com/group/leiningen). Personal
 email addresses are not appropriate for bug reports. See the file
 HACKING.md for more details on how Leiningen's codebase is structured.
+
+Patches are preferred as Github pull requests, though patches from
+<tt>git format-patch</tt> are also welcome on the mailing list. Please
+use topic branches when sending pull requests rather than committing
+directly to master in order to minimize unnecessary merge commit
+clutter.
+
+Contributors who have had a single patch accepted may request commit
+rights on the mailing list or in IRC. Please be careful with the
+master branch and keep any potentially-destabilizing work on topic
+branches. Other contributors will usually be glad to review topic
+branches before merging if you ask on IRC or the mailing list.
+
+Contributors are also welcome to request a free
+[Leiningen sticker](http://twitpic.com/2e33r1) by asking on the
+mailing list and mailing a SASE.
 
 ## Building
 
@@ -250,11 +267,15 @@ and use the checkout rather than the self-install uberjar if necessary.
 
 ## License
 
-Copyright © 2009-2011 Phil Hagelberg, Alex Osborne, Dan Larkin, and
-[other contributors](https://www.ohloh.net/p/leiningen/contributors).
+Source Copyright © 2009-2011 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+[other contributors](https://www.ohloh.net/p/leiningen/contributors). 
+Distributed under the Eclipse Public License, the same as Clojure
+uses. See the file COPYING.
 
 Thanks to Stuart Halloway for Lancet and Tim Dysinger for convincing
 me that good builds are important.
 
-Distributed under the Eclipse Public License, the same as Clojure
-uses. See the file COPYING.
+Images Copyright © 2010 Phil Hagelberg. Distributed under the Creative
+Commons Attribution + ShareAlike
+License. [Full-size version](https://github.com/downloads/technomancy/leiningen/leiningen-full.jpg)
+available.
