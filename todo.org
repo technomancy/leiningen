@@ -12,21 +12,22 @@ See also https://github.com/technomancy/leiningen/issues
   - Tests in Nailgun: would it require a separate shell script?
   - How could nonlinear versions be represented?
 * For 2.0
-  - Quit using ant's Java task. It is horrible.
-    Try a custom classloader approach?
-  - Use Aether instead of maven-ant-tasks?
-    http://www.sonatype.com/people/2010/08/introducing-aether/
-    Could also allow us to fix :omit-default-repositories wrt central
-  - classifiers for specifying what clojure version to use?
-    As more versions of Clojure start to exist, libraries may want to
-    publish different branches that target different versions of
-    Clojure itself. Classifiers may be the way to separate these out?
-  - a list of dirs to include in the jar when building
-    Some people have requested this.
-  - improve test coverage
-  - suppress useless ant output in classpath calculation for :local-repo-classpath
-  - new push task based on clj-ssh
-    lein-clojars task doesn't support DSA keys
+  - [ ] Remove deprecated functionality.
+  - [ ] Quit using ant's Java task. It is horrible.
+        Try a custom classloader approach? or an alternate exec.
+  - [ ] Use Aether instead of maven-ant-tasks?
+        http://www.sonatype.com/people/2010/08/introducing-aether/
+        Could also allow us to fix :omit-default-repositories (#221)
+  - [ ] Separate out LEIN_JVM_OPTS (#233)
+  - [ ] classifiers for specifying what clojure version to use?
+        As more versions of Clojure start to exist, libraries may want to
+        publish different branches that target different versions of
+        Clojure itself. Classifiers may be the way to separate these out?
+  - [ ] improve search query parser
+  - [ ] add ns-level test selectors
+  - [ ] improve test coverage
+  - [ ] suppress useless ant output in classpath calculation
+        for :local-repo-classpath (#236)
 * For 1.6.1
   - [X] upgrade hooke
   - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]
