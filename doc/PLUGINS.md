@@ -147,7 +147,7 @@ for more details.
 
 Leiningen's classpath will include all plugins from :dev-dependencies
 as well as user plugins. To further modify the classpath of Leiningen
-itself, add a '.lein\_classpath' file a project's root. Its contents
+itself, add a '.lein-classpath' file a project's root. Its contents
 will be prepended to Leiningen's classpath when Leiningen is invoked
 upon that project.
 
