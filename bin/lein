@@ -73,8 +73,8 @@ CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.1/clojure-1.2.1.jar"
 NULL_DEVICE=/dev/null
 
 # apply context specific CLASSPATH entries
-if [ -f .lein_classpath ]; then
-    CLASSPATH="`cat .lein_classpath`:$CLASSPATH"
+if [ -f .lein-classpath ]; then
+    CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
 fi
 
 # normalize $0 on certain BSDs
