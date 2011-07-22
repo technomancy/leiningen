@@ -229,8 +229,8 @@ else
         if [ "$OSTYPE" = "cygwin" ]; then
             TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
         fi
-        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
+            $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
             $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
             $NULL_DEVICE "$@"
@@ -240,8 +240,8 @@ else
             exec sh -c "exec $TRAMPOLINE"
         fi
     else
-        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
+            $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -cp "$CLASSPATH" $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
             $NULL_DEVICE "$@"
     fi
