@@ -55,11 +55,6 @@
   (is (.exists (file "test_projects" "sample" "classes"
                      "sample2" "alt__init.class"))))
 
-(deftest test-spaces-in-project-path
-  (binding [leiningen.compile/get-raw-input-args
-            (fn [] ["-Dleiningen.original.pwd=/path/with" "spaces/got-broken"])]
-    (is (zero? (eval-in-project sample-project '(System/exit 0))))))
-
 (deftest test-skip-aot-on-main
   (delete-file-recursively (file (:root tricky-name-project) "classes") :silent)
   (is (zero? (compile tricky-name-project)))
