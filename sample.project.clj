@@ -166,7 +166,14 @@
   ;; You can set JVM-level options here.
   :jvm-opts ["-Xmx1g"]
   ;; If your project is a Leiningen plugin, set this to skip the subprocess step
-  :eval-in-leiningen false)
+  :eval-in-leiningen false
+  ;; Leiningen includes a workaround for a problem with Clojure's
+  ;; agent thread pool. If you see RejectedExecutionException using
+  ;; futures or agents, you may be working with a plugin that doesn't
+  ;; take this workaround into account yet--see the "Threads" section
+  ;; of doc/PLUGINS.md. This key will disable Leiningen's workaround.
+  ;; It may cause some other plugins to fail to exit when they finish.
+  :skip-shutdown-agents true)
 
 ;; You can use Robert Hooke to modify behaviour of any task function,
 ;; but the prepend-tasks function is shorthand that is more convenient

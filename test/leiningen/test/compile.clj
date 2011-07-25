@@ -25,6 +25,7 @@
 (deftest test-plugin
   (is (zero? (eval-in-project (assoc sample-project
                                 :eval-in-leiningen true
+                                :skip-shutdown-agents true
                                 :main nil)
                               '(do (require 'leiningen.compile)
                                    :compiled)))))

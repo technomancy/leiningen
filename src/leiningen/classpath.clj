@@ -4,8 +4,7 @@
         [leiningen.deps :only [find-jars]]
         [leiningen.util.paths :only [leiningen-home]]
         [clojure.java.io :only [file]]
-        [clojure.string :only [join]])
-  (:import (org.apache.tools.ant.types Path)))
+        [clojure.string :only [join]]))
 
 (defn- read-dependency-project [dep]
   (let [project (.getAbsolutePath (file dep "project.clj"))]
@@ -34,15 +33,6 @@
   (for [jar (.listFiles (file (leiningen-home) "plugins"))
         :when (re-find #"\.jar$" (.getName jar))]
     (.getAbsolutePath jar)))
-
-;; TODO: move to lancet?
-(defn ^:internal make-path
-  "Constructs an ant Path object from Files and strings."
-  [& paths]
-  (let [ant-path (Path. nil)]
-    (doseq [path paths]
-      (.addExisting ant-path (Path. nil (str path))))
-    ant-path))
 
 (defn get-classpath
   "Answer a list of classpath entries for PROJECT."

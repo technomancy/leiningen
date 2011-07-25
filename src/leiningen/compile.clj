@@ -3,18 +3,13 @@
   (:use [leiningen.deps :only [deps find-jars]]
         [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
-        [leiningen.classpath :only [make-path get-classpath]]
+        [leiningen.classpath :only [get-classpath-string]]
         [clojure.java.io :only [file resource reader]]
+        [clojure.java.shell :only [sh]]
         [leiningen.util.ns :only [namespaces-in-dir]])
-  (:require [leiningen.util.paths :as paths]
-            [lancet.core :as lancet])
+  (:require [leiningen.util.paths :as paths])
   (:refer-clojure :exclude [compile])
-  (:import (java.io PushbackReader)
-           (org.apache.tools.ant.taskdefs Java)
-           (org.apache.tools.ant.types ZipFileSet)
-           (java.lang.management ManagementFactory)
-           (java.util.regex Pattern)
-           (org.apache.tools.ant.types Environment$Variable)))
+  (:import (java.io PushbackReader)))
 
 (declare compile)
 
@@ -70,6 +65,8 @@
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
+ ;; eval-in-project
+
 (defdeprecated get-os paths/get-os)
 
 (defdeprecated get-os paths/get-arch)
@@ -79,10 +76,20 @@
           "NUL"
           "/dev/null")))
 
-(defn- get-jvm-args [project]
-  `(~@(when-let [opts (System/getenv "JVM_OPTS")] [opts])
+(defn- system-property [[k v]]
+  (format "-D%s=%s" (name k) v))
+
+(defn ^{:internal true} get-jvm-args [project]
+  `(~@(let [opts (System/getenv "JVM_OPTS")]
+        (when (seq opts) [opts]))
     ~@(:jvm-opts project)
-    ~@(:jvm-opts (user-settings))))
+    ~@(:jvm-opts (user-settings))
+    ~@(map system-property {:clojure.compile.path (:compile-path project)
+                            (str (:name project) ".version") (:version project)
+                            :clojure.debug (boolean (or (System/getenv "DEBUG")
+                                                        (:debug project)))})
+    ~@(when (.exists (file (:native-path project)))
+        [(system-property :java-library-path (:native-path project))])))
 
 (defn- injected-forms []
   (with-open [rdr (-> "robert/hooke.clj" resource reader PushbackReader.)]
@@ -103,9 +110,10 @@
                        ;; non-daemon threads will prevent process from exiting;
                        ;; see http://tinyurl.com/2ueqjkl
                        (finally
-                        (when-not (or (= "1.5" (System/getProperty
+                        (when-not (or ~*interactive?*
+                                      (= "1.5" (System/getProperty
                                                 "java.specification.version"))
-                                      ~*interactive?*)
+                                      ~(project :skip-shutdown-agents))
                           (shutdown-agents)))))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
@@ -125,12 +133,37 @@
             (:checksum-deps project))
     (deps project)))
 
-(defn- add-system-property [java key value]
-  (.addSysproperty java (doto (Environment$Variable.)
-                          (.setKey (name key))
-                          (.setValue (name value)))))
+(defn eval-in-leiningen [project form-string]
+  ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
+  (require '[clojure walk repl])
+  (require '[clojure.java io shell browse])
+  (when (:debug project)
+    (System/setProperty "clojure.debug" "true"))
+  ;; need to at least pretend to return an exit code
+  (try (binding [*warn-on-reflection* (:warn-on-reflection project), *ns* *ns*]
+         (eval (read-string form-string)))
+       0
+       (catch Exception e
+         (.printStackTrace e)
+         1)))
 
-;; TODO: split this function up
+(defn- escape [arg]
+  (if (= :windows (paths/get-os))
+    (format "\"%s\"" (.replaceAll arg "\"" "\\\\\""))
+    arg))
+
+(defn eval-in-subprocess [project form-string]
+  (let [command (map escape `(~(or (System/getenv "JAVA_CMD") "java")
+                              "-cp" ~(get-classpath-string project)
+                              ~@(get-jvm-args project)
+                              "clojure.main" "-e" ~form-string))
+        {:keys [exit out err]} (apply sh command)]
+    (println (if (string? out) out (String. out)))
+    (when (seq err)
+      (binding [*out* *err*]
+        (println err)))
+    exit))
+
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
   set correctly for the project. If the form depends on any requires, put them
@@ -139,48 +172,12 @@
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
   (prep project skip-auto-compile)
-  (if (:eval-in-leiningen project)
-    (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
-      (require '[clojure walk repl])
-      (require '[clojure.java io shell browse])
-      (when (:debug project)
-        (System/setProperty "clojure.debug" "true"))
-      ;; need to at least pretend to return an exit code
-      (try (binding [*warn-on-reflection* (:warn-on-reflection project)
-                     *ns* *ns*]
-             (eval (read-string (get-readable-form nil project form init))))
-           0
-           (catch Exception e
-             (.printStackTrace e)
-             1)))
-    (let [java (Java.)]
-      (.setProject java lancet/ant-project)
-      (add-system-property java :clojure.compile.path (:compile-path project))
-      (add-system-property java (format "%s.version" (:name project))
-                           (:version project))
-      (when (:debug project)
-        (add-system-property java :clojure.debug true))
-      (when (.exists (file (:native-path project)))
-        (add-system-property java "java.library.path" (:native-path project)))
-      ;; TODO: remove in 2.0?
-      (when (and (paths/legacy-native-path project)
-                 (.exists (file (paths/legacy-native-path project))))
-        (add-system-property java "java.library.path"
-                             (str (paths/legacy-native-path project))))
-      (.setClasspath java (apply make-path (get-classpath project)))
-      (.setFailonerror java true)
-      (.setFork java true)
-      (.setDir java (file (:root project)))
-      (doseq [arg (get-jvm-args project)]
-        (.setValue (.createJvmarg java) arg))
-      (.setClassname java "clojure.main")
-      ;; to allow plugins and other tasks to customize
-      (when handler
-        (println "WARNING: eval-in-project's handler argument is deprecated.")
-        (handler java))
-      (.setValue (.createArg java) "-e")
-      (.setValue (.createArg java) (get-readable-form java project form init))
-      (.executeJava java))))
+  (let [form-string (get-readable-form nil project form init)]
+    (if (:eval-in-leiningen project)
+      (eval-in-leiningen project form-string)
+      (eval-in-subprocess project form-string))))
+
+ ;; .class file cleanup
 
 (defn- has-source-package?
   "Test if the class file's package exists as a directory in :source-path."
@@ -221,6 +218,8 @@
                        (not (whitelisted-class? project f))
                        (blacklisted-class? project f))]
       (.delete f))))
+
+ ;; actual task
 
 (defn- status [code msg]
   (when-not *silently*
