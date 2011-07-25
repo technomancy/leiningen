@@ -27,7 +27,7 @@
 
 (defn- download-index [[id {url :url}]]
   (with-open [stream (.openStream (remote-index-url url))]
-    (println "Downloading index from" id "-" url)
+    (println "Downloading index from" id "-" url "... this may take a while.")
     (let [tmp (java.io.File/createTempFile "lein" "index")]
       (try (io/copy stream tmp)
            (unzip tmp (index-location url))
