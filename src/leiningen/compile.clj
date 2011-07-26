@@ -4,8 +4,7 @@
         [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [get-classpath-string]]
-        [clojure.java.io :only [file resource reader]]
-        [clojure.java.shell :only [sh]]
+        [clojure.java.io :only [file resource reader copy]]
         [leiningen.util.ns :only [namespaces-in-dir]])
   (:require [leiningen.util.paths :as paths])
   (:refer-clojure :exclude [compile])
@@ -147,22 +146,31 @@
          (.printStackTrace e)
          1)))
 
-(defn- escape [arg]
-  (if (= :windows (paths/get-os))
-    (format "\"%s\"" (.replaceAll arg "\"" "\\\\\""))
-    arg))
+(defn- pump [reader out]
+  (let [buffer (make-array Character/TYPE 1000)]
+    (loop [len (.read reader buffer)]
+      (when-not (neg? len)
+        (.write out buffer 0 len)
+        (.flush out)
+        (Thread/sleep 100)
+        (recur (.read reader buffer))))))
+
+;; clojure.java.shell/sh doesn't let you stream out/err
+(defn- sh [& cmd]
+  (let [proc (.exec (Runtime/getRuntime) (into-array cmd))]
+    (with-open [out (reader (.getInputStream proc))
+                err (reader (.getErrorStream proc))]
+      (let [pump-out (doto (Thread. #(pump out *out*)) .start)
+            pump-err (doto (Thread. #(pump err *err*)) .start)]
+        (.join pump-out)
+        (.join pump-err))
+      (.waitFor proc))))
 
 (defn eval-in-subprocess [project form-string]
-  (let [command (map escape `(~(or (System/getenv "JAVA_CMD") "java")
-                              "-cp" ~(get-classpath-string project)
-                              ~@(get-jvm-args project)
-                              "clojure.main" "-e" ~form-string))
-        {:keys [exit out err]} (apply sh command)]
-    (println (if (string? out) out (String. out)))
-    (when (seq err)
-      (binding [*out* *err*]
-        (println err)))
-    exit))
+  (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
+              "-cp" ~(get-classpath-string project)
+              ~@(get-jvm-args project)
+              "clojure.main" "-e" ~form-string)))
 
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
