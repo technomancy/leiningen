@@ -69,8 +69,7 @@
 (defn- print-results [[id] results page]
   (when (seq results)
     (println " == Results from" id "-" "Showing page" page "/"
-             (int (Math/ceil (/ (:_total-hits (meta results)) page-size)))
-             "total")
+             (-> results meta :_total-hits (/ page-size) Math/ceil int) "total")
     (doseq [result (map parse-result results)]
       (apply println result))
     (prn)))
