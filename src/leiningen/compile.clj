@@ -119,7 +119,7 @@
     ;; currently being passed; see
     ;; http://www.perlmonks.org/?node_id=300286 for some of the
     ;; landmines involved in doing it properly
-    (if (and (= (paths/get-os) :windows) java)
+    (if (and (= (paths/get-os) :windows) (not (:eval-in-leiningen project)))
       (pr-str (pr-str form))
       (prn-str form))))
 
