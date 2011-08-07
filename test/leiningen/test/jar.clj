@@ -39,6 +39,8 @@
 (deftest test-no-bin-jar
   (let [jar-file (JarFile. (jar (dissoc sample-project :shell-wrapper)))
         manifest (manifest-map (.getManifest jar-file))]
+    (is (nil? (.getEntry jar-file
+                         "META-INF/maven/nomnomnom/nomnomnom/pom.properties")))
     (is (nil? (.getEntry jar-file "bin/nom")))
     (is (nil? (.getEntry jar-file "bin/nom.bat")))
     (is (nil? (manifest "Leiningen-shell-wrapper")))))

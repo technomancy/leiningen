@@ -126,8 +126,9 @@
           (copy child jar-os))))))
 
 (defmethod copy-to-jar :bytes [project jar-os spec]
-  (.putNextEntry jar-os (JarEntry. (:path spec)))
-  (copy (ByteArrayInputStream. (:bytes spec)) jar-os))
+  (when-not (some #(re-find % (:path spec)) (:jar-exclusions project))
+    (.putNextEntry jar-os (JarEntry. (:path spec)))
+    (copy (ByteArrayInputStream. (:bytes spec)) jar-os)))
 
 (defn write-jar [project out-filename filespecs]
   (let [manifest (make-manifest project)]
