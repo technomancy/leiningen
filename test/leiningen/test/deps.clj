@@ -4,7 +4,7 @@
         [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.util.file :only [delete-file-recursively]]
-        [leiningen.util.paths :only [get-os get-arch]]
+        [leiningen.util.paths :only [get-os get-arch native-arch-path]]
         [leiningen.test.helper :only [sample-project dev-deps-project
                                       m2-dir with-no-log native-project]]))
 
@@ -98,5 +98,5 @@
   (delete-file-recursively (:native-path native-project) true)
   (deps native-project)
   (is (= (conj (get-in native-lib-files-map [(get-os) (get-arch)]) ".gitkeep")
-         (set (for [f (rest (file-seq (file (:native-path native-project))))]
+         (set (for [f (rest (file-seq (native-arch-path native-project)))]
                 (.getName f))))))
