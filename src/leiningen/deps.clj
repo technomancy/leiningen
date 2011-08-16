@@ -163,21 +163,19 @@
   "Returns a seq of Files for all the jars in the project's library directory."
   [project]
   (filter #(.endsWith (.getName %) ".jar")
-          (concat (if (:local-repo-classpath project)
+          (concat (if (:local-repo-classpath project) ; TODO: default in 2.0
                     (find-local-repo-jars project)
                     (find-lib-jars project))
                   ;; This must be hard-coded because it's used in
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
 
-(def native-subdir (format "native/%s/%s/" (name (get-os)) (name (get-arch))))
-
 (defn extract-native-deps [project]
   (doseq [jar (map #(JarFile. %) (find-jars project))
           entry (enumeration-seq (.entries jar))
-          :when (.startsWith (.getName entry) native-subdir)]
-    (let [f (file (:native-path project)
-                  (subs (.getName entry) (count native-subdir)))]
+          :when (.startsWith (.getName entry) "native/")]
+    (let [f (file (:native-path project) (subs (.getName entry)
+                                               (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
         (copy (.getInputStream jar entry) f)))))
@@ -191,7 +189,7 @@
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
       (delete-file-recursively (:library-path project) :silently)
-      (delete-file-recursively (File. (:root project) "native") :silently))
+      (delete-file-recursively (:native-path project) :silently))
     (let [fileset (do-deps project :dependencies)]
       (when-not (no-dev?)
         (do-deps project :dev-dependencies))
