@@ -28,7 +28,7 @@ See also https://github.com/technomancy/leiningen/issues
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
 * For 1.6.2
-  - [ ] resources with eval-in-leiningen (#248)
+  - [X] resources with eval-in-leiningen (#248)
   - [ ] signed deps for plugins (#247)
   - [ ] investigate interactive failures with 1.3 (#234)
   - [ ] remove bashisms (#246)
