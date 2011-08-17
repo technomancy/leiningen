@@ -74,14 +74,14 @@ advantage of this, you should put it on your <tt>$PATH</tt>.
 ## Configuration
 
 The <tt>project.clj</tt> file in the project root should look like this:
-
+```clojure
     (defproject myproject "0.5.0-SNAPSHOT"
       :description "A project for doing things."
       :url "http://github.com/technomancy/myproject"
       :dependencies [[org.clojure/clojure "1.2.1"]
                      [org.clojure/clojure-contrib "1.2.0"]]
       :dev-dependencies [[lein-ring "0.4.5"]])
-
+```
 The <tt>lein new</tt> task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
