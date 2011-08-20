@@ -2,9 +2,10 @@
   (:require [lancet.core :as lancet])
   (:use [clojure.java.io :only [file]]
         [leiningen.compile :only [platform-nullsink]]
-        [leiningen.core :only [read-project]]))
+        [leiningen.core :only [read-project]]
+        [leiningen.util.maven :only [make-local-repo]]))
 
-(def local-repo (file (System/getProperty "user.home") ".m2" "repository"))
+(def local-repo (.getBasedir (make-local-repo)))
 
 (defn m2-dir [n v]
   (file local-repo (if (string? n) n (or (namespace n) (name n))) (name n) v))
