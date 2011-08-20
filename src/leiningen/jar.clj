@@ -5,6 +5,7 @@
             [lancet.core :as lancet])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
+        [leiningen.util.maven :only [make-local-repo]]
         [clojure.java.io :only [copy file]])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
            (java.util.regex Pattern)
@@ -33,8 +34,8 @@
      (local-repo-path {:group group :name name :version version}))
   ([{:keys [group name version]}]
      (unix-path (format
-                 "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
-                 (.replace group "." "/") name version name version))))
+                 "%s/%s/%s/%s/%s-%s.jar"
+                 (.getBasedir (make-local-repo)) (.replace group "." "/") name version name version))))
 
 (defn- script-classpath-for [project deps-fileset system]
   (let [deps (when deps-fileset

@@ -65,8 +65,7 @@ shell wrappers in ~/.lein/bin when provided."
      (let [[name group] ((juxt name namespace) (symbol project-name))
            _ (standalone-download name (or group name) version)
            temp-project (format "%s/lein-%s" tmp-dir (UUID/randomUUID))
-           jarfile (-> (local-repo-path (or group name) name version)
-                        (.replace "$HOME" (System/getProperty "user.home")))]
+           jarfile (local-repo-path (or group name) name version)]
        (install-shell-wrappers (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
