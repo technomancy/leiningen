@@ -128,6 +128,14 @@ Warning: alpha; subject to change."
                     ;; TODO: possibly separate releases/snapshots in 2.0.
                     "clojars" {:url "http://clojars.org/repo/"}})
 
+;; you can't remove or omit "central", you can only disable it;
+;; maven/maven-ant-tasks adds it implicitly, and will continue to 
+;; report it in the list of checked repositories, even though it's
+;; not been consulted.  The URL will hopefully be clear enough to users.
+(def disabled-central-repo {"central" {:url "http://disabled-central"
+                                       :snapshots false
+                                       :releases false}})
+
 (defn- init-settings [id settings]
   (cond (string? settings) {:url settings}
         ;; infer snapshots/release policy from repository id
@@ -140,8 +148,11 @@ Warning: alpha; subject to change."
   [project]
   (merge (when-not (:omit-default-repositories project)
            default-repos)
-         (into {} (for [[id settings] (:repositories project)]
-                    [id (init-settings id settings)]))))
+         (let [repositories (merge (and (:omit-default-repositories project)
+                                        disabled-central-repo)
+                                   (:repositories project))]
+           (into {} (for [[id settings] repositories]
+                    [id (init-settings id settings)])))))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
