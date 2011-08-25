@@ -12,6 +12,6 @@
                  [lancet "1.0.1"]
                  [jline "0.9.94" :exclusions [junit]]
                  [robert/hooke "1.1.2"]
-                 [org.apache.maven/maven-ant-tasks "2.0.10" :exclusions [ant]]]
+                 [org.apache.maven/maven-ant-tasks "2.1.3" :exclusions [ant]]]
   :disable-implicit-clean true
   :eval-in-leiningen true)

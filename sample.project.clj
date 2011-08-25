@@ -116,9 +116,9 @@
   :repl-retry-limit 1000
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
-  ;; Set this in order to only use the :repositories you list below. Note that 
-  ;; a bug in maven-ant-tasks prevents Leiningen from excluding Maven Central,
-  ;; so in effect this simply omits Clojars.
+  ;; Set this in order to only use the :repositories you list below. Note that,
+  ;; if any artifacts are not found, Maven Central will still be reported to
+  ;; have been checked, even though it was not.
   :omit-default-repositories true
   :repositories {"java.net" "http://download.java.net/maven/2"
                  "sonatype"
