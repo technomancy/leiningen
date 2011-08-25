@@ -34,7 +34,7 @@ for %%j in (".\lib\dev\*.jar") do (
 set DEV_PLUGINS=!DEV_PLUGINS!"
 
 call :BUILD_UNIQUE_USER_PLUGINS
-set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src
+set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src;resources
 
 :: Apply context specific CLASSPATH entries
 set CONTEXT_CP=
