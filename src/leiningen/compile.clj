@@ -80,9 +80,10 @@
           "/dev/null")))
 
 (defn- get-jvm-args [project]
-  `(~@(when-let [opts (System/getenv "JVM_OPTS")] [opts])
-    ~@(:jvm-opts project)
-    ~@(:jvm-opts (user-settings))))
+  (remove empty?
+          `(~@(when-let [opts (System/getenv "JVM_OPTS")] [opts])
+            ~@(:jvm-opts project)
+            ~@(:jvm-opts (user-settings)))))
 
 (defn- injected-forms []
   (with-open [rdr (-> "robert/hooke.clj" resource reader PushbackReader.)]
