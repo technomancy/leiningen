@@ -56,3 +56,20 @@
     (is (= ["http://disabled-central" "http://repo-1-url"]
            (map :url (vals repos))))))
 
+(deftest test-repositories-for-including-defaults
+  (let [repos (repositories-for sample-project)]
+    (is (get repos "central"))
+    (is (get repos "clojars"))
+    (is (get repos "snapshots"))))
+
+(deftest test-repositories-for-many-repos-ordered
+  (let [repo-names (map #(str "repo-" %) (range 20))
+        fake-url-ify #(str % "-url")
+        repos (repositories-for
+                {:omit-default-repositories true
+                 :repositories (map #(vector % (fake-url-ify %))
+                                    repo-names)})]
+    (is (= clojure.lang.PersistentArrayMap (class repos)))
+    (is (= {:url "repo-11-url"} (get repos "repo-11")))
+    (is (= (map fake-url-ify repo-names) (rest (map :url (vals repos)))))))
+

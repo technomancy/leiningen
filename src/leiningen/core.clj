@@ -129,7 +129,7 @@ Warning: alpha; subject to change."
                     "clojars" {:url "http://clojars.org/repo/"}})
 
 ;; you can't remove or omit "central", you can only disable it;
-;; maven/maven-ant-tasks adds it implicitly, and will continue to 
+;; maven/maven-ant-tasks adds it implicitly, and will continue to
 ;; report it in the list of checked repositories, even though it's
 ;; not been consulted.  The URL will hopefully be clear enough to users.
 (def disabled-central-repo {"central" {:url "http://disabled-central"
@@ -146,13 +146,15 @@ Warning: alpha; subject to change."
 (defn repositories-for
   "Return a map of repositories including or excluding defaults."
   [project]
-  (merge (when-not (:omit-default-repositories project)
-           default-repos)
-         (let [repositories (merge (and (:omit-default-repositories project)
-                                        disabled-central-repo)
-                                   (:repositories project))]
-           (into {} (for [[id settings] repositories]
-                    [id (init-settings id settings)])))))
+  (let [project-repos (for [[id settings] (:repositories project)]
+                        [id (init-settings id settings)])
+        all-repos (concat
+                    (into []
+                          (if (:omit-default-repositories project)
+                            disabled-central-repo
+                            default-repos))
+                    project-repos)]
+    (apply array-map (mapcat identity all-repos))))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
