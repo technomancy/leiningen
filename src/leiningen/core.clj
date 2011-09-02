@@ -144,7 +144,10 @@ Warning: alpha; subject to change."
         :else settings))
 
 (defn repositories-for
-  "Return a map of repositories including or excluding defaults."
+  "Returns an ordered map of repositories including or excluding defaults.
+
+Note: transforming this map via assoc, merge, or similar removes the
+order guarantee."
   [project]
   (let [project-repos (for [[id settings] (:repositories project)]
                         [id (init-settings id settings)])
