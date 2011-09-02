@@ -48,3 +48,11 @@
   (is (version-greater-eq? "1.2.3" "1.1.1"))
   (is (version-greater-eq? "1.2.0" "1.2"))
   (is (version-greater-eq? "1.2" "1")))
+
+(deftest test-repositories-for-omitting-central
+  (let [repos (repositories-for
+                {:omit-default-repositories true
+                 :repositories {"repo-1" "http://repo-1-url"}})]
+    (is (= ["http://disabled-central" "http://repo-1-url"]
+           (map :url (vals repos))))))
+
