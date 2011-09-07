@@ -35,7 +35,9 @@ Warning: alpha; subject to change."
   []
   (let [init-file (File. (paths/leiningen-home) "init.clj")]
     (when (.exists init-file)
-      (load-file (.getAbsolutePath init-file)))))
+      (try (load-file (.getAbsolutePath init-file))
+           (catch Exception e
+             (.printStackTrace e))))))
 
 (defn user-settings
   "Look up the settings map from init.clj or an empty map if it doesn't exist."

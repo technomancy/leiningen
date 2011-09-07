@@ -26,6 +26,7 @@ See also https://github.com/technomancy/leiningen/issues
   - suppress useless ant output in classpath calculation for :local-repo-classpath
   - new push task based on clj-ssh
     lein-clojars task doesn't support DSA keys
+  - all tasks require nullable project arg
 * For 1.6.2
   - [X] resources with eval-in-leiningen (#248)
   - [X] fix :omit-default-repositories wrt central (#211)
