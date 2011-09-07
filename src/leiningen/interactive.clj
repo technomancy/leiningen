@@ -14,12 +14,11 @@
 (defn not-found [& _]
   (println "That's not a task. Use help to list all tasks."))
 
-(defn- eval-client-loop [reader writer buffer socket]
-  (let [len (.read reader buffer)
-        output (String. buffer)]
+(defn- eval-client-loop [reader buffer socket]
+  (let [len (.read reader buffer)]
     (when-not (neg? len)
       (.write *out* buffer 0 len)
-      (flush)
+      (.flush *out*)
       (when-not (.isClosed socket)
         (Thread/sleep 100)
         (recur reader writer buffer socket)))))
@@ -30,8 +29,7 @@
                         (pr-str form) "\n" '
                         (.close *in*) ")\n"))
     (.flush writer)
-    (try (eval-client-loop reader writer
-                           (make-array Character/TYPE 1000) socket)
+    (try (eval-client-loop reader (make-array Character/TYPE 1000) socket)
          0
          (catch Exception e
            (.printStackTrace e) 1)
@@ -59,7 +57,7 @@
         (recur (.readLine *in*))))))
 
 (defn interactive
-  "Enter an interactive task shell."
+  "Enter an interactive task shell. Aliased to \"int\"."
   [project]
   (let [[port host] (repl-socket-on project)]
     (println welcome)
