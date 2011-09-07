@@ -184,8 +184,8 @@
 
 (defn deps
   "Download :dependencies and put them in :library-path."
-  [project & _]
-  (when (seq _)
+  [project & [skip-dev]]
+  (when skip-dev
     (println "WARNING: passing an argument to deps is deprecated."))
   (when (fetch-deps? project)
     (when-not (or (:disable-deps-clean project)
@@ -193,7 +193,7 @@
       (delete-file-recursively (:library-path project) :silently)
       (delete-file-recursively (File. (:root project) "native") :silently))
     (let [fileset (do-deps project :dependencies)]
-      (when-not (no-dev?)
+      (when-not (or skip-dev (no-dev?))
         (do-deps project :dev-dependencies))
       (extract-native-deps project)
       (when (:checksum-deps project)

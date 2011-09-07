@@ -1,6 +1,6 @@
 #!/bin/sh
 
-LEIN_VERSION="1.6.1"
+LEIN_VERSION="1.6.1.1"
 export LEIN_VERSION
 
 case $LEIN_VERSION in
