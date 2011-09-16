@@ -146,10 +146,16 @@ Warning: alpha; subject to change."
 (defn repositories-for
   "Returns an ordered map of repositories including or excluding defaults.
 
+   By default bases results on contents of :repositories.  If another key
+   is specified via a :kind kwarg, that key will be used to query the
+   project. e.g. (repositories-for project :kind :deploy-repositories)
+   will return an ordered map of repositories intended solely for deployment
+   operations.
+
 Note: transforming this map via assoc, merge, or similar removes the
 order guarantee."
-  [project]
-  (let [project-repos (for [[id settings] (:repositories project)]
+  [project & {:keys [kind] :or {kind :repositories}}]
+  (let [project-repos (for [[id settings] (kind project)]
                         [id (init-settings id settings)])
         all-repos (concat
                     (into []

@@ -16,8 +16,10 @@
     (.setArtifact (make-artifact (make-model project)))))
 
 (defn- get-repository [project repository-name]
-  (let [repositories (repositories-for project)
-        repository (or (repositories repository-name)
+  (let [deploy-repositories (repositories-for project :kind :deploy-repositories)
+        repositories (repositories-for project)
+        repository (or (deploy-repositories repository-name) 
+                       (repositories repository-name)
                        {:url repository-name})]
     (make-repository [repository-name repository])))
 
