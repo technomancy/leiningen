@@ -48,7 +48,14 @@ for snapshots and releases, so you'll want two entries for them:
                                 :username "milgrim" :password "locative.1"}
                    "releases" "http://blueant.com/archiva/internal"}
 
-Private repositories need authentication credentials. You'll need to
+If you are are deploying to a repository that is _only_ used for deployment
+and never for dependency resolution, then it should be specified in a
+`:deploy-repositories` slot instead of included in the more general-purpose
+`:repositories` map; the former is checked by `lein deploy` before the latter.
+
+### Authentication
+
+Private repositories often need authentication credentials. You'll need to
 provide either a <tt>:username</tt>/<tt>:password</tt> combination or
 a <tt>:private-key</tt> location with or without a
 <tt>:passphrase</tt>. If you want to avoid putting sensitive
@@ -63,6 +70,8 @@ the repository's URL:
 This also allows different users using the same checkout to upload
 using different credentials.
 
+### Deployment
+
 Once you've set up a private repository and configured project.clj
 appropriately, you can deploy to it:
 
@@ -72,4 +81,5 @@ If the project's current version is a SNAPSHOT, it will deploy to the
 <tt>snapshots</tt> repository; otherwise it will go to
 <tt>releases</tt>. The <tt>deploy</tt> task also takes a repository
 name as an argument that will be looked up in the
-<tt>:repositories</tt> map if you want to override this.
+<tt>:deploy-repositories</tt> and <tt>:repositories</tt> maps
+if you want to override this.
