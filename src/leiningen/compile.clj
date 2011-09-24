@@ -110,10 +110,10 @@
                        ;; non-daemon threads will prevent process from exiting;
                        ;; see http://tinyurl.com/2ueqjkl
                        (finally
-                        (when-not (or ~*interactive?*
-                                      (= "1.5" (System/getProperty
+                        (when (and ~(:shutdown-agents project false)
+                                   (not= "1.5" (System/getProperty
                                                 "java.specification.version"))
-                                      ~(project :skip-shutdown-agents))
+                                   ~(not *interactive?*))
                           (shutdown-agents)))))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's

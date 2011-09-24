@@ -1,5 +1,12 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.6.2 / ???
+
+= 1.6.1.1 / 2011-09-06
+
+* Turn off workaround for Clojure's agent thread pool keeping the JVM alive 
+  by default. Use :shutdown-agents in project.clj to enable it.
+
 = 1.6.1 / 2011-07-06
 
 * Allow alternate main namespace to be used during uberjar creation.
