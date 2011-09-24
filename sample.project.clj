@@ -138,6 +138,12 @@
                               :username "milgrim" :password "locative.1"}
                  "releases" {:url "http://blueant.com/archiva/internal"
                              :username "milgrim" :password "locative.1"}}
+  ;; the deploy task will give preference to repositories specified in
+  ;; :deploy-repositories, and repos listed there will not be used for
+  ;; dependency resolution
+  :deploy-repositories {"releases" {:url "http://blueant.com/archiva/internal/releases"
+                                    :username "milgrim" :password "locative.1"}
+                        "snapshots" "http://blueant.com/archiva/internal/snapshots"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
   :library-path "target/dependency"
