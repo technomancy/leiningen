@@ -19,7 +19,7 @@ Leiningen bootstraps itself using the <tt>lein</tt> shell script;
 there is no separate 'install script'. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](https://github.com/technomancy/leiningen/raw/stable/bin/lein).
+1. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 2. Place it on your path and chmod it to be executable.
 
 I like to place it in ~/bin, but it can go anywhere on the $PATH.
