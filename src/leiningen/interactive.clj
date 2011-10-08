@@ -21,7 +21,7 @@
       (.flush *out*)
       (when-not (.isClosed socket)
         (Thread/sleep 100)
-        (recur reader writer buffer socket)))))
+        (recur reader buffer socket)))))
 
 (defn eval-in-repl [connect project form & [_ _ init]]
   (let [[reader writer socket] (connect)]
