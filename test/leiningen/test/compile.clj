@@ -33,6 +33,9 @@
 (deftest test-cleared-transitive-aot
   (is (zero? (compile (assoc sample-project
                         :clean-non-project-classes true))))
+  (is (zero? (eval-in-project sample-project
+                              '(require 'nom.nom.nom)))
+      "can't load after compiling")
   (let [classes (seq (.list (file "test_projects" "sample"
                                   "classes" "nom" "nom")))]
     (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto____\d+.class"
