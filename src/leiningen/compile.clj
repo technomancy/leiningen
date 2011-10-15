@@ -203,9 +203,14 @@
 (defn- has-source-package?
   "Test if the class file's package exists as a directory in :source-path."
   [project f source-path]
-  (and source-path (.isDirectory (file (.replace (.getParent f)
-                                                 (:compile-path project)
-                                                 source-path)))))
+  (and source-path
+       (let [[[parent] [_ proxy-parent]]
+             (->> f, (iterate #(.getParentFile %)),
+                  (take-while identity), rest,
+                  (split-with #(not (re-find #"^proxy\$" (.getName %)))))]
+         (.isDirectory (file (.replace (.getPath (or proxy-parent parent))
+                                       (:compile-path project)
+                                       source-path))))))
 
 (defn- class-in-project? [project f]
   (or (has-source-package? project f (:source-path project))
