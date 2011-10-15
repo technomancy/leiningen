@@ -204,11 +204,11 @@
   "Test if the class file's package exists as a directory in :source-path."
   [project f source-path]
   (and source-path
-       (let [[[parent] [_ proxy-parent]]
+       (let [[[parent] [_ _ proxy-mod-parent]]
              (->> f, (iterate #(.getParentFile %)),
                   (take-while identity), rest,
                   (split-with #(not (re-find #"^proxy\$" (.getName %)))))]
-         (.isDirectory (file (.replace (.getPath (or proxy-parent parent))
+         (.isDirectory (file (.replace (.getPath (or proxy-mod-parent parent))
                                        (:compile-path project)
                                        source-path))))))
 
