@@ -2,6 +2,7 @@
   "Download all dependencies and put them in :library-path."
   (:require [lancet.core :as lancet])
   (:use [leiningen.core :only [repositories-for user-settings no-dev?]]
+        [leiningen.clean :only [clean]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.util.paths :only [get-os get-arch]]
@@ -189,7 +190,8 @@
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
       (delete-file-recursively (:library-path project) :silently)
-      (delete-file-recursively (:native-path project) :silently))
+      (delete-file-recursively (:native-path project) :silently)
+      (clean project))
     (let [fileset (do-deps project :dependencies)]
       (when-not (or skip-dev (no-dev?))
         (do-deps project :dev-dependencies))
