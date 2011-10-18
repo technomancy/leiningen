@@ -294,14 +294,14 @@ Takes major, minor and incremental versions into account."
   [project]
   (when-not (version-greater-eq? (System/getenv "LEIN_VERSION")
                                  (:min-lein-version project))
-    (do (println (str "\n*** Warning: This project requires Leiningen version "
-                      (:min-lein-version project)
-                      " ***"
-                      "\n*** Using version " (System/getenv "LEIN_VERSION")
-                      " could cause problems. ***\n"
-                      "\n- Get the latest verison of Leiningen at\n"
-                      "- https://github.com/technomancy/leiningen\n"
-                      "- Or by executing \"lein upgrade\"\n\n")))))
+    (println (str "\n*** Warning: This project requires Leiningen version "
+                  (:min-lein-version project)
+                  " ***"
+                  "\n*** Using version " (System/getenv "LEIN_VERSION")
+                  " could cause problems. ***\n"
+                  "\n- Get the latest verison of Leiningen at\n"
+                  "- https://github.com/technomancy/leiningen\n"
+                  "- Or by executing \"lein upgrade\"\n\n"))))
 
 (defn -main
   ([task-name & args]
