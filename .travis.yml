@@ -1,5 +1,5 @@
 ---
-script: bin/lein test
+script: bin/lein self-install; bin/lein test
 branches:
   only:
     - 1.x
