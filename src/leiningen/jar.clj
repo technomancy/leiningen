@@ -102,7 +102,8 @@
     (zipmap (map str (keys attrs)) (vals attrs))))
 
 (defn skip-file? [file relative-path patterns]
-  (or (.isDirectory file)
+  (or (not (.exists file))
+      (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
       (re-find #"~$" (.getName file))
       (some #(re-find % relative-path) patterns)))
