@@ -128,6 +128,7 @@
   (when (and (not (or *skip-auto-compile* skip-auto-compile))
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
+      (.mkdirs (file (:compile-path project)))
       (compile project)))
   (when (or (empty? (find-jars project))
             (:checksum-deps project))
@@ -236,7 +237,7 @@
  ;; actual task
 
 (defn- status [code msg]
-  (when-not *silently*
+  (when-not *silently* ; TODO: should silently only affect success?
     (binding [*out* (if (zero? code) *out* *err*)]
       (println msg)))
   code)
@@ -250,7 +251,6 @@
 Uses the namespaces specified under :aot in project.clj or those given
 as command-line arguments."
   ([project]
-     (.mkdir (file (:compile-path project)))
      (when (:java-source-path project)
        (javac project))
      (if (seq (compilable-namespaces project))
