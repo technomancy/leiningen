@@ -202,11 +202,12 @@ function in that namespace will be used as the main-class for executable jar."
   ([project jar-name]
      (when jar-name
        (println "WARNING: Using the jar task with an argument is deprecated."))
-     (binding [compile/*silently* true]
-       (when (zero? (compile/compile project))
+     (let [status (compile/compile project)]
+       (if (zero? status)
          (let [jar-path (get-jar-filename project (get-default-jar-name project))
                deps-fileset (deps project)]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
-           jar-path))))
+           jar-path)
+         status)))
   ([project] (jar project nil)))

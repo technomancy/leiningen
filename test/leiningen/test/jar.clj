@@ -47,7 +47,7 @@
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
-    (is (not (jar sample-failing-project)))))
+    (is (pos? (jar sample-failing-project)))))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
