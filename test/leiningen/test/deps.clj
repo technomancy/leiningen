@@ -56,7 +56,7 @@
      ;; failures. If anybody knows how to fix this properly, please do
      ;; it.
      (System/gc)
-     (delete-file-recursively (:library-path sample-project)))))
+     (delete-file-recursively (:library-path sample-project) :silently))))
 
 (def native-lib-files-map
      {:linux {:x86 #{"libjri.so" "libjinput-linux.so" "liblwjgl.so" "libopenal.so"
