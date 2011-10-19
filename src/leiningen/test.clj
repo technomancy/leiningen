@@ -45,7 +45,7 @@ each namespace and print an overall summary."
                              (java.io.OutputStreamWriter.))]
             (.write w# (pr-str summary#)))
           (when (or ~*exit-after-tests* (not ~*interactive?*))
-            (System/exit 0))))))
+            (System/exit (+ (:error summary#) (:fail summary#))))))))
 
 (defn- read-args [args project]
   (let [args (map read-string args)
