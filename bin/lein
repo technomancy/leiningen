@@ -133,6 +133,11 @@ export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality.
 if [ "$1" = "self-install" ]; then
+    if [ -r "$LEIN_JAR" ]; then
+      echo "The self-install jar already exists at $LEIN_JAR."
+      echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
+      exit 1
+    fi
     echo "Downloading Leiningen now..."
     LEIN_DIR=`dirname "$LEIN_JAR"`
     mkdir -p "$LEIN_DIR"
