@@ -36,19 +36,19 @@
           ps (assoc sample-project :omit-default-repositories true
                     :repositories {"clojars" {:url "http://clojars.org/repo/"
                                               :releases false}})
-          clj-time ['clj-time "0.3.0-SNAPSHOT"]
+          slamhound ['slamhound "1.1.0-SNAPSHOT"]
           hooke ['robert/hooke "1.0.1"]
-          deps deps #_(fn [project]
-                        (delete-file-recursively (apply m2-dir clj-time) :quiet)
-                        (delete-file-recursively (apply m2-dir hooke) :quiet)
-                        (leiningen.deps/deps project))]
+          deps (fn [project]
+                 (delete-file-recursively (apply m2-dir slamhound) :quiet)
+                 (delete-file-recursively (apply m2-dir hooke) :quiet)
+                 (leiningen.deps/deps project))]
       (deps (assoc pr :dependencies [hooke]))
       (is (lib-populated? ps #"hooke"))
-      (deps (assoc ps :dependencies [clj-time]))
-      (is (lib-populated? ps #"clj-time"))
+      (deps (assoc ps :dependencies [slamhound]))
+      (is (lib-populated? ps #"slamhound"))
       (let [snaps-repo-rel-dep (assoc ps :dependencies [hooke])]
         (is (thrown? Exception (with-no-log (deps snaps-repo-rel-dep)))))
-      (let [rel-repo-snaps-dep (assoc pr :dependencies [clj-time])]
+      (let [rel-repo-snaps-dep (assoc pr :dependencies [slamhound])]
         (is (thrown? Exception (with-no-log (deps rel-repo-snaps-dep))))))
     (finally
      ;; Without triggering the GC, joda jar cannot be deleted on
