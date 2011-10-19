@@ -128,11 +128,11 @@
   (when (and (not (or *skip-auto-compile* skip-auto-compile))
              (empty? (.list (file (:compile-path project)))))
     (binding [*silently* true]
-      (.mkdirs (file (:compile-path project)))
       (compile project)))
   (when (or (empty? (find-jars project))
             (:checksum-deps project))
-    (deps project)))
+    (deps project))
+  (.mkdirs (file (:compile-path project))))
 
 (defn eval-in-leiningen [project form-string]
   ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
