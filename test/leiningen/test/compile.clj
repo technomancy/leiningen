@@ -60,9 +60,9 @@
                      "sample2" "alt__init.class"))))
 
 (deftest test-skip-aot-on-main
-  (delete-file-recursively (file (:root tricky-name-project) "classes") :silent)
+  (delete-file-recursively (:compile-path tricky-name-project) :silent)
   (is (zero? (compile tricky-name-project)))
-  (is (empty? (.list (file (:root tricky-name-project) "classes")))))
+  (is (empty? (.list (file (:compile-path tricky-name-project))))))
 
 (deftest test-injection
   (is (zero? (eval-in-project sample-project

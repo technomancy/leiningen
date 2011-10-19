@@ -10,18 +10,18 @@
 
 (defn lib-populated? [project re]
   (some #(re-find re (.getName %))
-        (file-seq (file (:root project) "lib"))))
+        (file-seq (file (:library-path project)))))
 
 (deftest test-deps
-  (delete-file-recursively (file (:root sample-project) "lib") true)
+  (delete-file-recursively (:library-path sample-project) true)
   (deps sample-project)
   (let [jars (set (map #(.getName %)
-                       (.listFiles (file (:root sample-project) "lib"))))]
+                       (.listFiles (file (:library-path sample-project)))))]
     (doseq [j ["jdom-1.0.jar" "tagsoup-1.2.jar" "rome-0.9.jar"]]
       (is (jars j)))))
 
 (deftest test-dev-deps-only
-  (delete-file-recursively (file (:root dev-deps-project) "lib") true)
+  (delete-file-recursively (:library-path dev-deps-project) true)
   (deps dev-deps-project)
   (let [jars (set (map #(.getName %)
                        (.listFiles (file (:root dev-deps-project)
@@ -56,7 +56,7 @@
      ;; failures. If anybody knows how to fix this properly, please do
      ;; it.
      (System/gc)
-     (delete-file-recursively (file (:root sample-project) "lib")))))
+     (delete-file-recursively (:library-path sample-project)))))
 
 (def native-lib-files-map
      {:linux {:x86 #{"libjri.so" "libjinput-linux.so" "liblwjgl.so" "libopenal.so"
