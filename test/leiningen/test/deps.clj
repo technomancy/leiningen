@@ -51,11 +51,6 @@
       (let [rel-repo-snaps-dep (assoc pr :dependencies [slamhound])]
         (is (thrown? Exception (with-no-log (deps rel-repo-snaps-dep))))))
     (finally
-     ;; Without triggering the GC, joda jar cannot be deleted on
-     ;; Windows, which causes all sorts of seemingly unrelated test
-     ;; failures. If anybody knows how to fix this properly, please do
-     ;; it.
-     (System/gc)
      (delete-file-recursively (:library-path sample-project) :silently))))
 
 (def native-lib-files-map
