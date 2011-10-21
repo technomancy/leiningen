@@ -45,7 +45,7 @@
 
 ;;; Searching
 
-(def ^{:private true} page-size (:search-page-size (user-settings) 10))
+(def ^{:private true} page-size (:search-page-size (user-settings) 25))
 
 (defn search-repository [[id {:keys [url]} :as repo] query page]
   (if (ensure-fresh-index repo)
