@@ -48,6 +48,8 @@ project, but here are the commonly-used tasks:
 
     $ lein install [NAME VERSION] # install a project
 
+    $ lein search ... # find recent jars for your project.clj dependencies
+
 Use `lein help` to see a complete list. `lein help $TASK` shows the
 usage for a specific one.
 
@@ -75,6 +77,9 @@ The `project.clj` file in the project root should look like this:
                  [org.clojure/clojure-contrib "1.2.0"]]
   :dev-dependencies [[lein-ring "0.4.5"]])
 ```
+
+If you're looking for the most recent jar of one of your dependencies,
+use `lein search`.
 
 The `lein new` task generates a project skeleton with an
 appropriate starting point from which you can work. See the
