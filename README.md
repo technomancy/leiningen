@@ -48,6 +48,8 @@ project, but here are the commonly-used tasks:
 
     $ lein install [NAME VERSION] # install a project
 
+    $ lein search ... # find recent jars for your project.clj dependencies
+
 Use `lein help` to see a complete list. `lein help $TASK` shows the
 usage for a specific one.
 
@@ -76,6 +78,9 @@ The `project.clj` file in the project root should look like this:
   :dev-dependencies [[lein-ring "0.4.5"]])
 ```
 
+If you're looking for the most recent jar of one of your dependencies,
+use `lein search`.
+
 The `lein new` task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
@@ -87,6 +92,13 @@ Leiningen launches; any arbitrary code may go there. This code is
 executed inside Leiningen itself, not in your project. Set the
 `:repl-init` key in project.clj to point to a namespace if
 you want code executed inside your project.
+
+## Leiningen Plugins 
+
+Leiningen supports plugins. See [the plugins wiki
+page](https://github.com/technomancy/leiningen/wiki/Plugins) for a
+full list. Plugins may be added to your project.clj :dev-dependencies
+or to your `~/.lein/init.clj` file.
 
 You can also manage your plugins with the `plugin` task. Use
 the same arguments you would put in the Leiningen :dev-dependencies if
