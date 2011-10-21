@@ -97,12 +97,10 @@ you want code executed inside your project.
 
 Leiningen supports plugins. See [the plugins wiki
 page](https://github.com/technomancy/leiningen/wiki/Plugins) for a
-full list. Plugins may be added to your project.clj :dev-dependencies
-or to your `~/.lein/init.clj` file.
-
-You can also manage your plugins with the `plugin` task. Use
-the same arguments you would put in the Leiningen :dev-dependencies if
-you were only using the plugin on a single project.
+full list. If a plugin is needed for successful test or build runs,
+(such as lein-tar) then it should be added to `:dev-dependencies` in
+project.clj, but if it's for your own convenience (such as
+swank-clojure) then it should be added using the `plugin` task:
 
     $ lein plugin install lein-clojars "0.6.0"
 
