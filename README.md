@@ -93,6 +93,13 @@ executed inside Leiningen itself, not in your project. Set the
 `:repl-init` key in project.clj to point to a namespace if
 you want code executed inside your project.
 
+## Leiningen Plugins 
+
+Leiningen supports plugins. See [the plugins wiki
+page](https://github.com/technomancy/leiningen/wiki/Plugins) for a
+full list. Plugins may be added to your project.clj :dev-dependencies
+or to your `~/.lein/init.clj` file.
+
 You can also manage your plugins with the `plugin` task. Use
 the same arguments you would put in the Leiningen :dev-dependencies if
 you were only using the plugin on a single project.
