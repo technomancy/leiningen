@@ -146,7 +146,8 @@
                         "snapshots" "http://blueant.com/archiva/internal/snapshots"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
-  :library-path "target/dependency"
+  :compile-path "target/classes" ; for .class files
+  :library-path "target/dependency" ; for .jar files
   :test-path "src/test/clojure"
   :resources-path "src/main/resource" ; non-code files included in classpath/jar
   :dev-resources-path "src/test/resource" ; added to dev classpath but not jar
