@@ -75,11 +75,18 @@
     (prn)))
 
 (defn ^{:help-arglists '([query] [query page])} search
-  "Search remote repositories.
+  "Search remote maven repositories for matching jars.
 
-The first run will download a set of indices, which will take a
-while. Pass in --update as the query to force a fresh download of all
-indices. Also accepts a second parameter for fetching successive pages."
+The first run will download a set of indices, which will take a while.
+Pass in --update as the query to force a fresh download of all
+indices. 
+
+The query is evaluated as a lucene search. You can search for simple
+string matches or do more advanced queries such as this
+'lein \"clojure AND http AND NOT g:org.clojars*\"'
+
+Also accepts a second parameter for fetching successive
+pages."
   ;; support running outside project
   ([query] (search {} query))
   ([project-or-query query-or-page]
