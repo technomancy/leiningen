@@ -220,7 +220,7 @@ else
             # Test to see if rlwrap supports custom quote chars
             rlwrap -m -q '"' echo "hi" > /dev/null 2>&1
             if [ $? -eq 0 ]; then
-                RLWRAP="$RLWRAP -m -q '\"'"
+                RLWRAP="$RLWRAP -r -m -q '\"'"
             fi
         fi
     fi
