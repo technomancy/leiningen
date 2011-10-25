@@ -52,6 +52,10 @@ If you are are deploying to a repository that is _only_ used for deployment
 and never for dependency resolution, then it should be specified in a
 `:deploy-repositories` slot instead of included in the more general-purpose
 `:repositories` map; the former is checked by `lein deploy` before the latter.
+Deployment-only repositories useful across a number of locally developed
+projects may also be specified in the `settings` map in `~/.lein/init.clj`:
+
+    (def settings {:deploy-repositories { ... }})
 
 ### Authentication
 
