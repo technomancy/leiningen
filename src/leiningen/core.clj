@@ -160,8 +160,7 @@ order guarantee."
   (let [project-repos (for [[id settings] (kind project)]
                         [id (init-settings id settings)])
         user-deploy-repos (when (= kind :deploy-repositories)
-                            (when-let [v (resolve 'user/deploy-repositories)]
-                              (into [] @v)))
+                            (into [] (:deploy-repositories (user-settings))))
         all-repos (concat
                     (into []
                           (if (:omit-default-repositories project)
