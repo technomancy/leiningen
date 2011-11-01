@@ -179,7 +179,7 @@ elif [ "$1" = "upgrade" ]; then
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL" \
                     && mv "$TARGET" "$SCRIPT" \
                     && chmod +x "$SCRIPT" \
-                    && echo && $SCRIPT self-install && echo && echo "Now running" `$SCRIPT version`
+                    && echo && "$SCRIPT" self-install && echo && echo "Now running" `$SCRIPT version`
                 exit $?;;
             *)
                 echo "Aborted."
