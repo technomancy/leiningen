@@ -33,6 +33,7 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] deps should run an implicit clean
   - [ ] signed deps for plugins (#247)
   - [ ] investigate interactive failures with 1.3 (#234)
+  - [ ] recover from errors in repl task (#286)
   - [ ] remove bashisms (#246)
   - [ ] windows issues with plugin install swank (#252)
   - [ ] non-jar deps on classpath (#244)

@@ -154,8 +154,8 @@ Warning: alpha; subject to change."
    will return an ordered map of repositories intended solely for deployment
    operations.
 
-Note: transforming this map via assoc, merge, or similar removes the
-order guarantee."
+   Note: transforming this map via assoc, merge, or similar removes the
+   order guarantee."
   [project & {:keys [kind] :or {kind :repositories}}]
   (let [project-repos (for [[id settings] (kind project)]
                         [id (init-settings id settings)])
