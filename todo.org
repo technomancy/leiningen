@@ -39,7 +39,6 @@ See also https://github.com/technomancy/leiningen/issues
   - [ ] windows issues with plugin install swank (#252)
   - [ ] non-jar deps on classpath (#244)
   - [ ] use java class for :main (#249)
-  - [ ] self-install in current directory (#254)
 * For 1.6.1
   - [X] upgrade hooke
   - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]

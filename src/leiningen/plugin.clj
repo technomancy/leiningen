@@ -21,14 +21,34 @@
 (defn extract-name-and-group [project-name]
   ((juxt name namespace) (symbol project-name)))
 
+(defn uninstall
+  "Delete the plugin jarfile
+Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION"
+  [project-name version]
+  (let [[name group] (extract-name-and-group project-name)
+        jarfile (file plugins-path
+                      (plugin-standalone-filename group name version))]
+    (if (.exists jarfile)
+      (if (.delete jarfile)
+        (println (format "Uninstalled %s %s." project-name version))
+        (abort (format "Failed to delete \"%s\"." (.getAbsolutePath jarfile))))
+      (abort (format "Plugin \"%s %s\" doesn't appear to be installed."
+                     project-name version)))))
+
+(defn- uninstall-old [project-name]
+  (doseq [plugin (.list plugins-path)
+          :let [pat (re-pattern (format "^\\Q%s\\E-.*\\.jar$" project-name))]
+          :when (re-find pat plugin)]
+    (.delete (file plugins-path plugin))))
+
 ;; TODO: extract shared behavior between this and the install task
 (defn install
-  "Download, package, and install plugin jarfile into
-  ~/.lein/plugins
+  "Download, package, and install plugin jarfile into ~/.lein/plugins
 Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
   You can use the same syntax here as when listing Leiningen
   dependencies."
   [project-name version]
+  (uninstall-old project-name)
   (leiningen.install/install project-name version)
   (.mkdirs plugins-path)
   (let [[name group] (extract-name-and-group project-name)
@@ -49,20 +69,6 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
         (write-components project deps out)))
     (delete-file-recursively temp-project)
     (println "Created" standalone-filename)))
-
-(defn uninstall
-  "Delete the plugin jarfile
-Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION"
-  [project-name version]
-  (let [[name group] (extract-name-and-group project-name)
-        jarfile (file plugins-path
-                      (plugin-standalone-filename group name version))]
-    (if (.exists jarfile)
-      (if (.delete jarfile)
-        (println (format "Uninstalled %s %s." project-name version))
-        (abort (format "Failed to delete \"%s\"." (.getAbsolutePath jarfile))))
-      (abort (format "Plugin \"%s %s\" doesn't appear to be installed."
-                       project-name version)))))
 
 (defn ^{:doc "Manage user-level plugins."
         :help-arglists '([subtask project-name version])

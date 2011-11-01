@@ -83,7 +83,7 @@ indices.
 
 The query is evaluated as a lucene search. You can search for simple
 string matches or do more advanced queries such as this
-'lein \"clojure AND http AND NOT g:org.clojars*\"'
+'lein search \"clojure AND http AND NOT g:org.clojars*\"'
 
 Also accepts a second parameter for fetching successive
 pages."
