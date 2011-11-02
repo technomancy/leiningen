@@ -5,7 +5,9 @@
   (:require [lancet.core :as lancet])
   (:import (java.io File)))
 
-(def ^{:doc "Default options for the java compiler."} *default-javac-options*
+(def ^{:doc "Default options for the java compiler."
+       :dynamic true}
+  *default-javac-options*
   {:debug "false" :fork "true"
    :includejavaruntime "yes"
    :includeantruntime "false"
