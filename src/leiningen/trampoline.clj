@@ -7,7 +7,7 @@
             [clojure.java.shell :as shell]
             [leiningen.util.paths :as paths]))
 
-(def *trampoline?* false)
+(def ^{:dynamic true} *trampoline?* false)
 
 (defn write-trampoline [command]
   (spit (System/getProperty "leiningen.trampoline-file") command))

@@ -8,7 +8,7 @@
   (:import (java.io File)))
 
 ;; TODO: switch to using *interactive* flag in 2.0.
-(def *exit-after-tests* true)
+(def ^{:dynamic true} *exit-after-tests* true)
 
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
