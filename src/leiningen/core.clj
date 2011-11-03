@@ -7,7 +7,7 @@
   (:import (java.io File)
            (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
 
-(def *interactive?* false)
+(def ^{:dynamic true} *interactive?* false)
 
 (defmacro defdeprecated [old new]
   `(let [new# ~(str (.getName (:ns (meta (resolve new)))) "/" (name new))
@@ -168,7 +168,7 @@ Warning: alpha; subject to change."
                             default-repos))
                     user-deploy-repos
                     project-repos)]
-    (apply array-map (mapcat identity all-repos))))
+    (reduce (fn [m [k v]] (assoc m k v)) (array-map) all-repos)))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."

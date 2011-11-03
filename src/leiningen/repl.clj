@@ -10,7 +10,7 @@
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
            (clojure.lang LineNumberingPushbackReader)))
 
-(def *retry-limit* 200)
+(def retry-limit 200)
 
 (defn repl-options [project options]
   (let [options (apply hash-map options)
@@ -105,7 +105,7 @@
 
 (defn poll-repl-connection
   ([port retries handler]
-     (when (> retries *retry-limit*)
+     (when (> retries retry-limit)
        (throw (Exception. "Couldn't connect")))
      (Thread/sleep 100)
      (let [val (try (connect-to-server (Socket. "localhost" port) handler)
@@ -140,9 +140,9 @@ directory will start a standalone repl session."
                               (concat (:repl-options project)
                                       (:repl-options (user-settings))))
            ;; TODO: make this less awkward when we can break poll-repl-connection
-           retries (- *retry-limit* (or (:repl-retry-limit project)
+           retries (- retry-limit (or (:repl-retry-limit project)
                                         ((user-settings) :repl-retry-limit)
-                                        *retry-limit*))]
+                                        retry-limit))]
        (if *trampoline?*
          (eval-in-project project server-form)
          (do (future (if (empty? project)
