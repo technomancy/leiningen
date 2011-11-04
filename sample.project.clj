@@ -180,7 +180,9 @@
   ;; take this workaround into account yet--see the "Threads" section
   ;; of doc/PLUGINS.md. This key will disable Leiningen's workaround.
   ;; It may cause some other plugins to fail to exit when they finish.
-  :skip-shutdown-agents true)
+  :skip-shutdown-agents true
+  ;; Set parent for working with in a multi-module maven project
+  :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"])
 
 ;; You can use Robert Hooke to modify behaviour of any task function,
 ;; but the prepend-tasks function is shorthand that is more convenient
