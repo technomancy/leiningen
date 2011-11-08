@@ -34,7 +34,7 @@ done
 
 if [ "$LEIN_HOME" = "" ]; then
   if [ -d "$ORIGINAL_PWD/.lein" ]; then
-    echo "Running in project mode."
+    echo "Leiningen is running in bundled mode."
     LEIN_HOME="$ORIGINAL_PWD/.lein"
   else
     LEIN_HOME="$HOME/.lein"
