@@ -75,8 +75,13 @@
           "NUL"
           "/dev/null")))
 
+(defn- as-str [x]
+  (if (instance? clojure.lang.Named x)
+    (name x)
+    (str x)))
+
 (defn- d-property [[k v]]
-  (format "-D%s=%s" (name k) v))
+  (format "-D%s=%s" (as-str k) v))
 
 (defn ^{:internal true} get-jvm-args [project]
   (let [native-arch-path (paths/native-arch-path project)]
@@ -87,7 +92,7 @@
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
-                                                   (:debug project)))})
+                                                     (:debug project)))})
       ~@(when (and native-arch-path (.exists native-arch-path))
           [(d-property [:java-library-path native-arch-path])]))))
 
