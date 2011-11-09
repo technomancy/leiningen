@@ -7,35 +7,15 @@ Leiningen TODOs
 
 See also https://github.com/technomancy/leiningen/issues
 
-* Open Questions
-  - Aether: how would it integrate? Improvement over maven-ant-tasks?
-  - Tests in Nailgun: would it require a separate shell script?
-  - How could nonlinear versions be represented?
-* For 2.0
-  - Quit using ant's Java task. It is horrible.
-    Try a custom classloader approach?
-  - Use Aether instead of maven-ant-tasks?
-    http://www.sonatype.com/people/2010/08/introducing-aether/
-  - classifiers for specifying what clojure version to use?
-    As more versions of Clojure start to exist, libraries may want to
-    publish different branches that target different versions of
-    Clojure itself. Classifiers may be the way to separate these out?
-  - a list of dirs to include in the jar when building
-    Some people have requested this.
-  - improve test coverage
-  - suppress useless ant output in classpath calculation for :local-repo-classpath
-  - new push task based on clj-ssh
-    lein-clojars task doesn't support DSA keys
-  - all tasks require nullable project arg
 * For 1.6.2
   - [X] resources with eval-in-leiningen (#248)
   - [X] fix :omit-default-repositories wrt central (#211)
   - [X] deps should run an implicit clean
   - [X] don't let multiple versions of a plugin interfere with each other (#301)
+  - [ ] jvm-specific deps (JSR 310)
   - [ ] signed deps for plugins (#247)
   - [ ] investigate interactive failures with 1.3 (#234)
   - [ ] recover from errors in repl task (#286)
-  - [ ] remove bashisms (#246)
   - [ ] windows issues with plugin install swank (#252)
   - [ ] non-jar deps on classpath (#244)
   - [ ] use java class for :main (#249)
