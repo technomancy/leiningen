@@ -161,9 +161,8 @@
 
 ;; TODO: memoize when not in tests
 (defn ^{:internal true} find-jars
-  "Returns a seq of Files for all the jars in the project's library directory."
   [project]
-  (filter #(.endsWith (.getName %) ".jar")
+  (remove #{(file (:root project) "lib/dev")}
           (concat (if (:local-repo-classpath project) ; TODO: default in 2.0
                     (find-local-repo-jars project)
                     (find-lib-jars project))
