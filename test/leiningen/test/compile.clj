@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [compile])
   (:use [clojure.test]
         [clojure.java.io :only [file]]
-        [clojure.java.shell :only [with-sh-dir sh]]
+        [clojure.java.shell :only [with-sh-dir]]
         [leiningen.compile]
         [leiningen.core :only [read-project]]
         [leiningen.test.helper :only [sample-project sample-failing-project
