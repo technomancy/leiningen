@@ -10,3 +10,4 @@ autodoc/
 bin/nom
 .lein-failures
 /lein.man
+/scratch.clj

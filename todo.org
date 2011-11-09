@@ -12,13 +12,12 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] fix :omit-default-repositories wrt central (#211)
   - [X] deps should run an implicit clean
   - [X] don't let multiple versions of a plugin interfere with each other (#301)
-  - [ ] use java class for :main (#249)
-  - [ ] jvm-specific deps (JSR 310)
+  - [X] non-jar deps on classpath (#244)
+  - [X] recover from error in interactive (#234)
+  - [ ] fix deploy with new maven-ant-tasks
+  - [ ] use java class in run task (#249)
   - [ ] signed deps for plugins (#247)
-  - [ ] investigate interactive failures with 1.3 (#234)
-  - [ ] recover from errors in repl task (#286)
-  - [ ] windows issues with plugin install swank (#252)
-  - [ ] non-jar deps on classpath (#244)
+  - [ ] jvm-specific deps (JSR 310)
 * For 1.6.1
   - [X] upgrade hooke
   - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]

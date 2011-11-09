@@ -1,6 +1,7 @@
 (ns leiningen.interactive
   "Enter interactive task shell."
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io])
   (:use [leiningen.core :only [apply-task exit *interactive?*]]
         [leiningen.test :only [*exit-after-tests*]]
         [leiningen.repl :only [repl-server repl-socket-on
@@ -59,14 +60,17 @@
 (defn interactive
   "Enter an interactive task shell. Aliased to \"int\"."
   [project]
+  (.delete (io/file "/tmp/bugger-all"))
   (let [[port host] (repl-socket-on project)]
     (println welcome)
     (future
       (binding [*interactive?* true]
-        (eval-in-project project `(do ~(repl-server project host port
-                                                    :prompt '(constantly ""))
-                                      ;; can't stop return value from printing
-                                      (symbol "")))))
+        (eval-in-project project (repl-server project host port
+                                              :prompt '(fn [])
+                                              :caught '(fn [t]
+                                                         (println (.getMessage t))
+                                                         (.printStackTrace t)
+                                                         (.close *in*))))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 *exit-after-tests* false
