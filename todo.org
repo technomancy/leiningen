@@ -12,7 +12,7 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] fix :omit-default-repositories wrt central (#211)
   - [X] deps should run an implicit clean
   - [X] don't let multiple versions of a plugin interfere with each other (#301)
-  - [X] use java class for :main (#249)
+  - [ ] use java class for :main (#249)
   - [ ] jvm-specific deps (JSR 310)
   - [ ] signed deps for plugins (#247)
   - [ ] investigate interactive failures with 1.3 (#234)

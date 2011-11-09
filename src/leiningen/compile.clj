@@ -132,7 +132,7 @@
     ;; landmines involved in doing it properly
     (if (and (= (paths/get-os) :windows) (not (:eval-in-leiningen project)))
       (pr-str (pr-str form))
-      (prn-str form))))
+      (pr-str form))))
 
 (defn prep [project skip-auto-compile]
   (when (and (not (or *skip-auto-compile* skip-auto-compile))
@@ -168,7 +168,7 @@
         (recur (.read reader buffer))))))
 
 ;; clojure.java.shell/sh doesn't let you stream out/err
-(defn- sh [& cmd]
+(defn sh [& cmd]
   (let [proc (.exec (Runtime/getRuntime) (into-array cmd))]
     (with-open [out (reader (.getInputStream proc))
                 err (reader (.getErrorStream proc))]
