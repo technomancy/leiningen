@@ -16,7 +16,7 @@
                       (format-map settings)))))
 
 (defn write-project [project-dir project-name]
-  (let [default-settings {:dependencies [['org.clojure/clojure "1.2.1"]]}
+  (let [default-settings {:dependencies [['org.clojure/clojure "1.3.0"]]}
         settings  (merge-with #(if %2 %2 %1)
                               default-settings)]
     (.mkdirs (file project-dir))

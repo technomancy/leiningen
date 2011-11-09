@@ -2,6 +2,8 @@ Leiningen NEWS -- history of user-visible changes
 
 = 1.6.2 / ???
 
+* Default to Clojure 1.3.0 for new projects.
+
 * Allow Leiningen home to exist inside project directory. (Heinz N. Gies)
 
 * Remove old versions of plugins when upgrading.
