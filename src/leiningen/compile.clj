@@ -36,6 +36,11 @@
              n))
       nses)))
 
+
+(defn- compile-main? [{:keys [main source-path] :as project}]
+  (and main (not (:skip-aot (meta main)))
+       (.exists (file source-path (paths/ns->path main)))))
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
@@ -46,7 +51,7 @@
         nses (if (= :all nses)
                (namespaces-in-dir (:source-path project))
                (find-namespaces-by-regex project nses))]
-    (if (and (:main project) (not (:skip-aot (meta (:main project)))))
+    (if (compile-main? project)
       (conj nses (:main project))
       nses)))
 
@@ -195,7 +200,7 @@
  ;; .class file cleanup
 
 (defn- has-source-package?
-  "Test if the class file's package exists as a directory in :source-path."
+  "Test if the class file's package exists as a directory in source-path."
   [project f source-path]
   (and source-path
        (let [[[parent] [_ _ proxy-mod-parent]]

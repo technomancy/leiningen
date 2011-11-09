@@ -6,7 +6,7 @@
         [leiningen.compile]
         [leiningen.core :only [read-project]]
         [leiningen.test.helper :only [sample-project sample-failing-project
-                                      tricky-name-project]]
+                                      tricky-name-project dev-deps-project]]
         [leiningen.util.file :only [delete-file-recursively]]))
 
 (use-fixtures :each (fn [f]
@@ -67,3 +67,6 @@
 (deftest test-injection
   (is (zero? (eval-in-project sample-project
                               '#'leiningen.util.injected/add-hook))))
+
+(deftest test-compile-java-main
+  (is (zero? (compile dev-deps-project))))
