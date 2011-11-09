@@ -23,7 +23,8 @@
   (and (.isFile f) (.endsWith (.getName f) ".jar")))
 
 (defn read-ns-form [r f]
-  (let [form (try (read r false ::done)
+  ;; bug in Clojure 1.2 allows reading "{foo}" and throws when str'd
+  (let [form (try (doto (read r false ::done) str)
                   (catch Exception e
                     (println (format "Couldn't parse %s: %s" f (.getMessage e)))
                     ::done))]
