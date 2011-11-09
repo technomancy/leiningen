@@ -60,7 +60,7 @@
                              #(binding [*in* (-> ins# InputStreamReader.
                                                  LineNumberingPushbackReader.)
                                         *out* (OutputStreamWriter. outs#)
-                                        *err* *err*
+                                        *err* (OutputStreamWriter. outs#)
                                         *warn-on-reflection*
                                         ~(:warn-on-reflection project)]
                                 (clojure.main/repl
