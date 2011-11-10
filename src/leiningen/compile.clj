@@ -134,15 +134,15 @@
       (pr-str (pr-str form))
       (pr-str form))))
 
-(defn prep [project skip-auto-compile]
-  (when (and (not (or *skip-auto-compile* skip-auto-compile))
-             (empty? (.list (file (:compile-path project)))))
+(defn prep [{:keys [compile-path checksum-deps] :as project} skip-auto-compile]
+  (when (and (not (or *skip-auto-compile* skip-auto-compile)) compile-path
+             (empty? (.list (file compile-path))))
     (binding [*silently* true]
       (compile project)))
-  (when (or (empty? (find-jars project))
-            (:checksum-deps project))
+  (when (or (empty? (find-jars project)) checksum-deps)
     (deps project))
-  (.mkdirs (file (:compile-path project))))
+  (when compile-path
+    (.mkdirs (file compile-path))))
 
 (defn eval-in-leiningen [project form-string]
   ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673

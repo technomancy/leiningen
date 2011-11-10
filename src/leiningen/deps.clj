@@ -95,7 +95,7 @@
     ;; private methods, we'll call a public method that we know calls
     ;; getContainer, getSupportedProtocols.
     (.getSupportedProtocols deps-task)
-    (.setBasedir lancet/ant-project (:root project))
+    (.setBasedir lancet/ant-project (:root project ""))
     (.setFilesetId deps-task "dependency.fileset")
     (.setPathId deps-task (:name project))
     (doseq [repo (make-repositories project)]
