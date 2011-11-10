@@ -1,23 +1,30 @@
 (ns leiningen.run
   "Run a -main function with optional command-line arguments."
   (:use [leiningen.compile :only [eval-in-project]]
-        [leiningen.core :only [abort]]))
+        [leiningen.core :only [abort]])
+  (:import (java.io FileNotFoundException)
+           (clojure.lang Reflector)))
 
-(defn- get-ns-and-fn [given]
-  (if (= 'clojure.main given) ; special-case this oddity
-    ['clojure.main 'main]
-    (let [[given-ns given-sym] ((juxt namespace name) given)]
-      (map symbol (if given-ns
-                    [given-ns given-sym]
-                    [given-sym "-main"])))))
+(defn- normalize-main [given]
+  (if (namespace (symbol given))
+    (symbol given)
+    (symbol (name given) "-main")))
+
+(defn- run-form [given args]
+  `(let [v# (resolve '~(normalize-main given))]
+     (if (ifn? v#)
+       (v# ~@args)
+       (Reflector/invokeStaticMethod
+        ~(name given) "main" (into-array [(into-array String '~args)])))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
-  ([project given-main & args]
-     (let [[main-ns main-fn] (get-ns-and-fn (symbol given-main))]
-          (eval-in-project project `((ns-resolve '~main-ns '~main-fn) ~@args)
-                           nil nil `(require '~main-ns)))))
+  [project given & args]
+  (eval-in-project project (run-form given args)
+                   nil nil `(try (require '~(symbol (namespace
+                                                     (normalize-main given))))
+                              (catch FileNotFoundException _#))))
 
 (defn ^{:help-arglists '([])} run
   "Run the project's -main function.

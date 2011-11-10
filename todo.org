@@ -14,8 +14,8 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] don't let multiple versions of a plugin interfere with each other (#301)
   - [X] non-jar deps on classpath (#244)
   - [X] recover from error in interactive (#234)
+  - [X] use java class in run task (#249)
   - [ ] fix deploy with new maven-ant-tasks
-  - [ ] use java class in run task (#249)
   - [ ] signed deps for plugins (#247)
   - [ ] jvm-specific deps (JSR 310)
 * For 1.6.1
