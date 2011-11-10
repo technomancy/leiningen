@@ -160,8 +160,7 @@
   (.listFiles (file (:library-path project))))
 
 ;; TODO: memoize when not in tests
-(defn ^{:internal true} find-jars
-  [project]
+(defn ^{:internal true} find-deps-files [project]
   (remove #{(file (:root project) "lib/dev")}
           (concat (if (:local-repo-classpath project) ; TODO: default in 2.0
                     (find-local-repo-jars project)
@@ -169,6 +168,9 @@
                   ;; This must be hard-coded because it's used in
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
+
+(defn- find-jars [project]
+  (filter #(.endsWith (.getName %) ".jar") (find-deps-files project)))
 
 (defn extract-native-deps [project]
   (doseq [jar (map #(JarFile. %) (find-jars project))

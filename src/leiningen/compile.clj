@@ -1,6 +1,6 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:use [leiningen.deps :only [deps find-jars]]
+  (:use [leiningen.deps :only [deps find-deps-files]]
         [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [get-classpath-string]]
@@ -139,7 +139,7 @@
              (empty? (.list (file compile-path))))
     (binding [*silently* true]
       (compile project)))
-  (when (or (empty? (find-jars project)) checksum-deps)
+  (when (or (empty? (find-deps-files project)) checksum-deps)
     (deps project))
   (when compile-path
     (.mkdirs (file compile-path))))

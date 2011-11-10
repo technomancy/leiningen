@@ -1,7 +1,7 @@
 (ns leiningen.classpath
   "Print the classpath of the current project."
   (:use [leiningen.core :only [read-project no-dev?]]
-        [leiningen.deps :only [find-jars]]
+        [leiningen.deps :only [find-deps-files]]
         [leiningen.util.paths :only [leiningen-home]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]]))
@@ -45,7 +45,7 @@
            (:resources-path project)]
           (:extra-classpath-dirs project)
           (checkout-deps-paths project)
-          (find-jars project)
+          (find-deps-files project)
           (if-not (no-dev?)
             (user-plugins))))
 

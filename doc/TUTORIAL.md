@@ -140,8 +140,7 @@ instead of a single version:
 
     [org.clojure/clojure "[1.1,1.2]"] ; <= will match 1.1.0 through 1.2.0.
 
-See [Maven's version range
-specification](http://maven.apache.org/plugins/maven-enforcer-plugin/rules/versionRanges.html)
+See [Maven's version range specification](http://j.mp/twc713)
 for details. Don't do this unless you have manually confirmed that it
 works with each of those versions though. You can't assume that your
 dependencies will use semantic versions; some projects even introduce

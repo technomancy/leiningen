@@ -3,7 +3,7 @@
   (:require [clojure.main])
   (:use [leiningen.core :only [exit user-settings *interactive?*]]
         [leiningen.compile :only [eval-in-project]]
-        [leiningen.deps :only [find-jars deps]]
+        [leiningen.deps :only [find-deps-files deps]]
         [leiningen.trampoline :only [*trampoline?*]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
@@ -132,7 +132,7 @@ A socket-repl will also be launched in the background on a socket based on the
 directory will start a standalone repl session."
   ([] (repl nil))
   ([project]
-     (when (and project (or (empty? (find-jars project))
+     (when (and project (or (empty? (find-deps-files project))
                             (:checksum-deps project)))
        (deps project))
      (let [[port host] (repl-socket-on project)
