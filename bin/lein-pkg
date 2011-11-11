@@ -28,7 +28,15 @@ done
 # Support $JAVA_OPTS for backwards-compatibility.
 JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
-LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
+
+if [ "$LEIN_HOME" = "" ]; then
+  if [ -d "$ORIGINAL_PWD/.lein" ]; then
+    echo "Leiningen is running in bundled mode."
+    LEIN_HOME="$ORIGINAL_PWD/.lein"
+  else
+    LEIN_HOME="$HOME/.lein"
+  fi
+fi
 
 DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
@@ -61,21 +69,13 @@ unique_user_plugins () {
 
 LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
 LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
-CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/"
-LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
+CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/:resources/"
 CLOJURE_JAR="/usr/share/java/clojure-1.2.jar:/usr/share/java/asm3.jar:/usr/share/java/asm3-commons.jar"
 NULL_DEVICE=/dev/null
 
 # apply context specific CLASSPATH entries
-if [ -f .classpath ]; then
-    CLASSPATH="`cat .classpath`:$CLASSPATH"
-fi
-
-# normalize $0 on certain BSDs
-if [ "$(dirname "$0")" = "." ]; then
-    SCRIPT="$(which $(basename "$0"))"
-else
-    SCRIPT="$0"
+if [ -f .lein-classpath ]; then
+    CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
 fi
 
 SHARE_JARS="ant ant-launcher classworlds clojure-1.2 clojure-contrib \
@@ -106,13 +106,13 @@ if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
     [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
     which rlwrap > /dev/null
     if [ $? -eq 0 ]; then
-        RLWRAP="rlwrap -m -q '\"'" # custom quote chars
+        RLWRAP="rlwrap -r -m -q '\"'" # custom quote chars
     fi
 fi
 
 if [ "$1" = "trampoline" ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $LEIN_JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
             clojure.main -e "(use 'leiningen.core)(-main)" \
@@ -123,8 +123,8 @@ if [ "$1" = "trampoline" ]; then
             exec sh -c "$TRAMPOLINE"
         fi
 else
-        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
+            $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" \
             $NULL_DEVICE "$@"
 fi
