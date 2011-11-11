@@ -10,10 +10,15 @@
 
 (def ^{:dynamic true} *trampoline?* false)
 
+(defn win-batch? []
+  (.endsWith (System/getProperty "leiningen.trampoline-file") ".bat"))
+
 (defn write-trampoline [command]
   (spit (System/getProperty "leiningen.trampoline-file")
-        (string/join " " (conj (vec (butlast command))
-                               (with-out-str (prn (last command)))))))
+        (string/join " " (if (win-batch?)
+                           command
+                           (conj (vec (butlast command))
+                                 (with-out-str (prn (last command))))))))
 
 (defn trampoline
   "Run a task without nesting the project's JVM inside Leiningen's.
