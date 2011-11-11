@@ -11,9 +11,6 @@
 (def ^{:dynamic true} *trampoline?* false)
 
 (defn write-trampoline [command]
-  (spit "/tmp/trampoline"
-        (string/join " " (conj (vec (butlast command))
-                               (with-out-str (prn (last command))))))
   (spit (System/getProperty "leiningen.trampoline-file")
         (string/join " " (conj (vec (butlast command))
                                (with-out-str (prn (last command)))))))
