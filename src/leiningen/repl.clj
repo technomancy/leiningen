@@ -55,12 +55,13 @@
        (let [server# (ServerSocket. ~port 0 (InetAddress/getByName ~host))
              acc# (fn [s#]
                     (let [ins# (.getInputStream s#)
-                          outs# (.getOutputStream s#)]
+                          outs# (.getOutputStream s#)
+                          out-writer# (OutputStreamWriter. outs#)]
                       (doto (Thread.
                              #(binding [*in* (-> ins# InputStreamReader.
                                                  LineNumberingPushbackReader.)
-                                        *out* (OutputStreamWriter. outs#)
-                                        *err* (OutputStreamWriter. outs#)
+                                        *out* out-writer#
+                                        *err* (PrintWriter. out-writer#)
                                         *warn-on-reflection*
                                         ~(:warn-on-reflection project)]
                                 (clojure.main/repl
