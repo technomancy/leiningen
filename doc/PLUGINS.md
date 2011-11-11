@@ -29,13 +29,6 @@ function take more arguments.
 Tasks without a <tt>project</tt> argument will be able to be run from
 anywhere.
 
-Note that Leiningen is an implied dependency of all plugins; you don't
-need to explicitly list it in the project.clj file. You also don't
-need to list Clojure or Contrib, but you will be locked into using the
-same version of Clojure that Leiningen is using. So for instance, if
-your plugin depends on defprotocol, then you should make it clear in
-your documentation that it only works with Leiningen 1.2.0 and higher.
-
 The "lein help" task will display the first line of the task
 function's docstring as a summary.  Then "lein help $TASK" will use
 the task function's full docstring for detailed help. The function's
@@ -78,13 +71,15 @@ altering the return value, only running the function conditionally,
 etc. The add-hook function takes a var of the task it's meant to apply
 to and a function to perform the wrapping:
 
-    (use 'robert.hooke)
+```clj
+(use 'robert.hooke)
 
-    (defn skip-integration-hook [task & args]
-      (binding [clojure.test/test-var (test-var-skip :integration)]
-        (apply task args)))
+(defn skip-integration-hook [task & args]
+  (binding [clojure.test/test-var (test-var-skip :integration)]
+    (apply task args)))
 
-    (add-hook #'leiningen.test/test skip-integration-hook)
+(add-hook #'leiningen.test/test skip-integration-hook)
+```
 
 Hooks compose, so be aware that your hook may be running inside
 another hook. To take advantage of your hooks functionality, projects
@@ -104,6 +99,26 @@ as well as user plugins. To further modify the classpath of Leiningen
 itself, add a '.lein-classpath' file a project's root. Its contents
 will be prepended to Leiningen's classpath when Leiningen is invoked
 upon that project.
+
+## Clojure Version
+
+Note that Leiningen is an implied dependency of all plugins; you don't
+need to explicitly list it in the project.clj file. You also don't
+need to list Clojure or Contrib, but you will be locked into using the
+same version of Clojure that Leiningen is using.
+
+Versions of Leiningen prior to 1.2.0 used Clojure 1.1, while the rest
+of the 1.x line uses Clojure 1.2. Leiningen 2.0 will use Clojure 1.3.
+If you need to use a different version of Clojure from within a
+Leiningen plugin, you can use `eval-in-project` with a dummy project
+argument:
+
+```clj
+(eval-in-project {:local-repo-classpath true
+                  :dependencies '[[org.clojure/clojure "1.3.0"]] 
+                  :native-path "/tmp" :root "/tmp" :compile-path "/tmp"}
+                 '(println "hello from" *clojure-version*))
+```
 
 ## Lancet
 

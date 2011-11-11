@@ -44,9 +44,11 @@ The private server will need to be added to the <tt>:repositories</tt>
 listing in project.clj. Archiva and Nexus offer separate repositories
 for snapshots and releases, so you'll want two entries for them:
 
-    :repositories {"snapshots" {:url "http://blueant.com/archiva/snapshots"
-                                :username "milgrim" :password "locative.1"}
-                   "releases" "http://blueant.com/archiva/internal"}
+```clj
+:repositories {"snapshots" {:url "http://blueant.com/archiva/snapshots"
+                            :username "milgrim" :password "locative.1"}
+               "releases" "http://blueant.com/archiva/internal"}
+```
 
 If you are are deploying to a repository that is _only_ used for deployment
 and never for dependency resolution, then it should be specified in a
@@ -55,7 +57,9 @@ and never for dependency resolution, then it should be specified in a
 Deployment-only repositories useful across a number of locally developed
 projects may also be specified in the `settings` map in `~/.lein/init.clj`:
 
-    (def settings {:deploy-repositories { ... }})
+```clj
+(def settings {:deploy-repositories { ... }})
+```
 
 ### Authentication
 
@@ -68,8 +72,10 @@ entry above, you can store authentication information in
 <tt>~/.lein/init.clj</tt> as a <tt>leiningen-auth</tt> map keyed off
 the repository's URL:
 
-    (def leiningen-auth {"http://localhost:8080/archiva/repository/internal/"
-                         {:username "milgrim" :password "locative.2"}})
+```clj
+(def leiningen-auth {"http://localhost:8080/archiva/repository/internal/"
+                     {:username "milgrim" :password "locative.2"}})
+```
 
 This also allows different users using the same checkout to upload
 using different credentials.
