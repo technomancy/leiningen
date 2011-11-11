@@ -33,9 +33,9 @@ do
 done
 
 if [ "$LEIN_HOME" = "" ]; then
-  if [ -d "$ORIGINAL_PWD/.lein" ] && [ "$ORIGINAL_PWD" != "$HOME" ]; then
+  if [ -d "$PWD/.lein" ] && [ "$PWD" != "$HOME" ]; then
     echo "Leiningen is running in bundled mode."
-    LEIN_HOME="$ORIGINAL_PWD/.lein"
+    LEIN_HOME="$PWD/.lein"
   else
     LEIN_HOME="$HOME/.lein"
   fi
