@@ -51,6 +51,7 @@ control:
             (.setFile (file (jar project)))
             (.addPom (doto (Pom.)
                        (.setMavenProject (make-maven-project project))
+                       (.setProject lancet/ant-project)
                        (.setFile (file (pom project)))))
             (.addRemoteRepository (get-repository project repository-name))
             (.execute))
