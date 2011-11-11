@@ -33,15 +33,13 @@ do
 done
 
 if [ "$LEIN_HOME" = "" ]; then
-  if [ -d "$ORIGINAL_PWD/.lein" ]; then
+  if [ -d "$ORIGINAL_PWD/.lein" ] && [ "$ORIGINAL_PWD" != "$HOME" ]; then
     echo "Leiningen is running in bundled mode."
     LEIN_HOME="$ORIGINAL_PWD/.lein"
   else
     LEIN_HOME="$HOME/.lein"
   fi
-
 fi
-
 
 DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"

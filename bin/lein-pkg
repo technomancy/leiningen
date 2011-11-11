@@ -30,7 +30,7 @@ JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
 
 if [ "$LEIN_HOME" = "" ]; then
-  if [ -d "$ORIGINAL_PWD/.lein" ]; then
+  if [ -d "$ORIGINAL_PWD/.lein" ] && [ "$ORIGINAL_PWD" != "$HOME" ]; then
     echo "Leiningen is running in bundled mode."
     LEIN_HOME="$ORIGINAL_PWD/.lein"
   else
