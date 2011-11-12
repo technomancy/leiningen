@@ -186,6 +186,8 @@ Warning: alpha; subject to change."
 
 ;;; Task execution
 
+(def ^{:dynamic true} *current-task* nil)
+
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
                     "--version" "version" "überjar" "uberjar" "cp" "classpath"
                     "int" "interactive"}))
@@ -251,9 +253,10 @@ Warning: alpha; subject to change."
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
     (if-let [parameters (matching-arity? task-name project args)]
-      (if (project-accepted? parameters)
-        (apply task project args)
-        (apply task args))
+      (binding [*current-task* task-name]
+        (if (project-accepted? parameters)
+          (apply task project args)
+          (apply task args)))
       (let [args (arglists task-name)]
         (if (and (not project) (project-needed? args))
           (abort "Couldn't find project.clj, which is needed for" task-name)

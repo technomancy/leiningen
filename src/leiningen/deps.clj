@@ -1,7 +1,8 @@
 (ns leiningen.deps
   "Download all dependencies and put them in :library-path."
   (:require [lancet.core :as lancet])
-  (:use [leiningen.core :only [repositories-for user-settings no-dev?]]
+  (:use [leiningen.core :only [repositories-for user-settings
+                               *current-task* no-dev?]]
         [leiningen.clean :only [clean]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]]
@@ -121,7 +122,8 @@
 (defn fetch-deps? [project]
   (let [deps-checksum-file (new-deps-checksum-file project)]
     (and (has-dependencies? project)
-         (or (empty? (.list (File. (:library-path project))))
+         (or (= "deps" *current-task*)
+             (empty? (.list (File. (:library-path project))))
              (not (:checksum-deps project (:checksum-deps (user-settings))))
              (not (.exists deps-checksum-file))
              (not= (slurp deps-checksum-file) (deps-checksum project))))))

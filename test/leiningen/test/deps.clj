@@ -1,6 +1,6 @@
 (ns leiningen.test.deps
-  (:use [leiningen.core :only [read-project defproject]]
-        [leiningen.deps :only [deps]]
+  (:use [leiningen.core :only [read-project defproject apply-task]]
+        [leiningen.deps :only [deps do-deps]]
         [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.util.file :only [delete-file-recursively]]
@@ -95,3 +95,19 @@
   (is (= (conj (get-in native-lib-files-map [(get-os) (get-arch)]) ".gitkeep")
          (set (for [f (rest (file-seq (native-arch-path native-project)))]
                 (.getName f))))))
+
+(deftest test-checksum-deps
+  (delete-file-recursively (:library-path sample-project) true)
+  (deps (assoc sample-project :checksum-deps true))
+  (let [deps-ran (atom false)]
+    (binding [do-deps (fn [& _] (reset! deps-ran true))]
+      (deps (assoc sample-project :checksum-deps true))
+      (is (not @deps-ran)))))
+
+(deftest test-explicit-checksum-deps
+  (delete-file-recursively (:library-path sample-project) true)
+  (deps (assoc sample-project :checksum-deps true))
+  (let [deps-ran (atom false)]
+    (binding [do-deps (fn [& _] (reset! deps-ran true))]
+      (apply-task "deps" (assoc sample-project :checksum-deps true) [] #())
+      (is @deps-ran))))
