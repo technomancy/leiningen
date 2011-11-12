@@ -76,6 +76,7 @@ Warning: alpha; subject to change."
                                                  (:deps m#))
                                :dev-dependencies (or (:dev-dependencies m#)
                                                      (:dev-deps m#))
+                               :checksum-deps (:checksum-deps m# true)
                                :compile-path (normalize-path#
                                               (or (:compile-path m#) "classes"))
                                :source-path (normalize-path#

@@ -4,7 +4,7 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from checkouts and self-upgrading.
 
-LEIN_VERSION="1.6.1.1"
+LEIN_VERSION="1.6.2"
 export LEIN_VERSION
 
 if [ `whoami` = "root" ] && [ "$LEIN_ROOT" = "" ]; then
