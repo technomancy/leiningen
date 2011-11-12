@@ -51,10 +51,6 @@
       (let [rel-repo-snaps-dep (assoc pr :dependencies [slamhound])]
         (is (thrown? Exception (with-no-log (deps rel-repo-snaps-dep))))))
     (finally
-     ;; This gc call is a workaround for a windows specific problem
-     ;; where jars fail to get deleted. An explicit call to gc seems
-     ;; to solve the issue.
-     (System/gc)
      (delete-file-recursively (:library-path sample-project) :silently))))
 
 (def native-lib-files-map
