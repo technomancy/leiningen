@@ -116,9 +116,9 @@
   :repl-retry-limit 1000
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
-  ;; Set this in order to only use the :repositories you list below. Note that 
-  ;; a bug in maven-ant-tasks prevents Leiningen from excluding Maven Central,
-  ;; so in effect this simply omits Clojars.
+  ;; Set this in order to only use the :repositories you list below. Note that,
+  ;; if any artifacts are not found, Maven Central will still be reported to
+  ;; have been checked, even though it was not.
   :omit-default-repositories true
   :repositories {"java.net" "http://download.java.net/maven/2"
                  "sonatype"
@@ -138,9 +138,16 @@
                               :username "milgrim" :password "locative.1"}
                  "releases" {:url "http://blueant.com/archiva/internal"
                              :username "milgrim" :password "locative.1"}}
+  ;; the deploy task will give preference to repositories specified in
+  ;; :deploy-repositories, and repos listed there will not be used for
+  ;; dependency resolution
+  :deploy-repositories {"releases" {:url "http://blueant.com/archiva/internal/releases"
+                                    :username "milgrim" :password "locative.1"}
+                        "snapshots" "http://blueant.com/archiva/internal/snapshots"}
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path "src/main/clojure"
-  :library-path "target/dependency"
+  :compile-path "target/classes" ; for .class files
+  :library-path "target/dependency" ; for .jar files
   :test-path "src/test/clojure"
   :resources-path "src/main/resource" ; non-code files included in classpath/jar
   :dev-resources-path "src/test/resource" ; added to dev classpath but not jar
@@ -166,7 +173,16 @@
   ;; You can set JVM-level options here.
   :jvm-opts ["-Xmx1g"]
   ;; If your project is a Leiningen plugin, set this to skip the subprocess step
-  :eval-in-leiningen false)
+  :eval-in-leiningen false
+  ;; Leiningen includes a workaround for a problem with Clojure's
+  ;; agent thread pool. If you see RejectedExecutionException using
+  ;; futures or agents, you may be working with a plugin that doesn't
+  ;; take this workaround into account yet--see the "Threads" section
+  ;; of doc/PLUGINS.md. This key will disable Leiningen's workaround.
+  ;; It may cause some other plugins to fail to exit when they finish.
+  :skip-shutdown-agents true
+  ;; Set parent for working with in a multi-module maven project
+  :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"])
 
 ;; You can use Robert Hooke to modify behaviour of any task function,
 ;; but the prepend-tasks function is shorthand that is more convenient

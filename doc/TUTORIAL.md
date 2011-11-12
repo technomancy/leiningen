@@ -59,9 +59,11 @@ repositories for you.
 
     $ cat project.clj
 
-    (defproject myproject "1.0.0-SNAPSHOT"
-      :description "FIXME: write description"
-      :dependencies [[org.clojure/clojure "1.2.1"]])
+```clj
+(defproject myproject "1.0.0-SNAPSHOT"
+  :description "FIXME: write description"
+  :dependencies [[org.clojure/clojure "1.2.1"]])
+```
 
 Fill in the :description with a short paragraph so that your project
 will show up in search results once you publish it. At some point
@@ -140,8 +142,7 @@ instead of a single version:
 
     [org.clojure/clojure "[1.1,1.2]"] ; <= will match 1.1.0 through 1.2.0.
 
-See [Maven's version range
-specification](http://maven.apache.org/plugins/maven-enforcer-plugin/rules/versionRanges.html)
+See [Maven's version range specification](http://j.mp/twc713)
 for details. Don't do this unless you have manually confirmed that it
 works with each of those versions though. You can't assume that your
 dependencies will use semantic versions; some projects even introduce
@@ -206,14 +207,18 @@ Rather than running your whole suite or just a few namespaces at a
 time, you can run a subset of your tests using test selectors. To do
 this, you attach metadata to various deftests.
 
-    (deftest ^{:integration true} network-heavy-test
-      (is (= [1 2 3] (:numbers (network-operation)))))
+```clj
+(deftest ^{:integration true} network-heavy-test
+  (is (= [1 2 3] (:numbers (network-operation)))))
+```
 
 Then add a :test-selectors map to project.clj:
 
-    :test-selectors {:default (fn [v] (not (:integration v)))
-                     :integration :integration
-                     :all (fn [_] true)}
+```clj
+:test-selectors {:default (fn [v] (not (:integration v)))
+                 :integration :integration
+                 :all (fn [_] true)}
+```
 
 Now if you run "lein test" it will only run deftests that don't have
 :integration metadata, while "lein test :integration" will only run
@@ -298,12 +303,14 @@ nontechnical users. For this to work you'll need to specify a
 namespace as your :main in project.clj. By this point our project.clj
 file should look like this:
 
-    (defproject myproject "1.0.0-SNAPSHOT"
-      :description "This project is MINE."
-      :dependencies [[org.clojure/clojure "1.2.0"]
-                     [org.apache.lucene/lucene-core "3.0.2"]
-                     [lancet "1.0.0"]]
-      :main myproject.core)
+```clj
+(defproject myproject "1.0.0-SNAPSHOT"
+  :description "This project is MINE."
+  :dependencies [[org.clojure/clojure "1.2.0"]
+                 [org.apache.lucene/lucene-core "3.0.2"]
+                 [lancet "1.0.0"]]
+  :main myproject.core)
+```
 
 The namespace you specify will need to contain a <tt>-main</tt>
 function that will get called when your standalone jar is run. This
@@ -312,11 +319,13 @@ namespace should have a <tt>(:gen-class)</tt> declaration in the
 passed the command-line arguments. Let's try something simple in
 src/myproject/core.clj:
 
-    (ns myproject.core
-      (:gen-class))
+```clj
+(ns myproject.core
+  (:gen-class))
 
-    (defn -main [& args]
-      (println "Welcome to my project! These are your args:" args))
+(defn -main [& args]
+  (println "Welcome to my project! These are your args:" args))
+```
 
 Now we're ready to generate your uberjar:
 
@@ -367,8 +376,10 @@ project.clj, Leiningen automatically generates a simple shell script
 wrapper when you create your jar file. However, if you need more
 control you can provide a map instead:
 
+```clj
     :shell-wrapper {:main myproject.core
                     :bin "bin/myproject"}
+```
 
 Normally the shell wrapper will invoke the -main function in your
 project's :main namespace, but specifying this option triggers AOT for

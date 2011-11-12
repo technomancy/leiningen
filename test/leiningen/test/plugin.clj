@@ -20,20 +20,10 @@
   (is (= (extract-name-and-group "tehname")
          ["tehname" nil])))
 
-(deftest test-help
-  (is (= "Manage user-level plugins.
-
-Subtasks available:
-install     Download, package, and install plugin jarfile into
-              ~/.lein/plugins
-            Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
-              You can use the same syntax here as when listing Leiningen
-              dependencies.
-uninstall   Delete the plugin jarfile
-            Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION
-
-Arguments: ([subtask project-name version])\n"
-         (with-out-str (plugin "help")))))
+(deftest test-help-mentions-subtasks
+  (let [out (with-out-str (plugin "help"))]
+    (is (re-find #"install" out))
+    (is (re-find #"uninstall" out))))
 
 (deftest test-install
   (with-out-str

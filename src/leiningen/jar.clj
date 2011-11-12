@@ -103,7 +103,8 @@
     (zipmap (map str (keys attrs)) (vals attrs))))
 
 (defn skip-file? [file relative-path patterns]
-  (or (.isDirectory file)
+  (or (not (.exists file))
+      (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
       (re-find #"~$" (.getName file))
       (some #(re-find % relative-path) patterns)))
@@ -127,8 +128,9 @@
           (copy child jar-os))))))
 
 (defmethod copy-to-jar :bytes [project jar-os spec]
-  (.putNextEntry jar-os (JarEntry. (:path spec)))
-  (copy (ByteArrayInputStream. (:bytes spec)) jar-os))
+  (when-not (some #(re-find % (:path spec)) (:jar-exclusions project))
+    (.putNextEntry jar-os (JarEntry. (:path spec)))
+    (copy (ByteArrayInputStream. (:bytes spec)) jar-os)))
 
 (defn write-jar [project out-filename filespecs]
   (let [manifest (make-manifest project)]
@@ -171,6 +173,9 @@
    (when (and (:resources-path project)
               (.exists (file (:resources-path project))))
      [{:type :path :path (:resources-path project)}])
+   (when (and (:java-source-path project)
+              (not (:omit-source project)))
+     [{:type :path :path (:java-source-path project)}])
    (when-not (:omit-source project)
      [{:type :path :path (:source-path project)}])
    (shell-wrapper-filespecs project deps-fileset)))
@@ -198,11 +203,12 @@ function in that namespace will be used as the main-class for executable jar."
   ([project jar-name]
      (when jar-name
        (println "WARNING: Using the jar task with an argument is deprecated."))
-     (binding [compile/*silently* true]
-       (when (zero? (compile/compile project))
-         (let [jar-path (get-jar-filename project (get-default-jar-name project))
-               deps-fileset (deps project)]
+     (let [deps-fileset (deps (assoc project :checksum-deps false))
+           status (compile/compile project)]
+       (if (zero? status)
+         (let [jar-path (get-jar-filename project (get-default-jar-name project))]
            (write-jar project jar-path (filespecs project deps-fileset))
            (println "Created" jar-path)
-           jar-path))))
+           jar-path)
+         status)))
   ([project] (jar project nil)))

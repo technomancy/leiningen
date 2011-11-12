@@ -20,6 +20,5 @@
 Set :extra-files-to-clean in project.clj to delete other files. Dependency
 jars are not deleted; run deps task to delete all jars and get fresh ones."
   [project]
-  (println "Cleaning up.")
   (doseq [f (files-to-clean project)]
     (delete-file-recursively f :silently)))

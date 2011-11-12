@@ -33,7 +33,12 @@ do
 done
 
 if [ "$LEIN_HOME" = "" ]; then
+  if [ -d "$PWD/.lein" ] && [ "$PWD" != "$HOME" ]; then
+    echo "Leiningen is running in bundled mode."
+    LEIN_HOME="$PWD/.lein"
+  else
     LEIN_HOME="$HOME/.lein"
+  fi
 fi
 
 DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
@@ -67,8 +72,8 @@ unique_user_plugins () {
 
 LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
 LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
-CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/"
-LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
+CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/:resources/"
+LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.2.1/clojure-1.2.1.jar"
 NULL_DEVICE=/dev/null
 
@@ -133,6 +138,11 @@ export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality.
 if [ "$1" = "self-install" ]; then
+    if [ -r "$LEIN_JAR" ]; then
+      echo "The self-install jar already exists at $LEIN_JAR."
+      echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
+      exit 1
+    fi
     echo "Downloading Leiningen now..."
     LEIN_DIR=`dirname "$LEIN_JAR"`
     mkdir -p "$LEIN_DIR"
@@ -174,7 +184,7 @@ elif [ "$1" = "upgrade" ]; then
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL" \
                     && mv "$TARGET" "$SCRIPT" \
                     && chmod +x "$SCRIPT" \
-                    && echo && $SCRIPT self-install && echo && echo "Now running" `$SCRIPT version`
+                    && echo && "$SCRIPT" self-install && echo && echo "Now running" `$SCRIPT version`
                 exit $?;;
             *)
                 echo "Aborted."
@@ -215,7 +225,7 @@ else
             # Test to see if rlwrap supports custom quote chars
             rlwrap -m -q '"' echo "hi" > /dev/null 2>&1
             if [ $? -eq 0 ]; then
-                RLWRAP="$RLWRAP -m -q '\"'"
+                RLWRAP="$RLWRAP -r -m -q '\"'"
             fi
         fi
     fi

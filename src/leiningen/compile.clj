@@ -1,26 +1,20 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:use [leiningen.deps :only [deps find-jars]]
+  (:use [leiningen.deps :only [deps find-deps-files]]
         [leiningen.core :only [defdeprecated user-settings *interactive?*]]
         [leiningen.javac :only [javac]]
-        [leiningen.classpath :only [make-path get-classpath]]
-        [clojure.java.io :only [file resource reader]]
+        [leiningen.classpath :only [get-classpath-string]]
+        [clojure.java.io :only [file resource reader copy]]
         [leiningen.util.ns :only [namespaces-in-dir]])
-  (:require [leiningen.util.paths :as paths]
-            [lancet.core :as lancet])
+  (:require [leiningen.util.paths :as paths])
   (:refer-clojure :exclude [compile])
-  (:import (java.io PushbackReader)
-           (org.apache.tools.ant.taskdefs Java)
-           (org.apache.tools.ant.types ZipFileSet)
-           (java.lang.management ManagementFactory)
-           (java.util.regex Pattern)
-           (org.apache.tools.ant.types Environment$Variable)))
+  (:import (java.io PushbackReader)))
 
 (declare compile)
 
-(def *silently* false)
+(def ^{:dynamic true} *silently* false)
 
-(def *skip-auto-compile* false)
+(def ^{:dynamic true} *skip-auto-compile* false)
 
 (defn- regex?
   "Returns true if we have regex class"
@@ -42,6 +36,11 @@
              n))
       nses)))
 
+
+(defn- compile-main? [{:keys [main source-path] :as project}]
+  (and main (not (:skip-aot (meta main)))
+       (.exists (file source-path (paths/ns->path main)))))
+
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
@@ -52,7 +51,7 @@
         nses (if (= :all nses)
                (namespaces-in-dir (:source-path project))
                (find-namespaces-by-regex project nses))]
-    (if (and (:main project) (not (:skip-aot (meta (:main project)))))
+    (if (compile-main? project)
       (conj nses (:main project))
       nses)))
 
@@ -70,6 +69,8 @@
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
+ ;; eval-in-project
+
 (defdeprecated get-os paths/get-os)
 
 (defdeprecated get-os paths/get-arch)
@@ -79,11 +80,26 @@
           "NUL"
           "/dev/null")))
 
-(defn- get-jvm-args [project]
-  (remove empty?
-          `(~@(when-let [opts (System/getenv "JVM_OPTS")] [opts])
-            ~@(:jvm-opts project)
-            ~@(:jvm-opts (user-settings)))))
+(defn- as-str [x]
+  (if (instance? clojure.lang.Named x)
+    (name x)
+    (str x)))
+
+(defn- d-property [[k v]]
+  (format "-D%s=%s" (as-str k) v))
+
+(defn ^{:internal true} get-jvm-args [project]
+  (let [native-arch-path (paths/native-arch-path project)]
+    `(~@(let [opts (System/getenv "JVM_OPTS")]
+          (when (seq opts) [opts]))
+      ~@(:jvm-opts project)
+      ~@(:jvm-opts (user-settings))
+      ~@(map d-property {:clojure.compile.path (:compile-path project)
+                         (str (:name project) ".version") (:version project)
+                         :clojure.debug (boolean (or (System/getenv "DEBUG")
+                                                     (:debug project)))})
+      ~@(when (and native-arch-path (.exists native-arch-path))
+          [(d-property [:java-library-path native-arch-path])]))))
 
 (defn- injected-forms []
   (with-open [rdr (-> "robert/hooke.clj" resource reader PushbackReader.)]
@@ -104,34 +120,70 @@
                        ;; non-daemon threads will prevent process from exiting;
                        ;; see http://tinyurl.com/2ueqjkl
                        (finally
-                        (when-not (or (= "1.5" (System/getProperty
+                        (when (and ~(:shutdown-agents project false)
+                                   (not= "1.5" (System/getProperty
                                                 "java.specification.version"))
-                                      ~*interactive?*)
+                                   ~(not *interactive?*))
                           (shutdown-agents)))))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
     ;; currently being passed; see
     ;; http://www.perlmonks.org/?node_id=300286 for some of the
     ;; landmines involved in doing it properly
-    (if (and (= (paths/get-os) :windows) java)
+    (if (and (= (paths/get-os) :windows) (not (:eval-in-leiningen project)))
       (pr-str (pr-str form))
-      (prn-str form))))
+      (pr-str form))))
 
-(defn prep [project skip-auto-compile]
-  (when (and (not (or *skip-auto-compile* skip-auto-compile))
-             (empty? (.list (file (:compile-path project)))))
+(defn prep [{:keys [compile-path checksum-deps] :as project} skip-auto-compile]
+  (when (and (not (or *skip-auto-compile* skip-auto-compile)) compile-path
+             (empty? (.list (file compile-path))))
     (binding [*silently* true]
       (compile project)))
-  (when (or (empty? (find-jars project))
-            (:checksum-deps project))
-    (deps project)))
+  (when (or (empty? (find-deps-files project)) checksum-deps)
+    (deps project))
+  (when compile-path
+    (.mkdirs (file compile-path))))
 
-(defn- add-system-property [java key value]
-  (.addSysproperty java (doto (Environment$Variable.)
-                          (.setKey (name key))
-                          (.setValue (name value)))))
+(defn eval-in-leiningen [project form-string]
+  ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
+  (require '[clojure walk repl])
+  (require '[clojure.java io shell browse])
+  (when (:debug project)
+    (System/setProperty "clojure.debug" "true"))
+  ;; need to at least pretend to return an exit code
+  (try (binding [*warn-on-reflection* (:warn-on-reflection project), *ns* *ns*]
+         (eval (read-string form-string)))
+       0
+       (catch Exception e
+         (.printStackTrace e)
+         1)))
 
-;; TODO: split this function up
+(defn- pump [reader out]
+  (let [buffer (make-array Character/TYPE 1000)]
+    (loop [len (.read reader buffer)]
+      (when-not (neg? len)
+        (.write out buffer 0 len)
+        (.flush out)
+        (Thread/sleep 100)
+        (recur (.read reader buffer))))))
+
+;; clojure.java.shell/sh doesn't let you stream out/err
+(defn sh [& cmd]
+  (let [proc (.exec (Runtime/getRuntime) (into-array cmd))]
+    (with-open [out (reader (.getInputStream proc))
+                err (reader (.getErrorStream proc))]
+      (let [pump-out (doto (Thread. #(pump out *out*)) .start)
+            pump-err (doto (Thread. #(pump err *err*)) .start)]
+        (.join pump-out)
+        (.join pump-err))
+      (.waitFor proc))))
+
+(defn eval-in-subprocess [project form-string]
+  (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
+              "-cp" ~(get-classpath-string project)
+              ~@(get-jvm-args project)
+              "clojure.main" "-e" ~form-string)))
+
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
   set correctly for the project. If the form depends on any requires, put them
@@ -140,55 +192,24 @@
   (when skip-auto-compile
     (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
   (prep project skip-auto-compile)
-  (if (:eval-in-leiningen project)
-    (do ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
-      (require '[clojure walk repl])
-      (require '[clojure.java io shell browse])
-      (when (:debug project)
-        (System/setProperty "clojure.debug" "true"))
-      ;; need to at least pretend to return an exit code
-      (try (binding [*warn-on-reflection* (:warn-on-reflection project)
-                     *ns* *ns*]
-             (eval (read-string (get-readable-form nil project form init))))
-           0
-           (catch Exception e
-             (.printStackTrace e)
-             1)))
-    (let [java (Java.)]
-      (.setProject java lancet/ant-project)
-      (add-system-property java :clojure.compile.path (:compile-path project))
-      (add-system-property java (format "%s.version" (:name project))
-                           (:version project))
-      (when (:debug project)
-        (add-system-property java :clojure.debug true))
-      (when (.exists (file (:native-path project)))
-        (add-system-property java "java.library.path" (:native-path project)))
-      ;; TODO: remove in 2.0?
-      (when (and (paths/legacy-native-path project)
-                 (.exists (file (paths/legacy-native-path project))))
-        (add-system-property java "java.library.path"
-                             (str (paths/legacy-native-path project))))
-      (.setClasspath java (apply make-path (get-classpath project)))
-      (.setFailonerror java true)
-      (.setFork java true)
-      (.setDir java (file (:root project)))
-      (doseq [arg (get-jvm-args project)]
-        (.setValue (.createJvmarg java) arg))
-      (.setClassname java "clojure.main")
-      ;; to allow plugins and other tasks to customize
-      (when handler
-        (println "WARNING: eval-in-project's handler argument is deprecated.")
-        (handler java))
-      (.setValue (.createArg java) "-e")
-      (.setValue (.createArg java) (get-readable-form java project form init))
-      (.executeJava java))))
+  (let [form-string (get-readable-form nil project form init)]
+    (if (:eval-in-leiningen project)
+      (eval-in-leiningen project form-string)
+      (eval-in-subprocess project form-string))))
+
+ ;; .class file cleanup
 
 (defn- has-source-package?
-  "Test if the class file's package exists as a directory in :source-path."
+  "Test if the class file's package exists as a directory in source-path."
   [project f source-path]
-  (and source-path (.isDirectory (file (.replace (.getParent f)
-                                                 (:compile-path project)
-                                                 source-path)))))
+  (and source-path
+       (let [[[parent] [_ _ proxy-mod-parent]]
+             (->> f, (iterate #(.getParentFile %)),
+                  (take-while identity), rest,
+                  (split-with #(not (re-find #"^proxy\$" (.getName %)))))]
+         (.isDirectory (file (.replace (.getPath (or proxy-mod-parent parent))
+                                       (:compile-path project)
+                                       source-path))))))
 
 (defn- class-in-project? [project f]
   (or (has-source-package? project f (:source-path project))
@@ -223,8 +244,10 @@
                        (blacklisted-class? project f))]
       (.delete f))))
 
+ ;; actual task
+
 (defn- status [code msg]
-  (when-not *silently*
+  (when-not *silently* ; TODO: should silently only affect success?
     (binding [*out* (if (zero? code) *out* *err*)]
       (println msg)))
   code)
@@ -238,7 +261,6 @@
 Uses the namespaces specified under :aot in project.clj or those given
 as command-line arguments."
   ([project]
-     (.mkdir (file (:compile-path project)))
      (when (:java-source-path project)
        (javac project))
      (if (seq (compilable-namespaces project))

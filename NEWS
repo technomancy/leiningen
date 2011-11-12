@@ -1,5 +1,47 @@
 Leiningen NEWS -- history of user-visible changes
 
+= 1.6.2 / 2011-11-11
+
+* Let run task work with main functions from Java classes.
+
+* Fix bug where exceptions would break interactive task.
+
+* Default to Clojure 1.3.0 for new projects.
+
+* Allow Leiningen home to exist inside project directory. (Heinz N. Gies)
+
+* Remove old versions of plugins when upgrading.
+
+* Add user-level :deploy-repositories list. (Michał Marczyk)
+
+* Fix a bug where class files from proxy objects weren't considered
+  part of the project. (Stephen Compall)
+
+* Make deps cause implicit clean to avoid AOT version mismatches.
+
+* Include Java source files in jar. (Nathan Marz)
+
+* Add separate :deploy-repositories list. (Chas Emerick)
+
+* Maintain order in repositories list. (Colin Jones)
+
+* Fix a bug where :omit-default-repos wouldn't skip Maven Central. (Chas Emerick)
+
+* Make deps extract native dependencies for all architectures, not just current.
+
+* Fix page count on search results.
+
+* Fix a bug where "lein plugin install" could skip dependencies.
+
+* Reimplement eval-in-project to use clojure.java.shell instead of Ant.
+
+* Separate LEIN_JVM_OPTS from JVM_OPTS.
+
+= 1.6.1.1 / 2011-09-06
+
+* Turn off workaround for Clojure's agent thread pool keeping the JVM alive 
+  by default. Use :shutdown-agents in project.clj to enable it.
+
 = 1.6.1 / 2011-07-06
 
 * Allow alternate main namespace to be used during uberjar creation.

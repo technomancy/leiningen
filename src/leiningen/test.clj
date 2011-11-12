@@ -8,7 +8,7 @@
   (:import (java.io File)))
 
 ;; TODO: switch to using *interactive* flag in 2.0.
-(def *exit-after-tests* true)
+(def ^{:dynamic true} *exit-after-tests* true)
 
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
@@ -45,7 +45,7 @@ each namespace and print an overall summary."
                              (java.io.OutputStreamWriter.))]
             (.write w# (pr-str summary#)))
           (when (or ~*exit-after-tests* (not ~*interactive?*))
-            (System/exit 0))))))
+            (System/exit (+ (:error summary#) (:fail summary#))))))))
 
 (defn- read-args [args project]
   (let [args (map read-string args)

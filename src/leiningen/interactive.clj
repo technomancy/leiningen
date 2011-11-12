@@ -1,6 +1,7 @@
 (ns leiningen.interactive
   "Enter interactive task shell."
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [clojure.java.io :as io])
   (:use [leiningen.core :only [apply-task exit *interactive?*]]
         [leiningen.test :only [*exit-after-tests*]]
         [leiningen.repl :only [repl-server repl-socket-on
@@ -14,15 +15,14 @@
 (defn not-found [& _]
   (println "That's not a task. Use help to list all tasks."))
 
-(defn- eval-client-loop [reader writer buffer socket]
-  (let [len (.read reader buffer)
-        output (String. buffer)]
+(defn- eval-client-loop [reader buffer socket]
+  (let [len (.read reader buffer)]
     (when-not (neg? len)
       (.write *out* buffer 0 len)
-      (flush)
+      (.flush *out*)
       (when-not (.isClosed socket)
         (Thread/sleep 100)
-        (recur reader writer buffer socket)))))
+        (recur reader buffer socket)))))
 
 (defn eval-in-repl [connect project form & [_ _ init]]
   (let [[reader writer socket] (connect)]
@@ -30,8 +30,7 @@
                         (pr-str form) "\n" '
                         (.close *in*) ")\n"))
     (.flush writer)
-    (try (eval-client-loop reader writer
-                           (make-array Character/TYPE 1000) socket)
+    (try (eval-client-loop reader (make-array Character/TYPE 1000) socket)
          0
          (catch Exception e
            (.printStackTrace e) 1)
@@ -59,16 +58,19 @@
         (recur (.readLine *in*))))))
 
 (defn interactive
-  "Enter an interactive task shell."
+  "Enter an interactive task shell. Aliased to \"int\"."
   [project]
+  (.delete (io/file "/tmp/bugger-all"))
   (let [[port host] (repl-socket-on project)]
     (println welcome)
     (future
       (binding [*interactive?* true]
-        (eval-in-project project `(do ~(repl-server project host port
-                                                    :prompt '(constantly ""))
-                                      ;; can't stop return value from printing
-                                      (symbol "")))))
+        (eval-in-project project (repl-server project host port
+                                              :prompt '(fn [])
+                                              :caught '(fn [t]
+                                                         (println (.getMessage t))
+                                                         (.printStackTrace t)
+                                                         (.close *in*))))))
     (let [connect #(poll-repl-connection port 0 vector)]
       (binding [eval-in-project (partial eval-in-repl connect)
                 *exit-after-tests* false

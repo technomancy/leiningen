@@ -46,17 +46,21 @@ in your local repository. With two arguments, (group/name and version)
 downloads and installs a project from a remote repository. Places
 shell wrappers in ~/.lein/bin when provided."
   ([project]
-     (let [jarfile (file (jar project))
+     (let [jarfile (jar project)
            model (make-model project)
            artifact (make-artifact model)
            installer (.lookup container ArtifactInstaller/ROLE)
            local-repo (make-local-repo)]
        ;; for packaging other than "pom" there should be "pom.xml"
        ;; generated and installed in local repo
-       (if (not= "pom" (.getPackaging model))
+       (when (not= "pom" (.getPackaging model))
          (add-metadata artifact (file (pom project))))
-       (install-shell-wrappers (JarFile. jarfile))
-       (.install installer jarfile artifact local-repo)))
+       (if (number? jarfile)
+         ;; if we failed to create the jar, return the status code for exit
+         jarfile
+         (do (install-shell-wrappers (JarFile. jarfile))
+             (.install installer (file jarfile) artifact local-repo)
+             0))))
   ([project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))
            _ (standalone-download name (or group name) version)

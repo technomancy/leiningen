@@ -10,14 +10,6 @@ if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=NO
 )
 
-:: LEIN_JAR and LEIN_HOME variables can be set manually.
-
-if "x%LEIN_HOME%" == "x" set LEIN_HOME=%USERPROFILE%\.lein
-if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
-
-if "%1" == "self-install" goto SELF_INSTALL
-if "%1" == "upgrade"      goto NO_UPGRADE
-
 set ORIGINAL_PWD=%CD%
 :: If ORIGINAL_PWD ends with a backslash (such as C:\),
 :: we need to escape it with a second backslash.
@@ -26,6 +18,21 @@ if "%ORIGINAL_PWD:~-1%x" == "\x" set "ORIGINAL_PWD=%ORIGINAL_PWD%\"
 call :FIND_DIR_CONTAINING_UPWARDS project.clj
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
+:: LEIN_JAR and LEIN_HOME variables can be set manually.
+
+if "x%LEIN_HOME%" == "x" (
+    if exist "%CD%\.lein" (
+        if /I NOT %CD%==%USERPROFILE% echo Running in bundled mode.
+        set LEIN_HOME=%CD%\.lein
+    ) else (
+        set LEIN_HOME=%USERPROFILE%\.lein
+    )
+)
+
+if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
+
+if "%1" == "self-install" goto SELF_INSTALL
+if "%1" == "upgrade"      goto NO_UPGRADE
 
 set DEV_PLUGINS="
 for %%j in (".\lib\dev\*.jar") do (
@@ -34,7 +41,7 @@ for %%j in (".\lib\dev\*.jar") do (
 set DEV_PLUGINS=!DEV_PLUGINS!"
 
 call :BUILD_UNIQUE_USER_PLUGINS
-set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src
+set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src;resources
 
 :: Apply context specific CLASSPATH entries
 set CONTEXT_CP=

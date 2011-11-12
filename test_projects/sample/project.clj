@@ -14,6 +14,7 @@
   :warn-on-reflection true
   :shell-wrapper {:main nom.nom.nom
                   :bin "bin/nom"}
+  :jar-exclusions [#"^META-INF"]
   :test-selectors {:integration :integration
                    :default (complement :integration)
                    :random (fn [_] (> (rand) ~(float 1/2)))

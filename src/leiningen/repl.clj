@@ -3,14 +3,14 @@
   (:require [clojure.main])
   (:use [leiningen.core :only [exit user-settings *interactive?*]]
         [leiningen.compile :only [eval-in-project]]
-        [leiningen.deps :only [find-jars deps]]
+        [leiningen.deps :only [find-deps-files deps]]
         [leiningen.trampoline :only [*trampoline?*]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
            (java.io OutputStreamWriter InputStreamReader File PrintWriter)
            (clojure.lang LineNumberingPushbackReader)))
 
-(def *retry-limit* 200)
+(def retry-limit 200)
 
 (defn repl-options [project options]
   (let [options (apply hash-map options)
@@ -55,12 +55,13 @@
        (let [server# (ServerSocket. ~port 0 (InetAddress/getByName ~host))
              acc# (fn [s#]
                     (let [ins# (.getInputStream s#)
-                          outs# (.getOutputStream s#)]
+                          outs# (.getOutputStream s#)
+                          out-writer# (OutputStreamWriter. outs#)]
                       (doto (Thread.
                              #(binding [*in* (-> ins# InputStreamReader.
                                                  LineNumberingPushbackReader.)
-                                        *out* (OutputStreamWriter. outs#)
-                                        *err* *err*
+                                        *out* out-writer#
+                                        *err* (PrintWriter. out-writer#)
                                         *warn-on-reflection*
                                         ~(:warn-on-reflection project)]
                                 (clojure.main/repl
@@ -105,7 +106,7 @@
 
 (defn poll-repl-connection
   ([port retries handler]
-     (when (> retries *retry-limit*)
+     (when (> retries retry-limit)
        (throw (Exception. "Couldn't connect")))
      (Thread/sleep 100)
      (let [val (try (connect-to-server (Socket. "localhost" port) handler)
@@ -132,7 +133,7 @@ A socket-repl will also be launched in the background on a socket based on the
 directory will start a standalone repl session."
   ([] (repl nil))
   ([project]
-     (when (and project (or (empty? (find-jars project))
+     (when (and project (or (empty? (find-deps-files project))
                             (:checksum-deps project)))
        (deps project))
      (let [[port host] (repl-socket-on project)
@@ -140,9 +141,9 @@ directory will start a standalone repl session."
                               (concat (:repl-options project)
                                       (:repl-options (user-settings))))
            ;; TODO: make this less awkward when we can break poll-repl-connection
-           retries (- *retry-limit* (or (:repl-retry-limit project)
+           retries (- retry-limit (or (:repl-retry-limit project)
                                         ((user-settings) :repl-retry-limit)
-                                        *retry-limit*))]
+                                        retry-limit))]
        (if *trampoline?*
          (eval-in-project project server-form)
          (do (future (if (empty? project)

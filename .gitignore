@@ -10,3 +10,5 @@ autodoc/
 bin/nom
 .lein-failures
 /lein.man
+/scratch.clj
+.lein-deps-sum

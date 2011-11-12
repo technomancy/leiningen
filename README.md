@@ -15,28 +15,21 @@ exercise in frustration. With Leiningen, you just write Clojure.
 
 ## Installation
 
-Leiningen bootstraps itself using the <tt>lein</tt> shell script;
-there is no separate 'install script'. It installs its dependencies
+Leiningen bootstraps itself using the `lein` shell script;
+there is no separate install script. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](https://github.com/technomancy/leiningen/raw/stable/bin/lein).
-2. Place it on your path and chmod it to be executable.
+1. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
+2. Place it on your path. (I like to use `~/bin`)
+3. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
-I like to place it in ~/bin, but it can go anywhere on the $PATH.
-
-On Windows most users can
-
-1. Download the Windows distribution
-[leiningen-1.5.2-win.zip](https://github.com/downloads/technomancy/leiningen/leiningen-1.5.2-win.zip)
-2. Unzip in a folder of choice.
-3. Include the "lein" directory in PATH.
-
+On Windows most users can get
+[the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
 If you have wget.exe or curl.exe already installed and in PATH, you
-can download either [the stable version
-lein.bat](https://github.com/technomancy/leiningen/raw/stable/bin/lein.bat),
-or [the development
-version](https://github.com/technomancy/leiningen/raw/master/bin/lein.bat)
-and use self-install.
+can just run `lein self-install`, otherwise get the standalone jar from the
+[downloads page](https://github.com/technomancy/leiningen/downloads).
+If you have [Cygwin](http://www.cygwin.com/) you should be able to use
+the shell script above rather than the batch file.
 
 ## Usage
 
@@ -55,48 +48,59 @@ project, but here are the commonly-used tasks:
 
     $ lein install [NAME VERSION] # install a project
 
-Use <tt>lein help</tt> to see a complete list. <tt>lein help
-$TASK</tt> shows the usage for a specific one.
+    $ lein search ... # find recent jars for your project.clj dependencies
+
+Use `lein help` to see a complete list. `lein help $TASK` shows the
+usage for a specific one.
 
 You can also chain tasks together in a single command by using commas:
 
     $ lein clean, test foo.test-core, jar
 
 Most tasks need to be run from somewhere inside a project directory to
-work, but some (<tt>new</tt>, <tt>help</tt>, <tt>version</tt>,
-<tt>plugin</tt>, and the two-argument version of <tt>install</tt>) may
-run from anywhere.
+work, but some (`new`, `help`, `version`, `plugin`, and the
+two-argument version of `install`) may run from anywhere.
 
-The install task places shell scripts in the <tt>~/.lein/bin</tt>
+The install task places shell scripts in the `~/.lein/bin`
 directory for projects that include them, so if you want to take
-advantage of this, you should put it on your <tt>$PATH</tt>.
+advantage of this, you should put it on your `$PATH`.
 
 ## Configuration
 
-The <tt>project.clj</tt> file in the project root should look like this:
+The `project.clj` file in the project root should look like this:
 
-    (defproject myproject "0.5.0-SNAPSHOT"
-      :description "A project for doing things."
-      :url "http://github.com/technomancy/myproject"
-      :dependencies [[org.clojure/clojure "1.2.1"]
-                     [org.clojure/clojure-contrib "1.2.0"]]
-      :dev-dependencies [[lein-ring "0.4.5"]])
+```clojure
+(defproject myproject "0.5.0-SNAPSHOT"
+  :description "A project for doing things."
+  :url "http://github.com/technomancy/myproject"
+  :dependencies [[org.clojure/clojure "1.2.1"]
+                 [org.clojure/clojure-contrib "1.2.0"]]
+  :dev-dependencies [[lein-ring "0.4.5"]])
+```
 
-The <tt>lein new</tt> task generates a project skeleton with an
+If you're looking for the most recent jar of one of your dependencies,
+use `lein search`.
+
+The `lein new` task generates a project skeleton with an
 appropriate starting point from which you can work. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
-projects. The <tt>~/.lein/init.clj</tt> file will be loaded every time
+projects. The `~/.lein/init.clj` file will be loaded every time
 Leiningen launches; any arbitrary code may go there. This code is
 executed inside Leiningen itself, not in your project. Set the
-<tt>:repl-init</tt> key in project.clj to point to a namespace if
+`:repl-init` key in project.clj to point to a namespace if
 you want code executed inside your project.
 
-You can also manage your plugins with the <tt>plugin</tt> task. Use
-the same arguments you would put in the Leiningen :dev-dependencies if
-you were only using the plugin on a single project.
+## Leiningen Plugins 
+
+Leiningen supports plugins. See [the plugins wiki
+page](https://github.com/technomancy/leiningen/wiki/Plugins) for a
+full list. If a plugin is needed for successful test or build runs,
+(such as lein-tar) then it should be added to `:dev-dependencies` in
+project.clj, but if it's for your own convenience (such as
+swank-clojure) then it should be added using the `plugin` task:
 
     $ lein plugin install lein-clojars "0.6.0"
 
@@ -156,7 +160,7 @@ See the plugin task's help for more information.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
 **A:** Use a feature called _checkout dependencies_. If you create a
-  directory called <tt>checkouts</tt> in your project root and symlink
+  directory called `checkouts` in your project root and symlink
   some other project roots into it, Leiningen will allow you to hack
   on them in parallel. That means changes in the dependency will be
   visible in the main project without having to go through the whole
@@ -174,7 +178,7 @@ See the plugin task's help for more information.
 **Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
   compiled with a different version of Clojure than the one you're
-  currently using. If it persists after running <tt>lein clean</tt> then it
+  currently using. If it persists after running `lein clean` then it
   is a problem with your dependencies. Note that for
   your own project that AOT compilation in Clojure is much less
   important than it is in other languages. There are a few
@@ -185,12 +189,12 @@ See the plugin task's help for more information.
 
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
 **A:** Currently you need to configure the underlying Maven library by
-  creating <tt>~/.m2/settings.xml</tt> as explained in the
+  creating `~/.m2/settings.xml` as explained in the
   [Maven guide](http://maven.apache.org/guides/mini/guide-proxies.html).
 
 **Q:** What can be done to speed up launch?  
 **A:** The main delay involved in Leiningen comes from starting the
-  JVM.  Launching "lein interactive" will give you an interactive
+  JVM.  Launching `lein interactive` will give you an interactive
   session so you can run many tasks against the same process instead
   of launching a new one every time. Depending on your editor you may
   also be able to take advantage of its Clojure integration. (See
@@ -204,15 +208,14 @@ See the plugin task's help for more information.
   launch a client JVM, but this only works on 32-bit Hotspot. If you
   are on a 64-bit machine you can still use a client JVM if you
   install 32-bit packages; on Debian try ia32-sun-java6-bin. Once
-  you've installed it, run <tt>sudo update-java-alternatives -s
-  ia32-java-6-sun</tt>.
+  you've installed it, run `sudo update-java-alternatives -s ia32-java-6-sun`.
   
 **Q:** I don't have access to stdin inside my project.  
 **A:** There's a bug in the Ant library that Leiningen uses to spawn
   new processes that blocks access to console input. This means that
-  functions like <tt>read-line</tt> will not work as expected in most
-  contexts, though the <tt>repl</tt> task necessarily includes a
-  workaround. You can also use the <tt>trampoline</tt> task to
+  functions like `read-line` will not work as expected in most
+  contexts, though the `repl` task necessarily includes a
+  workaround. You can also use the `trampoline` task to
   launch your project's JVM after Leiningen's has exited rather than
   launching it as a subprocess
 
@@ -244,15 +247,15 @@ mailing list and mailing a SASE.
 
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place. In most cases
-a <tt>lein self-install</tt> will usually get you what you
+a `lein self-install` will usually get you what you
 need. However, this will occasionally fail for very new SNAPSHOT
 versions since the standalone jar will not have been uploaded yet. 
 
 Alternatively if you have a copy of an older Leiningen version around
 (at least 1.1.0, installed as lein-stable, for example), then you can
-run "lein-stable deps" in your checkout. If Leiningen's dependencies
+run `lein-stable deps` in your checkout. If Leiningen's dependencies
 change it will be necessary to remove the lib/ directory entirely
-before running "lein deps" again. (This is not necessary for most
+before running `lein deps` again. (This is not necessary for most
 projects, but Leiningen has unique bootstrapping issues when working
 on itself.)
 
@@ -261,7 +264,7 @@ You can also use Maven, just for variety's sake:
     $ mvn dependency:copy-dependencies
     $ mv target/dependency lib
 
-Symlink bin/lein from your checkout into a location on the $PATH. The
+Symlink `bin/lein` from your checkout into a location on the $PATH. The
 script can figure out when it's being called from inside a checkout
 and use the checkout rather than the self-install uberjar if necessary.
 

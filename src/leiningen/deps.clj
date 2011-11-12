@@ -1,7 +1,9 @@
 (ns leiningen.deps
   "Download all dependencies and put them in :library-path."
   (:require [lancet.core :as lancet])
-  (:use [leiningen.core :only [repositories-for user-settings no-dev?]]
+  (:use [leiningen.core :only [repositories-for user-settings
+                               *current-task* no-dev?]]
+        [leiningen.clean :only [clean]]
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.util.paths :only [get-os get-arch]]
@@ -94,7 +96,7 @@
     ;; private methods, we'll call a public method that we know calls
     ;; getContainer, getSupportedProtocols.
     (.getSupportedProtocols deps-task)
-    (.setBasedir lancet/ant-project (:root project))
+    (.setBasedir lancet/ant-project (:root project ""))
     (.setFilesetId deps-task "dependency.fileset")
     (.setPathId deps-task (:name project))
     (doseq [repo (make-repositories project)]
@@ -120,7 +122,8 @@
 (defn fetch-deps? [project]
   (let [deps-checksum-file (new-deps-checksum-file project)]
     (and (has-dependencies? project)
-         (or (empty? (.list (File. (:library-path project))))
+         (or (= "deps" *current-task*)
+             (empty? (.list (File. (:library-path project))))
              (not (:checksum-deps project (:checksum-deps (user-settings))))
              (not (.exists deps-checksum-file))
              (not= (slurp deps-checksum-file) (deps-checksum project))))))
@@ -159,41 +162,41 @@
   (.listFiles (file (:library-path project))))
 
 ;; TODO: memoize when not in tests
-(defn ^{:internal true} find-jars
-  "Returns a seq of Files for all the jars in the project's library directory."
-  [project]
-  (filter #(.endsWith (.getName %) ".jar")
-          (concat (if (:local-repo-classpath project)
+(defn ^{:internal true} find-deps-files [project]
+  (remove #{(file (:root project) "lib/dev")}
+          (concat (if (:local-repo-classpath project) ; TODO: default in 2.0
                     (find-local-repo-jars project)
                     (find-lib-jars project))
                   ;; This must be hard-coded because it's used in
                   ;; bin/lein and thus can't be changed in project.clj.
                   (.listFiles (file (:root project) "lib/dev")))))
 
-(def native-subdir (format "native/%s/%s/" (name (get-os)) (name (get-arch))))
+(defn- find-jars [project]
+  (filter #(.endsWith (.getName %) ".jar") (find-deps-files project)))
 
 (defn extract-native-deps [project]
   (doseq [jar (map #(JarFile. %) (find-jars project))
           entry (enumeration-seq (.entries jar))
-          :when (.startsWith (.getName entry) native-subdir)]
-    (let [f (file (:native-path project)
-                  (subs (.getName entry) (count native-subdir)))]
+          :when (.startsWith (.getName entry) "native/")]
+    (let [f (file (:native-path project) (subs (.getName entry)
+                                               (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
         (copy (.getInputStream jar entry) f)))))
 
 (defn deps
   "Download :dependencies and put them in :library-path."
-  [project & _]
-  (when (seq _)
+  [project & [skip-dev]]
+  (when skip-dev
     (println "WARNING: passing an argument to deps is deprecated."))
   (when (fetch-deps? project)
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
       (delete-file-recursively (:library-path project) :silently)
-      (delete-file-recursively (File. (:root project) "native") :silently))
+      (delete-file-recursively (:native-path project) :silently)
+      (clean project))
     (let [fileset (do-deps project :dependencies)]
-      (when-not (no-dev?)
+      (when-not (or skip-dev (no-dev?))
         (do-deps project :dev-dependencies))
       (extract-native-deps project)
       (when (:checksum-deps project)

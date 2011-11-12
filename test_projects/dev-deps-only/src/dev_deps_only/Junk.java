@@ -1,3 +1,7 @@
 package dev_deps_only;
 
-class Junk {}
+public class Junk {
+  public static void main(String[] args) {
+    ;
+  }
+}

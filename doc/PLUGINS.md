@@ -29,24 +29,11 @@ a project subprocess.
 
 Some tasks may only be run in the context of a project. For tasks like
 this, name the first argument <tt>project</tt>. Leiningen will inspect
-the argument list and pass in the current project if needed.
-
-Some tasks can be run inside a project or outside, but would benefit
-from having the project argument if they're run from a project. For
-these, name the first argument something like <tt>project-or-foo</tt>,
-and it will be passed the project argument when appropriate.
-
-The project is a map which is based on the project.clj file, but it
-also has :name, :group, :version, and :root keys added in. If you want
-it to take parameters from the command-line invocation, you can make
-the function take more arguments.
-
-Note that Leiningen is an implied dependency of all plugins; you
-should not explicitly list it in the project.clj file. You also don't
-need to list Clojure, but you will be locked into using the same
-version of Clojure that Leiningen is using. For Leiningen 1.x, a
-dependency on Clojure Contrib is also implied, though this is gone in
-2.0.
+the argument list and pass in the current project if needed. The
+project is a map which is based on the project.clj file, but it also
+has :name, :group, :version, and :root keys added in. If you want it
+to take parameters from the command-line invocation, you can make the
+function take more arguments.
 
 The "lein help" task will display the first line of the task
 function's docstring as a summary.  Then "lein help $TASK" will use
@@ -119,13 +106,15 @@ altering the return value, only running the function conditionally,
 etc. The add-hook function takes a var of the task it's meant to apply
 to and a function to perform the wrapping:
 
-    (use 'robert.hooke)
+```clj
+(use 'robert.hooke)
 
-    (defn skip-integration-hook [task & args]
-      (binding [clojure.test/test-var (test-var-skip :integration)]
-        (apply task args)))
+(defn skip-integration-hook [task & args]
+  (binding [clojure.test/test-var (test-var-skip :integration)]
+    (apply task args)))
 
-    (add-hook #'leiningen.test/test skip-integration-hook)
+(add-hook #'leiningen.test/test skip-integration-hook)
+```
 
 Hooks compose, so be aware that your hook may be running inside
 another hook. To take advantage of your hooks functionality, projects
@@ -150,6 +139,26 @@ as well as user plugins. To further modify the classpath of Leiningen
 itself, add a '.lein-classpath' file a project's root. Its contents
 will be prepended to Leiningen's classpath when Leiningen is invoked
 upon that project.
+
+## Clojure Version
+
+Note that Leiningen is an implied dependency of all plugins; you don't
+need to explicitly list it in the project.clj file. You also don't
+need to list Clojure or Contrib, but you will be locked into using the
+same version of Clojure that Leiningen is using.
+
+Versions of Leiningen prior to 1.2.0 used Clojure 1.1, while the rest
+of the 1.x line uses Clojure 1.2. Leiningen 2.0 will use Clojure 1.3.
+If you need to use a different version of Clojure from within a
+Leiningen plugin, you can use `eval-in-project` with a dummy project
+argument:
+
+```clj
+(eval-in-project {:local-repo-classpath true
+                  :dependencies '[[org.clojure/clojure "1.3.0"]] 
+                  :native-path "/tmp" :root "/tmp" :compile-path "/tmp"}
+                 '(println "hello from" *clojure-version*))
+```
 
 ## Lancet
 

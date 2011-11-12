@@ -7,34 +7,22 @@ Leiningen TODOs
 
 See also https://github.com/technomancy/leiningen/issues
 
-* Open Questions
-  - Aether: how would it integrate? Improvement over maven-ant-tasks?
-  - Tests in Nailgun: would it require a separate shell script?
-  - How could nonlinear versions be represented?
-* For 2.0
-  - [ ] Remove deprecated functionality.
-  - [ ] Quit using ant's Java task. It is horrible.
-        Try a custom classloader approach? or an alternate exec.
-  - [ ] Use Aether instead of maven-ant-tasks?
-        http://www.sonatype.com/people/2010/08/introducing-aether/
-        Could also allow us to fix :omit-default-repositories (#221)
-  - [ ] Separate out LEIN_JVM_OPTS (#233)
-  - [ ] classifiers for specifying what clojure version to use?
-        As more versions of Clojure start to exist, libraries may want to
-        publish different branches that target different versions of
-        Clojure itself. Classifiers may be the way to separate these out?
-  - [ ] improve search query parser
-  - [ ] add ns-level test selectors
-  - [ ] improve test coverage
-  - [ ] suppress useless ant output in classpath calculation
-        for :local-repo-classpath (#236)
+* For 1.6.2
+  - [X] resources with eval-in-leiningen (#248)
+  - [X] fix :omit-default-repositories wrt central (#211)
+  - [X] deps should run an implicit clean
+  - [X] don't let multiple versions of a plugin interfere with each other (#301)
+  - [X] non-jar deps on classpath (#244)
+  - [X] recover from error in interactive (#234)
+  - [X] use java class in run task (#249)
+  - [X] fix deploy with new maven-ant-tasks
 * For 1.6.1
   - [X] upgrade hooke
   - [X] make it easier to use :repl-options [:print clojure.pprint/pprint]
   - [X] fix shutdown-agents with repl
   - [X] don't clear out lib/dev upon jarring (221)
   - [X] support alternate main namespace for uberjar.
-* For 1.6
+* For 1.6.0
   - [X] Trampoline functionality
   - [X] move exit-after-tests check to eval-in-project (discuss on list?)
   - [X] don't freak out when attempting to download non-existent indices
@@ -46,11 +34,7 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] make :repl-init change initial ns of repl and swank
   - [X] more flexibility in search results
   - [X] support ns/name in run task
-  - [X] add option to use ~/.m2-based classpath instead of copying to
-        lib/? It looks like it would be easy to stop copying things
-        into lib/ and just use Maven's notion of the project's
-        dependencies to construct a classpath that references jars
-        straight from ~/.m2.
+  - [X] add option to use ~/.m2-based classpath instead of copying to lib/
   - [X] Merge lein-search
   - [X] Merge lein-retest
   - [X] Merge native-deps
@@ -62,7 +46,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Revert back to :warn on checksum failure.
    - [X] Fix LEIN_ROOT warning in bin/lein.
    - [X] Honor user-settings in more places.
-* For 1.5
+* For 1.5.0
   - unify auth options between :repositories and :deploy-to
   - suppress socket closed stacktrace in interactive task
   - checksum deps set; don't re-download if unchanged
@@ -72,7 +56,7 @@ See also https://github.com/technomancy/leiningen/issues
   - failure to upgrade leaves lein as a zero-length file (#153)
   - ensure project jar is last in uberjar (#178)
   - investigate uberjar slowdown? (#160)
-* For 1.4
+* For 1.4.0
   - socket timing issues with interactive tests
   - connect to socket repl in interactive task
   - :uberjar-exclusions?

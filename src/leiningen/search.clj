@@ -27,7 +27,7 @@
 
 (defn- download-index [[id {url :url}]]
   (with-open [stream (.openStream (remote-index-url url))]
-    (println "Downloading index from" id "-" url)
+    (println "Downloading index from" id "-" url "... this may take a while.")
     (let [tmp (java.io.File/createTempFile "lein" "index")]
       (try (io/copy stream tmp)
            (unzip tmp (index-location url))
@@ -45,7 +45,7 @@
 
 ;;; Searching
 
-(def ^{:private true} page-size (:search-page-size (user-settings) 10))
+(def ^{:private true} page-size (:search-page-size (user-settings) 25))
 
 (defn search-repository [[id {:keys [url]} :as repo] query page]
   (if (ensure-fresh-index repo)
@@ -69,18 +69,24 @@
 (defn- print-results [[id] results page]
   (when (seq results)
     (println " == Results from" id "-" "Showing page" page "/"
-             ;; TODO: divide by page size?
-             (:_total-hits (meta results) page-size) "total")
+             (-> results meta :_total-hits (/ page-size) Math/ceil int) "total")
     (doseq [result (map parse-result results)]
       (apply println result))
     (prn)))
 
 (defn ^{:help-arglists '([query] [query page])} search
-  "Search remote repositories.
+  "Search remote maven repositories for matching jars.
 
-The first run will download a set of indices, which will take a
-while. Pass in --update as the query to force a fresh download of all
-indices. Also accepts a second parameter for fetching successive pages."
+The first run will download a set of indices, which will take a while.
+Pass in --update as the query to force a fresh download of all
+indices. 
+
+The query is evaluated as a lucene search. You can search for simple
+string matches or do more advanced queries such as this
+'lein search \"clojure AND http AND NOT g:org.clojars*\"'
+
+Also accepts a second parameter for fetching successive
+pages."
   ;; support running outside project
   ([query] (search {} query))
   ([project-or-query query-or-page]

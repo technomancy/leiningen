@@ -4,7 +4,7 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from checkouts and self-upgrading.
 
-LEIN_VERSION="1.6.1"
+LEIN_VERSION="1.6.2"
 export LEIN_VERSION
 
 if [ `whoami` = "root" ] && [ "$LEIN_ROOT" = "" ]; then
@@ -28,7 +28,15 @@ done
 # Support $JAVA_OPTS for backwards-compatibility.
 JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
-LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
+
+if [ "$LEIN_HOME" = "" ]; then
+  if [ -d "$PWD/.lein" ] && [ "$PWD" != "$HOME" ]; then
+    echo "Leiningen is running in bundled mode."
+    LEIN_HOME="$PWD/.lein"
+  else
+    LEIN_HOME="$HOME/.lein"
+  fi
+fi
 
 DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
@@ -61,24 +69,16 @@ unique_user_plugins () {
 
 LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
 LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
-CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/"
-LEIN_JAR="$HOME/.lein/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
-CLOJURE_JAR="/usr/share/java/clojure-1.2.jar:/usr/share/java/asm3.jar"
+CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/:resources/"
+CLOJURE_JAR="/usr/share/java/clojure-1.2.jar:/usr/share/java/asm3.jar:/usr/share/java/asm3-commons.jar"
 NULL_DEVICE=/dev/null
 
 # apply context specific CLASSPATH entries
-if [ -f .classpath ]; then
-    CLASSPATH="`cat .classpath`:$CLASSPATH"
+if [ -f .lein-classpath ]; then
+    CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
 fi
 
-# normalize $0 on certain BSDs
-if [ "$(dirname "$0")" = "." ]; then
-    SCRIPT="$(which $(basename "$0"))"
-else
-    SCRIPT="$0"
-fi
-
-SHARE_JARS="ant ant-launcher classworlds clojure-1.2 \
+SHARE_JARS="ant ant-launcher classworlds clojure-1.2 clojure-contrib \
 lucene-memory maven-ant-tasks maven-artifact maven-artifact-manager \
 maven-error-diagnostics maven-model maven-settings maven-project maven-profile \
 maven-repository-metadata plexus-container-default-alpha plexus-interpolation \
@@ -89,8 +89,10 @@ for JAR in $SHARE_JARS; do
     CLASSPATH="$CLASSPATH":"/usr/share/java/$JAR.jar"
 done
 
-# Keep already-packaged Leiningen jar off the classpath during packaging.
-if [ ! -r src/leiningen/core.clj ]; then
+# Do not use installed leiningen jar during self-compilation
+if ! { [ "$1" = "compile" ] &&
+       grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
+         project.clj ;}; then
     CLASSPATH="$CLASSPATH":/usr/share/java/leiningen-$LEIN_VERSION.jar
 fi
 
@@ -104,13 +106,13 @@ if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
     [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
     which rlwrap > /dev/null
     if [ $? -eq 0 ]; then
-        RLWRAP="rlwrap -m -q '\"'" # custom quote chars
+        RLWRAP="rlwrap -r -m -q '\"'" # custom quote chars
     fi
 fi
 
 if [ "$1" = "trampoline" ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $LEIN_JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
             clojure.main -e "(use 'leiningen.core)(-main)" \
@@ -118,11 +120,11 @@ if [ "$1" = "trampoline" ]; then
         if [ -r $TRAMPOLINE_FILE ]; then
             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
             rm $TRAMPOLINE_FILE
-            exec sh -c "TRAMPOLINE"
+            exec sh -c "$TRAMPOLINE"
         fi
 else
-        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
+            $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" \
             $NULL_DEVICE "$@"
 fi

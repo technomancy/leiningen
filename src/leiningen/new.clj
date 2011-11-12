@@ -1,6 +1,6 @@
 (ns leiningen.new
   "Create a new project skeleton."
-  (:use [leiningen.core :only [abort user-settings]]
+  (:use [leiningen.core :only [abort]]
         [leiningen.util.paths :only [ns->path]]
         [clojure.java.io :only [file]]
         [clojure.string :only [join]])
@@ -16,10 +16,9 @@
                       (format-map settings)))))
 
 (defn write-project [project-dir project-name]
-  (let [default-settings {:dependencies [['org.clojure/clojure "1.2.1"]]}
+  (let [default-settings {:dependencies [['org.clojure/clojure "1.3.0"]]}
         settings  (merge-with #(if %2 %2 %1)
-                              default-settings
-                              (user-settings))]
+                              default-settings)]
     (.mkdirs (file project-dir))
     (spit (file project-dir "project.clj")
           (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
@@ -77,10 +76,12 @@
              test-ns (str prefix ".test.core")
              project-clj (ns->path project-ns)]
          (spit (file project-dir ".gitignore")
-               (apply str (interleave ["pom.xml" "*jar" "/lib/" "/classes/"
-                                       ".lein-failures" ".lein-deps-sum"]
+               (apply str (interleave ["/pom.xml" "*jar" "/lib" "/classes"
+                                       "/native" "/.lein-failures" "/checkouts"
+                                       "/.lein-deps-sum"]
                                       (repeat "\n"))))
          (write-implementation project-dir project-clj project-ns)
          (write-test project-dir test-ns project-ns)
          (write-readme project-dir artifact-id)
-         (println "Created new project in:" project-dir)))))
+         (println "Created new project in:" project-dir)
+         (println "Look over project.clj and start coding in" project-clj)))))

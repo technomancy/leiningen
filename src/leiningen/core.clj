@@ -7,7 +7,7 @@
   (:import (java.io File)
            (org.apache.maven.artifact.versioning DefaultArtifactVersion)))
 
-(def *interactive?* false)
+(def ^{:dynamic true} *interactive?* false)
 
 (defmacro defdeprecated [old new]
   `(let [new# ~(str (.getName (:ns (meta (resolve new)))) "/" (name new))
@@ -35,7 +35,9 @@ Warning: alpha; subject to change."
   []
   (let [init-file (File. (paths/leiningen-home) "init.clj")]
     (when (.exists init-file)
-      (load-file (.getAbsolutePath init-file)))))
+      (try (load-file (.getAbsolutePath init-file))
+           (catch Exception e
+             (.printStackTrace e))))))
 
 (defn user-settings
   "Look up the settings map from init.clj or an empty map if it doesn't exist."
@@ -74,6 +76,7 @@ Warning: alpha; subject to change."
                                                  (:deps m#))
                                :dev-dependencies (or (:dev-dependencies m#)
                                                      (:dev-deps m#))
+                               :checksum-deps (:checksum-deps m# true)
                                :compile-path (normalize-path#
                                               (or (:compile-path m#) "classes"))
                                :source-path (normalize-path#
@@ -128,6 +131,14 @@ Warning: alpha; subject to change."
                     ;; TODO: possibly separate releases/snapshots in 2.0.
                     "clojars" {:url "http://clojars.org/repo/"}})
 
+;; you can't remove or omit "central", you can only disable it;
+;; maven/maven-ant-tasks adds it implicitly, and will continue to
+;; report it in the list of checked repositories, even though it's
+;; not been consulted.  The URL will hopefully be clear enough to users.
+(def disabled-central-repo {"central" {:url "http://disabled-central"
+                                       :snapshots false
+                                       :releases false}})
+
 (defn- init-settings [id settings]
   (cond (string? settings) {:url settings}
         ;; infer snapshots/release policy from repository id
@@ -136,12 +147,29 @@ Warning: alpha; subject to change."
         :else settings))
 
 (defn repositories-for
-  "Return a map of repositories including or excluding defaults."
-  [project]
-  (merge (when-not (:omit-default-repositories project)
-           default-repos)
-         (into {} (for [[id settings] (:repositories project)]
-                    [id (init-settings id settings)]))))
+  "Returns an ordered map of repositories including or excluding defaults.
+
+   By default bases results on contents of :repositories.  If another key
+   is specified via a :kind kwarg, that key will be used to query the
+   project. e.g. (repositories-for project :kind :deploy-repositories)
+   will return an ordered map of repositories intended solely for deployment
+   operations.
+
+   Note: transforming this map via assoc, merge, or similar removes the
+   order guarantee."
+  [project & {:keys [kind] :or {kind :repositories}}]
+  (let [project-repos (for [[id settings] (kind project)]
+                        [id (init-settings id settings)])
+        user-deploy-repos (when (= kind :deploy-repositories)
+                            (into [] (:deploy-repositories (user-settings))))
+        all-repos (concat
+                    (into []
+                          (if (:omit-default-repositories project)
+                            disabled-central-repo
+                            default-repos))
+                    user-deploy-repos
+                    project-repos)]
+    (apply array-map (mapcat identity all-repos))))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
@@ -158,6 +186,8 @@ Warning: alpha; subject to change."
     (exit 1)))
 
 ;;; Task execution
+
+(def ^{:dynamic true} *current-task* nil)
 
 (def aliases (atom {"--help" "help" "-h" "help" "-?" "help" "-v" "version"
                     "--version" "version" "überjar" "uberjar" "cp" "classpath"
@@ -224,9 +254,10 @@ Warning: alpha; subject to change."
 (defn apply-task [task-name project args not-found]
   (let [task (resolve-task task-name not-found)]
     (if-let [parameters (matching-arity? task-name project args)]
-      (if (project-accepted? parameters)
-        (apply task project args)
-        (apply task args))
+      (binding [*current-task* task-name]
+        (if (project-accepted? parameters)
+          (apply task project args)
+          (apply task args)))
       (let [args (arglists task-name)]
         (if (and (not project) (project-needed? args))
           (abort "Couldn't find project.clj, which is needed for" task-name)
@@ -270,14 +301,14 @@ Takes major, minor and incremental versions into account."
   [project]
   (when-not (version-greater-eq? (System/getenv "LEIN_VERSION")
                                  (:min-lein-version project))
-    (do (println (str "\n*** Warning: This project requires Leiningen version "
-                      (:min-lein-version project)
-                      " ***"
-                      "\n*** Using version " (System/getenv "LEIN_VERSION")
-                      " could cause problems. ***\n"
-                      "\n- Get the latest verison of Leiningen at\n"
-                      "- https://github.com/technomancy/leiningen\n"
-                      "- Or by executing \"lein upgrade\"\n\n")))))
+    (println (str "\n*** Warning: This project requires Leiningen version "
+                  (:min-lein-version project)
+                  " ***"
+                  "\n*** Using version " (System/getenv "LEIN_VERSION")
+                  " could cause problems. ***\n"
+                  "\n- Get the latest verison of Leiningen at\n"
+                  "- https://github.com/technomancy/leiningen\n"
+                  "- Or by executing \"lein upgrade\"\n\n"))))
 
 (defn -main
   ([task-name & args]

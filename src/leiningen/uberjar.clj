@@ -71,7 +71,10 @@
 Includes the contents of each of the dependency jars. Suitable for standalone
 distribution.
 
-With an argument, the uberjar will be built with an alternate main."
+With an argument, the uberjar will be built with an alternate main.
+
+The namespace you choose as main should have :gen-class in its ns form
+as well as defining a -main function."
   ([project main]
      (when-not (:disable-implicit-clean project)
        (clean project))
