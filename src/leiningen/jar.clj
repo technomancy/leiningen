@@ -203,7 +203,7 @@ function in that namespace will be used as the main-class for executable jar."
   ([project jar-name]
      (when jar-name
        (println "WARNING: Using the jar task with an argument is deprecated."))
-     (let [deps-fileset (deps project)
+     (let [deps-fileset (deps (assoc project :checksum-deps false))
            status (compile/compile project)]
        (if (zero? status)
          (let [jar-path (get-jar-filename project (get-default-jar-name project))]
