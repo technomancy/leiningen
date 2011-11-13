@@ -84,20 +84,22 @@
 
 (defn copy-out-loop [reader]
   (let [buffer (make-array Character/TYPE 1000)]
-    (loop []
-      (.write *out* buffer 0 (.read reader buffer))
-      (flush)
-      (Thread/sleep 100)
-      (recur))))
+    (loop [length (.read reader buffer)]
+      (when-not (neg? length)
+        (.write *out* buffer 0 length)
+        (flush)
+        (Thread/sleep 100)
+        (recur (.read reader buffer))))))
 
 (defn repl-client [reader writer & [socket]]
-  (.start (Thread. #(copy-out-loop reader)))
-  (loop [reader reader, writer writer]
+  (.start (Thread. #(do (copy-out-loop reader)
+                        (exit 0))))
+  (loop []
     (let [input (read-line)]
-      (when (and input (not= "" input))
+      (when (and input (not= "" input) (not (.isClosed socket)))
         (.write writer (str input "\n"))
         (.flush writer)
-        (recur reader writer)))))
+        (recur)))))
 
 (defn- connect-to-server [socket handler]
   (let [reader (InputStreamReader. (.getInputStream socket))
