@@ -13,5 +13,6 @@
                  [jline "0.9.94" :exclusions [junit]]
                  [robert/hooke "1.1.2"]
                  [org.apache.maven/maven-ant-tasks "2.1.3" :exclusions [ant]]]
+  :test-selectors {:offline (complement :online)}
   :disable-implicit-clean true
   :eval-in-leiningen true)

@@ -12,7 +12,7 @@
   (some #(re-find re (.getName %))
         (file-seq (file (:library-path project)))))
 
-(deftest test-deps
+(deftest ^{:online true} test-deps
   (delete-file-recursively (:library-path sample-project) true)
   (deps sample-project)
   (let [jars (set (map #(.getName %)
@@ -20,7 +20,7 @@
     (doseq [j ["jdom-1.0.jar" "tagsoup-1.2.jar" "rome-0.9.jar"]]
       (is (jars j)))))
 
-(deftest test-dev-deps-only
+(deftest ^{:online true} test-dev-deps-only
   (delete-file-recursively (:library-path dev-deps-project) true)
   (deps dev-deps-project)
   (let [jars (set (map #(.getName %)
@@ -28,7 +28,7 @@
                                          "lib" "dev"))))]
     (is (contains? jars "clojure-1.2.0.jar"))))
 
-(deftest test-snapshots-releases
+(deftest ^{:online true} test-snapshots-releases
   (try
     (let [pr (assoc sample-project :omit-default-repositories true
                     :repositories {"clojars" {:url "http://clojars.org/repo/"
@@ -88,7 +88,7 @@
       :solaris {:x86 #{"liblwjgl.so" "libopenal.so"}
                 :x86_64 #{"liblwjgl64.so" "libopenal.so"}}})
 
-(deftest test-native-deps
+(deftest ^{:online true} test-native-deps
   (delete-file-recursively (:library-path native-project) true)
   (delete-file-recursively (:native-path native-project) true)
   (deps native-project)
@@ -96,7 +96,7 @@
          (set (for [f (rest (file-seq (native-arch-path native-project)))]
                 (.getName f))))))
 
-(deftest test-checksum-deps
+(deftest ^{:online true} test-checksum-deps
   (delete-file-recursively (:library-path sample-project) true)
   (deps (assoc sample-project :checksum-deps true))
   (let [deps-ran (atom false)]
@@ -104,7 +104,7 @@
       (deps (assoc sample-project :checksum-deps true))
       (is (not @deps-ran)))))
 
-(deftest test-explicit-checksum-deps
+(deftest ^{:online true} test-explicit-checksum-deps
   (delete-file-recursively (:library-path sample-project) true)
   (deps (assoc sample-project :checksum-deps true))
   (let [deps-ran (atom false)]
