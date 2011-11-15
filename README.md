@@ -211,13 +211,12 @@ See the plugin task's help for more information.
   it, run `sudo update-java-alternatives -s ia32-java-6-sun`.
   
 **Q:** I don't have access to stdin inside my project.  
-**A:** There's a bug in the Ant library that Leiningen uses to spawn
-  new processes that blocks access to console input. This means that
-  functions like `read-line` will not work as expected in most
-  contexts, though the `repl` task necessarily includes a
-  workaround. You can also use the `trampoline` task to
-  launch your project's JVM after Leiningen's has exited rather than
-  launching it as a subprocess
+**A:** This is a limitation of the JVM's process-handling methods;
+  none of them expose stdin correctly. This means that functions like
+  `read-line` will not work as expected in most contexts, though the
+  `repl` task necessarily includes a workaround. You can also use the
+  `trampoline` task to launch your project's JVM after Leiningen's has
+  exited rather than launching it as a subprocess.
 
 ## Contributing
 
