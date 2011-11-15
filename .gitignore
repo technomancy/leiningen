@@ -12,3 +12,4 @@ bin/nom
 /lein.man
 /scratch.clj
 .lein-deps-sum
+/wiki
