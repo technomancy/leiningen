@@ -22,7 +22,7 @@ if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
 if "x%LEIN_HOME%" == "x" (
     if exist "%CD%\.lein" (
-        if /I NOT %CD%==%USERPROFILE% echo Running in bundled mode.
+        if /I NOT "%CD%"=="%USERPROFILE%" echo Running in bundled mode.
         set LEIN_HOME=%CD%\.lein
     ) else (
         set LEIN_HOME=%USERPROFILE%\.lein
