@@ -1,7 +1,8 @@
 (ns leiningen.core.ns
   "Inspired by clojure.contrib.find-namespaces, but trimmed down to
   just what Leiningen needs."
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string])
   (:import (java.util.jar JarFile)
            (java.io File BufferedReader PushbackReader InputStreamReader)))
 
@@ -63,3 +64,9 @@
                     (io/file dir (.replaceAll prefix "\\." "/"))))
           (filter #(and % (.startsWith (name %) prefix))
                   (mapcat namespaces-in-jar (filter jar? classpath-files)))))
+
+(defn path-for [n]
+  (str (-> (str n)
+           (.replace \- \_)
+           (.replace \. \/))
+       ".clj"))

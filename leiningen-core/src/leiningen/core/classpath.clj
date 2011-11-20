@@ -17,12 +17,12 @@
 
 (defn resolve-dependencies [{:keys [repositories dependencies]}]
   {:pre [(every? vector? dependencies)]}
-  (aether/resolve-dependencies :repositories repositories
+  (aether/resolve-dependencies :repositories (into {} repositories)
                                :coordinates dependencies))
 
 (defn resolve-dev-dependencies [{:keys [repositories dev-dependencies root]}]
   {:pre [(every? vector? dev-dependencies)]}
-  (let [files (aether/resolve-dependencies :repositories repositories
+  (let [files (aether/resolve-dependencies :repositories (into {} repositories)
                                            :coordinates dev-dependencies)]
     (when (seq dev-dependencies)
       (.mkdirs (io/file root "lib/dev")))
