@@ -7,6 +7,44 @@ Leiningen TODOs
 
 See also https://github.com/technomancy/leiningen/issues
 
+* For 2.0.0
+** Big Picture
+   - [ ] Finish designing and implement profiles
+     - [ ] figure out how old no-dev functionality fits in
+   - [ ] Further design on Project Middleware
+   - [ ] In-process eval-in-project
+   - [ ] Dynamic recalculating of classpath via pomegranate
+   - [ ] Redesign repl task, possibly around nREPL
+** Other stuff
+   - [ ] Move pom generation to pomegranate or leiningen
+   - [ ] Better consistency/docs around user/settings
+   - [ ] Non-transitive AOT
+   - [ ] lint/check mode for lein compile
+   - [ ] ns-level test selectors
+   - [ ] More flexibility for jarring
+   - [ ] Mirror/proxy support, also for search indices
+   - [ ] Allow disabling of all injected code
+   - [ ] Drop clojars snapshots from default repos
+** Adapt existing tasks to new API
+   - [ ] classpath
+   - [X] clean
+   - [ ] compile
+   - [ ] deploy
+   - [ ] deps (mostly done in leiningen.core.classpath)
+   - [ ] help
+   - [ ] install
+   - [ ] jar
+   - [ ] javac (can we do this without ant?)
+   - [ ] new (merge from lein-newnew)
+   - [ ] plugin
+   - [ ] pom (steal from depot)
+   - [ ] repl (figure out nrepl integration)
+   - [ ] retest
+   - [ ] run
+   - [ ] search
+   - [ ] test
+   - [ ] trampoline
+   - [ ] uberjar
 * For 1.6.2
   - [X] resources with eval-in-leiningen (#248)
   - [X] fix :omit-default-repositories wrt central (#211)
