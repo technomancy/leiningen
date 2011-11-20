@@ -1,24 +1,19 @@
 (ns leiningen.clean
   "Remove compiled class files from project."
-  (:use [leiningen.util.file :only [delete-file-recursively]]
-        [clojure.java.io :only [file]]))
+  (:use [clojure.java.io :only [file delete-file]]))
 
-(defn clean-jar-pred [project]
-  (let [default-regex (re-pattern (format "^%s-.*\\.jar$" (:name project)))]
-    (fn [f]
-      (re-find (:regex-to-clean project default-regex) (.getName f)))))
-
-(defn files-to-clean [project]
-  (concat [(:compile-path project)]
-          (filter (clean-jar-pred project) (.listFiles (file (:root project))))
-          (for [f (:extra-files-to-clean project)]
-            (format f (:version project)))))
+(defn delete-file-recursively
+  "Delete file f. If it's a directory, recursively delete all its contents.
+Raise an exception if any deletion fails unless silently is true."
+  [f & [silently]]
+  (System/gc) ; This sometimes helps release files for deletion on windows.
+  (let [f (file f)]
+    (if (.isDirectory f)
+      (doseq [child (.listFiles f)]
+        (delete-file-recursively child silently)))
+    (delete-file f silently)))
 
 (defn clean
-  "Remove compiled class files and jars from project.
-
-Set :extra-files-to-clean in project.clj to delete other files. Dependency
-jars are not deleted; run deps task to delete all jars and get fresh ones."
+  "Remove all files from project's target-dir."
   [project]
-  (doseq [f (files-to-clean project)]
-    (delete-file-recursively f :silently)))
+  (delete-file-recursively (:target-dir project) :silently))
