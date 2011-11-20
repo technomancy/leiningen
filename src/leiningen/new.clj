@@ -1,87 +1,29 @@
 (ns leiningen.new
-  "Create a new project skeleton."
-  (:use [leiningen.core :only [abort]]
-        [leiningen.util.paths :only [ns->path]]
-        [clojure.java.io :only [file]]
-        [clojure.string :only [join]])
-  (:import (java.util Calendar)))
+  "Generate project scaffolding based on a template."
+  (:import java.io.FileNotFoundException))
 
-(defn format-settings [settings]
-  (letfn [(format-map [m]
-            (map #(str "  " %1 " " %2)
-                 (map str (keys m))
-                 (map str (vals m))))]
-    (apply str
-           (interpose "\n"
-                      (format-map settings)))))
+;; A leiningen.new template is actually just a function that generates files and
+;; directories. We have a bit of convention: we expect that each template is on
+;; the classpath and is based in a .clj file at `leiningen/new/`. Making this
+;; assumption, a user can simply give us the name of the template he wishes to
+;; use and we can `require` it without searching the classpath for it or doing
+;; other time consuming things.
+;;
+;; Since our templates are just function calls just like Leiningen tasks, we can
+;; also expect that a template generation function also be named the same as the
+;; last segment of its namespace. This is what we call to generate the project.
+;; If the template's namespace is not on the classpath, we can just catch the
+;; FileNotFoundException and print a nice safe message.
+(defn ^{:no-project-needed true}
+  new
+  "Generate scaffolding for a new project based on a template.
 
-(defn write-project [project-dir project-name]
-  (let [default-settings {:dependencies [['org.clojure/clojure "1.3.0"]]}
-        settings  (merge-with #(if %2 %2 %1)
-                              default-settings)]
-    (.mkdirs (file project-dir))
-    (spit (file project-dir "project.clj")
-          (str "(defproject " project-name " \"1.0.0-SNAPSHOT\"\n"
-               "  :description \"FIXME: write description\"\n"
-               (format-settings (into (sorted-map) settings))
-               ")" ))))
-
-(defn write-implementation [project-dir project-clj project-ns]
-  (.mkdirs (.getParentFile (file project-dir "src" project-clj)))
-  (spit (file project-dir "src" project-clj)
-        (str "(ns " project-ns ")\n")))
-
-(defn write-test [project-dir test-ns project-ns]
-  (.mkdirs (.getParentFile (file project-dir "test" (ns->path test-ns))))
-  (spit (file project-dir "test" (ns->path test-ns))
-        (str "(ns " (str test-ns)
-             "\n  (:use [" project-ns "])"
-             "\n  (:use [clojure.test]))\n\n"
-             "(deftest replace-me ;; FIXME: write\n  (is false "
-             "\"No tests have been written.\"))\n")))
-
-(defn- year []
-  (.get (Calendar/getInstance) Calendar/YEAR))
-
-(defn write-readme [project-dir artifact-id]
-  (spit (file project-dir "README")
-        (join "\n\n" [(str "# " artifact-id)
-                      "FIXME: write description"
-                      "## Usage" "FIXME: write"
-                      "## License" (str "Copyright (C) " (year) " FIXME")
-                      (str "Distributed under the Eclipse Public"
-                           " License, the same as Clojure.\n")])))
-
-(def project-name-blacklist #"(?i)(?<!(clo|compo))jure")
-
-(defn new
-  "Create a new project skeleton."
-  ([project-name]
-     (leiningen.new/new project-name (name (symbol project-name))))
-  ([project-name project-dir]
-     (when (re-find project-name-blacklist project-name)
-       (abort "Sorry, *jure names are no longer allowed."))
-     (try (read-string project-name)
-          (catch Exception _
-            (abort "Sorry, project names must be valid Clojure symbols.")))
-     (let [project-name (symbol project-name)
-           group-id (namespace project-name)
-           artifact-id (name project-name)
-           project-dir (-> (System/getProperty "leiningen.original.pwd")
-                           (file project-dir)
-                           (.getAbsolutePath ))]
-       (write-project project-dir project-name)
-       (let [prefix (.replace (str project-name) "/" ".")
-             project-ns (str prefix ".core")
-             test-ns (str prefix ".test.core")
-             project-clj (ns->path project-ns)]
-         (spit (file project-dir ".gitignore")
-               (apply str (interleave ["/pom.xml" "*jar" "/lib" "/classes"
-                                       "/native" "/.lein-failures" "/checkouts"
-                                       "/.lein-deps-sum"]
-                                      (repeat "\n"))))
-         (write-implementation project-dir project-clj project-ns)
-         (write-test project-dir test-ns project-ns)
-         (write-readme project-dir artifact-id)
-         (println "Created new project in:" project-dir)
-         (println "Look over project.clj and start coding in" project-clj)))))
+If only one argument is passed, the default template is used and the
+argument is treated as if it were the name of the project."
+  ([project project-name] (leiningen.new/new project "default" project-name))
+  ([project template & args]
+     (let [sym (symbol (str "leiningen.new." template))]
+       (if (try (require sym)
+                (catch FileNotFoundException _ true))
+         (println "Could not find template" template "on the classpath.")
+         (apply (resolve (symbol (str sym "/" template))) args)))))
