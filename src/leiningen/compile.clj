@@ -1,7 +1,7 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
   (:use [leiningen.deps :only [deps find-deps-files]]
-        [leiningen.core :only [defdeprecated user-settings *interactive?*]]
+        [leiningen.core :only [defdeprecated user-settings]]
         [leiningen.javac :only [javac]]
         [leiningen.classpath :only [get-classpath-string]]
         [clojure.java.io :only [file resource reader copy]]
@@ -122,8 +122,7 @@
                        (finally
                         (when (and ~(:shutdown-agents project false)
                                    (not= "1.5" (System/getProperty
-                                                "java.specification.version"))
-                                   ~(not *interactive?*))
+                                                "java.specification.version")))
                           (shutdown-agents)))))]
     ;; work around java's command line handling on windows
     ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
