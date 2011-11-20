@@ -3,6 +3,5 @@ script: bin/lein self-install; bin/lein test
 branches:
   only:
     - 1.x
-    - master
 notifications:
   irc: "irc.freenode.org#leiningen"
