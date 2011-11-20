@@ -12,12 +12,6 @@
              identity
              args))
 
-(defn ^:internal add-repositories [{:keys [omit-default-repositories
-                                           repositories] :as project}]
-  (assoc project :repositories
-         (concat repositories (if-not omit-default-repositories
-                                (:repositories defaults)))))
-
 (def defaults {:source-path "src"
                :compile-path "classes"
                :resources-path "resources"
@@ -31,8 +25,14 @@
                :jar-exclusions [#"^\."]
                :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
 
+(defn ^:internal add-repositories [{:keys [omit-default-repositories
+                                           repositories] :as project}]
+  (assoc project :repositories
+         (concat repositories (if-not omit-default-repositories
+                                (:repositories defaults)))))
+
 (defmacro defproject [project-name version & {:as args}]
-  `(let [args# (apply hash-map ~(cons 'list (unquote-project ~args)))]
+  `(let [args# (apply hash-map [~@(unquote-project args)])]
      (def ~'project
        (merge defaults (add-repositories args#)
               {:name ~(name project-name)
@@ -45,10 +45,12 @@
 
 (defn read
   ([file]
-     (try (binding [*ns* (the-ns 'leiningen.core)]
+     (try (binding [*ns* (find-ns 'leiningen.core.project)]
             (load-file file))
-          (if-let [project (resolve 'user/project)]
-            @project
-            (throw (Exception. "project.clj must define user/project map.")))
+          (let [project (resolve 'leiningen.core.project/project)]
+            (when-not project
+              (throw (Exception. "project.clj must define project map.")))
+            (ns-unmap *ns* 'project) ; return it to original state
+            @project)
           (catch java.io.FileNotFoundException _)))
-  ([] (read-project "project.clj")))
+  ([] (read "project.clj")))

@@ -38,13 +38,21 @@
            not-found))))
   ([task] (resolve-task task #'task-not-found)))
 
+(defn matching-arity? [task project args]
+  (some (fn [parameters]
+          (and (if (= '& (last (butlast parameters)))
+                 (>= (count args) (- (count parameters) 2))
+                 (= (count parameters) (inc (count args))))
+               parameters))
+        (:arglists (meta task))))
+
 (defn apply-task [task-name project args]
   (let [task (resolve-task task-name)]
-    (when-not (or project (:no-project-needed? (meta task)))
+    (when-not (or project (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))
-    (when-not (matching-arity? task-name project args)
+    (when-not (matching-arity? task project args)
       (abort "Wrong number of arguments to" task-name "task."
-             "\nExpected" (:arglists (meta task))))
+             "\nExpected" (rest (:arglists (meta task)))))
     (apply task project args)))
 
 (defn- version-satisfies? [v1 v2]
@@ -88,7 +96,7 @@ or by executing \"lein upgrade\". ")
          (verify-min-version project))
        (apply-task task-name project args)))
   ([]
-     (doseq [[task & args] (groups-args *command-line-args*)
+     (doseq [[task & args] (group-args *command-line-args*)
              :let [result (apply -main (or task "help") args)]]
        (when (and (integer? result) (pos? result))
          (exit result)))
