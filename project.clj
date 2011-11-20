@@ -6,12 +6,9 @@
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"}
-  :dependencies [[org.clojure/clojure "1.2.1"]
-                 [org.clojure/clojure-contrib "1.2.0"]
+  :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
                  [clucy "0.2.2"]
                  [lancet "1.0.1"]
-                 [jline "0.9.94" :exclusions [junit]]
-                 [robert/hooke "1.1.2"]
-                 [org.apache.maven/maven-ant-tasks "2.1.3" :exclusions [ant]]]
+                 [robert/hooke "1.1.2"]]
   :disable-implicit-clean true
   :eval-in-leiningen true)

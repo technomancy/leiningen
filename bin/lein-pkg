@@ -125,6 +125,6 @@ if [ "$1" = "trampoline" ]; then
 else
         exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
             $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" \
+            -cp "$CLASSPATH" clojure.main -m leiningen.main \
             $NULL_DEVICE "$@"
 fi

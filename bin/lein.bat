@@ -265,7 +265,7 @@ goto EOF
 :RUN_NORMAL
 %JAVA_CMD% -client %LEIN_JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+ -cp %CLASSPATH% %JLINE% clojure.main -m leiningen.main NUL %*
 
 
 :EOF
