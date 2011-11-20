@@ -16,4 +16,4 @@ Raise an exception if any deletion fails unless silently is true."
 (defn clean
   "Remove all files from project's target-dir."
   [project]
-  (delete-file-recursively (:target-dir project) :silently))
+  (delete-file-recursively (:target-path project) :silently))

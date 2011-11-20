@@ -103,8 +103,7 @@
   ;;     (compile project)))
   ;; (when (or (empty? (find-deps-files project)) checksum-deps)
   ;;   (deps project))
-  ;; (when compile-path
-  ;;   (.mkdirs (io/file compile-path)))
+  (.mkdirs (io/file compile-path))
   )
 
 (defn eval-in-leiningen [project form-string]
