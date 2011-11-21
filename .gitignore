@@ -12,3 +12,5 @@ bin/nom
 /lein.man
 /scratch.clj
 .lein-deps-sum
+docs
+/leiningen-core/pom.xml

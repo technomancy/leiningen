@@ -1,9 +1,12 @@
 (ns leiningen.core.project
+  "Read project.clj files."
   (:refer-clojure :exclude [read])
   (:require [clojure.walk :as walk]
             [clojure.java.io :as io]))
 
-(defn- unquote-project [args]
+(defn- unquote-project
+  "Inside defproject forms, unquoting (~) allows for arbitrary evaluation."
+  [args]
   (walk/walk (fn [item]
                (cond (and (seq? item) (= `unquote (first item))) (second item)
                      ;; needed if we want fn literals preserved
@@ -25,13 +28,18 @@
                :jar-exclusions [#"^\."]
                :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
 
-(defn ^:internal add-repositories [{:keys [omit-default-repositories
-                                           repositories] :as project}]
+(defn ^:internal add-repositories
+  "Public only for macroexpansion purposes, :repositories needs special
+  casing logic for merging default values with user-provided ones."
+  [{:keys [omit-default-repositories repositories] :as
+  project}]
   (assoc project :repositories
          (concat repositories (if-not omit-default-repositories
                                 (:repositories defaults)))))
 
-(defmacro defproject [project-name version & {:as args}]
+(defmacro defproject
+  "The project.clj file must either def a project map or call this macro."
+  [project-name version & {:as args}]
   `(let [args# (apply hash-map [~@(unquote-project args)])]
      (def ~'project
        (merge defaults (add-repositories args#)
@@ -44,6 +52,7 @@
                :root ~(.getParent (io/file *file*))}))))
 
 (defn read
+  "Read project map out of file, which defaults to project.clj."
   ([file]
      (try (binding [*ns* (find-ns 'leiningen.core.project)]
             (load-file file))

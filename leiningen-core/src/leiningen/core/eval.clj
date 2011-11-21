@@ -1,13 +1,64 @@
 (ns leiningen.core.eval
+  "Evaluate code inside the context of a project."
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
   (:import (java.io PushbackReader)))
 
+;; # Form Wrangling
+
+(defn- injected-forms
+  "Return the forms that need to be injected into the project for
+  certain features (e.g. test selectors) to work."
+  [project]
+  ;; TODO: expose a way to disable these
+  (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
+    `(do (ns ~'leiningen.util.injected)
+         ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
+         (ns ~'user))))
+
+(defn get-form-string
+  "Serialize the given form and wrap it in other necessary mechanisms."
+  [project form init]
+  (let [form `(do ~init
+                  ~(:project-init project)
+                  ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
+                      (if (.exists user-clj)
+                        [(list 'load-file (str user-clj))]))
+                  ~(injected-forms project)
+                  (set! ~'*warn-on-reflection*
+                        ~(:warn-on-reflection project))
+                  ~form)]
+    ;; work around java's command line handling on windows
+    ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
+    ;; currently being passed; see
+    ;; http://www.perlmonks.org/?node_id=300286 for some of the
+    ;; landmines involved in doing it properly
+    (if (and (= (get-os) :windows) (not (:eval-in-leiningen project)))
+      (pr-str (pr-str form))
+      (pr-str form))))
+
+;; TODO: this needs to be totally reworked; it doesn't fit well into
+;; the whole leiningen-core separation.
+(defn prep [{:keys [compile-path checksum-deps] :as project} skip-auto-compile]
+  ;; (when (and (not (or ;; *skip-auto-compile*
+  ;;                     skip-auto-compile)) compile-path
+  ;;            (empty? (.list (io/file compile-path))))
+  ;;   (binding [;; *silently* true
+  ;;             ]
+  ;;     (compile project)))
+  ;; (when (or (empty? (find-deps-files project)) checksum-deps)
+  ;;   (deps project))
+  ;; This must exist before the project is launched.
+  (.mkdirs (io/file compile-path))
+  )
+
+;; # Subprocess stuff
+
 (defn- get-by-pattern
   "Gets a value from map m, but uses the keys as regex patterns, trying
-   to match against k instead of doing an exact match."
+  to match against k instead of doing an exact match."
   [m k]
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))
@@ -47,7 +98,9 @@
 (defn- d-property [[k v]]
   (format "-D%s=%s" (as-str k) v))
 
-(defn ^{:internal true} get-jvm-args [project]
+(defn- get-jvm-args
+  "Calculate command-line arguments for launching java subprocess."
+  [project]
   (let [native-arch-path (native-arch-path project)]
     `(~@(let [opts (System/getenv "JVM_OPTS")]
           (when (seq opts) [opts]))
@@ -60,66 +113,6 @@
       ~@(when (and native-arch-path (.exists native-arch-path))
           [(d-property [:java-library-path native-arch-path])]))))
 
-(defn- injected-forms []
-  (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
-    `(do (ns ~'leiningen.util.injected)
-         ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
-         (ns ~'user))))
-
-(defn get-readable-form [java project form init]
-  (let [form `(do ~init
-                  ~(:project-init project)
-                  ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
-                      (if (.exists user-clj)
-                        [(list 'load-file (str user-clj))]))
-                  ~(injected-forms)
-                  (set! ~'*warn-on-reflection*
-                        ~(:warn-on-reflection project))
-                  (try ~form
-                       ;; non-daemon threads will prevent process from exiting;
-                       ;; see http://tinyurl.com/2ueqjkl
-                       (finally
-                        (when (and ~(:shutdown-agents project false)
-                                   (not= "1.5" (System/getProperty
-                                                "java.specification.version"))
-                                   ;; ~(not *interactive?*)
-                                   )
-                          (shutdown-agents)))))]
-    ;; work around java's command line handling on windows
-    ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
-    ;; currently being passed; see
-    ;; http://www.perlmonks.org/?node_id=300286 for some of the
-    ;; landmines involved in doing it properly
-    (if (and (= (get-os) :windows) (not (:eval-in-leiningen project)))
-      (pr-str (pr-str form))
-      (pr-str form))))
-
-(defn prep [{:keys [compile-path checksum-deps] :as project} skip-auto-compile]
-  ;; (when (and (not (or ;; *skip-auto-compile*
-  ;;                     skip-auto-compile)) compile-path
-  ;;            (empty? (.list (io/file compile-path))))
-  ;;   (binding [;; *silently* true
-  ;;             ]
-  ;;     (compile project)))
-  ;; (when (or (empty? (find-deps-files project)) checksum-deps)
-  ;;   (deps project))
-  (.mkdirs (io/file compile-path))
-  )
-
-(defn eval-in-leiningen [project form-string]
-  ;; bootclasspath workaround: http://dev.clojure.org/jira/browse/CLJ-673
-  (require '[clojure walk repl])
-  (require '[clojure.java io shell browse])
-  (when (:debug project)
-    (System/setProperty "clojure.debug" "true"))
-  ;; need to at least pretend to return an exit code
-  (try (binding [*warn-on-reflection* (:warn-on-reflection project), *ns* *ns*]
-         (eval (read-string form-string)))
-       0
-       (catch Exception e
-         (.printStackTrace e)
-         1)))
-
 (defn- pump [reader out]
   (let [buffer (make-array Character/TYPE 1000)]
     (loop [len (.read reader buffer)]
@@ -129,8 +122,9 @@
         (Thread/sleep 100)
         (recur (.read reader buffer))))))
 
-;; clojure.java.shell/sh doesn't let you stream out/err
-(defn sh [& cmd]
+(defn sh
+  "A version of clojure.java.shell/sh that streams out/err."
+  [& cmd]
   (let [proc (.exec (Runtime/getRuntime) (into-array cmd))]
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))]
@@ -140,12 +134,26 @@
         (.join pump-err))
       (.waitFor proc))))
 
-(defn eval-in-subprocess [project form-string]
+(defn eval-in-subprocess
+  "Launch a subprocess for the given project to evaluate the given form."
+  [project form-string]
   (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
               "-cp" ~(string/join java.io.File/pathSeparatorChar
                                   (classpath/get-classpath project))
               ~@(get-jvm-args project)
               "clojure.main" "-e" ~form-string)))
+
+(defn eval-in-leiningen
+  "Support eval-in-project for plugins that run in Leiningen's own process."
+  [project form-string]
+  (when (:debug project)
+    (System/setProperty "clojure.debug" "true"))
+  ;; need to at least pretend to return an exit code
+  (try (eval (read-string form-string))
+       0
+       (catch Exception e
+         (.printStackTrace e)
+         1)))
 
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path

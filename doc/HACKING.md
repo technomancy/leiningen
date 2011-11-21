@@ -1,8 +1,11 @@
 # Hacking Leiningen
 
-Leiningen is very small. The latest release is only around a couple
-thousand lines of Clojure; you could probably read through the whole
-project in an hour.
+Leiningen is composed of a few layers. First we have the
+`leiningen-core` library, which implements the basic project-centric
+functionality that would be useful outside the context of Leiningen
+itself, primarily for IDEs and other tools. This is available
+independently on [Clojars](http://clojars.org/leiningen-core) and
+documented at TODO
 
 When you launch Leiningen, it must start an instance of Clojure to
 load itself. But this instance must not affect the project that you're

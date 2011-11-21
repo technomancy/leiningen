@@ -1,8 +1,9 @@
 (ns leiningen.core.user
+  "Functions exposing user-level configuration."
   (:require [clojure.java.io :as io]))
 
 (defn leiningen-home
-  "Return full path to Leiningen's home directory."
+  "Return full path to the user's Leiningen home directory."
   []
   (.getAbsolutePath (doto (if-let [lein-home (System/getenv "LEIN_HOME")]
                             (io/file lein-home)
