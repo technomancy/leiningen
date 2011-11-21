@@ -159,11 +159,13 @@
   "Executes form in an isolated classloader with the classpath and compile path
   set correctly for the project. If the form depends on any requires, put them
   in the init arg to avoid the Gilardi Scenario: http://technomancy.us/143"
-  [project form & [handler skip-auto-compile init]]
-  (when skip-auto-compile
-    (println "WARNING: eval-in-project's skip-auto-compile arg is deprecated."))
-  (prep project skip-auto-compile)
-  (let [form-string (get-readable-form nil project form init)]
-    (if (:eval-in-leiningen project)
-      (eval-in-leiningen project form-string)
-      (eval-in-subprocess project form-string))))
+  ([project form init]
+     (prep project skip-auto-compile)
+     ;; might only make sense to stringify the form in :subprocess eval
+     (let [form-string (get-form-string project form init)]
+       ;; TODO: support :eval-in :leiningen, :subprocess, or :classloader (default)
+       ;; TODO: normalize old :eval-in-leiningen to new format in project/read
+       (if (:eval-in-leiningen project)
+         (eval-in-leiningen project form-string)
+         (eval-in-subprocess project form-string))))
+  ([project form] (eval-in-project project form nil)))

@@ -22,9 +22,8 @@
   ns/f, passing it the args."
   [project given & args]
   (eval-in-project project (run-form given args)
-                   nil nil `(try (require '~(symbol (namespace
-                                                     (normalize-main given))))
-                              (catch FileNotFoundException _#))))
+                   `(try (require '~(symbol (namespace (normalize-main given))))
+                         (catch FileNotFoundException _#))))
 
 (defn ^{:help-arglists '([])} run
   "Run the project's -main function.

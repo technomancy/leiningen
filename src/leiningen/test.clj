@@ -74,7 +74,7 @@ selectors. With no arguments, runs all tests."
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)]
     (eval-in-project project (form-for-testing-namespaces
                               nses (.getAbsolutePath result) (vec selectors))
-                     nil nil '(require 'clojure.test))
+                     '(require 'clojure.test))
     (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))
             success? (zero? (+ (:error summary) (:fail summary)))]
