@@ -1,7 +1,8 @@
 (ns leiningen.core.test.classpath
   (:use [clojure.test]
         [leiningen.core.classpath])
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [clojure.set :as set]))
 
 (defn m2-file [f]
   (io/file (System/getProperty "user.home") ".m2" "repository" f))
@@ -44,7 +45,19 @@
 
 (deftest test-classpath
   ;; Can't test user plugins because anything could be installed.
-  (with-redefs [leiningen.core.user/plugins (constantly [])]
+  (with-redefs [leiningen.core.user/plugins (constantly [])
+                leiningen.core.classpath/checkout-deps-paths (constantly [])]
     (is (= classpath (get-classpath project)))))
 
-(deftest test-checkout-deps)
+(deftest test-checkout-deps
+  (let [d1 (io/file (:root project) "checkouts" "d1")]
+    (try
+      (.mkdirs d1)
+      (spit (io/file d1 "project.clj")
+            (pr-str '(def project {:source-path "src" :compile-path "classes"
+                                   :resources-path "resources"})))
+      (is (= ["checkouts/d1/src" "checkouts/d1/classes" "checkouts/d1/resources"]
+             (#'leiningen.core.classpath/checkout-deps-paths project)))
+      (finally
+       ;; can't recur from finally
+       #_(dorun (map #(.delete %) (reverse (file-seq d1))))))))

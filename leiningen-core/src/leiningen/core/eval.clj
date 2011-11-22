@@ -6,6 +6,36 @@
             [leiningen.core.classpath :as classpath])
   (:import (java.io PushbackReader)))
 
+;; # OS detection
+
+(defn- get-by-pattern
+  "Gets a value from map m, but uses the keys as regex patterns, trying
+  to match against k instead of doing an exact match."
+  [m k]
+  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
+                        (keys m)))))
+
+(def ^{:private true} native-names
+  {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
+   "FreeBSD" :freebsd "OpenBSD" :openbsd
+   "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
+   "arm" :arm "SunOS" :solaris "sparc" :sparc "Darwin" :macosx})
+
+(defn get-os
+  "Returns a keyword naming the host OS."
+  []
+  (get-by-pattern native-names (System/getProperty "os.name")))
+
+(defn get-arch
+  "Returns a keyword naming the host architecture"
+  []
+  (get-by-pattern native-names (System/getProperty "os.arch")))
+
+(defn platform-nullsink []
+  (io/file (if (= :windows (get-os))
+          "NUL"
+          "/dev/null")))
+
 ;; # Form Wrangling
 
 (defn- injected-forms
@@ -14,7 +44,7 @@
   [project]
   ;; TODO: expose a way to disable these
   (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
-    `(do (ns ~'leiningen.util.injected)
+    `(do (ns ~'leiningen.core.injected)
          ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
          (ns ~'user))))
 
@@ -41,7 +71,7 @@
 
 ;; TODO: this needs to be totally reworked; it doesn't fit well into
 ;; the whole leiningen-core separation.
-(defn prep [{:keys [compile-path checksum-deps] :as project} skip-auto-compile]
+(defn prep [{:keys [compile-path checksum-deps] :as project}]
   ;; (when (and (not (or ;; *skip-auto-compile*
   ;;                     skip-auto-compile)) compile-path
   ;;            (empty? (.list (io/file compile-path))))
@@ -56,39 +86,11 @@
 
 ;; # Subprocess stuff
 
-(defn- get-by-pattern
-  "Gets a value from map m, but uses the keys as regex patterns, trying
-  to match against k instead of doing an exact match."
-  [m k]
-  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
-                        (keys m)))))
-
-(def ^{:private true} native-names
-  {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
-   "FreeBSD" :freebsd "OpenBSD" :openbsd
-   "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
-   "arm" :arm "SunOS" :solaris "sparc" :sparc "Darwin" :macosx})
-
-(defn get-os
-  "Returns a keyword naming the host OS."
-  []
-  (get-by-pattern native-names (System/getProperty "os.name")))
-
-(defn get-arch
-  "Returns a keyword naming the host architecture"
-  []
-  (get-by-pattern native-names (System/getProperty "os.arch")))
-
 (defn native-arch-path
   "Path to the os/arch-specific directory containing native libs."
   [project]
   (when (and (get-os) (get-arch))
     (io/file (:native-path project) (name (get-os)) (name (get-arch)))))
-
-(defn platform-nullsink []
-  (io/file (if (= :windows (get-os))
-          "NUL"
-          "/dev/null")))
 
 (defn- as-str [x]
   (if (instance? clojure.lang.Named x)
@@ -160,7 +162,7 @@
   set correctly for the project. If the form depends on any requires, put them
   in the init arg to avoid the Gilardi Scenario: http://technomancy.us/143"
   ([project form init]
-     (prep project skip-auto-compile)
+     (prep project)
      ;; might only make sense to stringify the form in :subprocess eval
      (let [form-string (get-form-string project form init)]
        ;; TODO: support :eval-in :leiningen, :subprocess, or :classloader (default)

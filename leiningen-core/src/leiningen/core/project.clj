@@ -40,7 +40,7 @@
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro."
   [project-name version & {:as args}]
-  `(let [args# (apply hash-map [~@(unquote-project args)])]
+  `(let [args# ~(unquote-project args)]
      (def ~'project
        (merge defaults (add-repositories args#)
               {:name ~(name project-name)

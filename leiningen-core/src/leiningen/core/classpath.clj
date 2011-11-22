@@ -7,7 +7,7 @@
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [dep]
-  (let [project (.getAbsolutePath (file dep "project.clj"))]
+  (let [project (.getAbsolutePath (io/file dep "project.clj"))]
     (try (project/read project)
          (catch Exception e
            (throw (Exception. (format "Problem loading %s" project) e))))))
@@ -23,7 +23,7 @@
                   (for [d (:checkout-deps-shares project [:source-path
                                                           :compile-path
                                                           :resources-path])]
-                    (io/file "checkouts" (.getName dep) (d proj))))))
+                    (str (io/file "checkouts" (.getName dep) (d proj)))))))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
