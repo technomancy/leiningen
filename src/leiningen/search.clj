@@ -1,9 +1,9 @@
 (ns leiningen.search
-  (:use [leiningen.core :only [repositories-for user-settings]]
-        [leiningen.util.file :only [delete-file-recursively]]
+  (:use [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.util.paths :only [leiningen-home]])
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
+            [leiningen.core.user :as user]
             [clucy.core :as clucy])
   (:import (java.util.zip ZipFile)
            (java.net URL)))
@@ -45,7 +45,7 @@
 
 ;;; Searching
 
-(def ^{:private true} page-size (:search-page-size (user-settings) 25))
+(def ^{:private true} page-size (:search-page-size (user/settings) 25))
 
 (defn search-repository [[id {:keys [url]} :as repo] query page]
   (if (ensure-fresh-index repo)
@@ -98,9 +98,9 @@ pages."
   ([project query page]
      ;; you know what would be just super? pattern matching.
      (if (= "--update" query)
-       (doseq [[_ {url :url} :as repo] (repositories-for project)]
+       (doseq [[_ {url :url} :as repo] (:repositories project)]
          (delete-file-recursively (index-location url) :silently)
          (ensure-fresh-index repo))
-       (doseq [repo (repositories-for project)
+       (doseq [repo (:repositories project)
                :let [page (Integer. page)]]
          (print-results repo (search-repository repo query page) page)))))

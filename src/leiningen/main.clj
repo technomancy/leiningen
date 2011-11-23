@@ -27,21 +27,20 @@
 
 (defn resolve-task
   ([task not-found]
-     (let [task-ns (symbol (str "leiningen." task))
-           task (symbol task)]
+     (let [task-ns (symbol (str "leiningen." task))]
        (try
          (when-not (find-ns task-ns)
            (require task-ns))
-         (or (ns-resolve task-ns task)
+         (or (ns-resolve task-ns (symbol task))
              not-found)
          (catch java.io.FileNotFoundException e
            not-found))))
   ([task] (resolve-task task #'task-not-found)))
 
-(defn matching-arity? [task project args]
+(defn matching-arity? [task args]
   (some (fn [parameters]
           (and (if (= '& (last (butlast parameters)))
-                 (>= (count args) (- (count parameters) 2))
+                 (>= (count args) (- (count parameters) 3))
                  (= (count parameters) (inc (count args))))
                parameters))
         (:arglists (meta task))))
@@ -50,17 +49,20 @@
   (let [task (resolve-task task-name)]
     (when-not (or project (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))
-    (when-not (matching-arity? task project args)
+    (when-not (matching-arity? task args)
       (abort "Wrong number of arguments to" task-name "task."
              "\nExpected" (rest (:arglists (meta task)))))
     (apply task project args)))
 
-(defn- version-satisfies? [v1 v2]
+(defn ^:internal version-satisfies? [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d" (first (string/split v1 #"-" 2))))
         v2 (map #(Integer. %) (re-seq #"\d" (first (string/split v2 #"-" 2))))]
-    (or (and (every? true? (map >= v1 v2))
-             (>= (count v1) (count v2)))
-        (every? true? (map > v1 v2)))))
+    (loop [versions (map vector v1 v2)
+           [seg1 seg2] (first versions)]
+      (cond (empty? versions) true
+            (= seg1 seg2) (recur (rest versions) (first (rest versions)))
+            (> seg1 seg2) true
+            (< seg1 seg2) false))))
 
 (def ^:private min-version-warning
   "*** Warning: This project requires Leiningen %s, but you have %s ***
@@ -77,7 +79,7 @@ or by executing \"lein upgrade\". ")
 (defn- conj-to-last [coll x]
   (update-in coll [(dec (count coll))] conj x))
 
-(defn- group-args
+(defn ^:internal group-args
   ([args] (reduce group-args [[]] args))
   ([groups arg]
      (if (.endsWith arg ",")
