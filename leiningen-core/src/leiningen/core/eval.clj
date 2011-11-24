@@ -126,7 +126,7 @@
   ;; currently being passed; see http://www.perlmonks.org/?node_id=300286
   ;; for some of the landmines involved in doing it properly
   (let [form-string
-        (if (and (= (get-os) :windows) (not (:eval-in-leiningen project)))
+        (if (= (get-os) :windows)
           (pr-str (pr-str form))
           (pr-str form))]
     (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
