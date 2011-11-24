@@ -1,6 +1,7 @@
 (ns leiningen.core.eval
   "Evaluate code inside the context of a project."
-  (:require [clojure.java.io :as io]
+  (:require [classlojure.core :as cl]
+            [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
@@ -135,13 +136,22 @@
                 ~@(get-jvm-args project)
                 "clojure.main" "-e" ~form-string))))
 
+(defmethod eval-in :classloader
+  [project form]
+  (let [classpath   (map io/file (classpath/get-classpath project))
+        classloader (cl/classlojure classpath)]
+    (try (cl/eval-in classloader form)
+         0 ;; pretend to return an exit code for now
+         (catch Exception e
+           (.printStackTrace e)
+           1))))
+
 (defmethod eval-in :leiningen
   [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
   ;; need to at least pretend to return an exit code
   (try (eval form)
-       0
        (catch Exception e
          (.printStackTrace e)
          1)))

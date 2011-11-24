@@ -13,7 +13,7 @@
               :compile-path "/tmp/lein-sample-project/classes"})
 
 (deftest test-eval-in-project
-  (doseq [where [:subprocess :leiningen]]
+  (doseq [where [:subprocess :leiningen :classloader]]
     (let [file (File/createTempFile "lein-eval-test" nil)]
       (eval-in-project
        (assoc project :eval-in where)
