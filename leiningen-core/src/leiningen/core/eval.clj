@@ -48,27 +48,6 @@
          ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
          (ns ~'user))))
 
-(defn get-form-string
-  "Serialize the given form and wrap it in other necessary mechanisms."
-  [project form init]
-  (let [form `(do ~init
-                  ~(:project-init project)
-                  ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
-                      (if (.exists user-clj)
-                        [(list 'load-file (str user-clj))]))
-                  ~(injected-forms project)
-                  (set! ~'*warn-on-reflection*
-                        ~(:warn-on-reflection project))
-                  ~form)]
-    ;; work around java's command line handling on windows
-    ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
-    ;; currently being passed; see
-    ;; http://www.perlmonks.org/?node_id=300286 for some of the
-    ;; landmines involved in doing it properly
-    (if (and (= (get-os) :windows) (not (:eval-in-leiningen project)))
-      (pr-str (pr-str form))
-      (pr-str form))))
-
 ;; TODO: this needs to be totally reworked; it doesn't fit well into
 ;; the whole leiningen-core separation.
 (defn prep [{:keys [compile-path checksum-deps] :as project}]
@@ -136,22 +115,32 @@
         (.join pump-err))
       (.waitFor proc))))
 
-(defn eval-in-subprocess
-  "Launch a subprocess for the given project to evaluate the given form."
-  [project form-string]
-  (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
-              "-cp" ~(string/join java.io.File/pathSeparatorChar
-                                  (classpath/get-classpath project))
-              ~@(get-jvm-args project)
-              "clojure.main" "-e" ~form-string)))
+(defmulti eval-in
+  "Evaluate the given from in either a subprocess or the leiningen process."
+  (fn [project _] (:eval-in project)))
 
-(defn eval-in-leiningen
-  "Support eval-in-project for plugins that run in Leiningen's own process."
-  [project form-string]
+(defmethod eval-in :subprocess
+  [project form]
+  ;; work around java's command line handling on windows
+  ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
+  ;; currently being passed; see http://www.perlmonks.org/?node_id=300286
+  ;; for some of the landmines involved in doing it properly
+  (let [form-string
+        (if (and (= (get-os) :windows) (not (:eval-in-leiningen project)))
+          (pr-str (pr-str form))
+          (pr-str form))]
+    (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
+                "-cp" ~(string/join java.io.File/pathSeparatorChar
+                                    (classpath/get-classpath project))
+                ~@(get-jvm-args project)
+                "clojure.main" "-e" ~form-string))))
+
+(defmethod eval-in :leiningen
+  [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
   ;; need to at least pretend to return an exit code
-  (try (eval (read-string form-string))
+  (try (eval form)
        0
        (catch Exception e
          (.printStackTrace e)
@@ -163,11 +152,14 @@
   in the init arg to avoid the Gilardi Scenario: http://technomancy.us/143"
   ([project form init]
      (prep project)
-     ;; might only make sense to stringify the form in :subprocess eval
-     (let [form-string (get-form-string project form init)]
-       ;; TODO: support :eval-in :leiningen, :subprocess, or :classloader (default)
-       ;; TODO: normalize old :eval-in-leiningen to new format in project/read
-       (if (:eval-in-leiningen project)
-         (eval-in-leiningen project form-string)
-         (eval-in-subprocess project form-string))))
+     (eval-in project
+              `(do ~init
+                   ~(:project-init project)
+                   ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
+                       (if (.exists user-clj)
+                         [(list 'load-file (str user-clj))]))
+                   ~(injected-forms project)
+                   (set! ~'*warn-on-reflection*
+                         ~(:warn-on-reflection project))
+                   ~form)))
   ([project form] (eval-in-project project form nil)))

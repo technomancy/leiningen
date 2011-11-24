@@ -13,7 +13,10 @@
               :compile-path "/tmp/lein-sample-project/classes"})
 
 (deftest test-eval-in-project
-  (let [file (File/createTempFile "lein-eval-test" nil)]
-    (eval-in-project project `(spit ~(.getPath file) "foo"))
-    (is (= "foo" (slurp file)))
-    (.delete file)))
+  (doseq [where [:subprocess :leiningen]]
+    (let [file (File/createTempFile "lein-eval-test" nil)]
+      (eval-in-project
+       (assoc project :eval-in where)
+       `(spit ~(.getPath file) "foo"))
+      (is (= "foo" (slurp file)))
+      (.delete file))))
