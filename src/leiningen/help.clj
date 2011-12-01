@@ -30,18 +30,17 @@
       (formatted-docstring command docstring padding))))
 
 (defn- get-subtasks-and-docstrings-for [task]
-  (into {}
-    (map (fn [subtask]
-           (let [m (meta subtask)]
-             [(str (:name m)) (:doc m)]))
-         (:subtasks (meta task)))))
+  (map (fn [subtask]
+         (let [m (meta subtask)]
+           [(str (:name m)) (:doc m)]))
+       (:subtasks (meta task))))
 
 (defn subtask-help-for
   [task-ns task]
   (let [subtasks (get-subtasks-and-docstrings-for task)]
     (if (empty? subtasks)
       nil
-      (let [longest-key-length (apply max (map count (keys subtasks)))
+      (let [longest-key-length (apply max (map (comp count first) subtasks))
             help-fn (ns-resolve task-ns 'help)]
         (string/join "\n"
           (concat ["\n\nSubtasks available:"]
