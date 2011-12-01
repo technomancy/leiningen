@@ -309,6 +309,9 @@ file should look like this:
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.apache.lucene/lucene-core "3.0.2"]
                  [lancet "1.0.0"]]
+  :test-selectors {:default (fn [v] (not (:integration v)))
+                 :integration :integration
+                 :all (fn [_] true)}
   :main myproject.core)
 ```
 
