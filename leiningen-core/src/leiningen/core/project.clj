@@ -59,7 +59,7 @@
           (let [project (resolve 'leiningen.core.project/project)]
             (when-not project
               (throw (Exception. "project.clj must define project map.")))
-            (ns-unmap *ns* 'project) ; return it to original state
+            ;; (ns-unmap *ns* 'project) ; return it to original state
             @project)
           (catch java.io.FileNotFoundException _)))
   ([] (read "project.clj")))

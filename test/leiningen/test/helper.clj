@@ -1,18 +1,17 @@
 (ns leiningen.test.helper
-  (:require [lancet.core :as lancet])
-  (:use [clojure.java.io :only [file]]
-        [leiningen.compile :only [platform-nullsink]]
-        [leiningen.core :only [read-project]]
-        [leiningen.util.maven :only [make-local-repo]]))
+  (:require [leiningen.core.project :as project]
+            [clojure.java.io :as io]))
 
-(def local-repo (.getBasedir (make-local-repo)))
+;; TODO: fix
+(def local-repo (io/file (System/getProperty "user.home") ".m2" "repository"))
 
 (defn m2-dir [n v]
-  (file local-repo (if (string? n) n (or (namespace n) (name n))) (name n) v))
+  (io/file local-repo
+           (if (string? n) n (or (namespace n) (name n))) (name n) v))
 
 (defn- read-test-project [name]
   (binding [*ns* (find-ns 'leiningen.core)]
-    (read-project (format "test_projects/%s/project.clj" name))))
+    (project/read (format "test_projects/%s/project.clj" name))))
 
 (def sample-project (read-test-project "sample"))
 
@@ -25,12 +24,3 @@
 (def tricky-name-project (read-test-project "tricky-name"))
 
 (def native-project (read-test-project "native"))
-
-(def logger (first (.getBuildListeners lancet/ant-project)))
-
-(defmacro with-no-log [& body]
-  `(do (.setOutputPrintStream logger (platform-nullsink))
-       (.setErrorPrintStream logger (platform-nullsink))
-       (try ~@body
-            (finally (.setOutputPrintStream logger System/out)
-                     (.setErrorPrintStream logger System/err)))))
