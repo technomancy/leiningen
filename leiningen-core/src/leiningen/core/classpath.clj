@@ -28,6 +28,10 @@
 ;; Ideally pomegranate would accept map forms for repositories so you
 ;; could do things like toggling snapshots and such, but for now we
 ;; normalize back to url-as-string.
+
+;; TODO: add authentication to repositories
+;; TODO: add policies to repositories
+
 (defn- repositories-map [repositories]
   (into {} (for [[id repo] repositories]
              [id (:url repo)])))

@@ -30,7 +30,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] clean
    - [X] compile
    - [ ] deploy
-   - [ ] deps (mostly done in leiningen.core.classpath)
+   - [X] deps (mostly done in leiningen.core.classpath)
    - [ ] help
    - [ ] install
    - [ ] jar
