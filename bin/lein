@@ -42,7 +42,7 @@ if [ "$LEIN_HOME" = "" ]; then
 fi
 
 DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
-USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
+USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins2/*jar 2> /dev/null)"
 
 artifact_name () {
     echo "$1" | sed -e "s/.*\/\(.*\)/\1/" | \
