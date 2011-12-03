@@ -31,6 +31,10 @@ can just run `lein self-install`, otherwise get the standalone jar from the
 If you have [Cygwin](http://www.cygwin.com/) you should be able to use
 the shell script above rather than the batch file.
 
+The master branch is currently undergoing massive changes for
+Leiningen 2.0; you should not expect it to work. If you want to build
+from source for everyday use, use the 1.x branch.
+
 ## Usage
 
 The

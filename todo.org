@@ -39,7 +39,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] plugin
    - [ ] pom (steal from depot)
    - [ ] repl (figure out nrepl integration)
-   - [ ] retest
+   - [X] retest
    - [X] run
    - [X] search
    - [X] test
