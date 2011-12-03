@@ -25,12 +25,19 @@
                                                           :resources-path])]
                     (str (io/file (:root project) "checkouts" (.getName dep) (d proj)))))))
 
+;; Ideally pomegranate would accept map forms for repositories so you
+;; could do things like toggling snapshots and such, but for now we
+;; normalize back to url-as-string.
+(defn- repositories-map [repositories]
+  (into {} (for [[id repo] repositories]
+             [id (:url repo)])))
+
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories."
   [{:keys [repositories dependencies]}]
   {:pre [(every? vector? dependencies)]}
-  (aether/resolve-dependencies :repositories (into {} repositories)
+  (aether/resolve-dependencies :repositories (repositories-map repositories)
                                :coordinates dependencies))
 
 (defn resolve-dev-dependencies
@@ -40,7 +47,7 @@
   the shell script is started."
   [{:keys [repositories dev-dependencies root]}]
   {:pre [(every? vector? dev-dependencies)]}
-  (let [files (aether/resolve-dependencies :repositories (into {} repositories)
+  (let [files (aether/resolve-dependencies :repositories (repositories-map repositories)
                                            :coordinates dev-dependencies)]
     (when (seq dev-dependencies)
       (.mkdirs (io/file root "lib/dev")))

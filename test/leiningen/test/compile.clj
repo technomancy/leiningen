@@ -7,7 +7,8 @@
         [leiningen.compile]
         [leiningen.test.helper :only [sample-project sample-failing-project
                                       tricky-name-project dev-deps-project]]
-        [leiningen.util.file :only [delete-file-recursively]]))
+        [leiningen.util.file :only [delete-file-recursively]])
+  (:require [leiningen.core.eval :as eval]))
 
 (use-fixtures :each (fn [f]
                       (delete-file-recursively
@@ -33,8 +34,7 @@
 (deftest test-cleared-transitive-aot
   (is (zero? (compile (assoc sample-project
                         :clean-non-project-classes true))))
-  (is (zero? (eval-in-project sample-project
-                              '(require 'nom.nom.nom)))
+  (is (zero? (eval/eval-in-project sample-project '(require 'nom.nom.nom)))
       "can't load after compiling")
   (let [classes (seq (.list (file "test_projects" "sample"
                                   "classes" "nom" "nom")))]
