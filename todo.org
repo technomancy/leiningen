@@ -28,7 +28,7 @@ See also https://github.com/technomancy/leiningen/issues
 ** Adapt existing tasks to new API
    - [X] classpath
    - [X] clean
-   - [ ] compile
+   - [X] compile
    - [ ] deploy
    - [ ] deps (mostly done in leiningen.core.classpath)
    - [ ] help
