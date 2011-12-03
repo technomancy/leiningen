@@ -40,9 +40,9 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] pom (steal from depot)
    - [ ] repl (figure out nrepl integration)
    - [ ] retest
-   - [ ] run
-   - [ ] search
-   - [ ] test
+   - [X] run
+   - [X] search
+   - [X] test
    - [ ] trampoline
    - [ ] uberjar
 * For 1.6.2

@@ -32,10 +32,11 @@
   "Public only for macroexpansion purposes, :repositories needs special
   casing logic for merging default values with user-provided ones."
   [{:keys [omit-default-repositories repositories] :as
-  project}]
+    project}]
   (assoc project :repositories
-         (concat repositories (if-not omit-default-repositories
-                                (:repositories defaults)))))
+         (for [[id repo] (concat repositories (if-not omit-default-repositories
+                                                (:repositories defaults)))]
+           [id (if (string? repo) {:url repo} repo)])))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro."

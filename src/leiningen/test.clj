@@ -6,7 +6,7 @@
             [leiningen.core.eval :as eval])
   (:import (java.io File)))
 
-(def ^{:dynamic true} *exit-after-tests* true)
+(def ^:dynamic *exit-after-tests* true)
 
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
