@@ -250,7 +250,9 @@ else
             exec sh -c "exec $TRAMPOLINE"
         fi
     else
-        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
+        # Until the fix comes in for classlojure.
+        # -Xbootclasspath/a:"$CLOJURE_JAR"
+        exec $RLWRAP $JAVA_CMD  -client \
              $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
              -cp "$CLASSPATH" $JLINE clojure.main -m leiningen.main "$@"
     fi
