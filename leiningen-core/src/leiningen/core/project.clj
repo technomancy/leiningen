@@ -42,7 +42,9 @@
   [project-name version & {:as args}]
   `(let [args# ~(unquote-project args)]
      (def ~'project
-       (merge defaults (add-repositories args#)
+       (merge defaults (dissoc (add-repositories args#)
+                               ;; Strip out aliases for normalization.
+                               :eval-in-leiningen :deps :dev-deps)
               {:name ~(name project-name)
                :group ~(or (namespace project-name)
                            (name project-name))
