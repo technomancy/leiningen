@@ -3,8 +3,8 @@
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [clojure.java.shell :only [with-sh-dir]]
+        [leiningen.core.eval :only [eval-in-project]]
         [leiningen.compile]
-        [leiningen.core :only [read-project]]
         [leiningen.test.helper :only [sample-project sample-failing-project
                                       tricky-name-project dev-deps-project]]
         [leiningen.util.file :only [delete-file-recursively]]))
@@ -15,7 +15,7 @@
                       (delete-file-recursively
                        (file "test_projects" "sample_failing" "classes") true)
                       (f)))
-
+ 
 (deftest test-compile
   (is (zero? (compile sample-project)))
   (is (.exists (file "test_projects" "sample"
@@ -23,8 +23,8 @@
   (is (pos? (compile sample-failing-project))))
 
 (deftest test-plugin
-  (is (zero? (eval-in-project (assoc sample-project
-                                :eval-in-leiningen true
+  (is (= :compiled (eval-in-project (assoc sample-project
+                                :eval-in :leiningen
                                 :skip-shutdown-agents true
                                 :main nil)
                               '(do (require 'leiningen.compile)
@@ -66,7 +66,7 @@
 
 (deftest test-injection
   (is (zero? (eval-in-project sample-project
-                              '#'leiningen.util.injected/add-hook))))
+                              '#'leiningen.core.injected/add-hook))))
 
 (deftest test-compile-java-main
   (is (zero? (compile dev-deps-project))))

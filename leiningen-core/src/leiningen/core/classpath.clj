@@ -23,7 +23,7 @@
                   (for [d (:checkout-deps-shares project [:source-path
                                                           :compile-path
                                                           :resources-path])]
-                    (str (io/file "checkouts" (.getName dep) (d proj)))))))
+                    (str (io/file (:root project) "checkouts" (.getName dep) (d proj)))))))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
