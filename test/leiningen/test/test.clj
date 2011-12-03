@@ -3,7 +3,6 @@
   (:use [clojure.test]
         [leiningen.test]
         [leiningen.util.file :only [tmp-dir]]
-        [leiningen.core :only [read-project]]
         [leiningen.test.helper :only [sample-no-aot-project]]))
 
 (use-fixtures :each
