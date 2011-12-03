@@ -49,7 +49,11 @@
                :version ~version
                :dependencies (or (:dependencies args#) (:deps args#))
                :dev-dependencies (or (:dev-dependencies args#) (:dev-deps args#))
-               :root ~(.getParent (io/file *file*))}))))
+               :root ~(.getParent (io/file *file*))
+               :eval-in (or (:eval-in args#)
+                            (if (:eval-in-leiningen args#)
+                              :leiningen
+                              :subprocess))}))))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."
