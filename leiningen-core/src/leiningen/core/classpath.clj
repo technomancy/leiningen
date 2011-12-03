@@ -49,20 +49,27 @@
       (io/copy file (io/file root "lib/dev" (.getName file))))
     files))
 
+(defn- normalize-path [root path]
+  (when path
+    (let [f (io/file path)]
+      (.getAbsolutePath (if (.isAbsolute f) f (io/file root path))))))
+
 (defn get-classpath
   "Return a the classpath for project as a list of strings."
   [project]
   ;; TODO: figure out if these should be excluded via profiles or what
-  (remove nil? (concat [(:test-path project)
-                        (:dev-resources-path project)]
-                       [(:source-path project)
-                        (:compile-path project)
-                        (:resources-path project)]
-                       (:extra-classpath-dirs project)
-                       (checkout-deps-paths project)
-                       (map #(.getAbsolutePath %)
-                            (resolve-dev-dependencies project))
-                       (map #(.getAbsolutePath %)
-                            (resolve-dependencies project))
-                       ;; TODO: exclude outside dev contexts
-                       (user/plugins))))
+  (for [path (concat [(:test-path project)
+                      (:dev-resources-path project)]
+                     [(:source-path project)
+                      (:compile-path project)
+                      (:resources-path project)]
+                     (:extra-classpath-dirs project)
+                     (checkout-deps-paths project)
+                     (map #(.getAbsolutePath %)
+                          (resolve-dev-dependencies project))
+                     (map #(.getAbsolutePath %)
+                          (resolve-dependencies project))
+                     ;; TODO: exclude outside dev contexts
+                     (user/plugins))
+        :when path]
+    (normalize-path (:root project) path)))

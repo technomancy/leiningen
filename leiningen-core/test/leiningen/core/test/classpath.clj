@@ -61,4 +61,4 @@
              (#'leiningen.core.classpath/checkout-deps-paths project)))
       (finally
        ;; can't recur from finally
-       #_(dorun (map #(.delete %) (reverse (file-seq d1))))))))
+       (dorun (map #(.delete %) (reverse (file-seq d1))))))))

@@ -118,7 +118,7 @@
 
 (defmulti eval-in
   "Evaluate the given from in either a subprocess or the leiningen process."
-  (fn [project _] (:eval-in project)))
+  (fn [project _] (:eval-in project)) :default :classloader)
 
 (defmethod eval-in :subprocess
   [project form]
