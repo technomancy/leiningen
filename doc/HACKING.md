@@ -5,26 +5,50 @@ Leiningen is composed of a few layers. First we have the
 functionality that would be useful outside the context of Leiningen
 itself, primarily for IDEs and other tools. This is available
 independently on [Clojars](http://clojars.org/leiningen-core) and
-documented at TODO
+[documented on Github](http://technomancy.github.com/leiningen).
+
+The next layer is `leiningen.main`, which is the launcher responsible
+for resolving and calling Leiningen task functions.
+
+Finally we have the tasks themselves. Tasks are simply functions in
+specially-named namespaces:
+
+```clj
+(ns leiningen.pprint
+  (:require [clojure.pprint :as pp]))
+
+(defn pprint
+  "Print a readable representation of the current project."
+  [project]
+  (pp/pprint project))
+```
+
+The docstring for the task will be used by `lein help`. In particular,
+the first line will be used as a summary, so it needs to stand on its
+own if you are going to have a longer multi-line explanation.
+
+## Task Execution
 
 When you launch Leiningen, it must start an instance of Clojure to
 load itself. But this instance must not affect the project that you're
 building. It may use a different version of Clojure from Leiningen,
-and the project should be in a fresh JVM. Leiningen uses ant's
-<tt>java</tt> task to fork off a separate process for this
-purpose. The <tt>leiningen.compile</tt> namespace implements this;
-specifically the <tt>eval-in-project</tt> function. Any code that must
-execute within the context of the project (AOT compilation, test runs)
-needs to go through this function.
+and the project should be in a fresh JVM. Leiningen currently launches
+this as a subprocess using `leiningen.core.eval/eval-in-project`. Any
+code that must execute within the context of the project (AOT
+compilation, test runs) needs to go through this function.
 
 The exception to this rule is when <tt>:eval-in-leiningen</tt> in
 project.clj is true, as is commonly used for Leiningen plugins.
 
-TODO: what goes where? a tour through the launching of a task
-
 Leiningen is extensible; you can define new tasks in plugins. Add your
 plugin as a dev-dependency of your project, and you'll be able to call
-<tt>lein $YOUR_COMMAND</tt>. See the [plugins guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md) for details.
+<tt>lein $YOUR_COMMAND</tt>. 
+
+See the
+[plugins guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+for details.
+
+## Contributing
 
 The [mailing list](http://groups.google.com/group/leiningen) and the
 leiningen or clojure channels on Freenode are the best places to

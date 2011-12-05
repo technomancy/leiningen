@@ -232,8 +232,8 @@ email addresses are not appropriate for bug reports. See the file
 HACKING.md for more details on how Leiningen's codebase is structured.
 
 Patches are preferred as Github pull requests, though patches from
-<tt>git format-patch</tt> are also welcome on the mailing list. Please
-use topic branches when sending pull requests rather than committing
+`git format-patch` are also welcome on the mailing list. Please use
+topic branches when sending pull requests rather than committing
 directly to master in order to minimize unnecessary merge commit
 clutter.
 
