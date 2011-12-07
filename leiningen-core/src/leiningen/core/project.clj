@@ -15,12 +15,11 @@
              identity
              args))
 
-(def defaults {:source-path "src"
-               :compile-path "classes"
-               :resources-path "resources"
-               :test-path "test"
-               :dev-resources-path "dev-resources"
-               :native-path "native"
+(def defaults {:source-path ["src"]
+               :resources-path ["resources"]
+               :test-path []
+               :native-path ["native"]
+               :compile-path "target/classes"
                :target-path "target"
                :repositories [["central" "http://repo1.maven.org/maven2"]
                               ;; TODO: point to releases-only before 2.0 is out
@@ -45,13 +44,15 @@
      (def ~'project
        (merge defaults (dissoc (add-repositories args#)
                                ;; Strip out aliases for normalization.
-                               :eval-in-leiningen :deps :dev-deps)
+                               :eval-in-leiningen :deps)
               {:name ~(name project-name)
                :group ~(or (namespace project-name)
                            (name project-name))
                :version ~version
                :dependencies (or (:dependencies args#) (:deps args#))
-               :dev-dependencies (or (:dev-dependencies args#) (:dev-deps args#))
+               :compile-path (or (:compile-path args#)
+                                 (.getPath (io/file (:target-path args#)
+                                                    "classes")))
                :root ~(.getParent (io/file *file*))
                :eval-in (or (:eval-in args#)
                             (if (:eval-in-leiningen args#)

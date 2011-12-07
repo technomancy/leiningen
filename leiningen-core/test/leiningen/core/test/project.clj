@@ -7,12 +7,11 @@
   (is (= {:name "leiningen", :group "leiningen", :version "2.0.0-SNAPSHOT",
           :url "https://github.com/technomancy/leiningen"
 
-          :source-path "src",
+          :source-path ["src"],
           :compile-path "classes",
-          :test-path "test",
-          :resources-path "resources"
-          :native-path "native"
-          :dev-resources-path "dev-resources",
+          :test-path [],
+          :resources-path ["resources"],
+          :native-path ["native"],
           :target-path "target",
 
           :disable-implicit-clean true,
@@ -28,8 +27,8 @@
           ;; wtf, (= [#"^\."] [#"^\."]) <- false
           ;; :jar-exclusions [#"^\."],
           ;; :uberjar-exclusions [#"^META-INF/DUMMY.SF"],
-          :repositories '(["central" "http://repo1.maven.org/maven2"]
-                            ["clojars" "http://clojars.org/repo/"])}
+          :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+                         ["clojars" {:url "http://clojars.org/repo/"}]]}
          (dissoc (read "dev-resources/p1.clj")
                  :description :root :jar-exclusions :uberjar-exclusions))))
 

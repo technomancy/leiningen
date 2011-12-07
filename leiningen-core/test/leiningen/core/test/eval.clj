@@ -7,9 +7,9 @@
 
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]]
               :root "/tmp/lein-sample-project"
-              :source-path "/tmp/lein-sample-project/src"
-              :resources-path "/tmp/lein-sample-project/resources"
-              :test-path "/tmp/lein-sample-project/test"
+              :source-path ["/tmp/lein-sample-project/src"]
+              :resources-path ["/tmp/lein-sample-project/resources"]
+              :test-path ["/tmp/lein-sample-project/test"]
               :compile-path "/tmp/lein-sample-project/classes"})
 
 (deftest test-eval-in-project
