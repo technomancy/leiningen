@@ -92,7 +92,7 @@
         (concat (seq result) (seq latter))
 
         (and (map? result) (map? latter))
-        (merge-with profile-key-merge latter result)
+        (merge-with-key profile-key-merge latter result)
 
         (and (set? result) (set? latter))
         (set/union latter result)
