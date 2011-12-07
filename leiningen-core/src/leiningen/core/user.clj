@@ -32,3 +32,6 @@
   []
   (for [plugin (.listFiles (io/file (leiningen-home) "plugins"))]
     (.getAbsolutePath plugin)))
+
+(defn profile []
+  {})

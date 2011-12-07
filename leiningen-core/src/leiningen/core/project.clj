@@ -2,7 +2,9 @@
   "Read project.clj files."
   (:refer-clojure :exclude [read])
   (:require [clojure.walk :as walk]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clojure.set :as set]
+            [leiningen.core.user :as user]))
 
 (defn- unquote-project
   "Inside defproject forms, unquoting (~) allows for arbitrary evaluation."
@@ -59,15 +61,65 @@
                               :leiningen
                               :subprocess))}))))
 
+(def profiles
+  "Profiles get merged into the project map. The :dev and :user
+  profiles are active by default."
+  (atom {:dev {:test-path ["test"]
+               :resources-path ["dev-resources"]}
+         :user (user/profile)}))
+
+;; Modified merge-with to provide f with the conflicting key.
+(defn- merge-with-key [f & maps]
+  (when (some identity maps)
+    (let [merge-entry (fn [m e]
+                        (let [k (key e) v (val e)]
+                          (if (contains? m k)
+                            (assoc m k (f k (get m k) v))
+                            (assoc m k v))))
+          merge2 (fn [m1 m2]
+                   (reduce merge-entry (or m1 {}) (seq m2)))]
+      (reduce merge2 maps))))
+
+(defn- merge-dependencies [result latter]
+  (let [latter-deps (set (map first latter))]
+    (concat latter (remove (comp latter-deps first) result))))
+
+(defn- profile-key-merge [key result latter]
+  (cond (= :dependencies key)
+        (merge-dependencies result latter)
+
+        (= :repositories key)
+        (concat (seq result) (seq latter))
+
+        (and (map? result) (map? latter))
+        (merge-with profile-key-merge latter result)
+
+        (and (set? result) (set? latter))
+        (set/union latter result)
+
+        (and (coll? result) (coll? latter))
+        (concat latter result)
+
+        :else (doto latter (prn :profile-merge-else))))
+
+(defn- merge-profile [project profile]
+  (merge-with-key profile-key-merge project profile))
+
+(defn ^:internal merge-profiles [project profiles-to-apply]
+  ;; We reverse because we want profile values to override the
+  ;; project, so we need "last wins" in the reduce, but we want the
+  ;; first profile specified by the user to take precedence.
+  (reduce merge-profile project (map @profiles (reverse profiles-to-apply))))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
-  ([file]
-     (try (binding [*ns* (find-ns 'leiningen.core.project)]
-            (load-file file))
-          (let [project (resolve 'leiningen.core.project/project)]
-            (when-not project
-              (throw (Exception. "project.clj must define project map.")))
-            ;; (ns-unmap *ns* 'project) ; return it to original state
-            @project)
-          (catch java.io.FileNotFoundException _)))
+  ([file profiles]
+     (binding [*ns* (find-ns 'leiningen.core.project)]
+       (load-file file))
+     (let [project (resolve 'leiningen.core.project/project)]
+       (when-not project
+         (throw (Exception. "project.clj must define project map.")))
+       (ns-unmap *ns* 'project) ; return it to original state
+       (merge-profiles @project profiles)))
+  ([file] (read file [:dev :user]))
   ([] (read "project.clj")))

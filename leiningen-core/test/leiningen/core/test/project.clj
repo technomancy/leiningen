@@ -9,8 +9,8 @@
 
           :source-path ["src"],
           :compile-path "classes",
-          :test-path [],
-          :resources-path ["resources"],
+          :test-path ["test"],
+          :resources-path ["dev-resources" "resources"],
           :native-path ["native"],
           :target-path "target",
 
@@ -34,3 +34,12 @@
 
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
+
+(def test-profiles (atom {:qa {:resources-path ["/etc/myapp"]}
+                          :test {:resources-path ["test/hi"]}
+                          :dev {:test-path ["test"]}}))
+
+(deftest test-merge-profile-paths
+  (with-redefs [profiles test-profiles]
+    (is (= {:resources-path ["/etc/myapp" "test/hi" "resources"]}
+           (merge-profiles {:resources-path ["resources"]} [:qa :test])))))
