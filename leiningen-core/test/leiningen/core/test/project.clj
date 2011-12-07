@@ -22,7 +22,7 @@
                           [clucy "0.2.2"] [lancet "1.0.1"]
                           [robert/hooke "1.1.2"]
                           [stencil "0.2.0"]],
-          :dev-dependencies nil,
+          :twelve 12 ; testing unquote
 
           ;; wtf, (= [#"^\."] [#"^\."]) <- false
           ;; :jar-exclusions [#"^\."],
@@ -32,6 +32,5 @@
          (dissoc (read "dev-resources/p1.clj")
                  :description :root :jar-exclusions :uberjar-exclusions))))
 
-;; TODO: test unquoting
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project

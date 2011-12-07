@@ -7,5 +7,6 @@
                  [lancet "1.0.1"]
                  [robert/hooke "1.1.2"]
                  [stencil "0.2.0"]]
+  :twelve ~(+ 6 2 4)
   :disable-implicit-clean true
   :eval-in-leiningen true)
