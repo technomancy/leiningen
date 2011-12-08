@@ -80,6 +80,7 @@
                    (reduce merge-entry (or m1 {}) (seq m2)))]
       (reduce merge2 maps))))
 
+;; This would just be a merge if we had an ordered map
 (defn- merge-dependencies [result latter]
   (let [latter-deps (set (map first latter))]
     (concat latter (remove (comp latter-deps first) result))))
@@ -105,11 +106,23 @@
 (defn- merge-profile [project profile]
   (merge-with-key profile-key-merge project profile))
 
+(defn- lookup-profile [profiles profile]
+  (let [result (profiles profile)]
+    (if (keyword? result)
+      (recur result)
+      result)))
+
 (defn- profiles-for [project profiles-to-apply]
-  ;; We reverse because we want profile values to override the
-  ;; project, so we need "last wins" in the reduce, but we want the
-  ;; first profile specified by the user to take precedence.
-  (map (merge @profiles (:profiles project)) (reverse profiles-to-apply)))
+  (let [default-profiles @profiles
+        profiles-file (if (.exists (io/file (:root project) "profiles.clj"))
+                        (load-file (str (io/file (:root project)
+                                                 "profiles.clj"))))
+        project-profiles (:profiles project)
+        profiles (merge default-profiles profiles-file project-profiles)]
+    ;; We reverse because we want profile values to override the
+    ;; project, so we need "last wins" in the reduce, but we want the
+    ;; first profile specified by the user to take precedence.
+    (map (partial lookup-profile profiles) (reverse profiles-to-apply))))
 
 (defn ^:internal merge-profiles [project profiles-to-apply]
   (reduce merge-profile project (profiles-for project profiles-to-apply)))
