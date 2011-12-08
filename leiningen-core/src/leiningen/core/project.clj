@@ -109,7 +109,7 @@
 (defn- lookup-profile [profiles profile]
   (let [result (profiles profile)]
     (if (keyword? result)
-      (recur result)
+      (recur profiles result)
       result)))
 
 (defn- profiles-for [project profiles-to-apply]

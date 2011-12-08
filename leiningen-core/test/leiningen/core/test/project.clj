@@ -44,6 +44,7 @@
 
 (def test-profiles (atom {:qa {:resources-path ["/etc/myapp"]}
                           :test {:resources-path ["test/hi"]}
+                          :tes :test
                           :dev {:test-path ["test"]}}))
 
 (deftest test-merge-profile-paths
@@ -51,5 +52,5 @@
     (is (= ["/etc/myapp" "test/hi" "blue-resources" "resources"]
            (-> {:resources-path ["resources"]
                 :profiles {:blue {:resources-path ["blue-resources"]}}}
-               (merge-profiles [:qa :test :blue])
+               (merge-profiles [:qa :tes :blue])
                :resources-path)))))
