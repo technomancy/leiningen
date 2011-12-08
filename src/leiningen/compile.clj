@@ -99,7 +99,7 @@
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
                                                      (:debug project)))})
       ~@(when (and native-arch-path (.exists native-arch-path))
-          [(d-property [:java-library-path native-arch-path])]))))
+          [(d-property [:java.library.path native-arch-path])]))))
 
 (defn- injected-forms []
   (with-open [rdr (-> "robert/hooke.clj" resource reader PushbackReader.)]
