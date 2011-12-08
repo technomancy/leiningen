@@ -64,9 +64,9 @@
 (def profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:dev {:test-path ["test"]
-               :resources-path ["dev-resources"]}
-         :user (user/profile)}))
+  (atom (merge {:dev {:test-path ["test"]
+                      :resources-path ["dev-resources"]}}
+               (user/profiles))))
 
 ;; Modified merge-with to provide f with the conflicting key.
 (defn- merge-with-key [f & maps]
@@ -105,11 +105,14 @@
 (defn- merge-profile [project profile]
   (merge-with-key profile-key-merge project profile))
 
-(defn ^:internal merge-profiles [project profiles-to-apply]
+(defn- profiles-for [project profiles-to-apply]
   ;; We reverse because we want profile values to override the
   ;; project, so we need "last wins" in the reduce, but we want the
   ;; first profile specified by the user to take precedence.
-  (reduce merge-profile project (map @profiles (reverse profiles-to-apply))))
+  (map (merge @profiles (:profiles project)) (reverse profiles-to-apply)))
+
+(defn ^:internal merge-profiles [project profiles-to-apply]
+  (reduce merge-profile project (profiles-for project profiles-to-apply)))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."

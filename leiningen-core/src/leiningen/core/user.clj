@@ -33,5 +33,7 @@
   (for [plugin (.listFiles (io/file (leiningen-home) "plugins"))]
     (.getAbsolutePath plugin)))
 
-(defn profile []
-  {})
+(defn profiles []
+  (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
+    (if (.exists profiles-file)
+      (load-file (.getAbsolutePath profiles-file)))))

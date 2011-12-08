@@ -1,7 +1,14 @@
 (ns leiningen.core.test.project
   (:refer-clojure :exclude [read])
   (:use [clojure.test]
-        [leiningen.core.project]))
+        [leiningen.core.project])
+  (:require [leiningen.core.user :as user]))
+
+(use-fixtures :once
+              (fn [f]
+                ;; Can't have user-level profiles interfering!
+                (with-redefs [user/plugins (constantly {})]
+                  (f))))
 
 (deftest test-read-project
   (is (= {:name "leiningen", :group "leiningen", :version "2.0.0-SNAPSHOT",
@@ -41,5 +48,8 @@
 
 (deftest test-merge-profile-paths
   (with-redefs [profiles test-profiles]
-    (is (= {:resources-path ["/etc/myapp" "test/hi" "resources"]}
-           (merge-profiles {:resources-path ["resources"]} [:qa :test])))))
+    (is (= ["/etc/myapp" "test/hi" "blue-resources" "resources"]
+           (-> {:resources-path ["resources"]
+                :profiles {:blue {:resources-path ["blue-resources"]}}}
+               (merge-profiles [:qa :test :blue])
+               :resources-path)))))
