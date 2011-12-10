@@ -124,8 +124,10 @@
     ;; first profile specified by the user to take precedence.
     (map (partial lookup-profile profiles) (reverse profiles-to-apply))))
 
-(defn ^:internal merge-profiles [project profiles-to-apply]
-  (reduce merge-profile project (profiles-for project profiles-to-apply)))
+(defn merge-profiles [project profiles-to-apply]
+  (with-meta (reduce merge-profile project
+                     (profiles-for project profiles-to-apply))
+    {:without-profiles project}))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."
