@@ -20,7 +20,7 @@
 (def defaults {:source-path ["src"]
                :resources-path ["resources"]
                :test-path []
-               :native-path ["native"]
+               :native-path "native"
                :compile-path "target/classes"
                :target-path "target"
                :repositories [["central" "http://repo1.maven.org/maven2"]

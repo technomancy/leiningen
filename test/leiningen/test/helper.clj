@@ -8,20 +8,9 @@
 (defn m2-dir [n v]
   (io/file local-repo
            (if (string? n) n (or (namespace n) (name n))) (name n) v))
-(defn- prepend-root [project key root]
-  (assoc project key (str root java.io.File/separator (key project))))
 
 (defn- read-test-project [name]
-  (let [project (project/read (format "test_projects/%s/project.clj" name))
-        root (:root project)]
-    (-> project
-        (prepend-root :source-path root)
-        (prepend-root :compile-path root)
-        (prepend-root :test-path root)
-        (prepend-root :resources-path root)
-        (prepend-root :dev-resources-path root)
-        (prepend-root :target-path root)
-        (prepend-root :native-path root))))
+  (project/read (format "test_projects/%s/project.clj" name)))
 
 (def sample-project (read-test-project "sample"))
 
