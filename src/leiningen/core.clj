@@ -81,6 +81,8 @@ Warning: alpha; subject to change."
                                               (or (:compile-path m#) "classes"))
                                :source-path (normalize-path#
                                              (or (:source-path m#) "src"))
+                               :java-source-path (normalize-path#
+                                                  (:java-source-path m#))
                                :library-path (normalize-path#
                                               (or (:library-path m#) "lib"))
                                :test-path (normalize-path#
