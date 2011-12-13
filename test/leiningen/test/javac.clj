@@ -10,6 +10,4 @@
   (delete-file-recursively (:compile-path dev-deps-project) true)
   (javac dev-deps-project)
   (is (.exists (file "test_projects/dev-deps-only/classes"
-                     "dev_deps_only" "Junk.class")))
-  (is (.exists (file "test_projects/dev-deps-only/classes"
-                     "dev_deps_only" "Junk2.class"))))
+                     "dev_deps_only" "Junk.class"))))
