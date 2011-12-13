@@ -157,28 +157,32 @@
       (str (:name project) \- (:version project) "-standalone.jar")))
 
 (defn- filespecs [project deps-fileset]
-  (concat
-   [{:type :bytes
-     :path (format "META-INF/maven/%s/%s/pom.xml"
-                   (:group project)
-                   (:name project))
-     :bytes (make-pom project)}
-    {:type :bytes
-     :path (format "META-INF/maven/%s/%s/pom.properties"
-                   (:group project)
-                   (:name project))
-     :bytes (make-pom-properties project)}
-    {:type :path :path (:compile-path project)}
-    {:type :path :path (str (:root project) "/project.clj")}]
-   (when (and (:resources-path project)
-              (.exists (file (:resources-path project))))
-     [{:type :path :path (:resources-path project)}])
-   (when (and (:java-source-path project)
-              (not (:omit-source project)))
-     [{:type :path :path (:java-source-path project)}])
-   (when-not (:omit-source project)
-     [{:type :path :path (:source-path project)}])
-   (shell-wrapper-filespecs project deps-fileset)))
+  (let [javasrc (:java-source-path project)
+        cljsrc (:source-path project)]
+    (concat
+     [{:type :bytes
+       :path (format "META-INF/maven/%s/%s/pom.xml"
+                     (:group project)
+                     (:name project))
+       :bytes (make-pom project)}
+      {:type :bytes
+       :path (format "META-INF/maven/%s/%s/pom.properties"
+                     (:group project)
+                     (:name project))
+       :bytes (make-pom-properties project)}
+      {:type :path :path (:compile-path project)}
+      {:type :path :path (str (:root project) "/project.clj")}]
+     (when (and (:resources-path project)
+                (.exists (file (:resources-path project))))
+       [{:type :path :path (:resources-path project)}])
+     (when (and javasrc
+                (not (:omit-source project))
+                (not (.startsWith javasrc cljsrc))
+                (not (.startsWith cljsrc javasrc)))
+       [{:type :path :path javasrc}])
+     (when-not (:omit-source project)
+       [{:type :path :path cljsrc}])
+     (shell-wrapper-filespecs project deps-fileset))))
 
 (defn extract-jar
   "Unpacks jar-file into target-dir. jar-file can be a JarFile
