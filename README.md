@@ -160,13 +160,14 @@ See the plugin task's help for more information.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
 **A:** Use a feature called _checkout dependencies_. If you create a
-  directory called `checkouts` in your project root and symlink
-  some other project roots into it, Leiningen will allow you to hack
-  on them in parallel. That means changes in the dependency will be
+  directory called `checkouts` in your project root and symlink some
+  other project roots into it, Leiningen will allow you to hack on
+  them in parallel. That means changes in the dependency will be
   visible in the main project without having to go through the whole
-  install/switch-projects/deps/restart-repl cycle. Note that this is
-  not a replacement for listing the project in :dependencies; it
-  simply supplements that for tighter change cycles.
+  install/switch-projects/deps/restart-repl cycle, and the copy in
+  `checkouts` will take precedence over the dependency declared in
+  project.clj. Note that this is not a replacement for listing the
+  project in :dependencies; it simply supplements that for convenience.
 
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes. Some libraries, such as log4j, depend on projects that are
