@@ -49,8 +49,9 @@
 (defn ^{:help-arglists '([])} pom
   "Write a pom.xml file to disk for Maven interop."
   ([project pom-location silently?]
-     (let [pom-file (file (:root project) pom-location)]
-       (copy (make-pom project true) pom-file)
+     (let [pom-file (file (:root project) pom-location)
+           original-project (:without-profiles (meta project))]
+       (copy (make-pom original-project true) pom-file)
        (when-not silently? (println "Wrote" (.getName pom-file)))
        (.getAbsolutePath pom-file)))
   ([project pom-location] (pom project pom-location false))
