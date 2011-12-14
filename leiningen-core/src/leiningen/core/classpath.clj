@@ -7,7 +7,7 @@
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
   (let [project (.getAbsolutePath (io/file root "checkouts" dep "project.clj"))]
-    (try (project/read project)
+    (try (project/read project [])
          (catch Exception e
            (throw (Exception. (format "Problem loading %s" project) e))))))
 
