@@ -65,7 +65,8 @@
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
   (atom (merge {:dev {:test-path ["test"]
-                      :resources-path ["dev-resources"]}}
+                      :resources-path ["dev-resources"]}
+                :debug {:debug true}}
                (user/profiles))))
 
 ;; Modified merge-with to provide f with the conflicting key.
