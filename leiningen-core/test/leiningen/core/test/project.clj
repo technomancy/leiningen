@@ -18,7 +18,7 @@
           :compile-path "classes",
           :test-path ["test"],
           :resources-path ["dev-resources" "resources"],
-          :native-path ["native"],
+          :native-path "native",
           :target-path "target",
 
           :disable-implicit-clean true,
