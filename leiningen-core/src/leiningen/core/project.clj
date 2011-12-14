@@ -81,12 +81,14 @@
                    (reduce merge-entry (or m1 {}) (seq m2)))]
       (reduce merge2 maps))))
 
-;; This would just be a merge if we had an ordered map
+;; TODO: This would just be a merge if we had an ordered map
 (defn- merge-dependencies [result latter]
   (let [latter-deps (set (map first latter))]
     (concat latter (remove (comp latter-deps first) result))))
 
-(defn- profile-key-merge [key result latter]
+(defn- profile-key-merge
+  "Merge profile values into the project map based on their type."
+  [key result latter]
   (cond (= :dependencies key)
         (merge-dependencies result latter)
 
@@ -113,7 +115,13 @@
       (recur profiles result)
       result)))
 
-(defn- profiles-for [project profiles-to-apply]
+(defn- profiles-for
+  "Read profiles from a variety of sources.
+
+  We check Leiningen's defaults, the profiles.clj file in ~/.lein/profiles.clj,
+  the profiles.clj file in the project root, and the :profiles key from the
+  project map."
+  [project profiles-to-apply]
   (let [default-profiles @profiles
         profiles-file (if (.exists (io/file (:root project) "profiles.clj"))
                         (load-file (str (io/file (:root project)
@@ -125,7 +133,9 @@
     ;; first profile specified by the user to take precedence.
     (map (partial lookup-profile profiles) (reverse profiles-to-apply))))
 
-(defn merge-profiles [project profiles-to-apply]
+(defn merge-profiles
+  "Look up and merge the given profile names into the project map."
+  [project profiles-to-apply]
   (with-meta (reduce merge-profile project
                      (profiles-for project profiles-to-apply))
     {:without-profiles project}))
