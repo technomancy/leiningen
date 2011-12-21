@@ -136,18 +136,6 @@ You can add third-party repositories by setting the :repositories key
 in project.clj. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
-If you've confirmed that your project will work with a number of
-different versions of a given dependency, you can provide a range
-instead of a single version:
-
-    [org.clojure/clojure "[1.1,1.2]"] ; <= will match 1.1.0 through 1.2.0.
-
-See [Maven's version range specification](http://j.mp/twc713)
-for details. Don't do this unless you have manually confirmed that it
-works with each of those versions though. You can't assume that your
-dependencies will use semantic versions; some projects even introduce
-backwards-incompatible changes in bugfix point releases.
-
 ## Dev Dependencies
 
 Sometimes you want to pull in dependencies that are really only for
@@ -173,7 +161,7 @@ support or
 [lein-difftest](http://github.com/brentonashworth/lein-difftest)) are
 better suited for user-level plugins than dev-deps:
 
-    $ lein plugin install swank-clojure 1.3.1
+    $ lein plugin install swank-clojure 1.3.4
 
 ## Writing the Code
 
