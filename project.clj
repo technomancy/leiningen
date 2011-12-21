@@ -2,7 +2,7 @@
 ;; defproject form. It can have other code in it as well, including
 ;; loading other task definitions.
 
-(defproject leiningen "1.6.2"
+(defproject leiningen "1.6.3-SNAPSHOT"
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"}
