@@ -135,6 +135,8 @@
                  ;; Repositories named "snapshots" and "releases" automatically
                  ;; have their :snapshots and :releases disabled as appropriate.
                  "snapshots" {:url "http://blueant.com/archiva/snapshots"
+                              ;; You should store credentials in your ~/.lein/init.clj
+                              ;; file; see "lein help deploy" for details.
                               ;; Also supports :private-key and :passphrase.
                               :username "milgrim" :password "locative.1"}
                  "releases" {:url "http://blueant.com/archiva/internal"
