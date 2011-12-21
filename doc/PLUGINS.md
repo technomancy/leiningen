@@ -3,7 +3,17 @@
 Leiningen tasks are simply functions named $TASK in a leiningen.$TASK
 namespace. So writing a Leiningen plugin is pretty straightforward; as
 long as it's available on the classpath, Leiningen will be able to use
-it.
+it:
+
+```clj
+(ns leiningen.debug
+  (:require [clojure.pprint :as pprint]))
+
+(defn debug
+  "Emit a pretty-printed representation of the project map."
+  [project]
+  (pprint/pprint project))
+```
 
 Plugins may be installed on a per-project or user-wide basis. To use a
 plugin in a single project, add it to your project.clj
