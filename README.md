@@ -159,24 +159,24 @@ See the plugin task's help for more information.
   if they're not worth spinning off; the plugin guide shows how.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
-**A:** Use a feature called _checkout dependencies_. If you create a
-  directory called `checkouts` in your project root and symlink some
-  other project roots into it, Leiningen will allow you to hack on
-  them in parallel. That means changes in the dependency will be
-  visible in the main project without having to go through the whole
-  install/switch-projects/deps/restart-repl cycle, and the copy in
-  `checkouts` will take precedence over the dependency declared in
-  project.clj. Note that this is not a replacement for listing the
-  project in :dependencies; it simply supplements that for convenience.
+**A:** If you create a directory called `checkouts` in your project
+  root and symlink some other project roots into it, Leiningen will
+  allow you to hack on them in parallel. That means changes in the
+  dependency will be visible in the main project without having to go
+  through the whole install/switch-projects/deps/restart-repl cycle,
+  and the copy in `checkouts` will take precedence over the dependency
+  declared in project.clj. Note that this is not a replacement for
+  listing the project in `:dependencies`; it simply supplements that for
+  convenience.
 
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes. Some libraries, such as log4j, depend on projects that are
   not included in public repositories and unnecessary for basic
-  functionality.  Projects listed as :dependencies may exclude 
-  any of their dependencies by using the :exclusions key. See
-  sample.project.clj for details.
+  functionality.  Projects listed as `:dependencies` may exclude 
+  any of their dependencies by using the `:exclusions` key. See
+  `sample.project.clj` for details.
 
-**Q:** What does java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?  
+**Q:** What does `java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V mean?`  
 **A:** It means you have some code that was AOT (ahead-of-time)
   compiled with a different version of Clojure than the one you're
   currently using. If it persists after running `lein clean` then it
