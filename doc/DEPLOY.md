@@ -22,33 +22,41 @@ repositories. You should use "org.clojars.$USERNAME" as the group-id
 instead.
 
 If it's a Clojure project that already has a project.clj file, it's
-easy enough to just follow the regular <tt>lein jar, pom; scp
-[...]</tt> path. If you don't have a readily-available pom, you can
-create a dummy project with <tt>lein new</tt>. Edit project.clj to
-include your org.clojars.$USERNAME group-id, the project's original
-artifact name, and the version. Then you can use the output from
-<tt>lein pom</tt> to upload to clojars.
+easy enough to just follow the regular `lein jar, pom; scp [...]`
+path. If you don't have a readily-available pom, you can create a
+dummy project with `lein new`. Edit `project.clj` to include your
+`org.clojars.$USERNAME` group-id, the project's original artifact
+name, and the version. Then you can use the output from `lein pom` to
+upload to clojars.
 
 ## Private Repositories
 
 There may be times when you want to make a library available to your
 team without making it public. This is best done by setting up a
-private Maven repository. Both [Archiva](http://archiva.apache.org/)
-and [Nexus](http://nexus.sonatype.org/) will allow you to set up
-private, password-protected repositories. These also provide proxying
-to other repositories, so you can set <tt>:omit-default-repositories</tt>
-in project.clj, and dependency downloads will speed up by quite a bit
-with only one server to check.
+private Maven repository.
 
-The private server will need to be added to the <tt>:repositories</tt>
-listing in project.clj. Archiva and Nexus offer separate repositories
-for snapshots and releases, so you'll want two entries for them:
+The simplest way to do this is by hosting a repository on
+[Amazon's S3 service](http://aws.amazon.com/s3/). You can use the
+[s3-wagon-private](https://github.com/technomancy/s3-wagon-private)
+plugin to deploy and consume from S3. Once you've signed up for an
+Amazon account, create a "bucket" to contain your repositories.
+
+It's best to keep snapshots and released versions separate, so add
+both to the `:repositories` in `project.clj`; in this example the
+"s3p" URL scheme is used for S3 private repositories:
 
 ```clj
-:repositories {"snapshots" {:url "http://blueant.com/archiva/snapshots"
-                            :username "milgrim" :password "locative.1"}
-               "releases" "http://blueant.com/archiva/internal"}
+:repositories {"releases" "s3p://mybucket/releases/"
+               "snapshots" "s3p://mybucket/snapshots/"}
 ```
+
+If you don't mind running your own server, both
+[Archiva](http://archiva.apache.org/) and
+[Nexus](http://nexus.sonatype.org/) will allow you to set up private,
+password-protected repositories. These also provide proxying to other
+repositories, so you can set `:omit-default-repositories` in
+`project.clj`, and dependency downloads will speed up by quite a bit
+with only one server to check.
 
 If you are are deploying to a repository that is _only_ used for deployment
 and never for dependency resolution, then it should be specified in a
@@ -63,14 +71,12 @@ projects may also be specified in the `settings` map in `~/.lein/init.clj`:
 
 ### Authentication
 
-Private repositories often need authentication credentials. You'll need to
-provide either a <tt>:username</tt>/<tt>:password</tt> combination or
-a <tt>:private-key</tt> location with or without a
-<tt>:passphrase</tt>. If you want to avoid putting sensitive
-information into your project.clj file as in the <tt>releases</tt>
-entry above, you can store authentication information in
-<tt>~/.lein/init.clj</tt> as a <tt>leiningen-auth</tt> map keyed off
-the repository's URL:
+Private repositories will need authentication credentials. You'll need
+to provide a `:username` and `:password` or `:passphrase` depending on
+the repository. In order to avoid putting sensitive information into
+your `project.clj` file, you should store authentication information
+in `~/.lein/init.clj` as a `leiningen-auth` map keyed off the
+repository's URL:
 
 ```clj
 (def leiningen-auth {"http://localhost:8080/archiva/repository/internal/"
@@ -88,8 +94,7 @@ appropriately, you can deploy to it:
     $ lein deploy
 
 If the project's current version is a SNAPSHOT, it will deploy to the
-<tt>snapshots</tt> repository; otherwise it will go to
-<tt>releases</tt>. The <tt>deploy</tt> task also takes a repository
-name as an argument that will be looked up in the
-<tt>:deploy-repositories</tt> and <tt>:repositories</tt> maps
-if you want to override this.
+`snapshots` repository; otherwise it will go to `releases`. The
+`deploy` task also takes a repository name as an argument that will be
+looked up in the `:deploy-repositories` and `:repositories` maps if
+you want to override this.
