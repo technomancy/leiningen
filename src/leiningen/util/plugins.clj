@@ -1,6 +1,8 @@
 (ns leiningen.util.plugins
   (:require [clojure.string :as string]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.set :as set]
+            [leiningen.util.file :as file])
   (:import (java.lang.management ManagementFactory)
            (java.security MessageDigest)
            (java.io File)))
@@ -54,7 +56,7 @@
   ;; the leiningen.core namespace.
   (require 'leiningen.deps)
   (-> ((resolve 'leiningen.deps/do-deps)
-       (assoc project :library-path dir) :plugins)
+       (assoc project :library-path (.getAbsolutePath dir)) :plugins)
       .getDirectoryScanner .getIncludedFiles))
 
 (defn stale? [project dir]
@@ -63,10 +65,19 @@
            (not= (deps-checksum project [:plugins])
                  (slurp (io/file dir "checksum"))))))
 
+(defn delete-stale [dir old-plugins new-plugins]
+  ;; We can't delete theese earlier because it could interfere
+  ;; with dependency fetching in the case of wagons, etc.
+  (doseq [old (set/difference (set old-plugins)
+                              (for [p new-plugins] (.getName (io/file p))))]
+    (.delete (io/file dir old))))
+
 (defn download-plugins [project]
-  (let [dir (.getAbsolutePath (io/file (:root project) ".lein-plugins"))]
+  (let [dir (io/file (:root project) ".lein-plugins")
+        old-plugins (.list dir)]
     (when (stale? project dir)
       (let [plugins (plugin-files project dir)]
+        (delete-stale dir old-plugins plugins)
         (spit (io/file dir "checksum")
               (deps-checksum project [:plugins]))
         ;; We can't access the plugins we just downloaded, so we need
