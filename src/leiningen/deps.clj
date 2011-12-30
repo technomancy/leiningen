@@ -12,6 +12,7 @@
   (:import (java.io File)
            (java.util.jar JarFile)
            (java.security MessageDigest)
+           (java.lang.management ManagementFactory)
            (org.apache.maven.artifact.ant Authentication DependenciesTask
                                           RemoteRepository RepositoryPolicy)
            (org.apache.maven.settings Server)
@@ -186,18 +187,54 @@
         (.mkdirs f)
         (copy (.getInputStream jar entry) f)))))
 
+;; Split this function out for better testability.
+(defn- get-raw-input-args []
+  (.getInputArguments (ManagementFactory/getRuntimeMXBean)))
+
+(defn- get-input-args
+  "Returns a vector of input arguments, accounting for a bug in RuntimeMXBean
+  that splits arguments which contain spaces."
+  []
+  ;; RuntimeMXBean.getInputArguments() is buggy when an input argument
+  ;; contains spaces. For an input argument of -Dprop="hello world" it
+  ;; returns ["-Dprop=hello", "world"]. Try to work around this bug.
+  (letfn [(join-broken-args [v arg] (if (= \- (first arg))
+                                      (conj v arg)
+                                      (conj (vec (butlast v))
+                                            (format "%s %s" (last v) arg))))]
+         (reduce join-broken-args [] (get-raw-input-args))))
+
+(defn- classpath-with-plugins [project plugins]
+  (string/join File/pathSeparator
+               (concat (for [plugin plugins]
+                         (.getAbsolutePath (file (:root plugin) ".lein-plugins"
+                                                 (.getName (file plugin)))))
+                       [(System/getProperty "java.class.path")])))
+
+(defn- write-self-trampoline [project plugins]
+  (spit (System/getProperty "leiningen.trampoline-file")
+        (doto (string/join " " `(~(System/getenv "JAVA_CMD") "-client"
+                           ~@(get-input-args)
+                           "-cp" ~(classpath-with-plugins project plugins)
+                           "clojure.main" "-e"
+                           "\"(use 'leiningen.core)(-main)\"" "/dev/null"
+                           ~@*command-line-args*)) println)))
+
 (defn download-plugins [project]
   (let [dir (.getAbsolutePath (file (:root project) ".lein-plugins"))]
+    ;; Are the existing plugins stale?
     (when (and (seq (:plugins project))
                (or (not (.exists (file dir "checksum")))
                    (not= (deps-checksum project [:plugins])
                          (slurp (file dir "checksum")))))
-      (.setContextClassLoader (Thread/currentThread) (doto classloader prn))
-      (doseq [plugin (-> (do-deps (assoc project :library-path dir) :plugins)
-                         .getDirectoryScanner .getIncludedFiles)]
-        #_(clojure.lang.RT/addURL (str "file://" dir "/" plugin)))
-      (spit (file dir "checksum")
-            (deps-checksum project [:plugins])))))
+      (let [plugins (-> (do-deps (assoc project :library-path dir) :plugins)
+                        .getDirectoryScanner .getIncludedFiles)]
+        (spit (file dir "checksum")
+              (deps-checksum project [:plugins]))
+        ;; We can't access the plugins we just downloaded, so we need
+        ;; to exit the JVM and relaunch using trampolining.
+        (write-self-trampoline project plugins)
+        (System/exit 0)))))
 
 (defn deps
   "Download :dependencies and put them in :library-path."
