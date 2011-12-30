@@ -1,6 +1,7 @@
 (ns leiningen.deps
   "Download all dependencies and put them in :library-path."
-  (:require [lancet.core :as lancet])
+  (:require [lancet.core :as lancet]
+            [clojure.string :as string])
   (:use [leiningen.core :only [repositories-for user-settings
                                *current-task* no-dev?]]
         [leiningen.clean :only [clean]]
@@ -109,12 +110,13 @@
   (.toString (BigInteger. 1 (-> (MessageDigest/getInstance "SHA1")
                                 (.digest (.getBytes content)))) 16))
 
-(defn- deps-checksum [project]
-  (sha1-digest (pr-str [(:dependencies project)
-                        (:dev-dependencies project)])))
+(defn- deps-checksum
+  ([project keys] (sha1-digest (pr-str (map project keys))))
+  ([project] (deps-checksum project [:dependencies :dev-dependencies])))
 
-(defn- new-deps-checksum-file [project]
-  (File. (:root project) ".lein-deps-sum"))
+(defn- new-deps-checksum-file
+  ([project name] (File. (:root project) name))
+  ([project] (new-deps-checksum-file project ".lein-deps-sum")))
 
 (defn- has-dependencies? [project]
   (some (comp seq project) [:dependencies :dev-dependencies]))
@@ -184,11 +186,25 @@
         (.mkdirs f)
         (copy (.getInputStream jar entry) f)))))
 
+(defn download-plugins [project]
+  (let [dir (.getAbsolutePath (file (:root project) ".lein-plugins"))]
+    (when (and (seq (:plugins project))
+               (or (not (.exists (file dir "checksum")))
+                   (not= (deps-checksum project [:plugins])
+                         (slurp (file dir "checksum")))))
+      (.setContextClassLoader (Thread/currentThread) (doto classloader prn))
+      (doseq [plugin (-> (do-deps (assoc project :library-path dir) :plugins)
+                         .getDirectoryScanner .getIncludedFiles)]
+        #_(clojure.lang.RT/addURL (str "file://" dir "/" plugin)))
+      (spit (file dir "checksum")
+            (deps-checksum project [:plugins])))))
+
 (defn deps
   "Download :dependencies and put them in :library-path."
   [project & [skip-dev]]
   (when skip-dev
     (println "WARNING: passing an argument to deps is deprecated."))
+  (download-plugins project)
   (when (fetch-deps? project)
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))

@@ -40,7 +40,7 @@ if [ "$LEIN_HOME" = "" ]; then
   fi
 fi
 
-DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
+DEV_PLUGINS="$(ls -1 lib/dev/*jar .lein-plugins/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
 
 artifact_name () {

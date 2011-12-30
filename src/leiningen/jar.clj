@@ -35,7 +35,8 @@
   ([{:keys [group name version]}]
      (unix-path (format
                  "%s/%s/%s/%s/%s-%s.jar"
-                 (.getBasedir (make-local-repo)) (.replace group "." "/") name version name version))))
+                 (.getBasedir (make-local-repo))
+                 (.replace group "." "/") name version name version))))
 
 (defn- script-classpath-for [project deps-fileset system]
   (let [deps (when deps-fileset
