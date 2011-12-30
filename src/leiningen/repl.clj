@@ -152,4 +152,7 @@ directory will start a standalone repl session."
                        (clojure.main/with-bindings (println (eval server-form)))
                        (eval-in-project project server-form)))
              (poll-repl-connection port retries repl-client)
-             (exit))))))
+             (exit)))))
+  ([project & options]
+     (when (= options ["in-lein"])
+       (repl nil))))
