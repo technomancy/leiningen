@@ -153,7 +153,8 @@
      (make-dependency dependency project nil))
   ([dependency project scope]
      (when (and dependency (not (vector? dependency)))
-       (throw (Exception. "Dependencies must be specified as vector:" #_dependency)))
+       (throw (Exception. (str "Dependencies must be specified as vector:"
+                               dependency))))
      (let [[dep version & extras] dependency
            extras-map (apply hash-map extras)
            exclusions (:exclusions extras-map)
