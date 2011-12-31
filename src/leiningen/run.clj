@@ -6,6 +6,8 @@
            (clojure.lang Reflector)))
 
 (defn- normalize-main [given]
+  (when-not (or (symbol? given) (string? given))
+    (throw (Exception. ":main should be a symbol refering to a namespace.")))
   (if (namespace (symbol given))
     (symbol given)
     (symbol (name given) "-main")))
