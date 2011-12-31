@@ -153,6 +153,7 @@ directory will start a standalone repl session."
                        (eval-in-project project server-form)))
              (poll-repl-connection port retries repl-client)
              (exit)))))
-  ([project & options]
-     (when (= options ["in-lein"])
-       (repl nil))))
+  ([project init-namespace]
+     (if (= init-namespace ":lein")
+       (repl nil)
+       (repl (assoc project :repl-init (symbol init-namespace))))))
