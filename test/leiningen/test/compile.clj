@@ -22,6 +22,15 @@
                      "classes" "nom" "nom" "nom.class")))
   (is (pos? (compile sample-failing-project))))
 
+(deftest test-compile-regex
+  (is (zero? (compile (assoc tricky-name-project :aot [#"unch"]))))
+  (is (not (.exists (file (:compile-path tricky-name-project)
+                          "org" "domain" "tricky_name" "core__init.class"))))
+  (is (.exists (file (:compile-path tricky-name-project)
+                     "org" "domain" "tricky_name" "brunch__init.class")))
+  (is (.exists (file (:compile-path tricky-name-project)
+                     "org" "domain" "tricky_name" "munch__init.class"))))
+
 (deftest test-plugin
   (is (zero? (eval-in-project (assoc sample-project
                                 :eval-in-leiningen true

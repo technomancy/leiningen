@@ -36,7 +36,6 @@
              n))
       nses)))
 
-
 (defn- compile-main? [{:keys [main source-path] :as project}]
   (and main (not (:skip-aot (meta main)))
        (.exists (file source-path (paths/ns->path main)))))
