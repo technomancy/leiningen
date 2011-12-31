@@ -30,7 +30,8 @@
             (.mkdirs (.getParentFile bin-file))
             (println "Installing shell wrapper to" (.getAbsolutePath bin-file))
             (copy (.getInputStream jarfile zip-entry) bin-file)
-            (.setExecutable bin-file true)))))))
+            (when (not= "1.5" (System/getProperty "java.specification.version"))
+              (.setExecutable bin-file true))))))))
 
 (defn standalone-download [name group version]
   (.resolveAlways (.lookup container ArtifactResolver/ROLE)
