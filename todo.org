@@ -8,7 +8,6 @@ See also https://github.com/technomancy/leiningen/issues
   - [ ] whole-namespace test selectors (#242)
   - [ ] I/O slowdown when testing (#335)
   - [ ] interactive task takes full CPU (#346)
-  - [ ] clojure-sources in dev-deps causes failure booting (#355)
   - [ ] Fix JVM_OPTS escaping (#326)
   - [ ] help task in Windows doesn't show text (#323)
 * For 1.6.2

@@ -128,6 +128,19 @@ if type -p curl >/dev/null 2>&1; then
     HTTP_CLIENT="curl $CURL_PROXY --insecure -f -L -o"
 fi
 
+# If we don't have Leiningen's own Clojure on the bootclasspath, boot
+# will be slower, and versions of Clojure in :dev-dependencies can
+# take precedence.
+if [ ! -r "$CLOJURE_JAR" ]; then
+    CLOJURE_JAR_URL=http://build.clojure.org/releases/org/clojure/clojure/1.2.1/clojure-1.2.1.jar
+    CLOJURE_HASH="be088d20c078ce48d42afba05984f1ef7c02142b  clojure-1.2.1.jar"
+    mkdir -p "$(dirname $CLOJURE_JAR)"
+    $HTTP_CLIENT $CLOJURE_JAR $CLOJURE_JAR_URL
+    if [ "`sha1sum $CLOJURE_JAR`" != "$CLOJURE_HASH" ]; then
+        echo "WARNING: Clojure jar failed to download from $CLOJURE_JAR_URL"
+    fi
+fi
+
 export JAVA_CMD=${JAVA_CMD:-"java"}
 
 # Support $JAVA_OPTS for backwards-compatibility.
