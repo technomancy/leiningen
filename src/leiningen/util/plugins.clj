@@ -7,6 +7,9 @@
            (java.security MessageDigest)
            (java.io File)))
 
+;; This whole namespace is a bit messy, but it's going away in
+;; Leiningen 2.0 (with pomegranate), so that's totally A-OK!.
+
 (defn- sha1-digest [content]
   (.toString (BigInteger. 1 (-> (MessageDigest/getInstance "SHA1")
                                 (.digest (.getBytes content)))) 16))
@@ -41,6 +44,9 @@
                        [(System/getProperty "java.class.path")])))
 
 (defn- write-self-trampoline [project plugins]
+  ;; Attempt to reconstruct the command by which the current JVM was
+  ;; launched. Basically work around the fact that the JVM doesn't
+  ;; have $0 and $@.
   (spit (System/getProperty "leiningen.trampoline-file")
         (string/join " " `(~(System/getenv "JAVA_CMD") "-client"
                            ~@(get-input-args)
