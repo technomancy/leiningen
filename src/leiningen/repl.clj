@@ -37,8 +37,7 @@
         read `(fn [request-prompt# request-exit#]
                 (or ({:line-start request-prompt# :stream-end request-exit#}
                      (try (clojure.main/skip-whitespace *in*)
-                          (catch java.io.IOException _#
-                            :stream-end)))
+                          (catch Exception _# :stream-end)))
                     (let [input# (read)]
                       (clojure.main/skip-if-eol *in*)
                       input#)))]
