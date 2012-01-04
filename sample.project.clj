@@ -37,9 +37,13 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
+  ;; The plugins listed here will be accessible in Leiningen's own
+  ;; process, but not in the project.
+  :plugins [[lein-tar "1.0.6"]]
   ;; Dev dependencies are intended for use only during
   ;; development. Projects that depend on this project will not pull
   ;; in its dev-dependencies, and they won't be included in the uberjar.
+  ;; These will appear both in Leiningen's process and the project's.
   :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]]
   ;; Global exclusions are applied across the board, as an alternative
   ;; to duplication for multiple depedencies with the same excluded libraries.

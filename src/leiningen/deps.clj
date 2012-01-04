@@ -7,6 +7,7 @@
         [leiningen.util.maven :only [make-dependency]]
         [leiningen.util.file :only [delete-file-recursively]]
         [leiningen.util.paths :only [get-os get-arch]]
+        [leiningen.util.plugins :only [deps-checksum]]
         [clojure.java.io :only [file copy]])
   (:import (java.io File)
            (java.util.jar JarFile)
@@ -105,16 +106,9 @@
       (.addDependency deps-task (make-dependency dep project)))
     deps-task))
 
-(defn- sha1-digest [content]
-  (.toString (BigInteger. 1 (-> (MessageDigest/getInstance "SHA1")
-                                (.digest (.getBytes content)))) 16))
-
-(defn- deps-checksum [project]
-  (sha1-digest (pr-str [(:dependencies project)
-                        (:dev-dependencies project)])))
-
-(defn- new-deps-checksum-file [project]
-  (File. (:root project) ".lein-deps-sum"))
+(defn- new-deps-checksum-file
+  ([project name] (File. (:root project) name))
+  ([project] (new-deps-checksum-file project ".lein-deps-sum")))
 
 (defn- has-dependencies? [project]
   (some (comp seq project) [:dependencies :dev-dependencies]))

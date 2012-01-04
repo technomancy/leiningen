@@ -1,5 +1,6 @@
 (ns leiningen.core
   (:use [leiningen.util.ns :only [namespaces-matching]]
+        [leiningen.util.plugins :only [download-plugins]]
         [clojure.walk :only [walk]]
         [robert.hooke :only [add-hook]]
         [clojure.java.io :only [file]])
@@ -321,6 +322,7 @@ Takes major, minor and incremental versions into account."
        (when (:min-lein-version project)
          (verify-min-version project))
        (when compile-path (.mkdirs (File. compile-path)))
+       (download-plugins project)
        (binding [*compile-path* compile-path]
          (when project
            (load-hooks project))
