@@ -142,6 +142,7 @@ if [ ! -r "$CLOJURE_JAR" ]; then
 fi
 
 export JAVA_CMD=${JAVA_CMD:-"java"}
+export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
@@ -253,7 +254,7 @@ else
 
     ## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
     # is there some way of detecting 64bit at this stage? - tavisrudd
-    $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
+    $LEIN_JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
         $LEIN_JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \

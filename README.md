@@ -212,6 +212,12 @@ See the plugin task's help for more information.
   machine you can still use a client JVM if you install 32-bit
   packages; on Debian try ia32-sun-java6-bin. Once you've installed
   it, run `sudo update-java-alternatives -s ia32-java-6-sun`.
+
+  It is possible to use a 32-bit JVM for the `lein` process while using
+  a 64-bit JVM for sub-processes such as swank-clojure, by setting the
+  environment variable LEIN_JAVA_CMD to the path of your 32-bit java
+  binary and the JAVA_CMD env variable to the path of the 64-bit
+  version.
   
 **Q:** I don't have access to stdin inside my project.  
 **A:** This is a limitation of the JVM's process-handling methods;
