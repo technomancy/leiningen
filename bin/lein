@@ -250,8 +250,11 @@ else
     if [ "$OSTYPE" = "cygwin" ]; then
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
+
+    ## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
+    # is there some way of detecting 64bit at this stage? - tavisrudd
     $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
-        -XX:+UseCompressedOops $LEIN_JVM_OPTS \
+        $LEIN_JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
         $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
