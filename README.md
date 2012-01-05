@@ -147,9 +147,11 @@ See the plugin task's help for more information.
   is a typo in your :dependency declaration in project.clj.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+**A:** The
+  [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
   explains how to set up a private repository. If you are not sharing
-  them with a team you could also just [install locally.](http://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html).
+  them with a team you could also just
+  [install locally.](https://github.com/kumarshantanu/lein-localrepo)
 
 **Q:** How do I write my own tasks?  
 **A:** If it's a task that may be useful to more than just your
