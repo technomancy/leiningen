@@ -251,7 +251,8 @@ else
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
     $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
-        $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        -XX:+UseCompressedOops $LEIN_JVM_OPTS \
+        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
         $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
         $NULL_DEVICE "$@"

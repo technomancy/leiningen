@@ -45,6 +45,14 @@ See the [complete list of known issues](https://github.com/technomancy/leiningen
 
 TODO: integrate with plugin guide
 
+## Download Totals
+
+```clj
+(apply + (for [d (tentacles.repos/downloads "technomancy" "leiningen")
+               :when (re-find #"\d\.\d\.\d-standalone.jar" (:name d))]
+           (:download_count d)))
+```
+
 # Release Checklist
 
 * update NEWS, bin/lein, bin/lein.bat, project.clj, pom
