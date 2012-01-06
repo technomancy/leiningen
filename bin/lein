@@ -260,10 +260,12 @@ else
         -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
         $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
         $NULL_DEVICE "$@"
+    EXIT_CODE=$?
     if [ -r $TRAMPOLINE_FILE ]; then
         TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
         rm $TRAMPOLINE_FILE
         exec sh -c "exec $TRAMPOLINE"
     fi
     test $CYGWIN_JLINE && stty icanon echo
+    exit $EXIT_CODE
 fi
