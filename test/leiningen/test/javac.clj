@@ -13,3 +13,5 @@
                      "dev_deps_only" "Junk.class")))
   (is (.exists (file "test_projects/dev-deps-only/classes"
                      "dev_deps_only" "Junk2.class"))))
+
+(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

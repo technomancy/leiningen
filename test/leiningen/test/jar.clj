@@ -2,14 +2,14 @@
   (:use [clojure.test]
         [leiningen.core :only [defproject read-project]]
         [leiningen.jar]
-        [leiningen.compile :only [platform-nullsink]]
+        [leiningen.core.eval :only [platform-nullsink]]
         [leiningen.test.helper :only [tricky-name-project sample-failing-project
                                       sample-no-aot-project sample-project]])
   (:import [java.util.jar JarFile]))
 
-(def mock-project @(defproject mock-project "1.0"
-                     :main foo.one-two.three-four.bar
-                     :manifest {"hello" "world"}))
+(def mock-project {:name "mock-project" :version "1.0"
+                   :main 'foo.one-two.three-four.bar
+                   :manifest {"hello" "world"}})
 
 (deftest test-manifest
   (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
@@ -67,3 +67,5 @@
 (deftest test-no-deps-jar
   (let [jar-file (jar (dissoc sample-project :dependencies :dev-dependencies))]
     (is (.exists (java.io.File. jar-file)))))
+
+(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

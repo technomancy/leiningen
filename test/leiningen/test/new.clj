@@ -1,10 +1,12 @@
 (ns leiningen.test.new
-  (:require [leiningen.new] :reload)
+  (:require [leiningen.new])
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.util.file :only [delete-file-recursively]]))
 
 (deftest test-new
-  (leiningen.new/new "a.b/test-new-proj")
-  (is (.exists (file "test-new-proj" "src" "a" "b" "test_new_proj" "core.clj")))
+  (leiningen.new/new nil "test-new-proj")
+  (is (= ["README.md" "project.clj" "src" "test_new_proj" "core.clj" "test"
+          "test_new_proj" "core_test.clj" ".gitignore"]
+         (map (memfn getName) (rest (file-seq (file "test-new-proj"))))))
   (delete-file-recursively (file "test-new-proj") false))

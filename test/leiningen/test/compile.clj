@@ -16,7 +16,7 @@
                       (delete-file-recursively
                        (file "test_projects" "sample_failing" "classes") true)
                       (f)))
- 
+
 (deftest test-compile
   (is (zero? (compile sample-project)))
   (is (.exists (file "test_projects" "sample"

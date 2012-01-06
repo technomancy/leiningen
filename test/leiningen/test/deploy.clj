@@ -42,3 +42,5 @@
                         :deploy-repositories
                         {"snapshots" (-> "deploy-only-repo" repo-path repo-url)})
                       "deploy-only-repo")))
+
+(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

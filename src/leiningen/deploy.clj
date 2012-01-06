@@ -4,16 +4,12 @@
   (:use [leiningen.core :only [abort repositories-for]]
         [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom snapshot?]]
-        [leiningen.util.maven :only [make-model make-artifact]]
-        [leiningen.deps :only [make-repository]]
-        [clojure.java.io :only [file]])
-  (:import (org.apache.maven.artifact.ant DeployTask Pom Authentication)
-           (org.apache.tools.ant BuildException)
-           (org.apache.maven.project MavenProject)))
+        [clojure.java.io :only [file]]))
+
+(declare make-model make-artifact)
 
 (defn- make-maven-project [project]
-  (doto (MavenProject. (make-model project))
-    (.setArtifact (make-artifact (make-model project)))))
+)
 
 (defn- get-repository [project repository-name]
   (let [deploy-repositories (repositories-for project :kind :deploy-repositories)
@@ -21,7 +17,7 @@
         repository (or (deploy-repositories repository-name) 
                        (repositories repository-name)
                        {:url repository-name})]
-    (make-repository [repository-name repository])))
+    #_(make-repository [repository-name repository])))
 
 (defn deploy
   "Build jar and deploy to remote repository.
@@ -44,18 +40,7 @@ control:
   (def leiningen-auth {\"https://blueant.com/archiva/internal\"
                        {:passphrase \"vorpalbunny\"}})
 "
-  ([project repository-name]
-     (try (doto (DeployTask.)
-            (.setProject lancet/ant-project)
-            (.getSupportedProtocols) ;; see note re: exceptions in deps.clj
-            (.setFile (file (jar project)))
-            (.addPom (doto (Pom.)
-                       (.setMavenProject (make-maven-project project))
-                       (.setProject lancet/ant-project)
-                       (.setFile (file (pom project)))))
-            (.addRemoteRepository (get-repository project repository-name))
-            (.execute))
-          (catch BuildException _ 1)))
+  ([project repository-name])
   ([project]
      (deploy project (if (snapshot? project)
                        "snapshots"

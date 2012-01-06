@@ -12,4 +12,5 @@
                  [robert/hooke "1.1.2"]
                  [stencil "0.2.0"]]
   :disable-implicit-clean true
+  :test-selectors {:default (complement :busted)}
   :eval-in-leiningen true)

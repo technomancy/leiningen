@@ -2,18 +2,17 @@
   "Install the current project or download the project specified."
   (:use [leiningen.core :only [default-repos read-project]]
         [leiningen.jar :only [jar manifest-map local-repo-path extract-jar]]
-        [leiningen.deps :only [deps copy-dependencies]]
-        [leiningen.util.maven :only [container make-model make-remote-artifact
-                                     make-remote-repo make-local-repo
-                                     make-artifact add-metadata]]
+        [leiningen.deps :only [deps]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
         [leiningen.util.paths :only [get-os leiningen-home]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import (java.util.jar JarFile)
-           (java.util UUID)
-           (org.apache.maven.artifact.resolver ArtifactResolver)
-           (org.apache.maven.artifact.installer ArtifactInstaller)))
+           (java.util UUID)))
+
+(declare container make-model make-remote-artifact
+         make-remote-repo make-local-repo
+         make-artifact add-metadata)
 
 (defn bin-path []
   (doto (file (leiningen-home) "bin") .mkdirs))
@@ -33,7 +32,7 @@
             (.setExecutable bin-file true)))))))
 
 (defn standalone-download [name group version]
-  (.resolveAlways (.lookup container ArtifactResolver/ROLE)
+  #_(.resolveAlways (.lookup container ArtifactResolver/ROLE)
                   (make-remote-artifact name group version)
                   (map make-remote-repo default-repos)
                   (make-local-repo)))
@@ -49,7 +48,7 @@ shell wrappers in ~/.lein/bin when provided."
      (let [jarfile (jar project)
            model (make-model project)
            artifact (make-artifact model)
-           installer (.lookup container ArtifactInstaller/ROLE)
+           installer nil
            local-repo (make-local-repo)]
        ;; for packaging other than "pom" there should be "pom.xml"
        ;; generated and installed in local repo
@@ -69,8 +68,7 @@ shell wrappers in ~/.lein/bin when provided."
        (install-shell-wrappers (JarFile. jarfile))
        ;; TODO: use lancet/unjar?
        (try (extract-jar (file jarfile) temp-project)
-            (binding [copy-dependencies (constantly nil)]
-              (when-let [p (read-project (str temp-project "/project.clj"))]
-                (deps (dissoc p :dev-dependencies :native-dependencies))))
+            (when-let [p (read-project (str temp-project "/project.clj"))]
+              (deps (dissoc p :dev-dependencies :native-dependencies)))
             (finally
              (delete-file-recursively temp-project :silently))))))

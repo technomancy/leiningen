@@ -22,8 +22,7 @@
 each namespace and print an overall summary."
   ([namespaces result-file & [selectors]]
      `(do
-        (doseq [n# '~namespaces]
-          (require n# :reload))
+        (apply require :reload '~namespaces)
         ~(form-for-hook-selectors selectors)
         (let [failures# (atom #{})
               _# (leiningen.core.injected/add-hook
@@ -48,7 +47,7 @@ each namespace and print an overall summary."
 (defn- read-args [args project]
   (let [args (map read-string args)
         nses (if (or (empty? args) (every? keyword? args))
-               (sort (ns/namespaces-in-dir (:test-path project)))
+               (sort (mapcat ns/namespaces-in-dir (:test-path project)))
                (filter symbol? args))
         selectors (map (merge {:all '(constantly true)}
                               (:test-selectors project)) (filter keyword? args))

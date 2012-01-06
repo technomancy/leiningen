@@ -5,13 +5,14 @@
             [lancet.core :as lancet])
   (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]]
-        [leiningen.util.maven :only [make-local-repo]]
         [clojure.java.io :only [copy file]])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
            (java.util.regex Pattern)
            (java.util.jar JarFile)
            (java.io BufferedOutputStream FileOutputStream
                     ByteArrayInputStream)))
+
+(declare make-local-repo)
 
 (defn- read-resource [resource-name]
   (-> (.getContextClassLoader (Thread/currentThread))

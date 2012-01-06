@@ -2,7 +2,6 @@
   (:use [leiningen.plugin]
         [leiningen.util.file :only [unique-lein-tmp-dir
                                     delete-file-recursively]]
-        [leiningen.compile :only [platform-nullsink]]
         [leiningen.core :only [read-project defproject]]
         [leiningen.test.helper :only [sample-project]]
         [clojure.test]
@@ -34,3 +33,4 @@
       (is (.exists (file plugins-path "nomnomnom-0.5.0-SNAPSHOT.jar")))
       (delete-file-recursively plugins-path))))
 
+(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

@@ -54,8 +54,7 @@
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
       (clean/clean project))
-    (let [files (classpath/resolve-dependencies project)
-          dev-files (classpath/resolve-dev-dependencies project)]
+    (let [files (classpath/resolve-dependencies project)]
       (extract-native-deps project files)
       (when (:checksum-deps project)
         (.mkdirs (io/file (:target-path project)))
