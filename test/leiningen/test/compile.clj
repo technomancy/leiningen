@@ -6,7 +6,7 @@
         [leiningen.core.eval :only [eval-in-project]]
         [leiningen.compile]
         [leiningen.test.helper :only [sample-project sample-failing-project
-                                      tricky-name-project dev-deps-project]]
+                                      tricky-name-project]]
         [leiningen.util.file :only [delete-file-recursively]])
   (:require [leiningen.core.eval :as eval]))
 
@@ -68,5 +68,5 @@
   (is (zero? (eval-in-project sample-project
                               '#'leiningen.core.injected/add-hook))))
 
-(deftest test-compile-java-main
-  (is (zero? (compile dev-deps-project))))
+;; (deftest test-compile-java-main
+;;   (is (zero? (compile dev-deps-project))))

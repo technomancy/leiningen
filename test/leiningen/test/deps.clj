@@ -1,8 +1,7 @@
 (ns leiningen.test.deps
   (:use [clojure.test]
         [leiningen.deps]
-        [leiningen.test.helper :only [sample-project dev-deps-project
-                                      m2-dir native-project
+        [leiningen.test.helper :only [sample-project m2-dir native-project
                                       delete-file-recursively]])
   (:require [clojure.java.io :as io]
             [leiningen.main :as main]

@@ -14,8 +14,6 @@
 
 (def sample-project (read-test-project "sample"))
 
-(def dev-deps-project (read-test-project "dev-deps-only"))
-
 (def sample-failing-project (read-test-project "sample_failing"))
 
 (def sample-no-aot-project (read-test-project "sample_no_aot"))
