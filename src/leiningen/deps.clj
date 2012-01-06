@@ -41,8 +41,8 @@
   (doseq [jar (jar-files files)
           entry (enumeration-seq (.entries jar))
           :when (.startsWith (.getName entry) "native/")]
-    (let [f (io/file (:native-path project) (subs (.getName entry)
-                                               (count "native/")))]
+    (let [f (io/file (:root project) (:native-path project)
+                     (subs (.getName entry) (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))

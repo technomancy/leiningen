@@ -29,8 +29,10 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] classpath
    - [X] clean
    - [X] compile
+         (tests still a mess!)
    - [ ] deploy
    - [X] deps (mostly done in leiningen.core.classpath)
+         (tests still a mess!)
    - [ ] help
    - [ ] install
    - [ ] jar

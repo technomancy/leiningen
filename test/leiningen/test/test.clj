@@ -12,8 +12,8 @@
 
 (defn ran? [& expected]
   (= (set expected)
-     (set (map read-string (.split (slurp (format "%s/lein-test-ran" tmp-dir))
-                                   "\n")))))
+     (set (for [ran (.split (slurp (format "%s/lein-test-ran" tmp-dir)) "\n")]
+            (read-string ran)))))
 
 (deftest test-project-selectors
   (is (= [:default :integration :int2 :no-custom]

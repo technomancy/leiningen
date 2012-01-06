@@ -47,7 +47,13 @@ each namespace and print an overall summary."
 (defn- read-args [args project]
   (let [args (map read-string args)
         nses (if (or (empty? args) (every? keyword? args))
-               (sort (mapcat ns/namespaces-in-dir (:test-path project)))
+               ;; maybe this is stupid and all *-path entries should
+               ;; be absolute?
+               (sort (apply concat (for [test-path (:test-path project)]
+                                     (ns/namespaces-in-dir
+                                      (io/file (:root project) test-path)))))
+
+               #_(mapcat  (:test-path project))
                (filter symbol? args))
         selectors (map (merge {:all '(constantly true)}
                               (:test-selectors project)) (filter keyword? args))
@@ -66,10 +72,10 @@ Accepts either a list of test namespaces to run or a list of test
 selectors. With no arguments, runs all tests."
   [project & tests]
   (let [[nses selectors] (read-args tests project)
-        result (doto (File/createTempFile "lein" "result") .deleteOnExit)]
-    (eval/eval-in-project project (form-for-testing-namespaces
-                                   nses (.getAbsolutePath result) (vec selectors))
-                          '(require 'clojure.test))
+        result (doto (File/createTempFile "lein" "result") .deleteOnExit)
+        form (form-for-testing-namespaces nses (.getAbsolutePath result)
+                                          (vec selectors))]
+    (eval/eval-in-project project form '(require 'clojure.test))
     (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))
             success? (zero? (+ (:error summary) (:fail summary)))]
