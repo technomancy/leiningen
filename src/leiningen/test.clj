@@ -37,7 +37,17 @@ each namespace and print an overall summary."
                                  first meta :ns ns-name)))
                     (apply report# m# args#)))
               summary# (binding [clojure.test/*test-out* *out*]
-                         (apply ~'clojure.test/run-tests '~namespaces))]
+                         (apply ~'clojure.test/run-tests
+                                ~(if (seq selectors)
+                                   `(distinct
+                                     (for [ns# '~namespaces
+                                           [_# var#] (ns-publics ns#)
+                                           :when (reduce
+                                                  #(or %1 (%2 (assoc (meta var#)
+                                                                ::var var#)))
+                                                  false ~selectors)]
+                                       ns#))
+                                  'namespaces)))]
           (spit ".lein-failures" (pr-str @failures#))
           ;; Stupid ant won't let us return anything, so write results to disk
           (with-open [w# (-> (java.io.File. ~result-file)
