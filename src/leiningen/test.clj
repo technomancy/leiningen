@@ -47,7 +47,7 @@ each namespace and print an overall summary."
                                                                 ::var var#)))
                                                   false ~selectors)]
                                        ns#))
-                                  'namespaces)))]
+                                   (list 'quote namespaces))))]
           (spit ".lein-failures" (pr-str @failures#))
           ;; Stupid ant won't let us return anything, so write results to disk
           (with-open [w# (-> (java.io.File. ~result-file)
