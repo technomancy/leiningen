@@ -140,6 +140,19 @@
                      (profiles-for project profiles-to-apply))
     {:without-profiles project}))
 
+(defn- absolutize [root path]
+  (if (coll? path) ; paths can be either strings or collections of strings
+    (map (partial absolutize root) path)
+    (str (io/file root path))))
+
+(defn- absolutize-path [project key]
+  (if (re-find #"-path$" (name key))
+    (update-in project [key] (partial absolutize (:root project)))
+    project))
+
+(defn- absolutize-paths [project]
+  (reduce absolutize-path project (keys project)))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
@@ -149,6 +162,6 @@
        (when-not project
          (throw (Exception. "project.clj must define project map.")))
        (ns-unmap *ns* 'project) ; return it to original state
-       (merge-profiles @project profiles)))
+       (absolutize-paths (merge-profiles @project profiles))))
   ([file] (read file [:dev :user]))
   ([] (read "project.clj")))

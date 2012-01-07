@@ -10,34 +10,40 @@
                 (with-redefs [user/plugins (constantly {})]
                   (f))))
 
+(def paths {:source-path ["src"],
+            :test-path ["test"],
+            :resources-path ["dev-resources" "resources"],
+            :compile-path "classes",
+            :native-path "native",
+            :target-path "target"})
+
+(def expected {:name "leiningen", :group "leiningen",
+               :version "2.0.0-SNAPSHOT",
+               :url "https://github.com/technomancy/leiningen"
+
+               :disable-implicit-clean true,
+               :eval-in :leiningen,
+               :license {:name "Eclipse Public License"}
+
+               :dependencies '[[leiningen-core "2.0.0-SNAPSHOT"]
+                               [clucy "0.2.2"] [lancet "1.0.1"]
+                               [robert/hooke "1.1.2"]
+                               [stencil "0.2.0"]],
+               :twelve 12 ; testing unquote
+
+               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+                              ["clojars" {:url "http://clojars.org/repo/"}]]})
+
 (deftest test-read-project
-  (is (= {:name "leiningen", :group "leiningen", :version "2.0.0-SNAPSHOT",
-          :url "https://github.com/technomancy/leiningen"
-
-          :source-path ["src"],
-          :compile-path "classes",
-          :test-path ["test"],
-          :resources-path ["dev-resources" "resources"],
-          :native-path "native",
-          :target-path "target",
-
-          :disable-implicit-clean true,
-          :eval-in :leiningen,
-          :license {:name "Eclipse Public License"}
-
-          :dependencies '[[leiningen-core "2.0.0-SNAPSHOT"]
-                          [clucy "0.2.2"] [lancet "1.0.1"]
-                          [robert/hooke "1.1.2"]
-                          [stencil "0.2.0"]],
-          :twelve 12 ; testing unquote
-
-          ;; wtf, (= [#"^\."] [#"^\."]) <- false
-          ;; :jar-exclusions [#"^\."],
-          ;; :uberjar-exclusions [#"^META-INF/DUMMY.SF"],
-          :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
-                         ["clojars" {:url "http://clojars.org/repo/"}]]}
-         (dissoc (read "dev-resources/p1.clj")
-                 :description :root :jar-exclusions :uberjar-exclusions))))
+  (let [actual (read "dev-resources/p1.clj")]
+    (doseq [[k v] expected]
+      (is (= (k actual) v)))
+    (doseq [[k path] paths
+            :when (string? path)]
+      (is (= (k actual) (str (:root actual) "/" path))))
+    (doseq [[k path] paths
+            :when (coll? path)]
+      (is (= (k actual) (for [p path] (str (:root actual) "/" p)))))))
 
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
