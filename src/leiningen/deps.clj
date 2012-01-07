@@ -1,5 +1,5 @@
 (ns leiningen.deps
-  "Download all dependencies and put them in :library-path."
+  "Download all dependencies."
   (:require [clojure.java.io :as io]
             [leiningen.clean :as clean]
             [leiningen.core.classpath :as classpath]
@@ -12,8 +12,7 @@
                                 (.digest (.getBytes content)))) 16))
 
 (defn- deps-checksum [project]
-  (sha1-digest (pr-str [(:dependencies project)
-                        (:dev-dependencies project)])))
+  (sha1-digest (pr-str (:dependencies project))))
 
 (defn- new-deps-checksum-file [project]
   (io/file (:target-path project) ".lein-deps-sum"))
@@ -21,6 +20,7 @@
 (defn- has-dependencies? [project]
   (some (comp seq project) [:dependencies :dev-dependencies]))
 
+;; TODO: is this necessary with keeping everything in ~/.m2?
 (defn fetch-deps?
   "Should we even bother fetching dependencies?"
   [project]
@@ -56,7 +56,7 @@
       (clean/clean project))
     (let [files (classpath/resolve-dependencies project)]
       (extract-native-deps project files)
-      (when (:checksum-deps project)
-        (.mkdirs (io/file (:target-path project)))
-        (spit (new-deps-checksum-file project) (deps-checksum project)))
+      (let [checksum-file (new-deps-checksum-file project)]
+        (.mkdirs (.getParentFile checksum-file))
+        (spit checksum-file (deps-checksum project)))
       files)))

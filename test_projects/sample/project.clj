@@ -8,8 +8,8 @@
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :description "A test project"
   :dependencies [[~(symbol "org.clojure" "clojure") ~clj-version]
-                 [rome/rome ~(str "0." "9")]
-                 [org.ccil.cowan.tagsoup/tagsoup "1.2"]]
+                 [rome ~(str "0." "9")]
+                 [ring "1.0.0"]]
   :main nom.nom.nom
   :warn-on-reflection true
   :shell-wrapper {:main nom.nom.nom
