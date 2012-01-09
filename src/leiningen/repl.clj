@@ -40,7 +40,9 @@
                           (catch Exception _# :stream-end)))
                     (let [input# (read)]
                       (clojure.main/skip-if-eol *in*)
-                      input#)))]
+                      (if (= ::exit input#) ; programmatically signal close
+                        (do (.close *in*) request-exit#)
+                        input#))))]
     (apply concat [:init init :caught caught :read read]
            (dissoc options :caught :init :read))))
 
