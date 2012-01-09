@@ -60,6 +60,8 @@ Warning: alpha; subject to change."
         identity
         args))
 
+(def ^{:private true} match-jar-sig-file #"(?i)^META-INF/[^/]*\.SF$")
+
 (defmacro defproject [project-name version & args]
   ;; This is necessary since we must allow defproject to be eval'd in
   ;; any namespace due to load-file; we can't just create a var with
@@ -111,7 +113,7 @@ Warning: alpha; subject to change."
                                              root#))
                                :jar-exclusions (:jar-exclusions m# [#"^\."])
                                :uberjar-exclusions (:uberjar-exclusions
-                                                    m# [#"^META-INF/DUMMY.SF"])
+                                                    m# [match-jar-sig-file])
                                :root root#)))
      (when (:test-resources-path m#)
        (println (str "WARNING: :test-resources-path is deprecated; use "
