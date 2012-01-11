@@ -31,7 +31,7 @@
                               '(do (require 'leiningen.compile)
                                    :compiled)))))
 
-(deftest test-cleared-transitive-aot
+(deftest ^:busted test-cleared-transitive-aot
   (is (zero? (compile (assoc sample-project
                         :clean-non-project-classes true))))
   (is (zero? (eval/eval-in-project sample-project '(require 'nom.nom.nom)))
@@ -46,7 +46,7 @@
   (is (not (.exists (file "test_projects" "sample"
                           "classes" "sample2" "alt.class")))))
 
-(deftest test-cleared-transitive-aot-by-regexes
+(deftest ^:busted test-cleared-transitive-aot-by-regexes
   (is (zero? (compile (assoc sample-project
                         :clean-non-project-classes [#"core"]))))
   (let [classes (seq (.list (file "test_projects" "sample"

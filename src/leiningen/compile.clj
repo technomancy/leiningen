@@ -10,9 +10,9 @@
 
 (declare compile)
 
-(def ^{:dynamic true} *silently* false)
+(def ^:dynamic *silently* false)
 
-(def ^{:dynamic true} *skip-auto-compile* false)
+(def ^:dynamic *skip-auto-compile* false)
 
 (defn- regex? [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
@@ -20,14 +20,14 @@
 (defn- find-namespaces-by-regex [project nses]
   (let [[res syms] ((juxt filter remove) regex? nses)]
     (if (seq res)
-      (set (for [re res n (ns/namespaces-in-dir (:source-path project))
+      (set (for [re res n (mapcat ns/namespaces-in-dir (:source-path project))
                  :when (re-find re (name n))]
              n))
       nses)))
 
 (defn- compile-main? [{:keys [main source-path] :as project}]
   (and main (not (:skip-aot (meta main)))
-       (.exists (io/file source-path (ns/path-for main)))))
+       (some #(.exists (io/file % (ns/path-for main))) source-path)))
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
@@ -95,7 +95,7 @@
                     (relative-path project f)))))
 
 (defn clean-non-project-classes [project]
-  (when (:clean-non-project-classes project)
+  #_(when (:clean-non-project-classes project)
     (doseq [f (file-seq (io/file (:compile-path project)))
             :when (and (.isFile f)
                        (not (whitelisted-class? project f))

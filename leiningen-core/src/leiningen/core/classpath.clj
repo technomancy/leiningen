@@ -12,10 +12,9 @@
            (throw (Exception. (format "Problem loading %s" project) e))))))
 
 (defn- checkout-dep-paths [project dep dep-project]
-  (for [path (concat (:source-path dep-project)
-                     (:resources-path dep-project)
-                     [(:compile-path dep-project)])]
-    (str (io/file (:root project) "checkouts" dep path))))
+  (concat (:source-path dep-project)
+          (:resources-path dep-project)
+          [(:compile-path dep-project)]))
 
 (defn- checkout-deps-paths
   "Checkout dependencies are used to place source for a dependency
