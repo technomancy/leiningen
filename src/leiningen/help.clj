@@ -2,10 +2,12 @@
   "Display a list of tasks or help for a given task."
   (:use [leiningen.util.ns :only [namespaces-matching]])
   (:require [clojure.string :as string]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [leiningen.core.ns :as ns]))
 
+;; TODO: switch to ns/namespaces-matching
 (def tasks (->> (namespaces-matching "leiningen")
-                (filter #(re-find #"^leiningen\.(?!core|util)[^\.]+$" (name %)))
+                (filter #(re-find #"^leiningen\.(?!core|main)[^\.]+$" (name %)))
                 (distinct)
                 (sort)))
 
@@ -75,7 +77,7 @@
              ns-summary (:doc (meta (find-ns (doto task-ns require))))
              first-line (first (.split (help-for task-name) "\n"))]
          ;; Use first line of task docstring if ns metadata isn't present
-         (str task-name (apply str (repeat (- 12 (count task-name)) " "))
+         (str task-name (apply str (repeat (- 13 (count task-name)) " "))
               (or ns-summary first-line)))
        (catch Throwable e
          (binding [*out* *err*]
@@ -85,8 +87,8 @@
   "Display a list of tasks or help for a given task.
 
 Also provides readme, tutorial, news, sample, deploying and copying documentation."
-  ([task] (println (or (static-help task) (help-for task))))
-  ([]
+  ([_ task] (println (or (static-help task) (help-for task))))
+  ([_ ]
      (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
      (doseq [task-ns tasks]

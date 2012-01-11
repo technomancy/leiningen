@@ -12,11 +12,6 @@
   (let [subtask-help (apply subtask-help-for (resolve-task "new"))]
     (is (= nil subtask-help))))
 
-(deftest subtask-help-for-plugin
-  (let [subtask-help (apply subtask-help-for (resolve-task "plugin"))]
-    (is (re-find #"install" subtask-help))
-    (is (re-find #"uninstall" subtask-help))))
-
 (deftest test-docstring-formatting
   (is (= "This is an
               AWESOME command
@@ -31,9 +26,9 @@
                   For real!"
       (formatted-help "install" "This is an\nAWESOME command\nFor real!" 15))))
 
-(deftest test-get-subtasks
-  (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
-    (is (= ["install" "uninstall"]
-           (sort (keys m))))))
+;; (deftest test-get-subtasks
+;;   (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
+;;     (is (= ["install" "uninstall"]
+;;            (sort (keys m))))))
 
-(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))
+;; (doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))
