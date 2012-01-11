@@ -1,13 +1,12 @@
 (ns leiningen.test.install
-  (:use [leiningen.core :only [read-project]]
-        [leiningen.util.paths :only [get-os leiningen-home]]
-        [leiningen.install] :reload)
+  (:require [leiningen.core.user :as user])
   (:use [clojure.test]
+        [leiningen.install]
         [leiningen.test.helper]
         [clojure.java.io :only [file]]))
 
-(def unix-shell-wrapper (file (leiningen-home) "bin" "nom"))
-(def windows-shell-wrapper (file (leiningen-home) "bin" "nom.bat"))
+(def unix-shell-wrapper (file (user/leiningen-home) "bin" "nom"))
+(def windows-shell-wrapper (file (user/leiningen-home) "bin" "nom.bat"))
 
 (defn delete-shell-wrappers []
   (.delete unix-shell-wrapper)
@@ -33,8 +32,10 @@
   (is (.exists unix-shell-wrapper)))
 
 (def tricky-m2-dir (file local-repo "org" "domain" "tricky-name" "1.0"))
-(def tricky-unix-shell-wrapper (file (leiningen-home) "bin" "tricky-name"))
-(def tricky-windows-shell-wrapper (file (leiningen-home) "bin" "tricky-name.bat"))
+(def tricky-unix-shell-wrapper (file (user/leiningen-home)
+                                     "bin" "tricky-name"))
+(def tricky-windows-shell-wrapper (file (user/leiningen-home)
+                                        "bin" "tricky-name.bat"))
 
 (defn delete-tricky-shell-wrappers []
   (.delete tricky-unix-shell-wrapper)
@@ -50,5 +51,3 @@
   (if (= :windows (get-os))
     (is (.exists tricky-windows-shell-wrapper))
     (is (not (.exists tricky-windows-shell-wrapper)))))
-
-(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

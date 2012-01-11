@@ -17,5 +17,3 @@
     (is (entries "nom/nom/nom.clj"))
     (is (entries "org/codehaus/janino/Compiler$1.class"))
     (is (not (some #(re-find #"dummy" %) entries)))))
-
-(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

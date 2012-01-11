@@ -10,7 +10,7 @@
 
 (declare container make-model make-remote-artifact
          make-remote-repo make-local-repo
-         make-artifact add-metadata tmp-dir delete-file-recursively
+         make-artifact add-metadata tmp-dir
          get-os leiningen-home)
 
 (defn bin-path []
@@ -71,7 +71,7 @@ shell wrappers in ~/.lein/bin when provided."
             (when-let [p (read-project (str temp-project "/project.clj"))]
               (deps (dissoc p :dev-dependencies :native-dependencies)))
             (finally
-             (delete-file-recursively temp-project :silently))))))
+             #_(delete-file-recursively temp-project :silently))))))
 
 (defn get-jar-entry [jar-file entry-name]
   (let [jar (JarFile. jar-file true)
