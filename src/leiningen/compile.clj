@@ -35,7 +35,7 @@
   [project]
   (let [nses (:aot project)
         nses (if (= :all nses)
-               (ns/namespaces-in-dir (:source-path project))
+               (mapcat ns/namespaces-in-dir (:source-path project))
                (find-namespaces-by-regex project nses))]
     (if (compile-main? project)
       (conj nses (:main project))
@@ -110,8 +110,8 @@
       (println msg)))
   code)
 
-(def ^{:private true} success (partial status 0))
-(def ^{:private true} failure (partial status 1))
+(def ^:private success (partial status 0))
+(def ^:private failure (partial status 1))
 
 (defn compile
   "Compile Clojure source into .class files.

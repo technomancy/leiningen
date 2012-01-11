@@ -23,6 +23,11 @@
                      "classes" "nom" "nom" "nom.class")))
   (is (pos? (compile sample-failing-project))))
 
+(deftest test-compile-all
+  (is (zero? (compile sample-project ":all")))
+  (is (.exists (file "test_projects" "sample"
+                     "classes" "nom" "nom" "nom.class"))))
+
 (deftest test-plugin
   (is (= :compiled (eval-in-project (assoc sample-project
                                 :eval-in :leiningen
