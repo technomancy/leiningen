@@ -1,7 +1,7 @@
 (ns leiningen.install
   "Install the current project or download the project specified."
   (:use [leiningen.core :only [default-repos read-project]]
-        [leiningen.jar :only [jar manifest-map local-repo-path extract-jar]]
+        [leiningen.jar :only [jar manifest-map local-repo-path]]
         [leiningen.deps :only [deps]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
         [leiningen.util.paths :only [get-os leiningen-home]]
@@ -66,9 +66,15 @@ shell wrappers in ~/.lein/bin when provided."
            temp-project (format "%s/lein-%s" tmp-dir (UUID/randomUUID))
            jarfile (local-repo-path (or group name) name version)]
        (install-shell-wrappers (JarFile. jarfile))
-       ;; TODO: use lancet/unjar?
-       (try (extract-jar (file jarfile) temp-project)
+       ;; TODO: reach in and pull out project.clj rather than
+       ;; extracting it all
+       (try ;; (extract-jar (file jarfile) temp-project)
             (when-let [p (read-project (str temp-project "/project.clj"))]
               (deps (dissoc p :dev-dependencies :native-dependencies)))
             (finally
              (delete-file-recursively temp-project :silently))))))
+
+(defn get-jar-entry [jar-file entry-name]
+  (let [jar (JarFile. jar-file true)
+        entry (.getJarEntry jar entry-name)]
+    (.getInputStream jar entry)))

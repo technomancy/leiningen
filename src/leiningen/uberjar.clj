@@ -5,7 +5,7 @@
         [clojure.java.io :only [file copy]]
         [leiningen.core :only [abort]]
         [leiningen.clean :only [clean]]
-        [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
+        [leiningen.jar :only [get-jar-filename jar]]
         [leiningen.deps :only [deps]])
   (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
            (java.io File FileOutputStream PrintWriter)))
@@ -81,8 +81,7 @@ as well as defining a -main function."
      (if (jar (if main
                 (assoc project :main (symbol main))
                 project))
-       (let [uberjar-name (get-default-uberjar-name project)
-             standalone-filename (get-jar-filename project uberjar-name)]
+       (let [standalone-filename (get-jar-filename project :uberjar)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]

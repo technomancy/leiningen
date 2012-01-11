@@ -1,4 +1,5 @@
 (ns leiningen.test.jar
+  (:require [clojure.java.io :as io])
   (:use [clojure.test]
         [leiningen.core :only [defproject read-project]]
         [leiningen.jar]
@@ -18,7 +19,7 @@
              manifest-map
              (select-keys ["hello" "Main-Class"])))))
 
-(deftest test-jar
+(deftest ^:busted test-shell-wrapper
   (let [jar-file (JarFile. (jar sample-project))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream jar-file (.getEntry jar-file "bin/nom")))
@@ -53,7 +54,7 @@
   (with-out-str
     (is (jar sample-no-aot-project))))
 
-(deftest test-tricky-name
+(deftest ^:busted test-tricky-name
   (let [jar-file (JarFile. (jar tricky-name-project))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream
@@ -65,7 +66,6 @@
     (is (re-find #"\\domain\\tricky-name\\1\.0\\tricky-name-1\.0\.jar" bat))))
 
 (deftest test-no-deps-jar
-  (let [jar-file (jar (dissoc sample-project :dependencies :dev-dependencies))]
-    (is (.exists (java.io.File. jar-file)))))
-
-(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))
+  (let [jar-file (jar (dissoc sample-project :dependencies :main))]
+    (and (is (not (number? jar-file)))
+         (is (.exists (io/file jar-file))))))

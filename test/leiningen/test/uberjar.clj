@@ -1,15 +1,13 @@
 (ns leiningen.test.uberjar
   (:use [leiningen.uberjar] :reload)
   (:use [clojure.test]
-        [leiningen.jar :only [get-jar-filename get-default-uberjar-name jar]]
+        [leiningen.jar :only [jar]]
         [leiningen.core :only [read-project]]
                 [leiningen.test.helper :only [sample-no-aot-project]])
   (:import [java.util.zip ZipFile]))
 
 (deftest test-uberjar
-  (let [filename (get-jar-filename sample-no-aot-project
-                                   (get-default-uberjar-name
-                                    sample-no-aot-project))
+  (let [filename "TODO"
         _ (with-out-str (uberjar sample-no-aot-project))
         entries (->> (ZipFile. filename)
                     .entries
