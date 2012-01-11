@@ -1,9 +1,10 @@
 (ns leiningen.repl
   "Start a repl session either with the current project or standalone."
-  (:require [clojure.main])
-  (:use [leiningen.core :only [exit user-settings]]
-        [leiningen.compile :only [eval-in-project]]
-        [leiningen.deps :only [find-deps-files deps]]
+  (:require [clojure.main]
+            [leiningen.core.user :as user]
+            [leiningen.core.eval :as eval]
+            [leiningen.core.classpath :as classpath])
+  (:use [leiningen.main :only [exit]]
         [leiningen.trampoline :only [*trampoline?*]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
@@ -125,21 +126,19 @@ A socket-repl will also be launched in the background on a socket based on the
 directory will start a standalone repl session."
   ([] (repl nil))
   ([project]
-     (when (and project (or (empty? (find-deps-files project))
-                            (:checksum-deps project)))
-       (deps project))
+     (classpath/resolve-dependencies project)
      (let [[port host] (repl-socket-on project)
            server-form (apply repl-server project host port
                               (concat (:repl-options project)
-                                      (:repl-options (user-settings))))
+                                      (:repl-options (user/settings))))
            ;; TODO: make this less awkward when we can break poll-repl-connection
            retries (- retry-limit (or (:repl-retry-limit project)
-                                        ((user-settings) :repl-retry-limit)
-                                        retry-limit))]
+                                      (:repl-retry-limit (user/settings))
+                                      retry-limit))]
        (if *trampoline?*
-         (eval-in-project project server-form)
+         (eval/eval-in-project project server-form)
          (do (future (if (empty? project)
                        (clojure.main/with-bindings (println (eval server-form)))
-                       (eval-in-project project server-form)))
+                       (eval/eval-in-project project server-form)))
              (poll-repl-connection port retries repl-client)
              (exit))))))

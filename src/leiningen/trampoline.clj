@@ -1,12 +1,8 @@
 (ns leiningen.trampoline
   (:refer-clojure :exclude [trampoline])
-  (:use [leiningen.core :only [apply-task task-not-found abort]]
-        [leiningen.compile :only [sh]]
-        [leiningen.classpath :only [get-classpath-string]])
+  (:use [leiningen.main :only [apply-task task-not-found abort]])
   (:require [clojure.string :as string]
-            [clojure.java.io :as io]
-            [clojure.java.shell :as shell]
-            [leiningen.util.paths :as paths]))
+            [leiningen.core.eval :as eval]))
 
 (def ^{:dynamic true} *trampoline?* false)
 
@@ -35,8 +31,8 @@ ALPHA: subject to change without warning."
   (let [command (atom nil)]
     (when (:eval-in-leiningen project)
       (println "Warning: trampoline has no effect with :eval-in-leiningen."))
-    (binding [*trampoline?* true
-              sh (fn [& c] (reset! command c) 0)]
+    #_(binding [*trampoline?* true
+              eval/sh (fn [& c] (reset! command c) 0)]
       (apply-task task-name project args task-not-found))
     (if @command
       (write-trampoline @command)
