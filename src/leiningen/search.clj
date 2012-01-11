@@ -1,6 +1,4 @@
 (ns leiningen.search
-  (:use [leiningen.util.file :only [delete-file-recursively]]
-        [leiningen.util.paths :only [leiningen-home]])
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.user :as user]
@@ -20,7 +18,7 @@
       (io/copy (.getInputStream zip entry) f))))
 
 (defn index-location [url]
-  (io/file (leiningen-home) "indices" (string/replace url #"[:/]" "_")))
+  (io/file (user/leiningen-home) "indices" (string/replace url #"[:/]" "_")))
 
 (defn remote-index-url [url]
   (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))
@@ -79,7 +77,7 @@
 
 The first run will download a set of indices, which will take a while.
 Pass in --update as the query to force a fresh download of all
-indices. 
+indices.
 
 The query is evaluated as a lucene search. You can search for simple
 string matches or do more advanced queries such as this
@@ -99,7 +97,8 @@ pages."
      ;; you know what would be just super? pattern matching.
      (if (= "--update" query)
        (doseq [[_ {url :url} :as repo] (:repositories project)]
-         (delete-file-recursively (index-location url) :silently)
+         (doseq [f (reverse (rest (file-seq (index-location url))))]
+           (.delete f)) ; no delete-file-recursively; bleh
          (ensure-fresh-index repo))
        (doseq [repo (:repositories project)
                :let [page (Integer. page)]]

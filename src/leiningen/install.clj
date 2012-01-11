@@ -3,8 +3,6 @@
   (:use [leiningen.core :only [default-repos read-project]]
         [leiningen.jar :only [jar manifest-map local-repo-path]]
         [leiningen.deps :only [deps]]
-        [leiningen.util.file :only [tmp-dir delete-file-recursively]]
-        [leiningen.util.paths :only [get-os leiningen-home]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import (java.util.jar JarFile)
@@ -12,7 +10,8 @@
 
 (declare container make-model make-remote-artifact
          make-remote-repo make-local-repo
-         make-artifact add-metadata)
+         make-artifact add-metadata tmp-dir delete-file-recursively
+         get-os leiningen-home)
 
 (defn bin-path []
   (doto (file (leiningen-home) "bin") .mkdirs))

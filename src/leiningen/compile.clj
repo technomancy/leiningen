@@ -125,13 +125,15 @@ as command-line arguments."
        (if-let [namespaces (seq (stale-namespaces project))]
          (binding [*skip-auto-compile* true]
            (try
-             (if (zero? (eval/eval-in-project project
-                                              `(doseq [namespace# '~namespaces]
-                                                 (when-not ~*silently*
-                                                   (println "Compiling" namespace#))
-                                                 (clojure.core/compile namespace#))))
-               (success "Compilation succeeded.")
-               (failure "Compilation failed."))
+             (let [form `(doseq [namespace# '~namespaces]
+                           (when-not ~*silently*
+                             (println "Compiling" namespace#))
+                           (clojure.core/compile namespace#))]
+               ;; TODO: should eval-in-project be allowed to return
+               ;; non-integers?
+               (if (zero? (eval/eval-in-project project form))
+                 (success "Compilation succeeded.")
+                 (failure "Compilation failed.")))
              (finally (clean-non-project-classes project))))
          (success "All namespaces already :aot compiled."))
        (success "No namespaces to :aot compile listed in project.clj.")))

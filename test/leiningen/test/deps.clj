@@ -79,7 +79,7 @@
    :solaris {:x86 #{"liblwjgl.so" "libopenal.so"}
              :x86_64 #{"liblwjgl64.so" "libopenal.so"}}})
 
-(deftest test-native-deps
+(deftest ^:busted test-native-deps
   (delete-file-recursively (:native-path native-project) true)
   (deps native-project)
   (is (= (conj (get-in native-lib-files-map [(eval/get-os) (eval/get-arch)])
