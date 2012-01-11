@@ -14,18 +14,11 @@
 
 (defn repl-options [project options]
   (let [options (apply hash-map options)
-        init `#(let [is# ~(:repl-init-script project)
-                     in# '~(:repl-init project)
+        init `#(let [in# '~(:repl-init project)
                      mn# '~(:main project)]
                  ~(:init options)
-                 (when (and is# (.exists (File. (str is#))))
-                   (println (str "Warning: :repl-init-script is "
-                                 "deprecated; use :repl-init."))
-                   (load-file is#))
-                 (when in#
-                   (require in#))
-                 (when mn#
-                   (require mn#))
+                 (when in# (require in#))
+                 (when mn# (require mn#))
                  (in-ns (or in# mn# '~'user)))
         ;; Suppress socket closed since it's part of normal operation
         caught `(fn [t#]

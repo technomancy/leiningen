@@ -1,6 +1,4 @@
-test_projects/*/lib
-test_projects/*/classes/
-test_projects/*/nomnomnom*.jar
+test_projects/*/target
 test_projects/sample/pom.xml
 classes/
 lib/
