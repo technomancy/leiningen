@@ -4,7 +4,9 @@
   (:require [clojure.walk :as walk]
             [clojure.java.io :as io]
             [clojure.set :as set]
-            [leiningen.core.user :as user]))
+            [cemerick.pomegranate :as pomegranate]
+            [leiningen.core.user :as user])
+  (:import (clojure.lang DynamicClassLoader)))
 
 (defn- unquote-project
   "Inside defproject forms, unquoting (~) allows for arbitrary evaluation."
@@ -124,6 +126,7 @@
   [project profiles-to-apply]
   (let [default-profiles @profiles
         profiles-file (if (.exists (io/file (:root project) "profiles.clj"))
+                        ;; TODO: load or read?
                         (load-file (str (io/file (:root project)
                                                  "profiles.clj"))))
         project-profiles (:profiles project)
@@ -153,6 +156,22 @@
 (defn- absolutize-paths [project]
   (reduce absolutize-path project (keys project)))
 
+;; TODO: make pomegranate accept maps
+(defn- repositories-map [repositories]
+  (into {} (for [[id repo] repositories]
+             [id (:url repo)])))
+
+(defn ensure-dynamic-classloader []
+  (let [thread (Thread/currentThread)
+        cl (.getContextClassLoader thread)]
+    (when-not (instance? DynamicClassLoader cl)
+      (.setContextClassLoader thread (DynamicClassLoader. cl)))))
+
+(defn load-plugins [project]
+  (ensure-dynamic-classloader)
+  (pomegranate/add-dependencies
+   (:plugins project) :repositories (repositories-map (:repositories project))))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
@@ -162,6 +181,8 @@
        (when-not project
          (throw (Exception. "project.clj must define project map.")))
        (ns-unmap *ns* 'project) ; return it to original state
-       (absolutize-paths (merge-profiles @project profiles))))
+       (let [project (merge-profiles @project profiles)]
+         (load-plugins project)
+         (absolutize-paths project))))
   ([file] (read file [:dev :user]))
   ([] (read "project.clj")))
