@@ -3,7 +3,9 @@
   (:require [classlojure.core :as cl]
             [clojure.java.io :as io]
             [clojure.string :as string]
+            [cemerick.pomegranate :as pomegranate]
             [leiningen.core.user :as user]
+            [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath])
   (:import (java.io PushbackReader)))
 
@@ -146,10 +148,19 @@
            (.printStackTrace e)
            1))))
 
+;; TODO: make pomegranate accept maps
+(defn- repositories-map [repositories]
+  (into {} (for [[id repo] repositories]
+             [id (:url repo)])))
+
 (defmethod eval-in :leiningen
   [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
+  (project/ensure-dynamic-classloader)
+  (pomegranate/add-dependencies (:dependencies project)
+                                :repositories (repositories-map
+                                               (:repositories project)))
   ;; need to at least pretend to return an exit code
   (try (eval form)
        (catch Exception e
