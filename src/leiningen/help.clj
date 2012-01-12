@@ -1,12 +1,10 @@
 (ns leiningen.help
   "Display a list of tasks or help for a given task."
-  (:use [leiningen.util.ns :only [namespaces-matching]])
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
             [leiningen.core.ns :as ns]))
 
-;; TODO: switch to ns/namespaces-matching
-(def tasks (->> (namespaces-matching "leiningen")
+(def tasks (->> (ns/namespaces-matching "leiningen")
                 (filter #(re-find #"^leiningen\.(?!core|main)[^\.]+$" (name %)))
                 (distinct)
                 (sort)))

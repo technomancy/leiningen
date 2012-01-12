@@ -4,7 +4,8 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string])
   (:import (java.util.jar JarFile)
-           (java.io File BufferedReader PushbackReader InputStreamReader)))
+           (java.io File BufferedReader PushbackReader InputStreamReader)
+           (clojure.lang DynamicClassLoader)))
 
 ;; The contrib version has a couple issues: it searches the whole
 ;; classpath rather than allowing you to specify a prefix, which means
@@ -13,7 +14,8 @@
 ;; declaration.
 
 (defn- clj? [f]
-  (and (.isFile f) (.endsWith (.getName f) ".clj")))
+  ;; Needs to work on JarEntries and Files, the former of which has no .isFile
+  (and (not (.isDirectory f)) (.endsWith (.getName f) ".clj")))
 
 (defn- jar? [f]
   (and (.isFile f) (.endsWith (.getName f) ".jar")))
@@ -54,9 +56,12 @@
 
 (def ^:private classpath-files
   "A seq of all files on Leiningen's classpath."
-  (for [f (.split (System/getProperty "java.class.path")
-                  (System/getProperty "path.separator"))]
-    (io/file f)))
+  (let [cl (.getContextClassLoader (Thread/currentThread))]
+    ;; can't trust java.class.path alone if we use add-classpath
+    (map io/file (concat (if (instance? DynamicClassLoader cl)
+                           (.getURLs cl))
+                         (.split (System/getProperty "java.class.path")
+                                 (System/getProperty "path.separator"))))))
 
 (defn namespaces-matching
   "Return all namespaces matching the given prefix both on disk and
