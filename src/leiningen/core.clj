@@ -60,7 +60,7 @@ Warning: alpha; subject to change."
         identity
         args))
 
-(def ^{:private true} match-jar-sig-file #"(?i)^META-INF/[^/]*\.SF$")
+(def ^{:internal true} match-jar-sig-file #"(?i)^META-INF/[^/]*\.SF$")
 
 (defmacro defproject [project-name version & args]
   ;; This is necessary since we must allow defproject to be eval'd in
