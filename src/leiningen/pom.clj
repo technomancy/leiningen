@@ -1,6 +1,6 @@
 (ns leiningen.pom
   "Write a pom.xml file to disk for Maven interop."
-  (:use [leiningen.core :only [abort]]
+  (:use [leiningen.main :only [abort]]
         [clojure.java.io :only [copy file]])
   (:import (java.io StringWriter ByteArrayOutputStream)
            (java.util Properties)))
@@ -15,9 +15,6 @@
 
 (defn snapshot? [project]
   (re-find #"SNAPSHOT" (:version project)))
-
-(def ^{:doc "For backwards-compatibility"} default-repos
-  leiningen.core/default-repos)
 
 (defn check-for-snapshot-deps [project]
   (when (and (not (snapshot? project))
