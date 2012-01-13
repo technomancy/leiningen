@@ -47,8 +47,7 @@
     (try
       (.mkdirs d1)
       (spit (io/file d1 "project.clj")
-            (pr-str '(def project {:source-path ["src"] :compile-path "classes"
-                                   :resources-path ["resources"]})))
+            (pr-str '(defproject hello "1.0")))
       (is (= (for [path ["src" "resources" "classes"]]
                (format "/tmp/lein-sample-project/checkouts/d1/%s" path))
              (#'leiningen.core.classpath/checkout-deps-paths project)))
