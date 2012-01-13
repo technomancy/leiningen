@@ -22,6 +22,10 @@ itself; in fact
 [all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/master/project.clj)
 should be considered implied dependencies of every plugin.
 
+See the `lein-pprint` directory
+[in the Leiningen source](https://github.com/technomancy/leiningen/tree/master/lein-pprinc)
+for a sample of a very simple plugin.
+
 The first argument to your task function should be the current
 project. It will be a map which is based on the `project.clj` file,
 but it also has :name, :group, :version, and :root keys added in,
