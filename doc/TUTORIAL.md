@@ -11,29 +11,29 @@ We'll assume you've got Leiningen installed as per the
 [README](https://github.com/technomancy/leiningen/blob/stable/README.md). 
 Generating a new project is easy:
 
-    $ lein new myproject
+    $ lein new my-stuff
 
-    Created new project in: myproject
+    Generating a project called my-stuff based on the 'default' template.
 
-    $ cd myproject
+    $ cd my-stuff
     $ tree
     .
     |-- project.clj
-    |-- README
+    |-- README.md
     |-- src
-    |   `-- myproject
-    |       `-- core.clj
+    |   `-- my
+    |       `-- stuff.clj
     `-- test
-        `-- myproject
+        `-- my
             `-- test
-                `-- core.clj
+                `-- stuff.clj
 
-Here we've got your project's README, a src/ directory containing the
-code, a test/ directory, and a project.clj file which describes your
-project to Leiningen. The src/myproject/core.clj file corresponds to
-the myproject.core namespace.
+Here we've got your project's README, a `src/` directory containing the
+code, a `test/` directory, and a `project.clj` file which describes your
+project to Leiningen. The `src/my/stuff.clj` file corresponds to
+the `my.stuff` namespace.
 
-Note that we use myproject.core instead of just myproject since
+Note that we use `my.stuff` instead of just `stuff` since
 single-segment namespaces are discouraged in Clojure. Also if you have
 namespaces with dashes in the name, the corresponding file will need
 to use underscores instead since the JVM has trouble loading files
@@ -46,7 +46,7 @@ fairly useless:
 
     $ lein jar
 
-    Created ~/src/myproject/myproject-1.0.0-SNAPSHOT.jar
+    Created ~/src/my-stuff/my-stuff-0.1.0-SNAPSHOT.jar
 
 Libraries for the JVM are packaged up as .jar files, which are
 basically just .zip files with a little extra JVM-specific metadata.
@@ -60,15 +60,15 @@ repositories for you.
     $ cat project.clj
 
 ```clj
-(defproject myproject "1.0.0-SNAPSHOT"
+(defproject my-stuff "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
-  :dependencies [[org.clojure/clojure "1.2.1"]])
+  :dependencies [[org.clojure/clojure "1.3.0"]])
 ```
 
-Fill in the :description with a short paragraph so that your project
+Fill in the `:description` with a short sentence so that your project
 will show up in search results once you publish it. At some point
 you'll need to flesh out the README too, but for now let's skip ahead
-to setting :dependencies.  Note that Clojure is just another
+to setting `:dependencies`. Note that Clojure is just another
 dependency here. Unlike most languages, it's easy to swap out any
 version of Clojure.
 
@@ -84,7 +84,7 @@ By default, Leiningen projects download dependencies from
 community's centralized jar repository, while Maven Central is for the
 wider JVM community.
 
-The <tt>lein search</tt> command will search each remote repository:
+The `lein search` command will search each remote repository:
 
     $ lein search lancet
      == Results from clojars - Showing page 1 / 1 total
@@ -92,8 +92,8 @@ The <tt>lein search</tt> command will search each remote repository:
     [lancet "1.0.1"] Dependency-based builds, Clojure Style.
 
 This shows two versions available with the dependency vector notation
-for each. You can copy one of these directly into the :dependencies
-section in project.clj.
+for each. You can copy one of these directly into the `:dependencies`
+section in `project.clj`.
 
 The "artifact id" here is "lancet", and "1.0.1" is the version you
 require. Every library also has a "group id", though for Clojure
@@ -109,71 +109,61 @@ snapshot versions are not guaranteed to stick around, so it's
 important that released code never depends upon snapshot versions that
 you don't control. Adding a snapshot dependency to your project will
 cause Leiningen to actively go seek out the latest version of the
-dependency once a day when you run <tt>lein deps</tt>, (whereas normal
-release versions are cached in the local repository) so if you have a
-lot of snapshots it will slow things down.
+dependency (whereas normal release versions are cached in the local
+repository) so if you have a lot of snapshots it will slow things
+down.
 
 Speaking of the local repository, all the dependencies you pull in
-using Leiningen or Maven get cached in $HOME/.m2/repository since
-Leiningen uses the Maven API under the covers. You can install the
-current project in the local repository with this command:
+using Leiningen or Maven get cached in `$HOME/.m2/repository` since
+Leiningen uses the same library as Maven under the covers. You can
+install the current project in the local repository with this command:
 
     $ lein install
 
     Wrote pom.xml
-    [INFO] Installing myproject-1.0.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/1.0.0-SNAPSHOT/myproject-1.0.0-SNAPSHOT.jar
+    [INFO] Installing my-stuff-0.1.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/0.1.0-SNAPSHOT/myproject-0.1.0-SNAPSHOT.jar
 
 Note that some libraries make their group-id and artifact-id
 correspond with the namespace they provide inside the jar, but this is
 just a convention. There is no guarantee they will match up at all, so
-consult the library's documentation before writing your :require clauses.
+consult the library's documentation before writing your `:require`
+clauses.
 
-If you set :checksum-deps to true in project.clj, Leiningen will
-automatically detect when your :dependencies key changes and run
-<tt>lein deps</tt> behind the scenes when necessary.
-
-You can add third-party repositories by setting the :repositories key
+You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
-If you've confirmed that your project will work with a number of
-different versions of a given dependency, you can provide a range
-instead of a single version:
-
-    [org.clojure/clojure "[1.1,1.2]"] ; <= will match 1.1.0 through 1.2.0.
-
-See [Maven's version range specification](http://j.mp/twc713)
-for details. Don't do this unless you have manually confirmed that it
-works with each of those versions though. You can't assume that your
-dependencies will use semantic versions; some projects even introduce
-backwards-incompatible changes in bugfix point releases.
-
-## Dev Dependencies
+## Profiles
 
 Sometimes you want to pull in dependencies that are really only for
 your convenience while developing; they aren't strictly required for
-the project to function. Leiningen calls these
-:dev-dependencies. They're listed in project.clj alongside regular
-dependencies and downloaded when you run <tt>lein deps</tt>, but they
-are not brought along when another project depends on your
-project.
+the project to function. You can do this by adding a `:dependencies`
+entry to the `:dev` profile. These will be available by default unless
+you specify another profile from the defaults, but they are not
+brought along when another project depends on your project.
 
 Using [midje](https://github.com/marick/Midje) for your tests would be
-a typical example; you would not want it included at runtime, but it's
-needed to run the tests.
+a typical example; you would not want it included in production, but it's
+needed to run the tests:
 
-Dev dependencies may include plugin code that runs in Leiningen's
-process (providing additional tasks or augmenting existing ones)
-or code that runs in the context of your project.
+```clj
+(defproject my-stuff "0.1.0-SNAPSHOT"
+  :description "FIXME: write description"
+  :dependencies [[clojure "1.3.0"]]
+  :profiles {:dev {:dependencies [[midje "1.3.1"]]}})
+```
 
-Note that dependencies that are not _necessary_ for developing but
+Note that profile-specific dependencies are different from plugins in
+context; plugins run in Leiningen's process while dependencies run in
+your project itself.
+
+If you have dependencies that are not _necessary_ for developing but
 just for convenience (things like
 [Swank Clojure](http://github.com/technomancy/swank-clojure) for Emacs
-support or
-[lein-difftest](http://github.com/brentonashworth/lein-difftest)) are
-better suited for user-level plugins than dev-deps:
-
-    $ lein plugin install swank-clojure 1.3.1
+support or [clj-stacktrace](http://github.com/mmcgrana/clj-stacktrace)
+you should add them to the `:user` profile in `~/.lein/profiles`
+instead of the `:dev` profile. Both those profiles are active by
+default; the difference is the convention for where they are specified.
 
 ## Writing the Code
 
@@ -183,23 +173,25 @@ tests.
 
     $ lein test
 
-    Testing myproject.core-test
-    FAIL in (replace-me) (core_test.clj:6)
-    No tests have been written.
-    expected: false
-      actual: false
+    Testing my.test.stuff
+
+    FAIL in (a-test) (stuff.clj:7)
+    FIXME, I fail.
+    expected: (= 0 1)
+      actual: (not (= 0 1))
+
     Ran 1 tests containing 1 assertions.
     1 failures, 0 errors.
 
 Of course, we haven't written any tests yet, so we've just got the
-skeleton failing tests that Leiningen gave us with <tt>lein
-new</tt>. But once we fill it in the test suite will become more
-useful. Sometimes if you've got a large test suite you'll want to run
-just one or two namespaces at a time:
+skeleton failing tests that Leiningen gave us with `lein new`. But
+once we fill it in the test suite will become more useful. Sometimes
+if you've got a large test suite you'll want to run just one or two
+namespaces at a time:
 
-    $ lein test myproject.parser-test
+    $ lein test my.test.stuff.parser
 
-    Testing myproject.parser-test
+    Testing my.test.stuff.parser
     Ran 2 tests containing 10 assertions.
     0 failures, 0 errors.
 
@@ -208,47 +200,46 @@ time, you can run a subset of your tests using test selectors. To do
 this, you attach metadata to various deftests.
 
 ```clj
-(deftest ^{:integration true} network-heavy-test
+(deftest ^:integration network-heavy-test
   (is (= [1 2 3] (:numbers (network-operation)))))
 ```
 
 Then add a :test-selectors map to project.clj:
 
 ```clj
-:test-selectors {:default (fn [v] (not (:integration v)))
+:test-selectors {:default (complement :integration)
                  :integration :integration
                  :all (fn [_] true)}
 ```
 
-Now if you run "lein test" it will only run deftests that don't have
-:integration metadata, while "lein test :integration" will only run
-the integration tests and "lein test :all" will run everything. You
+Now if you run `lein test` it will only run deftests that don't have
+`:integration` metadata, while `lein test :integration` will only run
+the integration tests and `lein test :all` will run everything. You
 can include test selectors and listing test namespaces in the same
 run.
 
-Running "lein test" from the command-line is not a good solution for
+Running `lein test` from the command-line is not a good solution for
 test-driven development due to the slow startup time of the JVM. For
-quick feedback, try starting an interactive session with "lein int"
-and running tests from in there. Other options include editor
-integration (see
-[clojure-test-mode](https://github.com/technomancy/clojure-mode) for
-Emacs) or keeping a repl open and calling <tt>run-tests</tt> from
-there as you work.
+quick feedback, either keep a repl open for running the appropriate
+call to
+[clojure.test/run-tests](http://clojuredocs.org/clojure_core/1.3.0/clojure.test/run-tests)
+or look into editor integration such as
+[clojure-test-mode](https://github.com/technomancy/clojure-mode).
 
 Keep in mind that while keeping a single process around is convenient,
 it's easy for that process to get into a state that doesn't reflect
 the files on disk—functions that are loaded and then deleted from the
 file will remain in memory, making it easy to miss problems arising
 from missing functions (often referred to as "getting
-slimed"). Because of this it's advised to do a "lein test" run with a
+slimed"). Because of this it's advised to do a `lein test` run with a
 fresh instance periodically, perhaps before you commit.
 
 ## AOT Compiling
 
 If you're lucky you'll be able to get away without doing any AOT
 (ahead-of-time) compilation. But there are some Java interop features
-that require it, so if you need to use them you should add an :aot
-option into your project.clj file. It should be a seq of namespaces
+that require it, so if you need to use them you should add an `:aot`
+option into your `project.clj` file. It should be a seq of namespaces
 you want AOT-compiled. Again, the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 has example usage.
@@ -258,28 +249,29 @@ needed, but if you need to force it you can:
 
     $ lein compile
 
-    Compiling myproject.core
+    Compiling my.stuff
 
 For your code to compile, it must be run. This means that you
 shouldn't have any code with side-effects in the top-level. Anything
-outside a function definition that doesn't start with <tt>def</tt> is
+outside a function definition that doesn't start with "def" is
 suspect. If you have code that should run on startup, place it in a
-<tt>-main</tt> function as explained below under "Uberjar".
+`-main` function as explained below under "Uberjar".
 
 For projects that include some Java code, you can set the
-<tt>:java-source-path</tt> key in project.clj to a directory
-containing Java files. (You can set it to "src" to keep Java alongside
-Clojure source or keep them it in a separate directory.) Then the
-javac compiler will run before your Clojure code is AOT-compiled, or
-you can run it manually with the <tt>javac</tt> task.
+`:java-source-path` key in project.clj to a directory containing Java
+files. (You can set it to "src" to keep Java alongside Clojure source
+or keep them it in a separate directory.) Then the javac compiler will
+run before your Clojure code is AOT-compiled, or you can run it
+manually with the `javac` task.
 
 There's
 [a problem in Clojure](http://dev.clojure.org/jira/browse/CLJ-322)
 where AOT-compiling a namespace will also AOT compile all the
 namespaces it depends upon. This often causes unrelated compilation
 artifacts to be included in the jars, but you can set
-:class-file-whitelist to a regex which will be matched against .class
-file names you want to keep in order to remove the unwanted file.
+`:class-file-whitelist` to a regex which will be matched against
+.class file names you want to keep in order to remove the unwanted
+file.
 
 ## What to do with it
 
@@ -300,30 +292,29 @@ applications it varies as described below.
 The simplest thing to do is to distribute an uberjar. This is a single
 standalone executable jar file most suitable for giving to
 nontechnical users. For this to work you'll need to specify a
-namespace as your :main in project.clj. By this point our project.clj
-file should look like this:
+namespace as your `:main` in `project.clj`. By this point our
+`project.clj` file should look like this:
 
 ```clj
-(defproject myproject "1.0.0-SNAPSHOT"
+(defproject my-stuff "0.1.0-SNAPSHOT"
   :description "This project is MINE."
-  :dependencies [[org.clojure/clojure "1.2.0"]
+  :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.apache.lucene/lucene-core "3.0.2"]
                  [lancet "1.0.0"]]
-  :test-selectors {:default (fn [v] (not (:integration v)))
-                 :integration :integration
-                 :all (fn [_] true)}
-  :main myproject.core)
+  :test-selectors {:default (complement :integration)
+                  :integration :integration
+                  :all (fn [_] true)}
+  :main my.stuff)
 ```
 
-The namespace you specify will need to contain a <tt>-main</tt>
-function that will get called when your standalone jar is run. This
-namespace should have a <tt>(:gen-class)</tt> declaration in the
-<tt>ns</tt> form at the top. The <tt>-main</tt> function will get
-passed the command-line arguments. Let's try something simple in
-src/myproject/core.clj:
+The namespace you specify will need to contain a `-main` function that
+will get called when your standalone jar is run. This namespace should
+have a `(:gen-class)` declaration in the `ns` form at the top. The
+`-main` function will get passed the command-line arguments. Let's try
+something simple in `src/my/stuff.clj`:
 
 ```clj
-(ns myproject.core
+(ns my.stuff
   (:gen-class))
 
 (defn -main [& args]
@@ -334,35 +325,36 @@ Now we're ready to generate your uberjar:
 
     $ lein uberjar
     Cleaning up
-    Copying 3 files to /home/phil/src/leiningen/myproject/lib
-    Created ~/src/myproject/myproject-1.0.0.jar
-    Including myproject-1.0.0-SNAPSHOT.jar
+    Compiling my.stuff
+    Compilation succeeded.
+    Created /home/phil/src/leiningen/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
+    Including my-stuff-0.1.0-SNAPSHOT.jar
     Including lancet-1.0.0.jar
     Including clojure-1.2.0.jar
     Including lucene-core-3.0.2.jar
-    Created myproject-1.0.0-standalone.jar
+    Created my-stuff-0.1.0-standalone.jar
 
 This creates a single jar file that contains the contents of all your
-dependencies. Users can run it with a simple <tt>java</tt> invocation,
+dependencies. Users can run it with a simple `java` invocation,
 or on some systems just by double-clicking the jar file.
 
-    $ java -jar myproject-1.0.0-standalone.jar Hello world.
+    $ java -jar my-stuff-0.1.0-standalone.jar Hello world.
     Welcome to my project! These are your args: (Hello world.)
 
-You can run a regular (non-uber) jar with the <tt>java</tt>
+You can run a regular (non-uber) jar with the `java`
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
 
-Invoking "lein run" will launch your project's -main function as if
+Invoking `lein run` will launch your project's `-main` function as if
 from an uberjar, but without going through the packaging process. You
-can also specify an alternate namespace in which to look for -main
-with "lein run -m my.alternate.namespace ARG1 ARG2".
+can also specify an alternate namespace in which to look for `-main`
+with `lein run -m my.alternate.namespace ARG1 ARG2`.
 
-For long-running "lein run" processes, you may wish to use the
+For long-running `lein run` processes, you may wish to use the
 trampoline task, which allows the Leiningen JVM process to exit before
 launching your project's JVM. This can save memory:
 
-    $ lein trampoline run -m myproject.server 5000
+    $ lein trampoline run -m my-stuff.server 5000
 
 ### Shell Wrappers
 
@@ -371,17 +363,17 @@ invoke them compared to other command-line tools. You also can't
 control how the JVM is launched. To solve this, you can include a
 shell script in your jar file that can be used to launch the
 project. Leiningen places this shell script into the
-<tt>~/.lein/bin</tt> directory at install time. Of course, this is
+`~/.lein/bin` directory at install time. Of course, this is
 only suitable if your users already use Leiningen.
 
-If you simply include <tt>:shell-wrapper true</tt> in your
+If you simply include `:shell-wrapper true` in your
 project.clj, Leiningen automatically generates a simple shell script
 wrapper when you create your jar file. However, if you need more
 control you can provide a map instead:
 
 ```clj
-    :shell-wrapper {:main myproject.core
-                    :bin "bin/myproject"}
+    :shell-wrapper {:main my-stuff.core
+                    :bin "bin/my-stuff"}
 ```
 
 Normally the shell wrapper will invoke the -main function in your
@@ -390,7 +382,7 @@ uberjars, so if you wish to avoid this or use a different :main for
 the shell wrapper vs uberjar you can specify a :main ns inside the
 :shell-wrapper map. You may also specify a :bin key, which should
 point to a file relative to the project's root to use as a shell
-wrapper template instead of the default. The <tt>format</tt> function
+wrapper template instead of the default. The `format` function
 is called with the contents of this file along with the necessary
 classpath and the main namespace, so put %s in the right place. See
 [the default
@@ -436,7 +428,7 @@ or get it into Maven central, the easiest way is to publish it at
 publishing is easy:
 
     $ lein jar, pom
-    $ scp pom.xml myproject-1.0.0.jar clojars@clojars.org:
+    $ scp pom.xml my-stuff-0.1.0.jar clojars@clojars.org:
 
 Once that succeeds it will be available as a package on which other
 projects may depend. You will need to have permission to publish to

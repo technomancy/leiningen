@@ -19,12 +19,12 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Update documentation
      - [X] readme
      - [X] plugin guide
-     - tutorial
-     - hacking guide
-     - migration guide
-     - user settings
-     - deploy guide
-     - sample project.clj
+     - [X] tutorial
+     - [ ] hacking guide
+     - [ ] migration guide
+     - [ ] user settings
+     - [ ] deploy guide
+     - [ ] sample project.clj
 ** Other stuff
    - [ ] Move pom generation to pomegranate or leiningen
    - [ ] Non-transitive AOT

@@ -114,21 +114,13 @@ must set the `:hooks` key in project.clj to a seq of namespaces to load
 that call add-hook.
 
 If you need to use hooks from code that runs inside the project's
-process, you may use `leiningen.util.injected/add-hook`, which is an
+process, you may use `leiningen.core.injected/add-hook`, which is an
 isolated copy of `robert.hooke/add-hook` injected into the project in
 order to support features like test selectors.
 
 See [the documentation for
 Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
-
-## Altering Leiningen's Classpath
-
-Leiningen's classpath will include all `:plugins` from `project.clj`
-as well as any from active profiles. To further modify the classpath
-of Leiningen itself, add a `.lein-classpath` file a project's root.
-Its contents will be prepended to Leiningen's classpath when Leiningen
-is invoked upon that project.
 
 ## Clojure Version
 

@@ -183,6 +183,6 @@ function in that namespace will be used as the main-class for executable jar."
     (if (zero? status)
       (let [jar-file (get-jar-filename project)]
         (write-jar project jar-file (filespecs project classpath))
-        (println "Created" jar-file)
+        (println "Created" (str jar-file))
         jar-file)
       status)))
