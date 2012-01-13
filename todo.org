@@ -12,14 +12,20 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Finish designing and implement profiles
    - [ ] Further design on Project Middleware
    - [ ] In-process eval-in-project
-   - [ ] Dynamic recalculating of classpath via pomegranate
+   - [X] Dynamic recalculating of classpath via pomegranate
    - [ ] Redesign repl task, possibly around nREPL
-   - [ ] Honor :plugins as separate from :dependencies
+   - [X] Honor :plugins as separate from :dependencies
+   - [ ] Update documentation
+     - plugin guide
+     - tutorial
+     - migration guide
+     - user settings
+     - hacking guide
+     - deploy guide
+     - sample project.clj
 ** Other stuff
    - [ ] Move pom generation to pomegranate or leiningen
-   - [ ] Better consistency/docs around user/settings
    - [ ] Non-transitive AOT
-   - [ ] lint/check mode for lein compile
    - [X] More flexibility for jarring
    - [ ] Mirror/proxy support, also for search indices
    - [ ] Allow disabling of all injected code
