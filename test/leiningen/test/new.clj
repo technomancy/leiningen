@@ -2,7 +2,7 @@
   (:require [leiningen.new])
   (:use [clojure.test]
         [clojure.java.io :only [file]]
-        [leiningen.util.file :only [delete-file-recursively]]))
+        [leiningen.test.helper :only [delete-file-recursively]]))
 
 (deftest test-new
   (leiningen.new/new nil "test-new-proj")

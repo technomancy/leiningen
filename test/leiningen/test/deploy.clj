@@ -3,8 +3,8 @@
         [clojure.java.io :only [file]]
         [leiningen.deploy]
         [leiningen.core :only [read-project defproject]]
-        [leiningen.util.file :only [delete-file-recursively tmp-dir]]
-        [leiningen.test.helper :only [sample-project]]))
+        [leiningen.test.helper :only [delete-file-recursively
+                                      tmp-dir sample-project]]))
 
 (defn- repo-path
   [relative-repo-path]

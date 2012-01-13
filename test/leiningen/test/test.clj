@@ -2,8 +2,7 @@
   (:refer-clojure :exclude [test])
   (:use [clojure.test]
         [leiningen.test]
-        [leiningen.util.file :only [tmp-dir]]
-        [leiningen.test.helper :only [sample-no-aot-project]]))
+        [leiningen.test.helper :only [tmp-dir sample-no-aot-project]]))
 
 (use-fixtures :each
               (fn [f]

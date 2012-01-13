@@ -4,8 +4,7 @@
         [clojure.java.io :only [delete-file]]
         ;; [leiningen.javac :only [javac]]
         [leiningen.run]
-        [leiningen.util.file :only [tmp-dir]]
-        [leiningen.test.helper :only [tricky-name-project]]))
+        [leiningen.test.helper :only [tmp-dir tricky-name-project]]))
 
 (def out-file (format "%s/lein-test" tmp-dir))
 

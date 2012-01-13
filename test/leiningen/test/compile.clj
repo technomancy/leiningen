@@ -5,9 +5,9 @@
         [clojure.java.shell :only [with-sh-dir]]
         [leiningen.core.eval :only [eval-in-project]]
         [leiningen.compile]
-        [leiningen.test.helper :only [sample-project sample-failing-project
-                                      tricky-name-project]]
-        [leiningen.util.file :only [delete-file-recursively]])
+        [leiningen.test.helper :only [sample-project delete-file-recursively
+                                      sample-failing-project
+                                      tricky-name-project]])
   (:require [leiningen.core.eval :as eval]))
 
 (use-fixtures :each (fn [f]

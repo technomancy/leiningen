@@ -1,7 +1,8 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:use [leiningen.classpath :only [get-classpath-string]]
-        [leiningen.util.paths :only [normalize-path]])
+        ;; [leiningen.util.paths :only [normalize-path]]
+        )
   (:require [lancet.core :as lancet])
   (:import (java.io File)))
 
@@ -19,7 +20,7 @@
   (merge *default-javac-options*
          (:javac-options project)
          {:destdir (:compile-path project)
-          :srcdir (normalize-path (:root project) path)
+          ;; :srcdir (normalize-path (:root project) path)
           :classpath (get-classpath-string project)}
          (apply hash-map options)))
 

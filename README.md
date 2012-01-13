@@ -1,6 +1,7 @@
 # Leiningen
 
-<img src="https://github.com/downloads/technomancy/leiningen/leiningen-banner.png" alt="Leiningen logo" title="The man himself" align="right" />
+<img src="https://github.com/downloads/technomancy/leiningen/leiningen-banner.png"
+ alt="Leiningen logo" title="The man himself" align="right" />
 
 > "Leiningen!" he shouted. "You're insane! They're not creatures you can
 > fight--they're an elemental--an 'act of God!' Ten miles long, two
@@ -28,9 +29,9 @@ can just run `lein self-install`, otherwise get the standalone jar from the
 If you have [Cygwin](http://www.cygwin.com/) you should be able to use
 the shell script above rather than the batch file.
 
-The master branch is currently undergoing massive changes for
+The `master` branch is currently undergoing massive changes for
 Leiningen 2.0; you should not expect it to work. If you want to build
-from source for everyday use, use the 1.x branch.
+from source for everyday use, use the `1.x` branch.
 
 ## Usage
 
@@ -59,7 +60,7 @@ You can also chain tasks together in a single command by using commas:
     $ lein clean, test foo.test-core, jar
 
 Most tasks need to be run from somewhere inside a project directory to
-work, but some (`new`, `help`, `version`, `plugin`, and the
+work, but some (`new`, `help`, `version`, and the
 two-argument version of `install`) may run from anywhere.
 
 The install task places shell scripts in the `~/.lein/bin`
@@ -99,7 +100,7 @@ You can change the configuration of your project by applying various
 profiles. Each profile is defined as a map which gets merged into your
 project map.
 
-Profiles are read from 4 different locations: (in order of precedence)
+Profiles are read from 3 different locations: (in order of precedence)
 
 * the `:profiles` entry in the project map
 * the `~/.lein/profiles.clj` file
@@ -109,10 +110,11 @@ Each of these should be a map of profile names to profile maps.
 
 Note that profiles have special logic when they are merged into your
 project map: maps get merged recursively, but sets are `union`ed and
-collections are `concat`enated. Other values are simply replaced.
-Profiles take precedence in the order they are specified.
+other collections are `concat`enated. Other values are simply
+replaced. Profiles take precedence in the order they are specified.
 
-To activate a profile, use the `with-profile` higher-order task:
+To activate a profile for a given run, use the `with-profile`
+higher-order task:
 
     $ lein with-profile qa test :database
 
@@ -122,14 +124,16 @@ active by default.
 
 ### Leiningen Plugins 
 
-Leiningen supports plugins which contain both new tasks and hooks that
-modify existing tasks. See
+Leiningen supports plugins which may contain both new tasks and hooks
+that modify behaivour of existing tasks. See
 [the plugins wiki page](https://github.com/technomancy/leiningen/wiki/Plugins)
 for a full list. If a plugin is needed for successful test or build
 runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
 swank-clojure) then it should be added to the `:plugins` list in the
-`:user` profile from `~/.lein/profiles.clj`.
+`:user` profile from `~/.lein/profiles.clj`. The
+[plugin guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+explains how to write plugins.
 
 ## FAQ
 
@@ -144,22 +148,10 @@ swank-clojure) then it should be added to the `:plugins` list in the
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).
 
-**Q:** It says a required artifact is missing for "super-pom". What's that?  
-**A:** The Maven API that Leiningen uses refers to your project as
-  "super-pom". It's just a quirk of the API. It probably means there
-  is a typo in your :dependency declaration in project.clj.
-
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
   explains how to set up a private repository. If you are not sharing
   them with a team you could also just [install locally](https://github.com/kumarshantanu/lein-localrepo).
-
-**Q:** How do I write my own tasks?  
-**A:** You can use `lein new plugin lein-myplugin` to create a new
-  [plugin project](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md).
-  You can also include one-off tasks in your src/leiningen/ directory,
-  but it's actually fairly rare to have a task that's truly unique to
-  your project.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
 **A:** If you create a directory called `checkouts` in your project
@@ -248,19 +240,13 @@ mailing list and mailing a SASE.
 ## Building
 
 You don't need to "build" Leiningen per se, but when you're using a
-checkout you will need to get its dependencies in place. In most cases
-a `lein self-install` will usually get you what you
-need. However, this will occasionally fail for very new SNAPSHOT
-versions since the standalone jar will not have been uploaded yet. 
+checkout you will need to get its dependencies in place.
 
-You can also use Maven, just for variety's sake:
-
-    $ mvn dependency:copy-dependencies
-    $ mv target/dependency lib
-
-Symlink `bin/lein` from your checkout into a location on the $PATH. The
-script can figure out when it's being called from inside a checkout
-and use the checkout rather than the self-install uberjar if necessary.
+Using Leiningen 1.x, run `lein deps` in the `leiningen-core`
+subproject directory. Once you do that in most cases a `bin/lein
+self-install` will usually get you what you need. However, this will
+occasionally fail for very new SNAPSHOT versions since the standalone
+jar will not have been uploaded yet.
 
 ## License
 

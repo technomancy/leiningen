@@ -1,7 +1,7 @@
 (ns leiningen.test.install
   (:require [leiningen.core.user :as user])
   (:use [clojure.test]
-        [leiningen.install]
+        [leiningen.install :exclude [tmp-dir]]
         [leiningen.test.helper]
         [clojure.java.io :only [file]]))
 

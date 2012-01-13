@@ -3,8 +3,8 @@
         [clojure.java.io :only [file]]
         [leiningen.javac :only [javac]]
         [leiningen.core :only [read-project defproject]]
-        [leiningen.util.file :only [delete-file-recursively]]
-        #_[leiningen.test.helper :only [dev-deps-project]]))
+        [leiningen.test.helper :only [delete-file-recursively
+                                      #_dev-deps-project]]))
 
 (deftest test-javac
   #_(delete-file-recursively (:compile-path dev-deps-project) true)

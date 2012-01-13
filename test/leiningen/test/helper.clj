@@ -5,6 +5,8 @@
 ;; TODO: fix
 (def local-repo (io/file (System/getProperty "user.home") ".m2" "repository"))
 
+(def tmp-dir (System/getProperty "java.io.tmpdir"))
+
 (defn m2-dir [n v]
   (io/file local-repo
            (if (string? n) n (or (namespace n) (name n))) (name n) v))
