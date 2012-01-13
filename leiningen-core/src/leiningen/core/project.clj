@@ -63,13 +63,12 @@
                               :leiningen
                               :subprocess))}))))
 
-(def profiles
+(def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom (merge {:dev {:test-path ["test"]
-                      :resources-path ["dev-resources"]}
-                :debug {:debug true}}
-               (user/profiles))))
+  (atom {:dev {:test-path ["test"]
+               :resources-path ["dev-resources"]}
+         :debug {:debug true}}))
 
 ;; Modified merge-with to provide f with the conflicting key.
 (defn- merge-with-key [f & maps]
@@ -124,13 +123,7 @@
   the profiles.clj file in the project root, and the :profiles key from the
   project map."
   [project profiles-to-apply]
-  (let [default-profiles @profiles
-        profiles-file (if (.exists (io/file (:root project) "profiles.clj"))
-                        ;; TODO: load or read?
-                        (load-file (str (io/file (:root project)
-                                                 "profiles.clj"))))
-        project-profiles (:profiles project)
-        profiles (merge default-profiles profiles-file project-profiles)]
+  (let [profiles (merge @default-profiles (user/profiles) (:profiles project))]
     ;; We reverse because we want profile values to override the
     ;; project, so we need "last wins" in the reduce, but we want the
     ;; first profile specified by the user to take precedence.

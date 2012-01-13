@@ -54,7 +54,7 @@
                           :dev {:test-path ["test"]}}))
 
 (deftest test-merge-profile-paths
-  (with-redefs [profiles test-profiles]
+  (with-redefs [default-profiles test-profiles]
     (is (= ["/etc/myapp" "test/hi" "blue-resources" "resources"]
            (-> {:resources-path ["resources"]
                 :profiles {:blue {:resources-path ["blue-resources"]}}}

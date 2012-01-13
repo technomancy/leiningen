@@ -36,4 +36,4 @@
 (defn profiles []
   (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
     (if (.exists profiles-file)
-      (load-file (.getAbsolutePath profiles-file)))))
+      (read-string (slurp profiles-file)))))
