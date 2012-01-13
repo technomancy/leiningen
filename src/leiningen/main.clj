@@ -90,16 +90,14 @@ or by executing \"lein upgrade\". ")
 
 (defn -main
   "Run a task or comma-separated list of tasks."
-  ([task-name & args]
-     (user/init)
-     (let [task-name (or (@aliases task-name) task-name "help")
-           project (if (.exists (io/file "project.clj")) (project/read))]
-       (when (:min-lein-version project)
-         (verify-min-version project))
-       (apply-task task-name project args)))
-  ([]
-     (doseq [[task & args] (group-args *command-line-args*)
-             :let [result (apply -main (or task "help") args)]]
-       (when (and (integer? result) (pos? result))
-         (exit result)))
-     (exit 0)))
+  [& args]
+  (user/init)
+  (let [project (if (.exists (io/file "project.clj")) (project/read))]
+    (when (:min-lein-version project)
+      (verify-min-version project))
+    (doseq [[task-name & args] (group-args args)
+            :let [task-name (or (@aliases task-name) task-name "help")
+                  result (apply-task task-name project args)]]
+      (when (and (integer? result) (pos? result))
+        (exit result))))
+  (exit 0))
