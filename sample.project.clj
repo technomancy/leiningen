@@ -36,22 +36,12 @@
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
-  ;; Dev dependencies are intended for use only during
-  ;; development. Projects that depend on this project will not pull
-  ;; in its dev-dependencies, and they won't be included in the uberjar.
-  :dev-dependencies [[org.clojure/swank-clojure "1.2.1"]]
   ;; Global exclusions are applied across the board, as an alternative
   ;; to duplication for multiple depedencies with the same excluded libraries.
   :exclusions [org.apache.poi/poi
                org.apache.poi/poi-ooxml]
-  ;; Only re-fetch dependencies when they change in project.clj or
-  ;; when :library-path directory is empty.
-  :checksum-deps true
   ;; Warns users of earlier versions of Leiningen.
   :min-lein-version "1.3.0"
-  ;; Before fetching dependencies, the contents of the lib/ directory
-  ;; will get deleted unless this is set to true.
-  :disable-deps-clean false
   ;; Delete .class files that do not have a correspoinding package in
   ;; the src/ directory. Workaround for Clojure bug CLJ-322. Causes problems
   ;; with protocols in upstream libraries; false by default. Set to
@@ -84,10 +74,6 @@
   :test-selectors {:default (fn [t] (not (or (:integration v) (:regression v))))
                    :integration :integration
                    :regression :regression}
-  ;; Set this to true to search the classpath for hooks. Will load all
-  ;; namespaces matching leiningen.hooks.*. Warning: this will cause
-  ;; Leiningen to start slowly, especially with many dependencies.
-  :implicit-hooks false
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. :namespaces is an alias for this.
   ;; Put a regex here to compile all namespaces whose names match.
@@ -100,9 +86,6 @@
   :main org.example.sample
   ;; This namespace will get loaded automatically when you launch a repl.
   :repl-init sample.repl-helper
-  ;; This file will get loaded automatically when you launch a repl,
-  ;; but it's deprecated; use :repl-init above instead.
-  :repl-init-script "src/main/clojure/init.clj"
   ;; These will get passed to clojure.main/repl; see its docstring for details.
   :repl-options [:prompt (fn [] (print "your command, master? ") (flush))]
   ;; Customize the socket the repl task listens on.
@@ -156,8 +139,6 @@
   :extra-classpath-dirs ["script"] ; more classpath entries not included in jar
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
-  ;; Construct classpath from jars in ~/.m2 rather than copying to :library-path
-  :local-repo-classpath true
   ;; Options to pass to java compiler for java source
   ;; See http://ant.apache.org/manual/Tasks/javac.html
   :javac-options {:destdir "classes/"}
@@ -174,13 +155,6 @@
   :jvm-opts ["-Xmx1g"]
   ;; If your project is a Leiningen plugin, set this to skip the subprocess step
   :eval-in-leiningen false
-  ;; Leiningen includes a workaround for a problem with Clojure's
-  ;; agent thread pool. If you see RejectedExecutionException using
-  ;; futures or agents, you may be working with a plugin that doesn't
-  ;; take this workaround into account yet--see the "Threads" section
-  ;; of doc/PLUGINS.md. This key will disable Leiningen's workaround.
-  ;; It may cause some other plugins to fail to exit when they finish.
-  :skip-shutdown-agents true
   ;; Set parent for working with in a multi-module maven project
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"])
 

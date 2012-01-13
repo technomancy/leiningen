@@ -17,7 +17,8 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Honor :plugins as separate from :dependencies
    - [ ] Add :dynamic metadata to clucy
    - [ ] Update documentation
-     - plugin guide
+     - [X] readme
+     - [X] plugin guide
      - tutorial
      - hacking guide
      - migration guide

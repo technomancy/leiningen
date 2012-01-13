@@ -118,6 +118,10 @@ higher-order task:
 
     $ lein with-profile qa test :database
 
+Multiple profiles may be specified with commas:
+
+    $ lein with-profile qa,user test :database
+
 A single `with-profile` call does not apply across task comma-chains.
 Outside `with-profile` calls, the `:dev` and `:user` profiles are
 active by default.

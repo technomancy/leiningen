@@ -1,47 +1,54 @@
 # Leiningen Plugins
 
 Leiningen tasks are simply functions named $TASK in a leiningen.$TASK
-namespace. So writing a Leiningen plugin is pretty straightforward; as
-long as the file containing the namespace is available on the
-classpath, Leiningen will be able to use it.
+namespace. So writing a Leiningen plugin is just a matter of creating
+a project that contains such a function.
 
-Plugins may be installed on a per-project or user-wide basis. To use a
-plugin in a single project, add it to your project.clj
-:dev-dependencies and run "lein deps". To install it for your user,
-run "lein plugin install ARTIFACT-ID VERSION". In general user-level
-plugins are preferred when the plugin is a matter of user convenience,
-and :dev-dependencies are better for plugins without which the tests
-or packaging will not function.
-
-For example,
-[swank-clojure](https://github.com/technomancy/swank-clojure) should
-be installed with "lein plugin install" while
-[lein-tar](https://github.com/technomancy/lein-tar) should be in
-:dev-dependencies.
+Using the plugin is a matter of declaring it in the `:plugins` entry
+of the project map. If a plugin is a matter of user convenience rather
+than a requirement for running the project, you should place the
+plugin declaration in the `:user` profile in `~/.lein/profiles.clj`
+instead of directly in the `project.clj` file.
 
 ## Writing a Plugin
 
-Start by generating a new project with "lein new myplugin", and add a
-leiningen.myplugin namespace with a myplugin function. Add
-:eval-in-leiningen true to your project.clj so Leiningen knows to
-execute its code inside the Leiningen process rather than spinning up
-a project subprocess.
+Start by generating a new project with `lein new plugin
+lein-myplugin`, and add a `leiningen.myplugin` namespace with a
+`myplugin` defn. You'll notice the `project.clj` file has
+`:eval-in-leiningen true`, which causes all tasks to operate inside
+the leiningen process rather than starting a subprocess to isolate the
+project's code. Plugins should not declare a dependency on Clojure
+itself; in fact
+[all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/master/project.clj)
+should be considered implied dependencies of every plugin.
 
-Some tasks may only be run in the context of a project. For tasks like
-this, name the first argument <tt>project</tt>. Leiningen will inspect
-the argument list and pass in the current project if needed. The
-project is a map which is based on the project.clj file, but it also
-has :name, :group, :version, and :root keys added in. If you want it
-to take parameters from the command-line invocation, you can make the
-function take more arguments.
+The first argument to your task function should be the current
+project. It will be a map which is based on the `project.clj` file,
+but it also has :name, :group, :version, and :root keys added in,
+among other things. To see what project maps look like, try using the
+`lein-pprint` plugin; then you can run `lein pprint` to examine any
+project. If you want it to take parameters from the command-line
+invocation, you can make the function take more arguments.
 
-The "lein help" task will display the first line of the task
-function's docstring as a summary.  Then "lein help $TASK" will use
-the task function's full docstring for detailed help. The function's
-arglists will also be shown, so pick argument names that are clear and
-descriptive. If you set :help-arglists in the function's metadata, it
-will be used instead for those cases where alternate arities exist
-that aren't intended to be exposed to the user.
+Most tasks may only be run in the context of another project. If your
+task can be run outside a project directory, add `^:no-project-needed`
+metadata to your task defn to indicate it. If you are inside a
+project, Leiningen should change to the root of that project before
+launching the JVM, so `(System/getProperty "user.dir")` should be the
+project root.
+
+The `lein help` task uses docstrings. A namespace-level docstring will
+be used as the short summary if present; if not then it will take the
+first line of your function's docstring. Try to keep the summary under
+68 characters for formatting purposes. The full docstring can of
+course be much longer but should still be wrapped at 80 columns. The
+function's arglists will also be shown, so pick argument names that
+are clear and descriptive. If you set `:help-arglists` in the
+function's metadata, it will be used instead for those cases where
+alternate arities exist that aren't intended to be exposed to the
+user. Be sure to explain all these arguments in the docstring. Note
+that all your arguments will be strings, so it's up to you to call
+`read-string` on them if you want keywords, numbers, or symbols.
 
 If your task returns an integer, it will be used as the exit code for
 the process. If tasks are chained together, a nonzero integer return
@@ -49,48 +56,29 @@ value will halt the chain and exit immediately. Throwing an exception
 will also halt execution, but returning an integer will avoid showing
 an unsightly stack trace.
 
-## Threads
+## Code Evaluation
 
-Leiningen contains a workaround for a flaw in Clojure's agent thread
-pools that may cause confusion. The JVM will
-[refuse to exit](http://tech.puredanger.com/2010/06/08/clojure-agent-thread-pools/)
-if there are active non-daemon threads. Clojure agents and futures
-start up a non-daemon thread pool, so if you call any code that uses
-agents or futures (even code that isn't inherently asynchronous like
-<tt>clojure.java.shell/sh</tt>), the JVM won't exit until
-<tt>(shutdown-agents)</tt> is called.
+Plugin functions run inside Leiningen's process, so they have access
+to all the existing Leiningen functions. The public API of Leiningen
+should be considered all public functions inside the
+`leiningen.core.*` prefix not labeled with `^:internal` metadata as
+well as each individual task functions. Other functions in task
+namespaces should be considered internal and may change inside point
+releases.
 
-In order to work around this, Leiningen appends a call to
-<tt>(shutdown-agents)</tt> to any code that runs in a project
-subprocess. If it didn't, many plugins would simply never finish. But
-it has a few unfortunate side-effects. You may expect the fact that
-your plugin starts its own thread using <tt>future</tt> or
-<tt>send</tt> to keep its process alive, but this is not possible with
-Leiningen's workaround.
+Many tasks need to execute code inside the context of the project
+itself. The `leiningen.core.eval/eval-in-project` function is used for
+this purpose. It accepts a project argument as well as a form to
+evaluate, and the final (optional) argument is another form called
+`init` that is evaluated up-front before the main form. This may be
+used to require a namespace earlier in order to avoid the
+[Gilardi Scenario](http://technomancy.us/143). Inside the
+`eval-in-project` call the project's own classpath will be active and
+Leiningen's own internals and plugins will not be available.
 
-On the other hand, you may start up your own threads outside Clojure's
-thread pools. These threads <i>will</i> keep the process alive on
-their own, but they will not prevent Leiningen from running
-<tt>(shutdown-agents)</tt>. This will cause code that's running in
-your threads to lose access to agents and futures since
-[shutdown-agents is irreversible](http://p.hagelb.org/shutdown-agents.jpg).
-
-The solution is to block in your main thread if you need other threads
-to keep alive. However, if your task is being run from Leiningen's
-<tt>interactive</tt> task, the project subprocess will not exit and
-<tt>shutdown-agents</tt> will not be triggered, so it's best to block
-conditionally. Here's an example:
-
-    (when-not ~leiningen.core/*interactive?*
-      (shutdown-agents))
-
-Note again that this only applies for plugins that need to run code in
-the project's process, so the code above would go inside the
-<tt>form</tt> argument to <tt>eval-in-project</tt>. If your plugin
-only runs in Leiningen's process then you don't need to
-worry. Hopefully this will be
-[fixed in future versions of Clojure](http://dev.clojure.org/jira/browse/CLJ-124),
-but the workaround will remain necessary for backwards-compatibility.
+The return value of the `eval-in-project` call is an integer that
+represents the exit code of the project's process. Zero indicates
+success.
 
 ## Hooks
 
@@ -101,32 +89,30 @@ implied dependency; as long as Leiningen 1.2 or higher is used it will
 be available.
 
 Inspired by clojure.test's fixtures functionality, hooks are functions
-which wrap tasks and may alter their behaviour by using binding,
-altering the return value, only running the function conditionally,
-etc. The add-hook function takes a var of the task it's meant to apply
-to and a function to perform the wrapping:
+which wrap other functions (often tasks) and may alter their behaviour
+by using binding, altering the return value, only running the function
+conditionally, etc. The `add-hook` function takes a var of the task it's
+meant to apply to and a function to perform the wrapping:
 
 ```clj
-(use 'robert.hooke)
+(require 'robert.hooke)
 
 (defn skip-integration-hook [task & args]
   (binding [clojure.test/test-var (test-var-skip :integration)]
     (apply task args)))
 
-(add-hook #'leiningen.test/test skip-integration-hook)
+(robert.hooke/add-hook #'leiningen.test/test skip-integration-hook)
 ```
 
 Hooks compose, so be aware that your hook may be running inside
 another hook. To take advantage of your hooks functionality, projects
-must set the :hooks key in project.clj to a seq of namespaces to load
-that call add-hook. Note that in Leiningen 1.2, hooks get loaded and
-used without being specified in project.clj; this is a bug. In 1.3 and
-on they are opt-in only.
+must set the `:hooks` key in project.clj to a seq of namespaces to load
+that call add-hook.
 
 If you need to use hooks from code that runs inside the project's
-process, you may use <tt>leiningen.util.injected/add-hook</tt>, which
-is an isolated copy of <tt>robert.hooke/add-hook</tt> injected into
-the project in order to support features like test selectors.
+process, you may use `leiningen.util.injected/add-hook`, which is an
+isolated copy of `robert.hooke/add-hook` injected into the project in
+order to support features like test selectors.
 
 See [the documentation for
 Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
@@ -134,24 +120,17 @@ for more details.
 
 ## Altering Leiningen's Classpath
 
-Leiningen's classpath will include all plugins from :dev-dependencies
-as well as user plugins. To further modify the classpath of Leiningen
-itself, add a '.lein-classpath' file a project's root. Its contents
-will be prepended to Leiningen's classpath when Leiningen is invoked
-upon that project.
+Leiningen's classpath will include all `:plugins` from `project.clj`
+as well as any from active profiles. To further modify the classpath
+of Leiningen itself, add a `.lein-classpath` file a project's root.
+Its contents will be prepended to Leiningen's classpath when Leiningen
+is invoked upon that project.
 
 ## Clojure Version
 
-Note that Leiningen is an implied dependency of all plugins; you don't
-need to explicitly list it in the project.clj file. You also don't
-need to list Clojure or Contrib, but you will be locked into using the
-same version of Clojure that Leiningen is using.
-
-Versions of Leiningen prior to 1.2.0 used Clojure 1.1, while the rest
-of the 1.x line uses Clojure 1.2. Leiningen 2.0 will use Clojure 1.3.
-If you need to use a different version of Clojure from within a
-Leiningen plugin, you can use `eval-in-project` with a dummy project
-argument:
+Leiningen 2.0 uses Clojure 1.3.0. If you need to use a different
+version of Clojure from within a Leiningen plugin, you can use
+`eval-in-project` with a dummy project argument:
 
 ```clj
 (eval-in-project {:local-repo-classpath true
@@ -160,22 +139,13 @@ argument:
                  '(println "hello from" *clojure-version*))
 ```
 
-## Lancet
+## 1.x Compatibility
 
-If your plugins need to do a fair amount of filesystem-y things, you
-may want to take a look at using Ant tasks to do them since the JDK
-lacks a lot of simple functionality of this kind. Using the Ant API
-directly is a pain, but it can be eased to a degree using
-[Lancet](https://github.com/stuarthalloway/lancet). Lancet is the
-Clojure adapter for Ant that is developed as the sample project in the
-[Programming
-Clojure](http://www.pragprog.com/titles/shcloj/programming-clojure)
-book.
+Earlier versions of Leiningen had a few differences in the way plugins
+worked, but compatibility can usually be achieved with a few
+guidelines:
 
-You can look over the [Ant API documentation's listing of
-tasks](http://www.jajakarta.org/ant/ant-1.6.1/docs/en/manual/api/org/apache/tools/ant/taskdefs/package-summary.html)
-to find an appropriate task. See the <tt>deps</tt> task for an example
-of how to call a task from Clojure.
+TODO: compatibility guidelines
 
 ## Have Fun
 
