@@ -6,7 +6,7 @@
 
 (def aliases (atom {"--help" "help", "-h" "help", "-?" "help", "-v" "version"
                     "--version" "version", "überjar" "uberjar"
-                    "cp" "classpath"}))
+                    "cp" "classpath" "halp" "help"}))
 
 (defn exit
   "Call System/exit. Defined as a function so that rebinding is possible."
