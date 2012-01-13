@@ -1,14 +1,9 @@
 (ns leiningen.javac
   "Compile Java source files."
-  (:use [leiningen.classpath :only [get-classpath-string]]
-        ;; [leiningen.util.paths :only [normalize-path]]
-        )
-  (:require [lancet.core :as lancet])
-  (:import (java.io File)))
+  (:use [leiningen.classpath :only [get-classpath-string]]))
 
-(def ^{:doc "Default options for the java compiler."
-       :dynamic true}
-  *default-javac-options*
+(def ^:dynamic *default-javac-options*
+  "Default options for the java compiler."
   {:debug "false" :fork "true"
    :includejavaruntime "yes"
    :includeantruntime "false"
@@ -31,18 +26,17 @@
     (for [spec (if (string? specs) [[specs]] specs)]
       (extract-javac-task project spec))))
 
-(defn- run-javac-task
-  "Compile the given task spec."
-  [task-spec]
-  (lancet/mkdir {:dir (:destdir task-spec)})
-  (lancet/javac task-spec))
+;; (defn- run-javac-task
+;;   "Compile the given task spec."
+;;   [task-spec]
+;;   (lancet/mkdir {:dir (:destdir task-spec)})
+;;   (lancet/javac task-spec))
 
 (defn javac
   "Compile Java source files.
 
 Add a :java-source-path key to project.clj to specify where to find them."
-  [project & [directory]]
-  (doseq [task (extract-javac-tasks project)
-          :when (or (nil? directory) (= directory (:srcdir task)))]
-    (run-javac-task task)))
+  [project]
+  (doseq [task (extract-javac-tasks project)]
+    #_(run-javac-task task)))
 

@@ -44,6 +44,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] run
    - [X] new (merge from lein-newnew)
    - [X] help (needs tests)
+   - [X] search
    - [ ] pom (steal from depot)
    - [ ] install (minus shell wrappers)
    - [ ] uberjar
@@ -54,7 +55,6 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] shell wrappers
    - [ ] deploy
    - [ ] javac (can we do this without ant?)
-   - [ ] search
    - [ ] trampoline
 * For 1.6.2
   - [X] resources with eval-in-leiningen (#248)

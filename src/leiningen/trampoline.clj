@@ -4,7 +4,7 @@
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]))
 
-(def ^{:dynamic true} *trampoline?* false)
+(def ^:dynamic *trampoline?* false)
 
 (defn win-batch? []
   (.endsWith (System/getProperty "leiningen.trampoline-file") ".bat"))
@@ -24,14 +24,12 @@ task and runs it after Leiningen's own JVM process has exited rather
 than as a subprocess of Leiningen's project.
 
 Use this to save memory or to work around things like stdin issues.
-Not compatible with chaining.
-
-ALPHA: subject to change without warning."
+Not compatible with chaining."
   [project task-name & args]
   (let [command (atom nil)]
     (when (:eval-in-leiningen project)
       (println "Warning: trampoline has no effect with :eval-in-leiningen."))
-    #_(binding [*trampoline?* true
+    (binding [*trampoline?* true
               eval/sh (fn [& c] (reset! command c) 0)]
       (apply-task task-name project args task-not-found))
     (if @command

@@ -43,7 +43,7 @@
 
 ;;; Searching
 
-(def ^{:private true} page-size (:search-page-size (user/settings) 25))
+(def ^:private page-size (:search-page-size (user/settings) 25))
 
 (defn search-repository [[id {:keys [url]} :as repo] query page]
   (if (ensure-fresh-index repo)
@@ -85,14 +85,7 @@ string matches or do more advanced queries such as this
 
 Also accepts a second parameter for fetching successive
 pages."
-  ;; support running outside project
-  ([query] (search {} query))
-  ([project-or-query query-or-page]
-     ;; this arity does double-duty: simple query inside project or
-     ;; query+page outside project
-     (if (string? project-or-query)
-       (search {} project-or-query query-or-page)
-       (search project-or-query query-or-page 1)))
+  ([project query] (search project query 1))
   ([project query page]
      ;; you know what would be just super? pattern matching.
      (if (= "--update" query)

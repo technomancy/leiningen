@@ -6,19 +6,6 @@
         [leiningen.pom :only [pom snapshot?]]
         [clojure.java.io :only [file]]))
 
-(declare make-model make-artifact)
-
-(defn- make-maven-project [project]
-)
-
-(defn- get-repository [project repository-name]
-  (let [deploy-repositories (repositories-for project :kind :deploy-repositories)
-        repositories (repositories-for project)
-        repository (or (deploy-repositories repository-name) 
-                       (repositories repository-name)
-                       {:url repository-name})]
-    #_(make-repository [repository-name repository])))
-
 (defn deploy
   "Build jar and deploy to remote repository.
 

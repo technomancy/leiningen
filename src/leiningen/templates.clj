@@ -11,8 +11,7 @@
 ;; just look up these templates on the classpath, require them, and then
 ;; get the metadata off of that function to list the names and docs
 ;; for all of the available templates.
-(defn ^{:no-project-needed true}
-  templates
+(defn ^:no-project-needed templates
   "List available 'lein new' templates"
   [project]
   (println "List of 'lein new' templates on the classpath:")
@@ -25,4 +24,4 @@
                   (ns-resolve (the-ns n)
                               (symbol (last (.split (str n) "\\.")))))]
       (println (str (:name n-meta) ":")
-               (or (:doc n-meta) "No documentation available.")))))
+               (:doc n-meta "No documentation available.")))))

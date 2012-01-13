@@ -54,6 +54,8 @@ user. Be sure to explain all these arguments in the docstring. Note
 that all your arguments will be strings, so it's up to you to call
 `read-string` on them if you want keywords, numbers, or symbols.
 
+TODO: document subtasks and subtask help
+
 If your task returns an integer, it will be used as the exit code for
 the process. If tasks are chained together, a nonzero integer return
 value will halt the chain and exit immediately. Throwing an exception

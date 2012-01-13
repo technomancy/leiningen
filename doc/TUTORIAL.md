@@ -72,10 +72,6 @@ to setting `:dependencies`. Note that Clojure is just another
 dependency here. Unlike most languages, it's easy to swap out any
 version of Clojure.
 
-If you've got a simple pure-clojure project, you may be fine with the
-default of depending only on Clojure, but otherwise you'll need to
-list other dependencies.
-
 ## Dependencies
 
 By default, Leiningen projects download dependencies from
@@ -135,9 +131,9 @@ in project.clj. See the
 
 ## Profiles
 
-Sometimes you want to pull in dependencies that are really only for
-your convenience while developing; they aren't strictly required for
-the project to function. You can do this by adding a `:dependencies`
+Sometimes you want to pull in dependencies that are really only
+necessary while developing; they aren't required for the project to
+function in production. You can do this by adding a `:dependencies`
 entry to the `:dev` profile. These will be available by default unless
 you specify another profile from the defaults, but they are not
 brought along when another project depends on your project.
