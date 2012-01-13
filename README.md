@@ -70,7 +70,7 @@ advantage of this, you should put it on your `$PATH`.
 
 The `project.clj` file in the project root should look like this:
 
-```clojure
+```clj
 (defproject myproject "0.5.0-SNAPSHOT"
   :description "A project for doing things."
   :url "http://github.com/technomancy/myproject"
@@ -93,14 +93,40 @@ executed inside Leiningen itself, not in your project. Set the
 `:repl-init` key in project.clj to point to a namespace if
 you want code executed inside your project.
 
-## Profiles
+### Profiles
 
-## Leiningen Plugins 
+You can change the configuration of your project by applying various
+profiles. Each profile is defined as a map which gets merged into your
+project map.
 
-Leiningen supports plugins. See [the plugins wiki
-page](https://github.com/technomancy/leiningen/wiki/Plugins) for a
-full list. If a plugin is needed for successful test or build runs,
-(such as lein-tar) then it should be added to `:plugins` in
+Profiles are read from 4 different locations: (in order of precedence)
+
+* the `:profiles` entry in the project map
+* the `~/.lein/profiles.clj` file
+* the `leiningen.core.project/default-profiles` atom
+
+Each of these should be a map of profile names to profile maps.
+
+Note that profiles have special logic when they are merged into your
+project map: maps get merged recursively, but sets are `union`ed and
+collections are `concat`enated. Other values are simply replaced.
+Profiles take precedence in the order they are specified.
+
+To activate a profile, use the `with-profile` higher-order task:
+
+    $ lein with-profile qa test :database
+
+A single `with-profile` call does not apply across task comma-chains.
+Outside `with-profile` calls, the `:dev` and `:user` profiles are
+active by default.
+
+### Leiningen Plugins 
+
+Leiningen supports plugins which contain both new tasks and hooks that
+modify existing tasks. See
+[the plugins wiki page](https://github.com/technomancy/leiningen/wiki/Plugins)
+for a full list. If a plugin is needed for successful test or build
+runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
 swank-clojure) then it should be added to the `:plugins` list in the
 `:user` profile from `~/.lein/profiles.clj`.

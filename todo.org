@@ -15,12 +15,13 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Dynamic recalculating of classpath via pomegranate
    - [ ] Redesign repl task, possibly around nREPL
    - [X] Honor :plugins as separate from :dependencies
+   - [ ] Add :dynamic metadata to clucy
    - [ ] Update documentation
      - plugin guide
      - tutorial
+     - hacking guide
      - migration guide
      - user settings
-     - hacking guide
      - deploy guide
      - sample project.clj
 ** Other stuff
