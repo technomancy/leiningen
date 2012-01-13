@@ -38,6 +38,15 @@
                  (.getBasedir (make-local-repo))
                  (.replace group "." "/") name version name version))))
 
+(defn- script-local-repo-path
+  "A soft-coded version of local-repo-path for use in shell-wrapper
+  classpath."
+  [{:keys [group name version]}]
+
+  (format
+   "$HOME/.m2/repository/%s/%s/%s/%s-%s.jar"
+   (.replace group "." "/") name version name version))
+
 (defn- script-classpath-for [project deps-fileset system]
   (let [deps (when deps-fileset
                (-> deps-fileset
@@ -45,7 +54,7 @@
                    (.getIncludedFiles)))
         unix-paths (conj (for [dep deps]
                            (unix-path (format "$HOME/.m2/repository/%s" dep)))
-                         (local-repo-path project))]
+                         (script-local-repo-path project))]
     (case system
           :unix (string/join ":" unix-paths)
           :windows (string/join ";" (for [path unix-paths]
