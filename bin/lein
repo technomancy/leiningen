@@ -75,7 +75,6 @@ LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
 CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/:resources/"
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.3.0/clojure-1.3.0.jar"
-NULL_DEVICE=/dev/null
 
 # apply context specific CLASSPATH entries
 if [ -f .lein-classpath ]; then
@@ -197,7 +196,6 @@ else
         CLOJURE_JAR=`cygpath -w "$CLOJURE_JAR"`
         ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
         CLASSPATH=`cygpath -wp "$CLASSPATH"`
-        NULL_DEVICE=NUL
     fi
 
     if [ $DEBUG ]; then
@@ -242,8 +240,7 @@ else
         $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
             $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
-            $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
-            $NULL_DEVICE "$@"
+            $JLINE clojure.main -m leiningen.core.main "$@"
         if [ -r $TRAMPOLINE_FILE ]; then
             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
             rm $TRAMPOLINE_FILE
@@ -254,7 +251,7 @@ else
         # -Xbootclasspath/a:"$CLOJURE_JAR"
         exec $RLWRAP $JAVA_CMD  -client \
              $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-             -cp "$CLASSPATH" $JLINE clojure.main -m leiningen.main "$@"
+             -cp "$CLASSPATH" $JLINE clojure.main -m leiningen.core.main "$@"
     fi
     test $CYGWIN_JLINE && stty icanon echo
 fi

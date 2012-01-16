@@ -1,4 +1,4 @@
-(ns leiningen.main
+(ns leiningen.core.main
   (:require [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
@@ -37,7 +37,7 @@
            not-found))))
   ([task] (resolve-task task #'task-not-found)))
 
-(defn matching-arity? [task args]
+(defn ^:internal matching-arity? [task args]
   (some (fn [parameters]
           (and (if (= '& (last (butlast parameters)))
                  (>= (count args) (- (count parameters) 3))
