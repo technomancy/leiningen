@@ -219,11 +219,12 @@ explains how to write plugins.
 
 ## Contributing
 
-Please report issues on the [Github issue
-tracker](https://github.com/technomancy/leiningen/issues) or the
-[mailing list](http://groups.google.com/group/leiningen). Personal
-email addresses are **not** appropriate for bug reports. See the file
-`HACKING.md` for more details on how Leiningen's codebase is structured.
+Please report issues on the
+[Github issue tracker](https://github.com/technomancy/leiningen/issues)
+or the [mailing list](http://groups.google.com/group/leiningen).
+Personal email addresses are **not** appropriate for bug reports. See
+the readme for the `leiningen-core` library and `doc/PLUGINS.md` for
+more details on how Leiningen's codebase is structured.
 
 Patches are preferred as Github pull requests, though patches from
 `git format-patch` are also welcome on the mailing list. Please use

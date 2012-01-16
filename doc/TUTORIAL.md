@@ -341,6 +341,8 @@ You can run a regular (non-uber) jar with the `java`
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
 
+TODO: emphasize lein run; perhaps on the same level as uberjar
+
 Invoking `lein run` will launch your project's `-main` function as if
 from an uberjar, but without going through the packaging process. You
 can also specify an alternate namespace in which to look for `-main`

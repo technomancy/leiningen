@@ -18,7 +18,7 @@
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))
 
-(def ^{:private true} native-names
+(def ^:private native-names
   {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
    "FreeBSD" :freebsd "OpenBSD" :openbsd
    "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86

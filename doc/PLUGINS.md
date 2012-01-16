@@ -82,6 +82,9 @@ used to require a namespace earlier in order to avoid the
 `eval-in-project` call the project's own classpath will be active and
 Leiningen's own internals and plugins will not be available.
 
+TODO: mention associng :deps into the project that are only relevant
+for that task.
+
 The return value of the `eval-in-project` call is an integer that
 represents the exit code of the project's process. Zero indicates
 success.

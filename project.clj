@@ -1,6 +1,5 @@
-;; The only requirement of the project.clj file is that it includes a
-;; defproject form. It can have other code in it as well, including
-;; loading other task definitions.
+;; This is Leiningen's own project configuration. See doc/TUTORIAL.md
+;; file as well as sample.project.clj for help writing your own.
 
 (defproject leiningen "2.0.0-SNAPSHOT"
   :description "Automate Clojure projects without setting your hair on fire."
@@ -11,6 +10,16 @@
                  [lancet "1.0.1"]
                  [robert/hooke "1.1.2"]
                  [stencil "0.2.0"]]
-  :disable-implicit-clean true
   :test-selectors {:default (complement :busted)}
   :eval-in-leiningen true)
+
+;;; Release Checklist
+
+;; * update NEWS, bin/lein, bin/lein.bat, project.clj, pom
+;; * rm -rf lib classes, compile :all, generate uberjar, upload
+;; * test self-install
+;; * git tag
+;; * push, push tags, update stable branch
+;; * announce on mailing list
+;; * bump version numbers (bin/lein, bin/lein.bat, project.clj)
+;; * regenerate pom.xml

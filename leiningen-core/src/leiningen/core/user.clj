@@ -27,12 +27,6 @@
     @settings-var
     {}))
 
-(defn plugins
-  "Return a list of paths to all plugins the user has installed."
-  []
-  (for [plugin (.listFiles (io/file (leiningen-home) "plugins"))]
-    (.getAbsolutePath plugin)))
-
 (defn profiles []
   (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
     (if (.exists profiles-file)
