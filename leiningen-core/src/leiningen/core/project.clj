@@ -162,6 +162,10 @@
 
 (defn load-plugins [project]
   (ensure-dynamic-classloader)
+  (when (= :leiningen (:eval-in project))
+    (pomegranate/add-dependencies (:dependencies project)
+                                  :repositories (repositories-map
+                                                 (:repositories project))))
   (pomegranate/add-dependencies
    (:plugins project) :repositories (repositories-map (:repositories project))))
 

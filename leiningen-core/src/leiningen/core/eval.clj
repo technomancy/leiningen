@@ -148,19 +148,10 @@
            (.printStackTrace e)
            1))))
 
-;; TODO: make pomegranate accept maps
-(defn- repositories-map [repositories]
-  (into {} (for [[id repo] repositories]
-             [id (:url repo)])))
-
 (defmethod eval-in :leiningen
   [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
-  (project/ensure-dynamic-classloader)
-  (pomegranate/add-dependencies (:dependencies project)
-                                :repositories (repositories-map
-                                               (:repositories project)))
   ;; need to at least pretend to return an exit code
   (try (eval form)
        (catch Exception e
