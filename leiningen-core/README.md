@@ -21,7 +21,7 @@ Leiningen plugins that may be active.
     dependencies.
 * **leiningen.core.eval** houses the `eval-in-project` function which
     implements the isolation of project code from Leiningen's own code.
-* **leiningen.core.user** just has a handful of plugins which handle
+* **leiningen.core.user** just has a handful of functions which handle
     user-level configuration.
 * **leiningen.core.ns** contains helper functions for finding
     namespaces on the classpath.
