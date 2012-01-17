@@ -249,7 +249,7 @@ else
     else
         # Until the fix comes in for classlojure.
         # -Xbootclasspath/a:"$CLOJURE_JAR"
-        exec $RLWRAP $JAVA_CMD  -client \
+        exec $RLWRAP $JAVA_CMD  -client -XX:+TieredCompilation \
              $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
              -cp "$CLASSPATH" $JLINE clojure.main -m leiningen.core.main "$@"
     fi
