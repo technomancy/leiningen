@@ -8,7 +8,6 @@
   :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
                  [clucy "0.2.2"]
                  [lancet "1.0.1"]
-                 [robert/hooke "1.1.2"]
                  [stencil "0.2.0"]]
   :test-selectors {:default (complement :busted)}
   :eval-in-leiningen true)
