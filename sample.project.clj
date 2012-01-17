@@ -189,7 +189,12 @@
   ;; It may cause some other plugins to fail to exit when they finish.
   :skip-shutdown-agents true
   ;; Set parent for working with in a multi-module maven project
-  :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"])
+  :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
+  ;; You can add extensions to the build process (such as add an ftp
+  ;; provider for the Wagon transport mechanism), as well as make
+  ;; plugins active which make changes to the build lifecycle.
+  :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
+               [foo/bar-baz "1.0"]])
 
 ;; You can use Robert Hooke to modify behaviour of any task function,
 ;; but the prepend-tasks function is shorthand that is more convenient
