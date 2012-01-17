@@ -255,7 +255,7 @@ else
     ## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
     # is there some way of detecting 64bit at this stage? - tavisrudd
     $LEIN_JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
-        $LEIN_JVM_OPTS \
+        $LEIN_JVM_OPTS -XX:+TieredCompilation \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
         $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
