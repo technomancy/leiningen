@@ -101,7 +101,7 @@ done
 
 BIN_DIR="$(dirname "$SCRIPT")"
 
-if [ -r "$BIN_DIR/../src/leiningen/main.clj" ]; then
+if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
     LEIN_LIBS="$(find -H "$LEIN_DIR/lib" -mindepth 1 -maxdepth 1 -print0 2> /dev/null | tr \\0 \:)"
