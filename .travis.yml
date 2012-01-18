@@ -1,4 +1,5 @@
 ---
+before_script: mkdir -p leiningen-core/lib; curl -o leiningen-core/lib/lc.jar p.hagelb.org/lein-core-2-snap-standalone.jar
 script: bin/lein test
 branches:
   only:
