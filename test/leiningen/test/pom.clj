@@ -17,3 +17,5 @@
       (pom (assoc sample-project :version "1.0"
                   :dependencies [['clojure "1.0.0-SNAPSHOT"]]))
       (is @aborted?))))
+
+(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

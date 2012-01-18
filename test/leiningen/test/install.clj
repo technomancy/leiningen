@@ -51,3 +51,5 @@
   (if (= :windows (get-os))
     (is (.exists tricky-windows-shell-wrapper))
     (is (not (.exists tricky-windows-shell-wrapper)))))
+
+(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

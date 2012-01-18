@@ -26,16 +26,16 @@ See also https://github.com/technomancy/leiningen/issues
      - [ ] sample project.clj
      - [ ] document adding javadoc/java source as deps
 ** Other stuff
-   - [ ] Add :dynamic metadata to clucy (bablien has patches for this)
    - [ ] Rework prep function to ensure that AOT/javac happens when needed
+   - [ ] Allow tasks to add in their own injections
    - [ ] Accept more flexible :repositories args for pomegranate 0.0.2
+   - [ ] Add :dynamic metadata to clucy (bablien has patches for this)
    - [ ] Move pom generation to pomegranate or leiningen
    - [ ] Non-transitive AOT
    - [X] More flexibility for jarring
    - [ ] Mirror/proxy support, also for search indices
    - [ ] Allow disabling of all injected code
    - [ ] Honor hooks declared in plugin jar metadata?
-   - [ ] Allow tasks to add in their own injections
    - [ ] Drop clojars snapshots from default repos
 ** Adapt existing tasks to new API
 *** Tasks for 2.0.0-preview
