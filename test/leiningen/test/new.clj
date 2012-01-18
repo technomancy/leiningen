@@ -6,7 +6,7 @@
 
 (deftest test-new
   (leiningen.new/new nil "test-new-proj")
-  (is (= #{"README.md" "project.clj" "src" "test_new_proj" "core.clj" "test"
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
            "test_new_proj" "core_test.clj" ".gitignore"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-proj")))))))
   (delete-file-recursively (file "test-new-proj") false))
