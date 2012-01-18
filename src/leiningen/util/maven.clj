@@ -3,7 +3,8 @@
         [clojure.java.io :only [file reader]])
   (:import (java.io File)
            (org.apache.maven.model Build Model Parent Dependency Resource
-                                   Exclusion Repository Scm License MailingList)
+                                   Exclusion Extension Repository Scm License
+                                   MailingList)
            (org.apache.maven.project.artifact ProjectArtifactMetadata)
            (org.apache.maven.settings MavenSettingsBuilder)
            (org.apache.maven.artifact.repository ArtifactRepositoryFactory
@@ -204,6 +205,24 @@
       (.addOtherArchive mailing-list other-archive))
     mailing-list))
 
+(defn make-extension
+  "Makes an extension from a seq. The seq (usually a vector) should contain a
+  symbol to define the group and artifact id, then a version string.
+  More details: http://maven.apache.org/pom.html#Extensions"
+  [extension]
+  (when (and extension (not (vector? extension)))
+    (throw (Exception. (str "Extensions must be specified as vector:"
+                            extension))))
+  (let [[ext version] extension]
+    (doto (Extension.)
+      (.setGroupId (or (namespace ext) (name ext)))
+      (.setArtifactId (name ext))
+      (.setVersion version))))
+
+(defn make-extensions
+  [project]
+  (map make-extension (:extensions project)))
+
 (defn- relative-path
   [project path-key]
   (.replace (path-key project) (str (:root project) File/separator) ""))
@@ -216,7 +235,8 @@
     (.setResources [(make-resource project :resources-path)])
     (.setTestResources [(make-resource project :dev-resources-path)])
     (.setSourceDirectory (relative-path project :source-path))
-    (.setTestSourceDirectory (relative-path project :test-path))))
+    (.setTestSourceDirectory (relative-path project :test-path))
+    (.setExtensions (make-extensions project))))
 
 (defn make-model [project]
   (let [model (doto (Model.)
