@@ -4,7 +4,7 @@
         [leiningen.test.helper :only [sample-project m2-dir native-project
                                       delete-file-recursively]])
   (:require [clojure.java.io :as io]
-            [leiningen.main :as main]
+            [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.eval :as eval]))
 

@@ -7,7 +7,7 @@
 (use-fixtures :once
               (fn [f]
                 ;; Can't have user-level profiles interfering!
-                (with-redefs [user/plugins (constantly {})]
+                (with-redefs [user/profiles (constantly {})]
                   (f))))
 
 (def paths {:source-path ["src"],

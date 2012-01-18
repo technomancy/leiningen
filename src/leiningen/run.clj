@@ -1,7 +1,7 @@
 (ns leiningen.run
   "Run a -main function with optional command-line arguments."
   (:use [leiningen.core.eval :only [eval-in-project]]
-        [leiningen.main :only [abort]])
+        [leiningen.core.main :only [abort]])
   (:import (java.io FileNotFoundException)
            (clojure.lang Reflector)))
 

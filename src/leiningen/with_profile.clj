@@ -1,5 +1,5 @@
 (ns leiningen.with-profile
-  (:require [leiningen.main :as main]
+  (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]))
 
 (defn with-profile

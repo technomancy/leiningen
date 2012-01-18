@@ -4,7 +4,7 @@
             [leiningen.core.user :as user]
             [leiningen.core.eval :as eval]
             [leiningen.core.classpath :as classpath])
-  (:use [leiningen.main :only [exit]]
+  (:use [leiningen.core.main :only [exit]]
         [leiningen.trampoline :only [*trampoline?*]]
         [clojure.java.io :only [copy]])
   (:import (java.net Socket InetAddress ServerSocket SocketException)
@@ -137,7 +137,7 @@ directory will start a standalone repl session."
                                       retry-limit))]
        (if *trampoline?*
          (eval/eval-in-project project server-form)
-         (do (future (if (empty? project)
+         (do (future (if (or (empty? project) (= :leiningen (:eval-in project)))
                        (clojure.main/with-bindings (println (eval server-form)))
                        (eval/eval-in-project project server-form)))
              (poll-repl-connection port retries repl-client)

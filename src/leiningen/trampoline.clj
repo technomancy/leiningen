@@ -1,6 +1,6 @@
 (ns leiningen.trampoline
   (:refer-clojure :exclude [trampoline])
-  (:use [leiningen.main :only [apply-task task-not-found abort]])
+  (:use [leiningen.core.main :only [apply-task task-not-found abort]])
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]))
 
