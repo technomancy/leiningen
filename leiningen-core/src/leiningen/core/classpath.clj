@@ -26,25 +26,19 @@
                                          (:root project) dep)]]
                   (checkout-dep-paths project dep dep-project))))
 
-;; Ideally pomegranate would accept map forms for repositories so you
-;; could do things like toggling snapshots and such, but for now we
-;; normalize back to url-as-string.
 
 ;; TODO: add authentication to repositories
 ;; TODO: add policies to repositories
 ;; TODO: ensure repositories is ordered
-
-(defn- repositories-map [repositories]
-  (into {} (for [[id repo] repositories]
-             [id (:url repo)])))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories."
   [{:keys [repositories dependencies]}]
   {:pre [(every? vector? dependencies)]}
-  (aether/resolve-dependencies :repositories (repositories-map repositories)
-                               :coordinates dependencies))
+  (set (aether/dependency-files
+        (aether/resolve-dependencies :repositories repositories
+                                     :coordinates dependencies))))
 
 (defn- normalize-path [root path]
   (let [f (io/file path)]
