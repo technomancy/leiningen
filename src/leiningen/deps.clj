@@ -186,7 +186,9 @@
   (when (fetch-deps? project)
     (when-not (or (:disable-deps-clean project)
                   (:disable-implicit-clean project))
-      (delete-file-recursively (:library-path project) :silently)
+      (when (.startsWith (:library-path project) (:root project))
+        ;; if :library-path is outside the root, you're on your own
+        (delete-file-recursively (:library-path project) :silently))
       (delete-file-recursively (:native-path project) :silently)
       (clean project))
     (let [fileset (do-deps project :dependencies)]

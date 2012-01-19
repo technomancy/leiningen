@@ -37,6 +37,7 @@
 (defn get-classpath
   "Answer a list of classpath entries for PROJECT."
   [project]
+  ;; TODO: special-case for eval-in-leiningen
   (concat (if-not (no-dev?)
             [(:test-path project)
              (:dev-resources-path project)])
