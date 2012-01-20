@@ -128,12 +128,15 @@
                                     :username "milgrim" :password "locative.1"}
                         "snapshots" "http://blueant.com/archiva/internal/snapshots"}
   ;; If you'd rather use a different directory structure, you can set these.
-  :source-path "src/main/clojure"
+  :source-path ["src" "src/main/clojure"]
   :compile-path "target/classes" ; for .class files
   :library-path "target/dependency" ; for .jar files
-  :test-path "src/test/clojure"
-  :resources-path "src/main/resource" ; non-code files included in classpath/jar
+  :test-path ["test" "src/test/clojure"]
+  :resources-path ["src/main/resource"] ; non-code files included in classpath/jar
+
+  ;;TODO: does dev-resources-path still do anything w/ profiles?
   :dev-resources-path "src/test/resource" ; added to dev classpath but not jar
+
   :native-path "src/native"        ; where to look for native dependencies
   :target-dir "target/  "          ; where to place the project's jar file
   :extra-classpath-dirs ["script"] ; more classpath entries not included in jar
@@ -156,14 +159,22 @@
   ;; If your project is a Leiningen plugin, set this to skip the subprocess step
   :eval-in-leiningen false
   ;; Set parent for working with in a multi-module maven project
-  :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"])
+  :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
+  ;; You can add extensions to the build process (such as add an ftp
+  ;; provider for the Wagon transport mechanism), as well as make
+  ;; plugins active which make changes to the build lifecycle.
+  :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
+               [foo/bar-baz "1.0"]])
+  
+
+;;TODO: does the prepend-tasks function still exist?
 
 ;; You can use Robert Hooke to modify behaviour of any task function,
 ;; but the prepend-tasks function is shorthand that is more convenient
 ;; on tasks that take a single project argument.
-(use '[leiningen.core :only [prepend-tasks]]
-     '[leiningen.deps :only [deps]]
-     '[leiningen.clean :only [clean]]
-     '[leiningen.pom :only [pom]])
+;; (use '[leiningen.core :only [prepend-tasks]]
+;;      '[leiningen.deps :only [deps]]
+;;      '[leiningen.clean :only [clean]]
+;;      '[leiningen.pom :only [pom]])
 
-(prepend-tasks #'deps clean pom)
+;; (prepend-tasks #'deps clean pom)

@@ -30,7 +30,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Allow tasks to add in their own injections
    - [ ] Accept more flexible :repositories args for pomegranate 0.0.2
    - [ ] Add :dynamic metadata to clucy (bablien has patches for this)
-   - [ ] Move pom generation to pomegranate or leiningen
+   - [X] Move pom generation to pomegranate or leiningen
    - [ ] Non-transitive AOT
    - [X] More flexibility for jarring
    - [ ] Mirror/proxy support, also for search indices
@@ -50,7 +50,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] new (merge from lein-newnew)
    - [X] help (needs tests)
    - [X] search
-   - [ ] pom (steal from depot)
+   - [X] pom (steal from depot)
    - [ ] install (minus shell wrappers)
    - [ ] uberjar
    - [ ] repl (figure out nrepl integration)
