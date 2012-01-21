@@ -132,8 +132,7 @@
     (.setArtifactId (name parent))
     (.setGroupId (or (namespace parent) (name parent)))
     (.setVersion version)
-    (.setRelativePath (:relative-path opts))
-    (.setModelEncoding (:model-encoding opts))))
+    (.setRelativePath (:relative-path opts))))
 
 (defn make-exclusion [excl]
   (doto (Exclusion.)
