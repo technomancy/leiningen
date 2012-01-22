@@ -116,8 +116,9 @@
 
 (defmethod copy-to-jar :path [project jar-os spec]
   (doseq [child (file-seq (io/file (:path spec)))]
-    (let [path (trim-leading-str (unix-path (str child))
-                                 (unix-path (:path spec)))]
+    (let [path (trim-leading-str (trim-leading-str (unix-path (str child))
+                                                   (unix-path (:path spec)))
+                                 "/")]
       (when-not (skip-file? child path (:jar-exclusions project))
         (.putNextEntry jar-os (doto (JarEntry. path)
                                 (.setTime (.lastModified child))))

@@ -52,7 +52,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] search
    - [X] pom (steal from depot)
    - [ ] install (minus shell wrappers)
-   - [ ] uberjar
+   - [X] uberjar
    - [ ] repl (figure out nrepl integration)
 *** Tasks for full release (currently tagged :busted)
    - [ ] deps (native-deps and :repositories options)
