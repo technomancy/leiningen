@@ -1,7 +1,6 @@
 (ns leiningen.test.pom
   (:use [clojure.test]
         [clojure.java.io :only [file delete-file]]
-        [leiningen.core :only [read-project defproject]]
         [leiningen.pom :only [pom]]
         [leiningen.test.helper :only [sample-project]]))
 
@@ -13,9 +12,9 @@
 
 (deftest test-snapshot-checking
   (let [aborted? (atom false)]
-    (binding [leiningen.core/abort #(reset! aborted? %&)]
-      (pom (assoc sample-project :version "1.0"
-                  :dependencies [['clojure "1.0.0-SNAPSHOT"]]))
+    (binding [leiningen.pom/abort #(reset! aborted? %&)]
+      (let [project (assoc sample-project :version "1.0"
+                           :dependencies [['clojure "1.0.0-SNAPSHOT"]])]
+        (pom (with-meta project
+             {:without-profiles project})))
       (is @aborted?))))
-
-(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

@@ -4,7 +4,7 @@
             [leiningen.core.classpath :as classpath]
             [clojure.string :as string]
             [clojure.java.io :as io])
-  (:use [leiningen.pom :only [make-pom make-pom-properties]]
+  (:use [leiningen.pom :only [make-pom]]
         [leiningen.deps :only [deps]])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
            (java.util.regex Pattern)
@@ -12,7 +12,6 @@
            (java.io BufferedOutputStream FileOutputStream
                     ByteArrayInputStream)))
 
-(declare local-repo-path) ; placate install.clj for now
 
 ;; (declare make-local-repo)
 
@@ -116,8 +115,9 @@
 
 (defmethod copy-to-jar :path [project jar-os spec]
   (doseq [child (file-seq (io/file (:path spec)))]
-    (let [path (trim-leading-str (unix-path (str child))
-                                 (unix-path (:path spec)))]
+    (let [path (trim-leading-str (trim-leading-str (unix-path (str child))
+                                                   (unix-path (:path spec)))
+                                 "/")]
       (when-not (skip-file? child path (:jar-exclusions project))
         (.putNextEntry jar-os (doto (JarEntry. path)
                                 (.setTime (.lastModified child))))
@@ -146,11 +146,7 @@
             :path (format "META-INF/maven/%s/%s/pom.xml"
                           (:group project) (:name project))
             ;; TODO: use pom here
-            :bytes (or (make-pom project) (.getBytes ""))}
-           {:type :bytes
-            :path (format "META-INF/maven/%s/%s/pom.properties"
-                          (:group project) (:name project))
-            :bytes (make-pom-properties project)}
+            :bytes (.getBytes (or (make-pom project) ""))}
            {:type :path :path (str (:root project) "/project.clj")}]
           [{:type :path :path (:compile-path project)}
            {:type :paths :paths (:resources-path project)}]

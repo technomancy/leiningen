@@ -1,17 +1,12 @@
 (ns leiningen.install
   "Install the current project or download the project specified."
-  (:use [leiningen.core :only [default-repos read-project]]
-        [leiningen.jar :only [jar manifest-map local-repo-path]]
-        [leiningen.deps :only [deps]]
+  (:require [cemerick.pomegranate.aether :as aether]
+            [leiningen.core.project :as project])
+  (:use [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom]]
         [clojure.java.io :only [file copy]])
   (:import (java.util.jar JarFile)
            (java.util UUID)))
-
-(declare container make-model make-remote-artifact
-         make-remote-repo make-local-repo
-         make-artifact add-metadata tmp-dir
-         get-os leiningen-home)
 
 ;; (defn bin-path []
 ;;   (doto (file (leiningen-home) "bin") .mkdirs))
@@ -30,11 +25,6 @@
 ;;             (copy (.getInputStream jarfile zip-entry) bin-file)
 ;;             (.setExecutable bin-file true)))))))
 
-;; (defn standalone-download [name group version]
-;;   (.resolveAlways (.lookup container ArtifactResolver/ROLE)
-;;                   (make-remote-artifact name group version)
-;;                   (map make-remote-repo default-repos)
-;;                   (make-local-repo)))
 
 (defn install
   "Install current project or download specified project.
@@ -45,36 +35,22 @@ downloads and installs a project from a remote repository. Places
 shell wrappers in ~/.lein/bin when provided."
   ([project]
      (let [jarfile (jar project)
-           model (make-model project)
-           artifact (make-artifact model)
-           installer nil
-           local-repo (make-local-repo)]
-       ;; for packaging other than "pom" there should be "pom.xml"
-       ;; generated and installed in local repo
-       (when (not= "pom" (.getPackaging model))
-         (add-metadata artifact (file (pom project))))
+           pomfile (pom project)]
        (if (number? jarfile)
          ;; if we failed to create the jar, return the status code for exit
          jarfile
          (do ;; (install-shell-wrappers (JarFile. jarfile))
-             (.install installer (file jarfile) artifact local-repo)
+           (aether/install :coordinates [(symbol (:group project)
+                                                 (:name project))
+                                         (:version project)]
+                           :jar-file (file jarfile)
+                           :pom-file (file pomfile))
              0))))
-  ([project-name version]
+  ([_ project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))
-           ;; _ (standalone-download name (or group name) version)
-           temp-project (format "%s/lein-%s" tmp-dir (UUID/randomUUID))
-           jarfile (local-repo-path (or group name) name version)]
-       ;; (install-shell-wrappers (JarFile. jarfile))
-       ;; TODO: reach in and pull out project.clj rather than
-       ;; extracting it all
-       ;; (try (extract-jar (file jarfile) temp-project)
-       ;;      (when-let [p (read-project (str temp-project "/project.clj"))]
-       ;;        (deps (dissoc p :dev-dependencies :native-dependencies)))
-       ;;      (finally
-       ;;       (delete-file-recursively temp-project :silently)))
+           temp-project (format "%s/lein-%s" (System/getProperty "java.io.tmpdir") (UUID/randomUUID))
+           jarfile (first (aether/resolve-dependencies
+                           :coordinates [[(symbol project-name) version]]
+                           :repositories (:repositories project/defaults)))]
+           ;; (install-shell-wrappers (JarFile. jarfile))
        )))
-
-;; (defn get-jar-entry [jar-file entry-name]
-;;   (let [jar (JarFile. jar-file true)
-;;         entry (.getJarEntry jar entry-name)]
-;;     (.getInputStream jar entry)))

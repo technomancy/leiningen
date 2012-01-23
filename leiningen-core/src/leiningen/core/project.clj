@@ -149,10 +149,6 @@
 (defn- absolutize-paths [project]
   (reduce absolutize-path project (keys project)))
 
-;; TODO: make pomegranate accept maps
-(defn- repositories-map [repositories]
-  (into {} (for [[id repo] repositories]
-             [id (:url repo)])))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
@@ -164,10 +160,9 @@
   (ensure-dynamic-classloader)
   (when (= :leiningen (:eval-in project))
     (pomegranate/add-dependencies (:dependencies project)
-                                  :repositories (repositories-map
-                                                 (:repositories project))))
+                                  :repositories (:repositories project)))
   (pomegranate/add-dependencies
-   (:plugins project) :repositories (repositories-map (:repositories project))))
+   (:plugins project) :repositories (:repositories project)))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."

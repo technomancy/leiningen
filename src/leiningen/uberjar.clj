@@ -1,12 +1,12 @@
 (ns leiningen.uberjar
   "Package up the project files and deps into a jar file."
-  (:require [clojure.xml :as xml])
+  (:require [clojure.xml :as xml]
+            [leiningen.core.classpath :as classpath])
   (:use [clojure.zip :only [xml-zip children]]
         [clojure.java.io :only [file copy]]
-        [leiningen.core :only [abort]]
+        [leiningen.core.main :only [abort]]
         [leiningen.clean :only [clean]]
-        [leiningen.jar :only [get-jar-filename jar]]
-        [leiningen.deps :only [deps]])
+        [leiningen.jar :only [get-jar-filename jar]])
   (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
            (java.io File FileOutputStream PrintWriter)))
 
@@ -85,7 +85,7 @@ as well as defining a -main function."
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
-           (let [deps (->> (.listFiles (file (:library-path project)))
+           (let [deps (->> (classpath/resolve-dependencies project)
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (file (get-jar-filename project)) deps)]
              (write-components project jars out)))

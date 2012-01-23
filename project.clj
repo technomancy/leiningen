@@ -7,8 +7,9 @@
   :license {:name "Eclipse Public License"}
   :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
                  [clucy "0.2.2"]
-                 [lancet "1.0.1"]
-                 [stencil "0.2.0"]]
+                 [stencil "0.2.0"]
+                 [useful "0.7.6-alpha1"]
+                 [org.clojars.ninjudd/data.xml "0.0.1-SNAPSHOT"]]
   :test-selectors {:default (complement :busted)}
   :eval-in-leiningen true)
 

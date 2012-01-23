@@ -1,6 +1,6 @@
 (ns leiningen.deploy
   "Build and deploy jar to remote repository."
-  (:require [lancet.core :as lancet])
+  (:require [cemerick.pomegranate.aether :as aether])
   (:use [leiningen.core :only [abort repositories-for]]
         [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom snapshot?]]
@@ -27,7 +27,25 @@ control:
   (def leiningen-auth {\"https://blueant.com/archiva/internal\"
                        {:passphrase \"vorpalbunny\"}})
 "
-  ([project repository-name])
+  ([project repository-name]
+     (let [jarfile (jar project)
+           pomfile (pom project)
+           repo-opts (or (get (apply hash-map (flatten (:deploy-repositories project))) repository-name)
+                         (get (apply hash-map (flatten (:repositories project))) repository-name))
+           repo (if repo-opts
+                  {repository-name repo-opts}
+                  {"inline" repository-name})]
+       (if (number? jarfile)
+         ;; if we failed to create the jar, return the status code for exit
+         jarfile
+         (do ;; (install-shell-wrappers (JarFile. jarfile))
+           (aether/deploy :coordinates [(symbol (:group project)
+                                                (:name project))
+                                        (:version project)]
+                          :jar-file (file jarfile)
+                          :pom-file (file pomfile)
+                          :repository repo)
+             0))))
   ([project]
      (deploy project (if (snapshot? project)
                        "snapshots"
