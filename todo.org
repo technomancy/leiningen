@@ -28,7 +28,7 @@ See also https://github.com/technomancy/leiningen/issues
 ** Other stuff
    - [ ] Rework prep function to ensure that AOT/javac happens when needed
    - [ ] Allow tasks to add in their own injections
-   - [ ] Accept more flexible :repositories args for pomegranate 0.0.2
+   - [-] Accept more flexible :repositories args for pomegranate 0.0.4
    - [ ] Add :dynamic metadata to clucy (bablien has patches for this)
    - [X] Move pom generation to pomegranate or leiningen
    - [ ] Non-transitive AOT
@@ -51,7 +51,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] help (needs tests)
    - [X] search
    - [X] pom (steal from depot)
-   - [ ] install (minus shell wrappers)
+   - [X] install (minus shell wrappers)
    - [X] uberjar
    - [ ] repl (figure out nrepl integration)
 *** Tasks for full release (currently tagged :busted)

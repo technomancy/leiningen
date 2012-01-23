@@ -12,7 +12,6 @@
            (java.io BufferedOutputStream FileOutputStream
                     ByteArrayInputStream)))
 
-(declare local-repo-path) ; placate install.clj for now
 
 ;; (declare make-local-repo)
 
