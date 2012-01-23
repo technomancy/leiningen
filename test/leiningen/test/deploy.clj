@@ -2,7 +2,6 @@
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.deploy]
-        [leiningen.core :only [read-project defproject]]
         [leiningen.test.helper :only [delete-file-recursively
                                       tmp-dir sample-project]]))
 
@@ -40,7 +39,5 @@
   (testing "preferring repository specified in :deploy-repositories over one specified in :repositories"
     (deploy-snapshots (assoc sample-project
                         :deploy-repositories
-                        {"snapshots" (-> "deploy-only-repo" repo-path repo-url)})
+                        [["snapshots" (-> "deploy-only-repo" repo-path repo-url)]])
                       "deploy-only-repo")))
-
-(doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))

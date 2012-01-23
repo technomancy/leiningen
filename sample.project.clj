@@ -103,30 +103,30 @@
   ;; if any artifacts are not found, Maven Central will still be reported to
   ;; have been checked, even though it was not.
   :omit-default-repositories true
-  :repositories {"java.net" "http://download.java.net/maven/2"
-                 "sonatype"
-                 {:url "http://oss.sonatype.org/content/repositories/releases"
-                  ;; If a repository contains  releases only; setting :snapshots
-                  ;; to false will speed up dependency checking.
-                  :snapshots false
-                  ;; You can also set the policies for how to handle :checksum
-                  ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
-                  ;; :always, and :never are supported.
-                  :releases {:checksum :fail
-                             :update :always}}
+  :repositories [["java.net" "http://download.java.net/maven/2"]
+                 ["sonatype"
+                  {:url "http://oss.sonatype.org/content/repositories/releases"
+                   ;; If a repository contains  releases only; setting :snapshots
+                   ;; to false will speed up dependency checking.
+                   :snapshots false
+                   ;; You can also set the policies for how to handle :checksum
+                   ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
+                   ;; :always, and :never are supported.
+                   :releases {:checksum :fail
+                              :update :always}}]
                  ;; Repositories named "snapshots" and "releases" automatically
                  ;; have their :snapshots and :releases disabled as appropriate.
-                 "snapshots" {:url "http://blueant.com/archiva/snapshots"
-                              ;; Also supports :private-key and :passphrase.
-                              :username "milgrim" :password "locative.1"}
-                 "releases" {:url "http://blueant.com/archiva/internal"
-                             :username "milgrim" :password "locative.1"}}
+                 ["snapshots" {:url "http://blueant.com/archiva/snapshots"
+                               ;; Also supports :private-key and :passphrase.
+                               :username "milgrim" :password "locative.1"}]
+                 ["releases" {:url "http://blueant.com/archiva/internal"
+                              :username "milgrim" :password "locative.1"}]]
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
   ;; dependency resolution
-  :deploy-repositories {"releases" {:url "http://blueant.com/archiva/internal/releases"
-                                    :username "milgrim" :password "locative.1"}
-                        "snapshots" "http://blueant.com/archiva/internal/snapshots"}
+  :deploy-repositories [["releases" {:url "http://blueant.com/archiva/internal/releases"
+                                     :username "milgrim" :password "locative.1"}]
+                        ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
   ;; If you'd rather use a different directory structure, you can set these.
   :source-path ["src" "src/main/clojure"]
   :compile-path "target/classes" ; for .class files

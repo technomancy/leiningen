@@ -58,7 +58,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] deps (native-deps and :repositories options)
    - [ ] compile (transitive cleaning)
    - [ ] shell wrappers
-   - [ ] deploy
+   - [X] deploy
    - [ ] javac (can we do this without ant?)
    - [ ] trampoline
 * For 1.6.2
