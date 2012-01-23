@@ -201,12 +201,10 @@ explains how to write plugins.
   example.) Otherwise you can use the basic `lein repl`.
 
 **Q:** Still too slow; what else can make startup faster?  
-**A:** There are two flavours of Hotspot (Oracle/OpenJDK's JVM),
-  client and server. The server is optimized for long-running
-  processes and has quite a poor startup time. Leiningen will try to
-  launch a client JVM, but this only works on 32-bit Hotspot. If you
-  are on a 64-bit machine you can still use a client JVM if you
-  install 32-bit packages. TODO: document on wiki.
+**A:** If you are running an older version of Leiningen (before 1.7)
+  you can `export LEIN_JVM_OPTS=-XX:+TieredCompilation` to improve
+  boot time. This requires Hotspot version 20 or newer. On newer versions
+  of Leiningen it is enabled automatically.
   
 **Q:** I don't have access to stdin inside my project.  
 **A:** There's a problem in the library that Leiningen uses to spawn
