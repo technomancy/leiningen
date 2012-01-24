@@ -13,6 +13,11 @@ Leiningen is for automating Clojure projects without setting your hair on fire.
 
 ## Installation
 
+If your preferred
+[package manager](https://github.com/technomancy/leiningen/wiki/Packaging)
+has a relatively recent version of Leiningen, try that first.
+Otherwise you can install by hand:
+
 Leiningen bootstraps itself using the `lein` shell script;
 there is no separate install script. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
