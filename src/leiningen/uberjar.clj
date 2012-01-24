@@ -76,10 +76,13 @@ With an argument, the uberjar will be built with an alternate main.
 The namespace you choose as main should have :gen-class in its ns form
 as well as defining a -main function."
   ([project main]
-     (when (pos? (jar (if main
-                        (assoc project :main (symbol main))
-                        project)))
-       (abort "Uberjar aborting because jar/compilation failed."))
+     (let [project (if main
+                     (assoc project :main (symbol main))
+                     project)
+           project (update-in project [:jar-inclusions]
+                              concat (:uberjar-inclusions project))]
+       (when (pos? (jar project))
+         (abort "Uberjar aborting because jar/compilation failed.")))
      (let [standalone-filename (get-jar-filename project :uberjar)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
