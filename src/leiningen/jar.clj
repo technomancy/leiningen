@@ -4,7 +4,7 @@
             [leiningen.core.classpath :as classpath]
             [clojure.string :as string]
             [clojure.java.io :as io])
-  (:use [leiningen.pom :only [make-pom]]
+  (:use [leiningen.pom :only [make-pom make-pom-properties]]
         [leiningen.deps :only [deps]])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
            (java.util.regex Pattern)
@@ -145,9 +145,13 @@
   (concat [{:type :bytes
             :path (format "META-INF/maven/%s/%s/pom.xml"
                           (:group project) (:name project))
-            ;; TODO: use pom here
-            :bytes (.getBytes (or (make-pom project) ""))}
-           {:type :path :path (str (:root project) "/project.clj")}]
+            :bytes (.getBytes (make-pom project))}
+           {:type :bytes
+            :path (format "META-INF/maven/%s/%s/pom.properties"
+                          (:group project) (:name project))
+            :bytes (.getBytes (make-pom-properties project))}
+           {:type :bytes :path "project.clj"
+            :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
           [{:type :path :path (:compile-path project)}
            {:type :paths :paths (:resources-path project)}]
           (if-not (:omit-source project)
@@ -164,10 +168,10 @@
            suffix (if uberjar? "-standalone.jar" ".jar")
            jar-name (or (project (if uberjar? :uberjar-name :jar-name))
                         (str (:name project) "-" (:version project) suffix))]
-       (io/file target jar-name)))
+       (str (io/file target jar-name))))
   ([project] (get-jar-filename project false)))
 
-(defn ^{:help-arglists '([])} jar
+(defn jar
   "Package up all the project's files into a jar file.
 
 Create a $PROJECT-$VERSION.jar file containing project's source files as well
