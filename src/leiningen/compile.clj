@@ -3,7 +3,6 @@
   (:require [leiningen.core.user :as user]
             [leiningen.core.ns :as ns]
             [leiningen.core.eval :as eval]
-            ;; [leiningen.javac :as javac]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile])
   (:import (java.io PushbackReader)))
@@ -112,22 +111,20 @@
 Uses the namespaces specified under :aot in project.clj or those given
 as command-line arguments."
   ([project]
-     ;; (when (:java-source-path project)
-     ;;   (javac/javac project))
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
          (try
            (let [form `(doseq [namespace# '~namespaces]
                          (println "Compiling" namespace#)
                          (clojure.core/compile namespace#))]
-             ;; TODO: should eval-in-project be allowed to return
-             ;; non-integers?
+             (.mkdirs (io/file (:compile-path project)))
+             ;; TODO: should eval-in-project be allowed to return non-integers?
              (if (zero? (eval/eval-in-project project form))
                (success "Compilation succeeded.")
                (failure "Compilation failed.")))
            #_(finally (clean-non-project-classes project)))
          (success "All namespaces already :aot compiled."))
-       (success "No namespaces to :aot compile listed in project.clj.")))
+       0))
   ([project & namespaces]
      (compile (assoc project :aot (if (= namespaces [":all"])
                                     :all

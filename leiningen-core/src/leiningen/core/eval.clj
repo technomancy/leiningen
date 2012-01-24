@@ -6,6 +6,7 @@
             [cemerick.pomegranate :as pomegranate]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
+            [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath])
   (:import (java.io PushbackReader)))
 
@@ -51,20 +52,19 @@
          ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
          (ns ~'user))))
 
-;; TODO: this needs to be totally reworked; it doesn't fit well into
-;; the whole leiningen-core separation.
-(defn prep [{:keys [compile-path checksum-deps] :as project}]
-  ;; (when (and (not (or ;; *skip-auto-compile*
-  ;;                     skip-auto-compile)) compile-path
-  ;;            (empty? (.list (io/file compile-path))))
-  ;;   (binding [;; *silently* true
-  ;;             ]
-  ;;     (compile project)))
-  ;; (when (or (empty? (find-deps-files project)) checksum-deps)
-  ;;   (deps project))
+(def prep-tasks
+  "A list of tasks to call before any code is evaluated inside the project."
+  (atom ["javac" "compile"]))
+
+(def ^:dynamic *prepping?* false)
+
+(defn prep [project]
   ;; This must exist before the project is launched.
-  (.mkdirs (io/file compile-path))
-  )
+  (.mkdirs (io/file (:compile-path project)))
+  (when-not *prepping?*
+    (binding [*prepping?* true]
+      (doseq [task @prep-tasks]
+        (main/apply-task task project [])))))
 
 ;; # Subprocess stuff
 

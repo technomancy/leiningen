@@ -37,6 +37,6 @@
 
 Add a :java-source-path key to project.clj to specify where to find them."
   [project]
-  (doseq [task (extract-javac-tasks project)]
-    #_(run-javac-task task)))
+  #_(doseq [task (extract-javac-tasks project)]
+    (run-javac-task task)))
 
