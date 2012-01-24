@@ -37,4 +37,5 @@
   (is (not (version-satisfies? "1.4.2" "1.5.0")))
   (is (version-satisfies? "1.2.3" "1.1.1"))
   (is (version-satisfies? "1.2.0" "1.2"))
-  (is (version-satisfies? "1.2" "1")))
+  (is (version-satisfies? "1.2" "1"))
+  (is (not (version-satisfies? "1.67" "16.7"))))
