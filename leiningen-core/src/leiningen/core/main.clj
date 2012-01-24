@@ -55,8 +55,8 @@
     (apply task project args)))
 
 (defn ^:internal version-satisfies? [v1 v2]
-  (let [v1 (map #(Integer. %) (re-seq #"\d" (first (string/split v1 #"-" 2))))
-        v2 (map #(Integer. %) (re-seq #"\d" (first (string/split v2 #"-" 2))))]
+  (let [v1 (map #(Integer. %) (re-seq #"\d+" (first (string/split v1 #"-" 2))))
+        v2 (map #(Integer. %) (re-seq #"\d+" (first (string/split v2 #"-" 2))))]
     (loop [versions (map vector v1 v2)
            [seg1 seg2] (first versions)]
       (cond (empty? versions) true
