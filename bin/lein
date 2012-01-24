@@ -104,15 +104,25 @@ BIN_DIR="$(dirname "$SCRIPT")"
 if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/src/"
-    CLASSPATH="$CLASSPATH::$LEIN_DIR/lib/*:$LEIN_DIR/leiningen-core/lib/*"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 
     if [ "$(ls $LEIN_DIR/leiningen-core/lib/*)" = "" ]; then
         echo "Leiningen is missing its dependencies."
         echo "Please see \"Building\" in the README."
         exit 1
     fi
+
+    # Use bin/lein to calculate its own classpath
+    if [ ! -r "$LEIN_DIR/.lein-classpath" ]; then
+        ORIG_PWD="$PWD"
+        cd "$LEIN_DIR"
+        "$0" classpath > "$LEIN_DIR/.lein-classpath"
+        cd "$ORIG_PWD"
+    fi
+
+    CLASSPATH="`cat $LEIN_DIR/.lein-classpath`:$CLASSPATH"
+    CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/src/"
+    CLASSPATH="$CLASSPATH::$LEIN_DIR/lib/*:$LEIN_DIR/leiningen-core/lib/*"
+    CLASSPATH="$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 else
     # Not running from a checkout
     CLASSPATH="$CLASSPATH:$LEIN_JAR"

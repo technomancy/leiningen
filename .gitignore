@@ -12,3 +12,4 @@ bin/nom
 .lein-deps-sum
 docs
 /leiningen-core/pom.xml
+/.lein-classpath
