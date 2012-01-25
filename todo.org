@@ -15,11 +15,11 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Rework prep function to ensure that AOT/javac happens when needed
    - [X] Move pom generation to pomegranate or leiningen
    - [X] More flexibility for jarring
+   - [X] Allow tasks to add in their own injections
+   - [X] Allow disabling of all injected code
    - [ ] Hook up reply to nrepl for new repl task?
    - [ ] Resurrect native deps?
    - [ ] Honor hooks declared in plugin jar metadata?
-   - [ ] Allow tasks to add in their own injections
-   - [ ] Allow disabling of all injected code
    - [ ] Pass user-level repository auth settings on to pomegranate.
    - [ ] In-process eval-in-project? (possibly post-preview)
 ** Other stuff (post-preview)

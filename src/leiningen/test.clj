@@ -25,6 +25,7 @@ each namespace and print an overall summary."
         (apply require :reload '~namespaces)
         ~(form-for-hook-selectors selectors)
         (let [failures# (atom #{})
+              ;; TODO: fall back for :disable-injected? already pretty hairy =\
               _# (leiningen.core.injected/add-hook
                   #'clojure.test/report
                   (fn report-with-failures [report# m# & args#]

@@ -42,15 +42,18 @@
 
 ;; # Form Wrangling
 
-(defn- injected-forms
-  "Return the forms that need to be injected into the project for
-  certain features (e.g. test selectors) to work."
-  [project]
-  ;; TODO: expose a way to disable these
+(def ^:private hooke-injection
   (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
     `(do (ns ~'leiningen.core.injected)
          ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
          (ns ~'user))))
+
+(defn- injected-forms
+  "Return the forms that need to be injected into the project for
+  certain features (e.g. test selectors) to work."
+  [project]
+  (if-not (:disable-injection project)
+    (:injections project hooke-injection)))
 
 (def prep-tasks
   "A list of tasks to call before any code is evaluated inside the project."
@@ -170,7 +173,7 @@
                    ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
                        (if (.exists user-clj)
                          [(list 'load-file (str user-clj))]))
-                   ~(injected-forms project)
+                   ~@(injected-forms project)
                    (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))
                    ~form)))
