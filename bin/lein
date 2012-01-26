@@ -146,6 +146,7 @@ export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-$JVM_OPTS}
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
@@ -219,7 +220,7 @@ else
     fi
 
     JLINE=""
-    if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
+    if ([ "$1" = "repl" ] || [ "$1" = "repls" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
         [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
@@ -240,6 +241,13 @@ else
             if [ $? -eq 0 ]; then
                 RLWRAP="$RLWRAP -r -m -q '\"'"
             fi
+            # see if there is a clojure-completion-file
+            RLWRAP_CLJ_WORDS_FILE=${RLWRAP_CLJ_WORDS_FILE:-"${HOME}/.clj_completions"}
+						RLWRAP_CLJ_WORDS_OPTION=""
+						if [ -r "${RLWRAP_CLJ_WORDS_FILE}" ]; then 
+							RLWRAP_CLJ_WORDS_OPTION="-f ${RLWRAP_CLJ_WORDS_FILE}"; 
+						fi
+            RLWRAP="${RLWRAP} -p ${RLWRAP_PROMPT_COLOR:-"Black"} -b \"(){}[],^%$#@\";:'\" ${RLWRAP_CLJ_WORDS_OPTION}"
         fi
     fi
 
@@ -247,24 +255,54 @@ else
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
-    TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-    if [ "$OSTYPE" = "cygwin" ]; then
-        TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
-    fi
-
-    ## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
-    # is there some way of detecting 64bit at this stage? - tavisrudd
-    $LEIN_JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
-        $LEIN_JVM_OPTS -XX:+TieredCompilation \
-        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-        -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
-        $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
-        $NULL_DEVICE "$@"
-    EXIT_CODE=$?
-    if [ -r $TRAMPOLINE_FILE ]; then
-        TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
-        rm $TRAMPOLINE_FILE
-        exec sh -c "exec $TRAMPOLINE"
+    
+    if [ "$1" = "trampoline" ]; then
+        TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+				if [ "$OSTYPE" = "cygwin" ]; then
+						TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
+				fi
+				
+#         $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $JVM_OPTS \
+#             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+#             -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
+#             $JLINE clojure.main -e "(use 'leiningen.core)(-main)" \
+#             $NULL_DEVICE "$@"
+#         if [ -r $TRAMPOLINE_FILE ]; then
+#             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+#             rm $TRAMPOLINE_FILE
+#             exec sh -c "$TRAMPOLINE"
+#         fi
+        
+				## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
+				# is there some way of detecting 64bit at this stage? - tavisrudd
+				$LEIN_JAVA_CMD \
+						-Xbootclasspath/a:"$CLOJURE_JAR" \
+						-client $LEIN_JVM_OPTS \
+						-XX:+TieredCompilation \
+						-Dleiningen.original.pwd="$ORIGINAL_PWD" \
+						-Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
+						-cp "$CLASSPATH" \
+						$JLINE clojure.main \
+						-e "(use 'leiningen.core)(-main)" \
+						$NULL_DEVICE "$@"
+				EXIT_CODE=$?
+				if [ -r $TRAMPOLINE_FILE ]; then
+						TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+						rm $TRAMPOLINE_FILE
+						exec sh -c "exec $TRAMPOLINE"
+				fi
+				
+    else
+        exec $RLWRAP $LEIN_JAVA_CMD \
+        		-Xbootclasspath/a:"$CLOJURE_JAR" \
+        		-client $LEIN_JVM_OPTS \
+						-XX:+TieredCompilation \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -cp "$CLASSPATH" \
+            $JLINE clojure.main \
+            -e "(use 'leiningen.core)(-main)" \
+            $NULL_DEVICE "$@"
+				EXIT_CODE=$?
     fi
     test $CYGWIN_JLINE && stty icanon echo
     exit $EXIT_CODE
