@@ -18,6 +18,8 @@
            (org.apache.maven.artifact.repository ArtifactRepositoryPolicy)
            (org.apache.tools.ant.util FlatFileNameMapper)))
 
+(def dev-exclusions '[org.clojure/clojure org.clojure/clojure-contrib])
+
 (def update-policies {:daily ArtifactRepositoryPolicy/UPDATE_POLICY_DAILY
                       :always ArtifactRepositoryPolicy/UPDATE_POLICY_ALWAYS
                       :never ArtifactRepositoryPolicy/UPDATE_POLICY_NEVER})
@@ -193,7 +195,7 @@
       (clean project))
     (let [fileset (do-deps project :dependencies)]
       (when-not (or skip-dev (no-dev?))
-        (do-deps project :dev-dependencies))
+        (do-deps (assoc project :exclusions dev-exclusions) :dev-dependencies))
       (extract-native-deps project)
       (when (:checksum-deps project)
         (spit (new-deps-checksum-file project) (deps-checksum project)))

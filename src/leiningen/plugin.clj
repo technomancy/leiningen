@@ -2,7 +2,7 @@
   "Manage user-level plugins."
   (:use [leiningen.core :only [read-project abort]]
         [leiningen.uberjar :only [write-components]]
-        [leiningen.deps :only [deps]]
+        [leiningen.deps :only [deps dev-exclusions]]
         [leiningen.jar :only [local-repo-path extract-jar
                               get-default-uberjar-name]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
@@ -57,6 +57,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
                     (.replace "$HOME" (System/getProperty "user.home")))
         _ (extract-jar (file jarfile) temp-project)
         project (read-project (str (file temp-project "project.clj")))
+        project (assoc project :exclusions dev-exclusions)
         standalone-filename (plugin-standalone-filename group name version)]
     (deps (dissoc project :dev-dependencies :native-dependencies
                   :eval-in-leiningen))

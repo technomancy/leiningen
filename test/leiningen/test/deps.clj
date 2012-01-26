@@ -26,7 +26,8 @@
   (let [jars (set (map #(.getName %)
                        (.listFiles (file (:root dev-deps-project)
                                          "lib" "dev"))))]
-    (is (contains? jars "clojure-1.2.0.jar"))))
+    (is (not (contains? jars "clojure-1.2.0.jar")))
+    (is (contains? jars "cheshire-2.0.2.jar"))))
 
 (deftest ^{:online true} test-snapshots-releases
   (try
