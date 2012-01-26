@@ -220,8 +220,7 @@ else
     fi
 
     JLINE=""
-    if ([ "$1" = "repl" ] || [ "$1" = "repls" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
-        [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
+    if [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
         # Use rlwrap if it's available, otherwise fall back to JLine
         RLWRAP=`which rlwrap`
         if [ ! -x "$RLWRAP" ] || [ "$RLWRAP" = "" ]; then
