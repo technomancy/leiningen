@@ -90,7 +90,13 @@
 (defn- profile-key-merge
   "Merge profile values into the project map based on their type."
   [key result latter]
-  (cond (= :dependencies key)
+  (cond (-> result meta :displace)
+        latter
+
+        (-> latter meta :replace)
+        latter
+
+        (= :dependencies key)
         (merge-dependencies result latter)
 
         (= :repositories key)

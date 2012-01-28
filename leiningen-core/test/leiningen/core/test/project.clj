@@ -59,4 +59,14 @@
            (-> {:resources-path ["resources"]
                 :profiles {:blue {:resources-path ["blue-resources"]}}}
                (merge-profiles [:qa :tes :blue])
+               :resources-path)))
+    (is (= ["/etc/myapp" "test/hi" "blue-resources"]
+           (-> {:resources-path ^:displace ["resources"]
+                :profiles {:blue {:resources-path ["blue-resources"]}}}
+               (merge-profiles [:qa :tes :blue])
+               :resources-path)))
+    (is (= ["replaced"]
+           (-> {:resources-path ["resources"]
+                :profiles {:blue {:resources-path ^:replace ["replaced"]}}}
+               (merge-profiles [:blue :qa :tes ])
                :resources-path)))))
