@@ -62,7 +62,7 @@ repositories for you.
 ```clj
 (defproject myproject "1.0.0-SNAPSHOT"
   :description "FIXME: write description"
-  :dependencies [[org.clojure/clojure "1.2.1"]])
+  :dependencies [[org.clojure/clojure "1.3.0"]])
 ```
 
 Fill in the :description with a short paragraph so that your project
