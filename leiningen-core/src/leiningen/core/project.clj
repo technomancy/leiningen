@@ -123,6 +123,9 @@
   the profiles.clj file in the project root, and the :profiles key from the
   project map."
   [project profiles-to-apply]
+  (when (some (comp :repositories val) (user/profiles))
+    (println "WARNING: :repositories detected in user-level profile!")
+    (println "See https://github.com/technomancy/leiningen/wiki/Repeatability"))
   (let [profiles (merge @default-profiles (user/profiles) (:profiles project))]
     ;; We reverse because we want profile values to override the
     ;; project, so we need "last wins" in the reduce, but we want the
