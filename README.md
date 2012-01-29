@@ -131,6 +131,8 @@ A single `with-profile` call does not apply across task comma-chains.
 Outside `with-profile` calls, the `:dev` and `:user` profiles are
 active by default.
 
+TODO: add example
+
 ### Leiningen Plugins 
 
 Leiningen supports plugins which may contain both new tasks and hooks

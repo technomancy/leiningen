@@ -1,9 +1,8 @@
 test_projects/*/target
-test_projects/sample/pom.xml
 classes/
 lib/
-leiningen*.jar
-lein-swank/lein-swank*.jar
+*jar
+pom.xml
 autodoc/
 bin/nom
 .lein-failures
@@ -11,5 +10,4 @@ bin/nom
 /scratch.clj
 .lein-deps-sum
 docs
-/leiningen-core/pom.xml
 /.lein-classpath
