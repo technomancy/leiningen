@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ksh
 
 LEIN_VERSION="2.0.0-SNAPSHOT"
 export LEIN_VERSION
@@ -41,12 +41,19 @@ if [ "$LEIN_HOME" = "" ]; then
   fi
 fi
 
+# Solaris doesn't include a rev command, so when running there, make sure LEIN_REV points to a replacement.
+if [ "$LEIN_REV" = "" ]; then
+    LEIN_REV="rev"
+fi
+
+# Other Solaris notes:  change the first line of this script to #!/bin/ksh, and make sure /usr/xpg6/bin/tr is ahead of other tr binaries, especially /usr/ucb/tr
+
 DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins2/*jar 2> /dev/null)"
 
 artifact_name () {
     echo "$1" | sed -e "s/.*\/\(.*\)/\1/" | \
-        rev | sed -e "s/raj[-[:digit:].]*-\(.*\)/\1/" | rev
+        $LEIN_REV | sed -e "s/raj[-[:digit:].]*-\(.*\)/\1/" | $LEIN_REV
 }
 
 unique_user_plugins () {
