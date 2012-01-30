@@ -133,10 +133,10 @@ fi
 # take precedence.
 if [ ! -r "$CLOJURE_JAR" ]; then
     CLOJURE_JAR_URL=http://build.clojure.org/releases/org/clojure/clojure/1.2.1/clojure-1.2.1.jar
-    CLOJURE_HASH="be088d20c078ce48d42afba05984f1ef7c02142b  clojure-1.2.1.jar"
+    CLOJURE_HASH="be088d20c078ce48d42afba05984f1ef7c02142b"
     mkdir -p "$(dirname $CLOJURE_JAR)"
     $HTTP_CLIENT $CLOJURE_JAR $CLOJURE_JAR_URL
-    if [ "`sha1sum $CLOJURE_JAR`" != "$CLOJURE_HASH" ]; then
+    if [ "`sha1sum $CLOJURE_JAR | cut -f 1 -d \" \"`" != "$CLOJURE_HASH" ]; then
         echo "WARNING: Clojure jar failed to download from $CLOJURE_JAR_URL"
     fi
 fi
