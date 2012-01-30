@@ -6,7 +6,8 @@
         [leiningen.classpath :only [get-classpath-string]]
         [clojure.java.io :only [file resource reader copy]]
         [leiningen.util.ns :only [namespaces-in-dir]])
-  (:require [leiningen.util.paths :as paths])
+  (:require [leiningen.util.paths :as paths]
+            [clojure.string :as string])
   (:refer-clojure :exclude [compile])
   (:import (java.io PushbackReader)))
 
@@ -87,10 +88,21 @@
 (defn- d-property [[k v]]
   (format "-D%s=%s" (as-str k) v))
 
+;; TODO: this would still screw up with something like this:
+;; export JAVA_OPTS="-Dmain.greeting=\"hello -main\" -Xmx512m"
+(defn- join-broken-arg [args x]
+  (if (= \- (first x))
+    (conj args x)
+    (conj (vec (butlast args))
+          (str (last args) " " x))))
+
+(defn ^{:internal true} get-jvm-opts-from-env [env-opts]
+  (when (seq env-opts)
+    (reduce join-broken-arg [] (.split env-opts " "))))
+
 (defn ^{:internal true} get-jvm-args [project]
   (let [native-arch-path (paths/native-arch-path project)]
-    `(~@(let [opts (System/getenv "JVM_OPTS")]
-          (when (seq opts) [opts]))
+    `(~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
       ~@(:jvm-opts project)
       ~@(:jvm-opts (user-settings))
       ~@(map d-property {:clojure.compile.path (:compile-path project)
