@@ -79,7 +79,7 @@
 
 The first run will download a set of indices, which will take a while.
 Pass in --update as the query to force a fresh download of all
-indices. 
+indices.
 
 The query is evaluated as a lucene search. You can search for simple
 string matches or do more advanced queries such as this
@@ -98,9 +98,11 @@ pages."
   ([project query page]
      ;; you know what would be just super? pattern matching.
      (if (= "--update" query)
-       (doseq [[_ {url :url} :as repo] (repositories-for project)]
+       (doseq [[_ {url :url} :as repo] (repositories-for project)
+               :when (not= url "http://disabled-central")]
          (delete-file-recursively (index-location url) :silently)
          (ensure-fresh-index repo))
-       (doseq [repo (repositories-for project)
-               :let [page (Integer. page)]]
+       (doseq [repo (dissoc (repositories-for project) "disabled-central")
+               :let [page (Integer. page)]
+               :when (not= (:url (val repo)) "http://disabled-central")]
          (print-results repo (search-repository repo query page) page)))))
