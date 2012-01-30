@@ -45,6 +45,8 @@
         {:keys [username password passphrase
                 private-key] :as settings} (merge user-options settings)
         auth (Authentication.)]
+    (when (System/getenv "DEBUG")
+      (prn :repository settings))
     (when (seq settings)
       (when username (.setUserName auth username))
       (when password (.setPassword auth password))
@@ -157,10 +159,9 @@
 (defn- find-lib-jars [project]
   (.listFiles (file (:library-path project))))
 
-;; TODO: memoize when not in tests
 (defn ^{:internal true} find-deps-files [project]
-  (remove #{(file (:root project) "lib/dev")}
-          (concat (if (:local-repo-classpath project) ; TODO: default in 2.0
+  (remove #(or (.isDirectory %) (.endsWith (str %) ".pom"))
+          (concat (if (:local-repo-classpath project)
                     (find-local-repo-jars project)
                     (find-lib-jars project))
                   ;; This must be hard-coded because it's used in
