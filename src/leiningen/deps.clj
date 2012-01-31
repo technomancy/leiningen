@@ -72,7 +72,8 @@
 (defmulti copy-dependencies (fn [k destination flatten? fileset] k))
 
 (defmethod copy-dependencies :default [k destination flatten? fileset]
-  (lancet/copy {:todir destination :flatten (if flatten? "on" "off")}
+  (lancet/copy {:todir destination :flatten (if flatten? "on" "off")
+                :overwrite "on"} ; needed for plugins
                fileset))
 
 ;; TODO: remove in 2.0; with local-repo-classpath it's unnecessary

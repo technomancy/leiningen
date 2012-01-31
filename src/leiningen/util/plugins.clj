@@ -74,9 +74,10 @@
 (defn delete-stale [dir old-plugins new-plugins]
   ;; We can't delete theese earlier because it could interfere
   ;; with dependency fetching in the case of wagons, etc.
-  (doseq [old (set/difference (set old-plugins)
-                              (for [p new-plugins] (.getName (io/file p))))]
-    (.delete (io/file dir old))))
+  (let [new-set (set (for [p new-plugins] (.getName (io/file p))))]
+    (doseq [old old-plugins
+            :when (not (new-set old))]
+      (.delete (io/file dir old)))))
 
 (defn download-plugins [project]
   (let [dir (io/file (:root project) ".lein-plugins")
