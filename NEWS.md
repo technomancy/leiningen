@@ -1,5 +1,22 @@
 # Leiningen News -- history of user-visible changes
 
+## 1.7.0 / ???
+
+* Fix a bug where JVM_OPTS with spaces would cause failures.
+* Keep pom dependencies off the classpath.
+* Block plugins from erroneously including their own Clojure version.
+* Allow poms to set parent element. (Nelson Morris)
+* Support emitting Maven extensions in pom. (Max Penet)
+* Allow faster booting on 64-bit JVMs with tiered compilation.
+* Fix a bug where shell wrappers had the wrong classpath. (Tavis Rudd)
+* Exclude all signature files from uberjars. (Tim McCormack)
+* Allow test selectors to apply to entire namespaces. (Kevin Downey)
+* Use LEIN_JAVA_CMD to allow different JVM for Leiningen itself. (Tavis Rudd)
+* Honor :plugins key inside project.clj.
+* Accept :repl-init namespace as argument to repl task.
+* Allow :java-source-path to be nested inside :source-path. (Anthony Grimes)
+* Fix a bug where native deps weren't made available. (Anthony Grimes)
+
 ## 1.6.2 / 2011-11-11
 
 * Let run task work with main functions from Java classes.
