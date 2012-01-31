@@ -44,8 +44,13 @@ DEV_PLUGINS="$(ls -1 lib/dev/*jar .lein-plugins/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
 
 artifact_name () {
-    echo "$1" | sed -e "s/.*\/\(.*\)/\1/" | \
-        rev | sed -e "s/raj[-[:digit:].]*-\(.*\)/\1/" | rev
+    which rev > /dev/null
+    if [ $? -eq 0 ]; then
+        echo "$1" | sed -e "s/.*\/\(.*\)/\1/" | \
+            rev | sed -e "s/raj[-[:digit:].]*-\(.*\)/\1/" | rev
+    else
+        echo "$1"
+    fi
 }
 
 unique_user_plugins () {
