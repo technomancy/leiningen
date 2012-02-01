@@ -169,7 +169,8 @@ See the plugin task's help for more information.
   and the copy in `checkouts` will take precedence over the dependency
   declared in project.clj. Note that this is not a replacement for
   listing the project in `:dependencies`; it simply supplements that for
-  convenience.
+  convenience. You can run `lein classpath` to see how the addition of
+  the checkouts affects the project's classpath.
 
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes. Some libraries, such as log4j, depend on projects that are
