@@ -6,7 +6,7 @@
 
 (deftest test-uberjar
   (let [filename "test_projects/sample_no_aot/target/nomnomnom-0.5.0-SNAPSHOT-standalone.jar"
-        _ (with-out-str (uberjar sample-no-aot-project))
+        _ (uberjar sample-no-aot-project)
         entries (->> (ZipFile. filename)
                     .entries
                     enumeration-seq
