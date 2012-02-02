@@ -33,14 +33,12 @@
     (is (.exists (m2-dir :robert/hooke "1.0.1")))
     (deps (assoc ps :dependencies [slamhound]))
     (is (.exists (m2-dir "slamhound" "1.1.0-SNAPSHOT")))
-    ;; TODO: support disabling snapshots/releases
-    ;; (let [snaps-repo-rel-dep (assoc ps :dependencies [hooke])]
-    ;;   (is (thrown? Exception (deps snaps-repo-rel-dep)))
-    ;;   (is (not (.exists (m2-dir :robert/hooke "1.0.1")))))
-    ;; (let [rel-repo-snaps-dep (assoc pr :dependencies [slamhound])]
-    ;;   (is (thrown? Exception (deps rel-repo-snaps-dep)))
-    ;;   (is (not (m2-dir "slamhound" "1.1.0-SNAPSHOT"))))
-    ))
+    (let [snaps-repo-rel-dep (assoc ps :dependencies [hooke])]
+      (is (thrown? Exception (deps snaps-repo-rel-dep)))
+      (is (not (.exists (m2-dir :robert/hooke "1.0.1")))))
+    (let [rel-repo-snaps-dep (assoc pr :dependencies [slamhound])]
+      (is (thrown? Exception (deps rel-repo-snaps-dep)))
+      (is (not (.exists (m2-dir "slamhound" "1.1.0-SNAPSHOT"))))) ))
 
 (def native-lib-files-map
   {:linux {:x86 #{"libjri.so" "libjinput-linux.so" "liblwjgl.so" "libopenal.so"
