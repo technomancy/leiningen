@@ -178,7 +178,7 @@ corresponding .class files before performing actual compilation."
                    ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
                        (if (.exists user-clj)
                          [(list 'load-file (str user-clj))]))
-                   ~@(injected-forms project)
+                   ~(injected-forms project)
                    (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))
                    ~form)))
