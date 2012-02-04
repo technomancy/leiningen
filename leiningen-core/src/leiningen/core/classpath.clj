@@ -2,7 +2,8 @@
   "Calculate project classpaths by resolving dependencies via Aether."
   (:require [cemerick.pomegranate.aether :as aether]
             [clojure.java.io :as io]
-            [leiningen.core.project :as project]))
+            [leiningen.core.project :as project])
+  (:import java.util.jar.JarFile))
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
@@ -26,19 +27,30 @@
                                          (:root project) dep)]]
                   (checkout-dep-paths project dep dep-project))))
 
-
 ;; TODO: add authentication to repositories
 ;; TODO: add policies to repositories
 ;; TODO: ensure repositories is ordered
 
+(defn extract-native-deps [deps project]
+  (doseq [jar (map #(JarFile. %) deps)
+          entry (enumeration-seq (.entries jar))
+          :when (.startsWith (.getName entry) "native/")]
+    (let [f (io/file (:native-path project) (subs (.getName entry)
+                                                  (count "native/")))]
+      (if (.isDirectory entry)
+        (.mkdirs f)
+        (io/copy (.getInputStream jar entry) f)))))
+
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
-  ensure they are downloaded into ~/.m2/repositories."
-  [{:keys [repositories dependencies]}]
+  ensure they are downloaded into ~/.m2/repositories and that native
+  deps have been extracted to :native-path."
+  [{:keys [repositories dependencies] :as project}]
   {:pre [(every? vector? dependencies)]}
-  (set (aether/dependency-files
-        (aether/resolve-dependencies :repositories repositories
-                                     :coordinates dependencies))))
+  (doto (set (aether/dependency-files
+               (aether/resolve-dependencies :repositories repositories
+                                            :coordinates dependencies)))
+    (extract-native-deps project)))
 
 (defn- normalize-path [root path]
   (let [f (io/file path)]
