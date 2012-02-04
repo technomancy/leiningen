@@ -31,12 +31,12 @@
 ;; TODO: add policies to repositories
 ;; TODO: ensure repositories is ordered
 
-(defn extract-native-deps [deps project]
+(defn extract-native-deps [deps native-path]
   (doseq [jar (map #(JarFile. %) deps)
           entry (enumeration-seq (.entries jar))
           :when (.startsWith (.getName entry) "native/")]
-    (let [f (io/file (:native-path project) (subs (.getName entry)
-                                                  (count "native/")))]
+    (let [f (io/file native-path (subs (.getName entry)
+                                       (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
@@ -45,12 +45,12 @@
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories and that native
   deps have been extracted to :native-path."
-  [{:keys [repositories dependencies] :as project}]
+  [{:keys [repositories dependencies native-path]}]
   {:pre [(every? vector? dependencies)]}
   (doto (set (aether/dependency-files
                (aether/resolve-dependencies :repositories repositories
                                             :coordinates dependencies)))
-    (extract-native-deps project)))
+    (extract-native-deps native-path)))
 
 (defn- normalize-path [root path]
   (let [f (io/file path)]
