@@ -6,4 +6,5 @@
                  [classlojure "0.6.5"]
                  [robert/hooke "1.1.2"]
                  [com.cemerick/pomegranate "0.0.4"
-                  :exclusions [org.slf4j/slf4j-api]]])
+                  :exclusions [org.slf4j/slf4j-api]]
+                 [lein-newnew "0.2.1"]])
