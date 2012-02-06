@@ -251,7 +251,7 @@ else
             if [ -r "${RLWRAP_CLJ_WORDS_FILE}" ]; then
                 RLWRAP_CLJ_WORDS_OPTION="-f ${RLWRAP_CLJ_WORDS_FILE}";
             fi
-            RLWRAP="${RLWRAP} -p${RLWRAP_PROMPT_COLOR:-"Black"} -b \"(){}[],^%$#@\";:'\" ${RLWRAP_CLJ_WORDS_OPTION}"
+            RLWRAP="${RLWRAP} -b \"(){}[],^%$#@\";:'\" ${RLWRAP_CLJ_WORDS_OPTION}"
         fi
     fi
 
