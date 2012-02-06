@@ -4,8 +4,7 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from checkouts and self-upgrading.
 
-LEIN_VERSION="1.6.2"
-export LEIN_VERSION
+export LEIN_VERSION="1.7.0"
 
 if [ `whoami` = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
@@ -26,19 +25,21 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; 
 done
 
 # Support $JAVA_OPTS for backwards-compatibility.
-JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
-JAVA_CMD=${JAVA_CMD:-"java"}
+export JAVA_CMD=${JAVA_CMD:-"java"}
+export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-"$JVM_OPTS"}"
 
 if [ "$LEIN_HOME" = "" ]; then
   if [ -d "$PWD/.lein" ] && [ "$PWD" != "$HOME" ]; then
     echo "Leiningen is running in bundled mode."
-    LEIN_HOME="$PWD/.lein"
+    export LEIN_HOME="$PWD/.lein"
   else
-    LEIN_HOME="$HOME/.lein"
+    export LEIN_HOME="$HOME/.lein"
   fi
 fi
 
-DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
+DEV_PLUGINS="$(ls -1 lib/dev/*jar .lein-plugins/*jar 2> /dev/null)"
 USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins/*jar 2> /dev/null)"
 
 artifact_name () {
@@ -71,7 +72,6 @@ LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
 LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
 CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/:resources/"
 CLOJURE_JAR="/usr/share/java/clojure-1.2.jar:/usr/share/java/asm3.jar:/usr/share/java/asm3-commons.jar"
-NULL_DEVICE=/dev/null
 
 # apply context specific CLASSPATH entries
 if [ -f .lein-classpath ]; then
@@ -91,8 +91,8 @@ done
 
 # Do not use installed leiningen jar during self-compilation
 if ! { [ "$1" = "compile" ] &&
-       grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
-         project.clj ;}; then
+        grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
+            project.clj ;}; then
     CLASSPATH="$CLASSPATH":/usr/share/java/leiningen-$LEIN_VERSION.jar
 fi
 
@@ -102,29 +102,36 @@ if [ $DEBUG ]; then
 fi
 
 # Use rlwrap if appropriate
-if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
-    [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
+if ([ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]); then
     which rlwrap > /dev/null
     if [ $? -eq 0 ]; then
         RLWRAP="rlwrap -r -m -q '\"'" # custom quote chars
     fi
+    RLWRAP_CLJ_WORDS_FILE=${RLWRAP_CLJ_WORDS_FILE:-"${HOME}/.clj_completions"}
+    RLWRAP_CLJ_WORDS_OPTION=""
+    if [ -r "${RLWRAP_CLJ_WORDS_FILE}" ]; then
+        RLWRAP_CLJ_WORDS_OPTION="-f ${RLWRAP_CLJ_WORDS_FILE}";
+    fi
+    RLWRAP="${RLWRAP} -p${RLWRAP_PROMPT_COLOR:-"Black"} -b \"(){}[],^%$#@\";:'\" ${RLWRAP_CLJ_WORDS_OPTION}"
 fi
 
-if [ "$1" = "trampoline" ]; then
-        TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client $LEIN_JVM_OPTS \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
-            clojure.main -e "(use 'leiningen.core)(-main)" \
-            $NULL_DEVICE "$@"
-        if [ -r $TRAMPOLINE_FILE ]; then
-            TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
-            rm $TRAMPOLINE_FILE
-            exec sh -c "$TRAMPOLINE"
-        fi
+TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+
+$RLWRAP $LEIN_JAVA_CMD \
+    -Xbootclasspath/a:"$CLOJURE_JAR" \
+    -client $LEIN_JVM_OPTS \
+    -XX:+TieredCompilation \
+    -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+    -Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
+    -cp "$CLASSPATH" \
+    clojure.main -e "(use 'leiningen.core)(-main)" /dev/null "$@"
+
+EXIT_CODE=$?
+
+if [ -r $TRAMPOLINE_FILE ]; then
+    TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+    rm $TRAMPOLINE_FILE
+    exec sh -c "exec $TRAMPOLINE"
 else
-        exec $RLWRAP $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
-            $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -cp "$CLASSPATH" clojure.main -e "(use 'leiningen.core)(-main)" \
-            $NULL_DEVICE "$@"
+    exit $EXIT_CODE
 fi
