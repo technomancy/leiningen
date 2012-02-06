@@ -247,46 +247,46 @@ else
             fi
             # see if there is a clojure-completion-file
             RLWRAP_CLJ_WORDS_FILE=${RLWRAP_CLJ_WORDS_FILE:-"${HOME}/.clj_completions"}
-						RLWRAP_CLJ_WORDS_OPTION=""
-						if [ -r "${RLWRAP_CLJ_WORDS_FILE}" ]; then 
-							RLWRAP_CLJ_WORDS_OPTION="-f ${RLWRAP_CLJ_WORDS_FILE}"; 
-						fi
+            RLWRAP_CLJ_WORDS_OPTION=""
+            if [ -r "${RLWRAP_CLJ_WORDS_FILE}" ]; then
+                RLWRAP_CLJ_WORDS_OPTION="-f ${RLWRAP_CLJ_WORDS_FILE}";
+            fi
             RLWRAP="${RLWRAP} -p${RLWRAP_PROMPT_COLOR:-"Black"} -b \"(){}[],^%$#@\";:'\" ${RLWRAP_CLJ_WORDS_OPTION}"
         fi
     fi
 
     test $CYGWIN_JLINE && stty -icanon min 1 -echo
-    
-		TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-		if [ "$OSTYPE" = "cygwin" ]; then
-				TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
-		fi
+
+    TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+    if [ "$OSTYPE" = "cygwin" ]; then
+        TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
+    fi
 
     # The -Xbootclasspath argument is optional here: if the jar
     # doesn't exist everything will still work, it will just have a
     # slower JVM boot.
 
-		## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
-		# is there some way of detecting 64bit at this stage? - tavisrudd
-		$RLWRAP $LEIN_JAVA_CMD \
-				-Xbootclasspath/a:"$CLOJURE_JAR" \
-				-client $LEIN_JVM_OPTS \
-				-XX:+TieredCompilation \
-				-Dleiningen.original.pwd="$ORIGINAL_PWD" \
-				-Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
-				-cp "$CLASSPATH" \
-				$JLINE clojure.main \
-				-e "(use 'leiningen.core)(-main)" \
-				$NULL_DEVICE "$@"
-		EXIT_CODE=$?
-		
-		if [ -r $TRAMPOLINE_FILE ]; then
-				cat $TRAMPOLINE_FILE
-				TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
-				rm $TRAMPOLINE_FILE
-				exec sh -c "exec $TRAMPOLINE"
-		fi
-		
+    ## TODO: -XX:+UseCompressedOops only works on 64 bit jvm
+    # is there some way of detecting 64bit at this stage? - tavisrudd
+    $RLWRAP $LEIN_JAVA_CMD \
+        -Xbootclasspath/a:"$CLOJURE_JAR" \
+        -client $LEIN_JVM_OPTS \
+        -XX:+TieredCompilation \
+        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        -Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
+        -cp "$CLASSPATH" \
+        $JLINE clojure.main \
+        -e "(use 'leiningen.core)(-main)" \
+        $NULL_DEVICE "$@"
+    EXIT_CODE=$?
+
+    if [ -r $TRAMPOLINE_FILE ]; then
+        cat $TRAMPOLINE_FILE
+        TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+        rm $TRAMPOLINE_FILE
+        exec sh -c "exec $TRAMPOLINE"
+    fi
+
     test $CYGWIN_JLINE && stty icanon echo
     exit $EXIT_CODE
 fi
