@@ -281,12 +281,11 @@ else
     EXIT_CODE=$?
 
     if [ -r $TRAMPOLINE_FILE ]; then
-        cat $TRAMPOLINE_FILE
         TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
         rm $TRAMPOLINE_FILE
         exec sh -c "exec $TRAMPOLINE"
+    else
+        test $CYGWIN_JLINE && stty icanon echo
+        exit $EXIT_CODE
     fi
-
-    test $CYGWIN_JLINE && stty icanon echo
-    exit $EXIT_CODE
 fi

@@ -7,9 +7,8 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] interactive task takes full CPU (#346)
   - [X] whole-namespace test selectors (#242)
   - [X] Auto-exclusions for dev-deps and plugins (#375)
-  - [ ] Write plugin migration guide for 2.0; determine and back-port features
-  - [ ] Investigate NPE on lein test (#388)
-  - [ ] Bring back rlwrap (#381)
+  - [X] Investigate NPE on lein test (#388)
+  - [X] Bring back rlwrap (#381)
 * For 1.6.2
   - [X] resources with eval-in-leiningen (#248)
   - [X] fix :omit-default-repositories wrt central (#211)

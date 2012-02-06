@@ -1,7 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 1.7.0 / ???
+## 1.7.0 / 2012-02-06
 
+* Allow any task to perform trampolining.
 * Fix a bug where JVM_OPTS with spaces would cause failures.
 * Keep pom dependencies off the classpath.
 * Block plugins from erroneously including their own Clojure version.
