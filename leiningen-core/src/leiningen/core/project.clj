@@ -165,13 +165,12 @@
     (when-not (instance? DynamicClassLoader cl)
       (.setContextClassLoader thread (DynamicClassLoader. cl)))))
 
-(defn load-plugins [project]
-  (ensure-dynamic-classloader)
-  (when (= :leiningen (:eval-in project))
-    (pomegranate/add-dependencies (:dependencies project)
-                                  :repositories (:repositories project)))
-  (pomegranate/add-dependencies
-   (:plugins project) :repositories (:repositories project)))
+(defn load-plugins
+  ([project plugin-key]
+     (ensure-dynamic-classloader)
+     (pomegranate/add-dependencies
+      (project plugin-key) :repositories (:repositories project)))
+  ([project] (load-plugins project :plugins)))
 
 (defn- load-hooks [project]
   (doseq [n (:hooks project)]

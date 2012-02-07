@@ -160,6 +160,8 @@ corresponding .class files before performing actual compilation."
   [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
+  ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
+  (project/load-plugins project :dependencies)
   ;; need to at least pretend to return an exit code
   (try (eval form)
        (catch Exception e
