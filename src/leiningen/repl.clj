@@ -8,12 +8,12 @@
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]))
 
-(defn- start-server [project ack-port]
+(defn- start-server [project port ack-port]
   (if project
     (eval/eval-in-project project
-                          `(clojure.tools.nrepl/start-server 0 ~ack-port)
+                          `(clojure.tools.nrepl/start-server ~port ~ack-port)
                           '(require 'clojure.tools.nrepl))
-    (nrepl/start-server 0 ack-port)))
+    (nrepl/start-server port ack-port)))
 
 (def lein-repl-server (delay (nrepl/start-server)))
 
@@ -24,7 +24,12 @@
    (.start
      (Thread.
        (bound-fn []
-         (start-server project (-> @lein-repl-server first .getLocalPort)))))
+         (start-server project
+                       (Integer.
+                         (or (System/getenv "LEIN_REPL_PORT")
+                             (:repl-port project)
+                             0))
+                       (-> @lein-repl-server first .getLocalPort)))))
    (reply/launch-nrepl
      (merge
        {:attach (str (nrepl/wait-for-ack (or (:repl-timeout project)
