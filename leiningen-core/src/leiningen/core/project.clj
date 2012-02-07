@@ -173,6 +173,16 @@
   (pomegranate/add-dependencies
    (:plugins project) :repositories (:repositories project)))
 
+(defn- load-hooks [project]
+  (doseq [n (:hooks project)]
+    (try (require n)
+         (when-let [activate (ns-resolve n 'activate)]
+           (activate))
+         (catch Exception e
+           (println "Warning: problem requiring" n "hook:" (.getMessage e))
+           (when (System/getenv "DEBUG")
+             (.printStackTrace e))))))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
@@ -184,6 +194,7 @@
        (ns-unmap *ns* 'project) ; return it to original state
        (let [project (merge-profiles @project profiles)]
          (load-plugins project)
+         (load-hooks project)
          (absolutize-paths project))))
   ([file] (read file [:dev :user]))
   ([] (read "project.clj")))

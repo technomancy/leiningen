@@ -18,12 +18,12 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Allow tasks to add in their own injections
    - [X] Allow disabling of all injected code
    - [X] Activate :test profile in test task
+   - [X] Resurrect native deps
+   - [X] Allow hooks to provide activate fn to avoid load-time side-effects
    - [ ] Hook up reply to nrepl for new repl task?
-   - [ ] Resurrect native deps?
    - [ ] Honor hooks declared in plugin jar metadata?
    - [ ] Pass user-level repository auth settings on to pomegranate.
    - [ ] In-process eval-in-project? (possibly post-preview)
-   - [ ] Allow hooks to provide activate fn to avoid load-time side-effects
    - [ ] Address chaining issues in with-profile
 ** Other stuff (post-preview)
    - [ ] Install task outside projects
