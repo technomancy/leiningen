@@ -67,7 +67,9 @@
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
   (atom {:dev {:test-path ["test"]
-               :resources-path ["dev-resources"]}
+               :resources-path ["dev-resources"]
+               :dependencies '[[org.clojure/tools.nrepl "0.0.5"]
+                               [org.thnetos/cd-client "0.3.3"]]}
          :debug {:debug true}}))
 
 ;; Modified merge-with to provide f with the conflicting key.

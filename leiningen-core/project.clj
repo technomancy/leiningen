@@ -7,4 +7,5 @@
                  [robert/hooke "1.1.2"]
                  [com.cemerick/pomegranate "0.0.4"
                   :exclusions [org.slf4j/slf4j-api]]
-                 [lein-newnew "0.2.2"]])
+                 [lein-newnew "0.2.2"]
+                 [reply "0.1.0-SNAPSHOT"]])
