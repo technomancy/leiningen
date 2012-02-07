@@ -18,6 +18,14 @@
 (def lein-repl-server (delay (nrepl/start-server)))
 
 (defn ^:no-project-needed repl
+  "Start a repl session either with the current project or standalone.
+
+This will launch an nREPL server behind the scenes that reply will connect to.
+If a :repl-port key is present in project.clj, that port will be used for the
+server, otherwise it is chosen randomly. If you run this command inside of a
+project, it will be ran in the context of that classpath. If the command is
+ran outside of a project, it'll be standalone and the classpath will be
+that of Leiningen's."
   ([] (repl nil))
   ([project]
    (nrepl/reset-ack-port!)
