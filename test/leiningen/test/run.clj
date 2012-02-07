@@ -36,5 +36,4 @@
   (is (= "nom:-m" (slurp out-file))))
 
 (deftest test-run-java-main
-  (javac dev-deps-project)
   (is (zero? (run dev-deps-project))))
