@@ -68,9 +68,12 @@
   profiles are active by default."
   (atom {:dev {:test-path ["test"]
                :resources-path ["dev-resources"]
-               :dependencies '[[org.clojure/tools.nrepl "0.0.5"]
-                               [clojure-complete "0.1.4"]
-                               [org.thnetos/cd-client "0.3.3"]]}
+               :dependencies '[[org.clojure/tools.nrepl "0.0.5"
+                                :exclusions [org.clojure/clojure]]
+                               [clojure-complete "0.1.4"
+                                :exclusions [org.clojure/clojure]]
+                               [org.thnetos/cd-client "0.3.3"
+                                :exclusions [org.clojure/clojure]]]}
          :debug {:debug true}}))
 
 ;; Modified merge-with to provide f with the conflicting key.
