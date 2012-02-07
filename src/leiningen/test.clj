@@ -3,7 +3,8 @@
   (:refer-clojure :exclude [test])
   (:require [clojure.java.io :as io]
             [leiningen.core.ns :as ns]
-            [leiningen.core.eval :as eval])
+            [leiningen.core.eval :as eval]
+            [leiningen.core.project :as project])
   (:import (java.io File)))
 
 (def ^:dynamic *exit-after-tests* true)
@@ -68,7 +69,8 @@ each namespace and print an overall summary."
 Accepts either a list of test namespaces to run or a list of test
 selectors. With no arguments, runs all tests."
   [project & tests]
-  (let [[nses selectors] (read-args tests project)
+  (let [project (project/merge-profiles project [:test])
+        [nses selectors] (read-args tests project)
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)
         form (form-for-testing-namespaces nses (.getAbsolutePath result)
                                           (vec selectors))]
