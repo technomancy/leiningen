@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-export LEIN_VERSION="1.7.0-SNAPSHOT"
+export LEIN_VERSION="1.7.0"
 
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
