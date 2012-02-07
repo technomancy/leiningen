@@ -26,6 +26,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Allow hooks to provide activate fn to avoid load-time side-effects
    - [ ] Address chaining issues in with-profile
 ** Other stuff (post-preview)
+   - [ ] Install task outside projects
    - [ ] Further design on Project Middleware
    - [ ] Add :dynamic metadata to clucy (bablien has patches for this)
    - [ ] Non-transitive AOT

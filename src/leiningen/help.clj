@@ -81,7 +81,7 @@
          (binding [*out* *err*]
            (str task-ns "  Problem loading: " (.getMessage e))))))
 
-(defn help
+(defn ^:no-project-needed help
   "Display a list of tasks or help for a given task.
 
 Also provides readme, tutorial, news, sample, deploying and copying info."

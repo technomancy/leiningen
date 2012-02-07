@@ -25,9 +25,9 @@
                :native-path "native"
                :compile-path "target/classes"
                :target-path "target"
-               :repositories [["central" "http://repo1.maven.org/maven2"]
+               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
                               ;; TODO: point to releases-only before 2.0 is out
-                              ["clojars" "http://clojars.org/repo/"]]
+                              ["clojars" {:url "http://clojars.org/repo/"}]]
                :jar-exclusions [#"^\."]
                :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
 

@@ -118,7 +118,7 @@
        (System/getenv "LEIN_REPL_HOST")
        "localhost")])
 
-(defn repl
+(defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
 A socket-repl will also be launched in the background on a socket based on the

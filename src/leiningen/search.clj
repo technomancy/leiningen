@@ -2,6 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.user :as user]
+            [leiningen.core.project :as project]
             [clucy.core :as clucy])
   (:import (java.util.zip ZipFile)
            (java.net URL)))
@@ -72,7 +73,7 @@
       (apply println result))
     (prn)))
 
-(defn ^{:help-arglists '([query] [query page])} search
+(defn ^{:help-arglists '([query] [query page]) :no-project-needed true} search
   "Search remote maven repositories for matching jars.
 
 The first run will download a set of indices, which will take a while.
@@ -87,12 +88,12 @@ Also accepts a second parameter for fetching successive
 pages."
   ([project query] (search project query 1))
   ([project query page]
-     ;; you know what would be just super? pattern matching.
-     (if (= "--update" query)
-       (doseq [[_ {url :url} :as repo] (:repositories project)]
-         (doseq [f (reverse (rest (file-seq (index-location url))))]
-           (.delete f)) ; no delete-file-recursively; bleh
-         (ensure-fresh-index repo))
-       (doseq [repo (:repositories project)
-               :let [page (Integer. page)]]
-         (print-results repo (search-repository repo query page) page)))))
+     (let [repos (:repositories project (:repositories project/defaults))]
+       (if (= "--update" query)
+         (doseq [[_ {url :url} :as repo] repos]
+           (doseq [f (reverse (rest (file-seq (index-location url))))]
+             (.delete f)) ; no delete-file-recursively; bleh
+           (ensure-fresh-index repo))
+         (doseq [repo repos
+                 :let [page (Integer. page)]]
+           (print-results repo (search-repository repo query page) page))))))
