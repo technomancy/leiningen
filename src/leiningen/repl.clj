@@ -29,6 +29,6 @@
      (merge
        {:attach (str (nrepl/wait-for-ack (or (:repl-timeout project)
                                              (:repl-timeout (user/settings))
-                                             20000)))}
+                                             30000)))}
        (:reply-options (user/settings))
        (:reply-options project)))))
