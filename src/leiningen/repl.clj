@@ -12,7 +12,8 @@
   (if project
     (eval/eval-in-project project
                           `(clojure.tools.nrepl/start-server ~port ~ack-port)
-                          '(require 'clojure.tools.nrepl))
+                          '(do (require 'clojure.tools.nrepl)
+                               (require 'complete)))
     (nrepl/start-server port ack-port)))
 
 (def lein-repl-server (delay (nrepl/start-server)))

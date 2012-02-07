@@ -69,6 +69,7 @@
   (atom {:dev {:test-path ["test"]
                :resources-path ["dev-resources"]
                :dependencies '[[org.clojure/tools.nrepl "0.0.5"]
+                               [clojure-complete "0.1.4"]
                                [org.thnetos/cd-client "0.3.3"]]}
          :debug {:debug true}}))
 
