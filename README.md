@@ -252,11 +252,9 @@ mailing list and mailing a SASE.
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place.
 
-Using Leiningen 1.x, run `lein deps` in the `leiningen-core`
-subproject directory. Once you do that in most cases a `bin/lein
-self-install` will usually get you what you need. However, this will
-occasionally fail for very new SNAPSHOT versions since the standalone
-jar will not have been uploaded yet.
+Using Leiningen 1.x, run `lein install` in the `leiningen-core`
+subproject directory. When the dependencies change you will also have
+to do `rm .lein-classpath` in the project root.
 
 ## License
 
