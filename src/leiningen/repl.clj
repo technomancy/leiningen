@@ -18,5 +18,8 @@
   ([] (repl nil))
   ([project]
    (nrepl/reset-ack-port!)
-   (future (start-server project (-> lein-repl-server first .getLocalPort))) 
+   (.start
+     (Thread.
+       (bound-fn []
+         (start-server project (-> lein-repl-server first .getLocalPort)))))
    (reply/launch-nrepl {:attach (str (nrepl/wait-for-ack 20000))})))
