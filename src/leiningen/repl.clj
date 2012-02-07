@@ -5,6 +5,7 @@
             [clojure.java.io :as io]
             [leiningen.core.eval :as eval]
             [clojure.tools.nrepl :as nrepl]
+            [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]))
 
 (defn- start-server [project ack-port]
@@ -24,4 +25,10 @@
      (Thread.
        (bound-fn []
          (start-server project (-> @lein-repl-server first .getLocalPort)))))
-   (reply/launch-nrepl {:attach (str (nrepl/wait-for-ack 20000))})))
+   (reply/launch-nrepl
+     (merge
+       {:attach (str (nrepl/wait-for-ack (or (:repl-timeout project)
+                                             (:repl-timeout (user/settings))
+                                             20000)))}
+       (:reply-options (user/settings))
+       (:reply-options project)))))
