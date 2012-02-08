@@ -1,42 +1,34 @@
 (ns leiningen.javac
   "Compile Java source files."
-  (:use [leiningen.classpath :only [get-classpath-string]]))
+  (:use [leiningen.classpath :only [get-classpath-string]]
+        [clojure.string :only [join]]
+        [clojure.java.io :only [file]])
+  (:import javax.tools.ToolProvider))
 
-(def ^:dynamic *default-javac-options*
-  "Default options for the java compiler."
-  {:debug "false" :fork "true"
-   :includejavaruntime "yes"
-   :includeantruntime "false"
-   :source "1.5" :target "1.5"})
+(defn extract-java-source
+  "Find all of the Java source files in a directory."
+  [dir]
+  (filter #(.endsWith % ".java")
+          (map #(.getPath %) (file-seq (file dir)))))
 
-(defn- extract-javac-task
-  "Extract a compile task from the given spec."
-  [project [path & options]]
-  (merge *default-javac-options*
-         (:javac-options project)
-         {:destdir (:compile-path project)
-          ;; :srcdir (normalize-path (:root project) path)
-          :classpath (get-classpath-string project)}
-         (apply hash-map options)))
+(defn javac-options [project]
+  (into-array 
+    String
+    (concat (:javac-options project) 
+            ["-cp" (get-classpath-string project)
+             "-d" (:compile-path project)]
+            (mapcat extract-java-source (:java-source-path project)))))
 
-(defn- extract-javac-tasks
-  "Extract all compile tasks of the project."
+(defn- run-javac-task
+  "Compile the given task spec."
   [project]
-  (let [specs (:java-source-path project)]
-    (for [spec (if (string? specs) [[specs]] specs)]
-      (extract-javac-task project spec))))
-
-;; (defn- run-javac-task
-;;   "Compile the given task spec."
-;;   [task-spec]
-;;   (lancet/mkdir {:dir (:destdir task-spec)})
-;;   (lancet/javac task-spec))
+  (-> project :compile-path file .mkdirs)
+  (.run (ToolProvider/getSystemJavaCompiler) nil nil nil (javac-options project)))
 
 (defn javac
   "Compile Java source files.
 
 Add a :java-source-path key to project.clj to specify where to find them."
   [project]
-  #_(doseq [task (extract-javac-tasks project)]
-    (run-javac-task task)))
+  (run-javac-task project))
 
