@@ -179,6 +179,7 @@ as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   [project]
   (let [classpath [] ;; (classpath/resolve-dependencies project)
+        project (:without-profiles (meta project))
         status (compile/compile project)]
     (if (zero? status)
       (let [jar-file (get-jar-filename project)]
