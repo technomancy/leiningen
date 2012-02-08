@@ -25,11 +25,12 @@
   [project args]
   (let [files (mapcat extract-java-source (:java-source-path project))
         compile-path (:compile-path project)]
-    (println "Compiling" (count files) "source files to" compile-path)
-    (.mkdirs (file compile-path))
-    (.run (ToolProvider/getSystemJavaCompiler) 
-          nil nil nil
-          (javac-options project files args))))
+    (when (pos? (count files))
+      (println "Compiling" (count files) "source files to" compile-path) 
+      (.mkdirs (file compile-path)) 
+      (.run (ToolProvider/getSystemJavaCompiler) 
+            nil nil nil
+            (javac-options project files args)))))
 
 (defn javac
   "Compile Java source files.
