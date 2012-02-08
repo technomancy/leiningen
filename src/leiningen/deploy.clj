@@ -1,8 +1,7 @@
 (ns leiningen.deploy
   "Build and deploy jar to remote repository."
   (:require [cemerick.pomegranate.aether :as aether])
-  (:use [leiningen.core :only [abort repositories-for]]
-        [leiningen.jar :only [jar]]
+  (:use [leiningen.jar :only [jar]]
         [leiningen.pom :only [pom snapshot?]]
         [clojure.java.io :only [file]]))
 
