@@ -23,7 +23,7 @@ itself; in fact
 should be considered implied dependencies of every plugin.
 
 See the `lein-pprint` directory
-[in the Leiningen source](https://github.com/technomancy/leiningen/tree/master/lein-pprinc)
+[in the Leiningen source](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
 for a sample of a very simple plugin.
 
 The first argument to your task function should be the current

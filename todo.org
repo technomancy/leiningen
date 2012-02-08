@@ -24,11 +24,12 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Hook up reply to nrepl for new repl task
    - [ ] Honor hooks declared in plugin jar metadata?
    - [ ] Pass user-level repository auth settings on to pomegranate.
-   - [ ] In-process eval-in-project? (possibly post-preview)
+   - [ ] Investigate issues with :eval-in :classloader and bootclasspath
    - [ ] Address chaining issues in with-profile
+   - [ ] Use ordered map for :dependencies and :repositories?
 ** Other stuff (post-preview)
    - [ ] Install task outside projects
-   - [ ] Further design on Project Middleware
+   - [ ] Project middleware
    - [ ] Add :dynamic metadata to clucy (bablien has patches for this)
    - [ ] Non-transitive AOT
    - [ ] Mirror/proxy support, also for search indices
@@ -42,7 +43,8 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] tutorial
    - [X] hacking guide (moved to leiningen-core readme)
    - [ ] migration guide
-   - [ ] user settings
+   - [ ] user settings (how much of this is necessary with profiles?)
+         used for :no-project-needed tasks like repl and search; hmmm...
    - [ ] deploy guide
    - [ ] sample project.clj
    - [ ] document adding javadoc/java source as deps
