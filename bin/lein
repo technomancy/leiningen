@@ -92,7 +92,10 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         echo "Recalculating Leiningen's classpath."
         ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
-        "$0" classpath > .lein-classpath
+
+        # For some reason "$0" classpath > .lein-classpath doesn't work; wtf?
+        LEIN_CLASSPATH=$($0 classpath)
+        echo $LEIN_CLASSPATH > .lein-classpath
         sum project.clj leiningen-core/project.clj > .lein-project-checksum
         cd "$ORIG_PWD"
     fi
