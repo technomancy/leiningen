@@ -137,7 +137,7 @@ Another use of profiles is to test against various sets of dependencies:
                  [cdt "1.2.6.2"]]
   :profiles {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0-beta1"]]}})
-```clj
+```
 
 To activate other profiles for a given run, use the `with-profile`
 higher-order task:
