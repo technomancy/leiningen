@@ -251,7 +251,7 @@
      (check-for-snapshot-deps project)
      (with-out-str
        (xml/emit (xml/sexp-as-element
-                  (xml-tags :project (:without-profiles (meta project))))
+                  (xml-tags :project (:without-profiles (meta project) project)))
                  :indent 2)
        (when disclaimer?
          (println disclaimer)))))

@@ -164,9 +164,10 @@
 (defn merge-profiles
   "Look up and merge the given profile names into the project map."
   [project profiles-to-apply]
-  (-> (reduce merge-profile project (profiles-for project profiles-to-apply))
-      (absolutize-paths)
-      (with-meta {:without-profiles project})))
+  (let [merged (reduce merge-profile project
+                       (profiles-for project profiles-to-apply))]
+    (with-meta (absolutize-paths merged)
+      {:without-profiles (absolutize-paths project)})))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)

@@ -47,7 +47,8 @@
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
-    (is (pos? (jar sample-failing-project)))))
+    (let [result (jar sample-failing-project)]
+      (is (and (number? result) (pos? result))))))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
