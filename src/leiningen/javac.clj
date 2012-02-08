@@ -11,24 +11,32 @@
   (filter #(.endsWith % ".java")
           (map #(.getPath %) (file-seq (file dir)))))
 
-(defn javac-options [project]
+(defn javac-options [project files args]
   (into-array 
     String
-    (concat (:javac-options project) 
+    (concat (:javac-options project)
+            args
             ["-cp" (get-classpath-string project)
              "-d" (:compile-path project)]
-            (mapcat extract-java-source (:java-source-path project)))))
+            files)))
 
 (defn- run-javac-task
   "Compile the given task spec."
-  [project]
-  (-> project :compile-path file .mkdirs)
-  (.run (ToolProvider/getSystemJavaCompiler) nil nil nil (javac-options project)))
+  [project args]
+  (let [files (mapcat extract-java-source (:java-source-path project))
+        compile-path (:compile-path project)]
+    (println "Compiling" (count files) "source files to" compile-path)
+    (.mkdirs (file compile-path))
+    (.run (ToolProvider/getSystemJavaCompiler) 
+          nil nil nil
+          (javac-options project files args))))
 
 (defn javac
   "Compile Java source files.
 
-Add a :java-source-path key to project.clj to specify where to find them."
-  [project]
-  (run-javac-task project))
+Add a :java-source-path key to project.clj to specify where to find them.
+Any options passed will be given to javac. One place where this can be useful
+is `lein javac -verbose`."
+  [project & args]
+  (run-javac-task project args))
 
