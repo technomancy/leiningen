@@ -63,6 +63,21 @@
                               :leiningen
                               :subprocess))}))))
 
+(defn- absolutize [root path]
+  (if (coll? path) ; paths can be either strings or collections of strings
+    (map (partial absolutize root) path)
+    (str (if (.startsWith path "/")
+           path
+           (io/file root path)))))
+
+(defn- absolutize-path [project key]
+  (if (re-find #"-path$" (name key))
+    (update-in project [key] (partial absolutize (:root project)))
+    project))
+
+(defn- absolutize-paths [project]
+  (reduce absolutize-path project (keys project)))
+
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
@@ -147,22 +162,9 @@
 (defn merge-profiles
   "Look up and merge the given profile names into the project map."
   [project profiles-to-apply]
-  (with-meta (reduce merge-profile project
-                     (profiles-for project profiles-to-apply))
-    {:without-profiles project}))
-
-(defn- absolutize [root path]
-  (if (coll? path) ; paths can be either strings or collections of strings
-    (map (partial absolutize root) path)
-    (str (io/file root path))))
-
-(defn- absolutize-path [project key]
-  (if (re-find #"-path$" (name key))
-    (update-in project [key] (partial absolutize (:root project)))
-    project))
-
-(defn- absolutize-paths [project]
-  (reduce absolutize-path project (keys project)))
+  (-> (reduce merge-profile project (profiles-for project profiles-to-apply))
+      (absolutize-paths)
+      (with-meta {:without-profiles project})))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
@@ -199,6 +201,6 @@
        (let [project (merge-profiles @project profiles)]
          (load-plugins project)
          (load-hooks project)
-         (absolutize-paths project))))
+         project)))
   ([file] (read file [:dev :user :default]))
   ([] (read "project.clj")))
