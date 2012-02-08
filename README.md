@@ -123,7 +123,7 @@ active. In addition to `project.clj`, profiles specified in
 `~/.lein/profiles.clj` will be available in all projects.
 
 ```clj
-{:user {:plugins [[lein-swank "1.4.0]
+{:user {:plugins [[lein-swank "1.4.0"]
                   [lein-pprint "1.1.1"]]}}
 ```
 
