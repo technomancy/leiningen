@@ -25,14 +25,25 @@
 (defn task-not-found [& _]
   (abort "That's not a task. Use \"lein help\" to list all tasks."))
 
+;; TODO: got to be a cleaner way to do this, right?
+(defn- drop-partial-args [pargs]
+  #(for [[f & r] %
+         :let [non-varargs (if (pos? (inc (.indexOf (or r []) '&)))
+                             (min (count pargs) (.indexOf r '&))
+                             (count pargs))]]
+     (cons f (drop non-varargs r))))
+
 (defn resolve-task
   ([task not-found]
-     (let [task-ns (symbol (str "leiningen." task))]
+     (let [[task & pargs] (if (coll? task) task [task])
+           task-ns (symbol (str "leiningen." task))]
        (try
          (when-not (find-ns task-ns)
            (require task-ns))
-         (or (ns-resolve task-ns (symbol task))
-             not-found)
+         (let [task-var (or (ns-resolve task-ns (symbol task)) not-found)]
+           (with-meta
+             (fn [project & args] (apply task-var project (concat pargs args)))
+             (update-in (meta task-var) [:arglists] (drop-partial-args pargs))))
          (catch java.io.FileNotFoundException e
            not-found))))
   ([task] (resolve-task task #'task-not-found)))
