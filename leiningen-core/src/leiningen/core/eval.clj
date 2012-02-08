@@ -97,7 +97,6 @@ corresponding .class files before performing actual compilation."
     `(~@(let [opts (System/getenv "JVM_OPTS")]
           (when (seq opts) [opts]))
       ~@(:jvm-opts project)
-      ~@(:jvm-opts (user/settings))
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
