@@ -1,7 +1,6 @@
 (ns leiningen.test.jar
   (:require [clojure.java.io :as io])
   (:use [clojure.test]
-        [leiningen.core :only [defproject read-project]]
         [leiningen.jar]
         [leiningen.core.eval :only [platform-nullsink]]
         [leiningen.test.helper :only [tricky-name-project sample-failing-project

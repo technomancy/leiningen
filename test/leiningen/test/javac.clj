@@ -2,7 +2,6 @@
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.javac :only [javac]]
-        [leiningen.core :only [read-project defproject]]
         [leiningen.test.helper :only [delete-file-recursively
                                       #_dev-deps-project]]))
 
