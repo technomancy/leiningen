@@ -10,4 +10,5 @@ bin/nom
 /scratch.clj
 .lein-deps-sum
 docs
-/.lein-classpath
+.lein-classpath
+.lein-project-checksum

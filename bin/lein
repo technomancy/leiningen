@@ -79,16 +79,26 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         exit 1
     fi
 
+    LAST_PROJECT_CHECKSUM=$(cat "$LEIN_DIR/.lein-project-checksum" 2> /dev/null)
+    PROJECT_CHECKSUM=$(sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj")
+    if [ "$PROJECT_CHECKSUM" != "$LAST_PROJECT_CHECKSUM" ]; then
+        if [ -r "$LEIN_DIR/.lein-classpath" ]; then
+            rm "$LEIN_DIR/.lein-classpath"
+        fi
+    fi
+
     # Use bin/lein to calculate its own classpath
-    if [ ! -r "$LEIN_DIR/.lein-classpath" ]; then
+    if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ $1 != "classpath" ]; then
+        echo "Recalculating Leiningen's classpath."
         ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
-        "$0" classpath > "$LEIN_DIR/.lein-classpath"
+        "$0" classpath > .lein-classpath
+        sum project.clj leiningen-core/project.clj > .lein-project-checksum
         cd "$ORIG_PWD"
     fi
 
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/src/"
-    CLASSPATH="$CLASSPATH:`cat $LEIN_DIR/.lein-classpath`"
+    CLASSPATH="$CLASSPATH:$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
     CLASSPATH="$CLASSPATH::$LEIN_DIR/lib/*:$LEIN_DIR/leiningen-core/lib/*"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 else
