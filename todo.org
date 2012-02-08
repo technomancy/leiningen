@@ -36,7 +36,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Drop clojars snapshots from default repos
    - [ ] compile (transitive cleaning)
    - [ ] shell wrappers
-   - [ ] javac (can we do this without ant?)
+   - [X] javac (can we do this without ant?)
 ** Documentation
    - [X] readme
    - [X] plugin guide
