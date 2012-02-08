@@ -137,8 +137,10 @@
 (defn- merge-profile [project profile]
   (merge-with-key profile-key-merge project profile))
 
-(defn- lookup-profile [profiles profile]
-  (let [result (profiles profile)]
+(defn- lookup-profile [profiles profile-name]
+  (let [result (profiles profile-name)]
+    (when (and (nil? result) (not (#{:default :dev :user :test} profile-name)))
+      (println "Warning: profile" profile-name "not found."))
     (if (keyword? result)
       (recur profiles result)
       result)))
