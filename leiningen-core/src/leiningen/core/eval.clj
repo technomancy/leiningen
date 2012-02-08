@@ -126,28 +126,33 @@ corresponding .class files before performing actual compilation."
         (.join pump-err))
       (.waitFor proc))))
 
+;; work around java's command line handling on windows
+;; http://bit.ly/9c6biv This isn't perfect, but works for what's
+;; currently being passed; see http://www.perlmonks.org/?node_id=300286
+;; for some of the landmines involved in doing it properly
+(defn- form-string [form]
+  (if (= (get-os) :windows)
+    (pr-str (pr-str form))
+    (pr-str form)))
+
+(defn shell-command [project form]
+  `(~(or (System/getenv "JAVA_CMD") "java")
+    "-cp" ~(string/join java.io.File/pathSeparatorChar
+                        (classpath/get-classpath project))
+    ~@(get-jvm-args project)
+    "clojure.main" "-e" ~(form-string form)))
+
 (defmulti eval-in
   "Evaluate the given from in either a subprocess or the leiningen process."
-  (fn [project _] (:eval-in project)) :default :classloader)
+  (fn [project _] (:eval-in project)))
 
-(defmethod eval-in :subprocess
-  [project form]
-  ;; work around java's command line handling on windows
-  ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
-  ;; currently being passed; see http://www.perlmonks.org/?node_id=300286
-  ;; for some of the landmines involved in doing it properly
-  (let [form-string
-        (if (= (get-os) :windows)
-          (pr-str (pr-str form))
-          (pr-str form))]
-    (apply sh `(~(or (System/getenv "JAVA_CMD") "java")
-                "-cp" ~(string/join java.io.File/pathSeparatorChar
-                                    (classpath/get-classpath project))
-                ~@(get-jvm-args project)
-                "clojure.main" "-e" ~form-string))))
+(defmethod eval-in :subprocess [project form]
+  (apply sh (shell-command project form)))
 
-(defmethod eval-in :classloader
-  [project form]
+(defmethod eval-in :trampoline [project form]
+  (deliver (:trampoline-promise project) (shell-command project form)))
+
+(defmethod eval-in :classloader [project form]
   (let [classpath   (map io/file (classpath/get-classpath project))
         classloader (cl/classlojure classpath)]
     (try (cl/eval-in classloader form)
@@ -156,8 +161,7 @@ corresponding .class files before performing actual compilation."
            (.printStackTrace e)
            1))))
 
-(defmethod eval-in :leiningen
-  [project form]
+(defmethod eval-in :leiningen [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
   ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
