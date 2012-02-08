@@ -73,12 +73,14 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
 
+    # Need to use lein 1.x to bootstrap the leiningen-core library (for aether)
     if [ "$(ls $LEIN_DIR/leiningen-core/lib/*)" = "" ]; then
         echo "Leiningen is missing its dependencies."
         echo "Please see \"Building\" in the README."
         exit 1
     fi
 
+    # If project.clj for lein or leiningen-core changes, we must recalculate
     LAST_PROJECT_CHECKSUM=$(cat "$LEIN_DIR/.lein-project-checksum" 2> /dev/null)
     PROJECT_CHECKSUM=$(sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj")
     if [ "$PROJECT_CHECKSUM" != "$LAST_PROJECT_CHECKSUM" ]; then
@@ -87,7 +89,8 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         fi
     fi
 
-    # Use bin/lein to calculate its own classpath
+    # Use bin/lein to calculate its own classpath since src/ and
+    # leiningen-core/lib/*jar suffices to run the classpath task.
     if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ $1 != "classpath" ]; then
         echo "Recalculating Leiningen's classpath."
         ORIG_PWD="$PWD"
@@ -122,13 +125,15 @@ if type -p curl >/dev/null 2>&1; then
 fi
 
 export JAVA_CMD=${JAVA_CMD:-"java"}
+export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
 # Support $JAVA_OPTS for backwards-compatibility.
-export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
+export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-$JVM_OPTS}
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
-# you need to remove the self-install and upgrade functionality.
+# you need to remove the self-install and upgrade functionality or see lein-pkg.
 if [ "$1" = "self-install" ]; then
     if [ -r "$LEIN_JAR" ]; then
       echo "The self-install jar already exists at $LEIN_JAR."
@@ -192,59 +197,31 @@ else
     fi
 
     if [ $DEBUG ]; then
-        echo $CLASSPATH
-        echo $CLOJURE_JAR
+        echo "Classpath: $CLASSPATH"
     fi
 
-    JLINE=""
-    if ([ "$1" = "repl" ] || [ "$1" = "interactive" ] || [ "$1" = "int" ]) &&
-        [ -z $INSIDE_EMACS ] && [ "$TERM" != "dumb" ]; then
-        # Use rlwrap if it's available, otherwise fall back to JLine
-        RLWRAP=`which rlwrap`
-        if [ ! -x "$RLWRAP" ] || [ "$RLWRAP" = "" ]; then
-            if [ ! -r "$LEIN_HOME/.jline-warn" ]; then
-                echo "Using JLine for console I/O; install rlwrap for optimum experience."
-                touch "$LEIN_HOME/.jline-warn"
-            fi
-            RLWRAP=""
-            JLINE=jline.ConsoleRunner
-            if [ "$OSTYPE" = "cygwin" ]; then
-                JLINE="-Djline.terminal=jline.UnixTerminal jline.ConsoleRunner"
-                CYGWIN_JLINE=y
-            fi
-        else
-            # Test to see if rlwrap supports custom quote chars
-            rlwrap -m -q '"' echo "hi" > /dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                RLWRAP="$RLWRAP -r -m -q '\"'"
-            fi
-        fi
+    TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+    if [ "$OSTYPE" = "cygwin" ]; then
+        TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
 
-    # The -Xbootclasspath argument is optional here: if the jar
-    # doesn't exist everything will still work, it will just have a
-    # slower JVM boot.
-    test $CYGWIN_JLINE && stty -icanon min 1 -echo
-    if [ "$1" = "trampoline" ]; then
-        TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
-        if [ "$OSTYPE" = "cygwin" ]; then
-            TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
-        fi
-        $JAVA_CMD -Xbootclasspath/a:"$CLOJURE_JAR" -client \
-            $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -Dleiningen.trampoline-file=$TRAMPOLINE_FILE -cp "$CLASSPATH" \
-            $JLINE clojure.main -m leiningen.core.main "$@"
-        if [ -r $TRAMPOLINE_FILE ]; then
-            TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
-            rm $TRAMPOLINE_FILE
-            exec sh -c "exec $TRAMPOLINE"
-        fi
+    # Until the fix comes in for classlojure.
+    # -Xbootclasspath/a:"$CLOJURE_JAR"
+    $LEIN_JAVA_CMD \
+        -client -XX:+TieredCompilation \
+        $LEIN_JVM_OPTS \
+        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        -Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
+        -cp "$CLASSPATH" \
+        clojure.main -m leiningen.core.main "$@"
+
+    EXIT_CODE=$?
+
+    if [ -r $TRAMPOLINE_FILE ]; then
+        TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+        rm $TRAMPOLINE_FILE
+        exec sh -c "exec $TRAMPOLINE"
     else
-        # Until the fix comes in for classlojure.
-        # -Xbootclasspath/a:"$CLOJURE_JAR"
-        exec $RLWRAP $JAVA_CMD  -client -XX:+TieredCompilation \
-             $LEIN_JVM_OPTS -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-             -cp "$CLASSPATH" $JLINE clojure.main -m leiningen.core.main "$@"
+        exit $EXIT_CODE
     fi
-    test $CYGWIN_JLINE && stty icanon echo
 fi
