@@ -5,13 +5,20 @@
         [clojure.java.io :only [file]])
   (:import javax.tools.ToolProvider))
 
+;; There is probably a more efficient way to do this, but this is cool
+;; too.
 (defn extract-java-source
   "Find all of the Java source files in a directory."
   [dir]
   (filter #(.endsWith % ".java")
           (map #(.getPath %) (file-seq (file dir)))))
 
-(defn javac-options [project files args]
+;; Tool's .run method expects the last argument to be an array of
+;; strings, so that's what we'll return here.
+(defn javac-options 
+  "Compile all sources of possible options and add important defaults.
+  Result is a String java array of options."
+  [project files args]
   (into-array 
     String
     (concat (:javac-options project)
@@ -20,8 +27,13 @@
              "-d" (:compile-path project)]
             files)))
 
+;; We can't really control what is printed here. We're just going to
+;; allow `.run` to attach in, out, and err to the standard streams. This
+;; should have the effect of compile errors being printed. javac doesn't
+;; actually output any compilation info unless it has to (for an error)
+;; or you make it do so with `-verbose`.
 (defn- run-javac-task
-  "Compile the given task spec."
+  "Run javac to compile all source files in the project."
   [project args]
   (let [files (mapcat extract-java-source (:java-source-path project))
         compile-path (:compile-path project)]
