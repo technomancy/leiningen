@@ -66,14 +66,14 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:dev {:test-path ["test"]
-               :resources-path ["dev-resources"]
-               :dependencies '[[org.clojure/tools.nrepl "0.0.5"
-                                :exclusions [org.clojure/clojure]]
-                               [clojure-complete "0.1.4"
-                                :exclusions [org.clojure/clojure]]
-                               [org.thnetos/cd-client "0.3.3"
-                                :exclusions [org.clojure/clojure]]]}
+  (atom {:default {:resources-path ["dev-resources"]
+                   :dependencies '[[org.clojure/tools.nrepl "0.0.5"
+                                    :exclusions [org.clojure/clojure]]
+                                   [clojure-complete "0.1.4"
+                                    :exclusions [org.clojure/clojure]]
+                                   [org.thnetos/cd-client "0.3.3"
+                                    :exclusions [org.clojure/clojure]]]}
+         :test {:test-path ["test"]}
          :debug {:debug true}}))
 
 ;; Modified merge-with to provide f with the conflicting key.
@@ -164,7 +164,6 @@
 (defn- absolutize-paths [project]
   (reduce absolutize-path project (keys project)))
 
-
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
         cl (.getContextClassLoader thread)]
@@ -201,5 +200,5 @@
          (load-plugins project)
          (load-hooks project)
          (absolutize-paths project))))
-  ([file] (read file [:dev :user]))
+  ([file] (read file [:dev :user :default]))
   ([] (read "project.clj")))
