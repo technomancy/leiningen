@@ -41,43 +41,11 @@ if [ "$LEIN_HOME" = "" ]; then
   fi
 fi
 
-DEV_PLUGINS="$(ls -1 lib/dev/*jar 2> /dev/null)"
-USER_PLUGINS="$(ls -1 "$LEIN_HOME"/plugins2/*jar 2> /dev/null)"
-
-artifact_name () {
-    echo "$1" | sed -e "s/.*\/\(.*\)/\1/" | \
-        rev | sed -e "s/raj[-[:digit:].]*-\(.*\)/\1/" | rev
-}
-
-unique_user_plugins () {
-    saveIFS="$IFS"
-    IFS="$(printf '\n\t')"
-
-    plugins="$(echo "$DEV_PLUGINS"; echo "$USER_PLUGINS")"
-    artifacts="$(for i in $plugins; do echo "$(artifact_name "$i")"; done)"
-    duplicates="$(echo "$artifacts" | sort | uniq -d)"
-
-    if [ -z "$duplicates" ]; then
-        echo "$USER_PLUGINS"
-    else
-        for i in $USER_PLUGINS; do
-            artifact="$(artifact_name "$i")"
-            if ! echo "$duplicates" | grep -xq "$artifact"; then
-                echo "$i"
-            fi
-        done
-    fi
-    IFS="$saveIFS"
-}
-
-LEIN_PLUGIN_PATH="$(echo "$DEV_PLUGINS" | tr \\n :)"
-LEIN_USER_PLUGIN_PATH="$(echo "$(unique_user_plugins)" | tr \\n :)"
-CLASSPATH="$CLASSPATH:$LEIN_PLUGIN_PATH:$LEIN_USER_PLUGIN_PATH:test/:src/:resources/"
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.3.0/clojure-1.3.0.jar"
 
 # apply context specific CLASSPATH entries
-if [ -f .lein-classpath ]; then
+if [ -f .lein-classpath ] && [ ! -f src/leiningen/version.clj ]; then
     CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
 fi
 
@@ -119,10 +87,10 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         cd "$ORIG_PWD"
     fi
 
-    CLASSPATH="`cat $LEIN_DIR/.lein-classpath`:$CLASSPATH"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/src/"
+    CLASSPATH="$CLASSPATH:`cat $LEIN_DIR/.lein-classpath`"
     CLASSPATH="$CLASSPATH::$LEIN_DIR/lib/*:$LEIN_DIR/leiningen-core/lib/*"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
+    CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 else
     # Not running from a checkout
     CLASSPATH="$CLASSPATH:$LEIN_JAR"
