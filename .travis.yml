@@ -1,4 +1,4 @@
----
+language: clojure
 before_script: cd leiningen-core; lein deps; lein install; cd ..
 script: bin/lein test
 branches:
