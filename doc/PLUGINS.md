@@ -177,12 +177,17 @@ references to Leiningen functions which may have moved. All
 has become `leiningen.core.main`. For a more thorough overview see the
 [published documentation on leiningen-core](http://technomancy.github.com/leiningen/).
 
-Projects that do use `eval-in-project` should just be aware that the
+Plugins that do use `eval-in-project` should just be aware that the
 plugin's own dependencies and source will not be available to the
 project. If your plugin currently has code that needs to run in both
 contexts it must be split into multiple projects, one for `:plugins`
 and one for `:dependencies`. See the example of `lein-swank` above to
 see how to inject `:dependencies` in `eval-in-project` calls.
+
+If your plugin may run outside the context of the project entirely,
+you should still leave room in the arguments list for a project map;
+just expect that it will be nil if there's no project present. Use
+`^:no-project-needed` metadata to indicate this is acceptable.
 
 ## 1.x Compatibility
 
@@ -216,6 +221,15 @@ plugin provides an example of a compatibility shim:
 Of course if the function has changed arities or has disappeared
 entirely this may not be feasible, but it should suffice in most
 cases.
+
+Allowing the task to run outside a project directory is tricky to do
+in a backwards-compatible way since 1.x is overly-clever and actually
+inspects your argument list to figure out if it should pass in a
+project argument, while 2.x simply always passes it in and just allows
+it to be nil if it's not present. You can try checking the first
+argument to see if it's a project map, but if you have more than two
+arities this can get very tricky; it may just be better to maintain
+separate branches of your codebase in this situation.
 
 ## Have Fun
 
