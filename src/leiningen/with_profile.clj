@@ -3,7 +3,7 @@
             [leiningen.core.project :as project]))
 
 (defn- with-profile*
-  "Apply the given task with a comma-separeted profile list."
+  "Apply the given task with a comma-separated profile list."
   [project profiles task-name & args]
   (let [profiles (map keyword (.split profiles ","))
         project (project/merge-profiles project profiles)]
