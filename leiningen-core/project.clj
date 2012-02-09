@@ -1,6 +1,7 @@
 (defproject leiningen-core "2.0.0-SNAPSHOT"
   :url "https://github.com/technomancy/leiningen"
-  :license {:name "Eclipse Public License"}
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [classlojure "0.6.5"]
