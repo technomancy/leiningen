@@ -95,6 +95,12 @@
 ;;                        (blacklisted-class? project f))]
 ;;       (.delete f))))
 
+(defn eval-in-project [project form & [init]]
+  (println "The eval-in-project function has moved to the leiningen.core.eval\n"
+           "namespace; please update your plugin to use that instead.\n"
+           "This function will be removed for the final 2.0.0 release.")
+  (eval/eval-in-project project form init))
+
  ;; actual task
 
 (defn- status [code msg]
