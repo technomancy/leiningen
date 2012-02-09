@@ -68,7 +68,7 @@ corresponding .class files before performing actual compilation."
 
 (defn prep [project]
   ;; This must exist before the project is launched.
-  (.mkdirs (io/file (:compile-path project)))
+  (.mkdirs (io/file (:compile-path project "/tmp")))
   (when-not *prepping?*
     (binding [*prepping?* true]
       (doseq [task @prep-tasks]
@@ -143,7 +143,7 @@ corresponding .class files before performing actual compilation."
 
 (defmulti eval-in
   "Evaluate the given from in either a subprocess or the leiningen process."
-  (fn [project _] (:eval-in project)))
+  (fn [project _] (:eval-in project)) :default :subprocess)
 
 (defmethod eval-in :subprocess [project form]
   (apply sh (shell-command project form)))
