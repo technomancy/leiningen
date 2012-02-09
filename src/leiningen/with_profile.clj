@@ -12,8 +12,8 @@
 (defn with-profile
   "Apply the given task with the profile(s) specified.
 
-Comma-separated profiles may be given to merged profiles and perform the task.
-Colon-separated profiles may be given for sequential profile application."
+Comma-separated profiles may be given to merge profiles and perform the task.
+Colon-separated profiles may be given for sequential profile task application."
   [project profiles task-name & args]
   (let [profile-groups (seq (.split profiles ":"))]
     (doseq [profile-group profile-groups]
