@@ -13,12 +13,12 @@ instead of directly in the `project.clj` file.
 ## Writing a Plugin
 
 Start by generating a new project with `lein new plugin
-lein-myplugin`, and add a `leiningen.myplugin` namespace with a
-`myplugin` defn. You'll notice the `project.clj` file has
-`:eval-in-leiningen true`, which causes all tasks to operate inside
-the leiningen process rather than starting a subprocess to isolate the
-project's code. Plugins should not declare a dependency on Clojure
-itself; in fact
+lein-myplugin`, and edit the `myplugin` defn in the
+`leiningen.myplugin` namespace. You'll notice the `project.clj` file
+has `:eval-in-leiningen true`, which causes all tasks to operate
+inside the leiningen process rather than starting a subprocess to
+isolate the project's code. Plugins should not declare a dependency on
+Clojure itself; in fact
 [all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/master/project.clj)
 should be considered implied dependencies of every plugin.
 
@@ -28,18 +28,21 @@ for a sample of a very simple plugin.
 
 The first argument to your task function should be the current
 project. It will be a map which is based on the `project.clj` file,
-but it also has :name, :group, :version, and :root keys added in,
-among other things. To see what project maps look like, try using the
-`lein-pprint` plugin; then you can run `lein pprint` to examine any
-project. If you want it to take parameters from the command-line
+but it also has `:name`, `:group`, `:version`, and `:root` keys added
+in, among other things. To see what project maps look like, try using
+the `lein-pprint` plugin; then you can run `lein pprint` to examine
+any project. If you want it to take parameters from the command-line
 invocation, you can make the function take more arguments.
 
 Most tasks may only be run in the context of another project. If your
 task can be run outside a project directory, add `^:no-project-needed`
-metadata to your task defn to indicate it. If you are inside a
+metadata to your task defn to indicate so. Your task should still
+accept a project as its first argument, but it will be allowed to be
+nil if it's run outside a project directory. If you are inside a
 project, Leiningen should change to the root of that project before
 launching the JVM, so `(System/getProperty "user.dir")` should be the
-project root.
+project root. The current directory of the JVM cannot be changed once
+launched.
 
 The `lein help` task uses docstrings. A namespace-level docstring will
 be used as the short summary if present; if not then it will take the
@@ -67,10 +70,10 @@ an unsightly stack trace.
 Plugin functions run inside Leiningen's process, so they have access
 to all the existing Leiningen functions. The public API of Leiningen
 should be considered all public functions inside the
-`leiningen.core.*` prefix not labeled with `^:internal` metadata as
-well as each individual task functions. Other functions in task
-namespaces should be considered internal and may change inside point
-releases.
+`leiningen.core.*` namespaces not labeled with `^:internal` metadata
+as well as each individual task functions. Other non-task functions in
+task namespaces should be considered internal and may change inside
+point releases.
 
 Many tasks need to execute code inside the context of the project
 itself. The `leiningen.core.eval/eval-in-project` function is used for
@@ -78,16 +81,30 @@ this purpose. It accepts a project argument as well as a form to
 evaluate, and the final (optional) argument is another form called
 `init` that is evaluated up-front before the main form. This may be
 used to require a namespace earlier in order to avoid the
-[Gilardi Scenario](http://technomancy.us/143). Inside the
-`eval-in-project` call the project's own classpath will be active and
-Leiningen's own internals and plugins will not be available.
+[Gilardi Scenario](http://technomancy.us/143). 
 
-TODO: mention associng :deps into the project that are only relevant
-for that task.
+Inside the `eval-in-project` call the project's own classpath will be
+active and Leiningen's own internals and plugins will not be
+available. However, it's easy to update the project map
+that's passed to `eval-in-project` to add in the dependencies you
+need. For example, this is done in the `lein-swank` plugin like so:
+
+```clj
+(defn swank
+  "Launch swank server for Emacs to connect. Optionally takes PORT and HOST."
+  ([project port host & opts]
+     (eval-in-project (update-in project [:dependencies] 
+                                 conj ['swank-clojure "1.4.0"])
+                      (swank-form project port host opts))))
+```
+
+The code in the `swank-clojure` dependency is needed inside the
+project, so it's `conj`ed into the `:dependencies`.
 
 The return value of the `eval-in-project` call is an integer that
 represents the exit code of the project's process. Zero indicates
-success.
+success. Be sure to use this as the return value of your task function
+if appropriate.
 
 ## Hooks
 
@@ -99,7 +116,7 @@ be available.
 
 Inspired by clojure.test's fixtures functionality, hooks are functions
 which wrap other functions (often tasks) and may alter their behaviour
-by using binding, altering the return value, only running the function
+by binding other vars, altering the return value, only running the function
 conditionally, etc. The `add-hook` function takes a var of the task it's
 meant to apply to and a function to perform the wrapping:
 
@@ -110,13 +127,17 @@ meant to apply to and a function to perform the wrapping:
   (binding [clojure.test/test-var (test-var-skip :integration)]
     (apply task args)))
 
-(robert.hooke/add-hook #'leiningen.test/test skip-integration-hook)
+(defn activate []
+  (robert.hooke/add-hook #'leiningen.test/test 
+                         skip-integration-hook))
 ```
 
 Hooks compose, so be aware that your hook may be running inside
 another hook. To take advantage of your hooks functionality, projects
 must set the `:hooks` key in project.clj to a seq of namespaces to load
-that call add-hook.
+that call `add-hook`. You may place calls to `add-hook` at the
+top-level of the namespace, but if an `activate` defn is present it
+will be called; this is the best place to put `add-hook` invocations.
 
 If you need to use hooks from code that runs inside the project's
 process, you may use `leiningen.core.injected/add-hook`, which is an
@@ -129,24 +150,72 @@ for more details.
 
 ## Clojure Version
 
-Leiningen 2.0 uses Clojure 1.3.0. If you need to use a different
+Leiningen 2.0.0 uses Clojure 1.3.0. If you need to use a different
 version of Clojure from within a Leiningen plugin, you can use
 `eval-in-project` with a dummy project argument:
 
 ```clj
-(eval-in-project {:local-repo-classpath true
-                  :dependencies '[[org.clojure/clojure "1.3.0"]] 
-                  :native-path "/tmp" :root "/tmp" :compile-path "/tmp"}
+(eval-in-project {:dependencies '[[org.clojure/clojure "1.4.0-beta1"]]}
                  '(println "hello from" *clojure-version*))
 ```
 
-## 1.x Compatibility
+## Upgrading Existing Plugins
 
 Earlier versions of Leiningen had a few differences in the way plugins
-worked, but compatibility can usually be achieved with a few
-guidelines:
+worked, but upgrading shouldn't be too difficult.
 
-TODO: compatibility guidelines
+The biggest difference between 1.x and 2.x is that `:dev-dependencies`
+have been done away with. There are no longer any dependencies that
+exist both in Leiningen's process and the project's process; Leiningen
+only sees `:plugins` and the project only sees `:dependencies`, though
+both these maps can be affected by the currently-active profiles.
+
+If your project doesn't need to use `eval-in-project` at all, it
+should be relatively easy to port; it's just a matter of updating any
+references to Leiningen functions which may have moved. All
+`leiningen.utils.*` namespaces have gone away, and `leiningen.core`
+has become `leiningen.core.main`. For a more thorough overview see the
+[published documentation on leiningen-core](http://technomancy.github.com/leiningen/).
+
+Projects that do use `eval-in-project` should just be aware that the
+plugin's own dependencies and source will not be available to the
+project. If your plugin currently has code that needs to run in both
+contexts it must be split into multiple projects, one for `:plugins`
+and one for `:dependencies`. See the example of `lein-swank` above to
+see how to inject `:dependencies` in `eval-in-project` calls.
+
+## 1.x Compatibility
+
+Once you've identified the changes necessary to achieve compatibility
+with 2.x, you can decide whether you'd like to support 1.x and 2.x in
+the same codebase. In some cases it may be easier to simply keep them
+in separate branches, but sometimes it's better to support both.
+Luckily the strategy of using `:plugins` and adding in `:dependencies`
+just for calls to `eval-in-project` works fine in Leiningen 1.7. You
+can even get support for profiles using `lein plugin install
+lein-profiles 0.1.0`, though this support is experimental.
+
+If you use functions that moved in 2.x, you can try requiring and
+resolving at runtime rather than compile time and falling back to the
+1.x versions of the function if it's not found. Again the `lein-swank`
+plugin provides an example of a compatibility shim:
+
+```clj
+(defn eval-in-project
+  "Support eval-in-project in both Leiningen 1.x and 2.x."
+  [& args]
+  (let [eip (or (try (require 'leiningen.core.eval)
+                     (resolve 'leiningen.core.eval/eval-in-project)
+                     (catch java.io.FileNotFoundException _))
+                (try (require 'leiningen.compile)
+                     (resolve 'leiningen.compile/eval-in-project)
+                     (catch java.io.FileNotFoundException _)))]
+    (apply eip args)))
+```
+
+Of course if the function has changed arities or has disappeared
+entirely this may not be feasible, but it should suffice in most
+cases.
 
 ## Have Fun
 
