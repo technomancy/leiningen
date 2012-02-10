@@ -14,7 +14,7 @@ if [ "$OSTYPE" = "cygwin" ] && [ "$CLASSPATH" != "" ]; then
     CLASSPATH=`cygpath -up $CLASSPATH`
 fi
 
-if [ `whoami` = "root" ] && [ "$LEIN_ROOT" = "" ]; then
+if [ `id -u` -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
