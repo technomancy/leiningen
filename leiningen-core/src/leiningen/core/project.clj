@@ -19,17 +19,22 @@
              identity
              args))
 
-(def defaults {:source-path ["src"]
-               :resources-path ["resources"]
-               :test-path []
-               :native-path "native"
-               :compile-path "target/classes"
-               :target-path "target"
-               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
-                              ;; TODO: point to releases-only before 2.0 is out
-                              ["clojars" {:url "http://clojars.org/repo/"}]]
-               :jar-exclusions [#"^\."]
-               :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
+(def defaults
+  {:source-path ["src"]
+   :resources-path ["resources"]
+   :test-path []
+   :native-path "native"
+   :compile-path "target/classes"
+   :target-path "target"
+   :repositories
+    [["central" {:url "http://repo1.maven.org/maven2"}]
+     ;; TODO: point to releases-only before 2.0 is out
+     ["clojars" {:url "http://clojars.org/repo/"}]
+     ;; TODO: remove this before 2.0 - only for nrepl
+     ["sonatype-snapshots"
+       {:url "http://oss.sonatype.org/content/repositories/snapshots"}]]
+   :jar-exclusions [#"^\."]
+   :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
 
 (defn ^:internal add-repositories
   "Public only for macroexpansion purposes, :repositories needs special
