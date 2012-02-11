@@ -31,7 +31,7 @@ If a :repl-port key is present in project.clj, that port will be used for the
 server, otherwise it is chosen randomly. If you run this command inside of a
 project, it will be run in the context of that classpath. If the command is
 run outside of a project, it'll be standalone and the classpath will be
-that of Leiningen's."
+that of Leiningen."
   ([] (repl nil))
   ([project]
    (nrepl.ack/reset-ack-port!)
