@@ -44,6 +44,8 @@ launching the JVM, so `(System/getProperty "user.dir")` should be the
 project root. The current directory of the JVM cannot be changed once
 launched.
 
+TODO: mention accepting :keyword args for certain things
+
 The `lein help` task uses docstrings. A namespace-level docstring will
 be used as the short summary if present; if not then it will take the
 first line of your function's docstring. Try to keep the summary under

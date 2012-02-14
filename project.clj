@@ -11,7 +11,7 @@
                  [useful "0.7.6-alpha1"]
                  [lein-newnew "0.2.2"]
                  [reply "0.1.0-alpha1"]
-                 [org.clojars.ninjudd/data.xml "0.0.1-SNAPSHOT"]]
+                 [org.clojars.ninjudd/data.xml "0.0.1-20110809.143608-1"]]
   :test-selectors {:default (complement :busted)}
   :eval-in-leiningen true)
 
