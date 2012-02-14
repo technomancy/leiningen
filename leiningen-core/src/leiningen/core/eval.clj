@@ -154,6 +154,11 @@ corresponding .class files before performing actual compilation."
 (defmethod eval-in :classloader [project form]
   (let [classpath   (map io/file (classpath/get-classpath project))
         classloader (cl/classlojure classpath)]
+    ;; TODO: special-case :java.library.path
+    (doseq [opt (get-jvm-args)
+            :when (.startsWith opt "-D")
+            :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
+      (System/setProperty k v))
     (try (cl/eval-in classloader form)
          0 ;; pretend to return an exit code for now
          (catch Exception e
@@ -167,6 +172,7 @@ corresponding .class files before performing actual compilation."
   (project/load-plugins project :dependencies)
   ;; need to at least pretend to return an exit code
   (try (eval form)
+       0
        (catch Exception e
          (.printStackTrace e)
          1)))
