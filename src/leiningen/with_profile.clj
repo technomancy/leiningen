@@ -15,7 +15,8 @@
 Comma-separated profiles may be given to merge profiles and perform the task.
 Colon-separated profiles may be given for sequential profile task application."
   [project profiles task-name & args]
-  (let [profile-groups (seq (.split profiles ":"))]
+  (let [profile-groups (seq (.split profiles ":"))
+        project (:without-profiles (meta project) project)]
     (doseq [profile-group profile-groups]
       (println (format "Performing task '%s' with profile(s): '%s'"
                        task-name profile-group))
