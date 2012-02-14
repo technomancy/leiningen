@@ -27,13 +27,16 @@
   (is (.exists (file "test_projects" "sample"
                      "classes" "nom" "nom" "nom.class"))))
 
+(def eip-check (atom false))
+
 (deftest test-plugin
-  (is (= :compiled (eval/eval-in-project (assoc sample-project
-                                           :eval-in :leiningen
-                                           :skip-shutdown-agents true
-                                           :main nil)
-                                         '(do (require 'leiningen.compile)
-                                              :compiled)))))
+  (reset! eip-check false)
+  (is (zero? (eval/eval-in-project (assoc sample-project
+                                     :eval-in :leiningen
+                                     :skip-shutdown-agents true
+                                     :main nil)
+                                   `(reset! eip-check true))))
+  (is @eip-check))
 
 (deftest ^:busted test-cleared-transitive-aot
   (is (zero? (compile (assoc sample-project
