@@ -3,6 +3,8 @@
   (:require [leiningen.core.classpath :as classpath]))
 
 (defn deps
-  "Download all dependencies. You should never need to invoke this manually."
+  "Download all dependencies.
+
+You should never need to invoke this manually."
   [project]
   (classpath/resolve-dependencies project))

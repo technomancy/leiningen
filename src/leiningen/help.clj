@@ -38,14 +38,13 @@
 
 (defn subtask-help-for
   [task-ns task]
-  (let [subtasks (get-subtasks-and-docstrings-for task)]
-    (if (empty? subtasks)
-      nil
-      (let [longest-key-length (apply max (map count (keys subtasks)))]
-        (string/join "\n"
-          (concat ["\n\nSubtasks available:"]
-                  (for [[subtask doc] subtasks]
-                    (formatted-help subtask doc longest-key-length))))))))
+  (if-let [subtasks (seq (get-subtasks-and-docstrings-for task))]
+    (let [longest-key-length (apply max (map count (keys subtasks)))]
+      (string/join "\n"
+                   (concat ["\n\nSubtasks available:"]
+                           (for [[subtask doc] subtasks]
+                             (formatted-help subtask doc
+                                             longest-key-length)))))))
 
 (defn- resolve-task [task-name]
   (let [task-ns (doto (symbol (str "leiningen." task-name)) require)

@@ -23,14 +23,17 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Allow hooks to provide activate fn to avoid load-time side-effects
    - [X] Hook up reply to nrepl for new repl task
    - [X] Look for aliases in project.clj
+   - [X] javac (can we do this without ant?)
    - [X] Get off snapshots (data.xml, reply)
-   - [ ] Pass user-level repository auth settings on to pomegranate.
+   - [ ] Pass user-level repository auth settings on to pomegranate
    - [ ] Use ordered map for :dependencies and :repositories?
    - [ ] Honor hooks declared in plugin jar metadata?
 ** Other stuff (post-preview)
    - [ ] Offline mode
-   - [ ] Project-level profiles (nrepl dep comes from repl profile, etc)
+   - [ ] Task-level profiles (nrepl dep comes from repl profile, etc)
+         Better visibility than either :default profile or associng straight in
    - [ ] Investigate issues with :eval-in :classloader and bootclasspath
+         Need to ensure we're able to put Clojure on the bootstrap classpath
    - [ ] Address chaining issues in with-profile
    - [ ] Use pomegranate to dynamically resolve missing "lein new" templates
    - [ ] Install task outside projects
@@ -41,7 +44,6 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Drop clojars snapshots from default repos
    - [ ] compile (transitive cleaning)
    - [ ] shell wrappers
-   - [X] javac (can we do this without ant?)
 ** Documentation
    - [X] readme
    - [X] plugin guide
