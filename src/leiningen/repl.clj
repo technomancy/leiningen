@@ -5,7 +5,6 @@
             [clojure.java.io :as io]
             [leiningen.core.eval :as eval]
             [clojure.tools.nrepl.ack :as nrepl.ack]
-            [clojure.tools.nrepl.handlers :as nrepl.handlers]
             [clojure.tools.nrepl.server :as nrepl.server]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]))
@@ -21,7 +20,7 @@
 
 (def lein-repl-server
   (delay (nrepl.server/start-server
-           :handler (nrepl.ack/handle-ack nrepl.handlers/unknown-op))))
+           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
