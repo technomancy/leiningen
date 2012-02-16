@@ -108,6 +108,8 @@ represents the exit code of the project's process. Zero indicates
 success. Be sure to use this as the return value of your task function
 if appropriate.
 
+TODO: mention prep-tasks
+
 ## Hooks
 
 You can modify the behaviour of built-in tasks to a degree using
@@ -123,15 +125,22 @@ conditionally, etc. The `add-hook` function takes a var of the task it's
 meant to apply to and a function to perform the wrapping:
 
 ```clj
-(require 'robert.hooke)
+(ns leiningen.hooks.integration
+  (:require [robert.hooke]
+            [leiningen.test]))
 
-(defn skip-integration-hook [task & args]
-  (binding [clojure.test/test-var (test-var-skip :integration)]
-    (apply task args)))
+(defn add-test-var-println [f & args]
+  `(binding [~'clojure.test/assert-expr
+             (fn [msg# form#]
+               (println "Asserting" form#)
+               ((.getRawRoot #'clojure.test/assert-expr) msg# form#))]
+     ~(apply f args)))
 
+;; Place the body of the activate function at the top-level for
+;; compatibility with Leiningen 1.x
 (defn activate []
-  (robert.hooke/add-hook #'leiningen.test/test 
-                         skip-integration-hook))
+  (robert.hooke/add-hook #'leiningen.test/form-for-testing-namespaces
+                         add-test-var-println))
 ```
 
 Hooks compose, so be aware that your hook may be running inside
