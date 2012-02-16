@@ -15,7 +15,7 @@
                           `(do (clojure.tools.nrepl.server/start-server
                                  :port ~port :ack-port ~ack-port))
                           '(do (require 'clojure.tools.nrepl.server)
-                               (require 'complete)))
+                               (require 'complete.core)))
     (nrepl.server/start-server :port port :ack-port ack-port)))
 
 (def lein-repl-server
