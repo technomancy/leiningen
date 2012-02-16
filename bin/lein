@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 LEIN_VERSION="2.0.0-SNAPSHOT"
 export LEIN_VERSION
