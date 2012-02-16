@@ -82,13 +82,19 @@ etc. The add-hook function takes a var of the task it's meant to apply
 to and a function to perform the wrapping:
 
 ```clj
-(use 'robert.hooke)
+(ns leiningen.hooks.integration
+  (:require [robert.hooke]
+            [leiningen.test]))
 
-(defn skip-integration-hook [task & args]
-  (binding [clojure.test/test-var (test-var-skip :integration)]
-    (apply task args)))
+(defn add-test-var-println [f & args]
+  `(binding [~'clojure.test/assert-expr
+             (fn [msg# form#]
+               (println "Asserting" form#)
+               ((.getRawRoot #'clojure.test/assert-expr) msg# form#))]
+     ~(apply f args)))
 
-(add-hook #'leiningen.test/test skip-integration-hook)
+(robert.hooke/add-hook #'leiningen.test/form-for-testing-namespaces
+                       add-test-var-println)
 ```
 
 Hooks compose, so be aware that your hook may be running inside
