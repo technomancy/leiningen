@@ -82,13 +82,14 @@
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
   (atom {:default {:resources-path ["dev-resources"]
+                   :test-path ["test"]
                    :dependencies '[[org.clojure/tools.nrepl "0.0.5"
                                     :exclusions [org.clojure/clojure]]
                                    [clojure-complete "0.1.4"
                                     :exclusions [org.clojure/clojure]]
                                    [org.thnetos/cd-client "0.3.3"
                                     :exclusions [org.clojure/clojure]]]}
-         :test {:test-path ["test"]}
+         :test {}
          :debug {:debug true}}))
 
 ;; Modified merge-with to provide f with the conflicting key.
@@ -139,6 +140,7 @@
 
 (defn- lookup-profile [profiles profile-name]
   (let [result (profiles profile-name)]
+    ;; TODO: only warn when profiles are explicitly requested
     (when (and (nil? result) (not (#{:default :dev :user :test} profile-name)))
       (println "Warning: profile" profile-name "not found."))
     (if (keyword? result)
@@ -195,15 +197,16 @@
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
-     (binding [*ns* (find-ns 'leiningen.core.project)]
-       (load-file file))
-     (let [project (resolve 'leiningen.core.project/project)]
-       (when-not project
-         (throw (Exception. "project.clj must define project map.")))
-       (ns-unmap *ns* 'project) ; return it to original state
-       (let [project (merge-profiles @project profiles)]
-         (load-plugins project)
-         (load-hooks project)
-         project)))
+     (locking project
+       (binding [*ns* (find-ns 'leiningen.core.project)]
+         (load-file file))
+       (let [project (resolve 'leiningen.core.project/project)]
+         (when-not project
+           (throw (Exception. "project.clj must define project map.")))
+         (ns-unmap *ns* 'project) ; return it to original state
+         (let [project (merge-profiles @project profiles)]
+           (load-plugins project)
+           (load-hooks project)
+           project))))
   ([file] (read file [:dev :user :default]))
   ([] (read "project.clj")))
