@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 LEIN_VERSION="2.0.0-SNAPSHOT"
 export LEIN_VERSION
@@ -91,7 +91,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 
     # Use bin/lein to calculate its own classpath since src/ and
     # leiningen-core/lib/*jar suffices to run the classpath task.
-    if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ $1 != "classpath" ]; then
+    if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ "$1" != "classpath" ]; then
         echo "Recalculating Leiningen's classpath."
         ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
