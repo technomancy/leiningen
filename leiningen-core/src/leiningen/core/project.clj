@@ -197,7 +197,7 @@
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
-     (locking project
+     (locking read
        (binding [*ns* (find-ns 'leiningen.core.project)]
          (load-file file))
        (let [project (resolve 'leiningen.core.project/project)]
