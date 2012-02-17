@@ -133,7 +133,7 @@
         (and (coll? result) (coll? latter))
         (concat latter result)
 
-        :else (doto latter (prn :profile-merge-else))))
+        :else (doto latter (println "has a type mismatch merging profiles."))))
 
 (defn- merge-profile [project profile]
   (merge-with-key profile-key-merge project profile))
