@@ -203,7 +203,8 @@
        (let [project (resolve 'leiningen.core.project/project)]
          (when-not project
            (throw (Exception. "project.clj must define project map.")))
-         (ns-unmap *ns* 'project) ; return it to original state
+         ;; return it to original state
+         (ns-unmap 'leiningen.core.project 'project)
          (let [project (merge-profiles @project profiles)]
            (load-plugins project)
            (load-hooks project)
