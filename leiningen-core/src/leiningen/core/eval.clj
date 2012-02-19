@@ -155,7 +155,7 @@ corresponding .class files before performing actual compilation."
   (let [classpath   (map io/file (classpath/get-classpath project))
         classloader (cl/classlojure classpath)]
     ;; TODO: special-case :java.library.path
-    (doseq [opt (get-jvm-args)
+    (doseq [opt (get-jvm-args project)
             :when (.startsWith opt "-D")
             :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
       (System/setProperty k v))
