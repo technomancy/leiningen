@@ -25,14 +25,15 @@
                :eval-in :leiningen,
                :license {:name "Eclipse Public License"}
 
-               :dependencies '[[leiningen-core "2.0.0-SNAPSHOT"]
-                               [clucy "0.2.2"] [lancet "1.0.1"]
-                               [robert/hooke "1.1.2"]
-                               [stencil "0.2.0"]],
+               :dependencies '{leiningen-core "2.0.0-SNAPSHOT"
+                               clucy "0.2.2"
+                               lancet "1.0.1"
+                               robert/hooke "1.1.2"
+                               stencil "0.2.0"},
                :twelve 12 ; testing unquote
 
-               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
-                              ["clojars" {:url "http://clojars.org/repo/"}]]})
+               :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                              "clojars" {:url "http://clojars.org/repo/"}}})
 
 (deftest test-read-project
   (let [actual (read "dev-resources/p1.clj")]

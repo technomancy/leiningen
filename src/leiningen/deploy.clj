@@ -24,16 +24,15 @@ sensitive information into source control:
 
   {:user {:plugins [...]}
    :auth {:repository-auth {\"https://internal.repo/snapshots\"
-                            {:username \"milgrim\" :password \"locative}}}}
-"
+                            {:username \"milgrim\" :password \"locative}}}}"
   ([project repository-name]
      (let [jarfile (jar project)
            pomfile (pom project)
-           repo-opts (or ((into {} (:deploy-repositories project)) repository-name)
-                         ((into {} (:repositories project)) repository-name))
+           repo-opts (or (get (:deploy-repositories project) repository-name)
+                         (get (:repositories project) repository-name))
            repo (classpath/add-repo-auth (if repo-opts
-                                           {repository-name repo-opts}
-                                           {"inline" {:url repository-name}}))]
+                                           [repository-name repo-opts]
+                                           ["inline" {:url repository-name}]))]
        (if (number? jarfile)
          ;; if we failed to create the jar, return the status code for exit
          jarfile
@@ -43,7 +42,8 @@ sensitive information into source control:
                                         (:version project)]
                           :jar-file (file jarfile)
                           :pom-file (file pomfile)
-                          :repository repo)
+                          ;; TODO: why is a coll needed here?
+                          :repository [repo])
              0))))
   ([project]
      (deploy project (if (snapshot? project)

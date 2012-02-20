@@ -39,5 +39,6 @@
   (testing "preferring repository specified in :deploy-repositories over one specified in :repositories"
     (deploy-snapshots (assoc sample-project
                         :deploy-repositories
-                        [["snapshots" (-> "deploy-only-repo" repo-path repo-url)]])
+                        {"snapshots" {:url (-> "deploy-only-repo"
+                                               repo-path repo-url)}})
                       "deploy-only-repo")))

@@ -28,8 +28,6 @@
                                          (:root project) dep)]]
                   (checkout-dep-paths project dep dep-project))))
 
-;; TODO: ensure repositories is ordered
-
 (defn extract-native-deps [deps native-path]
   (doseq [jar (map #(JarFile. %) deps)
           entry (enumeration-seq (.entries jar))

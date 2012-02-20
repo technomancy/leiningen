@@ -4,6 +4,7 @@
   (:require [clojure.walk :as walk]
             [clojure.java.io :as io]
             [clojure.set :as set]
+            [ordered.map :as ordered]
             [cemerick.pomegranate :as pomegranate]
             [leiningen.core.user :as user])
   (:import (clojure.lang DynamicClassLoader)))
@@ -25,21 +26,23 @@
                :native-path "native"
                :compile-path "target/classes"
                :target-path "target"
-               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+               :repositories (ordered/ordered-map
+                              "central" {:url "http://repo1.maven.org/maven2"}
                               ;; TODO: point to releases-only before 2.0 is out
-                              ["clojars" {:url "http://clojars.org/repo/"}]]
+                              "clojars" {:url "http://clojars.org/repo/"})
                :jar-exclusions [#"^\."]
                :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
 
 (defn ^:internal add-repositories
   "Public only for macroexpansion purposes, :repositories needs special
   casing logic for merging default values with user-provided ones."
-  [{:keys [omit-default-repositories repositories] :as
-    project}]
+  [{:keys [omit-default-repositories repositories] :as project}]
   (assoc project :repositories
-         (for [[id repo] (concat repositories (if-not omit-default-repositories
-                                                (:repositories defaults)))]
-           [id (if (string? repo) {:url repo} repo)])))
+         (into (if-not omit-default-repositories
+                 (:repositories defaults)
+                 (ordered/ordered-map))
+                (for [[id repo] repositories]
+                  [id (if (string? repo) {:url repo} repo)]))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro."
@@ -53,10 +56,12 @@
                :group ~(or (namespace project-name)
                            (name project-name))
                :version ~version
-               :dependencies (or (:dependencies args#) (:deps args#))
+               :dependencies (ordered/ordered-map
+                              (or (:dependencies args#) (:deps args#)))
                :compile-path (or (:compile-path args#)
                                  (.getPath (io/file (:target-path args#)
                                                     "classes")))
+               :plugins (ordered/ordered-map (:plugins args#))
                :root ~(.getParent (io/file *file*))
                :eval-in (or (:eval-in args#)
                             (if (:eval-in-leiningen args#)
@@ -98,11 +103,6 @@
                    (reduce merge-entry (or m1 {}) (seq m2)))]
       (reduce merge2 maps))))
 
-;; TODO: This would just be a merge if we had an ordered map
-(defn- merge-dependencies [result latter]
-  (let [latter-deps (set (map first latter))]
-    (concat latter (remove (comp latter-deps first) result))))
-
 (defn- profile-key-merge
   "Merge profile values into the project map based on their type."
   [key result latter]
@@ -111,12 +111,6 @@
 
         (-> latter meta :replace)
         latter
-
-        (= :dependencies key)
-        (merge-dependencies result latter)
-
-        (= :repositories key)
-        (concat (seq result) (seq latter))
 
         (and (map? result) (map? latter))
         (merge-with-key profile-key-merge latter result)
