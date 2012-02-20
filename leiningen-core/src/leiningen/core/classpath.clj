@@ -40,7 +40,7 @@
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
 
-(defn- add-repo-auth [[id repo]]
+(defn add-repo-auth [[id repo]]
   [id (merge repo (-> (user/profiles)
                       :auth :repository-auth
                       (get (:url repo))))])

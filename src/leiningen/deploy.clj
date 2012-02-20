@@ -31,9 +31,9 @@ sensitive information into source control:
            pomfile (pom project)
            repo-opts (or ((into {} (:deploy-repositories project)) repository-name)
                          ((into {} (:repositories project)) repository-name))
-           repo (repo/add-repo-auth (if repo-opts
-                                      {repository-name repo-opts}
-                                      {"inline" {:url repository-name}}))]
+           repo (classpath/add-repo-auth (if repo-opts
+                                           {repository-name repo-opts}
+                                           {"inline" {:url repository-name}}))]
        (if (number? jarfile)
          ;; if we failed to create the jar, return the status code for exit
          jarfile
