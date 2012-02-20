@@ -5,7 +5,6 @@
             [clojure.java.io :as io]
             [leiningen.core.eval :as eval]
             [clojure.tools.nrepl :as nrepl]
-            [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]))
 
@@ -49,8 +48,5 @@ that of Leiningen."
                        (-> @lein-repl-server first .getLocalPort)))))
    (reply/launch-nrepl
      (merge
-       {:attach (str (nrepl/wait-for-ack (or (:repl-timeout project)
-                                             (:repl-timeout (user/settings))
-                                             30000)))}
-       (:reply-options (user/settings))
+      {:attach (str (nrepl/wait-for-ack (:repl-timeout project 30000)))}
        (:reply-options project)))))
