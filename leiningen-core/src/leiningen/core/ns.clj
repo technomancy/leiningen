@@ -2,7 +2,8 @@
   "Inspired by clojure.contrib.find-namespaces, but trimmed down to
   just what Leiningen needs."
   (:require [clojure.java.io :as io]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [cemerick.pomegranate :as pomegranate])
   (:import (java.util.jar JarFile)
            (java.io File BufferedReader PushbackReader InputStreamReader)
            (clojure.lang DynamicClassLoader)))
@@ -54,14 +55,11 @@
       (if-let [ns-form (ns-in-jar-entry jarfile entry)]
         (second ns-form)))))
 
-(def ^:private classpath-files
-  "A seq of all files on Leiningen's classpath."
-  (let [cl (.getContextClassLoader (Thread/currentThread))]
-    ;; can't trust java.class.path alone if we use add-classpath
-    (map io/file (concat (if (instance? DynamicClassLoader cl)
-                           (.getURLs cl))
-                         (.split (System/getProperty "java.class.path")
-                                 (System/getProperty "path.separator"))))))
+(defn- classpath-files
+  "Returns a seq of all files on Leiningen's classpath.  This may change
+   if tasks run later add to the classpath."
+  []
+  (map (comp io/file #(.toURI %) io/as-url) (pomegranate/get-classpath)))
 
 (defn namespaces-matching
   "Return all namespaces matching the given prefix both on disk and
@@ -69,11 +67,11 @@
   ;; TODO: should probably accept classpath as argument
   [prefix]
   (concat (mapcat namespaces-in-dir
-                  (for [dir classpath-files
+                  (for [dir (classpath-files)
                         :when (.isDirectory dir)]
                     (io/file dir (.replaceAll prefix "\\." "/"))))
           (filter #(and % (.startsWith (name %) prefix))
-                  (mapcat namespaces-in-jar (filter jar? classpath-files)))))
+                  (mapcat namespaces-in-jar (filter jar? (classpath-files))))))
 
 (defn path-for
   "Transform a namespace into a .clj file path relative to classpath root."
