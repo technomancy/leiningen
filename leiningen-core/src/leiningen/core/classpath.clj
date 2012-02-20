@@ -2,14 +2,15 @@
   "Calculate project classpaths by resolving dependencies via Aether."
   (:require [cemerick.pomegranate.aether :as aether]
             [clojure.java.io :as io]
-            [leiningen.core.user :as user]
-            [leiningen.core.project :as project])
+            [leiningen.core.user :as user])
   (:import java.util.jar.JarFile))
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
   (let [project (.getAbsolutePath (io/file root "checkouts" dep "project.clj"))]
-    (try (project/read project [])
+    ;; TODO: core.project and core.classpath currently rely upon each other *uk*
+    (require 'leiningen.core.project)
+    (try ((resolve 'leiningen.core.project/read) project [])
          (catch Exception e
            (throw (Exception. (format "Problem loading %s" project) e))))))
 

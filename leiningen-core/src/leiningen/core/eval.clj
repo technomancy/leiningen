@@ -170,6 +170,8 @@ corresponding .class files before performing actual compilation."
     (System/setProperty "clojure.debug" "true"))
   ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
   (project/load-plugins project :dependencies)
+  (doseq [path (classpath/get-classpath project)]
+    (pomegranate/add-classpath path))
   ;; need to at least pretend to return an exit code
   (try (eval form)
        0

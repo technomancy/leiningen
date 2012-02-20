@@ -6,7 +6,8 @@
             [clojure.set :as set]
             [ordered.map :as ordered]
             [cemerick.pomegranate :as pomegranate]
-            [leiningen.core.user :as user])
+            [leiningen.core.user :as user]
+            [leiningen.core.classpath :as classpath])
   (:import (clojure.lang DynamicClassLoader)))
 
 (defn- unquote-project
@@ -193,7 +194,10 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (let [project (merge-profiles @project profiles)]
+         (let [{:keys [eval-in] :as project} (merge-profiles @project profiles)]
+           (when (= :leiningen eval-in)
+             (doseq [path (classpath/get-classpath project)]
+               (pomegranate/add-classpath path)))
            (load-plugins project)
            (load-hooks project)
            project))))
