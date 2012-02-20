@@ -6,11 +6,19 @@
             [leiningen.core.eval :as eval]
             [clojure.tools.nrepl :as nrepl]
             [leiningen.core.user :as user]
+            [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]))
+
+(def profile {:dependencies '[[org.clojure/tools.nrepl "0.0.5"
+                               :exclusions [org.clojure/clojure]]
+                              [clojure-complete "0.1.4"
+                               :exclusions [org.clojure/clojure]]
+                              [org.thnetos/cd-client "0.3.3"
+                               :exclusions [org.clojure/clojure]]]})
 
 (defn- start-server [project port ack-port]
   (if project
-    (eval/eval-in-project project
+    (eval/eval-in-project (project/merge-profile project profile)
                           `(clojure.tools.nrepl/start-server ~port ~ack-port)
                           '(do (require 'clojure.tools.nrepl)
                                (require 'complete)))

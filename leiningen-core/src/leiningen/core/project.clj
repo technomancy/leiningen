@@ -82,13 +82,7 @@
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
   (atom {:default {:resources-path ["dev-resources"]
-                   :test-path ["test"]
-                   :dependencies '[[org.clojure/tools.nrepl "0.0.5"
-                                    :exclusions [org.clojure/clojure]]
-                                   [clojure-complete "0.1.4"
-                                    :exclusions [org.clojure/clojure]]
-                                   [org.thnetos/cd-client "0.3.3"
-                                    :exclusions [org.clojure/clojure]]]}
+                   :test-path ["test"]}
          :test {}
          :debug {:debug true}}))
 
@@ -135,7 +129,7 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn- merge-profile [project profile]
+(defn merge-profile [project profile]
   (merge-with-key profile-key-merge project profile))
 
 (defn- lookup-profile [profiles profile-name]
