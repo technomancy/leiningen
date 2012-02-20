@@ -139,7 +139,6 @@
 
   :native-path "src/native"        ; where to look for native dependencies
   :target-dir "target/  "          ; where to place the project's jar file
-  :extra-classpath-dirs ["script"] ; more classpath entries not included in jar
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Options to pass to java compiler for java source
