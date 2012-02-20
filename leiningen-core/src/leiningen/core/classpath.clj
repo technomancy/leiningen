@@ -2,6 +2,7 @@
   "Calculate project classpaths by resolving dependencies via Aether."
   (:require [cemerick.pomegranate.aether :as aether]
             [clojure.java.io :as io]
+            [leiningen.core.user :as user]
             [leiningen.core.project :as project])
   (:import java.util.jar.JarFile))
 
@@ -27,8 +28,6 @@
                                          (:root project) dep)]]
                   (checkout-dep-paths project dep dep-project))))
 
-;; TODO: add authentication to repositories
-;; TODO: add policies to repositories
 ;; TODO: ensure repositories is ordered
 
 (defn extract-native-deps [deps native-path]
@@ -41,6 +40,14 @@
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
 
+(defn- add-repo-auth [[id repo]]
+  [id (merge repo (-> (user/profiles)
+                      :auth :repository-auth
+                      (get (:url repo))))])
+
+(defn add-auth [repositories]
+  (map add-repo-auth repositories))
+
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories and that native
@@ -48,8 +55,8 @@
   [{:keys [repositories dependencies native-path]}]
   {:pre [(every? vector? dependencies)]}
   (doto (set (aether/dependency-files
-               (aether/resolve-dependencies :repositories repositories
-                                            :coordinates dependencies)))
+              (aether/resolve-dependencies :repositories (add-auth repositories)
+                                           :coordinates dependencies)))
     (extract-native-deps native-path)))
 
 (defn- normalize-path [root path]

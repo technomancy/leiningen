@@ -3,6 +3,7 @@
         [leiningen.core.classpath])
   (:require [clojure.java.io :as io]
             [clojure.set :as set]
+            [leiningen.core.user :as user]
             [leiningen.core.project :as project]))
 
 (defn m2-file [f]
@@ -58,3 +59,15 @@
       (finally
        ;; can't recur from finally
        (dorun (map #(.delete %) (reverse (file-seq d1))))))))
+
+(deftest test-add-auth
+  (with-redefs [user/profiles (constantly
+                               {:auth
+                                {:repository-auth
+                                 {"https://sekrit.info/repo"
+                                  {:username "milgrim" :password "reindur"}}}})]
+    (is (= [["sonatype" {:url "https://oss.sonatype.org/"}]
+            ["internal" {:password "reindur" :username "milgrim"
+                         :url "https://sekrit.info/repo"}]]
+           (add-auth [["sonatype" {:url "https://oss.sonatype.org/"}]
+                      ["internal" {:url "https://sekrit.info/repo"}]])))))
