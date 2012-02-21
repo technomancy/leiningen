@@ -268,7 +268,7 @@
 (defn ^{:help-arglists '([])} pom
   "Write a pom.xml file to disk for Maven interop."
   ([project pom-location silently?]
-     (let [pom-file (io/file (:root project) pom-location)]
+     (let [pom-file (io/file (:target-path project) pom-location)]
        (with-open [pom-writer (io/writer pom-file)]
          (.write pom-writer (make-pom project true)))
        (when-not silently? (println "Wrote" (.getName pom-file)))
