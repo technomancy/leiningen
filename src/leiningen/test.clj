@@ -23,7 +23,8 @@
 each namespace and print an overall summary."
   ([namespaces result-file & [selectors]]
      `(do
-        (apply require :reload '~namespaces)
+        (when (seq '~namespaces)
+          (apply require :reload '~namespaces))
         ~(form-for-hook-selectors selectors)
         (let [failures# (atom #{})
               ;; TODO: fall back for :disable-injected? already pretty hairy =\
