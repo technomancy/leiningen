@@ -5,7 +5,7 @@
         [leiningen.test.helper :only [sample-project]]))
 
 (deftest test-pom
-  (let [pom-file (file (:root sample-project) "pom.xml")]
+  (let [pom-file (file (:target-path sample-project) "pom.xml")]
     (delete-file pom-file true)
     (pom sample-project)
     (is (.exists pom-file))))
