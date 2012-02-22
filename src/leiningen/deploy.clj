@@ -12,7 +12,8 @@
 The target repository will be looked up in :repositories: snapshot
 versions will go to the repo named \"snapshots\" while stable versions
 will go to \"releases\". You can also deploy to another repository
-in :repositories by providing its name as an argument.
+in :repositories by providing its name as an argument, or specify
+the repository URL directly.
 
   :repositories {\"snapshots\" \"https://internal.repo/snapshots\"
                  \"releases\" \"https://internal.repo/releases\"
@@ -24,15 +25,16 @@ sensitive information into source control:
 
   {:user {:plugins [...]}
    :auth {:repository-auth {\"https://internal.repo/snapshots\"
-                            {:username \"milgrim\" :password \"locative}}}}"
+                            {:username \"milgrim\" :password \"locative\"}}}}"
   ([project repository-name]
      (let [jarfile (jar project)
            pomfile (pom project)
            repo-opts (or (get (:deploy-repositories project) repository-name)
                          (get (:repositories project) repository-name))
-           repo (classpath/add-repo-auth (if repo-opts
-                                           [repository-name repo-opts]
-                                           ["inline" {:url repository-name}]))]
+           repo (classpath/add-repo-auth (cond
+                                           (not repo-opts) ["inline" {:url repository-name}]
+                                           (map? repo-opts) [repository-name repo-opts]
+                                           :else [repository-name {:url repo-opts}]))]
        (if (number? jarfile)
          ;; if we failed to create the jar, return the status code for exit
          jarfile
@@ -42,7 +44,7 @@ sensitive information into source control:
                                         (:version project)]
                           :jar-file (file jarfile)
                           :pom-file (file pomfile)
-                          ;; TODO: why is a coll needed here?
+                          :transfer-listener :stdout
                           :repository [repo])
              0))))
   ([project]
