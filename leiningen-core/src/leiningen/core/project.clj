@@ -91,21 +91,9 @@
          :test {}
          :debug {:debug true}}))
 
-;; Modified merge-with to provide f with the conflicting key.
-(defn- merge-with-key [f & maps]
-  (when (some identity maps)
-    (let [merge-entry (fn [m e]
-                        (let [k (key e) v (val e)]
-                          (if (contains? m k)
-                            (assoc m k (f k (get m k) v))
-                            (assoc m k v))))
-          merge2 (fn [m1 m2]
-                   (reduce merge-entry (or m1 {}) (seq m2)))]
-      (reduce merge2 maps))))
-
 (defn- profile-key-merge
   "Merge profile values into the project map based on their type."
-  [key result latter]
+  [result latter]
   (cond (-> result meta :displace)
         latter
 
@@ -113,7 +101,7 @@
         latter
 
         (and (map? result) (map? latter))
-        (merge-with-key profile-key-merge latter result)
+        (merge-with profile-key-merge latter result)
 
         (and (set? result) (set? latter))
         (set/union latter result)
@@ -124,7 +112,7 @@
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
 (defn merge-profile [project profile]
-  (merge-with-key profile-key-merge project profile))
+  (merge-with profile-key-merge project profile))
 
 (defn- lookup-profile [profiles profile-name]
   (let [result (profiles profile-name)]
