@@ -24,7 +24,7 @@ sensitive information into source control:
 
   {:user {:plugins [...]}
    :auth {:repository-auth {\"https://internal.repo/snapshots\"
-                            {:username \"milgrim\" :password \"locative}}}}"
+                            {:username \"milgrim\" :password \"locative\"}}}}"
   ([project repository-name]
      (let [jarfile (jar project)
            pomfile (pom project)
@@ -42,7 +42,7 @@ sensitive information into source control:
                                         (:version project)]
                           :jar-file (file jarfile)
                           :pom-file (file pomfile)
-                          ;; TODO: why is a coll needed here?
+                          :transfer-listener :stdout
                           :repository [repo])
              0))))
   ([project]

@@ -55,7 +55,8 @@
   {:pre [(every? vector? dependencies)]}
   (doto (set (aether/dependency-files
               (aether/resolve-dependencies :repositories (add-auth repositories)
-                                           :coordinates dependencies)))
+                                           :coordinates dependencies
+                                           :transfer-listener :stdout)))
     (extract-native-deps native-path)))
 
 (defn- normalize-path [root path]
