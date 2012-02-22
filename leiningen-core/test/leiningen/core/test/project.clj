@@ -10,9 +10,9 @@
                 (with-redefs [user/profiles (constantly {})]
                   (f))))
 
-(def paths {:source-path ["src"],
-            :test-path ["test"],
-            :resources-path ["dev-resources" "resources"],
+(def paths {:source-paths ["src"],
+            :test-paths ["test"],
+            :resources-paths ["dev-resources" "resources"],
             :compile-path "classes",
             :native-path "native",
             :target-path "target"})
@@ -49,25 +49,25 @@
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
 
-(def test-profiles (atom {:qa {:resources-path ["/etc/myapp"]}
-                          :test {:resources-path ["test/hi"]}
+(def test-profiles (atom {:qa {:resources-paths ["/etc/myapp"]}
+                          :test {:resources-paths ["test/hi"]}
                           :tes :test
-                          :dev {:test-path ["test"]}}))
+                          :dev {:test-paths ["test"]}}))
 
 (deftest test-merge-profile-paths
   (with-redefs [default-profiles test-profiles]
     (is (= ["/etc/myapp" "test/hi" "blue-resources" "resources"]
-           (-> {:resources-path ["resources"]
-                :profiles {:blue {:resources-path ["blue-resources"]}}}
+           (-> {:resources-paths ["resources"]
+                :profiles {:blue {:resources-paths ["blue-resources"]}}}
                (merge-profiles [:qa :tes :blue])
-               :resources-path)))
+               :resources-paths)))
     (is (= ["/etc/myapp" "test/hi" "blue-resources"]
-           (-> {:resources-path ^:displace ["resources"]
-                :profiles {:blue {:resources-path ["blue-resources"]}}}
+           (-> {:resources-paths ^:displace ["resources"]
+                :profiles {:blue {:resources-paths ["blue-resources"]}}}
                (merge-profiles [:qa :tes :blue])
-               :resources-path)))
+               :resources-paths)))
     (is (= ["replaced"]
-           (-> {:resources-path ["resources"]
-                :profiles {:blue {:resources-path ^:replace ["replaced"]}}}
-               (merge-profiles [:blue :qa :tes ])
-               :resources-path)))))
+           (-> {:resources-paths ["resources"]
+                :profiles {:blue {:resources-paths ^:replace ["replaced"]}}}
+               (merge-profiles [:blue :qa :tes])
+               :resources-paths)))))

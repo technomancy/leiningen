@@ -21,9 +21,9 @@
              identity
              args))
 
-(def defaults {:source-path ["src"]
-               :resources-path ["resources"]
-               :test-path ["test"]
+(def defaults {:source-paths ["src"]
+               :resources-paths ["resources"]
+               :test-paths ["test"]
                :native-path "native"
                :compile-path "target/classes"
                :target-path "target"
@@ -70,24 +70,26 @@
                               :subprocess))}))))
 
 (defn- absolutize [root path]
-  (if (coll? path) ; paths can be either strings or collections of strings
-    (map (partial absolutize root) path)
-    (str (if (.startsWith path "/")
-           path
-           (io/file root path)))))
+  (str (if (.startsWith path "/")
+         path
+         (io/file root path))))
 
-(defn- absolutize-path [project key]
-  (if (re-find #"-path$" (name key))
-    (update-in project [key] (partial absolutize (:root project)))
-    project))
+(defn- absolutize-path [{:keys [root] :as project} key]
+  (cond (re-find #"-path$" (name key))
+        (update-in project [key] (partial absolutize root))
 
-(defn- absolutize-paths [project]
+        (re-find #"-paths$" (name key))
+        (update-in project [key] (partial map (partial absolutize root)))
+
+        :else project))
+
+(defn absolutize-paths [project]
   (reduce absolutize-path project (keys project)))
 
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:default {:resources-path ["dev-resources"]}
+  (atom {:default {:resources-paths ["dev-resources"]}
          :test {}
          :debug {:debug true}}))
 

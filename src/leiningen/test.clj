@@ -52,7 +52,7 @@ each namespace and print an overall summary."
         nses (if (or (empty? args) (every? keyword? args))
                ;; maybe this is stupid and all *-path entries should
                ;; be absolute?
-               (sort (mapcat ns/namespaces-in-dir (:test-path project)))
+               (sort (mapcat ns/namespaces-in-dir (:test-paths project)))
                (filter symbol? args))
         selectors (map (merge {:all '(constantly true)}
                               (:test-selectors project)) (filter keyword? args))

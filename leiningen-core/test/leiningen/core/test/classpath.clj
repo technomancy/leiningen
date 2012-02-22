@@ -13,9 +13,9 @@
                               [ring/ring-core "1.0.0-RC1"]]
               :repositories (:repositories project/defaults)
               :root "/tmp/lein-sample-project"
-              :source-path ["/tmp/lein-sample-project/src"]
-              :resources-path ["/tmp/lein-sample-project/resources"]
-              :test-path ["/tmp/lein-sample-project/test"]})
+              :source-paths ["/tmp/lein-sample-project/src"]
+              :resources-paths ["/tmp/lein-sample-project/resources"]
+              :test-paths ["/tmp/lein-sample-project/test"]})
 
 (deftest test-resolve-deps
   (doseq [f (reverse (file-seq (io/file (:root project))))]
@@ -40,10 +40,11 @@
     (str (m2-file "commons-codec/commons-codec/1.4/commons-codec-1.4.jar"))
     (str (m2-file "ring/ring-core/1.0.0-RC1/ring-core-1.0.0-RC1.jar"))
     (str (m2-file "commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar"))
-   (str (m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar"))})
+    (str (m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar"))})
 
 (deftest test-classpath
   (let [classpath (get-classpath project)]
+    (is (= (set classpath) (into libs directories)))
     (is (= directories (take 3 classpath)))
     (is (= libs (set (drop 3 classpath))))))
 

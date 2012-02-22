@@ -15,8 +15,8 @@
            (throw (Exception. (format "Problem loading %s" project) e))))))
 
 (defn- checkout-dep-paths [project dep dep-project]
-  (concat (:source-path dep-project)
-          (:resources-path dep-project)
+  (concat (:source-paths dep-project)
+          (:resources-paths dep-project)
           [(:compile-path dep-project)]))
 
 (defn- checkout-deps-paths
@@ -66,9 +66,9 @@
 (defn get-classpath
   "Return a the classpath for project as a list of strings."
   [project]
-  (for [path (concat (:test-path project)
-                     (:source-path project)
-                     (:resources-path project)
+  (for [path (concat (:test-paths project)
+                     (:source-paths project)
+                     (:resources-paths project)
                      [(:compile-path project)]
                      (checkout-deps-paths project)
                      (map #(.getAbsolutePath %) (resolve-dependencies project)))
