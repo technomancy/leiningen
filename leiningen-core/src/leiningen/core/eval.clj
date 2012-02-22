@@ -53,7 +53,7 @@
   certain features (e.g. test selectors) to work."
   [project]
   (if-not (:disable-injection project)
-    (:injections project hooke-injection)))
+    (conj (:injections project) hooke-injection)))
 
 (def prep-tasks
   "A list of tasks to call before any code is evaluated inside the project.
@@ -191,7 +191,7 @@ corresponding .class files before performing actual compilation."
                    ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
                        (if (.exists user-clj)
                          [(list 'load-file (str user-clj))]))
-                   ~(injected-forms project)
+                   ~@(injected-forms project)
                    (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))
                    ~form)))
