@@ -26,8 +26,9 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] javac (can we do this without ant?)
    - [X] Get off snapshots (data.xml, reply)
    - [X] Pass user-level repository auth settings on to pomegranate
-   - [ ] Use ordered map for :dependencies and :repositories?
+   - [X] Use ordered map for :dependencies and :repositories?
    - [ ] Look for :java-cmd in project map
+   - [ ] Can't find compojure 1.0.1, wat?
 ** Other stuff (post-preview)
    - [ ] Offline mode
    - [ ] Honor hooks declared in plugin jar metadata?

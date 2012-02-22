@@ -98,7 +98,7 @@
 (defn eval-in-project [project form & [_ _ init]]
   (println "The eval-in-project function has moved to the leiningen.core.eval\n"
            "namespace; please update your plugin to use that instead.\n"
-           "Note that `init' is now the argument instead of the fifth.\n"
+           "Note that `init' is now the third argument instead of the fifth.\n"
            "This function will be removed for the final 2.0.0 release.")
   (eval/eval-in-project project form init))
 
