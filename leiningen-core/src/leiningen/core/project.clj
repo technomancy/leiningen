@@ -23,7 +23,7 @@
 
 (def defaults {:source-path ["src"]
                :resources-path ["resources"]
-               :test-path []
+               :test-path ["test"]
                :native-path "native"
                :compile-path "target/classes"
                :target-path "target"
@@ -87,8 +87,7 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:default {:resources-path ["dev-resources"]
-                   :test-path ["test"]}
+  (atom {:default {:resources-path ["dev-resources"]}
          :test {}
          :debug {:debug true}}))
 
