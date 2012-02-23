@@ -157,9 +157,8 @@
 
 (defn load-plugins
   ([project plugin-key]
-     (ensure-dynamic-classloader)
-     (pomegranate/add-dependencies
-      (project plugin-key) :repositories (:repositories project)))
+    (ensure-dynamic-classloader)
+    (classpath/resolve-dependencies plugin-key project :add-classpath? true))
   ([project] (load-plugins project :plugins)))
 
 (defn- load-hooks [project]

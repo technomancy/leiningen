@@ -7,4 +7,4 @@
 
 You should never need to invoke this manually."
   [project]
-  (classpath/resolve-dependencies project))
+  (classpath/resolve-dependencies :dependencies project))

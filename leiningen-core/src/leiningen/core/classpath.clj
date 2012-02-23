@@ -1,6 +1,7 @@
 (ns leiningen.core.classpath
   "Calculate project classpaths by resolving dependencies via Aether."
   (:require [cemerick.pomegranate.aether :as aether]
+            [cemerick.pomegranate :as pomegranate]
             [clojure.java.io :as io]
             [leiningen.core.user :as user])
   (:import java.util.jar.JarFile))
@@ -50,13 +51,20 @@
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories and that native
-  deps have been extracted to :native-path."
-  [{:keys [repositories dependencies native-path]}]
-  {:pre [(every? vector? dependencies)]}
+  deps have been extracted to :native-path.  If :add-classpath? is
+  logically true, will add the resolved dependencies to Leiningen's
+  classpath.
+
+   Returns a set of the dependencies' files."
+  [dependencies-key {:keys [repositories native-path] :as project} & {:keys [add-classpath?]}]
+  {:pre [(every? vector? (project dependencies-key))]}
   (doto (set (aether/dependency-files
-              (aether/resolve-dependencies :repositories (add-auth repositories)
-                                           :coordinates dependencies
-                                           :transfer-listener :stdout)))
+              ((if add-classpath?
+                 pomegranate/add-dependencies
+                 aether/resolve-dependencies)
+                :repositories (add-auth repositories)
+                :coordinates (project dependencies-key)
+                :transfer-listener :stdout)))
     (extract-native-deps native-path)))
 
 (defn- normalize-path [root path]
@@ -71,6 +79,6 @@
                      (:resource-paths project)
                      [(:compile-path project)]
                      (checkout-deps-paths project)
-                     (map #(.getAbsolutePath %) (resolve-dependencies project)))
+                     (map #(.getAbsolutePath %) (resolve-dependencies :dependencies project)))
         :when path]
     (normalize-path (:root project) path)))
