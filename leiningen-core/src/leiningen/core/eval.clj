@@ -113,10 +113,12 @@ corresponding .class files before performing actual compilation."
         (Thread/sleep 100)
         (recur (.read reader buffer))))))
 
+(def ^:dynamic *dir* (System/getProperty "user.dir"))
+
 (defn sh
   "A version of clojure.java.shell/sh that streams out/err."
   [& cmd]
-  (let [proc (.exec (Runtime/getRuntime) (into-array cmd))]
+  (let [proc (.exec (Runtime/getRuntime) (into-array cmd) nil (io/file *dir*))]
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))]
       (let [pump-out (doto (Thread. #(pump out *out*)) .start)
@@ -146,7 +148,8 @@ corresponding .class files before performing actual compilation."
   (fn [project _] (:eval-in project)) :default :subprocess)
 
 (defmethod eval-in :subprocess [project form]
-  (apply sh (shell-command project form)))
+  (binding [*dir* (:root project)]
+    (apply sh (shell-command project form))))
 
 (defmethod eval-in :trampoline [project form]
   (deliver (:trampoline-promise project) (shell-command project form)))
