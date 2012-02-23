@@ -27,7 +27,7 @@
            (m2-file "ring/ring-core/1.0.0-RC1/ring-core-1.0.0-RC1.jar")
            (m2-file (str "commons-fileupload/commons-fileupload/1.2.1/"
                          "commons-fileupload-1.2.1.jar"))}
-         (resolve-dependencies project))))
+         (resolve-dependencies :dependencies project))))
 
 (def directories
   ["/tmp/lein-sample-project/test"
