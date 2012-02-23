@@ -16,7 +16,7 @@
 
 (defn- checkout-dep-paths [project dep dep-project]
   (concat (:source-paths dep-project)
-          (:resources-paths dep-project)
+          (:resource-paths dep-project)
           [(:compile-path dep-project)]))
 
 (defn- checkout-deps-paths
@@ -68,7 +68,7 @@
   [project]
   (for [path (concat (:test-paths project)
                      (:source-paths project)
-                     (:resources-paths project)
+                     (:resource-paths project)
                      [(:compile-path project)]
                      (checkout-deps-paths project)
                      (map #(.getAbsolutePath %) (resolve-dependencies project)))

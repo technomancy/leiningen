@@ -153,10 +153,10 @@
            {:type :bytes :path "project.clj"
             :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
           [{:type :path :path (:compile-path project)}
-           {:type :paths :paths (:resources-path project)}]
+           {:type :paths :paths (:resource-paths project)}]
           (if-not (:omit-source project)
-            [{:type :paths :paths (:source-path project)}
-             {:type :paths :paths (:java-source-path project)}])
+            [{:type :paths :paths (:source-paths project)}
+             {:type :paths :paths (:java-source-paths project)}])
           (if-let [jar-inclusions (:jar-inclusions project)]
             [{:type :paths :paths jar-inclusions}])
           ;; (shell-wrapper-filespecs project deps-fileset)

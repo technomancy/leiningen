@@ -13,14 +13,14 @@
 (defn- find-namespaces-by-regex [project nses]
   (let [[res syms] ((juxt filter remove) regex? nses)]
     (if (seq res)
-      (set (for [re res n (mapcat ns/namespaces-in-dir (:source-path project))
+      (set (for [re res n (mapcat ns/namespaces-in-dir (:source-paths project))
                  :when (re-find re (name n))]
              n))
       nses)))
 
-(defn- compile-main? [{:keys [main source-path] :as project}]
+(defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
-       (some #(.exists (io/file % (ns/path-for main))) source-path)))
+       (some #(.exists (io/file % (ns/path-for main))) source-paths)))
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
@@ -28,7 +28,7 @@
   [project]
   (let [nses (:aot project)
         nses (if (= :all nses)
-               (mapcat ns/namespaces-in-dir (:source-path project))
+               (mapcat ns/namespaces-in-dir (:source-paths project))
                (find-namespaces-by-regex project nses))]
     (if (compile-main? project)
       (conj nses (:main project))
@@ -44,7 +44,7 @@
            class-file (io/file (:compile-path project)
                                (.replace clj-path "\\.clj" "__init.class"))]
        (or (not (.exists class-file))
-           (> (.lastModified (io/file (:source-path project) clj-path))
+           (> (.lastModified (io/file (:source-paths project) clj-path))
               (.lastModified class-file)))))
    (compilable-namespaces project)))
 
@@ -63,11 +63,11 @@
 ;;                                           source-path))))))
 
 ;; (defn- class-in-project? [project f]
-;;   (or (has-source-package? project f (:source-path project))
-;;       (has-source-package? project f (:java-source-path project))
+;;   (or (has-source-package? project f (:source-paths project))
+;;       (has-source-package? project f (:java-source-paths project))
 ;;       (.exists (io/file (str (.replace (.getParent f)
 ;;                                        (:compile-path project)
-;;                                        (:source-path project)) ".clj")))))
+;;                                        (:source-paths project)) ".clj")))))
 
 ;; (defn- relative-path [project f]
 ;;   (let [root-length (if (= \/ (last (:compile-path project)))

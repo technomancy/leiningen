@@ -12,7 +12,7 @@
 
 (def paths {:source-paths ["src"],
             :test-paths ["test"],
-            :resources-paths ["dev-resources" "resources"],
+            :resource-paths ["dev-resources" "resources"],
             :compile-path "classes",
             :native-path "native",
             :target-path "target"})
@@ -49,25 +49,25 @@
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
 
-(def test-profiles (atom {:qa {:resources-paths ["/etc/myapp"]}
-                          :test {:resources-paths ["test/hi"]}
+(def test-profiles (atom {:qa {:resource-paths ["/etc/myapp"]}
+                          :test {:resource-paths ["test/hi"]}
                           :tes :test
                           :dev {:test-paths ["test"]}}))
 
 (deftest test-merge-profile-paths
   (with-redefs [default-profiles test-profiles]
     (is (= ["/etc/myapp" "test/hi" "blue-resources" "resources"]
-           (-> {:resources-paths ["resources"]
-                :profiles {:blue {:resources-paths ["blue-resources"]}}}
+           (-> {:resource-paths ["resources"]
+                :profiles {:blue {:resource-paths ["blue-resources"]}}}
                (merge-profiles [:qa :tes :blue])
-               :resources-paths)))
+               :resource-paths)))
     (is (= ["/etc/myapp" "test/hi" "blue-resources"]
-           (-> {:resources-paths ^:displace ["resources"]
-                :profiles {:blue {:resources-paths ["blue-resources"]}}}
+           (-> {:resource-paths ^:displace ["resources"]
+                :profiles {:blue {:resource-paths ["blue-resources"]}}}
                (merge-profiles [:qa :tes :blue])
-               :resources-paths)))
+               :resource-paths)))
     (is (= ["replaced"]
-           (-> {:resources-paths ["resources"]
-                :profiles {:blue {:resources-paths ^:replace ["replaced"]}}}
+           (-> {:resource-paths ["resources"]
+                :profiles {:blue {:resource-paths ^:replace ["replaced"]}}}
                (merge-profiles [:blue :qa :tes])
-               :resources-paths)))))
+               :resource-paths)))))

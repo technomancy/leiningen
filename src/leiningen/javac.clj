@@ -35,7 +35,7 @@
 (defn- run-javac-task
   "Run javac to compile all source files in the project."
   [project args]
-  (let [files (mapcat extract-java-source (:java-source-path project))
+  (let [files (mapcat extract-java-source (:java-source-paths project))
         compile-path (:compile-path project)]
     (when (pos? (count files))
       (println "Compiling" (count files) "source files to" compile-path) 
@@ -47,7 +47,7 @@
 (defn javac
   "Compile Java source files.
 
-Add a :java-source-path key to project.clj to specify where to find them.
+Add a :java-source-paths key to project.clj to specify where to find them.
 Any options passed will be given to javac. One place where this can be useful
 is `lein javac -verbose`."
   [project & args]

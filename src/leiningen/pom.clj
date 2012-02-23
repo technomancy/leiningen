@@ -131,16 +131,16 @@
 (defmethod xml-tags ::build
   ([_ project]
      (let [dev-project (project/merge-profiles project [:dev])
-           [src & extra-src] (:source-path project)
-           [test & extra-test] (:test-path dev-project)]
+           [src & extra-src] (:source-paths project)
+           [test & extra-test] (:test-paths dev-project)]
        [:build
         [:sourceDirectory src]
         [:testSourceDirectory test]
-        (if-let [resources (:resources-path project)]
+        (if-let [resources (:resource-paths project)]
           (when (not (empty? resources))
             (vec (concat [:resources]
                          (map (fn [x] [:resource [:directory x]]) resources)))))
-        (if-let [resources (:resources-path dev-project)]
+        (if-let [resources (:resource-paths dev-project)]
           (when (not (empty? resources))
             (vec (concat [:testResources]
                          (map (fn [x] [:testResource [:directory x]]) resources)))))

@@ -6,7 +6,7 @@
 (defn check
   "Check syntax and warn on reflection."
   ([project]
-     (let [nses (mapcat ns/namespaces-in-dir (:source-path project))
+     (let [nses (mapcat ns/namespaces-in-dir (:source-paths project))
            action `(doseq [ns# '~nses]
                      ;; load will add the .clj, so can't use ns/path-for.
                      (let [ns-file# (-> (str ns#)

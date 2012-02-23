@@ -14,7 +14,7 @@
               :repositories (:repositories project/defaults)
               :root "/tmp/lein-sample-project"
               :source-paths ["/tmp/lein-sample-project/src"]
-              :resources-paths ["/tmp/lein-sample-project/resources"]
+              :resource-paths ["/tmp/lein-sample-project/resources"]
               :test-paths ["/tmp/lein-sample-project/test"]})
 
 (deftest test-resolve-deps
