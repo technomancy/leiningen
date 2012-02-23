@@ -172,6 +172,9 @@
            (when (System/getenv "DEBUG")
              (.printStackTrace e))))))
 
+;; TODO: port this from lein-precate; other plugins are sure to want it
+(defn denormalize [project])
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
