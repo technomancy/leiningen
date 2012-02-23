@@ -167,10 +167,10 @@
     (try (require n)
          (when-let [activate (ns-resolve n 'activate)]
            (activate))
-         (catch Exception e
-           (println "Warning: problem requiring" n "hook:" (.getMessage e))
-           (when (System/getenv "DEBUG")
-             (.printStackTrace e))))))
+         (catch Throwable e
+           (binding [*out* *err*]
+             (println "Error: problem requiring" n "hook"))
+           (throw e)))))
 
 ;; TODO: port this from lein-precate; other plugins are sure to want it
 (defn denormalize [project])
