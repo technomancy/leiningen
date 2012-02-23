@@ -170,6 +170,9 @@ version of Clojure from within a Leiningen plugin, you can use
                  '(println "hello from" *clojure-version*))
 ```
 
+In Leiningen 1.x, plugins had access to monolithic Clojure Contrib.
+This is no longer true in 2.x.
+
 ## Upgrading Existing Plugins
 
 Earlier versions of Leiningen had a few differences in the way plugins
@@ -219,19 +222,30 @@ plugin provides an example of a compatibility shim:
 ```clj
 (defn eval-in-project
   "Support eval-in-project in both Leiningen 1.x and 2.x."
-  [& args]
-  (let [eip (or (try (require 'leiningen.core.eval)
-                     (resolve 'leiningen.core.eval/eval-in-project)
-                     (catch java.io.FileNotFoundException _))
-                (try (require 'leiningen.compile)
-                     (resolve 'leiningen.compile/eval-in-project)
-                     (catch java.io.FileNotFoundException _)))]
-    (apply eip args)))
+  [project form init]
+  (let [[eip two?] (or (try (require 'leiningen.core.eval)
+                            [(resolve 'leiningen.core.eval/eval-in-project)
+                             true]
+                            (catch java.io.FileNotFoundException _))
+                       (try (require 'leiningen.compile)
+                            [(resolve 'leiningen.compile/eval-in-project)]
+                            (catch java.io.FileNotFoundException _)))]
+    (if two?
+      (eip project form init)
+      (eip project form nil nil init))))
 ```
 
 Of course if the function has changed arities or has disappeared
 entirely this may not be feasible, but it should suffice in most
 cases.
+
+Another key change is that `:source-path`, `:resources-path`,
+`:java-source-path`, and `:test-path` have changed to
+`:sources-paths`, `:resource-paths`, `:java-source-paths`, and
+`:test-paths`, and they should be vectors now instead of single
+strings. The old `:dev-resources` key is now just another entry to the
+`:resource-paths` vector that's only present when the `:dev` profile
+is active.
 
 Allowing the task to run outside a project directory is tricky to do
 in a backwards-compatible way since 1.x is overly-clever and actually
