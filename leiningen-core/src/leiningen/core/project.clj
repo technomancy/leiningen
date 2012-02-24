@@ -174,6 +174,11 @@
 ;; TODO: port this from lein-precate; other plugins are sure to want it
 (defn denormalize [project])
 
+(defn apply-middleware [project middleware-name]
+  (when-let [m-ns (namespace middleware-name)]
+    (require (symbol m-ns)))
+  ((resolve middleware-name) project))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
@@ -191,6 +196,6 @@
                (pomegranate/add-classpath path)))
            (load-plugins project)
            (load-hooks project)
-           project))))
+           (reduce apply-middleware project (:middleware project))))))
   ([file] (read file [:dev :user :default]))
   ([] (read "project.clj")))

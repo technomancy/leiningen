@@ -71,3 +71,9 @@
                 :profiles {:blue {:resource-paths ^:replace ["replaced"]}}}
                (merge-profiles [:blue :qa :tes])
                :resource-paths)))))
+
+(defn add-seven [project]
+  (assoc project :seven 7))
+
+(deftest test-middleware
+  (is (= 7 (:seven (read "dev-resources/p2.clj")))))

@@ -28,6 +28,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Pass user-level repository auth settings on to pomegranate
    - [X] Use ordered map for :dependencies and :repositories?
    - [ ] Look for :java-cmd in project map
+   - [ ] Better error messages for misformatted :dependencies/:repositories
 ** Other stuff (post-preview)
    - [ ] Offline mode
    - [ ] Honor hooks declared in plugin jar metadata?

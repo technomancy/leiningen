@@ -8,4 +8,5 @@
                  [robert/hooke "1.1.2"]
                  [ordered "1.1.0"]
                  [com.cemerick/pomegranate "0.0.9"
-                  :exclusions [org.slf4j/slf4j-api]]])
+                  :exclusions [org.slf4j/slf4j-api]]]
+  :profiles {:dev {:resource-paths ["dev-resources"]}})
