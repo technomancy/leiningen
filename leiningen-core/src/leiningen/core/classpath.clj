@@ -40,10 +40,29 @@
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
 
-(defn add-repo-auth [[id repo]]
-  [id (merge repo (-> (user/profiles)
-                      :auth :repository-auth
-                      (get (:url repo))))])
+(defn add-repo-auth [[id {:keys [url] :as repo}]]
+  "Repository credentials (a map containing some of
+   #{:username :password :passphrase :private-key-file}) are discovered
+   from:
+
+   1. Looking up the repository URL in the [:auth :repository-auth]
+      map
+   2. Scanning that map for regular expression keys that match the
+      repository URL.
+
+   So, a :repository-auth map that contains an entry:
+
+     {#\"http://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
+
+   would be applied to all repositories with URLs matching the regex key
+   that didn't have an explicit entry."
+  (let [repo-creds (-> (user/profiles) :auth :repository-auth)]
+    (if-let [match (get repo-creds url)]
+      [id (merge repo match)]
+      [id (merge repo (first (for [[re? cred] repo-creds 
+                                   :when (and (instance? java.util.regex.Pattern re?)
+                                              (re-matches re? url))]
+                               cred)))])))
 
 (defn add-auth [repositories]
   (map add-repo-auth repositories))

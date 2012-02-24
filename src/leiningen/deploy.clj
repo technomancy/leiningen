@@ -19,13 +19,16 @@ the repository URL directly.
                  \"releases\" \"https://internal.repo/releases\"
                  \"alternate\" \"https://other.server/repo\"}
 
-You should set authentication options keyed by repository URL in
-the :deploy profile in ~/.lein/profiles.clj to avoid checking
-sensitive information into source control:
+You should set authentication options keyed by repository URL 
+(or, by regex matching repository URLs) in the :deploy profile in
+~/.lein/profiles.clj to avoid checking sensitive information into
+source control:
 
   {:user {:plugins [...]}
-   :auth {:repository-auth {\"https://internal.repo/snapshots\"
-                            {:username \"milgrim\" :password \"locative\"}}}}"
+   :auth {:repository-auth {#\"https://internal.repo/.*\"
+                            {:username \"milgrim\" :password \"locative\"}
+                            \"s3://s3-repo-bucket/releases\"
+                            {:username \"AKIAIN...\" :passphrase \"1TChrGK4s...\"}}}"
   ([project repository-name]
      (let [jarfile (jar project)
            pomfile (pom project)
