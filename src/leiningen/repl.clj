@@ -51,7 +51,9 @@ that of Leiningen."
                              (:repl-port project)
                              0))
                        (-> @lein-repl-server deref :ss .getLocalPort)))))
-   (reply/launch-nrepl
-     (merge
-       {:attach (str (nrepl.ack/wait-for-ack (:repl-timeout project 30000)))}
-       (:reply-options project)))))
+   (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 30000))]
+     (reply/launch-nrepl
+       (merge
+         {:attach (str repl-port)}
+         (:reply-options project)))
+     (println "REPL server launch timed out."))))
