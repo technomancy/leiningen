@@ -55,15 +55,6 @@
   (if-not (:disable-injection project)
     (conj (:injections project) hooke-injection)))
 
-(def prep-tasks
-  "A list of tasks to call before any code is evaluated inside the project.
-
-All tasks added to this list must be careful to check before doing any
-nontrivial work to make sure it's necessary since they will be run
-often. For instance, compile compares timestamps of source files vs
-corresponding .class files before performing actual compilation."
-  (atom ["javac" "compile"]))
-
 (def ^:dynamic *prepping?* false)
 
 (defn prep [project]
@@ -71,7 +62,7 @@ corresponding .class files before performing actual compilation."
   (.mkdirs (io/file (:compile-path project "/tmp")))
   (when-not *prepping?*
     (binding [*prepping?* true]
-      (doseq [task @prep-tasks]
+      (doseq [task (:prep-tasks project)]
         (main/apply-task task project [])))))
 
 ;; # Subprocess stuff

@@ -89,7 +89,8 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:default {:resource-paths ["dev-resources"]}
+  (atom {:default {:resource-paths ["dev-resources"]
+                   :prep-tasks ["javac" "compile"]}
          :test {}
          :debug {:debug true}}))
 
