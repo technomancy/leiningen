@@ -1,12 +1,13 @@
 (ns leiningen.check
   "Check syntax and warn on reflection."
   (:require [leiningen.core.eval :as eval]
-            [leiningen.core.ns :as ns]))
+            [bultitude.core :as b]
+            [clojure.java.io :as io]))
 
 (defn check
   "Check syntax and warn on reflection."
   ([project]
-     (let [nses (mapcat ns/namespaces-in-dir (:source-paths project))
+     (let [nses (b/namespaces-on-classpath :classpath (map io/file (:source-paths project)))
            action `(doseq [ns# '~nses]
                      ;; load will add the .clj, so can't use ns/path-for.
                      (let [ns-file# (-> (str ns#)

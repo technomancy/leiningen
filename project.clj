@@ -11,7 +11,8 @@
                  [useful "0.7.6-alpha1"]
                  [lein-newnew "0.2.2"]
                  [reply "0.1.0-alpha4"]
-                 [org.clojure/data.xml "0.0.3"]]
+                 [org.clojure/data.xml "0.0.3"]
+                 [bultitude "0.1.3"]]
   :test-selectors {:default (complement :busted)}
   :eval-in-leiningen true)
 

@@ -1,7 +1,7 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
   (:require [leiningen.core.user :as user]
-            [leiningen.core.ns :as ns]
+            [bultitude.core :as b]
             [leiningen.core.eval :as eval]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile])
@@ -13,14 +13,17 @@
 (defn- find-namespaces-by-regex [project nses]
   (let [[res syms] ((juxt filter remove) regex? nses)]
     (if (seq res)
-      (set (for [re res n (mapcat ns/namespaces-in-dir (:source-paths project))
+      (set (for [re res
+                 n (b/namespaces-on-classpath
+                     :classpath
+                     (map io/file (:source-paths project)))
                  :when (re-find re (name n))]
              n))
       nses)))
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
-       (some #(.exists (io/file % (ns/path-for main))) source-paths)))
+       (some #(.exists (io/file % (b/path-for main))) source-paths)))
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
@@ -28,7 +31,7 @@
   [project]
   (let [nses (:aot project)
         nses (if (= :all nses)
-               (mapcat ns/namespaces-in-dir (:source-paths project))
+               (b/namespaces-on-classpath :classpath (map io/file (:source-paths project)))
                (find-namespaces-by-regex project nses))]
     (if (compile-main? project)
       (conj nses (:main project))
@@ -40,7 +43,7 @@
   [project]
   (filter
    (fn [n]
-     (let [clj-path (ns/path-for n)
+     (let [clj-path (b/path-for n)
            class-file (io/file (:compile-path project)
                                (.replace clj-path "\\.clj" "__init.class"))]
        (or (not (.exists class-file))

@@ -2,9 +2,9 @@
   "Display a list of tasks or help for a given task."
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
-            [leiningen.core.ns :as ns]))
+            [bultitude.core :as b]))
 
-(def tasks (->> (ns/namespaces-matching "leiningen")
+(def tasks (->> (b/namespaces-on-classpath :prefix "leiningen")
                 (filter #(re-find #"^leiningen\.(?!core|main)[^\.]+$" (name %)))
                 (distinct)
                 (sort)))

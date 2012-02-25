@@ -2,7 +2,7 @@
   "Run the project's tests."
   (:refer-clojure :exclude [test])
   (:require [clojure.java.io :as io]
-            [leiningen.core.ns :as ns]
+            [bultitude.core :as b]
             [leiningen.core.eval :as eval]
             [leiningen.core.project :as project])
   (:import (java.io File)))
@@ -52,7 +52,9 @@ each namespace and print an overall summary."
         nses (if (or (empty? args) (every? keyword? args))
                ;; maybe this is stupid and all *-path entries should
                ;; be absolute?
-               (sort (mapcat ns/namespaces-in-dir (:test-paths project)))
+               (sort
+                 (b/namespaces-on-classpath
+                   :classpath (map io/file (:test-paths project))))
                (filter symbol? args))
         selectors (map (merge {:all '(constantly true)}
                               (:test-selectors project)) (filter keyword? args))
