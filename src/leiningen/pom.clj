@@ -253,6 +253,7 @@
      (with-out-str
        (xml/emit (xml/sexp-as-element
                   (xml-tags :project (:without-profiles (meta project) project)))
+                 *out*
                  :indent 2)
        (when disclaimer?
          (println disclaimer)))))
@@ -270,6 +271,7 @@
   "Write a pom.xml file to disk for Maven interop."
   ([project pom-location silently?]
      (let [pom-file (io/file (:target-path project) pom-location)]
+       (.mkdirs (.getParentFile pom-file))
        (with-open [pom-writer (io/writer pom-file)]
          (.write pom-writer (make-pom project true)))
        (when-not silently? (println "Wrote" (.getName pom-file)))
