@@ -105,7 +105,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/src/"
     CLASSPATH="$CLASSPATH:$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
-    CLASSPATH="$CLASSPATH::$LEIN_DIR/lib/*:$LEIN_DIR/leiningen-core/lib/*"
+    CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/lib/*"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 else
     # Not running from a checkout

@@ -57,6 +57,8 @@
 
 (def ^:dynamic *prepping?* false)
 
+;; TODO: tasks which are in :prep-tasks should dissoc themselves
+;; before calling eval-in-project!
 (defn prep [project]
   ;; This must exist before the project is launched.
   (.mkdirs (io/file (:compile-path project "/tmp")))
