@@ -8,12 +8,17 @@
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
-  (let [project (.getAbsolutePath (io/file root "checkouts" dep "project.clj"))]
-    ;; TODO: core.project and core.classpath currently rely upon each other *uk*
-    (require 'leiningen.core.project)
-    (try ((resolve 'leiningen.core.project/read) project [])
-         (catch Exception e
-           (throw (Exception. (format "Problem loading %s" project) e))))))
+  (let [project-file (io/file root "checkouts" dep "project.clj")]
+    (if (.exists project-file)
+      (let [project (.getAbsolutePath project-file)]
+        ;; TODO: core.project and core.classpath currently rely upon each other *uk*
+        (require 'leiningen.core.project)
+        (try ((resolve 'leiningen.core.project/read) project [])
+             (catch Exception e
+               (throw (Exception. (format "Problem loading %s" project) e)))))
+      (println
+       "WARN ignoring checkouts directory" dep
+       "as it does not contain a project.clj file."))))
 
 (defn- checkout-dep-paths [project dep dep-project]
   (concat (:source-paths dep-project)
