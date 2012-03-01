@@ -67,8 +67,19 @@
 (defn- dedupe-deps [deps]
   (first (reduce dedupe-step [[] #{}] deps)))
 
+(defn- exclude [exclusions deps dep]
+  (let [exclusions-offset (.indexOf dep :exclusions)]
+    (conj deps (if (pos? exclusions-offset)
+                 (update-in dep [(inc exclusions-offset)] into exclusions)
+                 dep))))
+
+(defn- add-exclusions [deps exclusions]
+  (reduce (partial exclude exclusions) [] deps))
+
 (defn normalize-deps [project]
-  (update-in project [:dependencies] dedupe-deps))
+  (-> project
+      (update-in [:dependencies] dedupe-deps)
+      (update-in [:dependencies] add-exclusions (:exclusions project))))
 
 (defn normalize-plugins [project]
   (update-in project [:plugins] dedupe-deps))
@@ -193,6 +204,15 @@
   (when-let [m-ns (namespace middleware-name)]
     (require (symbol m-ns)))
   ((resolve middleware-name) project))
+
+(defn conj-dependency
+  "Add a dependency into the project map if it's not already present. Warn the
+  user if it is. Plugins should use this rather than altering :dependencies."
+  [project dependency]
+  (if (some #(= (first %) (first dependency)) (:dependencies project))
+    (do (println "WARNING: Tried to add" dependency "but was already present.")
+        project)
+    (update-in project [:dependencies] conj dependency)))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."

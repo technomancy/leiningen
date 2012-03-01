@@ -28,11 +28,10 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Pass user-level repository auth settings on to pomegranate
    - [X] Use ordered map for :dependencies and :repositories?
    - [X] Project middleware
+   - [X] Top-level :exclusions
+   - [X] Better error messages for misformatted :dependencies/:repositories
+   - [X] Utility function for plugins to conditionally add dependencies
    - [ ] Look for :java-cmd in project map
-   - [ ] Better error messages for misformatted :dependencies/:repositories
-   - [ ] Test top-level :exclusions
-   - [ ] Utility function for plugins to add dependencies
-         Needs to be a no-op if the dep is present, but warn
 ** Other stuff (post-preview)
    - [ ] Offline mode
    - [ ] Honor hooks declared in plugin jar metadata?
