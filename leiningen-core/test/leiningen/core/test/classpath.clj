@@ -10,7 +10,8 @@
   (io/file (System/getProperty "user.home") ".m2" "repository" f))
 
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]
-                              [ring/ring-core "1.0.0-RC1"]]
+                              [ring/ring-core "1.0.0-RC1"
+                               :exclusions [commons-codec]]]
               :repositories (:repositories project/defaults)
               :root "/tmp/lein-sample-project"
               :source-paths ["/tmp/lein-sample-project/src"]
@@ -23,7 +24,6 @@
   (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
            (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")
            (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar")
-           (m2-file "commons-codec/commons-codec/1.4/commons-codec-1.4.jar")
            (m2-file "ring/ring-core/1.0.0-RC1/ring-core-1.0.0-RC1.jar")
            (m2-file (str "commons-fileupload/commons-fileupload/1.2.1/"
                          "commons-fileupload-1.2.1.jar"))}
@@ -37,7 +37,6 @@
 (def libs
   #{(str (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar"))
     (str (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"))
-    (str (m2-file "commons-codec/commons-codec/1.4/commons-codec-1.4.jar"))
     (str (m2-file "ring/ring-core/1.0.0-RC1/ring-core-1.0.0-RC1.jar"))
     (str (m2-file "commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar"))
     (str (m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar"))})
@@ -72,6 +71,3 @@
                          :url "https://sekrit.info/repo"}]]
            (add-auth [["sonatype" {:url "https://oss.sonatype.org/"}]
                       ["internal" {:url "https://sekrit.info/repo"}]])))))
-
-(deftest test-exclusions
-  )
