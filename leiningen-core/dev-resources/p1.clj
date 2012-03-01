@@ -3,7 +3,7 @@
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"}
   :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
-                 [clucy "0.2.2"]
+                 [clucy "0.2.2" :exclusions [org.clojure/clojure]]
                  [lancet "1.0.1"]
                  [robert/hooke "1.1.2"]
                  [stencil "0.2.0"]]

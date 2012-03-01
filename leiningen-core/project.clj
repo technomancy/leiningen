@@ -9,4 +9,5 @@
                  [ordered "1.1.0"]
                  [com.cemerick/pomegranate "0.0.9"
                   :exclusions [org.slf4j/slf4j-api]]]
+  :dev-resources-path "dev-resources"
   :profiles {:dev {:resource-paths ["dev-resources"]}})

@@ -13,13 +13,16 @@
                  [reply "0.1.0-alpha4"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.3"]]
+  ;; checkout-deps don't work with :eval-in :leiningen
+  :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
+                   :test-paths ["leiningen-core/test"]}}
   :test-selectors {:default (complement :busted)}
-  :eval-in-leiningen true)
+  :eval-in :leiningen)
 
 ;;; Release Checklist
 
 ;; * update NEWS, bin/lein, bin/lein.bat, project.clj, pom
-;; * rm -rf lib classes, compile :all, generate uberjar, upload
+;; * rm -rf target, compile :all, generate uberjar, upload
 ;; * test self-install
 ;; * git tag
 ;; * push, push tags, update stable branch

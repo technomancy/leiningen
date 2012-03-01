@@ -2,7 +2,8 @@
   (:refer-clojure :exclude [read])
   (:use [clojure.test]
         [leiningen.core.project])
-  (:require [leiningen.core.user :as user]))
+  (:require [leiningen.core.user :as user]
+            [clojure.java.io :as io]))
 
 (use-fixtures :once
               (fn [f]
@@ -25,18 +26,19 @@
                :eval-in :leiningen,
                :license {:name "Eclipse Public License"}
 
-               :dependencies '{leiningen-core "2.0.0-SNAPSHOT"
-                               clucy "0.2.2"
-                               lancet "1.0.1"
-                               robert/hooke "1.1.2"
-                               stencil "0.2.0"},
+               :dependencies '{leiningen-core {:version "2.0.0-SNAPSHOT"}
+                               clucy {:version "0.2.2"
+                                      :exclusions [org.clojure/clojure]}
+                               lancet {:version "1.0.1"}
+                               robert/hooke {:version "1.1.2"}
+                               stencil {:version "0.2.0"}},
                :twelve 12 ; testing unquote
 
                :repositories {"central" {:url "http://repo1.maven.org/maven2"}
                               "clojars" {:url "http://clojars.org/repo/"}}})
 
 (deftest test-read-project
-  (let [actual (read "dev-resources/p1.clj")]
+  (let [actual (read (.getFile (io/resource "p1.clj")))]
     (doseq [[k v] expected]
       (is (= (k actual) v)))
     (doseq [[k path] paths
@@ -76,4 +78,4 @@
   (assoc project :seven 7))
 
 (deftest test-middleware
-  (is (= 7 (:seven (read "dev-resources/p2.clj")))))
+  (is (= 7 (:seven (read (.getFile (io/resource "p2.clj")))))))
