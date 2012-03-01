@@ -4,7 +4,8 @@
             [cemerick.pomegranate :as pomegranate]
             [clojure.java.io :as io]
             [leiningen.core.user :as user])
-  (:import java.util.jar.JarFile))
+  (:import (java.util.jar JarFile)
+           (java.util.regex Pattern)))
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
@@ -64,8 +65,8 @@
   (let [repo-creds (-> (user/profiles) :auth :repository-auth)]
     (if-let [match (get repo-creds url)]
       [id (merge repo match)]
-      [id (merge repo (first (for [[re? cred] repo-creds 
-                                   :when (and (instance? java.util.regex.Pattern re?)
+      [id (merge repo (first (for [[re? cred] repo-creds
+                                   :when (and (instance? Pattern re?)
                                               (re-matches re? url))]
                                cred)))])))
 
@@ -80,7 +81,8 @@
   classpath.
 
    Returns a set of the dependencies' files."
-  [dependencies-key {:keys [repositories native-path] :as project} & {:keys [add-classpath?]}]
+  [dependencies-key {:keys [repositories native-path] :as project}
+   & {:keys [add-classpath?]}]
   {:pre [(every? vector? (project dependencies-key))]}
   (doto (set (aether/dependency-files
               ((if add-classpath?
@@ -103,6 +105,7 @@
                      (:resource-paths project)
                      [(:compile-path project)]
                      (checkout-deps-paths project)
-                     (map #(.getAbsolutePath %) (resolve-dependencies :dependencies project)))
+                     (for [dep (resolve-dependencies :dependencies project)]
+                       (.getAbsolutePath dep)))
         :when path]
     (normalize-path (:root project) path)))
