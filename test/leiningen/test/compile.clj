@@ -11,20 +11,20 @@
 
 (use-fixtures :each (fn [f]
                       (delete-file-recursively
-                       (file "test_projects" "sample" "classes") true)
+                       (file "test_projects" "sample" "target") true)
                       (delete-file-recursively
-                       (file "test_projects" "sample_failing" "classes") true)
+                       (file "test_projects" "sample_failing" "target") true)
                       (f)))
 
 (deftest test-compile
   (is (zero? (compile sample-project)))
-  (is (.exists (file "test_projects" "sample"
+  (is (.exists (file "test_projects" "sample" "target"
                      "classes" "nom" "nom" "nom.class")))
   (is (pos? (compile sample-failing-project))))
 
 (deftest test-compile-all
   (is (zero? (compile sample-project ":all")))
-  (is (.exists (file "test_projects" "sample"
+  (is (.exists (file "test_projects" "sample" "target"
                      "classes" "nom" "nom" "nom.class"))))
 
 (def eip-check (atom false))
@@ -43,27 +43,27 @@
                         :clean-non-project-classes true))))
   (is (zero? (eval/eval-in-project sample-project '(require 'nom.nom.nom)))
       "can't load after compiling")
-  (let [classes (seq (.list (file "test_projects" "sample"
+  (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
     (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto____\d+.class"
                #"nom\$_main__\d+.class" #"nom.class" #"nom__init.class"]]
       (is (some (partial re-find r) classes) (format "missing %s" r))))
-  (is (not (.exists (file "test_projects" "sample"
+  (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "core.class"))))
-  (is (not (.exists (file "test_projects" "sample"
+  (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "alt.class")))))
 
 (deftest ^:busted test-cleared-transitive-aot-by-regexes
   (is (zero? (compile (assoc sample-project
                         :clean-non-project-classes [#"core"]))))
-  (let [classes (seq (.list (file "test_projects" "sample"
+  (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
     (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto____\d+.class"
                #"nom\$_main__\d+.class" #"nom.class" #"nom__init.class"]]
       (is (some (partial re-find r) classes) (format "missing %s" r))))
-  (is (not (.exists (file "test_projects" "sample"
+  (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "core.class"))))
-  (is (.exists (file "test_projects" "sample" "classes"
+  (is (.exists (file "test_projects" "sample" "target" "classes"
                      "sample2" "alt__init.class"))))
 
 (deftest test-skip-aot-on-main

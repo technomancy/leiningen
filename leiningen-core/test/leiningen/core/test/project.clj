@@ -13,7 +13,7 @@
 (def paths {:source-paths ["src"],
             :test-paths ["test"],
             :resource-paths ["dev-resources" "resources"],
-            :compile-path "classes",
+            :compile-path "target/classes",
             :native-path "native",
             :target-path "target"})
 

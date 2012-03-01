@@ -34,40 +34,38 @@
                :jar-exclusions [#"^\."]
                :uberjar-exclusions [#"^META-INF/DUMMY.SF"]})
 
-(defn ^:internal add-repositories
-  "Public only for macroexpansion purposes, :repositories needs special
-  casing logic for merging default values with user-provided ones."
-  [{:keys [omit-default-repositories repositories] :as project}]
-  (assoc project :repositories
-         (into (if-not omit-default-repositories
-                 (:repositories defaults)
-                 (ordered/ordered-map))
-                (for [[id repo] repositories]
-                  [id (if (string? repo) {:url repo} repo)]))))
-
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro."
   [project-name version & {:as args}]
   `(let [args# ~(unquote-project args)]
      (def ~'project
-       (merge defaults (dissoc (add-repositories args#)
-                               ;; Strip out aliases for normalization.
-                               :eval-in-leiningen :deps)
+       (merge defaults args#
               {:name ~(name project-name)
                :group ~(or (namespace project-name)
                            (name project-name))
                :version ~version
-               :dependencies (ordered/ordered-map
-                              (or (:dependencies args#) (:deps args#)))
-               :compile-path (or (:compile-path args#)
-                                 (.getPath (io/file (:target-path args#)
-                                                    "classes")))
-               :plugins (ordered/ordered-map (:plugins args#))
                :root ~(.getParent (io/file *file*))
                :eval-in (or (:eval-in args#)
                             (if (:eval-in-leiningen args#)
                               :leiningen
                               :subprocess))}))))
+
+(defn normalize-repos [{:keys [omit-default-repositories
+                               repositories] :as project}]
+  (assoc project :repositories
+         (into (if-not omit-default-repositories
+                 (:repositories defaults)
+                 (ordered/ordered-map))
+               (for [[id repo] repositories]
+                 [id (if (map? repo) repo {:url repo})]))))
+
+(defn normalize-deps [project]
+  ;; TODO: mapize
+  (update-in project [:dependencies] ordered/ordered-map))
+
+(defn normalize-plugins [project]
+  ;; TODO: mapize
+  (update-in project [:plugins] ordered/ordered-map))
 
 (defn- absolutize [root path]
   (str (if (.startsWith path "/")
@@ -84,7 +82,17 @@
         :else project))
 
 (defn absolutize-paths [project]
-  (reduce absolutize-path project (keys project)))
+  (let [project (reduce absolutize-path project (keys project))]
+    (assoc project :compile-path (or (:compile-path project)
+                                     (str (io/file (:target-path project)
+                                                   "classes"))))))
+
+(defn remove-aliases [project]
+  (dissoc project :deps :eval-in-leiningen))
+
+(def ^{:arglists '([project])} normalize
+  "Normalize project map to standard representation."
+  (comp normalize-repos normalize-deps absolutize-paths remove-aliases))
 
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
@@ -147,8 +155,8 @@
   [project profiles-to-apply]
   (let [merged (reduce merge-profile project
                        (profiles-for project profiles-to-apply))]
-    (with-meta (absolutize-paths merged)
-      {:without-profiles (absolutize-paths project)})))
+    (with-meta (normalize merged)
+      {:without-profiles (normalize project)})))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)

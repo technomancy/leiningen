@@ -54,7 +54,7 @@
       (.mkdirs d1)
       (spit (io/file d1 "project.clj")
             (pr-str '(defproject hello "1.0")))
-      (is (= (for [path ["src" "resources" "classes"]]
+      (is (= (for [path ["src" "resources" "target/classes"]]
                (format "/tmp/lein-sample-project/checkouts/d1/%s" path))
              (#'leiningen.core.classpath/checkout-deps-paths project)))
       (finally
@@ -72,3 +72,6 @@
                          :url "https://sekrit.info/repo"}]]
            (add-auth [["sonatype" {:url "https://oss.sonatype.org/"}]
                       ["internal" {:url "https://sekrit.info/repo"}]])))))
+
+(deftest test-exclusions
+  )
