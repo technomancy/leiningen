@@ -59,13 +59,19 @@
                (for [[id repo] repositories]
                  [id (if (map? repo) repo {:url repo})]))))
 
+(defn- dedupe-step [[deps seen] x]
+  (if (seen (first x))
+    [deps seen]
+    [(conj deps x) (conj seen (first x))]))
+
+(defn- dedupe-deps [deps]
+  (first (reduce dedupe-step [[] #{}] deps)))
+
 (defn normalize-deps [project]
-  ;; TODO: mapize
-  (update-in project [:dependencies] ordered/ordered-map))
+  (update-in project [:dependencies] dedupe-deps))
 
 (defn normalize-plugins [project]
-  ;; TODO: mapize
-  (update-in project [:plugins] ordered/ordered-map))
+  (update-in project [:plugins] dedupe-deps))
 
 (defn- absolutize [root path]
   (str (if (.startsWith path "/")
