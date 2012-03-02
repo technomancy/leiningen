@@ -197,9 +197,6 @@
              (println "Error: problem requiring" n "hook"))
            (throw e)))))
 
-;; TODO: port this from lein-precate; other plugins are sure to want it
-(defn denormalize [project])
-
 (defn apply-middleware [project middleware-name]
   (when-let [m-ns (namespace middleware-name)]
     (require (symbol m-ns)))

@@ -71,7 +71,7 @@
              (-> results meta :_total-hits (/ page-size) Math/ceil int) "total")
     (doseq [result (map parse-result results)]
       (apply println result))
-    (prn)))
+    (println)))
 
 (defn ^{:help-arglists '([query] [query page]) :no-project-needed true} search
   "Search remote maven repositories for matching jars.

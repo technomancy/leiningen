@@ -31,10 +31,14 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Top-level :exclusions
    - [X] Better error messages for misformatted :dependencies/:repositories
    - [X] Utility function for plugins to conditionally add dependencies
+   - [X] Update new task
+   - [ ] Pretty-print pom
    - [ ] Look for :java-cmd in project map
 ** Other stuff (post-preview)
    - [ ] Offline mode
+   - [ ] deps :tree and deps :list
    - [ ] Honor hooks declared in plugin jar metadata?
+   - [ ] Switch user-settings to checking :user profile sans project
    - [ ] Task-level profiles (nrepl dep comes from repl profile, etc)
          Better visibility than either :default profile or associng straight in
    - [ ] Investigate issues with :eval-in :classloader and bootclasspath
@@ -53,8 +57,6 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] tutorial
    - [X] hacking guide (moved to leiningen-core readme)
    - [ ] migration guide
-   - [ ] user settings (how much of this is necessary with profiles?)
-         used for :no-project-needed tasks like repl and search; hmmm...
    - [ ] deploy guide
    - [ ] sample project.clj
    - [ ] document adding javadoc/java source as deps
