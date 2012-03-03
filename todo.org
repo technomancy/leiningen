@@ -32,6 +32,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Better error messages for misformatted :dependencies/:repositories
    - [X] Utility function for plugins to conditionally add dependencies
    - [X] Update new task
+   - [ ] Document subcommands in newnew
    - [ ] Pretty-print pom
    - [ ] Look for :java-cmd in project map
 ** Other stuff (post-preview)

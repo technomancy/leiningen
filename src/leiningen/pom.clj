@@ -274,7 +274,7 @@
        (.mkdirs (.getParentFile pom-file))
        (with-open [pom-writer (io/writer pom-file)]
          (.write pom-writer (make-pom project true)))
-       (when-not silently? (println "Wrote" (.getName pom-file)))
+       (when-not silently? (println "Wrote" (str pom-file)))
        (.getAbsolutePath pom-file)))
   ([project pom-location] (pom project pom-location false))
   ([project] (pom project "pom.xml")))

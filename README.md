@@ -296,7 +296,7 @@ existing installation.
 ## License
 
 Source Copyright © 2009-2012 Phil Hagelberg, Alex Osborne, Dan Larkin, and
-[other contributors](https://www.ohloh.net/p/leiningen/contributors). 
+[contributors](https://github.com/technomancy/leiningen/contributors). 
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.
 
