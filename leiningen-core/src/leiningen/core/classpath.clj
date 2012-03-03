@@ -88,9 +88,11 @@
               ((if add-classpath?
                  pomegranate/add-dependencies
                  aether/resolve-dependencies)
-                :repositories (add-auth repositories)
-                :coordinates (project dependencies-key)
-                :transfer-listener :stdout)))
+               :local-repo (:local-repo project)
+               :offline? (:offline project)
+               :repositories (add-auth repositories)
+               :coordinates (project dependencies-key)
+               :transfer-listener :stdout)))
     (extract-native-deps native-path)))
 
 (defn- normalize-path [root path]
