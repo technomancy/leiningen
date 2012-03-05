@@ -1,8 +1,3 @@
-#-*- mode: org -*-
-#+startup: overview
-#+startup: hidestars
-#+TODO: TODO | INPROGRESS | DONE
-
 Leiningen TODOs
 
 See also https://github.com/technomancy/leiningen/issues
@@ -77,6 +72,13 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] install (minus shell wrappers)
    - [X] uberjar
    - [X] deploy
+* For 1.7.0
+  - [X] System/exit in repl (#324)
+  - [X] interactive task takes full CPU (#346)
+  - [X] whole-namespace test selectors (#242)
+  - [X] Auto-exclusions for dev-deps and plugins (#375)
+  - [X] Investigate NPE on lein test (#388)
+  - [X] Bring back rlwrap (#381)
 * For 1.6.2
   - [X] resources with eval-in-leiningen (#248)
   - [X] fix :omit-default-repositories wrt central (#211)
@@ -110,12 +112,11 @@ See also https://github.com/technomancy/leiningen/issues
   - [X] Merge native-deps
   - [X] Add leiningen.util.injected namespace
 * For 1.5.1
-** TODO
-   - [X] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
-   - [X] Put :eval-in-lein deps in lib/dev for leiningen process access.
-   - [X] Revert back to :warn on checksum failure.
-   - [X] Fix LEIN_ROOT warning in bin/lein.
-   - [X] Honor user-settings in more places.
+  - [X] Move ns docstrings to :help-summary to allow AOT given CLJ-130.
+  - [X] Put :eval-in-lein deps in lib/dev for leiningen process access.
+  - [X] Revert back to :warn on checksum failure.
+  - [X] Fix LEIN_ROOT warning in bin/lein.
+  - [X] Honor user-settings in more places.
 * For 1.5.0
   - unify auth options between :repositories and :deploy-to
   - suppress socket closed stacktrace in interactive task
@@ -193,19 +194,14 @@ See also https://github.com/technomancy/leiningen/issues
   - upgrade task (patch submitted)
   - doc generation (autodoc plugin)
 * For 1.0
-  - Remove install task dependency on having Maven installed       :Phil:
-  - Use -Xbootclasspath where possible                              :Dan:
-  - Don't write manifest, pom, etc. to disk when jarring           :Dan:
-  - Don't put uberjar in ~/.m2                                     :Phil:
+  - Remove install task dependency on having Maven installed
+  - Use -Xbootclasspath where possible
+  - Don't write manifest, pom, etc. to disk when jarring
+  - Don't put uberjar in ~/.m2
   - Perform compilation in either a subprocess or with a separate classloader
   - Allow test task to take namespaces as an argument
   - Fix eval-in-project to let plugins pass in extra args
   - Resources directory added to classpath (for properties, etc)
-* Plugin ideas
-  - metrics
-   - LOC
-   - complexity
-   - time logs
 * Git-aware dependencies (experimental back-burner idea)
   Talking with Rich after Emerging Langs day 1
   Problem: you can pull in two versions of the same library
