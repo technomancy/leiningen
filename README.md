@@ -287,7 +287,8 @@ You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place.
 
 Using Leiningen 1.x, run `lein install` in the `leiningen-core`
-subproject directory. When the dependencies change 
+subproject directory. When the dependencies change you will also have
+to do `rm .lein-classpath` in the project root.
 
 Once you've done that, symlink `bin/lein` to somewhere on your
 `$PATH`, usually as `lein2` in order to keep it distinct from your
