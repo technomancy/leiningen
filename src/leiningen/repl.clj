@@ -8,7 +8,8 @@
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
             [leiningen.core.user :as user]
-            [leiningen.core.classpath :as classpath]))
+            [leiningen.core.classpath :as classpath])
+  (:use [leiningen.core.main :only [abort]]))
 
 (def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta1"
                                :exclusions [org.clojure/clojure]]
@@ -30,6 +31,11 @@
   (delay (nrepl.server/start-server
            :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
+(defn- repl-port [project]
+  (Integer. (or (System/getenv "LEIN_REPL_PORT")
+                (:repl-port project)
+                0)))
+
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
@@ -46,14 +52,21 @@ that of Leiningen."
      (Thread.
        (bound-fn []
          (start-server project
-                       (Integer.
-                         (or (System/getenv "LEIN_REPL_PORT")
-                             (:repl-port project)
-                             0))
+                       (repl-port project)
                        (-> @lein-repl-server deref :ss .getLocalPort)))))
    (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 30000))]
      (reply/launch-nrepl
        (merge
          {:attach (str repl-port)}
          (:reply-options project)))
-     (println "REPL server launch timed out."))))
+     (println "REPL server launch timed out.")))
+  ([project flag]
+   (case flag
+     ":headless" (let [ack-port (when-let [p (System/getenv "LEIN_REPL_ACK_PORT")]
+                                  (Integer. p))]
+                   (start-server project
+                                 (repl-port project)
+                                 ack-port)
+                   (while true
+                     (Thread/sleep Long/MAX_VALUE)))
+     (abort "Unrecognized flag:" flag))))
