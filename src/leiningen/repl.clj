@@ -36,6 +36,11 @@
                 (:repl-port project)
                 0)))
 
+(defn- ack-port [project]
+  (when-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
+                   (:repl-ack-port project))]
+    (Integer. p)))
+
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
@@ -66,11 +71,10 @@ This will launch an nREPL server and wait, rather than connecting reply to it."
      (println "REPL server launch timed out.")))
   ([project flag]
    (case flag
-     ":headless" (let [ack-port (when-let [p (System/getenv "LEIN_REPL_ACK_PORT")]
-                                  (Integer. p))]
+     ":headless" (do
                    (start-server project
                                  (repl-port project)
-                                 ack-port)
+                                 (ack-port project))
                    (while true
                      (Thread/sleep Long/MAX_VALUE)))
      (abort "Unrecognized flag:" flag))))
