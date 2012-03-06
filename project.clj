@@ -10,7 +10,7 @@
                  [clucy "0.2.3"]
                  [useful "0.7.6-alpha1"]
                  [lein-newnew "0.2.4"]
-                 [reply "0.1.0-alpha4"]
+                 [reply "0.1.0-alpha5"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.3"]]
   ;; checkout-deps don't work with :eval-in :leiningen
