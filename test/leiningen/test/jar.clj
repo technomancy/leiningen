@@ -4,7 +4,8 @@
         [leiningen.jar]
         [leiningen.core.eval :only [platform-nullsink]]
         [leiningen.test.helper :only [tricky-name-project sample-failing-project
-                                      sample-no-aot-project sample-project]])
+                                      sample-no-aot-project sample-project
+                                      overlapped-sourcepaths-project]])
   (:import [java.util.jar JarFile]))
 
 (def mock-project {:name "mock-project" :version "1.0"
@@ -69,3 +70,6 @@
   (let [jar-file (jar (dissoc sample-project :dependencies :main))]
     (and (is (not (number? jar-file)))
          (is (.exists (io/file jar-file))))))
+
+(deftest overlapped-paths
+  (is (jar overlapped-sourcepaths-project)))
