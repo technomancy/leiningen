@@ -29,9 +29,8 @@
             :distribution :repo
             :comments "same as Clojure"}
   ;; Dependencies are listed as [group-id/name version].
-  :dependencies [[org.clojure/clojure "1.1.0"]
-                 [org.clojure/clojure-contrib "1.1.0"]
-                 [org.jclouds/jclouds "1.0-RC6" :classifier "jdk15"]
+  :dependencies [[org.clojure/clojure "1.3.0"]
+                 [org.jclouds/jclouds "1.0" :classifier "jdk15"]
                  [net.sf.ehcache/ehcache "2.3.1" :type "pom"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
@@ -41,25 +40,22 @@
   ;; to duplication for multiple depedencies with the same excluded libraries.
   :exclusions [org.apache.poi/poi
                org.apache.poi/poi-ooxml]
+  :plugins [[lein-pprint "1.1.1"]
+            [lein-assoc "0.1.0"]]
+  ;; Each active profile gets merged into the project map. The :dev
+  ;; and :user profiles are active by default, but the latter should be
+  ;; looked up in ~/.lein/profiles.clj rather than set in project.clj.
+  ;; Use the with-profiles higher-order task to run a task with a
+  ;; different set of active profiles.
+  :profiles {:dev {:resource-paths ["dummy-data"]
+                   :dependencies [[clj-stacktrace "0.2.4"]]}
+             :debug {:debug true
+                     :injections ['(prn (into {} (System/getProperties)))]}
+             :1.4 {:dependencies [[org.clojure/clojure "1.4.0-alpha1"]]}}
+  :aliases {"launch" "run"
+            "with-magic" ["assoc" ":magic" "true"]}
   ;; Warns users of earlier versions of Leiningen.
-  :min-lein-version "1.3.0"
-  ;; Delete .class files that do not have a correspoinding package in
-  ;; the src/ directory. Workaround for Clojure bug CLJ-322. Causes problems
-  ;; with protocols in upstream libraries; false by default. Set to
-  ;; true to delete all non-project classes or set to a seq of regexes
-  ;; to only delete class files that match one of the regexes.
-  :clean-non-project-classes true
-  ;; If :clean-non-project-classes is set to true, you can set this to
-  ;; be a regex; all class filenames that match this regex will be preserved.
-  :class-file-whitelist #"^(org/example|clojure)"
-  ;; Additional files (besides :compile-path contents and jars/uberjars)
-  ;; to be deleted during clean phase. May contain %s, which will be replaced
-  ;; with the project's current version number.
-  :extra-files-to-clean ["tmp" "sample-%s.tar"]
-  ;; If the files you want to delete can't be exact matches, you can
-  ;; use a regex that will be matched against filenames in the project root.
-  ;; Defaults to #"^$NAME-.*\.jar$".
-  :regex-to-clean #"hs_err_pid.*"
+  :min-lein-version "2.0.0"
   ;; Paths to include on the classpath from each project in the
   ;; checkouts/ directory. (See the FAQ in the Readme for more details
   ;; about checkout dependencies.) Set this to be a vector of
@@ -68,8 +64,7 @@
   ;; the following to share code from the test suite:
   :checkout-deps-shares [:source-path :test-path
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
-  ;; Load these namespaces on startup to pick up hooks from them. Hooks
-  ;; generally come from plugins, but may be included in your project source.
+  ;; Load these namespaces on startup to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
   ;; Predicates to determine whether to run a test or not. See tutorial.
   :test-selectors {:default (fn [t] (not (or (:integration v) (:regression v))))
@@ -88,64 +83,60 @@
   ;; This namespace will get loaded automatically when you launch a repl.
   :repl-init sample.repl-helper
   ;; These will get passed to clojure.main/repl; see its docstring for details.
-  :repl-options [:prompt (fn [] (print "your command, master? ") (flush))]
+  :reply-options [:prompt (fn [] (print "your command, master? ") (flush))]
   ;; Customize the socket the repl task listens on.
   :repl-port 4001
   :repl-host "0.0.0.0"
-  ;; A form to prepend to every form that is evaluated inside your project.
-  ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
-  :project-init (require 'clojure.pprint)
   ;; If your -main namespace takes a long time to load, it could time out the
   ;; repl connection. Increase this to give it more time. Defaults to 100.
   :repl-retry-limit 1000
+  ;; A form to prepend to every form that is evaluated inside your project.
+  ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
+  :project-init (require 'clojure.pprint)
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
-  ;; Set this in order to only use the :repositories you list below. Note that,
-  ;; if any artifacts are not found, Maven Central will still be reported to
-  ;; have been checked, even though it was not.
+  ;; Set this in order to only use the :repositories you list below.
   :omit-default-repositories true
-  :repositories [["java.net" "http://download.java.net/maven/2"]
-                 ["sonatype"
-                  {:url "http://oss.sonatype.org/content/repositories/releases"
-                   ;; If a repository contains  releases only; setting :snapshots
-                   ;; to false will speed up dependency checking.
-                   :snapshots false
-                   ;; You can also set the policies for how to handle :checksum
-                   ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
-                   ;; :always, and :never are supported.
-                   :releases {:checksum :fail
-                              :update :always}}]
+  ;; These repositories will be searched for :dependencies and
+  ;; :plugins and will also be available to deploy to.
+  :repositories {"java.net" "http://download.java.net/maven/2"
+                 "sonatype"
+                 {:url "http://oss.sonatype.org/content/repositories/releases"
+                  ;; If a repository contains  releases only; setting :snapshots
+                  ;; to false will speed up dependency checking.
+                  :snapshots false
+                  ;; You can also set the policies for how to handle :checksum
+                  ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
+                  ;; :always, and :never are supported.
+                  :releases {:checksum :fail :update :always}}
                  ;; Repositories named "snapshots" and "releases" automatically
                  ;; have their :snapshots and :releases disabled as appropriate.
-                 ["snapshots" {:url "http://blueant.com/archiva/snapshots"
-                               ;; Also supports :private-key and :passphrase.
-                               :username "milgrim" :password "locative.1"}]
-                 ["releases" {:url "http://blueant.com/archiva/internal"
-                              :username "milgrim" :password "locative.1"}]]
+                 ;; Credentials for repositories should *not* be stored
+                 ;; in project.clj but in ~/.lein/profiles.clj instead:
+                 ;; {:auth {:repository-auth {#"http://blueant.com/archiva/"
+                 ;;                           {:username "milgrim"
+                 ;;                            :password "locative.1"}}}}
+                 "snapshots" "http://blueant.com/archiva/snapshots"
+                 "releases" "http://blueant.com/archiva/internal"}
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
-  ;; dependency resolution
-  :deploy-repositories [["releases" {:url "http://blueant.com/archiva/internal/releases"
-                                     :username "milgrim" :password "locative.1"}]
-                        ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
+  ;; dependency resolution.
+  :deploy-repositories {"releases" "http://blueant.com/archiva/internal/releases"
+                        "snapshots" "http://blueant.com/archiva/internal/snapshots"}
   ;; If you'd rather use a different directory structure, you can set these.
-  :source-path ["src" "src/main/clojure"]
+  ;; Paths that contain "inputs" are vectors, "outputs" are strings.
+  :source-paths ["src" "src/main/clojure"]
   :compile-path "target/classes" ; for .class files
-  :library-path "target/dependency" ; for .jar files
-  :test-path ["test" "src/test/clojure"]
-  :resources-path ["src/main/resource"] ; non-code files included in classpath/jar
-
-  ;;TODO: does dev-resources-path still do anything w/ profiles?
-  :dev-resources-path "src/test/resource" ; added to dev classpath but not jar
-
+  :test-paths ["test" "src/test/clojure"]
+  :resource-paths ["src/main/resource"] ; non-code files included in classpath/jar
   :native-path "src/native"        ; where to look for native dependencies
-  :target-dir "target/  "          ; where to place the project's jar file
+  :target-dir "target/"            ; where to place the project's jar file
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Options to pass to java compiler for java source
   ;; See http://ant.apache.org/manual/Tasks/javac.html
   :javac-options {:destdir "classes/"}
-  :java-source-path "src/main/java" ; location of Java source
+  :java-source-paths ["src/main/java"] ; location of Java source
   ;; Leave the contents of :source-path out of jars (for AOT projects)
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars
@@ -160,21 +151,6 @@
   :eval-in-leiningen false
   ;; Set parent for working with in a multi-module maven project
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
-  ;; You can add extensions to the build process (such as add an ftp
-  ;; provider for the Wagon transport mechanism), as well as make
-  ;; plugins active which make changes to the build lifecycle.
+  ;; Extensions here will be propagated to the pom.
   :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
                [foo/bar-baz "1.0"]])
-  
-
-;;TODO: does the prepend-tasks function still exist?
-
-;; You can use Robert Hooke to modify behaviour of any task function,
-;; but the prepend-tasks function is shorthand that is more convenient
-;; on tasks that take a single project argument.
-;; (use '[leiningen.core :only [prepend-tasks]]
-;;      '[leiningen.deps :only [deps]]
-;;      '[leiningen.clean :only [clean]]
-;;      '[leiningen.pom :only [pom]])
-
-;; (prepend-tasks #'deps clean pom)
