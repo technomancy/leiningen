@@ -20,13 +20,6 @@
                       (catch Exception e
                         (.printStackTrace e))))))))
 
-(defn settings
-  "Look up the settings map from init.clj or an empty map if it doesn't exist."
-  []
-  (if-let [settings-var (resolve 'user/settings)]
-    @settings-var
-    {}))
-
 (defn profiles []
   (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
     (if (.exists profiles-file)
