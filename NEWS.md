@@ -1,5 +1,32 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview / ???
+
+* Split out leiningen-core into independent library.
+* Replace maven-ant-tasks with Pomegranate library. (Chas Emerick)
+* Move build artifacts to target/ directory.
+* Add experimental support for running project code in-process with 
+  :eval-in :classloader. (Justin Balthrop)
+* Support profiles for alternate project configurations.
+* Switch to using plural :source-paths, :test-paths, and :resource-paths.
+* Complete rewrite of repl task. (Colin Jones, Chas Emerick, Anthony Grimes)
+* Remove special case of implicit org.clojure group-id in :dependencies.
+* Replace :dev-dependencies with :dev profile.
+* Support customized :source-paths with :eval-in :leiningen projects.
+* Rewrite pom task. (Nelson Morris, Alan Malloy)
+* Allow tasks and projects to add custom :injections into project code.
+* Support changing :prep-tasks for running tasks other than javac and
+  compile before eval-in-project calls.
+* Rewrite new task. (Anthony Grimes)
+* New check task for catching reflection and other issues. (David Santiago)
+* Check project.clj for :aliases.
+* Allow partial application of aliases.
+* Drop :extra-classpath-dirs option.
+* Load :plugins without trampolining the process.
+* Allow :repository-auth to be specified using a regular expression.
+* Support arbitrary project map transformation functions via :middleware.
+* Support changing :local-repo path in project.clj.
+
 ## 1.7.0 / 2012-02-06
 
 * Allow any task to perform trampolining.
