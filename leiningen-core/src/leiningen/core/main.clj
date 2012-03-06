@@ -11,11 +11,17 @@
                     "tutorial" ["help" "tutorial"]
                     "sample" ["help" "sample"]}))
 
+(def ^:dynamic *exit-process?*
+  "Bind to false to suppress process termination." true)
+
 (defn exit
-  "Call System/exit. Defined as a function so that rebinding is possible."
+  "Exit the process. Rebind *exit-process?* in order to suppress actual process
+  exits for tools which may want to continue operating."
   ([code]
      (shutdown-agents)
-     (System/exit code))
+     (if *exit-process?*
+       (System/exit code)
+       code))
   ([] (exit 0)))
 
 (defn abort
