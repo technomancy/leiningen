@@ -22,9 +22,11 @@
        "as it does not contain a project.clj file."))))
 
 (defn- checkout-dep-paths [project dep dep-project]
-  (concat (:source-paths dep-project)
-          (:resource-paths dep-project)
-          [(:compile-path dep-project)]))
+  (if-let [shares (:checkout-deps-shares project)]
+    (map #(% dep-project) shares)
+    (concat (:source-paths dep-project)
+            (:resource-paths dep-project)
+            [(:compile-path dep-project)])))
 
 (defn- checkout-deps-paths
   "Checkout dependencies are used to place source for a dependency
