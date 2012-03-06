@@ -108,29 +108,33 @@
       (re-find #"~$" (.getName file))
       (some #(re-find % relative-path) patterns)))
 
-(defmulti copy-to-jar (fn [project jar-os spec] (:type spec)))
+(defmulti copy-to-jar (fn [project jar-os acc spec] (:type spec)))
 
-(defn- trim-leading-str [s to-trim]
+(defn- trim-leading [s to-trim]
   (.replaceAll s (str "^" (Pattern/quote to-trim)) ""))
 
-(defmethod copy-to-jar :path [project jar-os spec]
-  (doseq [child (file-seq (io/file (:path spec)))]
-    (let [path (trim-leading-str (trim-leading-str (unix-path (str child))
+(defmethod copy-to-jar :path [project jar-os acc spec]
+  (when-not (acc (:path spec))
+    (doseq [child (file-seq (io/file (:path spec)))
+            :let [path (trim-leading (trim-leading (unix-path (str child))
                                                    (unix-path (:path spec)))
-                                 "/")]
+                                     "/")]]
       (when-not (skip-file? child path (:jar-exclusions project))
         (.putNextEntry jar-os (doto (JarEntry. path)
                                 (.setTime (.lastModified child))))
-        (io/copy child jar-os)))))
+        (io/copy child jar-os))))
+  (conj acc (:path spec)))
 
-(defmethod copy-to-jar :paths [project jar-os spec]
-  (doseq [path (:paths spec)]
-    (copy-to-jar project jar-os {:type :path :path path})))
+(defmethod copy-to-jar :paths [project jar-os acc spec]
+  (reduce (partial copy-to-jar project jar-os) acc
+          (for [path (:paths spec)]
+            {:type :path :path path})))
 
-(defmethod copy-to-jar :bytes [project jar-os spec]
+(defmethod copy-to-jar :bytes [project jar-os acc spec]
   (when-not (some #(re-find % (:path spec)) (:jar-exclusions project))
     (.putNextEntry jar-os (JarEntry. (:path spec)))
-    (io/copy (ByteArrayInputStream. (:bytes spec)) jar-os)))
+    (io/copy (ByteArrayInputStream. (:bytes spec)) jar-os))
+  (conj acc (:path spec)))
 
 (defn write-jar [project out-file filespecs]
   (let [manifest (make-manifest project)]
@@ -138,8 +142,7 @@
                            (FileOutputStream.)
                            (BufferedOutputStream.)
                            (JarOutputStream. manifest))]
-      (doseq [filespec filespecs]
-        (copy-to-jar project jar-os filespec)))))
+      (reduce (partial copy-to-jar project jar-os) #{} filespecs))))
 
 (defn- filespecs [project deps-fileset]
   (concat [{:type :bytes
