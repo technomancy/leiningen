@@ -22,7 +22,7 @@ Leiningen bootstraps itself using the `lein` shell script;
 there is no separate install script. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
+1. [Download the script](https://raw.github.com/technomancy/leiningen/preview/bin/lein).
 2. Place it on your `$PATH`. (I like to use `~/bin`)
 3. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
@@ -34,15 +34,18 @@ can just run `lein self-install`, otherwise get the standalone jar from the
 If you have [Cygwin](http://www.cygwin.com/) you should be able to use
 the shell script above rather than the batch file.
 
-Version 2 has not yet been released, but is usable. Please see the
-wiki page on
-[Upgrading](https://github.com/technomancy/leiningen/wiki/Upgrading)
-if you would like to use it. Casual users should stick with the `1.x` branch.
+The instructions above will install version 2, which is still in a
+preview release. If you are coming from Leiningen 1 or are working on
+projects that are written with it in mind, see the
+[upgrade guide](https://github.com/technomancy/leiningen/wiki/Upgrading).
+
+If you need to get an older version, use the
+[stable branch](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 
 ## Usage
 
 The
-[tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
+[tutorial](https://github.com/technomancy/leiningen/blob/preview/doc/TUTORIAL.md)
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
@@ -89,7 +92,7 @@ To find specific versions of a dependency, use `lein search`.
 
 The `lein new` task generates a project skeleton with an
 appropriate starting point from which you can work. See the
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj)
 file for a detailed listing of configuration options.
 
 You can also have user-level configuration that applies for all
@@ -179,7 +182,7 @@ runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
 swank-clojure) then it should be added to the `:plugins` list in the
 `:user` profile from `~/.lein/profiles.clj`. The
-[plugin guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+[plugin guide](https://github.com/technomancy/leiningen/blob/preview/doc/PLUGINS.md)
 explains how to write plugins.
 
 ## FAQ
@@ -189,14 +192,14 @@ explains how to write plugins.
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
+  [tutorial](https://github.com/technomancy/leiningen/blob/preview/doc/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).
 
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
   explains how to set up a private repository. If you are not sharing
   them with a team you could also just [install locally](https://github.com/kumarshantanu/lein-localrepo).
 

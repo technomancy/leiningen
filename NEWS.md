@@ -1,9 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-preview1 / 2012-02-07
+## 2.0.0-preview1 / 2012-03-07
 
 * Split out leiningen-core into independent library.
-* Replace maven-ant-tasks with Pomegranate library. (Chas Emerick)
+* Replace maven-ant-tasks with Pomegranate library. (Chas Emerick,
+  Nelson Morris)
 * Move build artifacts to target/ directory.
 * Add experimental support for running project code in-process with 
   :eval-in :classloader. (Justin Balthrop)
