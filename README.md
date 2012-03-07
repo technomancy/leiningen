@@ -34,8 +34,10 @@ can just run `lein self-install`, otherwise get the standalone jar from the
 If you have [Cygwin](http://www.cygwin.com/) you should be able to use
 the shell script above rather than the batch file.
 
-The `master` branch is currently in the middle of a rewrite. If you
-want to build from source for everyday use, use the `1.x` branch.
+Version 2 has not yet been released, but is usable. Please see the
+wiki page on
+[Upgrading](https://github.com/technomancy/leiningen/wiki/Upgrading)
+if you would like to use it. Casual users should stick with the `1.x` branch.
 
 ## Usage
 
@@ -262,7 +264,9 @@ Please report issues on the
 or the [mailing list](http://groups.google.com/group/leiningen).
 Personal email addresses are **not** appropriate for bug reports. See
 the readme for the `leiningen-core` library and `doc/PLUGINS.md` for
-more details on how Leiningen's codebase is structured.
+more details on how Leiningen's codebase is structured. Design
+discussions also occur in the
+[#leiningen channel on Freenode](irc://chat.freenode.net#leiningen).
 
 Patches are preferred as Github pull requests, though patches from
 `git format-patch` are also welcome on the mailing list. Please use

@@ -123,6 +123,11 @@
   ;; dependency resolution.
   :deploy-repositories {"releases" "http://blueant.com/archiva/internal/releases"
                         "snapshots" "http://blueant.com/archiva/internal/snapshots"}
+  ;; Prevent Leiningen from checking the network for dependencies.
+  ;; This wouldn't normally be set in project.clj; it would come from a profile.
+  :offline? true
+  ;; Override the location of the local maven repository.
+  :local-repo "/home/dude/.lein/repo"
   ;; If you'd rather use a different directory structure, you can set these.
   ;; Paths that contain "inputs" are vectors, "outputs" are strings.
   :source-paths ["src" "src/main/clojure"]
