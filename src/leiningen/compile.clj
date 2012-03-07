@@ -11,15 +11,11 @@
   (instance? java.util.regex.Pattern str-or-re))
 
 (defn- find-namespaces-by-regex [project nses]
-  (let [[res syms] ((juxt filter remove) regex? nses)]
-    (if (seq res)
-      (set (for [re res
-                 n (b/namespaces-on-classpath
-                     :classpath
-                     (map io/file (:source-paths project)))
-                 :when (re-find re (name n))]
-             n))
-      nses)))
+  (let [[res syms] ((juxt filter remove) regex? nses)
+        matches? (fn [ns] (some #(re-find % (name ns)) res))]
+    (concat syms (filter matches? (b/namespaces-on-classpath
+                                   :classpath
+                                   (map io/file (:source-paths project)))))))
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
