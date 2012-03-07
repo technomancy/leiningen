@@ -115,6 +115,8 @@ or by executing \"lein upgrade\". ")
   (let [project (if (.exists (io/file "project.clj")) (project/read))]
     (when (:min-lein-version project)
       (verify-min-version project))
+    (when-not project
+      (project/load-plugins (:user (user/profiles))))
     (doseq [[task-name & args] (group-args args)
             :let [task-name (or (@aliases task-name)
                                 (get (:aliases project) task-name)
