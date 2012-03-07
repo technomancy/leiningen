@@ -1,7 +1,7 @@
 (ns leiningen.run
   "Run a -main function with optional command-line arguments."
-  (:use [leiningen.core.eval :only [eval-in-project]]
-        [leiningen.core.main :only [abort]])
+  (:require [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main])
   (:import (java.io FileNotFoundException)
            (clojure.lang Reflector)))
 
@@ -21,9 +21,9 @@
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
   [project given & args]
-  (eval-in-project project (run-form given args)
-                   `(try (require '~(symbol (namespace (normalize-main given))))
-                         (catch FileNotFoundException _#))))
+  (eval/eval-in-project project (run-form given args)
+                        `(try (require '~(symbol (namespace (normalize-main given))))
+                              (catch FileNotFoundException _#))))
 
 (defn ^{:help-arglists '([])} run
   "Run the project's -main function.
@@ -50,6 +50,6 @@ See also \"lein help trampoline\" for a way to save memory using this task."
     (cond alias           (apply run project "-m" (cons alias args))
           (= flag "-m")   (if (first args)
                             (apply run-main project args)
-                            (abort "Option -m requires a namespace argument."))
+                            (main/abort "Option -m requires a namespace argument."))
           (:main project) (apply run-main project (:main project) all-args)
-          :else (abort "No :main namespace specified in project.clj."))))
+          :else (main/abort "No :main namespace specified in project.clj."))))

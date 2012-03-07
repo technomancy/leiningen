@@ -1,8 +1,8 @@
 (ns leiningen.trampoline
   (:refer-clojure :exclude [trampoline])
-  (:use [leiningen.core.main :only [apply-task task-not-found abort]])
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [clojure.pprint :as pprint]))
 
 (def ^:dynamic *trampoline?* false)
@@ -34,9 +34,10 @@ Not compatible with chaining."
     (when (:eval-in-leiningen project)
       (println "Warning: trampoline has no effect with :eval-in-leiningen."))
     (binding [*trampoline?* true]
-      (apply-task task-name (assoc project
-                              :eval-in :trampoline
-                              :trampoline-promise command) args))
+      (main/apply-task task-name (assoc project
+                                   :eval-in :trampoline
+                                   :trampoline-promise command) args))
     (if (realized? command)
       (write-trampoline @command)
-      (abort task-name "did not run any project code for trampolining."))))
+      (main/abort task-name "did not run any project code for trampolining."))))
+

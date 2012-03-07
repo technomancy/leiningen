@@ -8,8 +8,8 @@
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
             [leiningen.core.user :as user]
-            [leiningen.core.classpath :as classpath])
-  (:use [leiningen.core.main :only [abort]]))
+            [leiningen.core.classpath :as classpath]
+            [leiningen.core.main :as main]))
 
 (def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta1"
                                :exclusions [org.clojure/clojure]]
@@ -77,4 +77,4 @@ This will launch an nREPL server and wait, rather than connecting reply to it."
                                  (ack-port project))
                    (while true
                      (Thread/sleep Long/MAX_VALUE)))
-     (abort "Unrecognized flag:" flag))))
+     (main/abort "Unrecognized flag:" flag))))

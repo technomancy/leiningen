@@ -1,11 +1,10 @@
 (ns leiningen.jar
   "Package up all the project's files into a jar file."
   (:require [leiningen.compile :as compile]
+            [leiningen.pom :as pom]
             [leiningen.core.classpath :as classpath]
             [clojure.string :as string]
             [clojure.java.io :as io])
-  (:use [leiningen.pom :only [make-pom make-pom-properties]]
-        [leiningen.deps :only [deps]])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
            (java.util.regex Pattern)
            (java.util.jar JarFile)
@@ -148,11 +147,11 @@
   (concat [{:type :bytes
             :path (format "META-INF/maven/%s/%s/pom.xml"
                           (:group project) (:name project))
-            :bytes (.getBytes (make-pom project))}
+            :bytes (.getBytes (pom/make-pom project))}
            {:type :bytes
             :path (format "META-INF/maven/%s/%s/pom.properties"
                           (:group project) (:name project))
-            :bytes (.getBytes (make-pom-properties project))}
+            :bytes (.getBytes (pom/make-pom-properties project))}
            {:type :bytes :path "project.clj"
             :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
           [{:type :path :path (:compile-path project)}

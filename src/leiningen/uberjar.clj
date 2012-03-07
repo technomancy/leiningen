@@ -1,19 +1,18 @@
 (ns leiningen.uberjar
   "Package up the project files and dependencies into a jar file."
   (:require [clojure.xml :as xml]
-            [leiningen.core.classpath :as classpath])
-  (:use [clojure.zip :only [xml-zip children]]
-        [clojure.java.io :only [file copy]]
-        [leiningen.core.main :only [abort]]
-        [leiningen.clean :only [clean]]
-        [leiningen.jar :only [get-jar-filename jar]])
+            [clojure.zip :as zip]
+            [clojure.java.io :as io]
+            [leiningen.core.classpath :as classpath]
+            [leiningen.core.main :as main]
+            [leiningen.jar :as jar])
   (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
            (java.io File FileOutputStream PrintWriter)))
 
 (defn read-components [zipfile]
   (when-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
-    (->> (xml-zip (xml/parse (.getInputStream zipfile entry)))
-         children
+    (->> (zip/xml-zip (xml/parse (.getInputStream zipfile entry)))
+         zip/children
          (filter #(= (:tag %) :components))
          first
          :content)))
@@ -34,7 +33,7 @@
     (do
       (.setCompressedSize file -1) ; some jars report size incorrectly
       (.putNextEntry out file)
-      (copy (.getInputStream in file) out)
+      (io/copy (.getInputStream in file) out)
       (.closeEntry out)
       (.getName file))))
 
@@ -81,16 +80,16 @@ as well as defining a -main function."
                      project)
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))]
-       (let [res (jar project)]
+       (let [res (jar/jar project)]
          (when (and (number? res) (pos? res))
-           (abort "Uberjar aborting because jar/compilation failed."))))
-     (let [standalone-filename (get-jar-filename project :uberjar)]
+           (main/abort "Uberjar aborting because jar/compilation failed."))))
+     (let [standalone-filename (jar/get-jar-filename project :uberjar)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
            (let [deps (->> (classpath/resolve-dependencies :dependencies project)
                            (filter #(.endsWith (.getName %) ".jar")))
-                 jars (cons (file (get-jar-filename project)) deps)]
+                 jars (cons (io/file (jar/get-jar-filename project)) deps)]
              (write-components project jars out)))
          (println "Created" standalone-filename)
          standalone-filename))

@@ -1,10 +1,10 @@
 (ns leiningen.install
   "Install the current project to the local repository."
   (:require [cemerick.pomegranate.aether :as aether]
-            [leiningen.core.project :as project])
-  (:use [leiningen.jar :only [jar]]
-        [leiningen.pom :only [pom]]
-        [clojure.java.io :only [file copy]])
+            [leiningen.core.project :as project]
+            [leiningen.jar :as jar]
+            [leiningen.pom :as pom]
+            [clojure.java.io :as io])
   (:import (java.util.jar JarFile)
            (java.util UUID)))
 
@@ -29,8 +29,8 @@
 (defn install
   "Install current project to the local repository."
   ([project]
-     (let [jarfile (jar project)
-           pomfile (pom project)]
+     (let [jarfile (jar/jar project)
+           pomfile (pom/pom project)]
        (if (number? jarfile)
          ;; if we failed to create the jar, return the status code for exit
          jarfile
@@ -38,8 +38,8 @@
            (aether/install :coordinates [(symbol (:group project)
                                                  (:name project))
                                          (:version project)]
-                           :jar-file (file jarfile)
-                           :pom-file (file pomfile))
+                           :jar-file (io/file jarfile)
+                           :pom-file (io/file pomfile))
              0))))
   ([_ project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))

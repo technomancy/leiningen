@@ -1,10 +1,10 @@
 (ns leiningen.deploy
   "Build and deploy jar to remote repository."
   (:require [cemerick.pomegranate.aether :as aether]
-            [leiningen.core.classpath :as classpath])
-  (:use [leiningen.jar :only [jar]]
-        [leiningen.pom :only [pom snapshot?]]
-        [clojure.java.io :only [file]]))
+            [leiningen.core.classpath :as classpath]
+            [clojure.java.io :as io]
+            [leiningen.pom :as pom]
+            [leiningen.jar :as jar]))
 
 (defn deploy
   "Build jar and deploy to remote repository.
@@ -19,10 +19,9 @@ the repository URL directly.
                  \"releases\" \"https://internal.repo/releases\"
                  \"alternate\" \"https://other.server/repo\"}
 
-You should set authentication options keyed by repository URL
-(or, by regex matching repository URLs) in the :deploy profile in
-~/.lein/profiles.clj to avoid checking sensitive information into
-source control:
+You should set authentication options keyed by repository URL or regex
+matching repository URLs in the :auth profile in ~/.lein/profiles.clj
+to avoid checking sensitive information into source control:
 
   {:user {:plugins [...]}
    :auth {:repository-auth {#\"https://internal.repo/.*\"
@@ -30,8 +29,8 @@ source control:
                             \"s3://s3-repo-bucket/releases\"
                             {:username \"AKIAIN...\" :passphrase \"1TChrGK4s...\"}}}"
   ([project repository-name]
-     (let [jarfile (jar project)
-           pomfile (pom project)
+     (let [jarfile (jar/jar project)
+           pomfile (pom/pom project)
            repo-opts (or (get (:deploy-repositories project) repository-name)
                          (get (:repositories project) repository-name))
            repo (classpath/add-repo-auth (cond
@@ -45,12 +44,12 @@ source control:
            (aether/deploy :coordinates [(symbol (:group project)
                                                 (:name project))
                                         (:version project)]
-                          :jar-file (file jarfile)
-                          :pom-file (file pomfile)
+                          :jar-file (io/file jarfile)
+                          :pom-file (io/file pomfile)
                           :transfer-listener :stdout
                           :repository [repo])
              0))))
   ([project]
-     (deploy project (if (snapshot? project)
+     (deploy project (if (pom/snapshot? project)
                        "snapshots"
                        "releases"))))

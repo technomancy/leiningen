@@ -1,11 +1,11 @@
 (ns leiningen.pom
   "Write a pom.xml file to disk for Maven interoperability."
-  (:use [useful.string :only [camelize dasherize]])
   (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as s]
-            [clojure.data.xml :as xml]))
+            [clojure.data.xml :as xml]
+            [useful.string :as useful]))
 
 ;; git scm
 
@@ -75,7 +75,7 @@
   [dep version (assoc opts :scope "test")])
 
 (defn pomify [key]
-  (->> key name camelize keyword))
+  (->> key name useful/camelize keyword))
 
 (defmulti xml-tags
   (fn [tag value] (keyword "leiningen.pom" (name tag))))
