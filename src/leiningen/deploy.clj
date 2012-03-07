@@ -19,7 +19,7 @@ the repository URL directly.
                  \"releases\" \"https://internal.repo/releases\"
                  \"alternate\" \"https://other.server/repo\"}
 
-You should set authentication options keyed by repository URL 
+You should set authentication options keyed by repository URL
 (or, by regex matching repository URLs) in the :deploy profile in
 ~/.lein/profiles.clj to avoid checking sensitive information into
 source control:

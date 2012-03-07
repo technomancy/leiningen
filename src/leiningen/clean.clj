@@ -1,5 +1,5 @@
 (ns leiningen.clean
-  "Remove compiled class files from project."
+  "Remove all files from project's target-path."
   (:use [clojure.java.io :only [file delete-file]]))
 
 (defn delete-file-recursively

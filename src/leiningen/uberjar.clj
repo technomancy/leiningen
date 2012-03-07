@@ -1,5 +1,5 @@
 (ns leiningen.uberjar
-  "Package up the project files and deps into a jar file."
+  "Package up the project files and dependencies into a jar file."
   (:require [clojure.xml :as xml]
             [leiningen.core.classpath :as classpath])
   (:use [clojure.zip :only [xml-zip children]]

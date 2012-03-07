@@ -1,5 +1,5 @@
 (ns leiningen.install
-  "Install the current project or download the project specified."
+  "Install the current project to the local repository."
   (:require [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project])
   (:use [leiningen.jar :only [jar]]
@@ -27,12 +27,7 @@
 
 
 (defn install
-  "Install current project or download specified project.
-
-With no arguments, installs the current project and its dependencies
-in your local repository. With two arguments, (group/name and version)
-downloads and installs a project from a remote repository. Places
-shell wrappers in ~/.lein/bin when provided."
+  "Install current project to the local repository."
   ([project]
      (let [jarfile (jar project)
            pomfile (pom project)]

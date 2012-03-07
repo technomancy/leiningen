@@ -29,6 +29,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Update new task
    - [X] Switch user-settings to checking :user profile sans project
    - [X] Offline mode
+   - [ ] Fix AOT issues with protocols in nrepl and data.xml
    - [ ] Document subcommands in newnew
    - [ ] Pretty-print pom
    - [ ] Look for :java-cmd in project map
