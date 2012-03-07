@@ -42,7 +42,6 @@ if [ "$LEIN_HOME" = "" ]; then
 fi
 
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
-CLOJURE_JAR="$HOME/.m2/repository/org/clojure/clojure/1.3.0/clojure-1.3.0.jar"
 
 # apply context specific CLASSPATH entries
 if [ -f .lein-classpath ] && [ ! -f src/leiningen/version.clj ]; then
@@ -129,7 +128,7 @@ export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
-export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-$JVM_OPTS}
+export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
@@ -205,8 +204,6 @@ else
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
 
-    # Until the fix comes in for classlojure.
-    # -Xbootclasspath/a:"$CLOJURE_JAR"
     $LEIN_JAVA_CMD \
         -client -XX:+TieredCompilation \
         $LEIN_JVM_OPTS \
