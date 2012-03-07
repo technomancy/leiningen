@@ -182,9 +182,10 @@
       (.setContextClassLoader thread (DynamicClassLoader. cl)))))
 
 (defn load-plugins
-  ([project plugin-key]
-    (ensure-dynamic-classloader)
-    (classpath/resolve-dependencies plugin-key project :add-classpath? true))
+  ([project key]
+     (when (seq (project key))
+       (ensure-dynamic-classloader)
+       (classpath/resolve-dependencies key project :add-classpath? true)))
   ([project] (load-plugins project :plugins)))
 
 (defn- load-hooks [project]
