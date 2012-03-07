@@ -30,10 +30,11 @@
       (formatted-docstring command docstring padding))))
 
 (defn- get-subtasks-and-docstrings-for [task]
-  (map (fn [subtask]
-         (let [m (meta subtask)]
-           [(str (:name m)) (first (.split (:doc m "") "\n"))]))
-       (:subtasks (meta task))))
+  (into {}
+        (map (fn [subtask]
+               (let [m (meta subtask)]
+                 [(str (:name m)) (first (.split (:doc m "") "\n"))]))
+             (:subtasks (meta task)))))
 
 (defn subtask-help-for
   [task-ns task]
