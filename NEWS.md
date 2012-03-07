@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-preview / ???
+## 2.0.0-preview1 / 2012-02-07
 
 * Split out leiningen-core into independent library.
 * Replace maven-ant-tasks with Pomegranate library. (Chas Emerick)
