@@ -55,17 +55,11 @@
   (if-not (:disable-injection project)
     (conj (:injections project) hooke-injection)))
 
-(def ^:dynamic *prepping?* false)
-
-;; TODO: tasks which are in :prep-tasks should dissoc themselves
-;; before calling eval-in-project!
 (defn prep [project]
   ;; This must exist before the project is launched.
   (.mkdirs (io/file (:compile-path project "/tmp")))
-  (when-not *prepping?*
-    (binding [*prepping?* true]
-      (doseq [task (:prep-tasks project)]
-        (main/apply-task task project [])))))
+  (doseq [task (:prep-tasks project)]
+    (main/apply-task task (dissoc project :prep-tasks) [])))
 
 ;; # Subprocess stuff
 

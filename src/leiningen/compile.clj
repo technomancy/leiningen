@@ -126,7 +126,9 @@ as command-line arguments."
          (try
            (let [form `(doseq [namespace# '~namespaces]
                          (println "Compiling" namespace#)
-                         (clojure.core/compile namespace#))]
+                         (clojure.core/compile namespace#))
+                 project (update-in project [:prep-tasks]
+                                    (partial remove #{"compile"}))]
              (.mkdirs (io/file (:compile-path project)))
              ;; TODO: should eval-in-project be allowed to return non-integers?
              (if (zero? (eval/eval-in-project project form))
