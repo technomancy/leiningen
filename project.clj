@@ -17,12 +17,16 @@
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}}
   :test-selectors {:default (complement :busted)}
+  :aot [#"leiningen" leiningen.core.main leiningen.core.eval
+        leiningen.core.project leiningen.core.classpath leiningen.core.user]
   :eval-in :leiningen)
 
 ;;; Release Checklist
 
 ;; * update NEWS, bin/lein, bin/lein.bat, project.clj, pom
-;; * rm -rf target, compile :all, generate uberjar, upload
+;; * rm -rf target ~/.lein/self-installs/leiningen-*-SNAPSHOT-standalone.jar
+;; * temporarily add :aot :all to leiningen-core/project.clj; lein install
+;; * bin/lein uberjar, upload
 ;; * test self-install
 ;; * git tag
 ;; * push, push tags, update stable branch

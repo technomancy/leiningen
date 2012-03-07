@@ -1,5 +1,5 @@
 (ns leiningen.pom
-  "Write a pom.xml file to disk for Maven interop."
+  "Write a pom.xml file to disk for Maven interoperability."
   (:use [useful.string :only [camelize dasherize]])
   (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]
@@ -268,7 +268,7 @@
     (str baos)))
 
 (defn ^{:help-arglists '([])} pom
-  "Write a pom.xml file to disk for Maven interop."
+  "Write a pom.xml file to disk for Maven interoperability."
   ([project pom-location silently?]
      (let [pom-file (io/file (:target-path project) pom-location)]
        (.mkdirs (.getParentFile pom-file))

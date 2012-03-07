@@ -102,13 +102,16 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         cd "$ORIG_PWD"
     fi
 
+    mkdir -p "$LEIN_DIR/target/classes"
+    export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Dclojure.compile.path=$LEIN_DIR/target/classes"}
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/src/"
     CLASSPATH="$CLASSPATH:$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/lib/*"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
+    CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/classes:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
 else
     # Not running from a checkout
     CLASSPATH="$CLASSPATH:$LEIN_JAR"
+    export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         "$0" self-install
@@ -128,7 +131,6 @@ export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
-export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
