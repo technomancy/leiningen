@@ -31,7 +31,7 @@
     (apply println msg)
     (exit 1)))
 
-(defn task-not-found [& _]
+(defn ^:no-project-needed task-not-found [& _]
   (abort "That's not a task. Use \"lein help\" to list all tasks."))
 
 ;; TODO: got to be a cleaner way to do this, right?
