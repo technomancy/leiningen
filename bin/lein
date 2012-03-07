@@ -168,7 +168,7 @@ elif [ "$1" = "upgrade" ]; then
         echo "You do not have permission to upgrade the installation in $SCRIPT"
         exit 1
     else
-        echo "The script at $SCRIPT will be upgraded to the latest stable version."
+        echo "The script at $SCRIPT will be upgraded to the latest preview version."
         echo -n "Do you want to continue [Y/n]? "
         read RESP
         case "$RESP" in
@@ -176,7 +176,7 @@ elif [ "$1" = "upgrade" ]; then
                 echo
                 echo "Upgrading..."
                 TARGET="/tmp/lein-$$-upgrade"
-                LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/stable/bin/lein"
+                LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/preview/bin/lein"
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL" \
                     && mv "$TARGET" "$SCRIPT" \
                     && chmod +x "$SCRIPT" \
