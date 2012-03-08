@@ -136,12 +136,11 @@
   (conj acc (:path spec)))
 
 (defn write-jar [project out-file filespecs]
-  (let [manifest (make-manifest project)]
-    (with-open [jar-os (-> out-file
-                           (FileOutputStream.)
-                           (BufferedOutputStream.)
-                           (JarOutputStream. manifest))]
-      (reduce (partial copy-to-jar project jar-os) #{} filespecs))))
+  (with-open [jar-os (-> out-file
+                         (FileOutputStream.)
+                         (BufferedOutputStream.)
+                         (JarOutputStream. (make-manifest project)))]
+    (reduce (partial copy-to-jar project jar-os) #{} filespecs)))
 
 (defn- filespecs [project deps-fileset]
   (concat [{:type :bytes

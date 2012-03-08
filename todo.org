@@ -29,10 +29,11 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Update new task
    - [X] Switch user-settings to checking :user profile sans project
    - [X] Offline mode
+** Other stuff (post-preview)
+   - [ ] Force checking of snapshots
    - [ ] Document subcommands in newnew
    - [ ] Pretty-print pom
    - [ ] Look for :java-cmd in project map
-** Other stuff (post-preview)
    - [ ] deps :tree and deps :list
    - [ ] Honor hooks declared in plugin jar metadata?
    - [ ] Show aliases in lein help

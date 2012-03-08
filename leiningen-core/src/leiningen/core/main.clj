@@ -116,7 +116,7 @@ or by executing \"lein upgrade\". ")
     (when (:min-lein-version project)
       (verify-min-version project))
     (when-not project
-      (project/load-plugins (:user (user/profiles))))
+      (project/load-plugins (project/merge-profiles {} [:user :default])))
     (doseq [[task-name & args] (group-args args)
             :let [task-name (or (@aliases task-name)
                                 (get (:aliases project) task-name)
