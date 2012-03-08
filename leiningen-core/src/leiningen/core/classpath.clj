@@ -48,7 +48,7 @@
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
 
-(defn add-repo-auth [[id {:keys [url] :as repo}]]
+(defn add-repo-auth
   "Repository credentials (a map containing some of
    #{:username :password :passphrase :private-key-file}) are discovered
    from:
@@ -64,6 +64,7 @@
 
    would be applied to all repositories with URLs matching the regex key
    that didn't have an explicit entry."
+  [[id {:keys [url] :as repo}]]
   (let [repo-creds (-> (user/profiles) :auth :repository-auth)]
     (if-let [match (get repo-creds url)]
       [id (merge repo match)]
