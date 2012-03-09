@@ -3,10 +3,10 @@ _lein_completion() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    tasks="classpath clean compile deploy deps help install interactive jar javac new plugin pom repl run swank test test! uberjar version"
+    tasks="check classpath clean compile deploy deps help install jar javac new pom repl retest run search swank test trampoline uberjar upgrade version with-profile"
 
     case "${prev}" in
-        classpath | clean | compile | deploy | deps | install | interactive | jar | javac | new | plugin | pom | repl | swank | uberjar | version)
+        check | classpath | clean | deploy | deps | install | jar | javac | new | pom | repl | swank | uberjar | version)
             COMPREPLY=()
             ;;
         help)
@@ -18,9 +18,15 @@ _lein_completion() {
                 COMPREPLY=( $(compgen -W "${tasks}" -- ${cur}) )
             fi
             ;;
-        run | test | test!)
+        test | retest )
             # list project's test namespaces:
             local namespaces=$(find test/ -type f -name "*.clj" -exec grep -E \
+                '^\(ns[[:space:]]+\w+' '{}' ';' | sed -n 's/(ns[ ]*//p')
+            COMPREPLY=( $(compgen -W "${namespaces}" -- ${cur}) )
+            ;;
+        run | compile)
+            # list project's src namespaces:
+            local namespaces=$(find src/ -type f -name "*.clj" -exec grep -E \
                 '^\(ns[[:space:]]+\w+' '{}' ';' | sed -n 's/(ns[ ]*//p')
             COMPREPLY=( $(compgen -W "${namespaces}" -- ${cur}) )
             ;;

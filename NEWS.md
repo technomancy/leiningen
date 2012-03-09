@@ -1,5 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview2 / 2012-03-08
+
+* Honor :default and :user profiles when running outside a project.
+* Fix a bug where subtask help wasn't showing.
+
 ## 2.0.0-preview1 / 2012-03-07
 
 * Split out leiningen-core into independent library.
@@ -24,6 +29,7 @@
 * Allow partial application of aliases.
 * Drop :extra-classpath-dirs option.
 * Load :plugins without trampolining the process.
+* Remove plugin task in favour of :user profile.
 * Allow :repository-auth to be specified using a regular expression.
 * Support arbitrary project map transformation functions via :middleware.
 * Support changing :local-repo path in project.clj.

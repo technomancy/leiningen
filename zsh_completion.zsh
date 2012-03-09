@@ -13,31 +13,32 @@ _lein() {
     _call_function 1 _lein_${words[1]}
   else
     _values "lein command" \
+     "check[Check syntax and warn on reflection.]" \
      "classpath[Print the classpath of the current project.]" \
-     "clean[Remove compiled class files and jars from project.]" \
+     "clean[Remove all files from project's target-path.]" \
      "compile[Compile Clojure source into \.class files.]" \
      "deploy[Build jar and deploy to remote repository.]" \
-     "deps[Download :dependencies and put them in :library-path.]" \
+     "deps[Download :dependencies.]" \
      "help[Display a list of tasks or help for a given task.]" \
-     "install[Install current project or download specified project.]" \
-     "interactive[Enter an interactive task shell.]" \
+     "install[Install current project to the local repository.]" \
      "jack-in[Jack in to a Clojure SLIME session from Emacs.]" \
      "jar[Package up all the project's files into a jar file.]" \
      "javac[Compile Java source files.]" \
      "new[Create a new project skeleton.]" \
      "plugin[Manage user-level plugins.]" \
-     "pom[Write a pom.xml file to disk for Maven interop.]" \
+     "pom[Write a pom.xml file to disk for Maven interoperability.]" \
+     "profiles[List all available profiles or display one if given an argument.]" \
      "repl[Start a repl session either with the current project or standalone.]" \
      "retest[Run only the test namespaces which failed last time around.]" \
      "run[Run the project's -main function.]" \
      "search[Search remote repositories.]" \
      "swank[Launch swank server for Emacs to connect.]" \
      "test[Run the project's tests.]" \
-     "test![Run a project's tests after cleaning and fetching dependencies.]" \
      "trampoline[Run a task without nesting the project's JVM inside Leiningen's.]" \
      "uberjar[Package up the project files and all dependencies into a jar file.]" \
      "upgrade[Upgrade Leiningen to the latest stable release.]" \
-     "version[Print version for Leiningen and the current JVM.]"
+     "version[Print version for Leiningen and the current JVM.]" \
+     "with-profile[Apply the given task with the profile(s) specified.]"
   fi
 }
 
