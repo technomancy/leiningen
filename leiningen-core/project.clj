@@ -1,4 +1,4 @@
-(defproject leiningen-core "2.0.0-SNAPSHOT"
+(defproject leiningen-core "2.0.0-preview2"
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -10,5 +10,5 @@
                  [com.cemerick/pomegranate "0.0.9"
                   :exclusions [org.slf4j/slf4j-api]]]
   :dev-resources-path "dev-resources"
-  ;; :aot :all
+  :aot :all
   :profiles {:dev {:resource-paths ["dev-resources"]}})
