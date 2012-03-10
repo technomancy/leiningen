@@ -24,10 +24,10 @@
   (io/file (user/leiningen-home) "indices" (string/replace url #"[:/]" "_")))
 
 (defn remote-index-url [url]
-  (format "%s/.index/nexus-maven-repository-index.zip" url))
+  (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))
 
-(defn- download [url ^OutputStream out-stream  & {:keys [callback]}]
-  (let [resp (client/get url {:as :stream})
+(defn- download [^URL url ^OutputStream out-stream  & {:keys [callback]}]
+  (let [resp (client/get (str url) {:as :stream})
         content-len (try (Long/valueOf
                           (get-in resp [:headers "content-length"]))
                          (catch Exception _))
@@ -49,7 +49,7 @@
   (println "Downloading index from" id "-" url "... this may take a while.")
   (print "0%...")
   (flush)
-  (let [index-url (remote-index-url url)
+  (let [index-url ^URL (remote-index-url url)
         tmp (File/createTempFile "lein" "index")
         tmp-stream (FileOutputStream. tmp)
         progress (atom 0)
@@ -58,7 +58,9 @@
                      (reset! progress percentage)
                      (print (str "\r" percentage "%..."))
                      (flush)))]
-    (try (download index-url tmp-stream :callback callback)
+    (try (if (= "file" (.getProtocol index-url))
+           (io/copy (.openStream index-url) tmp-stream)
+           (download index-url tmp-stream :callback callback))
          (unzip tmp (index-location url))
          (finally (.delete tmp))))
   (println))
