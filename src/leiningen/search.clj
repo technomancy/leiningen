@@ -3,9 +3,11 @@
             [clojure.string :as string]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
-            [clucy.core :as clucy])
+            [clucy.core :as clucy]
+            [clj-http.client :as client])
   (:import (java.util.zip ZipFile)
-           (java.net URL)))
+           (java.net URL)
+           (java.io File InputStream OutputStream FileOutputStream)))
 
 ;;; Fetching Indices
 
@@ -22,15 +24,44 @@
   (io/file (user/leiningen-home) "indices" (string/replace url #"[:/]" "_")))
 
 (defn remote-index-url [url]
-  (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))
+  (format "%s/.index/nexus-maven-repository-index.zip" url))
+
+(defn- download [url ^OutputStream out-stream  & {:keys [callback]}]
+  (let [resp (client/get url {:as :stream})
+        content-len (try (Long/valueOf
+                          (get-in resp [:headers "content-length"]))
+                         (catch Exception _))
+        in ^InputStream (:body resp) ;closes itself after completion
+        buf (byte-array 1024)]
+    (loop [cnt 0]
+      (let [size (.read in buf)]
+        (when (pos? size)
+          (let [cnt* (+ cnt size)]
+            (.write out-stream buf 0 size)
+            (when callback
+              (callback {:byte-count cnt*
+                         :content-len content-len
+                         :percentage (when content-len
+                                       (int (* 100 (/ cnt* content-len))))}))
+            (recur cnt*)))))))
 
 (defn- download-index [[id {url :url}]]
-  (with-open [stream (.openStream (remote-index-url url))]
-    (println "Downloading index from" id "-" url "... this may take a while.")
-    (let [tmp (java.io.File/createTempFile "lein" "index")]
-      (try (io/copy stream tmp)
-           (unzip tmp (index-location url))
-           (finally (.delete tmp))))))
+  (println "Downloading index from" id "-" url "... this may take a while.")
+  (print "0%...")
+  (flush)
+  (let [index-url (remote-index-url url)
+        tmp (File/createTempFile "lein" "index")
+        tmp-stream (FileOutputStream. tmp)
+        progress (atom 0)
+        callback (fn [{:keys [percentage]}]
+                   (when-not (= percentage @progress)
+                     (reset! progress percentage)
+                     (print (str "\r" percentage "%..."))
+                     (flush)))]
+    (try (download index-url tmp-stream :callback callback)
+         (unzip tmp (index-location url))
+         (finally (.delete tmp))))
+  (println))
 
 (defn- download-needed? [[id {:keys [url]}]]
   (not (.exists (index-location url))))
