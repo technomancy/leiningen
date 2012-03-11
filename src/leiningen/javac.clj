@@ -1,6 +1,7 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:require [leiningen.classpath :as classpath]
+            [leiningen.core.main :as main]
             [clojure.java.io :as io])
   (:import javax.tools.ToolProvider))
 
@@ -37,11 +38,13 @@
   (let [files (mapcat extract-java-source (:java-source-paths project))
         compile-path (:compile-path project)]
     (when (pos? (count files))
-      (println "Compiling" (count files) "source files to" compile-path)
-      (.mkdirs (io/file compile-path))
-      (.run (ToolProvider/getSystemJavaCompiler)
-            nil nil nil
-            (javac-options project files args)))))
+      (if-let [compiler (ToolProvider/getSystemJavaCompiler)]
+        (do
+          (println "Compiling" (count files) "source files to" compile-path)
+          (.mkdirs (io/file compile-path))
+          (.run compiler nil nil nil (javac-options project files args)))
+        (main/abort "lein-javac: system java compiler not found;"
+                    "a JDK (vs. JRE) install is required.")))))
 
 (defn javac
   "Compile Java source files.
