@@ -3,15 +3,22 @@
   (:require [leiningen.classpath :as classpath]
             [leiningen.core.main :as main]
             [clojure.java.io :as io])
-  (:import javax.tools.ToolProvider))
+  (:import java.io.File
+           javax.tools.ToolProvider))
 
-;; There is probably a more efficient way to do this, but this is cool
-;; too.
-(defn extract-java-source
-  "Find all of the Java source files in a directory."
-  [dir]
-  (filter #(.endsWith % ".java")
-          (map #(.getPath %) (file-seq (io/file dir)))))
+(defn stale-java-sources
+  "Returns a lazy seq of file paths: every Java source file within
+  dirs modified since it was most recently compiled into
+  compile-path."
+  [dirs compile-path]
+  (for [dir dirs
+        ^File source (filter #(-> ^File % (.getName) (.endsWith ".java"))
+                             (file-seq (io/file dir)))
+        :let [rel-source (.substring (.getPath source) (inc (count dir)))
+              rel-compiled (.replaceAll rel-source "\\.java$" ".class")
+              compiled (io/file compile-path rel-compiled)]
+        :when (> (.lastModified source) (.lastModified compiled))]
+    (.getPath source)))
 
 ;; Tool's .run method expects the last argument to be an array of
 ;; strings, so that's what we'll return here.
@@ -35,8 +42,8 @@
 (defn- run-javac-task
   "Run javac to compile all source files in the project."
   [project args]
-  (let [files (mapcat extract-java-source (:java-source-paths project))
-        compile-path (:compile-path project)]
+  (let [compile-path (:compile-path project)
+        files (stale-java-sources (:java-source-paths project) compile-path)]
     (when (pos? (count files))
       (if-let [compiler (ToolProvider/getSystemJavaCompiler)]
         (do
