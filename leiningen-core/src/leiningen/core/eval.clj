@@ -124,7 +124,7 @@
     (pr-str form)))
 
 (defn shell-command [project form]
-  `(~(or (System/getenv "JAVA_CMD") "java")
+  `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
     "-cp" ~(string/join java.io.File/pathSeparatorChar
                         (classpath/get-classpath project))
     ~@(get-jvm-args project)
