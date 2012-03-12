@@ -27,7 +27,8 @@
   [project]
   (let [nses (:aot project)
         nses (if (= :all nses)
-               (b/namespaces-on-classpath :classpath (map io/file (:source-paths project)))
+               (b/namespaces-on-classpath :classpath (map io/file
+                                                          (:source-paths project)))
                (find-namespaces-by-regex project nses))]
     (if (compile-main? project)
       (conj nses (:main project))
