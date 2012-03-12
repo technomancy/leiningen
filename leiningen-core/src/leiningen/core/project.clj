@@ -207,10 +207,8 @@
   "Add a dependency into the project map if it's not already present. Warn the
   user if it is. Plugins should use this rather than altering :dependencies."
   [project dependency]
-  (if (some #(= (first %) (first dependency)) (:dependencies project))
-    (do (println "WARNING: Tried to add" dependency "but was already present.")
-        project)
-    (update-in project [:dependencies] conj dependency)))
+  (println "WARNING: conj-dependencies is deprecated.")
+  (update-in project [:dependencies] conj dependency))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."
