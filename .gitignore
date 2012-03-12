@@ -14,3 +14,4 @@ docs
 .lein-project-checksum
 /leiningen-core/.lein-plugins/checksum
 /wiki
+TAGS
