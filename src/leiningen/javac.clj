@@ -15,7 +15,7 @@
         ^File source (filter #(-> ^File % (.getName) (.endsWith ".java"))
                              (file-seq (io/file dir)))
         :let [rel-source (.substring (.getPath source) (inc (count dir)))
-              rel-compiled (.replaceAll rel-source "\\.java$" ".class")
+              rel-compiled (.replaceFirst rel-source "\\.java$" ".class")
               compiled (io/file compile-path rel-compiled)]
         :when (> (.lastModified source) (.lastModified compiled))]
     (.getPath source)))
