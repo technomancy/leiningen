@@ -17,7 +17,7 @@
         :let [rel-source (.substring (.getPath source) (inc (count dir)))
               rel-compiled (.replaceFirst rel-source "\\.java$" ".class")
               compiled (io/file compile-path rel-compiled)]
-        :when (> (.lastModified source) (.lastModified compiled))]
+        :when (>= (.lastModified source) (.lastModified compiled))]
     (.getPath source)))
 
 ;; Tool's .run method expects the last argument to be an array of
