@@ -10,7 +10,7 @@
                  [clucy "0.2.3"]
                  [useful "0.7.6-alpha1"]
                  [lein-newnew "0.2.5"]
-                 [reply "0.1.0-alpha5"]
+                 [reply "0.1.0-alpha6"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.3"]
                  [clj-http "0.3.3"]]
