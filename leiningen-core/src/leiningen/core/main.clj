@@ -31,8 +31,8 @@
     (apply println msg)
     (exit 1)))
 
-(defn ^:no-project-needed task-not-found [& _]
-  (abort "That's not a task. Use \"lein help\" to list all tasks."))
+(defn ^:no-project-needed task-not-found [task & _]
+  (abort (str task " is not a task. Use \"lein help\" to list all tasks.")))
 
 ;; TODO: got to be a cleaner way to do this, right?
 (defn- drop-partial-args [pargs]
@@ -49,12 +49,13 @@
        (try
          (when-not (find-ns task-ns)
            (require task-ns))
-         (let [task-var (or (ns-resolve task-ns (symbol task)) not-found)]
+         (if-let [task-var (ns-resolve task-ns (symbol task))]
            (with-meta
              (fn [project & args] (apply task-var project (concat pargs args)))
-             (update-in (meta task-var) [:arglists] (drop-partial-args pargs))))
+             (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))
+           (not-found task))
          (catch java.io.FileNotFoundException e
-           not-found))))
+           (not-found task)))))
   ([task] (resolve-task task #'task-not-found)))
 
 (defn ^:internal matching-arity? [task args]
