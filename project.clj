@@ -18,8 +18,8 @@
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}}
   :test-selectors {:default (complement :busted)}
-  :aot [#"leiningen" leiningen.core.main leiningen.core.eval
-        leiningen.core.project leiningen.core.classpath leiningen.core.user]
+  :source-paths ["leiningen-core/src" "src"]
+  :aot [#"leiningen"]
   :eval-in :leiningen)
 
 ;;; Release Checklist
