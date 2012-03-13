@@ -27,7 +27,8 @@
   [project]
   (let [nses (:aot project)
         nses (if (= :all nses)
-               (b/namespaces-on-classpath :classpath (map io/file (:source-paths project)))
+               (b/namespaces-on-classpath :classpath (map io/file
+                                                          (:source-paths project)))
                (find-namespaces-by-regex project nses))]
     (if (compile-main? project)
       (conj nses (:main project))
@@ -37,15 +38,17 @@
   "Return a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
-  (filter
-   (fn [n]
-     (let [clj-path (b/path-for n)
-           class-file (io/file (:compile-path project)
-                               (.replace clj-path "\\.clj" "__init.class"))]
-       (or (not (.exists class-file))
-           (> (.lastModified (io/file (:source-paths project) clj-path))
-              (.lastModified class-file)))))
-   (compilable-namespaces project)))
+  (for [namespace (compilable-namespaces project)
+        :let [rel-source (b/path-for namespace)
+              source (first (for [source-path (:source-paths project)
+                                  :let [file (io/file source-path rel-source)]
+                                  :when (.exists file)]
+                              file))]
+        :when source
+        :let [rel-compiled (.replaceFirst rel-source "\\.clj$" "__init.class")
+              compiled (io/file (:compile-path project) rel-compiled)]
+        :when (>= (.lastModified source) (.lastModified compiled))]
+    namespace))
 
  ;; .class file cleanup
 
