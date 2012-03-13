@@ -85,10 +85,15 @@
 
 Also provides readme, tutorial, news, sample, deploying and copying info."
   ([_ task] (println (or (static-help task) (help-for task))))
-  ([_ ]
+  ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
      (doseq [task-ns tasks]
        (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
-     (println "See also: readme, tutorial, news, sample, deploying and copying.")))
+     (if-let [aliases (:aliases project)]
+       (do
+         (println "\nAliases:")
+         (doseq [[k v] aliases]
+           (println (str k  " " v)))))
+     (println "\nSee also: readme, tutorial, news, sample, deploying and copying.")))
