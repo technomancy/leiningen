@@ -22,9 +22,16 @@ Leiningen bootstraps itself using the `lein` shell script;
 there is no separate install script. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](https://raw.github.com/technomancy/leiningen/preview/bin/lein).
+1. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 2. Place it on your `$PATH`. (I like to use `~/bin`)
 3. Set it to be executable. (`chmod 755 ~/bin/lein`)
+
+The instructions above will install the stable release. The Leiningen 2
+[preview release](https://raw.github.com/technomancy/leiningen/preview/bin/lein)
+has some great new features, but not all projects and plugins have
+been upgraded to work with it yet. Please see the
+[upgrade guide](https://github.com/technomancy/leiningen/wiki/Upgrading)
+for instructions on migrating to version 2.
 
 On Windows most users can get
 [the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
@@ -33,14 +40,6 @@ can just run `lein self-install`, otherwise get the standalone jar from the
 [downloads page](https://github.com/technomancy/leiningen/downloads).
 If you have [Cygwin](http://www.cygwin.com/) you should be able to use
 the shell script above rather than the batch file.
-
-The instructions above will install version 2, which is still in a
-preview release. If you are coming from Leiningen 1 or are working on
-projects that are written with it in mind, see the
-[upgrade guide](https://github.com/technomancy/leiningen/wiki/Upgrading).
-
-If you need to get an older version, use the
-[stable branch](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 
 ## Usage
 
