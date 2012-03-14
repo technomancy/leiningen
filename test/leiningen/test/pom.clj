@@ -19,6 +19,10 @@
         pom (make-pom (with-meta sample-project altered-meta))]
     (is (re-find #"<classifier>stuff</classifier>" pom))))
 
+(deftest test-pom-tries-to-pprint
+  (is (re-find #"(?m)^\s+<groupId>nomnomnom</groupId>$"
+               (make-pom sample-project))))
+
 
 (deftest test-snapshot-checking
   (let [aborted? (atom false)]
