@@ -53,7 +53,11 @@ run outside of a project, it'll be standalone and the classpath will be
 that of Leiningen.
 
 USAGE: lein repl :headless
-This will launch an nREPL server and wait, rather than connecting reply to it."
+This will launch an nREPL server and wait, rather than connecting reply to it.
+
+USAGE: lein repl :connect [host:]port
+Connects to the nREPL server running at the given host (defaults to localhost)
+and port."
   ([] (repl nil))
   ([project]
    (nrepl.ack/reset-ack-port!)
@@ -69,7 +73,7 @@ This will launch an nREPL server and wait, rather than connecting reply to it."
          {:attach (str repl-port)}
          (:reply-options project)))
      (println "REPL server launch timed out.")))
-  ([project flag]
+  ([project flag & opts]
    (case flag
      ":headless" (do
                    (start-server project
@@ -77,4 +81,5 @@ This will launch an nREPL server and wait, rather than connecting reply to it."
                                  (ack-port project))
                    (while true
                      (Thread/sleep Long/MAX_VALUE)))
+     ":connect" (reply/launch-nrepl {:attach (first opts)})
      (main/abort "Unrecognized flag:" flag))))
