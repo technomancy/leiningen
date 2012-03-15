@@ -7,6 +7,9 @@
             [clojure.data.xml :as xml]
             [useful.string :as useful]))
 
+(def ^:private sonatype-url
+  "http://oss.sonatype.org/content/repositories/releases")
+
 ;; git scm
 
 (defn- read-git-ref
@@ -91,7 +94,7 @@
                                  (-> tag name (s/replace #"ies$" "y") keyword))
                         values)]))
 
-(doseq [c [::dependencies ::repositories]]
+(doseq [c [::dependencies ::repositories ::pluginRepositories]]
   (derive c ::list))
 
 (defmethod xml-tags ::exclusions
@@ -121,6 +124,10 @@
   ([_ [id opts]]
      [:repository [:id id] [:url (:url opts)]]))
 
+(defmethod xml-tags ::pluginRepository
+  ([_ [id opts]]
+     [:pluginRepository [:id id] [:url (:url opts)]]))
+
 (defmethod xml-tags ::license
   ([_ opts]
      [:licenses
@@ -132,7 +139,8 @@
   ([_ project]
      (let [dev-project (project/merge-profiles project [:dev])
            [src & extra-src] (:source-paths project)
-           [test & extra-test] (:test-paths dev-project)]
+           [test & extra-test] (:test-paths dev-project)
+           aot (:aot project)]
        [:build
         [:sourceDirectory src]
         [:testSourceDirectory test]
@@ -175,7 +183,39 @@
                 [:goals [:goal "add-test-source"]]
                 [:configuration
                  (vec (concat [:sources]
-                              (map (fn [x] [:source x]) extra-test)))]])]]])])))
+                              (map (fn [x] [:source x]) extra-test)))]])]]
+           [:plugin
+            [:groupId "org.cloudhoist.plugin"]
+            [:artifactId "zi"]
+            [:version "0.4.5"]
+            [:executions
+             (when-not (:omit-source project)
+               [:execution
+                [:id "default-resources"]
+                [:phase "process-resources"]
+                [:goals [:goal "resources"]]])
+             [:execution
+              [:id "default-test-resources"]
+              [:phase "process-test-resources"]
+              [:goals [:goal "testResources"]]]
+             [:execution
+              [:id "default-test"]
+              [:phase "test"]
+              [:goals [:goal "test"]]]
+             (when-not (empty? aot)
+               [:execution
+                [:id "default-compile"]
+                [:phase "compile"]
+                [:goals [:goal "compile"]]
+                (when-not (= aot :all)
+                  [:configuration
+                   (vec
+                  (concat
+                   [:includes]
+                   (map
+                    (fn [x]
+                      [:include (-> x (s/replace "-" "_") (s/replace "." "/"))])
+                    aot)))])])]]])])))
 
 (defmethod xml-tags ::parent
   ([_ [dep version & opts]]
@@ -227,6 +267,7 @@
        (make-git-scm (io/file (:root project) ".git"))
        (xml-tags :build project)
        (xml-tags :repositories (:repositories project))
+       (xml-tags :pluginRepositories {"sonatype" {:url sonatype-url}})
        (xml-tags :dependencies (map (partial add-exclusions (:exclusions project))
                                     ;; TODO: include :dependencies
                                     ;; from :dev profile as test-scoped.
