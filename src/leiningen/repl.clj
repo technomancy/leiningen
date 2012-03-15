@@ -75,10 +75,10 @@ and port."
      (println "REPL server launch timed out.")))
   ([project flag & opts]
    (case flag
-     ":headless" (do
-                   (start-server project
-                                 (repl-port project)
-                                 (ack-port project))
+     ":headless" (let [server (start-server project
+                                (repl-port project)
+                                (ack-port project))]
+                   (println "nREPL server started on port" (-> @server :ss .getLocalPort)) 
                    (while true
                      (Thread/sleep Long/MAX_VALUE)))
      ":connect" (reply/launch-nrepl {:attach (first opts)})
