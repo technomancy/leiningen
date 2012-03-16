@@ -4,16 +4,19 @@
             [clojure.java.io :as io]
             [bultitude.core :as b]))
 
-(def tasks (->> (b/namespaces-on-classpath :prefix "leiningen")
-                (filter #(re-find #"^leiningen\.(?!core|main)[^\.]+$" (name %)))
-                (distinct)
-                (sort)))
+(defn tasks
+  "Return a list of symbols naming all visible tasks."
+  []
+  (->> (b/namespaces-on-classpath :prefix "leiningen")
+       (filter #(re-find #"^leiningen\.(?!core|main|util)[^\.]+$" (name %)))
+       (distinct)
+       (sort)))
 
-(defn get-arglists [task]
+(defn- get-arglists [task]
   (for [args (or (:help-arglists (meta task)) (:arglists (meta task)))]
     (vec (remove #(= 'project %) args))))
 
-(def help-padding 3)
+(def ^:private help-padding 3)
 
 (defn- formatted-docstring [command docstring padding]
   (apply str
@@ -40,20 +43,19 @@
   [task-ns task]
   (if-let [subtasks (seq (get-subtasks-and-docstrings-for task))]
     (let [longest-key-length (apply max (map count (keys subtasks)))]
-      (string/join "\n"
-                   (concat ["\n\nSubtasks available:"]
-                           (for [[subtask doc] subtasks]
-                             (formatted-help subtask doc
-                                             longest-key-length)))))))
+      (string/join "\n" (concat ["\n\nSubtasks available:"]
+                                (for [[subtask doc] subtasks]
+                                  (formatted-help subtask doc
+                                                  longest-key-length)))))))
 
 (defn- resolve-task [task-name]
   (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
         task (ns-resolve task-ns (symbol task-name))]
     [task-ns task]))
 
-(defn static-help [name]
-  (when-let [reader (io/resource (format "leiningen/help/%s" name))]
-    (slurp reader)))
+(defn- static-help [name]
+  (when-let [resource (io/resource (format "leiningen/help/%s" name))]
+    (slurp resource)))
 
 (defn help-for
   "Help for a task is stored in its docstring, or if that's not present
