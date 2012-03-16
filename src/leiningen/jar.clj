@@ -24,7 +24,7 @@
 ;;     :unix (read-resource "script-template")
 ;;     :windows (read-resource "script-template.bat")))
 
-(defn unix-path [path]
+(defn- unix-path [path]
   (.replace path "\\" "/"))
 
 ;; (defn windows-path [path]
@@ -78,12 +78,12 @@
 ;;         :path (format "%s.bat" bin-name)
 ;;         :bytes (.getBytes (read-bin :windows))}])))
 
-(def default-manifest
+(def ^:private default-manifest
   {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
    "Built-By" (System/getProperty "user.name")
    "Build-Jdk" (System/getProperty "java.version")})
 
-(defn make-manifest [project & [extra-entries]]
+(defn ^:internal make-manifest [project]
   (Manifest.
    (ByteArrayInputStream.
     (.getBytes
@@ -96,18 +96,18 @@
                     (when-let [main (:main project)]
                       {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
 
-(defn manifest-map [manifest]
+(defn ^:internal manifest-map [manifest]
   (let [attrs (.getMainAttributes manifest)]
     (zipmap (map str (keys attrs)) (vals attrs))))
 
-(defn skip-file? [file relative-path patterns]
+(defn- skip-file? [file relative-path patterns]
   (or (not (.exists file))
       (.isDirectory file)
       (re-find #"^\.?#" (.getName file))
       (re-find #"~$" (.getName file))
       (some #(re-find % relative-path) patterns)))
 
-(defmulti copy-to-jar (fn [project jar-os acc spec] (:type spec)))
+(defmulti ^:private copy-to-jar (fn [project jar-os acc spec] (:type spec)))
 
 (defn- trim-leading [s to-trim]
   (.replaceAll s (str "^" (Pattern/quote to-trim)) ""))

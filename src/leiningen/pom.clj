@@ -71,13 +71,13 @@
   It should not be considered canonical data. For more information see
   https://github.com/technomancy/leiningen -->\n")
 
-(defn make-test-scope [[dep version opts]]
+(defn- make-test-scope [[dep version opts]]
   [dep version (assoc opts :scope "test")])
 
-(defn pomify [key]
+(defn- pomify [key]
   (->> key name useful/camelize keyword))
 
-(defmulti xml-tags
+(defmulti ^:private xml-tags
   (fn [tag value] (keyword "leiningen.pom" (name tag))))
 
 (defmethod xml-tags :default
@@ -200,7 +200,7 @@
            (vec (concat [:otherArchives]
                         (map (fn [x] [:otherArchive x]) other-archives)))))]]))
 
-(defn add-exclusions [exclusions [dep version & opts]]
+(defn- add-exclusions [exclusions [dep version & opts]]
   (concat [dep version]
           (apply concat (update-in (apply hash-map opts)
                                    [:exclusions]
@@ -235,16 +235,13 @@
 (defn snapshot? [project]
   (re-find #"SNAPSHOT" (:version project)))
 
-(defn ^{:dynamic true} abort [& msg]
-  (main/abort msg))
-
 (defn check-for-snapshot-deps [project]
   (when (and (not (snapshot? project))
              (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE"))
              (some #(re-find #"SNAPSHOT" (second %)) (:dependencies project)))
-    (abort "Release versions may not depend upon snapshots."
-           "\nFreeze snapshots to dated versions or set the"
-           "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override this.")))
+    (main/abort "Release versions may not depend upon snapshots."
+                "\nFreeze snapshots to dated versions or set the"
+                "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))
 
 (defn make-pom
   ([project] (make-pom project false))

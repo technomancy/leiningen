@@ -40,7 +40,7 @@
 ;; we have to keep track of every entry we've copied so that we can
 ;; skip duplicates.  We also collect together all the plexus components so
 ;; that we can merge them.
-(defn include-dep [out skip-pred [skip-set components] dep]
+(defn- include-dep [out skip-pred [skip-set components] dep]
   (println "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
     [(into skip-set (copy-entries zipfile out skip-set skip-pred))

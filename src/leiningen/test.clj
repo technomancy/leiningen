@@ -20,7 +20,7 @@
 
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
-each namespace and print an overall summary."
+  each namespace and print an overall summary."
   ([namespaces result-file & [selectors]]
      `(do
         (when (seq '~namespaces)

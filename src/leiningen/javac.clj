@@ -6,7 +6,7 @@
   (:import java.io.File
            javax.tools.ToolProvider))
 
-(defn stale-java-sources
+(defn- stale-java-sources
   "Returns a lazy seq of file paths: every Java source file within
   dirs modified since it was most recently compiled into
   compile-path."
@@ -22,7 +22,7 @@
 
 ;; Tool's .run method expects the last argument to be an array of
 ;; strings, so that's what we'll return here.
-(defn javac-options
+(defn- javac-options
   "Compile all sources of possible options and add important defaults.
   Result is a String java array of options."
   [project files args]

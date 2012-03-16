@@ -7,7 +7,7 @@
 
 (def ^:dynamic *trampoline?* false)
 
-(defn win-batch? []
+(defn- win-batch? []
   (.endsWith (System/getProperty "leiningen.trampoline-file") ".bat"))
 
 (defn write-trampoline [command]

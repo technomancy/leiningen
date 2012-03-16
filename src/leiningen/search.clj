@@ -20,10 +20,10 @@
       (.mkdirs (.getParentFile f))
       (io/copy (.getInputStream zip entry) f))))
 
-(defn index-location [url]
+(defn ^:internal index-location [url]
   (io/file (user/leiningen-home) "indices" (string/replace url #"[:/]" "_")))
 
-(defn remote-index-url [url]
+(defn ^:internal remote-index-url [url]
   (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))
 
 (defn- download [^URL url ^OutputStream out-stream  & {:keys [callback]}]
@@ -68,7 +68,7 @@
 (defn- download-needed? [[id {:keys [url]}]]
   (not (.exists (index-location url))))
 
-(defn ensure-fresh-index [repository]
+(defn ^:internal ensure-fresh-index [repository]
   (try (when (download-needed? repository)
          (download-index repository))
        true
@@ -90,7 +90,7 @@
     (binding [*out* *err*]
       (println "Warning: couldn't download index for" url))))
 
-(defn parse-result [{:keys [u d]}]
+(defn ^:internal parse-result [{:keys [u d]}]
   (let [[group artifact version classifier] (.split u "\\|")
         group (if (not= group artifact) group)
         identifier [(symbol group artifact) (format "\"%s\"" version)]]
@@ -106,7 +106,7 @@
       (apply println result))
     (println)))
 
-(defn ^{:help-arglists '([query] [query page]) :no-project-needed true} search
+(defn ^:no-project-needed search
   "Search remote maven repositories for matching jars.
 
 The first run will download a set of indices, which will take a while.
