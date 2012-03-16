@@ -10,7 +10,9 @@
     (symbol given)
     (symbol (name given) "-main")))
 
-(defn- run-form [given args]
+(defn run-form
+  "Construct a form to run the given main defn or class with arguments."
+  [given args]
   `(let [v# (resolve '~(normalize-main given))]
      (if (ifn? v#)
        (v# ~@args)
@@ -22,7 +24,8 @@
   ns/f, passing it the args."
   [project given & args]
   (eval/eval-in-project project (run-form given args)
-                        `(try (require '~(symbol (namespace (normalize-main given))))
+                        `(try (require
+                               '~(symbol (namespace (normalize-main given))))
                               (catch FileNotFoundException _#))))
 
 (defn ^{:help-arglists '([])} run
