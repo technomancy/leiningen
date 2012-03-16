@@ -26,9 +26,7 @@
                   For real!"
       (formatted-help "install" "This is an\nAWESOME command\nFor real!" 15))))
 
-;; (deftest test-get-subtasks
-;;   (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
-;;     (is (= ["install" "uninstall"]
-;;            (sort (keys m))))))
-
-;; (doseq [[_ var] (ns-publics *ns*)] (alter-meta! var assoc :busted true))
+(deftest ^:post-preview test-get-subtasks
+  (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
+    (is (= ["install" "uninstall"]
+           (sort (keys m))))))

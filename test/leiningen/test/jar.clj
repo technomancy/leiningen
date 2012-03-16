@@ -19,7 +19,7 @@
              manifest-map
              (select-keys ["hello" "Main-Class"])))))
 
-(deftest ^:busted test-shell-wrapper
+(deftest ^:post-preview test-shell-wrapper
   (let [jar-file (JarFile. (jar sample-project))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream jar-file (.getEntry jar-file "bin/nom")))
@@ -55,7 +55,7 @@
   (with-out-str
     (is (jar sample-no-aot-project))))
 
-(deftest ^:busted test-tricky-name
+(deftest ^:post-preview test-tricky-name
   (let [jar-file (JarFile. (jar tricky-name-project))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream

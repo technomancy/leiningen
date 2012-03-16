@@ -118,7 +118,7 @@
   "Compile Clojure source into .class files.
 
 Uses the namespaces specified under :aot in project.clj or those given
-as command-line arguments."
+as command-line arguments. Use :all argument to compile everything."
   ([project]
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]
