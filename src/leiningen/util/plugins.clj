@@ -62,7 +62,10 @@
   ;; the leiningen.core namespace.
   (require 'leiningen.deps)
   (-> ((resolve 'leiningen.deps/do-deps)
-       (assoc project :library-path (.getAbsolutePath dir)) :plugins)
+       (assoc project
+         :library-path (.getAbsolutePath dir)
+         :exclusions @(resolve 'leiningen.deps/dev-exclusions))
+       :plugins)
       .getDirectoryScanner .getIncludedFiles))
 
 (defn stale? [project dir]
