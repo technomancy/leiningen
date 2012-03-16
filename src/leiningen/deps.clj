@@ -197,7 +197,8 @@
       (clean project))
     (let [fileset (do-deps project :dependencies)]
       (when-not (or skip-dev (no-dev?))
-        (do-deps (assoc project :exclusions dev-exclusions) :dev-dependencies))
+        (do-deps (update-in project [:exclusions] (fnil into []) dev-exclusions)
+                 :dev-dependencies))
       (extract-native-deps project)
       (when (:checksum-deps project)
         (spit (new-deps-checksum-file project) (deps-checksum project)))
