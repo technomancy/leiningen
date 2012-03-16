@@ -1,4 +1,5 @@
 (ns leiningen.util.file
+  (:require [leiningen.util.paths :as paths])
   (:use [clojure.java.io :only [file delete-file]]))
 
 (def tmp-dir (System/getProperty "java.io.tmpdir"))
@@ -11,7 +12,8 @@
   "Delete file f. If it's a directory, recursively delete all its contents.
 Raise an exception if any deletion fails unless silently is true."
   [f & [silently]]
-  (System/gc) ; This sometimes helps release files for deletion on windows.
+  (when (= :windows (paths/get-os))
+    (System/gc)) ; This sometimes helps release files for deletion on windows.
   (let [f (file f)]
     (if (.isDirectory f)
       (doseq [child (.listFiles f)]
