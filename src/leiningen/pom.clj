@@ -246,13 +246,13 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (check-for-snapshot-deps project)
-     (str
-      (xml/indent-str
-       (xml/sexp-as-element
-        (xml-tags :project (:without-profiles (meta project) project))))
-      (when disclaimer?
-        disclaimer))))
+     (when-not (check-for-snapshot-deps project)
+       (str
+        (xml/indent-str
+         (xml/sexp-as-element
+          (xml-tags :project (:without-profiles (meta project) project))))
+        (when disclaimer?
+          disclaimer)))))
 
 (defn make-pom-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
@@ -266,11 +266,12 @@
 (defn ^{:help-arglists '([])} pom
   "Write a pom.xml file to disk for Maven interoperability."
   ([project pom-location silently?]
-     (let [pom-file (io/file (:target-path project) pom-location)]
-       (.mkdirs (.getParentFile pom-file))
-       (with-open [pom-writer (io/writer pom-file)]
-         (.write pom-writer (make-pom project true)))
-       (when-not silently? (println "Wrote" (str pom-file)))
-       (.getAbsolutePath pom-file)))
+     (when-let [pom (make-pom project true)]
+       (let [pom-file (io/file (:target-path project) pom-location)]
+         (.mkdirs (.getParentFile pom-file))
+         (with-open [pom-writer (io/writer pom-file)]
+           (.write pom-writer pom))
+         (when-not silently? (println "Wrote" (str pom-file)))
+         (.getAbsolutePath pom-file))))
   ([project pom-location] (pom project pom-location false))
   ([project] (pom project "pom.xml")))

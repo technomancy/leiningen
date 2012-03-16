@@ -25,10 +25,7 @@
 
 
 (deftest test-snapshot-checking
-  (let [aborted? (atom false)]
-    (binding [leiningen.pom/abort #(reset! aborted? %&)]
-      (let [project (assoc sample-project :version "1.0"
-                           :dependencies [['clojure "1.0.0-SNAPSHOT"]])]
-        (pom (with-meta project
-             {:without-profiles project})))
-      (is @aborted?))))
+  (binding [leiningen.core.main/*exit-process?* false]
+    (let [project (assoc sample-project :version "1.0"
+                         :dependencies [['clojure "1.0.0-SNAPSHOT"]])]
+      (is (not (pom project))))))
