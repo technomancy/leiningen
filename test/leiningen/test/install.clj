@@ -25,7 +25,7 @@
 
 (def jdom-dir (file local-repo "jdom" "jdom" "1.0"))
 
-(deftest ^{:online true} test-standalone-install
+(deftest ^:online test-standalone-install
   (delete-file-recursively jdom-dir true)
   ;; (delete-shell-wrappers)
   (install nil "nomnomnom" "0.5.0-SNAPSHOT")

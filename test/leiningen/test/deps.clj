@@ -8,7 +8,7 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.eval :as eval]))
 
-(deftest test-deps
+(deftest ^:online test-deps
   (let [sample-deps [["ring" "1.0.0"] ["rome" "0.9"] ["jdom" "1.0"]]]
     (doseq [[n v] sample-deps]
       (delete-file-recursively (m2-dir n v) :silently))
@@ -16,7 +16,7 @@
     (doseq [[n v] sample-deps]
       (is (.exists (m2-dir n v)) (str n " was not downloaded.")))))
 
-(deftest test-snapshots-releases
+(deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project :omit-default-repositories true
                   :repositories {"clojars" {:url "http://clojars.org/repo/"
                                             :snapshots false}})
@@ -77,7 +77,7 @@
    :solaris {:x86 #{"liblwjgl.so" "libopenal.so"}
              :x86_64 #{"liblwjgl64.so" "libopenal.so"}}})
 
-(deftest ^:busted test-native-deps
+(deftest test-native-deps
   (delete-file-recursively (:native-path native-project) true)
   (deps native-project)
   (is (= (conj (get-in native-lib-files-map [(eval/get-os) (eval/get-arch)])
