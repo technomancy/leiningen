@@ -291,6 +291,12 @@ mailing list and mailing a SASE.
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place.
 
+For example, if you'd like to use the 1.x branch you can:
+
+   git clone https://github.com/technomancy/leiningen.git
+   git checkout 1.x
+   lein self-install
+
 Using Leiningen 1.x, run `lein install` in the `leiningen-core`
 subproject directory. When the dependencies change you will also have
 to do `rm .lein-classpath` in the project root.
