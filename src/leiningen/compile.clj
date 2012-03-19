@@ -161,6 +161,10 @@
   (require '[clojure.java io shell browse])
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
+  (doseq [opt (get-jvm-args project)
+          :when (.startsWith opt "-D")
+          :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
+    (System/setProperty k v))
   ;; need to at least pretend to return an exit code
   (try (binding [*warn-on-reflection* (:warn-on-reflection project), *ns* *ns*]
          (eval (read-string form-string)))
