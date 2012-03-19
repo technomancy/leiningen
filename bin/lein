@@ -141,7 +141,7 @@ if [ ! -r "$CLOJURE_JAR" ]; then
     CLOJURE_HASH="be088d20c078ce48d42afba05984f1ef7c02142b"
     mkdir -p "$(dirname $CLOJURE_JAR)"
     $HTTP_CLIENT $CLOJURE_JAR $CLOJURE_JAR_URL
-    if [ "`sha1sum $CLOJURE_JAR | cut -f 1 -d \" \"`" != "$CLOJURE_HASH" ]; then
+    if [ "`shasum -a 1 $CLOJURE_JAR | cut -f 1 -d \" \"`" != "$CLOJURE_HASH" ]; then
         echo "WARNING: Clojure jar failed to download from $CLOJURE_JAR_URL"
     fi
 fi
