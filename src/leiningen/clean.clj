@@ -1,5 +1,6 @@
 (ns leiningen.clean
   "Remove compiled class files from project."
+  (:require [leiningen.util.paths :as paths])
   (:use [leiningen.util.file :only [delete-file-recursively]]
         [clojure.java.io :only [file]]))
 
@@ -21,4 +22,7 @@ Set :extra-files-to-clean in project.clj to delete other files. Dependency
 jars are not deleted; run deps task to delete all jars and get fresh ones."
   [project]
   (doseq [f (files-to-clean project)]
-    (delete-file-recursively f :silently)))
+    (delete-file-recursively f :silently))
+  ;; This sometimes helps release files for deletion on windows.
+  (when (= :windows (paths/get-os))
+    (System/gc)))
