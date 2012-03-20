@@ -1,5 +1,11 @@
 # Leiningen News -- history of user-visible changes
 
+## 1.7.1 / ???
+
+* Apply :jvm-opts with :eval-in-leiningen.
+* Fix bug where clean task would be incredibly slow.
+* Prevent misbehaving plugins from pulling in conflicting Clojure versions.
+
 ## 1.7.0 / 2012-02-06
 
 * Allow any task to perform trampolining.
