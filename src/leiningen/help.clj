@@ -90,7 +90,7 @@ Also provides readme, tutorial, news, sample, deploying and copying info."
   ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
-     (doseq [task-ns tasks]
+     (doseq [task-ns (tasks)]
        (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
      (if-let [aliases (:aliases project)]
