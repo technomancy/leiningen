@@ -162,6 +162,10 @@
   (project/load-plugins project :dependencies)
   (doseq [path (classpath/get-classpath project)]
     (pomegranate/add-classpath path))
+  (doseq [opt (get-jvm-args project)
+            :when (.startsWith opt "-D")
+            :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
+      (System/setProperty k v))
   ;; need to at least pretend to return an exit code
   (try (eval form)
        0
