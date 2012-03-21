@@ -61,6 +61,8 @@
   (concat (mapcat namespaces-in-dir
                   (for [dir classpath-files
                         :when (.isDirectory dir)]
-                    (file dir (.replaceAll prefix "\\." "/"))))
+                    (file dir (-> prefix
+                                  (.replaceAll "\\." "/")
+                                  (.replaceAll "-" "_")))))
           (filter #(and % (.startsWith (name %) prefix))
                   (mapcat namespaces-in-jar (filter jar? classpath-files)))))
