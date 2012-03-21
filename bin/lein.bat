@@ -1,6 +1,7 @@
 @echo off
 
-set LEIN_VERSION=2.0.0-SNAPSHOT
+:: set LEIN_VERSION=2.0.0-SNAPSHOT
+set LEIN_VERSION=2.0.0-preview2
 
 setLocal EnableExtensions EnableDelayedExpansion
 
@@ -172,7 +173,8 @@ if ERRORLEVEL 9009 (
     if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
     set HTTP_CLIENT=curl --insecure -f -L -o
 )
-set LEIN_JAR_URL=https://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
+:: set LEIN_JAR_URL=https://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
+set LEIN_JAR_URL=https://cloud.github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
 %HTTP_CLIENT% %LEIN_JAR% %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
     del %LEIN_JAR%>nul 2>&1
@@ -255,7 +257,8 @@ set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 %JAVA_CMD% -client %LEIN_JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
- -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+:: -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
+ -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core.main)(-main)" NUL %*
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
