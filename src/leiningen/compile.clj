@@ -22,20 +22,16 @@
   [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
 
-(defn- separate
-  "copy of separate function from c.c.seq-utils"
-  [f s]
-  [(filter f s) (filter (complement f) s) ])
+(defn- matching-namespaces [re-or-sym namespace-names]
+  (if (regex? re-or-sym)
+    (filter #(re-find re-or-sym %) namespace-names)
+    [re-or-sym]))
 
 (defn- find-namespaces-by-regex
   "Trying to generate list of namespaces, matching to given regexs"
   [project nses]
-  (let [[res syms] (separate regex? nses)]
-    (if (seq res)
-      (set (for [re res n (namespaces-in-dir (:source-path project))
-                 :when (re-find re (name n))]
-             n))
-      nses)))
+  (let [project-ns-names (map name (namespaces-in-dir (:source-path project)))]
+    (mapcat #(matching-namespaces % project-ns-names) nses)))
 
 (defn- compile-main? [{:keys [main source-path] :as project}]
   (and main (not (:skip-aot (meta main)))
