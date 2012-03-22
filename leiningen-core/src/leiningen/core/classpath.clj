@@ -76,6 +76,19 @@
 (defn add-auth [repositories]
   (map add-repo-auth repositories))
 
+(defn- get-dependencies
+  [dependencies-key {:keys [repositories native-path] :as project}
+   & {:keys [add-classpath?]}]
+  {:pre [(every? vector? (project dependencies-key))]}
+  ((if add-classpath?
+      pomegranate/add-dependencies
+      aether/resolve-dependencies)
+    :local-repo (:local-repo project)
+    :offline? (:offline project)
+    :repositories (add-auth repositories)
+    :coordinates (project dependencies-key)
+    :transfer-listener :stdout))
+
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories and that native
@@ -85,18 +98,17 @@
 
    Returns a set of the dependencies' files."
   [dependencies-key {:keys [repositories native-path] :as project}
-   & {:keys [add-classpath?]}]
-  {:pre [(every? vector? (project dependencies-key))]}
+   & rest]
   (doto (set (aether/dependency-files
-              ((if add-classpath?
-                 pomegranate/add-dependencies
-                 aether/resolve-dependencies)
-               :local-repo (:local-repo project)
-               :offline? (:offline project)
-               :repositories (add-auth repositories)
-               :coordinates (project dependencies-key)
-               :transfer-listener :stdout)))
+              (apply get-dependencies dependencies-key project rest)))
     (extract-native-deps native-path)))
+
+(defn dependency-hierarchy
+  "Returns a graph of the project's dependencies."
+  [dependencies-key project]
+  (aether/dependency-hierarchy
+   (project dependencies-key)
+   (get-dependencies dependencies-key project)))
 
 (defn- normalize-path [root path]
   (let [f (io/file path)]

@@ -16,6 +16,33 @@
     (doseq [[n v] sample-deps]
       (is (.exists (m2-dir n v)) (str n " was not downloaded.")))))
 
+(deftest ^:online test-dependency-hierarchy
+  (let [sample-deps [["ring" "1.0.0"] ["rome" "0.9"] ["jdom" "1.0"]]]
+    (doseq [[n v] sample-deps]
+      (delete-file-recursively (m2-dir n v) :silently))
+    (is (= (with-out-str
+             (clojure.pprint/pprint
+              '{[org.clojure/clojure "1.1.0"] nil
+                [ring "1.0.0"]
+                {[ring/ring-core "1.0.0"]
+                 {[commons-codec "1.4"] nil
+                  [commons-fileupload "1.2.1"] nil
+                  [commons-io "1.4"] nil
+                  [javax.servlet/servlet-api "2.5"] nil}
+                 [ring/ring-devel "1.0.0"]
+                 {[clj-stacktrace "0.2.2"] nil
+                  [hiccup "0.3.7"] nil
+                  [ns-tracker "0.1.1"]
+                  {[org.clojure/tools.namespace "0.1.0"]
+                   {[org.clojure/java.classpath "0.1.0"] nil}}}
+                 [ring/ring-jetty-adapter "1.0.0"]
+                 {[org.mortbay.jetty/jetty-util "6.1.25"] nil
+                  [org.mortbay.jetty/jetty "6.1.25"]
+                  {[org.mortbay.jetty/servlet-api "2.5-20081211"] nil}}
+                 [ring/ring-servlet "1.0.0"] nil}
+                [rome "0.9"] {[jdom "1.0"] nil}}))
+           (with-out-str (deps sample-project ":tree"))))))
+
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project :omit-default-repositories true
                   :repositories {"clojars" {:url "http://clojars.org/repo/"

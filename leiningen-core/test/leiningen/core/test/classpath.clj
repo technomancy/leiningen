@@ -29,6 +29,17 @@
                          "commons-fileupload-1.2.1.jar"))}
          (resolve-dependencies :dependencies project))))
 
+(deftest test-dependency-hierarchy
+  (doseq [f (reverse (file-seq (io/file (:root project))))]
+    (when (.exists f) (io/delete-file f)))
+  (is (= '{[org.clojure/clojure "1.3.0"] nil
+          [ring/ring-core "1.0.0-RC1"
+           :exclusions [[commons-codec]]]
+          {[commons-fileupload "1.2.1"] nil
+           [commons-io "1.4"] nil
+           [javax.servlet/servlet-api "2.5"] nil}}
+         (dependency-hierarchy :dependencies project))))
+
 (def directories
   ["/tmp/lein-sample-project/test"
    "/tmp/lein-sample-project/src"
