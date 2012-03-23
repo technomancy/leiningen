@@ -1,6 +1,5 @@
 @echo off
 
-:: set LEIN_VERSION=2.0.0-SNAPSHOT
 set LEIN_VERSION=2.0.0-preview2
 
 setLocal EnableExtensions EnableDelayedExpansion
@@ -249,16 +248,14 @@ goto EOF
 :: characters inside the TRAMPOLINE_FILE.
 setLocal DisableDelayedExpansion
 
-if "%1" == "trampoline" goto RUN_TRAMPOLINE else goto RUN_NORMAL
+if "%1" == "trampoline" (goto RUN_TRAMPOLINE) else (goto RUN_NORMAL)
 
 :RUN_TRAMPOLINE
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
-
 %JAVA_CMD% -client %LEIN_JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
-:: -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core)(-main)" NUL %*
- -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core.main)(-main)" NUL %*
+ -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core.main)(-main \"%*\")"
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
@@ -268,7 +265,6 @@ goto EOF
 :RUN_NORMAL
 %JAVA_CMD% -client %LEIN_JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% %JLINE% clojure.main -m leiningen.main NUL %*
-
+ -cp %CLASSPATH% %JLINE% clojure.main -m leiningen.core.main %*
 
 :EOF
