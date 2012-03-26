@@ -198,7 +198,7 @@ elif [ "$1" = "upgrade" ]; then
         case "$RESP" in
             y|Y|"")
                 echo
-                echo "Upgrading..."
+                echo "Upgrading from $LEIN_VERSION..."
                 TARGET="/tmp/lein-$$-upgrade"
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL" \
