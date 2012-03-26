@@ -25,6 +25,7 @@ upon the first run on unix, so the first run will take longer.
 1. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 2. Place it on your `$PATH`. (I like to use `~/bin`)
 3. Set it to be executable. (`chmod 755 ~/bin/lein`)
+4. Execute the script. `~/bin/lein`
 
 The instructions above will install the stable release. The Leiningen 2
 [preview release](https://raw.github.com/technomancy/leiningen/preview/bin/lein)
