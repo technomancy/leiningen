@@ -10,5 +10,4 @@
                  [com.cemerick/pomegranate "0.0.9"
                   :exclusions [org.slf4j/slf4j-api]]]
   :dev-resources-path "dev-resources"
-  :aot :all
   :profiles {:dev {:resource-paths ["dev-resources"]}})
