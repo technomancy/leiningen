@@ -1,7 +1,8 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:use [leiningen.classpath :only [get-classpath-string]]
-        [leiningen.util.paths :only [normalize-path]])
+        [leiningen.util.paths :only [normalize-path]]
+        [leiningen.deps :only [deps]])
   (:require [lancet.core :as lancet])
   (:import (java.io File)))
 
@@ -41,6 +42,7 @@
 
 Add a :java-source-path key to project.clj to specify where to find them."
   [project & [directory]]
+  (deps project)
   (doseq [task (extract-javac-tasks project)
           :when (or (nil? directory) (= directory (:srcdir task)))]
     (run-javac-task task)))
