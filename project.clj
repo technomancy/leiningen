@@ -16,11 +16,11 @@
                  [clj-http "0.3.3"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
-                   :test-paths ["leiningen-core/test"]}}
+                   :test-paths ["leiningen-core/test"]}
+             :release {:aot [#"leiningen"]}}
   :test-selectors {:default (complement :post-preview)
                    :offline (complement :online)}
   :source-paths ["leiningen-core/src" "src"]
-  :aot [#"leiningen"]
   :eval-in :leiningen)
 
 ;;; Release Checklist
