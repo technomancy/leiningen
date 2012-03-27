@@ -7,6 +7,18 @@
             [clojure.data.xml :as xml]
             [useful.string :as useful]))
 
+(defn- relativize [project]
+  (let [root (str (:root project) "/")]
+    (reduce #(update-in %1 [%2]
+                        (fn [xs]
+                          (if (seq? xs)
+                            (vec (for [x xs]
+                                   (.replace x root "")))
+                            (when xs (.replace xs root "")))))
+            project
+            [:target-path :compile-path :source-paths :test-paths
+             :resource-paths :java-source-paths])))
+
 ;; git scm
 
 (defn- read-git-ref
@@ -119,28 +131,48 @@
 
 (defmethod xml-tags ::repository
   ([_ [id opts]]
-     [:repository [:id id] [:url (:url opts)]]))
+     [:repository
+      (map (partial apply xml-tags)
+           {:id id
+            :url (:url opts)
+            :snapshots (xml-tags :enabled
+                                 (str (if (nil? (:snapshots opts))
+                                        true
+                                        (boolean
+                                         (:snapshots opts)))))
+            :releases (xml-tags :enabled
+                                (str (if (nil? (:releases opts))
+                                       true
+                                       (boolean
+                                        (:releases opts)))))})]))
 
 (defmethod xml-tags ::license
   ([_ opts]
-     [:licenses
-      [:license (for [key [:name :url :distribution :comments]
-                      :let [val (get opts key)] :when val]
-                  [key (name val)])]]))
+     (when opts
+       (let [tags (for [key [:name :url :distribution :comments]
+                        :let [val (opts key)] :when val]
+                    [key (name val)])]
+         (when (not (empty? tags))
+           [:licenses [:license tags]])))))
 
 (defmethod xml-tags ::build
   ([_ project]
-     (let [dev-project (project/merge-profiles project [:dev])
-           [src & extra-src] (:source-paths project)
-           [test & extra-test] (:test-paths dev-project)]
+     (let [test-project (-> project
+                            meta
+                            :without-profiles
+                            (project/merge-profiles [:dev :test :default])
+                            relativize)
+           [src & extra-src] (concat (:source-paths project)
+                                     (:java-source-paths project))
+           [test & extra-test] (:test-paths test-project)]
        [:build
         [:sourceDirectory src]
-        [:testSourceDirectory test]
+        (xml-tags :testSourceDirectory test)
         (if-let [resources (:resource-paths project)]
           (when (not (empty? resources))
             (vec (concat [:resources]
                          (map (fn [x] [:resource [:directory x]]) resources)))))
-        (if-let [resources (:resource-paths dev-project)]
+        (if-let [resources (:resource-paths test-project)]
           (when (not (empty? resources))
             (vec (concat [:testResources]
                          (map (fn [x] [:testResource [:directory x]]) resources)))))
@@ -152,6 +184,8 @@
                                                   [:groupId (or (namespace dep) (name dep))]
                                                   [:version version]])
                               extensions)))))
+        [:directory (:target-path project)]
+        [:outputDirectory (:compile-path project)]
         (when (or (not (empty? extra-src))
                   (not (empty? extra-test)))
           [:plugins
@@ -188,17 +222,19 @@
 
 (defmethod xml-tags ::mailing-list
   ([_ opts]
-     [:mailingLists
-      [:mailingList
-       [:name (:name opts)]
-       [:subscribe (:subscribe opts)]
-       [:unsubscribe (:unsubscribe opts)]
-       [:post (:post opts)]
-       [:archive (:archive opts)]
-       (if-let [other-archives (:other-archives opts)]
-         (when other-archives
-           (vec (concat [:otherArchives]
-                        (map (fn [x] [:otherArchive x]) other-archives)))))]]))
+     (when opts
+       [:mailingLists
+        [:mailingList
+         [:name (:name opts)]
+         [:subscribe (:subscribe opts)]
+         [:unsubscribe (:unsubscribe opts)]
+         [:post (:post opts)]
+         [:archive (:archive opts)]
+         (if-let [other-archives (:other-archives opts)]
+           (when other-archives
+             (vec (concat [:otherArchives]
+                          (map (fn [x] [:otherArchive x])
+                               other-archives)))))]])))
 
 (defn- add-exclusions [exclusions [dep version & opts]]
   (concat [dep version]
@@ -220,10 +256,9 @@
        (when (:classifier project) [:classifier (:classifier project)])
        [:name (:name project)]
        [:description (:description project)]
-       [:url (:url project)]
+       (xml-tags :url (:url project))
        (xml-tags :license (:license project))
-       (when (:mailing-list project)
-         (xml-tags :mailing-list (:mailing-list project)))
+       (xml-tags :mailing-list (:mailing-list project))
        (make-git-scm (io/file (:root project) ".git"))
        (xml-tags :build project)
        (xml-tags :repositories (:repositories project))
@@ -243,6 +278,13 @@
                 "\nFreeze snapshots to dated versions or set the"
                 "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))
 
+(defn- remove-profiles [project profiles]
+  (let [{:keys [included-profiles
+                without-profiles]} (meta project)]
+    (project/merge-profiles without-profiles
+                            (remove #(some #{%} profiles)
+                                    included-profiles))))
+
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
@@ -250,7 +292,9 @@
        (str
         (xml/indent-str
          (xml/sexp-as-element
-          (xml-tags :project (:without-profiles (meta project) project))))
+          (xml-tags :project
+                    (relativize (remove-profiles project
+                                                 [:dev :test :default])))))
         (when disclaimer?
           disclaimer)))))
 

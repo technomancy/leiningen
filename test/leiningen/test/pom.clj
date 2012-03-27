@@ -2,7 +2,9 @@
   (:use [clojure.test]
         [clojure.java.io :only [file delete-file]]
         [leiningen.pom :only [make-pom pom]]
-        [leiningen.test.helper :only [sample-project]]))
+        [leiningen.test.helper :only [sample-project]])
+  (:require [clojure.data.xml :as xml]
+            [leiningen.core.project :as project]))
 
 (deftest test-pom-file-is-created
   (let [pom-file (file (:target-path sample-project) "pom.xml")]
@@ -10,14 +12,103 @@
     (pom sample-project)
     (is (.exists pom-file))))
 
+(defn deep-content [xml tags]
+  (reduce #(->> %1
+               (filter (fn [xml] (= (:tag xml) %2)))
+               first
+               :content)
+          (if (seq? xml)
+            xml
+            [xml])
+          tags))
+
+(def first-in (comp first deep-content))
+
+(defn with-profile [project profile]
+  (let [{:keys [included-profiles
+                without-profiles]} (meta project)]
+    (-> without-profiles
+        (update-in [:profiles] #(assoc % :pom-test profile))
+        (project/merge-profiles (cons :pom-test included-profiles)))))
+
+(deftest test-pom-default-values
+  (let [xml (xml/parse-str (make-pom sample-project))]
+    (is (= "nomnomnom" (first-in xml [:project :groupId]))
+        "group is correct")
+    (is (= "nomnomnom" (first-in xml [:project :artifactId]))
+        "artifact is correct")
+    (is (= "nomnomnom" (first-in xml [:project :name]))
+        "name is correct")
+    (is (= "0.5.0-SNAPSHOT" (first-in xml [:project :version]))
+        "version is correct")
+    (is (= nil (first-in xml [:project :parent]))
+        "no parent")
+    (is (= nil (first-in xml [:project :url]))
+        "no url")
+    (is (= nil (first-in xml [:project :licenses]))
+        "no license")
+    (is (= "A test project" (first-in xml [:project :description]))
+        "description is included")
+    (is (= nil (first-in xml [:project :mailingLists]))
+        "no mailing list")
+    (is (= ["central" "clojars" "snapshots"]
+           (map #(first-in % [:repository :id])
+                (deep-content xml [:project :repositories])))
+        "repositories are named")
+    (is (= ["http://repo1.maven.org/maven2" "http://clojars.org/repo/"
+            "file:///tmp/lein-repo"]
+           (map #(first-in % [:repository :url])
+                (deep-content xml [:project :repositories])))
+        "repositories have correct location")
+    (is (= ["true" "true" "true"]
+           (map #(first-in % [:repository :snapshots :enabled])
+                (deep-content xml [:project :repositories])))
+        "snapshots are enabled")
+    (is (= ["true" "true" "true"]
+           (map #(first-in % [:repository :releases :enabled])
+                (deep-content xml [:project :repositories])))
+        "releases are enabled")
+    (is (= "src" (first-in xml [:project :build :sourceDirectory]))
+        "source directory is included")
+    (is (= "test" (first-in xml [:project :build :testSourceDirectory]))
+        "test directory is included")
+    (is (= ["resources"]
+           (map #(first-in % [:resource :directory])
+                (deep-content xml [:project :build :resources])))
+        "resource directories use project without :dev profile")
+    (is (= ["dev-resources" "resources"]
+           (map #(first-in % [:testResource :directory])
+                (deep-content xml [:project :build :testResources])))
+        "test resource directories use :dev :default and :test profiles")
+    (is (= "target" (first-in xml [:project :build :directory]))
+        "target directory is included")
+    (is (= nil (first-in xml [:project :build :extensions]))
+        "no extensions")
+    (is (= "target/classes" (first-in xml [:project :build :outputDirectory]))
+        "classes directory is included")
+                                        ;TODO: Add tests for:
+                                        ;dependencies and options
+                                        ;test/dev dependencies testscoped
+    ))
+
 (deftest test-pom-has-classifier-when-defined
-  (let [pom (make-pom sample-project)]
-    (is (not (re-find #"classifier" pom))))
-  (let [altered-meta (assoc-in (meta sample-project)
-                               [:without-profiles :classifier]
-                               "stuff")
-        pom (make-pom (with-meta sample-project altered-meta))]
-    (is (re-find #"<classifier>stuff</classifier>" pom))))
+  (is (not (re-find #"classifier"
+                    (make-pom sample-project))))
+  (is (= "stuff"
+         (-> (make-pom (with-profile
+                         sample-project
+                          {:classifier "stuff"}))
+              xml/parse-str
+              (first-in [:project :classifier])))))
+
+(deftest test-pom-adds-java-source-paths
+  (is (= ["java/src" "java/another"]
+         (-> (make-pom (with-profile sample-project
+                         {:java-source-paths ["java/src" "java/another"]}))
+             xml/parse-str
+             (deep-content [:project :build :plugins :plugin :executions
+                            :execution :configuration :sources])
+             ((partial mapcat :content))))))
 
 (deftest test-pom-tries-to-pprint
   (is (re-find #"(?m)^\s+<groupId>nomnomnom</groupId>$"
