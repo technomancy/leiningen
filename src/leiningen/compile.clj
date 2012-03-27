@@ -181,6 +181,8 @@
 ;; clojure.java.shell/sh doesn't let you stream out/err
 (defn sh [& cmd]
   (let [proc (.exec (Runtime/getRuntime) (into-array cmd))]
+    (.addShutdownHook (Runtime/getRuntime)
+                      (Thread. (fn [] (.destroy proc))))
     (with-open [out (reader (.getInputStream proc))
                 err (reader (.getErrorStream proc))]
       (let [pump-out (doto (Thread. #(pump out *out*)) .start)
