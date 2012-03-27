@@ -3,6 +3,44 @@ Leiningen TODOs
 See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
+** Low-hanging fruit (newbies, try one of these!)
+   - [X] Look for :java-cmd in project map
+   - [ ] Port arbitrary upgrade functionality from 1.x branch
+   - [ ] Document subcommands in newnew
+   - [ ] Suppress stack trace when getting help on non-existent task
+   - [ ] Remove task-specific silent flags in favour of global bit (#473)
+   - [ ] Collapse all :repl-* settings into :repl-options map (#432)
+** Intermediate
+   - [X] Pretty-print pom
+   - [X] deps :tree
+   - [ ] Show aliases in lein help (#407)
+   - [ ] Use pomegranate to dynamically resolve missing "lein new" templates
+   - [ ] Mirror/proxy support, also for search indices (#281), (#271)
+   - [ ] Use locking instead of polling for repl task (#433)
+   - [ ] Re-enable transitive cleaning for compile
+   - [ ] Re-enable shell wrappers
+** Complex
+   - [ ] Force checking of snapshots
+   - [ ] Prevent multiple versions of artifacts from getting added (#420)
+   - [ ] Auto-clean predicates (profile switching, etc) (#468)
+   - [ ] Honor hooks declared in plugin jar metadata? (#401)
+   - [ ] Task-level profiles (nrepl dep comes from repl profile, etc)
+         Better visibility than either :default profile or associng straight in
+   - [ ] Investigate issues with :eval-in :classloader and bootclasspath
+         Need to ensure we're able to put Clojure on the bootstrap classpath
+   - [ ] Address chaining issues in with-profile
+   - [ ] Install task outside projects
+   - [ ] Non-transitive AOT
+   - [ ] Drop clojars snapshots from default repos (#241)
+** Documentation
+   - [X] readme
+   - [X] plugin guide
+   - [X] tutorial
+   - [X] hacking guide (moved to leiningen-core readme)
+   - [X] migration guide
+   - [X] sample project.clj
+   - [ ] deploy guide
+   - [ ] document adding javadoc/java source as deps
 ** Changes for preview release
    - [X] Finish designing and implement profiles
    - [X] Dynamic recalculating of classpath via pomegranate
@@ -29,35 +67,6 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Update new task
    - [X] Switch user-settings to checking :user profile sans project
    - [X] Offline mode
-** Other stuff (post-preview)
-   - [ ] Force checking of snapshots
-   - [ ] Document subcommands in newnew
-   - [ ] Pretty-print pom
-   - [ ] Look for :java-cmd in project map
-   - [ ] deps :tree and deps :list
-   - [ ] Honor hooks declared in plugin jar metadata?
-   - [ ] Show aliases in lein help
-   - [ ] Task-level profiles (nrepl dep comes from repl profile, etc)
-         Better visibility than either :default profile or associng straight in
-   - [ ] Investigate issues with :eval-in :classloader and bootclasspath
-         Need to ensure we're able to put Clojure on the bootstrap classpath
-   - [ ] Address chaining issues in with-profile
-   - [ ] Use pomegranate to dynamically resolve missing "lein new" templates
-   - [ ] Install task outside projects
-   - [ ] Non-transitive AOT
-   - [ ] Mirror/proxy support, also for search indices
-   - [ ] Drop clojars snapshots from default repos
-   - [ ] compile (transitive cleaning)
-   - [ ] shell wrappers
-** Documentation
-   - [X] readme
-   - [X] plugin guide
-   - [X] tutorial
-   - [X] hacking guide (moved to leiningen-core readme)
-   - [X] migration guide
-   - [X] sample project.clj
-   - [ ] deploy guide
-   - [ ] document adding javadoc/java source as deps
 ** Adapt existing tasks to new API
    - [X] classpath
    - [X] clean
