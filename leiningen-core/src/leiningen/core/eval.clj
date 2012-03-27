@@ -102,10 +102,12 @@
 
 (def ^:dynamic *dir* (System/getProperty "user.dir"))
 
-(defn process-handling-sh
-  [f cmd]
+(defn sh
+  "A version of clojure.java.shell/sh that streams out/err."
+  [& cmd]
   (let [proc (.exec (Runtime/getRuntime) (into-array cmd) nil (io/file *dir*))]
-    (f proc)
+    (.addShutdownHook (Runtime/getRuntime)
+                      (Thread. (fn [] (.destroy proc))))
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))]
       (let [pump-out (doto (Thread. #(pump out *out*)) .start)
@@ -113,19 +115,6 @@
         (.join pump-out)
         (.join pump-err))
       (.waitFor proc))))
-
-(defn sh-without-orphans
-  [& cmd]
-  (process-handling-sh
-    (fn [process]
-      (.addShutdownHook (Runtime/getRuntime)
-        (Thread. (fn [] (.destroy process)))))
-    cmd))
-
-(defn sh
-  "A version of clojure.java.shell/sh that streams out/err."
-  [& cmd]
-  (process-handling-sh (constantly nil) cmd))
 
 ;; work around java's command line handling on windows
 ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
@@ -149,7 +138,7 @@
 
 (defmethod eval-in :subprocess [project form]
   (binding [*dir* (:root project)]
-    (apply sh-without-orphans (shell-command project form))))
+    (apply sh (shell-command project form))))
 
 (defmethod eval-in :trampoline [project form]
   (deliver (:trampoline-promise project) (shell-command project form)))
