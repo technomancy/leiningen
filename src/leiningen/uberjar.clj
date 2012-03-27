@@ -86,7 +86,6 @@ as well as defining a -main function."
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
-           ;; TODO: broken with :local-classpath-repo and :eval-in-leiningen:
            (let [deps (->> (.listFiles (file (:library-path project)))
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (file (get-jar-filename project)) deps)]

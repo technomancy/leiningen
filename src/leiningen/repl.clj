@@ -143,7 +143,6 @@ directory will start a standalone repl session."
            server-form (apply repl-server project host port
                               (concat (:repl-options project)
                                       (:repl-options (user-settings))))
-           ;; TODO: make this less awkward when we can break poll-repl-connection
            retries (- retry-limit (or (:repl-retry-limit project)
                                         ((user-settings) :repl-retry-limit)
                                         retry-limit))]

@@ -41,7 +41,6 @@ Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION"
           :when (re-find pat plugin)]
     (.delete (file plugins-path plugin))))
 
-;; TODO: extract shared behavior between this and the install task
 (defn install
   "Download, package, and install plugin jarfile into ~/.lein/plugins
 Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION

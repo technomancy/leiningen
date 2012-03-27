@@ -97,7 +97,6 @@ Warning: alpha; subject to change."
                                (normalize-path# (or (:dev-resources-path m#)
                                                     (:test-resources-path m#)
                                                     "test-resources"))
-                               ;; TODO: remove in 2.0
                                :test-resources-path
                                (normalize-path# (or (:dev-resources-path m#)
                                                     (:test-resources-path m#)
@@ -107,7 +106,6 @@ Warning: alpha; subject to change."
                                :target-dir (normalize-path#
                                             (or (:target-dir m#) (:jar-dir m#)
                                                 root#))
-                               ;; TODO: remove in 2.0
                                :jar-dir (normalize-path#
                                          (or (:target-dir m#) (:jar-dir m#)
                                              root#))

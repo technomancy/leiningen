@@ -31,7 +31,6 @@
 (defn- make-policy [policy-settings enabled?]
   (doto (RepositoryPolicy.)
     (.setUpdatePolicy (update-policies (:update policy-settings :daily)))
-    ;; TODO: change default to :fail in 2.0
     (.setChecksumPolicy (checksum-policies (:checksum policy-settings :warn)))
     (.setEnabled (boolean enabled?))))
 
@@ -76,7 +75,6 @@
                 :overwrite "on"} ; needed for plugins
                fileset))
 
-;; TODO: remove in 2.0; with local-repo-classpath it's unnecessary
 (defmethod copy-dependencies :symlink [k destination flatten? fileset]
   (let [files (.getIncludedFiles
                (.getDirectoryScanner fileset lancet/ant-project))

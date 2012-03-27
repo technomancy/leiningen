@@ -7,7 +7,6 @@
         [leiningen.compile :only [eval-in-project]])
   (:import (java.io File)))
 
-;; TODO: switch to using *interactive* flag in 2.0.
 (def ^{:dynamic true} *exit-after-tests* true)
 
 (defn- form-for-hook-selectors [selectors]
