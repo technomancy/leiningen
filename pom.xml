@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen</groupId>
   <artifactId>leiningen</artifactId>
-  <version>1.7.1-SNAPSHOT</version>
+  <version>1.7.1</version>
   <name>leiningen</name>
   <description>Automate Clojure projects without setting your hair on fire.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>5675ec3e21ad314a4a4f06ba259029679d02ae8c</tag>
+    <tag>78ab0f6877b11f3b49a9d307350f2d8f6157869f</tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
   <build>

@@ -1,9 +1,13 @@
 # Leiningen News -- history of user-visible changes
 
-## 1.7.1 / ???
+## 1.7.1 / 2012-03-27
 
-* Apply :jvm-opts with :eval-in-leiningen.
+* Fix a bug where the repl task left JVM processes running.
+* Make upgrade task accept arbitrary versions.
+* Fix a bug where javac classes would get removed before AOT compilation.
+* Allow :aot to contain both symbols and regexes. (Dan Lidral-Porter)
 * Fix bug where clean task would be incredibly slow.
+* Apply :jvm-opts with :eval-in-leiningen.
 * Prevent misbehaving plugins from pulling in conflicting Clojure versions.
 
 ## 1.7.0 / 2012-02-06
