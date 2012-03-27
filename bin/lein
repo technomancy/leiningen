@@ -192,7 +192,6 @@ elif [ "$1" = "upgrade" ]; then
 else
     if [ "$OSTYPE" = "cygwin" ]; then
         # When running on Cygwin, use Windows-style paths for java
-        CLOJURE_JAR=`cygpath -w "$CLOJURE_JAR"`
         ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
         CLASSPATH=`cygpath -wp "$CLASSPATH"`
     fi
