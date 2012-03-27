@@ -117,6 +117,7 @@
   (atom {:default {:resource-paths ["dev-resources"]
                    :prep-tasks ["javac" "compile"]}
          :test {}
+         :offline {:offline? true}
          :debug {:debug true}}))
 
 (defn- profile-key-merge
