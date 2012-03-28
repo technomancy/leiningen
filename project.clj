@@ -12,7 +12,7 @@
                  [lein-newnew "0.2.5"]
                  [reply "0.1.0-alpha6"]
                  [org.clojure/data.xml "0.0.3"]
-                 [bultitude "0.1.3"]
+                 [bultitude "0.1.4"]
                  [clj-http "0.3.3"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
