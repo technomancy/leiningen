@@ -183,10 +183,6 @@
      (prep project)
      (eval-in project
               `(do ~init
-                   ~(:project-init project)
-                   ~@(let [user-clj (io/file (user/leiningen-home) "user.clj")]
-                       (if (.exists user-clj)
-                         [(list 'load-file (str user-clj))]))
                    ~@(injected-forms project)
                    (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))

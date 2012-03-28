@@ -50,7 +50,7 @@
   :profiles {:dev {:resource-paths ["dummy-data"]
                    :dependencies [[clj-stacktrace "0.2.4"]]}
              :debug {:debug true
-                     :injections ['(prn (into {} (System/getProperties)))]}
+                     :injections [(prn (into {} (System/getProperties)))]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0-alpha1"]]}}
   :aliases {"launch" "run"
             "with-magic" ["assoc" ":magic" "true"]}
@@ -90,9 +90,9 @@
   ;; If your -main namespace takes a long time to load, it could time out the
   ;; repl connection. Increase this to give it more time. Defaults to 100.
   :repl-retry-limit 1000
-  ;; A form to prepend to every form that is evaluated inside your project.
+  ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
-  :project-init (require 'clojure.pprint)
+  :injections [(require 'clojure.pprint)]
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
   ;; Set this in order to only use the :repositories you list below.
