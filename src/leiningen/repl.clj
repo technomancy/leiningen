@@ -19,13 +19,18 @@
                                :exclusions [org.clojure/clojure]]]})
 
 (defn- start-server [project port ack-port]
-  (if project
-    (eval/eval-in-project (project/merge-profile project profile)
-                          `(do (clojure.tools.nrepl.server/start-server
-                                 :port ~port :ack-port ~ack-port))
-                          '(do (require 'clojure.tools.nrepl.server)
-                               (require 'complete.core)))
-    (nrepl.server/start-server :port port :ack-port ack-port)))
+  (let [server-starting-form
+          `(let [server# (clojure.tools.nrepl.server/start-server
+                           :port ~port :ack-port ~ack-port)]
+            (println "nREPL server started on port"
+              (-> server# deref :ss .getLocalPort)))]
+    (if project
+      (eval/eval-in-project
+        (project/merge-profile project profile)
+        server-starting-form
+        '(do (require 'clojure.tools.nrepl.server)
+             (require 'complete.core)))
+      (eval server-starting-form))))
 
 (def lein-repl-server
   (delay (nrepl.server/start-server
@@ -75,11 +80,10 @@ and port."
      (println "REPL server launch timed out.")))
   ([project flag & opts]
    (case flag
-     ":headless" (let [server (start-server project
-                                (repl-port project)
-                                (ack-port project))]
-                   (println "nREPL server started on port" (-> @server :ss .getLocalPort)) 
-                   (while true
-                     (Thread/sleep Long/MAX_VALUE)))
+     ":headless" (do (start-server project
+                       (repl-port project)
+                       (ack-port project))
+                     (while true
+                       (Thread/sleep Long/MAX_VALUE)))
      ":connect" (reply/launch-nrepl {:attach (first opts)})
      (main/abort "Unrecognized flag:" flag))))
