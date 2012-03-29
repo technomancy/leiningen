@@ -174,7 +174,8 @@
   (let [merged (reduce merge-profile project
                        (profiles-for project profiles-to-apply))]
     (with-meta (normalize merged)
-      {:without-profiles (normalize project)})))
+      {:without-profiles (normalize project)
+       :included-profiles profiles-to-apply})))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
