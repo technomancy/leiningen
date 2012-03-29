@@ -59,7 +59,9 @@
   ;; This must exist before the project is launched.
   (.mkdirs (io/file (:compile-path project "/tmp")))
   (doseq [task (:prep-tasks project)]
-    (main/apply-task task (dissoc project :prep-tasks) [])))
+    (main/apply-task task (dissoc project :prep-tasks) []))
+  (when-let [prepped (:prepped (meta project))]
+    (deliver prepped true)))
 
 ;; # Subprocess stuff
 

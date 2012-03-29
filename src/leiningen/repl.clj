@@ -65,19 +65,19 @@ Connects to the nREPL server running at the given host (defaults to localhost)
 and port."
   ([] (repl nil))
   ([project]
-   (nrepl.ack/reset-ack-port!)
-   (.start
-     (Thread.
-       (bound-fn []
-         (start-server project
-                       (repl-port project)
-                       (-> @lein-repl-server deref :ss .getLocalPort)))))
-   (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 30000))]
-     (reply/launch-nrepl
-       (merge
-         {:attach (str repl-port)}
-         (:reply-options project)))
-     (println "REPL server launch timed out.")))
+     (nrepl.ack/reset-ack-port!)
+     (let [prepped (promise)]
+       (.start
+        (Thread.
+         (bound-fn []
+           (start-server (vary-meta project assoc :prepped prepped)
+                         (repl-port project)
+                         (-> @lein-repl-server deref :ss .getLocalPort)))))
+       @prepped
+       (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 3000))]
+         (reply/launch-nrepl (merge {:attach (str repl-port)}
+                                    (:reply-options project)))
+         (println "REPL server launch timed out."))))
   ([project flag & opts]
    (case flag
      ":headless" (do (start-server project
