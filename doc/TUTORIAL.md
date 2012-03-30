@@ -89,6 +89,10 @@ The `lein search` command will search each remote repository:
     [lancet "1.0.0"] Dependency-based builds, Clojure Style.
     [lancet "1.0.1"] Dependency-based builds, Clojure Style.
 
+Note that this command will take many minutes to run the first time
+you invoke it on a given machine; it needs to download a rather large
+index.
+
 This shows two versions available with the dependency vector notation
 for each. You can copy one of these directly into the `:dependencies`
 vector in `project.clj`.
