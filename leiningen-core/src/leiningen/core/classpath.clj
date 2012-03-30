@@ -97,10 +97,10 @@
   classpath.
 
    Returns a set of the dependencies' files."
-  [dependencies-key {:keys [repositories native-path] :as project}
-   & rest]
-  (doto (set (aether/dependency-files
-              (apply get-dependencies dependencies-key project rest)))
+  [dependencies-key {:keys [repositories native-path] :as project} & rest]
+  (doto (->> (apply get-dependencies dependencies-key project rest)
+             (aether/dependency-files)
+             (filter #(re-find #"\.(jar|zip)$" (.getName %))))
     (extract-native-deps native-path)))
 
 (defn dependency-hierarchy
