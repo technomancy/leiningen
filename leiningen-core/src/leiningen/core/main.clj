@@ -11,6 +11,16 @@
                     "tutorial" ["help" "tutorial"]
                     "sample" ["help" "sample"]}))
 
+(def ^:dynamic *debug* (System/getenv "DEBUG"))
+
+(defn debug [& args]
+  (when *debug* (apply println args)))
+
+(def ^:dynamic *info* true)
+
+(defn info [& args]
+  (when *info* (apply println args)))
+
 (def ^:dynamic *exit-process?*
   "Bind to false to suppress process termination." true)
 
