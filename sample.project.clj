@@ -31,7 +31,7 @@
   ;; Dependencies are listed as [group-id/name version].
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.jclouds/jclouds "1.0" :classifier "jdk15"]
-                 [net.sf.ehcache/ehcache "2.3.1" :type "pom"]
+                 [net.sf.ehcache/ehcache "2.3.1" :extension "pom"]
                  [log4j "1.2.15" :exclusions [javax.mail/mail
                                               javax.jms/jms
                                               com.sun.jdmk/jmxtools
