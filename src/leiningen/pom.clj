@@ -111,23 +111,28 @@
   (when (not (empty? values))
     [:exclusions
      (map
-      (fn [dep]
+      (fn [[dep & {:keys [classifier extension]}]]
         [:exclusion (map (partial apply xml-tags)
                          {:group-id (namespace dep)
-                          :artifact-id (name dep)})])
+                          :artifact-id (name dep)
+                          :classifier classifier
+                          :type extension})])
       values)]))
 
 (defmethod xml-tags ::dependency
-  ([_ [dep version & opts]]
-     (let [opts (apply hash-map opts)]
-       [:dependency
-        (map (partial apply xml-tags)
-             {:group-id (or (namespace dep) (name dep))
-              :artifact-id (name dep)
-              :version version
-              :classifier (:classifier opts)
-              :exclusions (:exclusions opts)
-              :scope (:scope opts)})])))
+  ([_ [dep version & {:keys [optional classifier
+                             exclusions scope
+                             extension]}]]
+     [:dependency
+      (map (partial apply xml-tags)
+           {:group-id (or (namespace dep) (name dep))
+            :artifact-id (name dep)
+            :version version
+            :optional optional
+            :classifier classifier
+            :type extension
+            :exclusions exclusions
+            :scope scope})]))
 
 (defmethod xml-tags ::repository
   ([_ [id opts]]
@@ -248,10 +253,11 @@
 
 (defmethod xml-tags ::project
   ([_ project]
-     (let [test-project (-> project
-                            meta
-                            :without-profiles
-                            (project/merge-profiles [:dev :test :default])
+     (let [{:keys [without-profiles included-profiles]} (meta project)
+           test-project (-> without-profiles
+                            (project/merge-profiles
+                             (concat [:dev :test :default]
+                                     included-profiles))
                             relativize)]
        (list
         [:project {:xsi:schemaLocation "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.0.xsd"
