@@ -74,7 +74,7 @@ and port."
                          (repl-port project)
                          (-> @lein-repl-server deref :ss .getLocalPort)))))
        @prepped
-       (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 3000))]
+       (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 30000))]
          (reply/launch-nrepl (merge {:attach (str repl-port)}
                                     (:reply-options project)))
          (println "REPL server launch timed out."))))
