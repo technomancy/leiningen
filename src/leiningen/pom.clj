@@ -108,7 +108,7 @@
 
 (defmethod xml-tags ::exclusions
   [tag values]
-  (when values
+  (when (not (empty? values))
     [:exclusions
      (map
       (fn [dep]
@@ -156,13 +156,8 @@
            [:licenses [:license tags]])))))
 
 (defmethod xml-tags ::build
-  ([_ project]
-     (let [test-project (-> project
-                            meta
-                            :without-profiles
-                            (project/merge-profiles [:dev :test :default])
-                            relativize)
-           [src & extra-src] (concat (:source-paths project)
+  ([_ [project test-project]]
+     (let [[src & extra-src] (concat (:source-paths project)
                                      (:java-source-paths project))
            [test & extra-test] (:test-paths test-project)]
        [:build
@@ -242,30 +237,48 @@
                                    [:exclusions]
                                    #(concat exclusions %)))))
 
+(defn- test-scope-excluded [deps [dep version & opts :as depspec]]
+  (if (some #{depspec} deps)
+    depspec
+    (concat [dep version]
+            (apply concat (update-in (apply hash-map opts)
+                                     [:scope]
+                                     #(when (not %)
+                                        "test"))))))
+
 (defmethod xml-tags ::project
   ([_ project]
-     (list
-      [:project {:xsi:schemaLocation "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.0.xsd"
-                 :xmlns "http://maven.apache.org/POM/4.0.0"
-                 :xmlns:xsi "http://www.w3.org/2001/XMLSchema-instance"}
-       [:modelVersion "4.0.0"]
-       (when (:parent project) (xml-tags :parent (:parent project)))
-       [:groupId (:group project)]
-       [:artifactId (:name project)]
-       [:version (:version project)]
-       (when (:classifier project) [:classifier (:classifier project)])
-       [:name (:name project)]
-       [:description (:description project)]
-       (xml-tags :url (:url project))
-       (xml-tags :license (:license project))
-       (xml-tags :mailing-list (:mailing-list project))
-       (make-git-scm (io/file (:root project) ".git"))
-       (xml-tags :build project)
-       (xml-tags :repositories (:repositories project))
-       (xml-tags :dependencies (map (partial add-exclusions (:exclusions project))
-                                    ;; TODO: include :dependencies
-                                    ;; from :dev profile as test-scoped.
-                                    (:dependencies project)))])))
+     (let [test-project (-> project
+                            meta
+                            :without-profiles
+                            (project/merge-profiles [:dev :test :default])
+                            relativize)]
+       (list
+        [:project {:xsi:schemaLocation "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.0.xsd"
+                   :xmlns "http://maven.apache.org/POM/4.0.0"
+                   :xmlns:xsi "http://www.w3.org/2001/XMLSchema-instance"}
+         [:modelVersion "4.0.0"]
+         (when (:parent project) (xml-tags :parent (:parent project)))
+         [:groupId (:group project)]
+         [:artifactId (:name project)]
+         [:version (:version project)]
+         (when (:classifier project) [:classifier (:classifier project)])
+         [:name (:name project)]
+         [:description (:description project)]
+         (xml-tags :url (:url project))
+         (xml-tags :license (:license project))
+         (xml-tags :mailing-list (:mailing-list project))
+         (make-git-scm (io/file (:root project) ".git"))
+         (xml-tags :build [project test-project])
+         (xml-tags :repositories (:repositories project))
+         (xml-tags :dependencies
+                   (map (partial add-exclusions
+                                 (:exclusions project))
+                        (map (partial test-scope-excluded
+                                      (:dependencies project))
+                             ;; TODO: include :dependencies
+                             ;; from :dev profile as test-scoped.
+                             (:dependencies test-project))))]))))
 
 (defn snapshot? [project]
   (re-find #"SNAPSHOT" (:version project)))

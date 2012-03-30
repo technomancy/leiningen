@@ -24,12 +24,18 @@
 
 (def first-in (comp first deep-content))
 
-(defn with-profile [project profile]
-  (let [{:keys [included-profiles
-                without-profiles]} (meta project)]
-    (-> without-profiles
-        (update-in [:profiles] #(assoc % :pom-test profile))
-        (project/merge-profiles (cons :pom-test included-profiles)))))
+(defn with-profile
+  ([project profile]
+     (with-profile project :test-pom profile))
+  ([project name profile]
+     (let [{:keys [included-profiles
+                   without-profiles]} (meta project)]
+       (-> without-profiles
+           (update-in [:profiles] #(assoc % name profile))
+           (project/merge-profiles
+            (if (some #{name} included-profiles)
+              included-profiles
+              (cons name included-profiles)))))))
 
 (deftest test-pom-default-values
   (let [xml (xml/parse-str (make-pom sample-project))]
@@ -56,7 +62,8 @@
                 (deep-content xml [:project :repositories])))
         "repositories are named")
     (is (= ["http://repo1.maven.org/maven2" "http://clojars.org/repo/"
-            "file:///tmp/lein-repo"]
+            (format "file://%s/lein-repo"
+                    (System/getProperty "java.io.tmpdir"))]
            (map #(first-in % [:repository :url])
                 (deep-content xml [:project :repositories])))
         "repositories have correct location")
@@ -75,7 +82,7 @@
     (is (= ["resources"]
            (map #(first-in % [:resource :directory])
                 (deep-content xml [:project :build :resources])))
-        "resource directories use project without :dev profile")
+        "resource directories use project without :default or :dev profile")
     (is (= ["dev-resources" "resources"]
            (map #(first-in % [:testResource :directory])
                 (deep-content xml [:project :build :testResources])))
@@ -86,10 +93,53 @@
         "no extensions")
     (is (= "target/classes" (first-in xml [:project :build :outputDirectory]))
         "classes directory is included")
-                                        ;TODO: Add tests for:
-                                        ;dependencies and options
-                                        ;test/dev dependencies testscoped
-    ))
+    (is (= ["org.clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :groupId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["1.1.0" "0.9" "1.0.0"]
+           (map #(first-in % [:dependency :version])
+                (deep-content xml [:project :dependencies]))))))
+
+(deftest test-dependencies-are-test-scoped
+  (let [xml (xml/parse-str
+             (make-pom (with-profile
+                         sample-project
+                         :test
+                         {:dependencies '[[peridot "0.0.5"]]})))]
+    (is (= ["peridot" "org.clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :groupId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [ "peridot" "clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["0.0.5" "1.1.0" "0.9" "1.0.0"]
+           (map #(first-in % [:dependency :version])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["test" nil nil nil]
+           (map #(first-in % [:dependency :scope])
+                (deep-content xml [:project :dependencies]))))))
+
+(deftest dev-dependencies-are-test-scoped
+  (let [xml (xml/parse-str
+             (make-pom (with-profile
+                         sample-project
+                         :dev
+                         {:dependencies '[[peridot "0.0.5"]]})))]
+    (is (= ["peridot" "org.clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :groupId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [ "peridot" "clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["0.0.5" "1.1.0" "0.9" "1.0.0"]
+           (map #(first-in % [:dependency :version])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["test" nil nil nil]
+           (map #(first-in % [:dependency :scope])
+                (deep-content xml [:project :dependencies]))))))
 
 (deftest test-pom-has-classifier-when-defined
   (is (not (re-find #"classifier"
