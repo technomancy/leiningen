@@ -174,7 +174,7 @@
   (let [merged (reduce merge-profile project
                        (profiles-for project profiles-to-apply))]
     (with-meta (normalize merged)
-      {:without-profiles (normalize project)
+      {:without-profiles (normalize (:without-profiles (meta project) project))
        :included-profiles (concat (:included-profiles (meta project))
                                   profiles-to-apply)})))
 
