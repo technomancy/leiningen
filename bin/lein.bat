@@ -68,15 +68,6 @@ if exist "%~f0\..\..\src\leiningen\core.clj" (
 if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 :: ##################################################
 
-if not "x%INSIDE_EMACS%" == "x" goto SKIP_JLINE
-if "%1" == "repl"             goto SET_JLINE
-if "%1" == "interactive"      goto SET_JLINE
-if "%1" == "int"              goto SET_JLINE
-goto SKIP_JLINE
-
-:SET_JLINE
-set JLINE=jline.ConsoleRunner
-:SKIP_JLINE
 
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
@@ -254,7 +245,7 @@ set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 %JAVA_CMD% -client %LEIN_JVM_OPTS% ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
- -cp %CLASSPATH% %JLINE% clojure.main -e "(use 'leiningen.core.main)(-main \"%*\")"
+ -cp %CLASSPATH% clojure.main -e "(use 'leiningen.core.main)(-main \"%*\")"
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
@@ -264,6 +255,6 @@ goto EOF
 :RUN_NORMAL
 %JAVA_CMD% -client %LEIN_JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% %JLINE% clojure.main -m leiningen.core.main %*
+ -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
 
 :EOF
