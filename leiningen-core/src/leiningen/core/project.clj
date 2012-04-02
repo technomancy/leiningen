@@ -85,7 +85,7 @@
   (update-in project [:plugins] dedupe-deps))
 
 (defn- absolutize [root path]
-  (str (if (.startsWith path "/")
+  (str (if (.isAbsolute (io/file path))
          path
          (io/file root path))))
 
