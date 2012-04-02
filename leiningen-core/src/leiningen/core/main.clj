@@ -31,7 +31,7 @@
      (shutdown-agents)
      (if *exit-process?*
        (System/exit code)
-       code))
+       (throw (Exception. (str "Suppressed exit: " code)))))
   ([] (exit 0)))
 
 (defn abort
@@ -131,8 +131,12 @@ or by executing \"lein upgrade\". ")
     (doseq [[task-name & args] (group-args args)
             :let [task-name (or (@aliases task-name)
                                 (get (:aliases project) task-name)
-                                task-name "help")
-                  result (apply-task task-name project args)]]
-      (when (and (integer? result) (pos? result))
-        (exit result))))
+                                task-name "help")]]
+      (try (apply-task task-name project args)
+           (catch Exception e
+             (when-let [[_ code] (re-find #"Process exited with (\d+)"
+                                          (.getMessage e))]
+               (exit (Integer. code)))
+             (println (.getMessage e))
+             (exit 1)))))
   (exit 0))

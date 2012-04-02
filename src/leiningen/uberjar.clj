@@ -80,9 +80,9 @@ as well as defining a -main function."
                      project)
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))]
-       (let [res (jar/jar project)]
-         (when (and (number? res) (pos? res))
-           (main/abort "Uberjar aborting because jar/compilation failed."))))
+       (try (jar/jar project)
+            (catch Exception e
+              (main/abort "Uberjar aborting because jar/compilation failed:"))))
      (let [standalone-filename (jar/get-jar-filename project :uberjar)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)

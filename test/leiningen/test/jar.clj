@@ -46,11 +46,9 @@
     (is (nil? (.getEntry jar-file "bin/nom.bat")))
     (is (nil? (manifest "Leiningen-shell-wrapper")))))
 
-;; TODO: re-enable once #493 is fixed
-;; (deftest test-jar-fails
-;;   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
-;;     (let [result (jar sample-failing-project)]
-;;       (is (and (number? result) (pos? result))))))
+(deftest test-jar-fails
+  (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
+    (is (thrown? Exception (jar sample-failing-project)))))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str

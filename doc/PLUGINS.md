@@ -44,7 +44,7 @@ launching the JVM, so `(System/getProperty "user.dir")` should be the
 project root. The current directory of the JVM cannot be changed once
 launched.
 
-TODO: mention accepting :keyword args for certain things
+TODO: mention accepting :keyword-like args for certain things
 
 The `lein help` task uses docstrings. A namespace-level docstring will
 be used as the short summary if present; if not then it will take the
@@ -60,12 +60,6 @@ that all your arguments will be strings, so it's up to you to call
 `read-string` on them if you want keywords, numbers, or symbols.
 
 TODO: document subtasks and subtask help
-
-If your task returns an integer, it will be used as the exit code for
-the process. If tasks are chained together, a nonzero integer return
-value will halt the chain and exit immediately. Throwing an exception
-will also halt execution, but returning an integer will avoid showing
-an unsightly stack trace.
 
 ## Code Evaluation
 
@@ -102,11 +96,6 @@ need. For example, this is done in the `lein-swank` plugin like so:
 
 The code in the `swank-clojure` dependency is needed inside the
 project, so it's `conj`ed into the `:dependencies`.
-
-The return value of the `eval-in-project` call is an integer that
-represents the exit code of the project's process. Zero indicates
-success. Be sure to use this as the return value of your task function
-if appropriate.
 
 TODO: mention prep-tasks
 

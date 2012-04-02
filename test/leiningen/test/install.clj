@@ -15,7 +15,7 @@
 (deftest test-install
   (delete-file-recursively (m2-dir "nomnomnom" "0.5.0-SNAPSHOT") true)
   ;; (delete-shell-wrappers)
-  (is (zero? (install sample-project)))
+  (install sample-project)
   (is (not (empty? (.listFiles (m2-dir "nomnomnom" "0.5.0-SNAPSHOT")))))
   ;; (is (.exists unix-shell-wrapper))
   ;; (if (= :windows (get-os))

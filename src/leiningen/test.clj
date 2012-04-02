@@ -77,6 +77,8 @@ selectors. With no arguments, runs all tests."
         result (doto (File/createTempFile "lein" "result") .deleteOnExit)
         form (form-for-testing-namespaces nses (.getAbsolutePath result)
                                           (vec selectors))]
+    (when (= :leiningen (:eval-in project)) ; haaaack
+      (alter-var-root #'leiningen.core.main/*exit-process?* (constantly false)))
     (eval/eval-in-project project form '(require 'clojure.test))
     (if (and (.exists result) (pos? (.length result)))
       (let [summary (read-string (slurp (.getAbsolutePath result)))

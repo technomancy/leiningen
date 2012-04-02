@@ -1,8 +1,8 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
-  (:require [leiningen.core.user :as user]
+  (:require [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [bultitude.core :as b]
-            [leiningen.core.eval :as eval]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile])
   (:import (java.io PushbackReader)))
@@ -104,16 +104,6 @@
            "This function will be removed for the final 2.0.0 release.")
   (eval/eval-in-project project form init))
 
- ;; actual task
-
-(defn- status [code msg]
-  (binding [*out* (if (zero? code) *out* *err*)]
-    (println msg))
-  code)
-
-(def ^:private success (partial status 0))
-(def ^:private failure (partial status 1))
-
 (defn compile
   "Compile Clojure source into .class files.
 
@@ -129,14 +119,12 @@ as command-line arguments. Use :all argument to compile everything."
                  project (update-in project [:prep-tasks]
                                     (partial remove #{"compile"}))]
              (.mkdirs (io/file (:compile-path project)))
-             ;; TODO: should eval-in-project be allowed to return non-integers?
-             (let [res (eval/eval-in-project project form)]
-               (if (or (not (number? res)) (zero? res))
-                 (success "Compilation succeeded.")
-                 (failure "Compilation failed."))))
+             (try (eval/eval-in-project project form)
+                  (main/info "Compilation succeeded.")
+                  (catch Exception e
+                    (main/abort "Compilation failed."))))
            #_(finally (clean-non-project-classes project)))
-         (success "All namespaces already :aot compiled."))
-       0))
+         (main/info "All namespaces already :aot compiled."))))
   ([project & namespaces]
      (compile (assoc project :aot (if (= namespaces [":all"])
                                     :all

@@ -213,4 +213,4 @@
   (binding [leiningen.core.main/*exit-process?* false]
     (let [project (assoc sample-project :version "1.0"
                          :dependencies [['clojure "1.0.0-SNAPSHOT"]])]
-      (is (not (pom project))))))
+      (is (thrown? Exception (pom project))))))

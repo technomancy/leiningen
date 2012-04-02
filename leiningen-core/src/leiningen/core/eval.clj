@@ -140,7 +140,9 @@
 
 (defmethod eval-in :subprocess [project form]
   (binding [*dir* (:root project)]
-    (apply sh (shell-command project form))))
+    (let [exit-code (apply sh (shell-command project form))]
+      (when (pos? exit-code)
+        (throw (Exception. (str "Process exited with " exit-code)))))))
 
 (defmethod eval-in :trampoline [project form]
   (deliver (:trampoline-promise (meta project))
