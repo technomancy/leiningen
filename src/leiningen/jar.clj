@@ -179,10 +179,8 @@ Create a $PROJECT-$VERSION.jar file containing project's source files as well
 as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   [project]
-  (let [classpath [] ;; (classpath/resolve-dependencies project)
-        project (:without-profiles (meta project) project)]
-    (eval/prep project)
-    (let [jar-file (get-jar-filename project)]
-      (write-jar project jar-file (filespecs project classpath))
-      (println "Created" (str jar-file))
-      jar-file)))
+  (eval/prep (:without-profiles (meta project) project))
+  (let [jar-file (get-jar-filename project)]
+    (write-jar project jar-file (filespecs project []))
+    (println "Created" (str jar-file))
+    jar-file))

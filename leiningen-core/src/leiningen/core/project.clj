@@ -27,6 +27,7 @@
                :native-path "native"
                :compile-path "target/classes"
                :target-path "target"
+               :prep-tasks ["javac" "compile"]
                :repositories (ordered/ordered-map
                               "central" {:url "http://repo1.maven.org/maven2"}
                               ;; TODO: point to releases-only before 2.0 is out
@@ -114,8 +115,7 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:default {:resource-paths ["dev-resources"]
-                   :prep-tasks ["javac" "compile"]}
+  (atom {:default {:resource-paths ["dev-resources"]}
          :test {}
          :offline {:offline? true}
          :debug {:debug true}}))
