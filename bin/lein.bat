@@ -34,15 +34,6 @@ if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_
 if "%1" == "self-install" goto SELF_INSTALL
 if "%1" == "upgrade"      goto NO_UPGRADE
 
-set DEV_PLUGINS="
-for %%j in (".\lib\dev\*.jar") do (
-    set DEV_PLUGINS=!DEV_PLUGINS!;%%~fj
-)
-set DEV_PLUGINS=!DEV_PLUGINS!"
-
-call :BUILD_UNIQUE_USER_PLUGINS
-set CLASSPATH="%CLASSPATH%";%DEV_PLUGINS%;%UNIQUE_USER_PLUGINS%;test;src;resources
-
 :: Apply context specific CLASSPATH entries
 set CONTEXT_CP=
 if exist ".lein-classpath" set /P CONTEXT_CP=<.lein-classpath
@@ -72,61 +63,6 @@ if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
 if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
-
-
-:: Builds a classpath fragment consisting of user plugins
-:: which aren't already present as a dev dependency.
-:BUILD_UNIQUE_USER_PLUGINS
-call :BUILD_PLUGIN_SEARCH_STRING %DEV_PLUGINS%
-set UNIQUE_USER_PLUGINS="
-for %%j in ("%LEIN_HOME%\plugins\*.jar") do (
-    call :MAKE_SEARCH_TOKEN %%~nj
-    echo %PLUGIN_SEARCH_STRING%|findstr ;!SEARCH_TOKEN!; > NUL
-    if !ERRORLEVEL! == 1 (
-        set UNIQUE_USER_PLUGINS=!UNIQUE_USER_PLUGINS!;%%~fj
-    )
-)
-set UNIQUE_USER_PLUGINS=!UNIQUE_USER_PLUGINS!"
-goto EOF
-
-:: Builds a search string to match against when ensuring
-:: plugin uniqueness.
-:BUILD_PLUGIN_SEARCH_STRING
-for %%j in (".\lib\dev\*.jar") do (
-    call :MAKE_SEARCH_TOKEN %%~nj
-    set PLUGIN_SEARCH_STRING=!PLUGIN_SEARCH_STRING!;!SEARCH_TOKEN!
-)
-set PLUGIN_SEARCH_STRING=%PLUGIN_SEARCH_STRING%;
-goto EOF
-
-:: Takes a jar filename and returns a reversed jar name without version.
-:: Example: lein-multi-0.1.1.jar -> itlum-niel
-:MAKE_SEARCH_TOKEN
-call :REVERSE_STRING %1
-call :STRIP_VERSION !RSTRING!
-set SEARCH_TOKEN=!VERSIONLESS!
-goto EOF
-
-:: Reverses a string.
-:REVERSE_STRING
-set NUM=0
-set INPUTSTR=%1
-set RSTRING=
-:REVERSE_STRING_LOOP
-call set TMPCHR=%%INPUTSTR:~%NUM%,1%%%
-set /A NUM+=1
-if not "x%TMPCHR%" == "x" (
-    set RSTRING=%TMPCHR%%RSTRING%
-    goto REVERSE_STRING_LOOP
-)
-goto EOF
-
-:: Takes a string and removes everything from the beginning up to
-:: and including the first dash character.
-:STRIP_VERSION
-set INPUT=%1
-for /F "delims=- tokens=1*" %%a in ("%INPUT%") do set VERSIONLESS=%%b
-goto EOF
 
 
 :NO_LEIN_JAR
