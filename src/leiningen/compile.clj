@@ -130,9 +130,10 @@ as command-line arguments. Use :all argument to compile everything."
                                     (partial remove #{"compile"}))]
              (.mkdirs (io/file (:compile-path project)))
              ;; TODO: should eval-in-project be allowed to return non-integers?
-             (if (zero? (eval/eval-in-project project form))
-               (success "Compilation succeeded.")
-               (failure "Compilation failed.")))
+             (let [res (eval/eval-in-project project form)]
+               (if (or (not (number? res)) (zero? res))
+                 (success "Compilation succeeded.")
+                 (failure "Compilation failed."))))
            #_(finally (clean-non-project-classes project)))
          (success "All namespaces already :aot compiled."))
        0))

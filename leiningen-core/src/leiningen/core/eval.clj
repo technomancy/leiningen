@@ -143,7 +143,8 @@
     (apply sh (shell-command project form))))
 
 (defmethod eval-in :trampoline [project form]
-  (deliver (:trampoline-promise project) (shell-command project form)))
+  (deliver (:trampoline-promise (meta project))
+           (shell-command project form)))
 
 (defmethod eval-in :classloader [project form]
   (let [classpath   (map io/file (classpath/get-classpath project))

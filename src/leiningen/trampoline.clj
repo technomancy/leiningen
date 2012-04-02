@@ -34,9 +34,8 @@ Not compatible with chaining."
     (when (:eval-in-leiningen project)
       (println "Warning: trampoline has no effect with :eval-in-leiningen."))
     (binding [*trampoline?* true]
-      (main/apply-task task-name (assoc project
-                                   :eval-in :trampoline
-                                   :trampoline-promise command) args))
+      (main/apply-task task-name (with-meta (assoc project :eval-in :trampoline)
+                                   {:trampoline-promise command}) args))
     (if (realized? command)
       (write-trampoline @command)
       (main/abort task-name "did not run any project code for trampolining."))))
