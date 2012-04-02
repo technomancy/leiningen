@@ -1,8 +1,8 @@
 (ns leiningen.jar
   "Package up all the project's files into a jar file."
-  (:require [leiningen.compile :as compile]
-            [leiningen.pom :as pom]
+  (:require [leiningen.pom :as pom]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.eval :as eval]
             [clojure.string :as string]
             [clojure.java.io :as io])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
@@ -182,9 +182,8 @@ function in that namespace will be used as the main-class for executable jar."
   (let [classpath [] ;; (classpath/resolve-dependencies project)
         project (:without-profiles (meta project) project)
         status (compile/compile project)]
-    (if (zero? status)
-      (let [jar-file (get-jar-filename project)]
-        (write-jar project jar-file (filespecs project classpath))
-        (println "Created" (str jar-file))
-        jar-file)
-      status)))
+    (eval/prep project)
+    (let [jar-file (get-jar-filename project)]
+      (write-jar project jar-file (filespecs project classpath))
+      (println "Created" (str jar-file))
+      jar-file)))
