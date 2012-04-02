@@ -70,10 +70,10 @@ and port."
        (.start
         (Thread.
          (bound-fn []
-           (start-server (vary-meta project assoc :prepped prepped)
+           (start-server (and project (vary-meta project assoc :prepped prepped))
                          (repl-port project)
                          (-> @lein-repl-server deref :ss .getLocalPort)))))
-       @prepped
+       (and project @prepped)
        (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 30000))]
          (reply/launch-nrepl (merge {:attach (str repl-port)}
                                     (:reply-options project)))
