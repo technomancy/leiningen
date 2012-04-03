@@ -148,6 +148,20 @@
   :jar-exclusions [#"(?:^|/).svn/"]
   ;; Same thing, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
+  ;; Add arbitrary jar entries. Supports :path, :paths, :bytes, and :fn types.
+  :filespecs [{:type :path :path "config/base.clj"}
+              ;; directory paths are included recursively
+              {:type :paths :paths ["config/web" "config/cli"]}
+              ;; programmatically-generated content can use :bytes
+              {:type :bytes :path "project.clj"
+               ;; strings or byte arrays are accepted
+               :bytes ~(slurp "project.clj")}
+              ;; :fn filespecs take the project as an argument and
+              ;; should return a filespec map of one of the other types.
+              {:type :fn :fn (fn [p]
+                               {:type :bytes :path "git-log"
+                                :bytes (:out (clojure.java.shell/sh
+                                              "git" "log" "-n" "1"))})}]
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.
