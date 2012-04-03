@@ -173,7 +173,7 @@
   [project profiles-to-apply]
   (let [merged (reduce merge-profile project
                        (profiles-for project profiles-to-apply))]
-    (with-meta (normalize merged)
+    (vary-meta (normalize merged) merge
       {:without-profiles (normalize (:without-profiles (meta project) project))
        :included-profiles (concat (:included-profiles (meta project))
                                   profiles-to-apply)})))
