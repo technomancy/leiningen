@@ -138,5 +138,6 @@ or by executing \"lein upgrade\". ")
                                           (.getMessage e))]
                (exit (Integer. code)))
              (println (.getMessage e))
+             (.printStackTrace e)
              (exit 1)))))
   (exit 0))
