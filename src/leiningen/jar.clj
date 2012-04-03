@@ -159,8 +159,7 @@
           (if-not (:omit-source project)
             [{:type :paths :paths (:source-paths project)}
              {:type :paths :paths (:java-source-paths project)}])
-          (if-let [jar-inclusions (:jar-inclusions project)]
-            [{:type :paths :paths jar-inclusions}])
+          (:filespecs project)
           ;; (shell-wrapper-filespecs project deps-fileset)
           ))
 
