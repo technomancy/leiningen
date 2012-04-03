@@ -18,6 +18,6 @@ Colon-separated profiles may be given for sequential profile task application."
   (let [profile-groups (seq (.split profiles ":"))
         project (:without-profiles (meta project) project)]
     (doseq [profile-group profile-groups]
-      (println (format "Performing task '%s' with profile(s): '%s'"
-                       task-name profile-group))
+      (main/info (format "Performing task '%s' with profile(s): '%s'"
+                         task-name profile-group))
       (apply with-profile* project profile-group task-name args))))

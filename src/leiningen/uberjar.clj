@@ -41,7 +41,7 @@
 ;; skip duplicates.  We also collect together all the plexus components so
 ;; that we can merge them.
 (defn- include-dep [out skip-pred [skip-set components] dep]
-  (println "Including" (.getName dep))
+  (main/info "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
     [(into skip-set (copy-entries zipfile out skip-set skip-pred))
      (concat components (read-components zipfile))]))
@@ -91,6 +91,6 @@ as well as defining a -main function."
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (io/file (jar/get-jar-filename project)) deps)]
              (write-components project jars out)))
-         (println "Created" standalone-filename)
+         (main/info "Created" standalone-filename)
          standalone-filename))
   ([project] (uberjar project nil)))

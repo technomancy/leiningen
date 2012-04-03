@@ -11,9 +11,7 @@
   (.endsWith (System/getProperty "leiningen.trampoline-file") ".bat"))
 
 (defn write-trampoline [command]
-  (when (System/getenv "DEBUG")
-    (println "Trampoline-command:" command)
-    (flush))
+  (main/debug "Trampoline-command:" command)
   (spit (System/getProperty "leiningen.trampoline-file")
         (string/join " " (if (win-batch?)
                            command
@@ -32,7 +30,7 @@ Not compatible with chaining."
   [project task-name & args]
   (let [command (promise)]
     (when (:eval-in-leiningen project)
-      (println "Warning: trampoline has no effect with :eval-in-leiningen."))
+      (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
     (binding [*trampoline?* true]
       (main/apply-task task-name (with-meta (assoc project :eval-in :trampoline)
                                    {:trampoline-promise command}) args))

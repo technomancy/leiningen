@@ -3,6 +3,7 @@
   (:require [leiningen.pom :as pom]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [clojure.string :as string]
             [clojure.java.io :as io])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
@@ -182,5 +183,5 @@ function in that namespace will be used as the main-class for executable jar."
   (eval/prep (:without-profiles (meta project) project))
   (let [jar-file (get-jar-filename project)]
     (write-jar project jar-file (filespecs project []))
-    (println "Created" (str jar-file))
+    (main/info "Created" (str jar-file))
     jar-file))

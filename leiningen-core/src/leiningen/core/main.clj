@@ -104,8 +104,8 @@ or by executing \"lein upgrade\". ")
 (defn- verify-min-version
   [{:keys [min-lein-version]}]
   (when-not (version-satisfies? (System/getenv "LEIN_VERSION") min-lein-version)
-    (println (format min-version-warning
-                     min-lein-version (System/getenv "LEIN_VERSION")))))
+    (info (format min-version-warning
+                  min-lein-version (System/getenv "LEIN_VERSION")))))
 
 (defn- conj-to-last [coll x]
   (update-in coll [(dec (count coll))] conj x))

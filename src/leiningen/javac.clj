@@ -47,7 +47,7 @@
     (when (pos? (count files))
       (if-let [compiler (ToolProvider/getSystemJavaCompiler)]
         (do
-          (println "Compiling" (count files) "source files to" compile-path)
+          (main/info "Compiling" (count files) "source files to" compile-path)
           (.mkdirs (io/file compile-path))
           (.run compiler nil nil nil (javac-options project files args)))
         (main/abort "lein-javac: system java compiler not found;"

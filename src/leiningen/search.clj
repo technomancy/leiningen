@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
+            [leiningen.core.main :as main]
             [clucy.core :as clucy]
             [clj-http.client :as client])
   (:import (java.util.zip ZipFile)
@@ -46,15 +47,15 @@
             (recur cnt*)))))))
 
 (defn- download-index [[id {url :url}]]
-  (println "Downloading index from" id "-" url "... this may take a while.")
-  (print "0%...")
+  (main/info "Downloading index from" id "-" url "... this may take a while.")
+  (main/info "0%...")
   (flush)
   (let [index-url ^URL (remote-index-url url)
         tmp (File/createTempFile "lein" "index")
         tmp-stream (FileOutputStream. tmp)
         progress (atom 0)
         callback (fn [{:keys [percentage]}]
-                   (when-not (= percentage @progress)
+                   (when (and main/*info* (not= percentage @progress))
                      (reset! progress percentage)
                      (print (str "\r" percentage "%..."))
                      (flush)))]
@@ -63,7 +64,7 @@
            (download index-url tmp-stream :callback callback))
          (unzip tmp (index-location url))
          (finally (.delete tmp))))
-  (println))
+  (main/info))
 
 (defn- download-needed? [[id {:keys [url]}]]
   (not (.exists (index-location url))))
