@@ -23,9 +23,11 @@
   (let [jar-file (JarFile. (jar sample-project))
         manifest (manifest-map (.getManifest jar-file))
         bin (slurp (.getInputStream jar-file (.getEntry jar-file "bin/nom")))
+        bin (slurp (.getInputStream jar-file (.getEntry jar-file "bytes.clj")))
         bat (slurp (.getInputStream jar-file (.getEntry jar-file
                                                         "bin/nom.bat")))]
     (is (= "bin/nom" (manifest "Leiningen-shell-wrapper")))
+    (is (= [:bytes "are" 'nomnomnom] (read-string bytes)))
     (is (re-find #"org/clojure/clojure/1\.1\.0/" bin))
     (is (re-find #"org\\clojure\\clojure\\1\.1\.0" bat))
     (is (re-find #"MAIN=\"nom\.nom\.nom\"" bin))

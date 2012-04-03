@@ -15,6 +15,9 @@
   :shell-wrapper {:main nom.nom.nom
                   :bin "bin/nom"}
   :jar-exclusions [#"^META-INF"]
+  :filespecs [{:type :fn :fn (fn [p] {:type :bytes :path "bytes.clj"
+                                     :bytes (str "[:bytes \"are\" "
+                                                 (:name p) "]")})}]
   :test-selectors {:integration :integration
                    :default (complement :integration)
                    :random (fn [_] (> (rand) ~(float 1/2)))

@@ -133,8 +133,16 @@
 (defmethod copy-to-jar :bytes [project jar-os acc spec]
   (when-not (some #(re-find % (:path spec)) (:jar-exclusions project))
     (.putNextEntry jar-os (JarEntry. (:path spec)))
-    (io/copy (ByteArrayInputStream. (:bytes spec)) jar-os))
+    (let [bytes (if (string? (:bytes spec))
+                  (.getBytes (:bytes spec))
+                  (:bytes spec))]
+      (io/copy (ByteArrayInputStream. bytes) jar-os)))
   (conj acc (:path spec)))
+
+(defmethod copy-to-jar :fn [project jar-os acc spec]
+  (let [f (eval (:fn spec))
+        dynamic-spec (f project)]
+    (copy-to-jar project jar-os acc dynamic-spec)))
 
 (defn write-jar [project out-file filespecs]
   (with-open [jar-os (-> out-file
