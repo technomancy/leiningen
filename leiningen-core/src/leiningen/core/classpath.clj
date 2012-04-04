@@ -5,7 +5,8 @@
             [clojure.java.io :as io]
             [leiningen.core.user :as user])
   (:import (java.util.jar JarFile)
-           (java.util.regex Pattern)))
+           (java.util.regex Pattern)
+           (java.net URL)))
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
@@ -76,6 +77,13 @@
 (defn add-auth [repositories]
   (map add-repo-auth repositories))
 
+(defn get-proxy-settings
+  "Returns a map of the JVM proxy settings"
+  []
+  (when-let [uri (URL. (System/getenv "http_proxy"))]
+  {:host (.getHost uri)
+   :port (.getPort uri)}))
+
 (defn- get-dependencies
   [dependencies-key {:keys [repositories native-path] :as project}
    & {:keys [add-classpath?]}]
@@ -87,7 +95,8 @@
     :offline? (:offline project)
     :repositories (add-auth repositories)
     :coordinates (project dependencies-key)
-    :transfer-listener :stdout))
+    :transfer-listener :stdout
+    :proxy (get-proxy-settings)))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
