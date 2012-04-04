@@ -111,12 +111,16 @@
   (when (not (empty? values))
     [:exclusions
      (map
-      (fn [[dep & {:keys [classifier extension]}]]
-        [:exclusion (map (partial apply xml-tags)
-                         {:group-id (namespace dep)
-                          :artifact-id (name dep)
-                          :classifier classifier
-                          :type extension})])
+      (fn [exclusion-spec]
+        (let [[dep & {:keys [classifier extension]}]
+              (if (symbol? exclusion-spec)
+                [exclusion-spec]
+                exclusion-spec)]
+          [:exclusion (map (partial apply xml-tags)
+                           {:group-id (namespace dep)
+                            :artifact-id (name dep)
+                            :classifier classifier
+                            :type extension})]))
       values)]))
 
 (defmethod xml-tags ::dependency

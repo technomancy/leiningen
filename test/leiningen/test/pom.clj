@@ -183,6 +183,34 @@
                 (deep-content xml [:project :dependencies]))))
     (is (= ["dom" nil nil nil]
            (map #(first-in % [:dependency :exclusions :exclusion :type])
+                (deep-content xml [:project :dependencies])))))
+  (let [xml (xml/parse-str
+             (make-pom (with-profile
+                         sample-project
+                         {:dependencies '[[peridot "0.0.5"
+                                           :scope "provided"
+                                           :exclusions
+                                           [ring-mock]]]})))]
+    (is (= ["peridot" "org.clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :groupId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [ "peridot" "clojure" "rome" "ring"]
+           (map #(first-in % [:dependency :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["0.0.5" "1.1.0" "0.9" "1.0.0"]
+           (map #(first-in % [:dependency :version])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["provided" nil nil nil]
+           (map #(first-in % [:dependency :scope])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["ring-mock" nil nil nil]
+           (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [nil nil nil nil]
+           (map #(first-in % [:dependency :exclusions :exclusion :classifier])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [nil nil nil nil]
+           (map #(first-in % [:dependency :exclusions :exclusion :type])
                 (deep-content xml [:project :dependencies]))))))
 
 (deftest test-pom-has-classifier-when-defined
