@@ -81,9 +81,13 @@
   "Returns a map of the JVM proxy settings"
   []
   (when-let [proxy (System/getenv "http_proxy")]
-    (let [url (URL. proxy)]
+    (let [url (URL. proxy)
+          user-info (.getUserInfo url)
+          [username password] (and user-info (.split user-info ":"))]
       {:host (.getHost url)
-       :port (.getPort url)})))
+       :port (.getPort url)
+       :username username
+       :password password})))
 
 (defn- get-dependencies
   [dependencies-key {:keys [repositories native-path] :as project}
