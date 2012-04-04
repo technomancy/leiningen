@@ -7,7 +7,7 @@
                  [classlojure "0.6.5"]
                  [robert/hooke "1.1.2"]
                  [ordered "1.1.0"]
-                 [com.cemerick/pomegranate "0.0.9"
+                 [com.cemerick/pomegranate "0.0.11-SNAPSHOT"
                   :exclusions [org.slf4j/slf4j-api]]]
   :dev-resources-path "dev-resources"
   :profiles {:dev {:resource-paths ["dev-resources"]}})

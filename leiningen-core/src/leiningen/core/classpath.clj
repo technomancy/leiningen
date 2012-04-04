@@ -76,6 +76,14 @@
 (defn add-auth [repositories]
   (map add-repo-auth repositories))
 
+(defn get-proxy-settings
+  "Returns a map of the JVM proxy settings"
+  []
+  (when-let [host (System/getProperty "http.proxyHost")]
+    {:host host
+     :port (or (System/getProperty "http.proxyPort") 80)
+     :non-proxy-hosts (System/getenv "http.nonProxyHosts")}))
+
 (defn- get-dependencies
   [dependencies-key {:keys [repositories native-path] :as project}
    & {:keys [add-classpath?]}]
@@ -87,7 +95,8 @@
     :offline? (:offline project)
     :repositories (add-auth repositories)
     :coordinates (project dependencies-key)
-    :transfer-listener :stdout))
+    :transfer-listener :stdout
+    :proxy (get-proxy-settings)))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
