@@ -1,6 +1,7 @@
 (ns leiningen.core.main
   (:require [leiningen.core.user :as user]
             [leiningen.core.project :as project]
+            [leiningen.core.classpath :as classpath]
             [clojure.java.io :as io]
             [clojure.string :as string]))
 
@@ -126,6 +127,9 @@ or by executing \"lein upgrade\". ")
   (let [project (if (.exists (io/file "project.clj")) (project/read))]
     (when (:min-lein-version project)
       (verify-min-version project))
+    (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
+      (System/setProperty "http.proxyHost" host)
+      (System/setProperty "http.proxyPort" (str port)))
     (when-not project
       (project/load-plugins (project/merge-profiles {} [:user :default])))
     (doseq [[task-name & args] (group-args args)
