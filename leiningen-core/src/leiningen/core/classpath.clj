@@ -80,9 +80,10 @@
 (defn get-proxy-settings
   "Returns a map of the JVM proxy settings"
   []
-  (when-let [uri (URL. (System/getenv "http_proxy"))]
-  {:host (.getHost uri)
-   :port (.getPort uri)}))
+  (when-let [proxy (System/getenv "http_proxy")]
+    (let [url (URL. proxy)]
+      {:host (.getHost url)
+       :port (.getPort url)})))
 
 (defn- get-dependencies
   [dependencies-key {:keys [repositories native-path] :as project}
