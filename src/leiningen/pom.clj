@@ -238,7 +238,7 @@
            (when other-archives
              (vec (concat [:otherArchives]
                           (map (fn [x] [:otherArchive x])
-                               other-archives)))))]]))) 
+                               other-archives)))))]])))
 
 (defn- test-scope-excluded [deps [dep version & opts :as depspec]]
   (if (some #{depspec} deps)
@@ -276,9 +276,10 @@
          (xml-tags :build [project test-project])
          (xml-tags :repositories (:repositories project))
          (xml-tags :dependencies
-                   (map (partial test-scope-excluded
-                                 (:dependencies project))
-                        (:dependencies test-project)))]))))
+                   (distinct (map (partial test-scope-excluded
+                                           (:dependencies project))
+                                  (concat (:dependencies project)
+                                          (:dependencies test-project)))))]))))
 
 (defn snapshot? [project]
   (re-find #"SNAPSHOT" (:version project)))

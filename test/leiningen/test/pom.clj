@@ -109,16 +109,16 @@
                          sample-project
                          :test
                          {:dependencies '[[peridot "0.0.5"]]})))]
-    (is (= ["peridot" "org.clojure" "rome" "ring"]
+    (is (= ["org.clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [ "peridot" "clojure" "rome" "ring"]
+    (is (= ["clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["0.0.5" "1.1.0" "0.9" "1.0.0"]
+    (is (= ["1.1.0" "0.9" "1.0.0" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["test" nil nil nil]
+    (is (= [nil nil nil "test"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))))
 
@@ -128,16 +128,16 @@
                          sample-project
                          :dev
                          {:dependencies '[[peridot "0.0.5"]]})))]
-    (is (= ["peridot" "org.clojure" "rome" "ring"]
+    (is (= ["org.clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [ "peridot" "clojure" "rome" "ring"]
+    (is (= ["clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["0.0.5" "1.1.0" "0.9" "1.0.0"]
+    (is (= ["1.1.0" "0.9" "1.0.0" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["test" nil nil nil]
+    (is (= [nil nil nil "test"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))))
 
@@ -211,6 +211,24 @@
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil nil]
            (map #(first-in % [:dependency :exclusions :exclusion :type])
+                (deep-content xml [:project :dependencies]))))))
+
+(deftest dependencies-are-required-when-overlapped-by-builtin-profiles
+  (let [xml (xml/parse-str
+             (make-pom (with-profile
+                         sample-project
+                         :dev {:dependencies '[[rome "0.8"]]})))]
+    (is (= ["org.clojure" "rome" "ring" "rome"]
+           (map #(first-in % [:dependency :groupId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["clojure" "rome" "ring" "rome"]
+           (map #(first-in % [:dependency :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["1.1.0" "0.9" "1.0.0" "0.8"]
+           (map #(first-in % [:dependency :version])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [nil nil nil "test"]
+           (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))))
 
 (deftest test-pom-has-classifier-when-defined
