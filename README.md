@@ -233,7 +233,8 @@ explains how to write plugins.
   upon it.
 
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
-**A:** See the instructions for [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html).
+**A:** For Leiningen 1.x versions, see the instructions for
+  [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html).
   TODO: document aether proxy setup.
 
 **Q:** What can be done to speed up launch?  
