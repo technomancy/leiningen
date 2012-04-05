@@ -232,6 +232,17 @@
                             :execution :configuration :sources])
              ((partial mapcat :content))))))
 
+(deftest test-pom-handles-global-exclusions
+  (is (= [["clojure"] ["clojure"] ["clojure"]]
+         (-> (make-pom (with-profile sample-project
+                         {:exclusions '[org.clojure/clojure]}))
+             xml/parse-str
+             (deep-content [:project :dependencies])
+             ((partial map #(deep-content % [:dependency :exclusions])))
+             ((partial map
+                       (partial map
+                                #(first-in % [:exclusion :artifactId]))))))))
+
 (deftest test-pom-tries-to-pprint
   (is (re-find #"(?m)^\s+<groupId>nomnomnom</groupId>$"
                (make-pom sample-project))))

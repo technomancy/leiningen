@@ -69,10 +69,16 @@
   (first (reduce dedupe-step [[] #{}] deps)))
 
 (defn- exclude [exclusions deps dep]
-  (let [exclusions-offset (.indexOf dep :exclusions)]
-    (conj deps (if (pos? exclusions-offset)
-                 (update-in dep [(inc exclusions-offset)] into exclusions)
-                 dep))))
+  (conj deps
+        (if (empty? exclusions)
+          dep
+          (let [exclusions-offset (.indexOf dep :exclusions)]
+            (if (pos? exclusions-offset)
+              (update-in dep [(inc exclusions-offset)]
+                         (comp vec distinct (partial into exclusions)))
+              (-> dep
+                  (conj :exclusions)
+                  (conj exclusions)))))))
 
 (defn- add-exclusions [deps exclusions]
   (reduce (partial exclude exclusions) [] deps))
