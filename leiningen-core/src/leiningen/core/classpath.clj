@@ -89,19 +89,28 @@
        :username username
        :password password})))
 
+(defn- root-cause [e]
+  (last (take-while identity (iterate (memfn getCause) e))))
+
 (defn- get-dependencies
   [dependencies-key {:keys [repositories native-path] :as project}
    & {:keys [add-classpath?]}]
   {:pre [(every? vector? (project dependencies-key))]}
-  ((if add-classpath?
-      pomegranate/add-dependencies
-      aether/resolve-dependencies)
-    :local-repo (:local-repo project)
-    :offline? (:offline project)
-    :repositories (add-auth repositories)
-    :coordinates (project dependencies-key)
-    :transfer-listener :stdout
-    :proxy (get-proxy-settings)))
+  (try
+    ((if add-classpath?
+       pomegranate/add-dependencies
+       aether/resolve-dependencies)
+     :local-repo (:local-repo project)
+     :offline? (:offline project)
+     :repositories (add-auth repositories)
+     :coordinates (project dependencies-key)
+     :transfer-listener :stdout
+     :proxy (get-proxy-settings))
+    (catch Exception e
+      (if (and (instance? java.net.UnknownHostException (root-cause e))
+               (not (:offline? project)))
+        (get-dependencies dependencies-key (assoc project :offline? true))
+        (throw e)))))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will

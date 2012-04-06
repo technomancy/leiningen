@@ -2,9 +2,11 @@
 
 ## 2.0.0-preview3 / ???
 
+* Automatically activate offline profile when needed.
 * Honor $http_proxy environment variable. (Juergen Hoetzel)
 * Allow arbitrary :filespecs to be included in jars.
 * Include :java-source-paths and dev/test deps in pom. (Nelson Morris)
+* Add offline profile.
 * Prevent project JVMs from outlasting Leiningen's process. (Colin Jones)
 * Update lein.bat to work with version 2. (Andrew Kondratovich)
 * Show a dependency tree in deps task. (Chas Emerick, Nelson Morris)
