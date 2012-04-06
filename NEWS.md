@@ -1,5 +1,20 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview3 / ???
+
+* Honor $http_proxy environment variable. (Juergen Hoetzel)
+* Allow arbitrary :filespecs to be included in jars.
+* Include :java-source-paths and dev/test deps in pom. (Nelson Morris)
+* Prevent project JVMs from outlasting Leiningen's process. (Colin Jones)
+* Update lein.bat to work with version 2. (Andrew Kondratovich)
+* Show a dependency tree in deps task. (Chas Emerick, Nelson Morris)
+* Support connecting to nrepl server in repl task. (Chas Emerick, Colin Jones)
+* Pretty-print pom.xml. (Nelson Morris)
+* Display task aliases in help task. (Michael S. Klishin)
+* Only compile stale java source files. (Stephen C. Gilardi)
+* Respect :java-cmd in project.clj. (Michael S. Klishin)
+* Show progress when downloading search indices. (Justin Kramer)
+
 ## 2.0.0-preview2 / 2012-03-08
 
 * Honor :default and :user profiles when running outside a project.
