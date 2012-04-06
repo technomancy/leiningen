@@ -144,6 +144,8 @@
         (and (coll? result) (coll? latter))
         (concat latter result)
 
+        (= (class result) (class latter)) latter
+
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
 (defn merge-profile [project profile]
