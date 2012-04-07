@@ -68,7 +68,7 @@ You can also chain tasks together in a single command by using commas:
     $ lein clean, test foo.test-core, jar
 
 Most tasks need to be run from somewhere inside a project directory to
-work, but some (`new`, `help`, `search`, `version`, and the
+work, but some (`new`, `help`, `search`, `version`, `repl`, and the
 two-argument version of `install`) may run from anywhere.
 
 The install task places shell scripts in the `~/.lein/bin`
