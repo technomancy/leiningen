@@ -29,8 +29,8 @@ Generating a new project is easy:
 
 Here we've got your project's README, a `src/` directory containing the
 code, a `test/` directory, and a `project.clj` file which describes your
-project to Leiningen. The `src/my/stuff.clj` file corresponds to
-the `my.stuff` namespace.
+project to Leiningen. The `src/my_stuff/core.clj` file corresponds to
+the `my-stuff.core` namespace.
 
 Note that we use `my-stuff.core` instead of just `my-stuff` since
 single-segment namespaces are discouraged in Clojure. Also note that
