@@ -2,6 +2,10 @@
 
 ## 2.0.0-preview3 / ???
 
+* Add HTTP nREPL support for repl task via :connect option. (Chas Emerick,
+  Phil Hagelberg)
+* Improve repl startup time, output consistency, Windows support. (Lee Hinman,
+  Colin Jones)
 * Stop using numeric exit codes for task failures.
 * Dynamically resolve unknown templates in new task.
 * Automatically activate offline profile when needed.
@@ -30,7 +34,7 @@
 * Replace maven-ant-tasks with Pomegranate library. (Chas Emerick,
   Nelson Morris)
 * Move build artifacts to target/ directory.
-* Add experimental support for running project code in-process with 
+* Add experimental support for running project code in-process with
   :eval-in :classloader. (Justin Balthrop)
 * Support profiles for alternate project configurations.
 * Switch to using plural :source-paths, :test-paths, and :resource-paths.
@@ -104,7 +108,7 @@
 
 ## 1.6.1.1 / 2011-09-06
 
-* Turn off workaround for Clojure's agent thread pool keeping the JVM alive 
+* Turn off workaround for Clojure's agent thread pool keeping the JVM alive
   by default. Use :shutdown-agents in project.clj to enable it.
 
 ## 1.6.1 / 2011-07-06
@@ -164,7 +168,7 @@
 * Accept :repl-init namespace in project.clj.
 * Warn when falling back to jline if rlwrap is not found.
 * Add prepend-task macro for simple hook usage.
-* Add flexibility to clean task with :extra-files-to-clean 
+* Add flexibility to clean task with :extra-files-to-clean
   and :regex-to-clean.
 * Fix bug in interactive task that would cause infinite loop.
 * Add version into shell wrapper template.
