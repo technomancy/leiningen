@@ -139,8 +139,9 @@ or by executing \"lein upgrade\". ")
                                 task-name "help")]]
       (try (apply-task task-name project args)
            (catch Exception e
-             (when-let [[_ code] (re-find #"Process exited with (\d+)"
-                                          (.getMessage e))]
+             (when-let [[_ code] (and (.getMessage e)
+                                      (re-find #"Process exited with (\d+)"
+                                               (.getMessage e)))]
                (exit (Integer. code)))
              (when-not (re-find #"Suppressed exit:" (.getMessage e))
                (.printStackTrace e))

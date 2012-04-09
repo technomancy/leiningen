@@ -6,17 +6,17 @@ See also https://github.com/technomancy/leiningen/issues
 ** Low-hanging fruit (newbies, try one of these!)
    - [X] Look for :java-cmd in project map
    - [X] Remove task-specific silent flags in favour of global bit (#473)
+   - [X] Port arbitrary upgrade functionality from 1.x branch
+   - [X] Move newnew template listing into subtasks (newnew #11)
+   - [ ] Document creation of new project templates
    - [ ] Collapse all :repl-* settings into :repl-options map (#432)
-   - [ ] Port arbitrary upgrade functionality from 1.x branch
-   - [ ] Document subcommands in newnew
-   - [ ] Move newnew template listing into subtasks (newnew #11)
    - [ ] Suppress stack trace when getting help on non-existent task
 ** Intermediate
    - [X] Pretty-print pom
    - [X] deps :tree
    - [X] Use blocking instead of polling for repl task (#433)
-   - [ ] Show aliases in lein help (#407)
-   - [ ] Use pomegranate to dynamically resolve missing "lein new" templates
+   - [X] Show aliases in lein help (#407)
+   - [X] Use pomegranate to dynamically resolve missing "lein new" templates
          (newnew #12)
    - [ ] Mirror support (#271)
    - [ ] Honor mirror for search indices (#281)
