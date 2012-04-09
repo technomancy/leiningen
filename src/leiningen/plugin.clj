@@ -1,10 +1,10 @@
-(ns leiningen.plugin)
+(ns leiningen.plugin
+  (:require [leiningen.core.main :as main]))
 
 (defn ^:no-project-needed plugin
   "DEPRECATED. Please use the :user profile instead."
   [& args]
-  (println "The plugin task has been removed.\n")
-  (println "Please see the upgrade guide for instructions on how to use the")
-  (println "user profile to specify plugins instead:")
-  (println " https://github.com/technomancy/leiningen/wiki/Upgrading")
-  1)
+  (main/abort "The plugin task has been removed.\n"
+              "\nPlease see the upgrade guide for instructions on how to use"
+              "the user profile to\nspecify plugins instead:"
+              "https://github.com/technomancy/leiningen/wiki/Upgrading"))

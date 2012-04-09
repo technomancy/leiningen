@@ -141,7 +141,7 @@ or by executing \"lein upgrade\". ")
              (when-let [[_ code] (re-find #"Process exited with (\d+)"
                                           (.getMessage e))]
                (exit (Integer. code)))
-             (println (.getMessage e))
-             (.printStackTrace e)
+             (when-not (re-find #"Suppressed exit:" (.getMessage e))
+               (.printStackTrace e))
              (exit 1)))))
   (exit 0))

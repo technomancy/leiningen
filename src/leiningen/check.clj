@@ -7,16 +7,20 @@
 (defn check
   "Check syntax and warn on reflection."
   ([project]
-     (let [nses (b/namespaces-on-classpath :classpath (map io/file (:source-paths project)))
-           action `(doseq [ns# '~nses]
-                     ;; load will add the .clj, so can't use ns/path-for.
-                     (let [ns-file# (-> (str ns#)
-                                        (.replace \- \_)
-                                        (.replace \. \/))]
-                       (println "Compiling namespace" ns#)
-                       (try
-                         (binding [*warn-on-reflection* true]
-                           (load ns-file#))
-                         (catch ExceptionInInitializerError e#
-                           (.printStackTrace e#)))))]
+     (let [source-files (map io/file (:source-paths project))
+           nses (b/namespaces-on-classpath :classpath source-files)
+           action `(let [failures# (atom 0)]
+                     (doseq [ns# '~nses]
+                       ;; load will add the .clj, so can't use ns/path-for.
+                       (let [ns-file# (-> (str ns#)
+                                          (.replace \- \_)
+                                          (.replace \. \/))]
+                         (println "Compiling namespace" ns#)
+                         (try
+                           (binding [*warn-on-reflection* true]
+                             (load ns-file#))
+                           (catch ExceptionInInitializerError e#
+                             (swap! failures# inc)
+                             (.printStackTrace e#)))))
+                     (System/exit @failures#))]
        (eval/eval-in-project project action))))

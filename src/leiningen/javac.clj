@@ -44,7 +44,7 @@
   [project args]
   (let [compile-path (:compile-path project)
         files (stale-java-sources (:java-source-paths project) compile-path)]
-    (when (pos? (count files))
+    (when (seq files)
       (if-let [compiler (ToolProvider/getSystemJavaCompiler)]
         (do
           (main/info "Compiling" (count files) "source files to" compile-path)

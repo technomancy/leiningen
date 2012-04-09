@@ -31,16 +31,12 @@
   ([project]
      (let [jarfile (jar/jar project)
            pomfile (pom/pom project)]
-       (if (number? jarfile)
-         ;; if we failed to create the jar, return the status code for exit
-         jarfile
-         (do ;; (install-shell-wrappers (JarFile. jarfile))
-           (aether/install :coordinates [(symbol (:group project)
-                                                 (:name project))
-                                         (:version project)]
-                           :jar-file (io/file jarfile)
-                           :pom-file (io/file pomfile))
-             0))))
+       ;; (install-shell-wrappers (JarFile. jarfile))
+       (aether/install :coordinates [(symbol (:group project)
+                                             (:name project))
+                                     (:version project)]
+                       :jar-file (io/file jarfile)
+                       :pom-file (io/file pomfile))))
   ([_ project-name version]
      (let [[name group] ((juxt name namespace) (symbol project-name))
            temp-project (format "%s/lein-%s" (System/getProperty "java.io.tmpdir") (UUID/randomUUID))

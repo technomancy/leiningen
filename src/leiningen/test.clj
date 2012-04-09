@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [bultitude.core :as b]
             [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [leiningen.core.project :as project])
   (:import (java.io File)))
 
@@ -72,16 +73,16 @@
 Accepts either a list of test namespaces to run or a list of test
 selectors. With no arguments, runs all tests."
   [project & tests]
-  (let [project (project/merge-profiles project [:test])
-        [nses selectors] (read-args tests project)
-        result (doto (File/createTempFile "lein" "result") .deleteOnExit)
-        form (form-for-testing-namespaces nses (.getAbsolutePath result)
-                                          (vec selectors))]
-    (when (= :leiningen (:eval-in project)) ; haaaack
-      (alter-var-root #'leiningen.core.main/*exit-process?* (constantly false)))
-    (eval/eval-in-project project form '(require 'clojure.test))
-    (if (and (.exists result) (pos? (.length result)))
-      (let [summary (read-string (slurp (.getAbsolutePath result)))
-            success? (zero? (+ (:error summary) (:fail summary)))]
-        (if success? 0 1))
-      1)))
+  (binding [main/*exit-process?* (not= :leiningen (:eval-in project))
+            *exit-after-tests* (not= :leiningen (:eval-in project))]
+    (let [project (project/merge-profiles project [:test])
+          [nses selectors] (read-args tests project)
+          result (doto (File/createTempFile "lein" "result") .deleteOnExit)
+          form (form-for-testing-namespaces nses (.getAbsolutePath result)
+                                            (vec selectors))]
+      (eval/eval-in-project project form '(require 'clojure.test))
+      (if (and (.exists result) (pos? (.length result)))
+        (let [summary (read-string (slurp (.getAbsolutePath result)))]
+          (when-not (zero? (+ (:error summary) (:fail summary)))
+            (main/abort "Tests failed.")))
+        (main/abort "Tests did not finish cleanly.")))))
