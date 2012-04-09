@@ -8,6 +8,7 @@
 (def aliases (atom {"--help" "help", "-h" "help", "-?" "help", "-v" "version"
                     "--version" "version", "überjar" "uberjar"
                     "cp" "classpath" "halp" "help"
+                    "with-profiles" "with-profile"
                     "readme" ["help" "readme"]
                     "tutorial" ["help" "tutorial"]
                     "sample" ["help" "sample"]}))

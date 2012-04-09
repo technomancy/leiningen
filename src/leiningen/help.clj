@@ -2,7 +2,8 @@
   "Display a list of tasks or help for a given task."
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
-            [bultitude.core :as b]))
+            [bultitude.core :as b]
+            [leiningen.core.main :as main]))
 
 (defn tasks
   "Return a list of symbols naming all visible tasks."
@@ -60,8 +61,9 @@
 (defn help-for
   "Help for a task is stored in its docstring, or if that's not present
   in its namespace."
-  [task-name]
-  (let [[task-ns task] (resolve-task task-name)
+  [project task-name]
+  (let [aliases (merge @main/aliases (:aliases project))
+        [task-ns task] (resolve-task (aliases task-name task-name))
         help-fn (ns-resolve task-ns 'help)]
     (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
              (:doc (meta task))
@@ -70,11 +72,10 @@
          (when (some seq (get-arglists task))
            (str "\n\nArguments: " (pr-str (get-arglists task)))))))
 
-;; affected by clojure ticket #130: bug of AOT'd namespaces losing metadata
 (defn help-summary-for [task-ns]
   (try (let [task-name (last (.split (name task-ns) "\\."))
              ns-summary (:doc (meta (find-ns (doto task-ns require))))
-             first-line (first (.split (help-for task-name) "\n"))]
+             first-line (first (.split (help-for {} task-name) "\n"))]
          ;; Use first line of task docstring if ns metadata isn't present
          (str task-name (apply str (repeat (- 13 (count task-name)) " "))
               (or ns-summary first-line)))
@@ -86,7 +87,7 @@
   "Display a list of tasks or help for a given task.
 
 Also provides readme, tutorial, news, sample, deploying and copying info."
-  ([_ task] (println (or (static-help task) (help-for task))))
+  ([project task] (println (or (static-help task) (help-for project task))))
   ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
