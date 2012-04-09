@@ -189,7 +189,7 @@
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
         cl (.getContextClassLoader thread)]
-    (when-not (pomegranate/can-modify? cl)
+    (when-not (pomegranate/modifiable-classloader? cl)
       (.setContextClassLoader thread (DynamicClassLoader. cl)))))
 
 (defn load-plugins
