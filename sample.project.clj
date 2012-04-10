@@ -89,16 +89,20 @@
   ;; run task or shell wrappers without bringing in AOT if you don't need an
   ;; executable uberjar.
   :main org.example.sample
-  ;; This namespace will get loaded automatically when you launch a repl.
-  :repl-init sample.repl-helper
-  ;; These will get passed to clojure.main/repl; see its docstring for details.
-  :reply-options [:prompt (fn [] (print "your command, master? ") (flush))]
-  ;; Customize the socket the repl task listens on.
-  :repl-port 4001
-  :repl-host "0.0.0.0"
-  ;; If your -main namespace takes a long time to load, it could time out the
-  ;; repl connection. Increase this to give it more time. Defaults to 100.
-  :repl-retry-limit 1000
+  ;; Options to change the way the REPL behaves
+  :repl-options {;; These will get passed to clojure.main/repl; see
+                 ;; its docstring for details.
+                 :prompt (fn [ns] (print "your command, master?" ns) (flush))
+                 ;; This expression will be run when first opening a REPL.
+                 :init (in-ns 'foo.bar)
+                 ;; Customize the socket the repl task listens on and
+                 ;; attaches to.
+                 :host "0.0.0.0"
+                 :port 4001
+                 ;; If nREPL takes too long to load it may timeout,
+                 ;; increase this to wait longer before timing out.
+                 ;; Defaults to 30000 (30 seconds)
+                 :timeout 40000}
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
   :injections [(require 'clojure.pprint)]

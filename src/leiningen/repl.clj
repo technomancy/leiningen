@@ -1,6 +1,7 @@
 (ns leiningen.repl
   "Start a repl session either with the current project or standalone."
   (:require clojure.main
+            clojure.set
             [reply.main :as reply]
             [clojure.java.io :as io]
             [leiningen.core.eval :as eval]
@@ -38,24 +39,28 @@
 
 (defn- repl-port [project]
   (Integer. (or (System/getenv "LEIN_REPL_PORT")
-                (:repl-port project)
+                (-> project :repl-options :port)
                 0)))
+
+(defn- repl-host [project]
+  (or (System/getenv "LEIN_REPL_PORT")
+      (-> project :repl-options :host)))
 
 (defn- ack-port [project]
   (when-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
-                   (:repl-ack-port project))]
+                   (-> project :repl-options :ack-port))]
     (Integer. p)))
 
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
-USAGE: lein repl
-This will launch an nREPL server behind the scenes that reply will connect to.
-If a :repl-port key is present in project.clj, that port will be used for the
-server, otherwise it is chosen randomly. If you run this command inside of a
-project, it will be run in the context of that classpath. If the command is
-run outside of a project, it'll be standalone and the classpath will be
-that of Leiningen.
+USAGE: lein repl This will launch an nREPL server behind the scenes
+that reply will connect to. If a :port key is present in
+the :repl-options map in project.clj, that port will be used for the
+server, otherwise it is chosen randomly. If you run this command
+inside of a project, it will be run in the context of that classpath.
+If the command is run outside of a project, it'll be standalone and
+the classpath will be that of Leiningen.
 
 USAGE: lein repl :headless
 This will launch an nREPL server and wait, rather than connecting reply to it.
@@ -70,13 +75,22 @@ and port."
        (.start
         (Thread.
          (bound-fn []
-           (start-server (and project (vary-meta project assoc :prepped prepped))
+           (start-server (and project (vary-meta project assoc
+                                                 :prepped prepped))
                          (repl-port project)
                          (-> @lein-repl-server deref :ss .getLocalPort)))))
        (and project @prepped)
-       (if-let [repl-port (nrepl.ack/wait-for-ack (:repl-timeout project 30000))]
-         (reply/launch-nrepl (merge {:attach (str repl-port)}
-                                    (:reply-options project)))
+       (if-let [repl-port (nrepl.ack/wait-for-ack (or (-> project
+                                                          :repl-options
+                                                          :timeout)
+                                                      30000))]
+         (reply/launch-nrepl (clojure.set/rename-keys
+                              (assoc (:repl-options project)
+                                :attach (if-let [host (repl-host project)]
+                                          (str host ":" repl-port)
+                                          (str repl-port)))
+                              {:prompt :custom-prompt
+                               :init :custom-init}))
          (println "REPL server launch timed out."))))
   ([project flag & opts]
    (case flag
