@@ -30,10 +30,10 @@
             :comments "same as Clojure"}
   ;; Dependencies are listed as [group-id/name version].
   :dependencies [[org.clojure/clojure "1.3.0"]
-                 [org.jclouds/jclouds "1.0" :classifier "jdk15"]
+                 [org.jclouds/jclouds "1.0" :classifier "jdk15" :scope "test"]
                  [net.sf.ehcache/ehcache "2.3.1" :extension "pom"]
-                 [log4j "1.2.15" :exclusions [javax.mail/mail
-                                              javax.jms/jms
+                 [log4j "1.2.15" :exclusions [[javax.mail/mail :extension "jar"]
+                                              [javax.jms/jms :classifier "*"]
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
   ;; Global exclusions are applied across the board, as an alternative
@@ -52,8 +52,17 @@
              :debug {:debug true
                      :injections [(prn (into {} (System/getProperties)))]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0-alpha1"]]}}
+  ;; Support project-specific task aliases. These are interpreted in
+  ;; the same way as command-line arguments to the lein command. If
+  ;; the alias points to a vector, it uses partial application. For
+  ;; example, "lein with-magic run -m hi.core" would be equivalent to
+  ;; "lein assoc :magic true run -m hi.core".
   :aliases {"launch" "run"
             "with-magic" ["assoc" ":magic" "true"]}
+  ;; Normally Leiningen runs the javac and compile tasks before
+  ;; calling any eval-in-project code, but you can override this with
+  ;; the :prep-tasks key to do other things like compile protocol buffers.
+  :prep-tasks ["protoc" "compile"]
   ;; Warns users of earlier versions of Leiningen.
   :min-lein-version "2.0.0"
   ;; Paths to include on the classpath from each project in the

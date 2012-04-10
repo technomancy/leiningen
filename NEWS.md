@@ -11,6 +11,7 @@
 * Automatically activate offline profile when needed.
 * Honor $http_proxy environment variable. (Juergen Hoetzel)
 * Allow arbitrary :filespecs to be included in jars.
+* Let custom :prep-tasks be specified in project.clj.
 * Include :java-source-paths and dev/test deps in pom. (Nelson Morris)
 * Add offline profile.
 * Prevent project JVMs from outlasting Leiningen's process. (Colin Jones)
