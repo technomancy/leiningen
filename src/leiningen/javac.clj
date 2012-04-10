@@ -28,7 +28,7 @@
   [project files args]
   (into-array
    String
-   (concat (:javac-options project)
+   (concat (map name (:javac-options project))
            args
            ["-cp" (classpath/get-classpath-string project)
             "-d" (:compile-path project)]

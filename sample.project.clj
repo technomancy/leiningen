@@ -149,7 +149,7 @@
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Options to pass to java compiler for java source
   ;; See http://ant.apache.org/manual/Tasks/javac.html
-  :javac-options {:destdir "classes/"}
+  :javac-options [:destdir "classes/"]
   :java-source-paths ["src/main/java"] ; location of Java source
   ;; Leave the contents of :source-path out of jars (for AOT projects)
   :omit-source true
