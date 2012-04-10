@@ -178,7 +178,8 @@
                                                (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
-        (copy (.getInputStream jar entry) f)))))
+        (do (.mkdirs (.getParentFile f))
+            (copy (.getInputStream jar entry) f))))))
 
 (defn deps
   "Download :dependencies and put them in :library-path."
