@@ -245,6 +245,13 @@ argument to see if it's a project map, but if you have more than two
 arities this can get very tricky; it may just be better to maintain
 separate branches of your codebase in this situation.
 
+## Templates
+
+You can also publish templates for generating project skeletons that
+work with `lein new`. See
+[the documentation for the new task](https://github.com/Raynes/lein-newnew/)
+for details on how to build templates.
+
 ## Have Fun
 
 Please add your plugins to [the list on the
