@@ -8,9 +8,17 @@
 (def formatted-help @#'leiningen.help/formatted-help)
 (def resolve-task @#'leiningen.help/resolve-task)
 
-(deftest blank-subtask-help-for-new
+(deftest blank-subtask-help-for-pom
+  (let [subtask-pom (apply subtask-help-for (resolve-task "pom"))]
+    (is (= nil subtask-pom))))
+
+(deftest subtask-help-for-new
   (let [subtask-help (apply subtask-help-for (resolve-task "new"))]
-    (is (= nil subtask-help))))
+    (is (re-find #"Subtasks available" subtask-help))
+    (is (re-find #"default\s+A general project template." subtask-help))
+    (is (re-find #"plugin\s+A leiningen plugin project template." subtask-help))
+    (is (re-find #"template\s+A meta-template for 'lein new' templates."
+                 subtask-help))))
 
 (deftest test-docstring-formatting
   (is (= "This is an
