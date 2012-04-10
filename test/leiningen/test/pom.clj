@@ -2,9 +2,14 @@
   (:use [clojure.test]
         [clojure.java.io :only [file delete-file]]
         [leiningen.pom :only [make-pom pom]]
+        [leiningen.core.user :as user]
         [leiningen.test.helper :only [sample-project]])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]))
+
+(use-fixtures :once (fn [f]
+                      (with-redefs [user/profiles (constantly {})]
+                        f)))
 
 (deftest test-pom-file-is-created
   (let [pom-file (file (:target-path sample-project) "pom.xml")]

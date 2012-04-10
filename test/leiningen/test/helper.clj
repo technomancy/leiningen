@@ -1,5 +1,6 @@
 (ns leiningen.test.helper
   (:require [leiningen.core.project :as project]
+            [leiningen.core.user :as user]
             [clojure.java.io :as io]))
 
 ;; TODO: fix
@@ -12,7 +13,8 @@
            (if (string? n) n (or (namespace n) (name n))) (name n) v))
 
 (defn- read-test-project [name]
-  (project/read (format "test_projects/%s/project.clj" name)))
+  (with-redefs [user/profiles (constantly {})]
+    (project/read (format "test_projects/%s/project.clj" name))))
 
 (def sample-project (read-test-project "sample"))
 
