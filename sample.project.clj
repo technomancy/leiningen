@@ -40,6 +40,8 @@
   ;; to duplication for multiple depedencies with the same excluded libraries.
   :exclusions [org.apache.poi/poi
                org.apache.poi/poi-ooxml]
+  ;; Plugins are code that runs in Leiningen itself and usually
+  ;; provides new tasks or hooks.
   :plugins [[lein-pprint "1.1.1"]
             [lein-assoc "0.1.0"]]
   ;; Each active profile gets merged into the project map. The :dev
@@ -69,9 +71,9 @@
   ;; checkouts/ directory. (See the FAQ in the Readme for more details
   ;; about checkout dependencies.) Set this to be a vector of
   ;; functions that take the target project as argument. Defaults to
-  ;; [:source-path :compile-path :resources-path], but you could use
+  ;; [:source-paths :compile-path :resource-paths], but you could use
   ;; the following to share code from the test suite:
-  :checkout-deps-shares [:source-path :test-path
+  :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
   ;; Load these namespaces on startup to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
@@ -80,14 +82,13 @@
                    :integration :integration
                    :regression :regression}
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
-  ;; other Java interop functionality. :namespaces is an alias for this.
-  ;; Put a regex here to compile all namespaces whose names match.
+  ;; other Java interop functionality. Put a regex here to compile all
+  ;; namespaces whose names match.
   :aot [org.example.sample]
   ;; The -main function in this namespace will be run at launch if you
-  ;; create an uberjar. Repl sessions will start in this namespace as well.
-  ;; Set :skip-aot metadata on this symbol to use it for other things like the
-  ;; run task or shell wrappers without bringing in AOT if you don't need an
-  ;; executable uberjar.
+  ;; create an uberjar. Set :skip-aot metadata on this symbol to use
+  ;; it for other things like the run task or shell wrappers without
+  ;; bringing in AOT if you don't need an executable uberjar.
   :main org.example.sample
   ;; Options to change the way the REPL behaves
   :repl-options {;; These will get passed to clojure.main/repl; see
@@ -144,9 +145,10 @@
   ;; If you'd rather use a different directory structure, you can set these.
   ;; Paths that contain "inputs" are vectors, "outputs" are strings.
   :source-paths ["src" "src/main/clojure"]
-  :compile-path "target/classes" ; for .class files
+  :java-source-paths ["src/main/java"] ; Java source is stored separately.
   :test-paths ["test" "src/test/clojure"]
   :resource-paths ["src/main/resource"] ; non-code files included in classpath/jar
+  :compile-path "target/classes"   ; for .class files
   :native-path "src/native"        ; where to extract native dependencies
   :target-path "target/"           ; where to place the project's jar file
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
@@ -154,8 +156,7 @@
   ;; Options to pass to java compiler for java source
   ;; See http://ant.apache.org/manual/Tasks/javac.html
   :javac-options [:destdir "classes/"]
-  :java-source-paths ["src/main/java"] ; location of Java source
-  ;; Leave the contents of :source-path out of jars (for AOT projects)
+  ;; Leave the contents of :source-paths out of jars (for AOT projects)
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars
   :jar-exclusions [#"(?:^|/).svn/"]
@@ -179,8 +180,10 @@
   :manifest {"Project-awesome-level" "super-great"}
   ;; You can set JVM-level options here.
   :jvm-opts ["-Xmx1g"]
-  ;; If your project is a Leiningen plugin, set this to skip the subprocess step
-  :eval-in-leiningen false
+  ;; Control the context in which your project code is evaluated.
+  ;; Defaults to :subprocess, but can also be :leiningen (for plugins)
+  ;; or :classloader (experimental) to avoid starting a subprocess.
+  :eval-in :leiningen
   ;; Set parent for working with in a multi-module maven project
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
   ;; Extensions here will be propagated to the pom.
