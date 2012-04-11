@@ -4,8 +4,7 @@
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as s]
-            [clojure.data.xml :as xml]
-            [useful.string :as useful]))
+            [clojure.data.xml :as xml]))
 
 (defn- relativize [project]
   (let [root (str (:root project) "/")]
@@ -86,8 +85,11 @@
 (defn- make-test-scope [[dep version opts]]
   [dep version (assoc opts :scope "test")])
 
+(defn- camelize [string]
+  (s/replace string #"[-_](\w)" (comp s/upper-case second)))
+
 (defn- pomify [key]
-  (->> key name useful/camelize keyword))
+  (->> key name camelize keyword))
 
 (defmulti ^:private xml-tags
   (fn [tag value] (keyword "leiningen.pom" (name tag))))
