@@ -58,6 +58,7 @@
 (defn prep [project]
   ;; This must exist before the project is launched.
   (.mkdirs (io/file (:compile-path project "/tmp")))
+  (classpath/get-classpath project)
   (doseq [task (:prep-tasks project)]
     (main/apply-task task (dissoc project :prep-tasks) []))
   (when-let [prepped (:prepped (meta project))]
