@@ -51,6 +51,20 @@
                    (-> project :repl-options :ack-port))]
     (Integer. p)))
 
+(defn options-for-reply [repl-port project]
+  (let [repl-options (:repl-options project)]
+    (clojure.set/rename-keys
+      (assoc repl-options
+        :attach (if-let [host (repl-host project)]
+                  (str host ":" repl-port)
+                  (str repl-port))
+        :init (if-let [init-ns (or (:init-ns repl-options) (:main project))]
+                `(do (require '~init-ns) (in-ns '~init-ns)
+                     ~(:init repl-options))
+                (:init repl-options)))
+      {:prompt :custom-prompt
+       :init :custom-init})))
+
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
@@ -84,13 +98,7 @@ and port."
                                                           :repl-options
                                                           :timeout)
                                                       30000))]
-         (reply/launch-nrepl (clojure.set/rename-keys
-                              (assoc (:repl-options project)
-                                :attach (if-let [host (repl-host project)]
-                                          (str host ":" repl-port)
-                                          (str repl-port)))
-                              {:prompt :custom-prompt
-                               :init :custom-init}))
+         (reply/launch-nrepl (options-for-reply repl-port project))
          (println "REPL server launch timed out."))))
   ([project flag & opts]
    (case flag

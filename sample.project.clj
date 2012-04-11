@@ -91,11 +91,15 @@
   ;; bringing in AOT if you don't need an executable uberjar.
   :main org.example.sample
   ;; Options to change the way the REPL behaves
-  :repl-options {;; These will get passed to clojure.main/repl; see
-                 ;; its docstring for details.
-                 :prompt (fn [ns] (print "your command, master?" ns) (flush))
-                 ;; This expression will be run when first opening a REPL.
-                 :init (in-ns 'foo.bar)
+  :repl-options {;; Specify the string to print when prompting for input.
+                 ;; defaults to something like (fn [ns] (str *ns* "=> "))
+                 :prompt (fn [ns] (str "your command for <" ns ">, master? " ))
+                 ;; Specify the ns to start the REPL in (overrides :main in
+                 ;; this case only)
+                 :init-ns foo.bar
+                 ;; This expression will run when first opening a REPL, in the
+                 ;; namespace from :init-ns or :main if specified
+                 :init (println "here we are in" *ns*)
                  ;; Customize the socket the repl task listens on and
                  ;; attaches to.
                  :host "0.0.0.0"
