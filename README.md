@@ -48,7 +48,7 @@ The
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
-    $ lein new NAME # generate a new project skeleton
+    $ lein new [TEMPLATE] NAME # generate a new project skeleton
 
     $ lein test [TESTS] # run the tests in the TESTS namespaces, or all tests
 
@@ -56,9 +56,9 @@ project, but here are the commonly-used tasks:
 
     $ lein jar # package up the whole project as a .jar file
 
-    $ lein install [NAME VERSION] # install a project
+    $ lein install # install a project
 
-    $ lein search ... # find jars for your project.clj dependencies
+    $ lein search [TERM] # find jars for your project.clj dependencies
 
 Use `lein help` to see a complete list. `lein help $TASK` shows the
 usage for a specific task.
@@ -68,12 +68,8 @@ You can also chain tasks together in a single command by using commas:
     $ lein clean, test foo.test-core, jar
 
 Most tasks need to be run from somewhere inside a project directory to
-work, but some (`new`, `help`, `search`, `version`, `repl`, and the
-two-argument version of `install`) may run from anywhere.
-
-The install task places shell scripts in the `~/.lein/bin`
-directory for projects that include them, so if you want to take
-advantage of this, you should put it on your `$PATH`.
+work, but some (`new`, `help`, `search`, `version`, and `repl`) may
+run from anywhere.
 
 ## Configuration
 
@@ -98,16 +94,17 @@ You can also have user-level configuration that applies for all
 projects. The `~/.lein/init.clj` file will be loaded every time
 Leiningen launches; any arbitrary code may go there. This code is
 executed inside Leiningen itself, not in your project. Set the
-`:repl-init` key in project.clj to point to a namespace if
-you want code executed inside your project.
+`:init-ns` key in `:repl-options` in project.clj to point to a
+namespace if you want code executed inside your project in the repl.
 
 ### Profiles
 
-You can change the configuration of your project by applying various
-profiles. For instance, you may want to have a few extra test data
-directories on the classpath during development without including them
-in the jar, or you may want to have Swank Clojure available in every
-project you hack on without modifying every single project.clj you use.
+In Leiningen 2.x you can change the configuration of your project by
+applying various profiles. For instance, you may want to have a few
+extra test data directories on the classpath during development
+without including them in the jar, or you may want to have Swank
+Clojure available in every project you hack on without modifying every
+single project.clj you use.
 
 By default the `:dev`, `:user`, and `:default` profiles are activated
 for each task. Each profile is defined as a map which gets merged into
@@ -131,6 +128,11 @@ active. In addition to `project.clj`, profiles specified in
                   [lein-pprint "1.1.1"]]}}
 ```
 
+The difference between the profiles active by default is that the
+`:default` profile comes with Leiningen, while the `:dev` profile is
+meant to be specified in project.clj and the `:user` plugin goes in
+your `~/.lein/profiles.clj` file.
+
 Another use of profiles is to test against various sets of dependencies:
 
 ```clj
@@ -146,11 +148,15 @@ Another use of profiles is to test against various sets of dependencies:
 To activate other profiles for a given run, use the `with-profile`
 higher-order task:
 
-    $ lein with-profile qa,1.3 test :database
+    $ lein with-profile 1.3 test :database
 
-Multiple profiles may be specified with commas:
+Multiple profiles may be combined with commas:
 
     $ lein with-profile qa,user test :database
+
+Multiple profiles may be executed in series with colons:
+
+    $ lein with-profile 1.3:1.4 test :database
 
 A single `with-profile` call does not apply across task comma-chains.
 
@@ -158,7 +164,7 @@ To see how a given profile affects your project map, use the
 [lein-pprint](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
 plugin:
 
-    $ lein pprint
+    $ lein with-profile 1.4 pprint
     {:compile-path "/home/phil/src/leiningen/lein-pprint/classes",
      :group "lein-pprint",
      :source-path ("/home/phil/src/leiningen/lein-pprint/src"),
@@ -179,7 +185,7 @@ that modify behaivour of existing tasks. See
 for a full list. If a plugin is needed for successful test or build
 runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
-swank-clojure) then it should be added to the `:plugins` list in the
+`swank-clojure`) then it should be added to the `:plugins` list in the
 `:user` profile from `~/.lein/profiles.clj`. The
 [plugin guide](https://github.com/technomancy/leiningen/blob/preview/doc/PLUGINS.md)
 explains how to write plugins.
@@ -200,7 +206,10 @@ explains how to write plugins.
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
   explains how to set up a private repository. If you are not sharing
-  them with a team you could also just [install locally](https://github.com/kumarshantanu/lein-localrepo).
+  them with a team you could also just
+  [install locally](https://github.com/kumarshantanu/lein-localrepo).
+  In general it's easiest to deploy them to a private S3 bucket with
+  the [s3-wagon-private](https://github.com/technomancy/s3-wagon-private) plugin.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
 **A:** If you create a directory called `checkouts` in your project
@@ -235,7 +244,8 @@ explains how to write plugins.
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
 **A:** Set the `$http_proxy` environment variable in Leiningen 2.x.
   For Leiningen 1.x versions, see the instructions for
-  [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html).
+  [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html)
+  using `~/.m2/settings.xml`.
 
 **Q:** What can be done to speed up launch?  
 **A:** The main delay involved in Leiningen comes from starting the

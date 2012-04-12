@@ -24,6 +24,8 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Re-enable shell wrappers
 ** Complex
    - [ ] Force checking of snapshots
+   - [ ] Allow jars to be signed.
+   - [ ] Calculate web of trust for signed dependencies.
    - [ ] Prevent multiple versions of artifacts from getting added (#420)
    - [ ] Auto-clean predicates (profile switching, etc) (#468)
    - [ ] Honor hooks declared in plugin jar metadata? (#401)
