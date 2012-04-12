@@ -1,3 +1,8 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; WARNING WARNING THIS FILE IS NOT USED AT ALL BY LEININGEN.  It is included ;;
+;; only to avoid breaking legacy plugins - do not try reading it to see how   ;;
+;; Leiningen works, or editing it to fix/change Leiningen's behavior.         ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ns lancet
   (:gen-class)
   (:import (java.beans Introspector)
