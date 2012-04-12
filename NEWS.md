@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-preview3 / ???
+## 2.0.0-preview3 / 2012-04-12
 
 * Add HTTP nREPL support for repl task via :connect option. (Chas Emerick,
   Phil Hagelberg)
