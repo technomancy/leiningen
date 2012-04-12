@@ -30,9 +30,9 @@
   "Exit the process. Rebind *exit-process?* in order to suppress actual process
   exits for tools which may want to continue operating."
   ([code]
-     (shutdown-agents)
      (if *exit-process?*
-       (System/exit code)
+       (do (shutdown-agents)
+           (System/exit code))
        (throw (Exception. (str "Suppressed exit: " code)))))
   ([] (exit 0)))
 
