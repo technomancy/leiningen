@@ -21,6 +21,8 @@
          (:javac-options project)
          {:destdir (:compile-path project)
           :srcdir (normalize-path (:root project) path)
+          :debug "on"
+          :debugLevel "source,lines"
           :classpath (get-classpath-string project)}
          (apply hash-map options)))
 
