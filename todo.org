@@ -8,9 +8,10 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Remove task-specific silent flags in favour of global bit (#473)
    - [X] Port arbitrary upgrade functionality from 1.x branch
    - [X] Move newnew template listing into subtasks (newnew #11)
+   - [X] Collapse all :repl-* settings into :repl-options map (#432)
    - [ ] Document creation of new project templates
-   - [ ] Collapse all :repl-* settings into :repl-options map (#432)
-   - [ ] Suppress stack trace when getting help on non-existent task
+   - [ ] Install task outside projects
+   - [ ] Suppress stack trace when getting help on non-existent task (#515)
 ** Intermediate
    - [X] Pretty-print pom
    - [X] deps :tree
@@ -20,21 +21,20 @@ See also https://github.com/technomancy/leiningen/issues
          (newnew #12)
    - [ ] Mirror support (#271)
    - [ ] Honor mirror for search indices (#281)
-   - [ ] Re-enable transitive cleaning for compile
-   - [ ] Re-enable shell wrappers
+   - [ ] Re-enable transitive cleaning for compile (#516)
 ** Complex
-   - [ ] Force checking of snapshots
-   - [ ] Allow jars to be signed.
+   - [ ] Post-install scripts? (#517)
+   - [ ] Force checking of snapshots (#518)
+   - [ ] Allow jars to be signed. (#519)
    - [ ] Calculate web of trust for signed dependencies.
    - [ ] Prevent multiple versions of artifacts from getting added (#420)
    - [ ] Auto-clean predicates (profile switching, etc) (#468)
    - [ ] Honor hooks declared in plugin jar metadata? (#401)
-   - [ ] Task-level profiles (nrepl dep comes from repl profile, etc)
+   - [ ] Task-level profiles (nrepl dep comes from repl profile, etc) (#520)
          Better visibility than either :default profile or associng straight in
    - [ ] Investigate issues with :eval-in :classloader and bootclasspath
          Need to ensure we're able to put Clojure on the bootstrap classpath
    - [ ] Address chaining issues in with-profile
-   - [ ] Install task outside projects
    - [ ] Non-transitive AOT
    - [ ] Drop clojars snapshots from default repos (#241)
 ** Documentation

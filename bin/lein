@@ -32,15 +32,7 @@ do
     fi
 done
 
-if [ "$LEIN_HOME" = "" ]; then
-  if [ -d "$PWD/.lein" ] && [ "$PWD" != "$HOME" ]; then
-    echo "Leiningen is running in bundled mode."
-    LEIN_HOME="$PWD/.lein"
-  else
-    LEIN_HOME="$HOME/.lein"
-  fi
-fi
-
+export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 
 # apply context specific CLASSPATH entries
