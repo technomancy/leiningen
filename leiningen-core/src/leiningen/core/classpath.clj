@@ -43,8 +43,7 @@
   (doseq [jar (map #(JarFile. %) deps)
           entry (enumeration-seq (.entries jar))
           :when (.startsWith (.getName entry) "native/")]
-    (let [f (io/file native-path (subs (.getName entry)
-                                       (count "native/")))]
+    (let [f (io/file native-path (subs (.getName entry) (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
@@ -93,29 +92,29 @@
   (last (take-while identity (iterate (memfn getCause) e))))
 
 (defn- get-dependencies
-  [dependencies-key {:keys [repositories native-path] :as project}
+  [dependencies-key {:keys [repositories local-repo offline?] :as project}
    & {:keys [add-classpath?]}]
   {:pre [(every? vector? (project dependencies-key))]}
   (try
     ((if add-classpath?
        pomegranate/add-dependencies
        aether/resolve-dependencies)
-     :local-repo (:local-repo project)
-     :offline? (:offline project)
+     :local-repo local-repo
+     :offline? offline?
      :repositories (add-auth repositories)
      :coordinates (project dependencies-key)
      :transfer-listener :stdout
      :proxy (get-proxy-settings))
     (catch Exception e
       (if (and (instance? java.net.UnknownHostException (root-cause e))
-               (not (:offline? project)))
+               (not offline?))
         (get-dependencies dependencies-key (assoc project :offline? true))
         (throw e)))))
 
 (defn resolve-dependencies
   "Simply delegate regular dependencies to pomegranate. This will
   ensure they are downloaded into ~/.m2/repositories and that native
-  deps have been extracted to :native-path.  If :add-classpath? is
+  deps have been extracted to :native-path. If :add-classpath? is
   logically true, will add the resolved dependencies to Leiningen's
   classpath.
 
