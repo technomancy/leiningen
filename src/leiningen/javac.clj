@@ -6,13 +6,17 @@
   (:require [lancet.core :as lancet])
   (:import (java.io File)))
 
+(defmethod lancet/coerce [Boolean/TYPE Boolean] [_ b]
+  b) ;; don't try to cast this
+
 (def ^{:doc "Default options for the java compiler."
        :dynamic true}
   *default-javac-options*
-  {:debug "false" :fork "true"
-   :includejavaruntime "yes"
-   :includeantruntime "false"
-   :source "1.5" :target "1.5"})
+  {:fork true
+   :debug true, :debugLevel "source,lines"
+   :includejavaruntime true
+   :includeantruntime false
+   :source "1.5", :target "1.5"})
 
 (defn- extract-javac-task
   "Extract a compile task from the given spec."
@@ -21,8 +25,6 @@
          (:javac-options project)
          {:destdir (:compile-path project)
           :srcdir (normalize-path (:root project) path)
-          :debug "on"
-          :debugLevel "source,lines"
           :classpath (get-classpath-string project)}
          (apply hash-map options)))
 
