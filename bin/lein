@@ -35,6 +35,10 @@ done
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 
+if [ "$OSTYPE" = "cygwin" ]; then
+    LEIN_HOME=`cygpath -w $LEIN_HOME`
+fi
+
 # apply context specific CLASSPATH entries
 if [ -f .lein-classpath ] && [ ! -f src/leiningen/version.clj ]; then
     CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
