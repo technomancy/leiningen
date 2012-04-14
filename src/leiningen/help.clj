@@ -50,9 +50,11 @@
                                                   longest-key-length)))))))
 
 (defn- resolve-task [task-name]
-  (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
-        task (ns-resolve task-ns (symbol task-name))]
-    [task-ns task]))
+  (try (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
+             task (ns-resolve task-ns (symbol task-name))]
+         [task-ns task])
+       (catch java.io.FileNotFoundException e
+         [nil nil])))
 
 (defn- static-help [name]
   (when-let [resource (io/resource (format "leiningen/help/%s" name))]
@@ -63,14 +65,16 @@
   in its namespace."
   [project task-name]
   (let [aliases (merge @main/aliases (:aliases project))
-        [task-ns task] (resolve-task (aliases task-name task-name))
-        help-fn (ns-resolve task-ns 'help)]
-    (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
-             (:doc (meta task))
-             (:doc (meta (find-ns task-ns))))
-         (subtask-help-for task-ns task)
-         (when (some seq (get-arglists task))
-           (str "\n\nArguments: " (pr-str (get-arglists task)))))))
+        [task-ns task] (resolve-task (aliases task-name task-name))]
+    (if task
+      (let [help-fn (ns-resolve task-ns 'help)]
+        (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
+                 (:doc (meta task))
+                 (:doc (meta (find-ns task-ns))))
+             (subtask-help-for task-ns task)
+             (when (some seq (get-arglists task))
+               (str "\n\nArguments: " (pr-str (get-arglists task))))))
+      (format "Task: '%s' not found" task-name))))
 
 (defn help-summary-for [task-ns]
   (try (let [task-name (last (.split (name task-ns) "\\."))
