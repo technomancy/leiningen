@@ -35,6 +35,10 @@ done
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 
+if [ "$OSTYPE" = "cygwin" ]; then
+    LEIN_HOME=`cygpath -w $LEIN_HOME`
+fi
+
 # apply context specific CLASSPATH entries
 if [ -f .lein-classpath ] && [ ! -f src/leiningen/version.clj ]; then
     CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
@@ -87,9 +91,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
 
-        # For some reason "$0" classpath > .lein-classpath doesn't work; wtf?
-        LEIN_CLASSPATH=$($0 classpath)
-        echo $LEIN_CLASSPATH > .lein-classpath
+	$0 classpath .lein-classpath
         sum $LEIN_DIR/project.clj $LEIN_DIR/leiningen-core/project.clj > .lein-project-checksum
         cd "$ORIG_PWD"
     fi
