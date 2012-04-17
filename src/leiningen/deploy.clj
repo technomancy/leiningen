@@ -27,7 +27,7 @@ to avoid checking sensitive information into source control:
    :auth {:repository-auth {#\"https://internal.repo/.*\"
                             {:username \"milgrim\" :password \"locative\"}
                             \"s3://s3-repo-bucket/releases\"
-                            {:username \"AKIAIN...\" :passphrase \"1TChrGK4s...\"}}}"
+                            {:username \"AKIAIN...\" :password \"1TChrGK4s...\"}}}"
   ([project repository-name]
      (let [jarfile (jar/jar project)
            pomfile (pom/pom project)

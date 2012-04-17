@@ -50,7 +50,7 @@
 
 (defn add-repo-auth
   "Repository credentials (a map containing some of
-   #{:username :password :passphrase :private-key-file}) are discovered
+   #{:username :password :password :private-key-file}) are discovered
    from:
 
    1. Looking up the repository URL in the [:auth :repository-auth]
