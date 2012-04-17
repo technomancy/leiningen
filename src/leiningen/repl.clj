@@ -12,11 +12,11 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
-(def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta1"
+(def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta6"
                                :exclusions [org.clojure/clojure]]
                               [clojure-complete "0.2.1"
                                :exclusions [org.clojure/clojure]]
-                              [org.thnetos/cd-client "0.3.3"
+                              [org.thnetos/cd-client "0.3.4"
                                :exclusions [org.clojure/clojure]]]})
 
 (defn- start-server [project port ack-port]
