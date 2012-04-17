@@ -143,7 +143,7 @@ or by executing \"lein upgrade\". ")
                                       (re-find #"Process exited with (\d+)"
                                                (.getMessage e)))]
                (exit (Integer. code)))
-             (when-not (re-find #"Suppressed exit:" (.getMessage e))
+             (when-not (re-find #"Suppressed exit:" (or (.getMessage e) ""))
                (.printStackTrace e))
              (exit 1)))))
   (exit 0))
