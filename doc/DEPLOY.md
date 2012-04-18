@@ -22,12 +22,12 @@ repositories. You should use "org.clojars.$USERNAME" as the group-id
 instead.
 
 If it's a Clojure project that already has a project.clj file, it's
-easy enough to just follow the regular <tt>lein jar, pom; scp
-[...]</tt> path. If you don't have a readily-available pom, you can
-create a dummy project with <tt>lein new</tt>. Edit project.clj to
-include your org.clojars.$USERNAME group-id, the project's original
-artifact name, and the version. Then you can use the output from
-<tt>lein pom</tt> to upload to clojars.
+easy enough to just follow the regular `lein jar, pom; scp [...]`
+path. If you don't have a readily-available pom, you can create a
+dummy project with `lein new`. Edit project.clj to include your
+`org.clojars.$USERNAME` group-id, the project's original artifact name,
+and the version. Then you can use the output from `lein pom` to upload
+to Clojars.
 
 ## Private Repositories
 
@@ -36,11 +36,11 @@ team without making it public. This is best done by setting up a
 private Maven repository. Both [Archiva](http://archiva.apache.org/)
 and [Nexus](http://nexus.sonatype.org/) will allow you to set up
 private, password-protected repositories. These also provide proxying
-to other repositories, so you can set <tt>:omit-default-repositories</tt>
+to other repositories, so you can set `:omit-default-repositories`
 in project.clj, and dependency downloads will speed up by quite a bit
 with only one server to check.
 
-The private server will need to be added to the <tt>:repositories</tt>
+The private server will need to be added to the `:repositories`
 listing in project.clj. Archiva and Nexus offer separate repositories
 for snapshots and releases, so you'll want two entries for them:
 
@@ -63,18 +63,21 @@ projects may also be specified in the `settings` map in `~/.lein/init.clj`:
 
 ### Authentication
 
-Private repositories often need authentication credentials. You'll need to
-provide either a <tt>:username</tt>/<tt>:password</tt> combination or
-a <tt>:private-key</tt> location with or without a
-<tt>:passwword</tt>. If you want to avoid putting sensitive
-information into your project.clj file as in the <tt>releases</tt>
-entry above, you can store authentication information in
-<tt>~/.lein/init.clj</tt> as a <tt>leiningen-auth</tt> map keyed off
-the repository's URL:
+Private repositories often need authentication credentials. Check your
+repository's documentation for details, but you'll usually need to
+provide either a `:username`/`:password` combination or a
+`:private-key` location with or without a `:passphrase`. Since you
+should avoid putting sensitive information into your project.clj file
+as in the `releases` entry above, authentication information is
+looked up in the `:repository-auth` key of the `:auth` profile in
+`~/.lein/profiles.clj`; see `lein help deploy` for further details.
 
 ```clj
-(def leiningen-auth {"http://localhost:8080/archiva/repository/internal/"
-                     {:username "milgrim" :password "locative.2"}})
+{:user {:plugins [...]}
+ :auth {:repository-auth {#"https://internal.repo/.*"
+                          {:username "milgrim" :password "locative"}
+                          "s3://s3-repo-bucket/releases"
+                          {:username "AKIAIN..." :password "1TChrGK4s..."}}}}
 ```
 
 This also allows different users using the same checkout to upload
@@ -88,8 +91,7 @@ appropriately, you can deploy to it:
     $ lein deploy
 
 If the project's current version is a SNAPSHOT, it will deploy to the
-<tt>snapshots</tt> repository; otherwise it will go to
-<tt>releases</tt>. The <tt>deploy</tt> task also takes a repository
-name as an argument that will be looked up in the
-<tt>:deploy-repositories</tt> and <tt>:repositories</tt> maps
-if you want to override this.
+`snapshots` repository; otherwise it will go to `releases`. The
+`deploy` task also takes a repository name as an argument that will be
+looked up in the `:deploy-repositories` and `:repositories` maps if
+you want to override this.
