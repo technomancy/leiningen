@@ -262,7 +262,16 @@ explains how to write plugins.
   you can `export LEIN_JVM_OPTS=-XX:+TieredCompilation` to improve
   boot time. This requires Hotspot version 20 or newer. On newer versions
   of Leiningen it is enabled automatically.
-  
+
+**Q:** Why is Leiningen 2 still in a preview release?  
+**A:** As of the preview3 release, Leiningen 2 is very stable and
+  recommended for general use. The main thing keeping it from a final
+  release is the fact that the Clojars repository
+  [mingles snapshots with releases](https://github.com/ato/clojars-web/issues/24),
+  which is undesirable. Since switching the default repositories to a
+  releases-only Clojars (which hasn't been implemented yet) would be a
+  breaking change, a series of previews is being released in the mean time.
+
 **Q:** I don't have access to stdin inside my project.  
 **A:** This is a limitation of the JVM's process-handling methods;
   none of them expose stdin correctly. This means that functions like
