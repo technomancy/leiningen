@@ -24,7 +24,7 @@
 (def defaults {:source-paths ["src"]
                :resource-paths ["resources"]
                :test-paths ["test"]
-               :native-path "native"
+               :native-path "target/native"
                :compile-path "target/classes"
                :target-path "target"
                :prep-tasks ["javac" "compile"]
