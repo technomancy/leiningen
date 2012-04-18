@@ -66,7 +66,7 @@ projects may also be specified in the `settings` map in `~/.lein/init.clj`:
 Private repositories often need authentication credentials. You'll need to
 provide either a <tt>:username</tt>/<tt>:password</tt> combination or
 a <tt>:private-key</tt> location with or without a
-<tt>:passphrase</tt>. If you want to avoid putting sensitive
+<tt>:passwword</tt>. If you want to avoid putting sensitive
 information into your project.clj file as in the <tt>releases</tt>
 entry above, you can store authentication information in
 <tt>~/.lein/init.clj</tt> as a <tt>leiningen-auth</tt> map keyed off
