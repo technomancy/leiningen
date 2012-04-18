@@ -160,7 +160,8 @@
             :path (format "META-INF/maven/%s/%s/pom.properties"
                           (:group project) (:name project))
             :bytes (.getBytes (pom/make-pom-properties project))}
-           {:type :bytes :path "project.clj"
+           {:type :bytes :path (format "META-INF/leiningen/%s/%s/project.clj"
+                                       (:group project) (:name project))
             :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
           [{:type :path :path (:compile-path project)}
            {:type :paths :paths (:resource-paths project)}]
