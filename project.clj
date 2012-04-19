@@ -9,7 +9,7 @@
   :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
                  [clucy "0.2.3"]
                  [lein-newnew "0.2.6"]
-                 [reply "0.1.0-beta4"]
+                 [reply "0.1.0-beta5"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.5"]
                  [clj-http "0.3.6"]]
