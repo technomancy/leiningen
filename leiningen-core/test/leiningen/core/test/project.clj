@@ -15,7 +15,7 @@
             :test-paths ["test"],
             :resource-paths ["dev-resources" "resources"],
             :compile-path "target/classes",
-            :native-path "native",
+            :native-path "target/native",
             :target-path "target"})
 
 (def expected {:name "leiningen", :group "leiningen",
