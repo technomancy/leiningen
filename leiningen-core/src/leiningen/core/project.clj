@@ -176,16 +176,6 @@
     ;; first profile specified by the user to take precedence.
     (map (partial lookup-profile profiles) (reverse profiles-to-apply))))
 
-(defn merge-profiles
-  "Look up and merge the given profile names into the project map."
-  [project profiles-to-apply]
-  (let [merged (reduce merge-profile project
-                       (profiles-for project profiles-to-apply))]
-    (vary-meta (normalize merged) merge
-      {:without-profiles (normalize (:without-profiles (meta project) project))
-       :included-profiles (concat (:included-profiles (meta project))
-                                  profiles-to-apply)})))
-
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
         cl (.getContextClassLoader thread)]
@@ -214,6 +204,29 @@
     (require (symbol m-ns)))
   ((resolve middleware-name) project))
 
+(defn- init-project
+  "Initializes a project: loads plugins, hooks, applies middleware,
+   adds dependencies to Leiningen's classpath if required (i.e. eval-in-leiningen),
+   etc.  Any profiles should have already been merged into the project."
+  [project]
+  (when (= :leiningen (:eval-in project))
+    (doseq [path (classpath/get-classpath project)]
+      (pomegranate/add-classpath path)))
+  (load-plugins project)
+  (load-hooks project)
+  (reduce apply-middleware project (:middleware project)))
+
+(defn merge-profiles
+  "Look up and merge the given profile names into the project map."
+  [project profiles-to-apply]
+  (let [merged (reduce merge-profile project
+                       (profiles-for project profiles-to-apply))]
+    (init-project
+      (vary-meta (normalize merged) merge
+        {:without-profiles (normalize (:without-profiles (meta project) project))
+         :included-profiles (concat (:included-profiles (meta project))
+                                    profiles-to-apply)}))))
+
 (defn conj-dependency
   "Add a dependency into the project map if it's not already present. Warn the
   user if it is. Plugins should use this rather than altering :dependencies."
@@ -232,12 +245,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (let [{:keys [eval-in] :as project} (merge-profiles @project profiles)]
-           (when (= :leiningen eval-in)
-             (doseq [path (classpath/get-classpath project)]
-               (pomegranate/add-classpath path)))
-           (load-plugins project)
-           (load-hooks project)
-           (reduce apply-middleware project (:middleware project))))))
+         (merge-profiles @project profiles))))
   ([file] (read file [:dev :user :default]))
   ([] (read "project.clj")))
