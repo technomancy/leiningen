@@ -24,7 +24,9 @@ Colon-separated profiles may be given for sequential profile task application."
                            task-name profile-group))
         (try (apply with-profile* project profile-group task-name args)
              (catch Exception e
-               (println (.getMessage e))
+               (main/info (format "Error encountered performing task '%s' with profile(s): '%s'"
+                           task-name profile-group))
+               (.printStackTrace e)
                (swap! failures inc)))))
     (when (pos? @failures)
       (main/abort "Failed."))))
