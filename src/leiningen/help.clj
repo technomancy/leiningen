@@ -63,18 +63,20 @@
 (defn help-for
   "Help for a task is stored in its docstring, or if that's not present
   in its namespace."
-  [project task-name]
-  (let [aliases (merge @main/aliases (:aliases project))
-        [task-ns task] (resolve-task (aliases task-name task-name))]
-    (if task
-      (let [help-fn (ns-resolve task-ns 'help)]
-        (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
-                 (:doc (meta task))
-                 (:doc (meta (find-ns task-ns))))
-             (subtask-help-for task-ns task)
-             (when (some seq (get-arglists task))
-               (str "\n\nArguments: " (pr-str (get-arglists task))))))
-      (format "Task: '%s' not found" task-name))))
+  ([task-name]
+     (let [[task-ns task] (resolve-task task-name)]
+       (if task
+         (let [help-fn (ns-resolve task-ns 'help)]
+           (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
+                    (:doc (meta task))
+                    (:doc (meta (find-ns task-ns))))
+                (subtask-help-for task-ns task)
+                (when (some seq (get-arglists task))
+                  (str "\n\nArguments: " (pr-str (get-arglists task))))))
+         (format "Task: '%s' not found" task-name))))
+  ([project task-name]
+     (let [aliases (merge @main/aliases (:aliases project))]
+       (help-for (aliases task-name task-name)))))
 
 (defn help-summary-for [task-ns]
   (try (let [task-name (last (.split (name task-ns) "\\."))
