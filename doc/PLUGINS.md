@@ -228,6 +228,10 @@ Of course if the function has changed arities or has disappeared
 entirely this may not be feasible, but it should suffice in most
 cases.
 
+Note that a version of `eval-in-project` that supports both Leiningen 1.x and
+2.x is available from [leinjacker](https://github.com/sattvik/leinjacker), a
+library with utilities for plugin writer.
+
 Another key change is that `:source-path`, `:resources-path`,
 `:java-source-path`, and `:test-path` have changed to
 `:sources-paths`, `:resource-paths`, `:java-source-paths`, and
@@ -251,6 +255,20 @@ You can also publish templates for generating project skeletons that
 work with `lein new`. See
 [the documentation for the new task](https://github.com/Raynes/lein-newnew/)
 for details on how to build templates.
+
+## Utility library for plugin creators
+
+Plugin creators often have to do the same sorts of things, such as manage
+dependencies and provide support for multiple versions of Leiningen.  To help
+you avoid duplication of code, use
+[leinjacker](https://github.com/sattvik/leinjacker), a library that contains a
+number of utilities, including:
+
+1. A version of `eval-in-project` that works with Leiningen 1.x and Leiningen 2.
+2. Utilities for querying and manipulating project dependencies.
+
+If you have functionality that you think may be useful to add to leinjacker,
+feel free to fork the project and submit a pull request.
 
 ## Have Fun
 
