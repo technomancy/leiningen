@@ -31,12 +31,15 @@
               ;; TODO: fall back for :disable-injected? already pretty hairy =\
               _# (leiningen.core.injected/add-hook
                   #'clojure.test/report
-                  (fn report-with-failures [report# m# & args#]
+                  (fn [report# m# & args#]
                     (when (#{:error :fail} (:type m#))
                       (swap! failures# conj
                              (-> clojure.test/*testing-vars*
                                  first meta :ns ns-name)))
-                    (apply report# m# args#)))
+                    (if (= :begin-test-ns (:type m#))
+                      (clojure.test/with-test-out
+                        (println "\nlein test" (ns-name (:ns m#))))
+                      (apply report# m# args#))))
               summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
           (spit ".lein-failures" (pr-str @failures#))
