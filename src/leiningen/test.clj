@@ -29,12 +29,15 @@ each namespace and print an overall summary."
         (let [failures# (atom #{})
               _# (leiningen.util.injected/add-hook
                   #'clojure.test/report
-                  (fn report-with-failures [report# m# & args#]
+                  (fn [report# m# & args#]
                     (when (#{:error :fail} (:type m#))
                       (swap! failures# conj
                              (-> clojure.test/*testing-vars*
                                  first meta :ns ns-name)))
-                    (apply report# m# args#)))
+                    (if (= :begin-test-ns (:type m#))
+                      (clojure.test/with-test-out
+                        (println "\nlein test" (ns-name (:ns m#))))
+                      (apply report# m# args#))))
               summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests
                                 ~(if (seq selectors)
