@@ -32,6 +32,7 @@
 ## 2.0.0-preview1 / 2012-03-07
 
 * Split out leiningen-core into independent library.
+* Construct classpath out of ~/.m2 instead of copying jars to lib/.
 * Replace maven-ant-tasks with Pomegranate library. (Chas Emerick,
   Nelson Morris)
 * Move build artifacts to target/ directory.
