@@ -105,10 +105,13 @@
 
 (def ^:dynamic *dir* (System/getProperty "user.dir"))
 
+(def ^:dynamic *shell-env* {})
+
 (defn sh
   "A version of clojure.java.shell/sh that streams out/err."
   [& cmd]
-  (let [proc (.exec (Runtime/getRuntime) (into-array cmd) nil (io/file *dir*))]
+  (let [env (into-array String (map name (apply concat *shell-env*)))
+        proc (.exec (Runtime/getRuntime) (into-array cmd) env (io/file *dir*))]
     (.addShutdownHook (Runtime/getRuntime)
                       (Thread. (fn [] (.destroy proc))))
     (with-open [out (io/reader (.getInputStream proc))
