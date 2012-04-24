@@ -121,18 +121,19 @@ a `:profiles` key to project.clj like so:
 You can place any arbitrary defproject entries into a given profile
 and they will be merged into the project map when that profile is
 active. In addition to `project.clj`, profiles specified in
-`~/.lein/profiles.clj` will be available in all projects.
+`~/.lein/profiles.clj` will be available in all projects, though those
+from `profiles.clj` will be overridden by profiles of the same name in
+the `project.clj` file. This is why the `:user` profile is separate
+from `:dev`; the latter is intended to be specified in the project
+itself. In order to avoid collisions, the project should never define
+a `:user` profile, nor should `profiles.clj` define a `:dev` profile.
+If you want to access dependencies during development time for any
+project place them in your `:user` profile.
 
 ```clj
 {:user {:plugins [[lein-swank "1.4.0"]
                   [lein-pprint "1.1.1"]]}}
 ```
-
-The difference between the profiles active by default is that the
-`:default` profile comes with Leiningen, while the `:dev` profile is
-meant to be specified in project.clj and the `:user` plugin goes in
-your `~/.lein/profiles.clj` file.
-
 Another use of profiles is to test against various sets of dependencies:
 
 ```clj
