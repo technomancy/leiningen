@@ -6,7 +6,7 @@
 (defn- print-tree
   ([tree increment level]
      (doseq [[dep deps] tree]
-       (println (str (apply str (repeat level \space))) dep)
+       (println (str (apply str (repeat level \space))) (pr-str dep))
        (when deps
          (print-tree deps increment (+ level increment)))))
   ([tree increment]
