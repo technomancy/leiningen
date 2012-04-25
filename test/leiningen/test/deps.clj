@@ -41,7 +41,7 @@
                                [ring/ring-servlet "1.0.0"]
                                [rome "0.9"]
                                [jdom "1.0"]]]
-        (is (.contains out (format "[%s %s]" name version)))))))
+        (is (.contains out (format "[%s \"%s\"]" name version)))))))
 
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project :omit-default-repositories true
