@@ -8,7 +8,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
                  [clucy "0.2.3"]
-                 [lein-newnew "0.2.7"]
+                 [lein-newnew "0.2.8"]
                  [reply "0.1.0-beta5"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.5"]
