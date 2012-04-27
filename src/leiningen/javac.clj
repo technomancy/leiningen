@@ -20,6 +20,38 @@
         :when (>= (.lastModified source) (.lastModified compiled))]
     (.getPath source)))
 
+(def ^{:private true
+       :doc "Legacy (Lein1/Ant task) javac options that do not translate
+             to the new (JDK's javac) format as key-value pairs. For example, :debug \"off\"
+             needs to be translated to -g:none."}
+  special-ant-javac-keys [:destdir :debug :debugLevel])
+
+(defn- normalize-specials
+  "Handles legacy (Lein1/Ant task) javac options that do not translate
+   to the new (JDK's javac) format as key-value pairs"
+  [{:keys [debug debugLevel]}]
+  ;; debug "off"               => -g:none
+  ;; debugLevel "source,lines" => -g:source-lines
+  (if (or (= "off" debug) (false? debug))
+    ["-g:none"]
+    (if debugLevel
+      [(str "-g:" debugLevel)]
+      [])))
+
+(defn normalize-javac-options
+  "Converts :javac-opts in Leiningen 1 format (passed as a map) into
+   Leiningen 2 format (a vector).
+   Options in Leiningen 2 format are returned unmodified"
+  [opts]
+  (if (map? opts)
+    (let [special-opts (select-keys opts special-ant-javac-keys)
+          other-opts   (apply dissoc (concat [opts] special-ant-javac-keys))
+          specials     (normalize-specials special-opts)
+          others       (flatten (vec (map (fn [[k v]]
+                                            [(str "-" (name k)) v]) other-opts)))]
+      (vec (map (comp name str) (flatten (concat specials others)))))
+    opts))
+
 ;; Tool's .run method expects the last argument to be an array of
 ;; strings, so that's what we'll return here.
 (defn- javac-options
@@ -28,7 +60,7 @@
   [project files args]
   (into-array
    String
-   (concat (map name (:javac-options project))
+   (concat (normalize-javac-options (:javac-options project))
            args
            ["-cp" (classpath/get-classpath-string project)
             "-d" (:compile-path project)]
