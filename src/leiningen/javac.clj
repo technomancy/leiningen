@@ -31,7 +31,7 @@
    to the new (JDK's javac) format as key-value pairs"
   [{:keys [debug debugLevel]}]
   ;; debug "off"               => -g:none
-  ;; debugLevel "source,lines" => -g:source-lines  
+  ;; debugLevel "source,lines" => -g:source-lines
   (if (or (= "off" debug) (false? debug))
     ["-g:none"]
     (if debugLevel
