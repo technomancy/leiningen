@@ -90,9 +90,10 @@
   (assoc project :seven 7))
 
 (deftest test-middleware
-  (is (= 7 (:seven (read (.getFile (io/resource "p2.clj")))))))
+  (is (= 7 (:seven (init-project (read (.getFile (io/resource "p2.clj"))))))))
 
 (deftest test-init-project
   (is (= 7 (:seven (-> (.getFile (io/resource "p3.clj"))
                      read
-                     (merge-profiles [:middler]))))))
+                     (merge-profiles [:middler])
+                     init-project)))))
