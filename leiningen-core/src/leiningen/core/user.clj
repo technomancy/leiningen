@@ -5,7 +5,10 @@
 (defn leiningen-home
   "Return full path to the user's Leiningen home directory."
   []
-  (.getAbsolutePath (doto (io/file (System/getenv "LEIN_HOME")) .mkdirs)))
+  (let [lein-home (System/getenv "LEIN_HOME")
+        lein-home (or (and lein-home (io/file lein-home))
+                      (io/file (System/getProperty "user.home") ".lein"))]
+    (.getAbsolutePath (doto lein-home .mkdirs))))
 
 (def init
   "Load the user's ~/.lein/init.clj file, if present."
