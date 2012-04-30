@@ -169,7 +169,7 @@ goto EOF
 :: characters inside the TRAMPOLINE_FILE.
 setLocal DisableDelayedExpansion
 
-if "%1" == "trampoline" (goto RUN_TRAMPOLINE) else (goto RUN_NORMAL)
+if %1 == "trampoline" (goto RUN_TRAMPOLINE) else (goto RUN_NORMAL)
 
 :RUN_TRAMPOLINE
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
