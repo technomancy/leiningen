@@ -6,6 +6,12 @@
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]))
 
+(use-fixtures :once
+              (fn [f]
+                ;; Can't have user-level profiles interfering!
+                (with-redefs [user/profiles (constantly {})]
+                  (f))))
+
 (defn m2-file [f]
   (io/file (System/getProperty "user.home") ".m2" "repository" f))
 
