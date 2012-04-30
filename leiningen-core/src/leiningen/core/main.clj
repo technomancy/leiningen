@@ -125,7 +125,8 @@ or by executing \"lein upgrade\". ")
   "Run a task or comma-separated list of tasks."
   [& args]
   (user/init)
-  (let [project (if (.exists (io/file "project.clj")) (project/read))]
+  (let [project (if (.exists (io/file "project.clj"))
+                  (project/init-project (project/read)))]
     (when (:min-lein-version project)
       (verify-min-version project))
     (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
