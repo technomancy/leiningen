@@ -84,12 +84,16 @@
    "Built-By" (System/getProperty "user.name")
    "Build-Jdk" (System/getProperty "java.version")})
 
+(defn- manifest-entry [project manifest [k v]]
+  (cond (symbol? v) (manifest-entry project manifest [k (resolve v)])
+        (fn? v) (manifest-entry project manifest [k (v project)])
+        :else (str manifest "\n" (name k) ": " v)))
+
 (defn ^:internal make-manifest [project]
   (Manifest.
    (ByteArrayInputStream.
     (.getBytes
-     (reduce (fn [manifest [k v]]
-               (str manifest "\n" k ": " v))
+     (reduce (partial manifest-entry project)
              "Manifest-Version: 1.0"
              (merge default-manifest (:manifest project)
                     ;; (when (:shell-wrapper project)

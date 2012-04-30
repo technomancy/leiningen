@@ -181,7 +181,13 @@
                                 :bytes (:out (clojure.java.shell/sh
                                               "git" "log" "-n" "1"))})}]
   ;; Set arbitrary key/value pairs for the jar's manifest.
-  :manifest {"Project-awesome-level" "super-great"}
+  :manifest {"Project-awesome-level" "super-great"
+             ;; function values will be called with the project as an argument.
+             "Class-Path" ~#(clojure.string/join
+                             java.io.File/pathSeparatorChar
+                             (leiningen.core.classpath/get-classpath %))
+             ;; symbol values will be resolved to find a function to call.
+             "Grunge-level" my.plugin/calculate-grunginess}
   ;; You can set JVM-level options here.
   :jvm-opts ["-Xmx1g"]
   ;; Control the context in which your project code is evaluated.
