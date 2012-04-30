@@ -204,7 +204,7 @@
     (require (symbol m-ns)))
   ((resolve middleware-name) project))
 
-(defn- init-project
+(defn init-project
   "Initializes a project: loads plugins, hooks, applies middleware,
    adds dependencies to Leiningen's classpath if required (i.e. eval-in-leiningen),
    etc.  Any profiles should have already been merged into the project."
@@ -221,11 +221,10 @@
   [project profiles-to-apply]
   (let [merged (reduce merge-profile project
                        (profiles-for project profiles-to-apply))]
-    (init-project
-      (vary-meta (normalize merged) merge
-        {:without-profiles (normalize (:without-profiles (meta project) project))
-         :included-profiles (concat (:included-profiles (meta project))
-                                    profiles-to-apply)}))))
+    (vary-meta (normalize merged) merge
+               {:without-profiles (normalize (:without-profiles (meta project) project))
+                :included-profiles (concat (:included-profiles (meta project))
+                                           profiles-to-apply)})))
 
 (defn conj-dependency
   "Add a dependency into the project map if it's not already present. Warn the

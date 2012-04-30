@@ -14,7 +14,8 @@
 
 (defn- read-test-project [name]
   (with-redefs [user/profiles (constantly {})]
-    (project/read (format "test_projects/%s/project.clj" name))))
+    (project/init-project
+     (project/read (format "test_projects/%s/project.clj" name)))))
 
 (def sample-project (read-test-project "sample"))
 
