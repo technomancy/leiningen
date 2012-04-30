@@ -16,5 +16,5 @@
   (is (= #{"README.md" "project.clj" "orgname" "src" "core.clj" "test"
            "a_project" "core_test.clj" ".gitignore"}
          (set (map (memfn getName)
-                   (rest (file-seq (file "orgname.a-project")))))))
-  (delete-file-recursively (file "orgname.a-project") :silently))
+                   (rest (file-seq (file "a-project")))))))
+  (delete-file-recursively (file "a-project") :silently))
