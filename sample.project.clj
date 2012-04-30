@@ -184,7 +184,7 @@
   :manifest {"Project-awesome-level" "super-great"
              ;; function values will be called with the project as an argument.
              "Class-Path" ~#(clojure.string/join
-                             java.io.File/pathSeparatorChar
+                             \space
                              (leiningen.core.classpath/get-classpath %))
              ;; symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
