@@ -1,4 +1,5 @@
 test_projects/*/target
+**/target
 classes/
 lib/
 *jar
