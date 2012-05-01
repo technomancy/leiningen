@@ -98,7 +98,7 @@ for each. You can copy one of these directly into the `:dependencies`
 vector in `project.clj`.
 
 Within the vector, "lancet" is what Maven calls the "artifact
-id". "1.0.1" and "1.0.1" are distinct versions. Some
+id". "1.0.0" and "1.0.1" are distinct versions. Some
 libraries will also have "group ids", which are displayed
 like this:
 
