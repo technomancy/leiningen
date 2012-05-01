@@ -104,10 +104,11 @@ like this:
 
     [com.cedarsoft.utils.legacy/hibernate "1.3.4"]
 
-The group-id is the text before the slash. Especially for
-Java libraries, it's often a reversed domain name. Clojure
-libraries often use the same group-id and artifact-id (as
-with Lancet), in which case you can omit the group-id.
+The group-id is the text before the slash and used to namespace artifacts.
+Especially for Java libraries, it's often a reversed domain name. Group ids are
+optional: some Clojure libraries (as with Lancet or Cheshire) omit group-id
+while others use them. If your project belongs to an organization, it is
+recommended to use reversed organization domain or organization name as group id.
 
 Sometimes versions will end in "-SNAPSHOT". This means that it is not
 an official release but a development build. Relying on snapshot
