@@ -43,7 +43,8 @@
   ;; Plugins are code that runs in Leiningen itself and usually
   ;; provides new tasks or hooks.
   :plugins [[lein-pprint "1.1.1"]
-            [lein-assoc "0.1.0"]]
+            [lein-assoc "0.1.0"]
+            [s3-wagon-private "1.1.1"]]
   ;; Each active profile gets merged into the project map. The :dev
   ;; and :user profiles are active by default, but the latter should be
   ;; looked up in ~/.lein/profiles.clj rather than set in project.clj.
@@ -196,6 +197,6 @@
   :eval-in :leiningen
   ;; Set parent for working with in a multi-module maven project
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
-  ;; Extensions here will be propagated to the pom.
+  ;; Extensions here will be propagated to the pom but not used by Leiningen.
   :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
                [foo/bar-baz "1.0"]])
