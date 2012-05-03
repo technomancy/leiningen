@@ -112,12 +112,12 @@ else
     fi
 fi
 
-HTTP_CLIENT="wget --no-check-certificate -O"
+HTTP_CLIENT=${HTTP_CLIENT:-"wget -O"}
 if type -p curl >/dev/null 2>&1; then
     if [ "$https_proxy" != "" ]; then
         CURL_PROXY="-x $https_proxy"
     fi
-    HTTP_CLIENT="curl $CURL_PROXY --insecure -f -L -o"
+    HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
 fi
 
 export JAVA_CMD=${JAVA_CMD:-"java"}
