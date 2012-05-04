@@ -148,3 +148,9 @@ or by executing \"lein upgrade\". ")
                (.printStackTrace e))
              (exit 1)))))
   (exit 0))
+
+(defn
+  leiningen-version 
+  "Returns leiningen version as a string."
+  []
+  (System/getenv "LEIN_VERSION"))
