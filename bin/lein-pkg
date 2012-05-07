@@ -4,6 +4,8 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from checkouts and self-upgrading.
 
+# It has not yet been updated for lein2
+
 LEIN_VERSION="1.6.2"
 export LEIN_VERSION
 
