@@ -5,7 +5,7 @@
 
 (deftest test-searchy
   (with-redefs [remote-index-url (constantly
-                                  (io/resource "test/sample-index.zip"))]
+                                  (io/resource "sample-index.zip"))]
     (ensure-fresh-index ["test" {:url "http://example.com/repo"}])
     (is (= #{"segments.gen" "_0.cfx" "timestamp" "_0.cfs" "segments_2"}
            (set (.list (index-location "http://example.com/repo")))))
