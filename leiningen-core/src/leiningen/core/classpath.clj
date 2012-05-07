@@ -3,6 +3,7 @@
   (:require [cemerick.pomegranate.aether :as aether]
             [cemerick.pomegranate :as pomegranate]
             [clojure.java.io :as io]
+            [clojure.string :as str]
             [leiningen.core.user :as user])
   (:import (java.util.jar JarFile)
            (java.util.regex Pattern)
@@ -47,6 +48,21 @@
       (if (.isDirectory entry)
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
+
+(defn- checksum-file [project keys]
+  (io/file (:target-path project) "checksums" (str/join "+" (map name keys))))
+
+(defn when-stale
+  "Call f with args when keys in project.clj have changed since the last run.
+  Stores value of project keys in .lein/checksums directory."
+  [keys project f & args]
+  (let [file (checksum-file project keys)
+        current-value (pr-str (map (juxt identity project) keys))
+        old-value (and (.exists file) (read-string (slurp file)))]
+    (when (not= current-value old-value)
+      (apply f args)
+      (.mkdirs (.getParentFile file))
+      (spit file (pr-str current-value)))))
 
 (defn add-repo-auth
   "Repository credentials (a map containing some of
@@ -114,18 +130,20 @@
         (throw e)))))
 
 (defn resolve-dependencies
-  "Simply delegate regular dependencies to pomegranate. This will
-  ensure they are downloaded into ~/.m2/repositories and that native
-  deps have been extracted to :native-path. If :add-classpath? is
-  logically true, will add the resolved dependencies to Leiningen's
+  "Delegate dependencies to pomegranate. This will ensure they are
+  downloaded into ~/.m2/repository and that native components of
+  dependencies have been extracted to :native-path. If :add-classpath?
+  is logically true, will add the resolved dependencies to Leiningen's
   classpath.
 
-   Returns a set of the dependencies' files."
+  Returns a seq of the dependencies' files."
   [dependencies-key {:keys [repositories native-path] :as project} & rest]
-  (doto (->> (apply get-dependencies dependencies-key project rest)
-             (aether/dependency-files)
-             (filter #(re-find #"\.(jar|zip)$" (.getName %))))
-    (extract-native-deps native-path)))
+  (let [jars (->> (apply get-dependencies dependencies-key project rest)
+                  (aether/dependency-files)
+                  (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
+    (when-stale [:dependencies] project
+                extract-native-deps jars native-path)
+    jars))
 
 (defn dependency-hierarchy
   "Returns a graph of the project's dependencies."

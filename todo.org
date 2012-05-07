@@ -4,18 +4,10 @@ See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
 ** preview4
-   - [ ] Don't re-extract native deps (#535)
-   - [ ] Install task outside projects (#546)
-   - [ ] Force checking of snapshots (#518)
-   - [ ] Make offline profile use dev profile (#514)
-** Low-hanging fruit (newbies, try one of these!)
-   - [X] Look for :java-cmd in project map
-   - [X] Remove task-specific silent flags in favour of global bit (#473)
-   - [X] Port arbitrary upgrade functionality from 1.x branch
-   - [X] Move newnew template listing into subtasks (newnew #11)
-   - [X] Collapse all :repl-* settings into :repl-options map (#432)
-   - [ ] Document creation of new project templates
-   - [ ] Suppress stack trace when getting help on non-existent task (#515)
+   - [X] Don't re-extract native deps (#535)
+   - [ ] Install task outside projects (#546) (LHF)
+   - [ ] Force checking of snapshots (#518) (LHF)
+   - [ ] Make offline profile use dev profile (#514) (LHF)
 ** Intermediate
    - [X] Pretty-print pom
    - [X] deps :tree
