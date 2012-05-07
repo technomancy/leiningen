@@ -3,6 +3,11 @@ Leiningen TODOs
 See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
+** preview4
+   - [ ] Don't re-extract native deps (#535)
+   - [ ] Install task outside projects (#546)
+   - [ ] Force checking of snapshots (#518)
+   - [ ] Make offline profile use dev profile (#514)
 ** Low-hanging fruit (newbies, try one of these!)
    - [X] Look for :java-cmd in project map
    - [X] Remove task-specific silent flags in favour of global bit (#473)
@@ -10,7 +15,6 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Move newnew template listing into subtasks (newnew #11)
    - [X] Collapse all :repl-* settings into :repl-options map (#432)
    - [ ] Document creation of new project templates
-   - [ ] Install task outside projects
    - [ ] Suppress stack trace when getting help on non-existent task (#515)
 ** Intermediate
    - [X] Pretty-print pom
@@ -24,7 +28,6 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Re-enable transitive cleaning for compile (#516)
 ** Complex
    - [ ] Post-install scripts? (#517)
-   - [ ] Force checking of snapshots (#518)
    - [ ] Allow jars to be signed. (#519)
    - [ ] Calculate web of trust for signed dependencies.
    - [ ] Prevent multiple versions of artifacts from getting added (#420)

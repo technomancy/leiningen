@@ -254,7 +254,7 @@
 (defmethod xml-tags ::project
   ([_ project]
      (let [{:keys [without-profiles included-profiles]} (meta project)
-           test-project (-> without-profiles
+           test-project (-> (or without-profiles project)
                             (project/merge-profiles
                              (concat [:dev :test :default]
                                      included-profiles))
@@ -295,9 +295,8 @@
                 "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))
 
 (defn- remove-profiles [project profiles]
-  (let [{:keys [included-profiles
-                without-profiles]} (meta project)]
-    (project/merge-profiles without-profiles
+  (let [{:keys [included-profiles without-profiles]} (meta project)]
+    (project/merge-profiles (or without-profiles project)
                             (remove #(some #{%} profiles)
                                     included-profiles))))
 
