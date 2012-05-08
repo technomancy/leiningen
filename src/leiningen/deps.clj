@@ -1,7 +1,9 @@
 (ns leiningen.deps
   "Download all dependencies."
   (:require [leiningen.core.classpath :as classpath]
-            [clojure.pprint :as pp]))
+            [leiningen.core.main :as main]
+            [clojure.pprint :as pp])
+  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
 
 (defn- print-tree
   ([tree increment level]
@@ -26,6 +28,9 @@ those."
   ([project]
      (deps project nil))
   ([project style]
-     (if (= style ":tree")
-       (print-tree (classpath/dependency-hierarchy :dependencies project) 2)
-       (classpath/resolve-dependencies :dependencies project))))
+     (try
+       (if (= style ":tree")
+         (print-tree (classpath/dependency-hierarchy :dependencies project) 2)
+         (classpath/resolve-dependencies :dependencies project))
+       (catch DependencyResolutionException e
+         (main/abort (.getMessage e))))))

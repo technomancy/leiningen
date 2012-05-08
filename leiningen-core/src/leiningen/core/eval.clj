@@ -8,7 +8,8 @@
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath])
-  (:import (java.io PushbackReader)))
+  (:import (java.io PushbackReader)
+           (org.sonatype.aether.resolution DependencyResolutionException)))
 
 ;; # OS detection
 
@@ -58,7 +59,13 @@
 (defn prep [project]
   ;; This must exist before the project is launched.
   (.mkdirs (io/file (:compile-path project "/tmp")))
-  (classpath/get-classpath project)
+  (try (classpath/get-classpath project)
+       (catch DependencyResolutionException e
+         (main/info (.getMessage e))
+         (main/info "Check :dependencies and :repositories for typos.")
+         (main/info "It's possible the specified jar is not in any repository.")
+         (main/info "If so, see \"Free-floating Jars\" under http://j.mp/repeatability")
+         (main/abort)))
   (doseq [task (:prep-tasks project)]
     (main/apply-task task (dissoc project :prep-tasks) []))
   (when-let [prepped (:prepped (meta project))]

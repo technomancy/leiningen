@@ -1,10 +1,15 @@
 (ns leiningen.classpath
   "Print the classpath of the current project."
   (:require [leiningen.core.classpath :as classpath]
-            [clojure.string :as str]))
+            [leiningen.core.main :as main]
+            [clojure.string :as str])
+  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
 
 (defn get-classpath-string [project]
-  (str/join java.io.File/pathSeparatorChar (classpath/get-classpath project)))
+  (try
+    (str/join java.io.File/pathSeparatorChar (classpath/get-classpath project))
+    (catch DependencyResolutionException e
+      (main/abort (.getMessage e)))))
 
 (defn classpath
   "Write the classpath of the current project to output-file.
