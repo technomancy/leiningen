@@ -58,11 +58,11 @@
   [keys project f & args]
   (let [file (checksum-file project keys)
         current-value (pr-str (map (juxt identity project) keys))
-        old-value (and (.exists file) (read-string (slurp file)))]
+        old-value (and (.exists file) (slurp file))]
     (when (not= current-value old-value)
       (apply f args)
       (.mkdirs (.getParentFile file))
-      (spit file (pr-str current-value)))))
+      (spit file (doall current-value)))))
 
 (defn add-repo-auth
   "Repository credentials (a map containing some of
