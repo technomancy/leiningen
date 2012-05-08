@@ -49,14 +49,12 @@
         (.mkdirs f)
         (io/copy (.getInputStream jar entry) f)))))
 
-(defn- checksum-file [project keys]
-  (io/file (:target-path project) "checksums" (str/join "+" (map name keys))))
-
 (defn when-stale
   "Call f with args when keys in project.clj have changed since the last run.
-  Stores value of project keys in .lein/checksums directory."
+  Stores value of project keys in stale directory inside :target-path."
   [keys project f & args]
-  (let [file (checksum-file project keys)
+  (let [file (io/file (:target-path project) "stale"
+                      (str/join "+" (map name keys)))
         current-value (pr-str (map (juxt identity project) keys))
         old-value (and (.exists file) (slurp file))]
     (when (not= current-value old-value)
