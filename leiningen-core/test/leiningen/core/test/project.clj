@@ -97,3 +97,47 @@
                      read
                      (merge-profiles [:middler])
                      init-project)))))
+
+(deftest test-add-profiles
+  (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
+                                                     :a2 {:src-paths ["a2/"]}}}]
+    (is (= expected-result
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}}))))
+    (is (= expected-result
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}})
+               meta
+               :without-profiles)))))
+
+(deftest test-merge-anon-profiles
+  (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
+                                              :b {:B 2}}
+                         :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                                        "clojars" {:url "http://clojars.org/repo/"}}
+                         :dependencies [], :compile-path "classes"}]
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1} :b {:B 2}}}
+               (merge-profiles [:a {:C 3}]))))))
+
+(deftest test-unmerge-profiles
+  (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
+                                              :b {:B 2}
+                                              :c {:C 3}}
+                         :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                                        "clojars" {:url "http://clojars.org/repo/"}}
+                         :dependencies [], :compile-path "classes"}]
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1}
+                           :b {:B 2}
+                           :c {:C 3}}}
+               (merge-profiles [:a :b :c])
+               (unmerge-profiles [:b]))))
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1}
+                           :b {:B 2}
+                           :c {:C 3}}}
+               (merge-profiles [:a :b :c {:D 4}])
+               (unmerge-profiles [:b {:D 4}]))))))
