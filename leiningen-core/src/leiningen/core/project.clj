@@ -177,7 +177,8 @@
     ;; We reverse because we want profile values to override the
     ;; project, so we need "last wins" in the reduce, but we want the
     ;; first profile specified by the user to take precedence.
-    (map (partial lookup-profile profiles) (reverse profiles-to-apply))))
+    (map #(if (keyword? %) (lookup-profile profiles %) %)
+         (reverse profiles-to-apply))))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
