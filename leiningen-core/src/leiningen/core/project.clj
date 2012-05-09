@@ -245,7 +245,8 @@
   ;; Merge new profiles into both the project and without-profiles meta
   (vary-meta (update-in project [:profiles] merge profiles-map)
              merge
-             {:without-profiles (update-in (:without-profiles (meta project))
+             {:without-profiles (update-in (:without-profiles (meta project)
+                                                              project)
                                            [:profiles] merge
                                            profiles-map)}))
 

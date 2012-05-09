@@ -97,3 +97,17 @@
                      read
                      (merge-profiles [:middler])
                      init-project)))))
+
+(deftest test-add-profiles
+  (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
+                                                     :a2 {:src-paths ["a2/"]}}}]
+    (is (= expected-result
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}}))))
+    (is (= expected-result
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}})
+               meta
+               :without-profiles)))))
