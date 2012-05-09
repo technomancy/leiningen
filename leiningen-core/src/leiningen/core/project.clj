@@ -148,7 +148,7 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn merge-profile [project profile]
+(defn- merge-profile [project profile]
   (vary-meta (merge-with profile-key-merge project profile)
              update-in [:included-profiles] conj profile))
 
