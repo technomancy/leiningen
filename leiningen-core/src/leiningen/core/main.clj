@@ -7,6 +7,7 @@
 
 (def aliases (atom {"--help" "help", "-h" "help", "-?" "help", "-v" "version"
                     "--version" "version", "überjar" "uberjar"
+                    "-o" ["with-profile" "offline,dev,user,default"]
                     "cp" "classpath" "halp" "help"
                     "with-profiles" "with-profile"
                     "readme" ["help" "readme"]
@@ -150,7 +151,7 @@ or by executing \"lein upgrade\". ")
   (exit 0))
 
 (defn
-  leiningen-version 
+  leiningen-version
   "Returns leiningen version as a string."
   []
   (System/getenv "LEIN_VERSION"))
