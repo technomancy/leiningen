@@ -233,6 +233,18 @@
   (println "WARNING: conj-dependencies is deprecated.")
   (update-in project [:dependencies] conj dependency))
 
+(defn add-profiles
+  "Add the profiles in the given profiles map to the project map, taking care
+   to preserve project map metadata. Note that these profiles are not merged,
+   merely made available to merge by name."
+  [project profiles-map]
+  ;; Merge new profiles into both the project and without-profiles meta
+  (vary-meta (update-in project [:profiles] merge profiles-map)
+             merge
+             {:without-profiles (update-in (:without-profiles (meta project))
+                                           [:profiles] merge
+                                           profiles-map)}))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
