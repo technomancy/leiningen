@@ -248,6 +248,16 @@
                                            [:profiles] merge
                                            profiles-map)}))
 
+(defn unmerge-profiles
+  "Given a project map, return the project map you would have if the specified
+   profiles had never been merged into it. Expects a list of profiles, where
+   each element is either the name of a profile in the :profiles key of the
+   project, or the map of the profile itself."
+  [project profiles-to-unmerge]
+  (let [result-profiles (filter (comp not (into #{} profiles-to-unmerge))
+                                (:included-profiles project))]
+    (merge-profiles (:without-profiles project project) result-profiles)))
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
