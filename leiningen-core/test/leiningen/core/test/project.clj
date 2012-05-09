@@ -112,6 +112,17 @@
                meta
                :without-profiles)))))
 
+(deftest test-merge-anon-profiles
+  (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
+                                              :b {:B 2}}
+                         :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                                        "clojars" {:url "http://clojars.org/repo/"}}
+                         :dependencies [], :compile-path "classes"}]
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1} :b {:B 2}}}
+               (merge-profiles [:a {:C 3}]))))
+    ))
+
 (deftest test-unmerge-profiles
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
                                               :b {:B 2}
@@ -124,4 +135,10 @@
                            :b {:B 2}
                            :c {:C 3}}}
                (merge-profiles [:a :b :c])
-               (unmerge-profiles [:b]))))))
+               (unmerge-profiles [:b]))))
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1}
+                           :b {:B 2}
+                           :c {:C 3}}}
+               (merge-profiles [:a :b :c {:D 4}])
+               (unmerge-profiles [:b {:D 4}]))))))
