@@ -111,3 +111,17 @@
                               :a2 {:src-paths ["a2/"]}})
                meta
                :without-profiles)))))
+
+(deftest test-unmerge-profiles
+  (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
+                                              :b {:B 2}
+                                              :c {:C 3}}
+                         :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                                        "clojars" {:url "http://clojars.org/repo/"}}
+                         :dependencies [], :compile-path "classes"}]
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1}
+                           :b {:B 2}
+                           :c {:C 3}}}
+               (merge-profiles [:a :b :c])
+               (unmerge-profiles [:b]))))))
