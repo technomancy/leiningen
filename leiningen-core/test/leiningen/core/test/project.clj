@@ -120,8 +120,7 @@
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
            (-> {:profiles {:a {:A 1} :b {:B 2}}}
-               (merge-profiles [:a {:C 3}]))))
-    ))
+               (merge-profiles [:a {:C 3}]))))))
 
 (deftest test-unmerge-profiles
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
