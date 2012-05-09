@@ -148,8 +148,9 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn merge-profile [project profile]
-  (merge-with profile-key-merge project profile))
+(defn- merge-profile [project profile]
+  (vary-meta (merge-with profile-key-merge project profile)
+             update-in [:included-profiles] conj profile))
 
 (defn- lookup-profile [profiles profile-name]
   (let [result (profiles profile-name)]
@@ -174,7 +175,8 @@
     ;; We reverse because we want profile values to override the
     ;; project, so we need "last wins" in the reduce, but we want the
     ;; first profile specified by the user to take precedence.
-    (map (partial lookup-profile profiles) (reverse profiles-to-apply))))
+    (map #(if (keyword? %) (lookup-profile profiles %) %)
+         (reverse profiles-to-apply))))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
@@ -232,6 +234,30 @@
   [project dependency]
   (println "WARNING: conj-dependencies is deprecated.")
   (update-in project [:dependencies] conj dependency))
+
+(defn add-profiles
+  "Add the profiles in the given profiles map to the project map, taking care
+   to preserve project map metadata. Note that these profiles are not merged,
+   merely made available to merge by name."
+  [project profiles-map]
+  ;; Merge new profiles into both the project and without-profiles meta
+  (vary-meta (update-in project [:profiles] merge profiles-map)
+             merge
+             {:without-profiles (update-in (:without-profiles (meta project)
+                                                              project)
+                                           [:profiles] merge
+                                           profiles-map)}))
+
+(defn unmerge-profiles
+  "Given a project map, return the project map you would have if the specified
+   profiles had never been merged into it. Expects a list of profiles, where
+   each element is either the name of a profile in the :profiles key of the
+   project, or the map of the profile itself."
+  [project profiles-to-unmerge]
+  (let [result-profiles (filter (comp not (into #{} profiles-to-unmerge))
+                                (:included-profiles (meta project)))]
+    (merge-profiles (:without-profiles (meta project) project)
+                    result-profiles)))
 
 (defn read
   "Read project map out of file, which defaults to project.clj."
