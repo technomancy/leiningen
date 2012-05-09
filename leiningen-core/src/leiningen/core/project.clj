@@ -150,9 +150,7 @@
 
 (defn merge-profile [project profile]
   (vary-meta (merge-with profile-key-merge project profile)
-             merge
-             {:included-profiles (concat (:included-profiles (meta project))
-                                         profile)}))
+             update-in [:included-profiles] conj profile))
 
 (defn- lookup-profile [profiles profile-name]
   (let [result (profiles profile-name)]
