@@ -1,5 +1,20 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview4 / 2012-05-11
+
+* Blink matching parens in repl. (Colin Jones)
+* Fix a bug where repl would interfere with project agents. (Chas Emerick)
+* Show repl output that is emitted after return value. (Colin Jones)
+* Make it easier for plugins to undo profile merging. (David Santiago)
+* Add -o alias for activating offline profile.
+* Ignore $CLASSPATH environment variable.
+* Fix bug where repl task couldn't be trampolined. (Colin Jones)
+* Allow jar manifest entries to be dynamically calculated.
+* Support map-style :javac-opts like Leiningen 1.x used. (Michael Klishin)
+* Allow group-id to be specified when creating new projects. (Michael Klishin)
+* Fix a bug where :dev dependencies would be exposed in pom.
+* Use Clojure 1.4.0 internally; plugins have access to new Clojure features.
+
 ## 2.0.0-preview3 / 2012-04-12
 
 * Add HTTP nREPL support for repl task via :connect option. (Chas Emerick,
