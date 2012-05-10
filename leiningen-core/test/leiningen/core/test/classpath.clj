@@ -20,6 +20,7 @@
                                :exclusions [commons-codec]]]
               :repositories (:repositories project/defaults)
               :root "/tmp/lein-sample-project"
+              :target-path "/tmp/lein-sample-project/target"
               :source-paths ["/tmp/lein-sample-project/src"]
               :resource-paths ["/tmp/lein-sample-project/resources"]
               :test-paths ["/tmp/lein-sample-project/test"]})
