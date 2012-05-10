@@ -20,14 +20,12 @@ _lein_completion() {
             ;;
         test | retest )
             # list project's test namespaces:
-            local namespaces=$(find test/ -type f -name "*.clj" -exec grep -E \
-                '^\(ns[[:space:]]+\w+' '{}' ';' | sed -n 's/(ns[ ]*//p')
+            local namespaces=$(find test/ -type f -name "*.clj" -exec sed -n 's/^(ns[ ]*//p' '{}' '+')
             COMPREPLY=( $(compgen -W "${namespaces}" -- ${cur}) )
             ;;
         run | compile)
             # list project's src namespaces:
-            local namespaces=$(find src/ -type f -name "*.clj" -exec grep -E \
-                '^\(ns[[:space:]]+\w+' '{}' ';' | sed -n 's/(ns[ ]*//p')
+            local namespaces=$(find src/ -type f -name "*.clj" -exec sed -n 's/^(ns[ ]*//p' '{}' '+')
             COMPREPLY=( $(compgen -W "${namespaces}" -- ${cur}) )
             ;;
         lein)
