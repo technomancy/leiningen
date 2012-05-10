@@ -1,13 +1,12 @@
 # Leiningen Core
 
 This library provides the core functionality of Leiningen. This
-consists of the task execution implementation and helper functions
-without any of the tasks or launcher scripts.
+consists of the task execution implementation, project configuration,
+and helper functions. The built-in tasks and the launcher scripts are
+kept in the main `leiningen` project.
 
-More [copious documentation is available](http://technomancy.github.com/leiningen/).
-
-The tasks that get run come from Leiningen itself as well as any
-Leiningen plugins that may be active.
+More detailed [API reference](http://leiningen.org/reference.html) is
+available.
 
 ## Namespaces
 
@@ -23,8 +22,6 @@ Leiningen plugins that may be active.
     implements the isolation of project code from Leiningen's own code.
 * **leiningen.core.user** just has a handful of functions which handle
     user-level configuration.
-* **leiningen.core.ns** contains helper functions for finding
-    namespaces on the classpath.
 
 ## Running Tasks
 
@@ -51,11 +48,19 @@ visible to the project's functions.
 Leiningen currently implements this by launching a sub-process using
 `leiningen.core.eval/eval-in-project`. Any code that must execute
 within the context of the project (AOT compilation, test runs, repls)
-needs to go through this function. This sub-process (referred to as
-the "project JVM") is an entirely new invocation of the `java` command
-with its own classpath calculated from functions in the
-`leiningen.core.classpath` namespace. It can only communicate with
-Leiningen's process via the file system, sockets, and its exit code.
+needs to go through this function. Before the process is launched, the
+project must be "prepped", which consists of running all the tasks
+named in the project's `:prep-tasks` key. This defaults to `javac` and
+`compile`, but `defproject` or profiles may add additional tasks as
+necessary. All prep tasks must be cheap to call if nothing has changed
+since their last invocation.
+
+The sub-process (referred to as the "project JVM") is an entirely new
+invocation of the `java` command with its own classpath calculated
+from functions in the `leiningen.core.classpath` namespace. It can
+even use a different version of the JVM from Leiningen if the
+`:java-cmd` key is provided. It can only communicate with Leiningen's
+process via the file system, sockets, and its exit code.
 
 The exception to this rule is when `:eval-in-leiningen` in
 `project.clj` is true, as is commonly used for Leiningen plugins.

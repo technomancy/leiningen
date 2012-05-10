@@ -4,10 +4,10 @@
  alt="Leiningen logo" title="The man himself" align="right" />
 
 > "Leiningen!" he shouted. "You're insane! They're not creatures you can
-> fight--they're an elemental--an 'act of God!' Ten miles long, two
-> miles wide--ants, nothing but ants! And every single one of them a
+> fight&mdash;they're an elemental&mdash;an 'act of God!' Ten miles long, two
+> miles wide&mdash;ants, nothing but ants! And every single one of them a
 > fiend from hell..."
-> -- from Leiningen Versus the Ants by Carl Stephenson
+> - from Leiningen Versus the Ants by Carl Stephenson
 
 Leiningen is for automating Clojure projects without setting your hair on fire.
 
@@ -26,7 +26,7 @@ upon the first run on unix, so the first run will take longer.
 2. Place it on your `$PATH`. (I like to use `~/bin`)
 3. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
-The instructions above will install the stable release. The Leiningen 2
+The link above will get you the stable release. The Leiningen 2
 [preview release](https://raw.github.com/technomancy/leiningen/preview/bin/lein)
 has some great new features, but not all projects and plugins have
 been upgraded to work with it yet. Please see the
@@ -56,7 +56,7 @@ project, but here are the commonly-used tasks:
 
     $ lein jar # package up the whole project as a .jar file
 
-    $ lein install # install a project
+    $ lein install # install a project into the local repository
 
     $ lein search [TERM] # find jars for your project.clj dependencies
 
@@ -83,19 +83,14 @@ The `project.clj` file in the project root should look like this:
   :plugins [[lein-ring "0.4.5"]])
 ```
 
-To find specific versions of a dependency, use `lein search`.
+To find specific versions of a dependency, use `lein search`, though
+note that this can be extremely slow the first time you use it.
 
-The `lein new` task generates a project skeleton with an
-appropriate starting point from which you can work. See the
+The `lein new` task generates a project skeleton with an appropriate
+starting point from which you can work. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj)
-file for a detailed listing of configuration options.
-
-You can also have user-level configuration that applies for all
-projects. The `~/.lein/init.clj` file will be loaded every time
-Leiningen launches; any arbitrary code may go there. This code is
-executed inside Leiningen itself, not in your project. Set the
-`:init-ns` key in `:repl-options` in project.clj to point to a
-namespace if you want code executed inside your project in the repl.
+file (also available via `lein help sample`) for a detailed listing of
+configuration options.
 
 ### Profiles
 
@@ -107,9 +102,11 @@ Clojure available in every project you hack on without modifying every
 single project.clj you use.
 
 By default the `:dev`, `:user`, and `:default` profiles are activated
-for each task. Each profile is defined as a map which gets merged into
-your project map. To add resources directories during development, add
-a `:profiles` key to project.clj like so:
+for each task, but the settings they provide are not propagated
+downstream to projects that depend upon yours. Each profile is defined
+as a map which gets merged into your project map. To add resources
+directories during development, add a `:profiles` key to project.clj
+like so:
 
 ```clj
 (defproject myproject "0.5.0-SNAPSHOT"
@@ -230,6 +227,15 @@ explains how to write plugins.
   any of their dependencies by using the `:exclusions` key. See
   `lein help sample` for details.
 
+**Q:** Why doesn't `deps` task populate the `lib` directory in version 2?  
+**A:** The only reason version 1 copied the jars around in the first
+  place was to support existing tooling that needed a cheap way to
+  calculate a project's classpath. Now that Leiningen has a mature
+  plugin ecosystem, this is no longer needed; jars can be referenced
+  directly out of the `~/.m2/repository` directory. If you need to see
+  a listing of all the dependencies that will be used and their
+  versions, use `lein deps :tree`.
+
 **Q:** What does `java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V` mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
   compiled with a different version of Clojure than the one you're
@@ -251,7 +257,7 @@ explains how to write plugins.
 **Q:** What can be done to speed up launch?  
 **A:** The main delay involved in Leiningen comes from starting the
   JVM. Most people use a development cycle that involves keeping a
-  single process running for as long as you're working on that
+  single REPL process running for as long as you're working on that
   project. Depending on your editor you may be able to do this via its
   Clojure integration. (See
   [swank-clojure](http://github.com/technomancy/swank-clojure) or
@@ -267,10 +273,10 @@ explains how to write plugins.
 **Q:** Why is Leiningen 2 still in a preview release?  
 **A:** As of the preview3 release, Leiningen 2 is very stable and
   recommended for general use. The main thing keeping it from a final
-  release is the fact that the Clojars repository
+  release is the fact that the current Clojars repository
   [mingles snapshots with releases](https://github.com/ato/clojars-web/issues/24),
   which is undesirable. Since switching the default repositories to a
-  releases-only Clojars (which hasn't been implemented yet) would be a
+  releases-only Clojars (which is still in development) would be a
   breaking change, a series of previews is being released in the mean time.
 
 **Q:** I don't have access to stdin inside my project.  
@@ -284,15 +290,16 @@ explains how to write plugins.
 ## Contributing
 
 Please report issues on the
-[Github issue tracker](https://github.com/technomancy/leiningen/issues)
+[GitHub issue tracker](https://github.com/technomancy/leiningen/issues)
 or the [mailing list](http://groups.google.com/group/leiningen).
 Personal email addresses are **not** appropriate for bug reports. See
-the readme for the `leiningen-core` library and `doc/PLUGINS.md` for
-more details on how Leiningen's codebase is structured. Design
-discussions also occur in the
+the
+[readme for the leiningen-core library](https://github.com/technomancy/leiningen/blob/master/leiningen-core/README.md)
+and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
+structured. Design discussions also occur in the
 [#leiningen channel on Freenode](irc://chat.freenode.net#leiningen).
 
-Patches are preferred as Github pull requests, though patches from
+Patches are preferred as GitHub pull requests, though patches from
 `git format-patch` are also welcome on the mailing list. Please use
 topic branches when sending pull requests rather than committing
 directly to master in order to minimize unnecessary merge commit
@@ -306,7 +313,7 @@ merging if you ask on IRC or the mailing list.
 
 Contributors are also welcome to request a free
 [Leiningen sticker](http://twitpic.com/2e33r1) by asking on the
-mailing list and mailing a SASE.
+mailing list and mailing a self-addressed, stamped envelope.
 
 ## Building
 

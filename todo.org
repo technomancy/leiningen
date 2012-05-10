@@ -5,9 +5,10 @@ See also https://github.com/technomancy/leiningen/issues
 * For 2.0.0
 ** preview4
    - [X] Don't re-extract native deps (#535)
-   - [ ] Install task outside projects (#546) (LHF)
+   - [X] Make offline profile use dev profile (#514) (LHF)
+   - [ ] Fix $JVM_OPTS (#565)
+   - [ ] Move lein-newnew plugin into default profile (#540)
    - [ ] Force checking of snapshots (#518) (LHF)
-   - [ ] Make offline profile use dev profile (#514) (LHF)
 ** Intermediate
    - [X] Pretty-print pom
    - [X] deps :tree

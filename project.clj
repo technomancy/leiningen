@@ -34,6 +34,7 @@
 ;; * test self-install
 ;; * git tag
 ;; * push, push tags, update stable branch
+;; * publish leiningen-core docs
 ;; * announce on mailing list
 ;; * bump version numbers back to snapshot
 ;; * regenerate pom.xml

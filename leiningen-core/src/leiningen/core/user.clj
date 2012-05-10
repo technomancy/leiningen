@@ -10,6 +10,7 @@
                       (io/file (System/getProperty "user.home") ".lein"))]
     (.getAbsolutePath (doto lein-home .mkdirs))))
 
+;; TODO: is this still needed now that we have the user profile?
 (def init
   "Load the user's ~/.lein/init.clj file, if present."
   (memoize (fn []
