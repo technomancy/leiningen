@@ -27,11 +27,12 @@ do
 done
 
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
-LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 
 if [ "$OSTYPE" = "cygwin" ]; then
-    LEIN_HOME=`cygpath -w $LEIN_HOME`
+    export LEIN_HOME=`cygpath -w $LEIN_HOME`
 fi
+
+LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 
 # normalize $0 on certain BSDs
 if [ "$(dirname "$0")" = "." ]; then
