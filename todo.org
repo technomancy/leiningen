@@ -6,7 +6,7 @@ See also https://github.com/technomancy/leiningen/issues
 ** preview4
    - [X] Don't re-extract native deps (#535)
    - [X] Make offline profile use dev profile (#514) (LHF)
-   - [ ] Fix $JVM_OPTS (#565)
+   - [X] Fix $JVM_OPTS (#565)
    - [ ] Move lein-newnew plugin into default profile (#540)
    - [ ] Force checking of snapshots (#518) (LHF)
 ** Intermediate

@@ -87,12 +87,23 @@
 (defn- d-property [[k v]]
   (format "-D%s=%s" (as-str k) v))
 
+;; TODO: this would still screw up with something like this:
+;; export JAVA_OPTS="-Dmain.greeting=\"hello -main\" -Xmx512m"
+(defn- join-broken-arg [args x]
+  (if (= \- (first x))
+    (conj args x)
+    (conj (vec (butlast args))
+          (str (last args) " " x))))
+
+(defn ^{:internal true} get-jvm-opts-from-env [env-opts]
+  (when (seq env-opts)
+    (reduce join-broken-arg [] (.split env-opts " "))))
+
 (defn- get-jvm-args
   "Calculate command-line arguments for launching java subprocess."
   [project]
   (let [native-arch-path (native-arch-path project)]
-    `(~@(let [opts (System/getenv "JVM_OPTS")]
-          (when (seq opts) [opts]))
+    `(~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
       ~@(:jvm-opts project)
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
