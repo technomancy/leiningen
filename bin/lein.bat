@@ -34,9 +34,9 @@ set CONTEXT_CP=
 if exist ".lein-classpath" set /P CONTEXT_CP=<.lein-classpath
 if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
 
-if exist "%~f0\..\..\src\leiningen\core.clj" (
+if exist "%~dp0..\src" (
     :: Running from source checkout.
-    call :SET_LEIN_ROOT "%~f0\..\.."
+    call :SET_LEIN_ROOT "%~dp0.."
 
     set LEIN_LIBS="
     for %%j in ("!LEIN_ROOT!\lib\*") do set LEIN_LIBS=!LEIN_LIBS!;%%~fj
