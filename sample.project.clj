@@ -141,7 +141,7 @@
                  "snapshots" "http://blueant.com/archiva/snapshots"
                  "releases" "http://blueant.com/archiva/internal"}
   ;; You can set :update and :checksum policies here to have them
-  ;; apply for all :repositories. Usually you will not set this
+  ;; apply for all :repositories. Usually you will not set :update
   ;; directly but apply the "update" profile instead.
   :update :always
   ;; the deploy task will give preference to repositories specified in

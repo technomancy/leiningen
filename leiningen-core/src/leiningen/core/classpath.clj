@@ -53,6 +53,10 @@
   "Call f with args when keys in project.clj have changed since the last run.
   Stores value of project keys in stale directory inside :target-path."
   [keys project f & args]
+  (prn :target-path (:target-path project))
+  (when-not (:target-path project)
+    (prn :no-target project)
+    (throw (Exception. "No target path!")))
   (let [file (io/file (:target-path project) "stale"
                       (str/join "+" (map name keys)))
         current-value (pr-str (map (juxt identity project) keys))
@@ -101,14 +105,17 @@
        :username username
        :password password})))
 
-(defn- update-policy [update [repo-name opts]]
-  [repo-name (if update (assoc opts :update update) opts)])
+(defn- update-policies [update checksum [repo-name opts]]
+  (let [opts (if update (assoc opts :update update) opts)
+        opts (if checksum (assoc opts :checksum checksum) opts)]
+    [repo-name opts]))
 
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
 
 (defn- get-dependencies
-  [dependencies-key {:keys [repositories local-repo offline? update] :as project}
+  [dependencies-key {:keys [repositories local-repo offline? update checksum]
+                     :as project}
    & {:keys [add-classpath?]}]
   {:pre [(every? vector? (project dependencies-key))]}
   (try
@@ -119,7 +126,7 @@
      :offline? offline?
      :repositories (->> repositories
                         (map add-repo-auth)
-                        (map (partial update-policy update)))
+                        (map (partial update-policies update checksum)))
      :coordinates (project dependencies-key)
      :transfer-listener :stdout
      :proxy (get-proxy-settings))
