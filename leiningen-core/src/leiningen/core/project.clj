@@ -123,6 +123,7 @@
   profiles are active by default."
   (atom {:default {:resource-paths ["dev-resources"]
                    :plugins [['lein-newnew "0.3.1"]]
+                   :jvm-opts ["-XX:+TieredCompilation"]
                    :checkout-deps-shares [:source-paths
                                           :resource-paths
                                           :compile-path]}
