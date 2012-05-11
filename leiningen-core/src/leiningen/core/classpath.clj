@@ -53,10 +53,6 @@
   "Call f with args when keys in project.clj have changed since the last run.
   Stores value of project keys in stale directory inside :target-path."
   [keys project f & args]
-  (prn :target-path (:target-path project))
-  (when-not (:target-path project)
-    (prn :no-target project)
-    (throw (Exception. "No target path!")))
   (let [file (io/file (:target-path project) "stale"
                       (str/join "+" (map name keys)))
         current-value (pr-str (map (juxt identity project) keys))
