@@ -94,6 +94,9 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/lib/*"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/target/classes"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
+    if [ -f .lein-classpath ]; then
+        CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
+    fi
 else # Not running from a checkout
     # apply context specific CLASSPATH entries
     if [ -f .lein-classpath ]; then
