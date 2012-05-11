@@ -122,7 +122,11 @@
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
   (atom {:default {:resource-paths ["dev-resources"]
-                   :plugins [['lein-newnew "0.3.1"]]}
+                   :plugins [['lein-newnew "0.3.1"]]
+                   :checkout-deps-shares [:source-paths
+                                          :resource-paths
+                                          :compile-path]}
+         :production {}
          :test {}
          :update {:update :always}
          :offline {:offline? true}
