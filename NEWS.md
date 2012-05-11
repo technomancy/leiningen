@@ -2,6 +2,10 @@
 
 ## 2.0.0-preview4 / 2012-05-11
 
+* Checkout dependencies are not applied with production profile.
+* Move pom.xml back to the project root.
+* Add -U alias for forcing updates of snapshots.
+* Support setting :update and :checksum profiles at top level of project.
 * Blink matching parens in repl. (Colin Jones)
 * Fix a bug where repl would interfere with project agents. (Chas Emerick)
 * Show repl output that is emitted after return value. (Colin Jones)
