@@ -326,7 +326,7 @@
   "Write a pom.xml file to disk for Maven interoperability."
   ([project pom-location]
      (let [pom (make-pom project true)
-           pom-file (io/file (:target-path project) pom-location)]
+           pom-file (io/file (:root project) pom-location)]
        (.mkdirs (.getParentFile pom-file))
        (with-open [pom-writer (io/writer pom-file)]
          (.write pom-writer pom))
