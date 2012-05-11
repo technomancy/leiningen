@@ -24,7 +24,7 @@
        "as it does not contain a project.clj file."))))
 
 (defn- checkout-dep-paths [project dep dep-project]
-  (flatten (map dep-project shares)))
+  (flatten (map dep-project (:checkout-deps-shares project))))
 
 (defn- checkout-deps-paths
   "Checkout dependencies are used to place source for a dependency
