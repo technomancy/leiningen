@@ -87,5 +87,6 @@
     (is (= [["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
                          :url "https://sekrit.info/repo"}]]
-           (add-auth [["sonatype" {:url "https://oss.sonatype.org/"}]
-                      ["internal" {:url "https://sekrit.info/repo"}]])))))
+           (map add-repo-auth
+                [["sonatype" {:url "https://oss.sonatype.org/"}]
+                 ["internal" {:url "https://sekrit.info/repo"}]])))))

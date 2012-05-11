@@ -87,9 +87,6 @@
                                               (re-matches re? url))]
                                cred)))])))
 
-(defn add-auth [repositories]
-  (map add-repo-auth repositories))
-
 (defn get-proxy-settings
   "Returns a map of the JVM proxy settings"
   []
@@ -104,11 +101,14 @@
        :username username
        :password password})))
 
+(defn- update-policy [update [repo-name opts]]
+  [repo-name (if update (assoc opts :update update) opts)])
+
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
 
 (defn- get-dependencies
-  [dependencies-key {:keys [repositories local-repo offline?] :as project}
+  [dependencies-key {:keys [repositories local-repo offline? update] :as project}
    & {:keys [add-classpath?]}]
   {:pre [(every? vector? (project dependencies-key))]}
   (try
@@ -117,7 +117,9 @@
        aether/resolve-dependencies)
      :local-repo local-repo
      :offline? offline?
-     :repositories (add-auth repositories)
+     :repositories (->> repositories
+                        (map add-repo-auth)
+                        (map (partial update-policy update)))
      :coordinates (project dependencies-key)
      :transfer-listener :stdout
      :proxy (get-proxy-settings))

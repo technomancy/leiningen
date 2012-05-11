@@ -127,7 +127,10 @@
                   ;; You can also set the policies for how to handle :checksum
                   ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
                   ;; :always, and :never are supported.
-                  :releases {:checksum :fail :update :always}}
+                  :releases {:checksum :fail :update :always}
+                  ;; You can set :checksum and :update here for them
+                  ;; to apply to both :releases and :snapshots:
+                  :update :always, :checksum :fail}
                  ;; Repositories named "snapshots" and "releases" automatically
                  ;; have their :snapshots and :releases disabled as appropriate.
                  ;; Credentials for repositories should *not* be stored
@@ -137,6 +140,10 @@
                  ;;                            :password "locative.1"}}}}
                  "snapshots" "http://blueant.com/archiva/snapshots"
                  "releases" "http://blueant.com/archiva/internal"}
+  ;; You can set :update and :checksum policies here to have them
+  ;; apply for all :repositories. Usually you will not set this
+  ;; directly but apply the "update" profile instead.
+  :update :always
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
   ;; dependency resolution.
