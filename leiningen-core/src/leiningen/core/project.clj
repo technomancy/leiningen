@@ -124,6 +124,7 @@
   (atom {:default {:resource-paths ["dev-resources"]
                    :plugins [['lein-newnew "0.3.1"]]}
          :test {}
+         :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
 
