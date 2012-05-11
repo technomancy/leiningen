@@ -24,34 +24,38 @@ if "x%LEIN_HOME%" == "x" (
     set LEIN_HOME=%USERPROFILE%\.lein
 )
 
-if "x%LEIN_JAR%" == "x" set LEIN_JAR="!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
+if "x%LEIN_JAR%" == "x" set LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar
 
 if "%1" == "self-install" goto SELF_INSTALL
 if "%1" == "upgrade"      goto NO_UPGRADE
 
-:: Apply context specific CLASSPATH entries
-set CONTEXT_CP=
-if exist ".lein-classpath" set /P CONTEXT_CP=<.lein-classpath
-if NOT "%CONTEXT_CP%"=="" set CLASSPATH="%CONTEXT_CP%";%CLASSPATH%
-
-if exist "%~dp0..\src" (
+if exist "%~dp0..\src\leiningen" (
     :: Running from source checkout.
     call :SET_LEIN_ROOT "%~dp0.."
 
-    set LEIN_LIBS="
-    for %%j in ("!LEIN_ROOT!\lib\*") do set LEIN_LIBS=!LEIN_LIBS!;%%~fj
-    set LEIN_LIBS=!LEIN_LIBS!"
+    set LEIN_LIBS=
+    for %%j in ("!LEIN_ROOT!\leiningen-core\lib\*") do set LEIN_LIBS=!LEIN_LIBS!%%~fj;
+    set LEIN_LIBS=!LEIN_LIBS!
 
-    if "x!LEIN_LIBS!" == "x" if not exist %LEIN_JAR% goto NO_DEPENDENCIES
+    if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
 
-    set CLASSPATH=%CONTEXT_CP%;!LEIN_LIBS!;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources";%LEIN_JAR%
+    set CLASSPATH=!LEIN_LIBS!!LEIN_ROOT!\leiningen-core\src;!LEIN_ROOT!\leiningen-core\test;!LEIN_ROOT!\src;!LEIN_ROOT!\resources
+
+    :: Apply context specific CLASSPATH entries
+    if exist %~dp0..\.lein-classpath (
+        set /P CONTEXT_CP=< %~dp0..\.lein-classpath
+
+        if NOT "x!CONTEXT_CP!"=="x" (
+            set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
+        )
+    )
 ) else (
     :: Not running from a checkout.
     if not exist %LEIN_JAR% goto NO_LEIN_JAR
-    set CLASSPATH=%CONTEXT_CP%;%LEIN_JAR%
+    set CLASSPATH=%LEIN_JAR%
 )
 
-if not "x%DEBUG%" == "x" echo CLASSPATH=%CLASSPATH%
+if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
 :: ##################################################
 
 
@@ -184,7 +188,7 @@ del "%TRAMPOLINE_FILE%"
 goto EOF
 
 :RUN_NORMAL
-%JAVA_CMD% -client %LEIN_JVM_OPTS% -Xbootclasspath/a:"%CLOJURE_JAR%" ^
+%JAVA_CMD% -client %LEIN_JVM_OPTS% ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
