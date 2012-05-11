@@ -51,7 +51,7 @@ if exist "%~dp0..\src\leiningen" (
     )
 ) else (
     :: Not running from a checkout.
-    if not exist %LEIN_JAR% goto NO_LEIN_JAR
+    if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
     set CLASSPATH=%LEIN_JAR%
 )
 
@@ -81,11 +81,12 @@ echo.
 goto EOF
 
 :SELF_INSTALL
-if exist %LEIN_JAR% (
+if exist "%LEIN_JAR%" (
     echo %LEIN_JAR% already exists. Delete and retry.
     goto EOF
 )
-for %%f in (%LEIN_JAR%) do set LEIN_INSTALL_DIR="%%~dpf"
+
+for %%f in ("%LEIN_JAR%") do set LEIN_INSTALL_DIR="%%~dpf"
 if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
 echo Downloading Leiningen now...
@@ -99,7 +100,7 @@ if ERRORLEVEL 9009 (
 )
 :: set LEIN_JAR_URL=https://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=https://cloud.github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
-%HTTP_CLIENT% %LEIN_JAR% %LEIN_JAR_URL%
+%HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
     del %LEIN_JAR%>nul 2>&1
     goto DOWNLOAD_FAILED
