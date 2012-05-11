@@ -17,3 +17,4 @@ docs
 /leiningen-core/.lein-plugins/checksum
 /wiki
 TAGS
+/leiningen-core/dev-resources/target
