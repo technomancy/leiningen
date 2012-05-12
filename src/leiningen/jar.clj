@@ -2,6 +2,7 @@
   "Package up all the project's files into a jar file."
   (:require [leiningen.pom :as pom]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
             [clojure.string :as string]
@@ -192,9 +193,7 @@ Create a $PROJECT-$VERSION.jar file containing project's source files as well
 as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   [project]
-  ;; TODO: we should just remove the default profiles, not use :without-profiles
-  ;; Fix once #512 lands
-  (let [project (:without-profiles (meta project) project)]
+  (let [project (project/unmerge-profiles project [:default :dev :user])]
     (eval/prep project)
     (let [jar-file (get-jar-filename project)]
       (write-jar project jar-file (filespecs project []))

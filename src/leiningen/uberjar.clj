@@ -4,6 +4,7 @@
             [clojure.zip :as zip]
             [clojure.java.io :as io]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [leiningen.jar :as jar])
   (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
@@ -87,7 +88,7 @@ as well as defining a -main function."
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
-           (let [project (:without-profiles (meta project) project)
+           (let [project (project/unmerge-profiles project [:default :dev :user])
                  deps (->> (classpath/resolve-dependencies :dependencies project)
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (io/file (jar/get-jar-filename project)) deps)]
