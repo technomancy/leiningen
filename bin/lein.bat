@@ -42,8 +42,8 @@ if exist "%~dp0..\src\leiningen" (
     set CLASSPATH=!LEIN_LIBS!!LEIN_ROOT!\leiningen-core\src;!LEIN_ROOT!\leiningen-core\test;!LEIN_ROOT!\src;!LEIN_ROOT!\resources
 
     :: Apply context specific CLASSPATH entries
-    if exist %~dp0..\.lein-classpath (
-        set /P CONTEXT_CP=< %~dp0..\.lein-classpath
+    if exist "%~dp0..\.lein-classpath" (
+        set /P CONTEXT_CP=< "%~dp0..\.lein-classpath"
 
         if NOT "x!CONTEXT_CP!"=="x" (
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
