@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LEIN_VERSION="2.0.0-SNAPSHOT"
+LEIN_VERSION="2.0.0-preview4"
 export LEIN_VERSION
 
 case $LEIN_VERSION in
