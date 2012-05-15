@@ -6,7 +6,7 @@
         [leiningen.jar :only [local-repo-path extract-jar
                               get-default-uberjar-name]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
-        [leiningen.util.paths :only [leiningen-home]]
+        [leiningen.util.paths :only [leiningen-home get-os]]
         [clojure.java.io :only [file]])
   (:require [leiningen.install]
             [leiningen.help])
@@ -67,7 +67,8 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
                       (filter #(.endsWith (.getName %) ".jar"))
                       (cons (file jarfile)))]
         (write-components project deps out)))
-    (delete-file-recursively temp-project)
+    ;; Ignore exceptions on Windows; see #252.
+    (delete-file-recursively temp-project (= :windows (get-os)))
     (println "Created" standalone-filename)))
 
 (defn ^{:doc "Manage user-level plugins."
