@@ -33,7 +33,8 @@
   [project]
   (apply concat (for [dep (.list (io/file (:root project) "checkouts"))
                       :let [dep-project (read-dependency-project
-                                         (:root project) dep)]]
+                                         (:root project) dep)]
+                      :when dep-project]
                   (checkout-dep-paths project dep dep-project))))
 
 (defn extract-native-deps [deps native-path]
