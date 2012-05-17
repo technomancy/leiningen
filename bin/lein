@@ -203,6 +203,7 @@ else
     $LEIN_JAVA_CMD \
         -client -XX:+TieredCompilation \
         $LEIN_JVM_OPTS \
+        -Dfile.encoding=UTF-8
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
         -cp "$CLASSPATH" \
