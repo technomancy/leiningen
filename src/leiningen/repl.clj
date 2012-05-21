@@ -32,7 +32,7 @@
             (while true (Thread/sleep Long/MAX_VALUE)))]
     (if project
       (eval/eval-in-project
-       (project/merge-profiles project [profile])
+       (project/merge-profiles project [(:repl (user/profiles) profile)])
         server-starting-form
         '(do (require 'clojure.tools.nrepl.server)
              (require 'complete.core)))
@@ -97,11 +97,10 @@ and port."
   ([] (repl nil))
   ([project]
   (if trampoline/*trampoline?*
-    (let [options (options-for-reply project :port (repl-port project))]
+    (let [options (options-for-reply project :port (repl-port project))
+          profiles [(:repl (user/profiles) profile) trampoline-profile]]
       (eval/eval-in-project
-        (-> project
-            (project/merge-profiles [profile])
-            (project/merge-profiles [trampoline-profile]))
+       (project/merge-profiles project profiles)
         `(reply.main/launch-nrepl ~options)
         '(do (require 'reply.main)
              (require 'clojure.tools.nrepl.server)
