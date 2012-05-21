@@ -16,5 +16,6 @@ docs
 .lein-project-checksum
 /leiningen-core/.lein-plugins/checksum
 /wiki
+/web
 TAGS
 /leiningen-core/dev-resources/target
