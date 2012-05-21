@@ -62,7 +62,13 @@
 
 (defn- dedupe-step [[deps seen] x]
   (if (seen (first x))
-    [deps seen]
+    ;; this would be so much cleaner if we could just re-use profile-merge
+    ;; logic, but since :dependencies are a vector, the :replace/:displace
+    ;; calculations don't apply to nested vectors inside :dependencies.
+    (let [[seen-dep] (filter #(= (first %) (first x)) deps)]
+      (if (or (:displace (meta seen-dep)) (:replace (meta x)))
+        [(assoc deps (.indexOf deps seen-dep) x) seen]
+        [deps seen]))
     [(conj deps x) (conj seen (first x))]))
 
 (defn- dedupe-deps [deps]
@@ -235,9 +241,11 @@
                 :included-profiles (concat (:included-profiles (meta project))
                                            profiles-to-apply)})))
 
-(defn conj-dependency
+(defn ^{:deprecated "2.0.0-preview3"} conj-dependency
   "Add a dependency into the project map if it's not already present. Warn the
-  user if it is. Plugins should use this rather than altering :dependencies."
+  user if it is. Plugins should use this rather than altering :dependencies.
+
+  Deprecated in 2.0.0-preview3."
   [project dependency]
   (println "WARNING: conj-dependencies is deprecated.")
   (update-in project [:dependencies] conj dependency))

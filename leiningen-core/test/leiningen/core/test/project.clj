@@ -3,6 +3,7 @@
   (:use [clojure.test]
         [leiningen.core.project])
   (:require [leiningen.core.user :as user]
+            [leiningen.core.classpath :as classpath]
             [clojure.java.io :as io]))
 
 (use-fixtures :once
@@ -52,6 +53,13 @@
 
 (def test-profiles (atom {:qa {:resource-paths ["/etc/myapp"]}
                           :test {:resource-paths ["test/hi"]}
+                          :repl {:dependencies '[[org.clojure/tools.nrepl
+                                                  "0.2.0-beta6"
+                                                  :exclusions
+                                                  [org.clojure/clojure]]
+                                                 [org.thnetos/cd-client "0.3.4"
+                                                  :exclusions
+                                                  [org.clojure/clojure]]]}
                           :tes :test
                           :dev {:test-paths ["test"]}}))
 
@@ -72,6 +80,17 @@
                 :profiles {:blue {:resource-paths ^:replace ["replaced"]}}}
                (merge-profiles [:blue :qa :tes])
                :resource-paths)))))
+
+(deftest test-merge-profile-deps
+  (with-redefs [default-profiles test-profiles]
+    (let [cp (-> {:resource-paths ["resources"]
+                  :profiles {:dev {:dependencies
+                                   '[^:displace [org.thnetos/cd-client "0.3.0"]
+                                     [org.clojure/tools.nrepl "0.2.0-beta2"]]}}}
+                 (merge-profiles [:dev :repl])
+                 (classpath/get-classpath))]
+      (is (some (partial re-find #"nrepl-0.2.0-beta2") cp))
+      (is (some (partial re-find #"cd-client-0.3.4") cp)))))
 
 (deftest test-global-exclusions
   (is (= '[[org.clojure/clojure]
