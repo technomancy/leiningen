@@ -44,7 +44,8 @@
     (let [f (io/file native-path (subs (.getName entry) (count "native/")))]
       (if (.isDirectory entry)
         (.mkdirs f)
-        (io/copy (.getInputStream jar entry) f)))))
+        (do (.mkdirs (.getParentFile f))
+            (io/copy (.getInputStream jar entry) f))))))
 
 (defn when-stale
   "Call f with args when keys in project.clj have changed since the last run.
