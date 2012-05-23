@@ -110,7 +110,10 @@
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
                                                      (:debug project)))})
       ~@(when (and native-arch-path (.exists native-arch-path))
-          [(d-property [:java.library.path native-arch-path])]))))
+          [(d-property [:java.library.path native-arch-path])])
+      ~@(when-let [{:keys [host port]} (classpath/get-proxy-settings)]
+          [(d-property [:http.proxyHost host])
+           (d-property [:http.proxyPort port])]))))
 
 (defn- pump [reader out]
   (let [buffer (make-array Character/TYPE 1000)]

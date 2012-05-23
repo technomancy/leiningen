@@ -2,7 +2,8 @@
   (:use [clojure.test]
         [leiningen.core.eval])
   (:require [clojure.java.io :as io]
-            [clojure.set :as set])
+            [clojure.set :as set]
+            [leiningen.core.classpath :as classpath])
   (:import (java.io File)))
 
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]]
@@ -26,3 +27,11 @@
   (is (= ["-Dhello=\"guten tag\"" "-XX:+HeapDumpOnOutOfMemoryError"]
          (get-jvm-opts-from-env (str "-Dhello=\"guten tag\" "
                                      "-XX:+HeapDumpOnOutOfMemoryError")))))
+
+(deftest test-get-jvm-args-with-proxy-settings
+  ;; Mock get-proxy-settings to return test values
+  (with-redefs [classpath/get-proxy-settings
+                (constantly {:host "foo.com" :port "8080"})]
+    (let [args (set (shell-command project 'repl))]
+      (is (and (contains? args "-Dhttp.proxyHost=foo.com")
+               (contains? args "-Dhttp.proxyPort=8080"))))))
