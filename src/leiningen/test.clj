@@ -73,8 +73,22 @@
 (defn test
   "Run the project's tests.
 
-Accepts either a list of test namespaces to run or a list of test
-selectors. With no arguments, runs all tests."
+Marking deftest forms with metadata allows you to pick selectors to specify
+a subset of your test suite to run:
+
+    (deftest ^:integration network-heavy-test
+      (is (= [1 2 3] (:numbers (network-operation)))))
+
+Write the selectors in project.clj:
+
+    :test-selectors {:default (complement :integration)
+                     :integration :integration
+                     :all (constantly true)}
+
+Arguments to this task will be considered test selectors if they are keywords;
+if they are symbols they will be treated as a list of test namespaces to run.
+With no arguments the :default test selector is used if present, otherwise all
+tests are run."
   [project & tests]
   (binding [main/*exit-process?* (not= :leiningen (:eval-in project))
             *exit-after-tests* (not= :leiningen (:eval-in project))]

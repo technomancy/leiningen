@@ -108,7 +108,13 @@
   "Compile Clojure source into .class files.
 
 Uses the namespaces specified under :aot in project.clj or those given
-as command-line arguments. Use :all argument to compile everything."
+as command-line arguments. Use :all argument to compile everything.
+
+This should automatically happen when required if it's configured correctly; it
+shouldn't need to be manually invoked. See the javac task as well.
+
+Compiling code loads the namespace, so keep side-effects out of the top level.
+Code that should run on startup belongs in a -main defn."
   ([project]
      (if (seq (compilable-namespaces project))
        (if-let [namespaces (seq (stale-namespaces project))]

@@ -89,7 +89,11 @@
   "Compile Java source files.
 
 Add a :java-source-paths key to project.clj to specify where to find them.
-Any options passed will be given to javac. One place where this can be useful
-is `lein javac -verbose`."
+Options passed in on the command line as well as options from the :javac-opts
+vector in project.clj will be given to the compiler; e.g. `lein javac -verbose`.
+
+Like the compile and deps tasks, this should be invoked automatically when
+needed and shouldn't ever need to be run by hand. By default it is called before
+compilation of Clojure source; change :prep-tasks to alter this."
   [project & args]
   (run-javac-task project args))

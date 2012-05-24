@@ -6,6 +6,18 @@ straightforward as is documented near the end of
 However, deploying is not always as straightforward as the process
 described there.
 
+<!-- TODO: make this fit in here:
+Speaking of the local repository, all the dependencies you pull in
+using Leiningen or Maven get cached in `$HOME/.m2/repository` since
+Leiningen uses the same library as Maven under the covers. You can
+install the current project in the local repository with this command:
+
+    $ lein install
+
+    Wrote ~/src/my-stuff/target/pom.xml
+    [INFO] Installing my-stuff-0.1.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/0.1.0-SNAPSHOT/myproject-0.1.0-SNAPSHOT.jar
+-->
+
 ## Clojars Forks
 
 Sometimes you'll need to publish libraries that you don't directly
@@ -33,7 +45,7 @@ to Clojars.
 
 There may be times when you want to make a library available to your
 team without making it public. This is best done by setting up a
-private Maven repository. Both [Archiva](http://archiva.apache.org/)
+private repository. Both [Archiva](http://archiva.apache.org/)
 and [Nexus](http://nexus.sonatype.org/) will allow you to set up
 private, password-protected repositories. These also provide proxying
 to other repositories, so you can set `:omit-default-repositories`
