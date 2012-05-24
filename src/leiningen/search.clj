@@ -47,7 +47,10 @@
             (recur cnt*)))))))
 
 (defn- download-index [[id {url :url}]]
-  (main/info "Downloading index from" id "-" url "... this may take a while.")
+  (main/info "Downloading index from" id "-" url)
+  (main/info "This can take a very, very long time. While you wait you might")
+  (main/info "be interested in searching via the web interfaces at")
+  (main/info "http://search.maven.org or http://clojars.org.")
   (main/info "0%...")
   (flush)
   (let [index-url ^URL (remote-index-url url)
