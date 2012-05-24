@@ -4,6 +4,9 @@
 ;; representative configuration. For a more detailed explanation of
 ;; some of the terms run "lein help tutorial".
 
+;; These options apply to Leiningen 2.x. See the 1.x branch for older versions:
+;; https://github.com/technomancy/leiningen/blob/1.x/sample.project.clj
+
 ;; The project is named "sample", and its group-id is "org.example".
 (defproject org.example/sample "1.0.0-SNAPSHOT" ; version "1.0.0-SNAPSHOT"
   ;; Beyond this point you may prepend a form with unquote, or ~, to eval it.
