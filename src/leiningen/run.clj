@@ -40,18 +40,11 @@ like clojure.main/main.
 USAGE: lein run -m NAMESPACE[/MAIN_FUNCTION] [ARGS...]
 Calls the main function in the specified namespace.
 
-USAGE: lein run :alias [ARGS...]
-Aliases can be defined in project.clj as
-    :run-aliases {:alias a.namespace/my-main
-                  :alias2 another.namespace}
-
 See also \"lein help trampoline\" for a way to save memory using this task."
   [project & [flag & args :as all-args]]
-  (let [kw (when (= (first flag) \:) (keyword (subs flag 1)))
-        alias (get (:run-aliases project) kw)
+  (let [kw (if (= (first flag) \:) (keyword (subs flag 1)))
         all-args (if (= flag "--") args all-args)]
-    (cond alias           (apply run project "-m" (cons alias args))
-          (= flag "-m")   (if (first args)
+    (cond (= flag "-m")   (if (first args)
                             (apply run-main project args)
                             (main/abort "Option -m requires a namespace argument."))
           (:main project) (apply run-main project (:main project) all-args)

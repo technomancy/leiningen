@@ -20,13 +20,6 @@
   (run tricky-name-project "-m" "org.domain.tricky-name.munch" "/unreadable")
   (is (= ":munched (\"/unreadable\")" (slurp out-file))))
 
-(deftest test-aliases
-  (run tricky-name-project ":bbb" "/unreadable")
-  (is (= "BRUNCH" (slurp out-file)))
-  (delete-file out-file :silently)
-  (run tricky-name-project ":mmm" "/unreadable")
-  (is (= ":munched (\"/unreadable\")" (slurp out-file))))
-
 (deftest test-escape-args
   (run tricky-name-project "--" ":bbb")
   (is (= "nom::bbb" (slurp out-file)))
