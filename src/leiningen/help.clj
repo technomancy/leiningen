@@ -92,7 +92,8 @@
 (defn ^:no-project-needed help
   "Display a list of tasks or help for a given task.
 
-Also provides readme, faq, tutorial, news, sample, deploying and copying info."
+Also provides readme, faq, tutorial, news, sample, profiles,
+deploying and copying info."
   ([project task] (println (or (static-help task) (help-for project task))))
   ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
@@ -105,4 +106,5 @@ Also provides readme, faq, tutorial, news, sample, deploying and copying info."
          (println "\nAliases:")
          (doseq [[k v] aliases]
            (println (str k  " " v)))))
-     (println "\nSee also: readme, faq, tutorial, news, sample, deploying and copying.")))
+     (println "\nSee also: readme, faq, tutorial, news, sample, profiles,
+deploying and copying.")))

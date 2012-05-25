@@ -13,7 +13,10 @@
   "Apply the given task with the profile(s) specified.
 
 Comma-separated profiles may be given to merge profiles and perform the task.
-Colon-separated profiles may be given for sequential profile task application."
+Colon-separated profiles may be given for sequential profile task application.
+
+To list all profiles or show a single one, see the show-profiles task.
+For a detailed description of profiles, see `lein help profiles`."
   [project profiles task-name & args]
   (let [profile-groups (seq (.split profiles ":"))
         project (:without-profiles (meta project) project)

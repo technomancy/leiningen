@@ -78,21 +78,6 @@ They usually contain .class files (JVM bytecode) and .clj source
 files, but they can also contain other things like config
 files.
 
-<!-- 
-TODO: bring back this section if we can speed up search
-
-The `lein search` command will search each remote repository:
-
-    $ lein search lancet
-     == Results from clojars - Showing page 1 / 1 total
-    [lancet "1.0.0"] Dependency-based builds, Clojure Style.
-    [lancet "1.0.1"] Dependency-based builds, Clojure Style.
-
-Note that this command will take many minutes to run the first time
-you invoke it on a given machine; it needs to download a rather large
-index.
--->
-
 You can [search Clojars](http://clojars.org/search?q=clj-http) using its
 web interface.
 
@@ -101,9 +86,9 @@ web interface.
 This shows two different ways of specifying a dependency on the latest
 stable version of the `clj-http` library, one in Leiningen format and
 one in Maven format. We'll skip the Maven one for now, though you'll
-need to learn to read it for Java libraries. You can copy the
-Leiningen version directly into the `:dependencies` vector in
-`project.clj`.
+need to learn to read it for Java libraries from
+[Central](http://search.maven.org). You can copy the Leiningen version
+directly into the `:dependencies` vector in `project.clj`.
 
 Within the vector, "clj-http" is referred to as the "artifact id".
 "0.4.1" is the version. Some libraries will also have "group ids",
@@ -143,44 +128,6 @@ in project.clj. See the
 ## Running Code
 
 TODO: cover repl, run, trampoline tasks
-
-<!-- TODO: move this section
-## Profiles
-
-Sometimes you want to pull in dependencies that are really only
-necessary while developing; they aren't required for the project to
-function in production. You can do this by adding a `:dependencies`
-entry to the `:dev` profile. These will be available unless you
-specify different profiles using the `with-profiles` task, but they
-are not brought along when another project depends on your project.
-
-Using [midje](https://github.com/marick/Midje) for your tests would be
-a typical example; you would not want it included in production, but it's
-needed to run the tests:
-
-```clj
-(defproject my-stuff "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.3.0"]]
-  :profiles {:dev {:dependencies [[midje "1.3.1"]]}})
-```
-
-Note that profile-specific dependencies are different from plugins in
-context; plugins run in Leiningen's process while dependencies run in
-your project itself. (Older versions of Leiningen lacked this distinction.)
-
-If you have dependencies that are not _necessary_ for developing but
-just for convenience (things like
-[Swank Clojure](http://github.com/technomancy/swank-clojure) for Emacs
-support or [clj-stacktrace](http://github.com/mmcgrana/clj-stacktrace)
-you should add them to the `:user` profile in `~/.lein/profiles`
-instead of the `:dev` profile. Both those profiles are active by
-default; the difference is the convention for where they are specified.
-
--->
 
 ## Tests
 
@@ -345,8 +292,8 @@ a public repository. While it's possible to
 [maintain your own private repository](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
 or get it into Central, the easiest way is to publish it at
 [Clojars](http://clojars.org). Once you have
-[created an account](https://clojars.org/register) there, publishing
-is easy:
+[created an account](https://clojars.org/register) there with your SSH
+public key, publishing is easy:
 
     $ lein jar, pom
     $ scp pom.xml target/my-stuff-0.1.0.jar clojars@clojars.org:

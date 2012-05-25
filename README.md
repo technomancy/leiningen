@@ -54,11 +54,9 @@ project, but here are the commonly-used tasks:
 
     $ lein repl # launch an interactive REPL session
 
-    $ lein jar # package up the whole project as a .jar file
+    $ lein run -m my.namespace # run the -main function of a namespace
 
-    $ lein install # install a project into the local repository
-
-    $ lein search [TERM] # find jars for your project.clj dependencies
+    $ lein uberjar # package the project and dependencies as standalone jar
 
 Use `lein help` to see a complete list. `lein help $TASK` shows the
 usage for a specific task.
@@ -71,7 +69,7 @@ Most tasks need to be run from somewhere inside a project directory to
 work, but some (`new`, `help`, `search`, `version`, and `repl`) may
 run from anywhere.
 
-See the [FAQ](https://github.com/technomancy/leiningen/blob/preview/doc/FAQ.md)
+See the [FAQ](https://github.com/technomancy/leiningen/blob/master/doc/FAQ.md)
 for more details.
 
 ## Configuration
@@ -82,12 +80,9 @@ The `project.clj` file in the project root should look like this:
 (defproject myproject "0.5.0-SNAPSHOT"
   :description "A project for doing things."
   :url "http://github.com/technomancy/myproject"
-  :dependencies [[org.clojure/clojure "1.2.1"]]
+  :dependencies [[org.clojure/clojure "1.4.0"]]
   :plugins [[lein-ring "0.4.5"]])
 ```
-
-To find specific versions of a dependency, use `lein search`, though
-note that this can be extremely slow the first time you use it.
 
 The `lein new` task generates a project skeleton with an appropriate
 starting point from which you can work. See the
@@ -95,90 +90,10 @@ starting point from which you can work. See the
 file (also available via `lein help sample`) for a detailed listing of
 configuration options.
 
-### Profiles
+The `project.clj` file can be customized further with the use of
+[profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md).
 
-In Leiningen 2.x you can change the configuration of your project by
-applying various profiles. For instance, you may want to have a few
-extra test data directories on the classpath during development
-without including them in the jar, or you may want to have Swank
-Clojure available in every project you hack on without modifying every
-single project.clj you use.
-
-By default the `:dev`, `:user`, and `:default` profiles are activated
-for each task, but the settings they provide are not propagated
-downstream to projects that depend upon yours. Each profile is defined
-as a map which gets merged into your project map. To add resources
-directories during development, add a `:profiles` key to project.clj
-like so:
-
-```clj
-(defproject myproject "0.5.0-SNAPSHOT"
-  :description "A project for doing things."
-  :dependencies [[org.clojure/clojure "1.2.1"]]
-  :profiles {:dev {:resources-path ["dummy-data"]}})
-```
-
-You can place any arbitrary defproject entries into a given profile
-and they will be merged into the project map when that profile is
-active. In addition to `project.clj`, profiles specified in
-`~/.lein/profiles.clj` will be available in all projects, though those
-from `profiles.clj` will be overridden by profiles of the same name in
-the `project.clj` file. This is why the `:user` profile is separate
-from `:dev`; the latter is intended to be specified in the project
-itself. In order to avoid collisions, the project should never define
-a `:user` profile, nor should `profiles.clj` define a `:dev` profile.
-If you want to access dependencies during development time for any
-project place them in your `:user` profile.
-
-```clj
-{:user {:plugins [[lein-swank "1.4.0"]
-                  [lein-pprint "1.1.1"]]}}
-```
-Another use of profiles is to test against various sets of dependencies:
-
-```clj
-(defproject swank-clojure "1.5.0-SNAPSHOT"
-  :description "Swank server connecting Clojure to Emacs SLIME"
-  :dependencies [[org.clojure/clojure "1.2.1"]
-                 [clj-stacktrace "0.2.4"]
-                 [cdt "1.2.6.2"]]
-  :profiles {:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
-             :1.4 {:dependencies [[org.clojure/clojure "1.4.0-beta1"]]}})
-```
-
-To activate other profiles for a given run, use the `with-profile`
-higher-order task:
-
-    $ lein with-profile 1.3 test :database
-
-Multiple profiles may be combined with commas:
-
-    $ lein with-profile qa,user test :database
-
-Multiple profiles may be executed in series with colons:
-
-    $ lein with-profile 1.3:1.4 test :database
-
-A single `with-profile` call does not apply across task comma-chains.
-
-To see how a given profile affects your project map, use the
-[lein-pprint](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
-plugin:
-
-    $ lein with-profile 1.4 pprint
-    {:compile-path "/home/phil/src/leiningen/lein-pprint/classes",
-     :group "lein-pprint",
-     :source-path ("/home/phil/src/leiningen/lein-pprint/src"),
-     :dependencies
-     ([org.clojure/tools.nrepl "0.0.5" :exclusions [org.clojure/clojure]]
-      [clojure-complete "0.1.4" :exclusions [org.clojure/clojure]]
-      [org.thnetos/cd-client "0.3.3" :exclusions [org.clojure/clojure]]),
-     :target-path "/home/phil/src/leiningen/lein-pprint/target",
-     :name "lein-pprint",
-     [...]
-     :description "Pretty-print a representation of the project map."}
-
-### Leiningen Plugins 
+## Plugins
 
 Leiningen supports plugins which may contain both new tasks and hooks
 that modify behaivour of existing tasks. See

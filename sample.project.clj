@@ -53,6 +53,7 @@
   ;; looked up in ~/.lein/profiles.clj rather than set in project.clj.
   ;; Use the with-profiles higher-order task to run a task with a
   ;; different set of active profiles.
+  ;; See `lein help profiles` for a detailed explanation.
   :profiles {:dev {:resource-paths ["dummy-data"]
                    :dependencies [[clj-stacktrace "0.2.4"]]}
              :debug {:debug true
