@@ -183,7 +183,9 @@
     (is (= ["ring-mock" nil nil nil]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
-
+    (is (= ["ring-mock" nil nil nil]
+           (map #(first-in % [:dependency :exclusions :exclusion :groupId])
+                (deep-content xml [:project :dependencies]))))
     (is (= ["cla" nil nil nil]
            (map #(first-in % [:dependency :exclusions :exclusion :classifier])
                 (deep-content xml [:project :dependencies]))))

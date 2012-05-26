@@ -119,7 +119,8 @@
                 [exclusion-spec]
                 exclusion-spec)]
           [:exclusion (map (partial apply xml-tags)
-                           {:group-id (namespace dep)
+                           {:group-id (or (namespace dep)
+                                          (name dep))
                             :artifact-id (name dep)
                             :classifier classifier
                             :type extension})]))
