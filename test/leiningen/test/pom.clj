@@ -9,10 +9,10 @@
 
 (use-fixtures :once (fn [f]
                       (with-redefs [user/profiles (constantly {})]
-                        f)))
+                        (f))))
 
 (deftest test-pom-file-is-created
-  (let [pom-file (file (:target-path sample-project) "pom.xml")]
+  (let [pom-file (file (:root sample-project) "pom.xml")]
     (delete-file pom-file true)
     (pom sample-project)
     (is (.exists pom-file))))
@@ -183,6 +183,7 @@
     (is (= ["ring-mock" nil nil nil]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
+
     (is (= ["cla" nil nil nil]
            (map #(first-in % [:dependency :exclusions :exclusion :classifier])
                 (deep-content xml [:project :dependencies]))))
