@@ -42,8 +42,7 @@ Calls the main function in the specified namespace.
 
 See also \"lein help trampoline\" for a way to save memory using this task."
   [project & [flag & args :as all-args]]
-  (let [kw (if (= (first flag) \:) (keyword (subs flag 1)))
-        all-args (if (= flag "--") args all-args)]
+  (let [all-args (if (= flag "--") args all-args)]
     (cond (= flag "-m")   (if (first args)
                             (apply run-main project args)
                             (main/abort "Option -m requires a namespace argument."))
