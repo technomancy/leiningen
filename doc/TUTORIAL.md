@@ -347,7 +347,7 @@ You can run a regular (non-uber) jar with the `java`
 command-line tool, but that requires constructing the classpath
 yourself, so it's not a good solution for end-users.
 
-Of course if you users already have Leiningen installed, you can
+Of course if your users already have Leiningen installed, you can
 instruct them to use `lein run` as described above.
 
 ### Server-side Projects
