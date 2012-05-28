@@ -268,6 +268,7 @@
          (when (:parent project) (xml-tags :parent (:parent project)))
          [:groupId (:group project)]
          [:artifactId (:name project)]
+         [:packaging (:packaging project "jar")]
          [:version (:version project)]
          (when (:classifier project) [:classifier (:classifier project)])
          [:name (:name project)]
