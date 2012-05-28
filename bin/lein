@@ -142,6 +142,10 @@ if [ "$1" = "self-install" ]; then
     $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
     if [ $? != 0 ]; then
         echo "Failed to download $LEIN_URL"
+        echo "If you have an old version of libssl you may not have the correct"
+        echo "certificate authority. Either upgrade or set HTTP_CLIENT to insecure:"
+        echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
+        echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o"
         if [ $SNAPSHOT = "YES" ]; then
             echo "If you have Maven installed, you can do"
             echo "mvn dependency:copy-dependencies; mv target/dependency lib"
