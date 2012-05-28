@@ -58,6 +58,17 @@
   should not AOT-compile your project if other projects may depend
   upon it.
 
+**Q:** I specified a dependency on version X but am getting version Y; what's up?  
+**A:** One of your dependencies' dependencies has declared a
+  dependency on a hard version range, which overrides your "soft"
+  declaration. If you change yours to a hard version range, it will
+  refuse to function due to conflicts, so it's best to find the
+  dependency that's at fault via `lein deps :tree` and add an
+  `:exclusions` clause to it. See `lein help sample` for how
+  exclusions work. You may also want to report a bug with the
+  dependency that uses hard version ranges as they cause all kinds of
+  problems and exhibit unintuitive behaviour.
+
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
 **A:** Set the `$http_proxy` environment variable in Leiningen 2.x.
   For Leiningen 1.x versions, see the instructions for

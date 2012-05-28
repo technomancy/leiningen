@@ -79,14 +79,14 @@ files, but they can also contain other things like config
 files.
 
 You can [search Clojars](http://clojars.org/search?q=clj-http) using its
-web interface.
+web interface. On the page for `clj-http` it shows this:
 
     [clj-http "0.4.1"]
 
-This shows two different ways of specifying a dependency on the latest
-stable version of the `clj-http` library, one in Leiningen format and
-one in Maven format. We'll skip the Maven one for now, though you'll
-need to learn to read it for Java libraries from
+There are two different ways of specifying a dependency on the latest
+stable version of the `clj-http` library, one in Leiningen format
+shown above and one in Maven format. We'll skip the Maven one for now,
+though you'll need to learn to read it for Java libraries from
 [Central](http://search.maven.org). You can copy the Leiningen version
 directly into the `:dependencies` vector in `project.clj`.
 
