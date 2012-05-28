@@ -68,6 +68,7 @@
          (main/abort)))
   (doseq [task (:prep-tasks project)]
     (main/apply-task task (dissoc project :prep-tasks) []))
+  (.mkdirs (io/file (:compile-path project "/tmp")))
   (when-let [prepped (:prepped (meta project))]
     (deliver prepped true)))
 
