@@ -66,7 +66,7 @@
            (map #(first-in % [:repository :id])
                 (deep-content xml [:project :repositories])))
         "repositories are named")
-    (is (= ["http://repo1.maven.org/maven2" "http://clojars.org/repo/"
+    (is (= ["http://repo1.maven.org/maven2" "https://clojars.org/repo/"
             (format "file://%s/lein-repo"
                     (System/getProperty "java.io.tmpdir"))]
            (map #(first-in % [:repository :url])

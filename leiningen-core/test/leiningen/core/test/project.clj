@@ -35,7 +35,7 @@
                :twelve 12 ; testing unquote
 
                :repositories {"central" {:url "http://repo1.maven.org/maven2"}
-                              "clojars" {:url "http://clojars.org/repo/"}}})
+                              "clojars" {:url "https://clojars.org/repo/"}}})
 
 (deftest test-read-project
   (let [actual (read (.getFile (io/resource "p1.clj")))]
@@ -129,7 +129,7 @@
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
                                               :b {:B 2}}
                          :repositories {"central" {:url "http://repo1.maven.org/maven2"}
-                                        "clojars" {:url "http://clojars.org/repo/"}}
+                                        "clojars" {:url "https://clojars.org/repo/"}}
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
            (-> {:profiles {:a {:A 1} :b {:B 2}}}
@@ -140,7 +140,7 @@
                                               :b {:B 2}
                                               :c {:C 3}}
                          :repositories {"central" {:url "http://repo1.maven.org/maven2"}
-                                        "clojars" {:url "http://clojars.org/repo/"}}
+                                        "clojars" {:url "https://clojars.org/repo/"}}
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
            (-> {:profiles {:a {:A 1}
