@@ -9,7 +9,8 @@
 (use-fixtures :once
               (fn [f]
                 ;; Can't have user-level profiles interfering!
-                (with-redefs [user/profiles (constantly {})]
+                (with-redefs [user/profiles (constantly {})
+                              user/credentials (constantly nil)]
                   (f))))
 
 (defn m2-file [f]

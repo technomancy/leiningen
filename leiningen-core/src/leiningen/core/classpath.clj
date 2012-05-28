@@ -62,27 +62,30 @@
 
 (defn add-repo-auth
   "Repository credentials (a map containing some of
-   #{:username :password :passphrase :private-key-file}) are discovered
-   from:
+  #{:username :password :passphrase :private-key-file}) are discovered
+  from:
 
-   1. Looking up the repository URL in the [:auth :repository-auth]
-      map
-   2. Scanning that map for regular expression keys that match the
-      repository URL.
+  1. Looking up the repository URL in the ~/.lein/credentials.clj.gpg map
+  2. Scanning that map for regular expression keys that match the
+     repository URL.
 
-   So, a :repository-auth map that contains an entry:
+  So, a credentials map that contains an entry:
 
-     {#\"http://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
+    {#\"http://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
 
-   would be applied to all repositories with URLs matching the regex key
-   that didn't have an explicit entry."
+  would be applied to all repositories with URLs matching the regex key
+  that didn't have an explicit entry."
   [[id {:keys [url] :as repo}]]
-  (let [repo-creds (-> (user/profiles) :auth :repository-auth)]
+  (let [repo-creds (or (user/credentials)
+                       (-> (user/profiles) :auth :repository-auth))]
+    (when (-> (user/profiles) :auth :repository-auth)
+      (println "Warning: :repository-auth in the :auth profile is deprecated.")
+      (println "Please use ~/.lein/credentials.clj.gpg instead."))
     (if-let [match (get repo-creds url)]
       [id (merge repo match)]
       [id (merge repo (first (for [[re? cred] repo-creds
                                    :when (and (instance? Pattern re?)
-                                              (re-matches re? url))]
+                                              (re-find re? url))]
                                cred)))])))
 
 (defn get-proxy-settings

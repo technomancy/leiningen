@@ -1,6 +1,7 @@
 (ns leiningen.core.user
   "Functions exposing user-level configuration."
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as shell]))
 
 (defn leiningen-home
   "Return full path to the user's Leiningen home directory."
@@ -24,3 +25,14 @@
   (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
     (if (.exists profiles-file)
       (read-string (slurp profiles-file)))))
+
+(defn credentials
+  ([] (credentials (io/file (leiningen-home) "credentials.clj.gpg")))
+  ([file]
+     (let [{:keys [out err exit]} (shell/sh "gpg" "--batch" "--quiet"
+                                            "--decrypt" (str file))]
+       (if (pos? exit)
+         (binding [*out* *err*]
+           (println "Could not decrypt credentials from" (str file))
+           (println err))
+         (read-string out)))))

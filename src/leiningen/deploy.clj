@@ -20,35 +20,30 @@ the repository URL directly.
                  \"alternate\" \"https://other.server/repo\"}
 
 You should set authentication options keyed by repository URL or regex
-matching repository URLs in the :auth profile in ~/.lein/profiles.clj
-to avoid checking sensitive information into source control:
+matching repository URLs in the ~/.lein/credentials.clj.gpg file to
+avoid storing plaintext credentials on your machine.
 
-  {:user {:plugins [...]}
-   :auth {:repository-auth {#\"https://internal.repo/.*\"
-                            {:username \"milgrim\" :password \"locative\"}
-                            \"s3://s3-repo-bucket/releases\"
-                            {:username \"AKIAIN...\" :password \"1TChrGK4s...\"}}}}"
+  {#\"https://internal.repo/.*\"
+    {:username \"milgrim\" :password \"locative\"}
+   \"s3p://s3-repo-bucket/releases\"
+    {:username \"AKIAIN...\" :password \"1TChrGK4s...\"}}}}"
   ([project repository-name]
      (let [jarfile (jar/jar project)
            pomfile (pom/pom project)
            repo-opts (or (get (:deploy-repositories project) repository-name)
                          (get (:repositories project) repository-name))
-           repo (classpath/add-repo-auth (cond
-                                           (not repo-opts) ["inline" {:url repository-name}]
-                                           (map? repo-opts) [repository-name repo-opts]
-                                           :else [repository-name {:url repo-opts}]))]
-       (if (number? jarfile)
-         ;; if we failed to create the jar, return the status code for exit
-         jarfile
-         (do ;; (install-shell-wrappers (JarFile. jarfile))
-           (aether/deploy :coordinates [(symbol (:group project)
-                                                (:name project))
-                                        (:version project)]
-                          :jar-file (io/file jarfile)
-                          :pom-file (io/file pomfile)
-                          :transfer-listener :stdout
-                          :repository [repo])
-             0))))
+           repo (classpath/add-repo-auth
+                 (cond
+                  (not repo-opts) ["inline" {:url repository-name}]
+                  (map? repo-opts) [repository-name repo-opts]
+                  :else [repository-name {:url repo-opts}]))]
+       (aether/deploy :coordinates [(symbol (:group project)
+                                            (:name project))
+                                    (:version project)]
+                      :jar-file (io/file jarfile)
+                      :pom-file (io/file pomfile)
+                      :transfer-listener :stdout
+                      :repository [repo])))
   ([project]
      (deploy project (if (pom/snapshot? project)
                        "snapshots"
