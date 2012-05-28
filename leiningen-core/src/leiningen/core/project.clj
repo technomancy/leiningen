@@ -220,16 +220,15 @@
   ((resolve middleware-name) project))
 
 (defn init-project
-  "Initializes a project: loads plugins, hooks, applies middleware,
-   adds dependencies to Leiningen's classpath if required (i.e. eval-in-leiningen),
-   etc.  Any profiles should have already been merged into the project."
+  "Initializes a project: loads plugins and hooks.
+   Adds dependencies to Leiningen's classpath if required."
   [project]
   (when (= :leiningen (:eval-in project))
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path)))
   (load-plugins project)
   (load-hooks project)
-  (reduce apply-middleware project (:middleware project)))
+  project)
 
 (defn merge-profiles
   "Look up and merge the given profile names into the project map."
@@ -280,11 +279,12 @@
      (locking read
        (binding [*ns* (find-ns 'leiningen.core.project)]
          (load-file file))
-       (let [project (resolve 'leiningen.core.project/project)]
-         (when-not project
-           (throw (Exception. "project.clj must define project map.")))
+       (let [project (or (resolve 'leiningen.core.project/project)
+                         (throw
+                          (Exception. "project.clj must define project map.")))]
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (merge-profiles @project profiles))))
+         (-> (reduce apply-middleware @project (:middleware @project))
+             (merge-profiles profiles)))))
   ([file] (read file [:dev :user :default]))
   ([] (read "project.clj")))
