@@ -111,12 +111,6 @@
 (deftest test-middleware
   (is (= 7 (:seven (init-project (read (.getFile (io/resource "p2.clj"))))))))
 
-(deftest test-init-project
-  (is (= 7 (:seven (-> (.getFile (io/resource "p3.clj"))
-                     read
-                     (merge-profiles [:middler])
-                     init-project)))))
-
 (deftest test-add-profiles
   (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
                                                      :a2 {:src-paths ["a2/"]}}}]
