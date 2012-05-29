@@ -29,8 +29,10 @@
 (defn credentials
   ([] (credentials (io/file (leiningen-home) "credentials.clj.gpg")))
   ([file]
-     (let [{:keys [out err exit]} (shell/sh "gpg" "--batch" "--quiet"
-                                            "--decrypt" (str file))]
+     (let [{:keys [out err exit]} (try (shell/sh "gpg" "--batch" "--quiet"
+                                                 "--decrypt" (str file))
+                                       (catch java.io.IOException e
+                                         {:exit 1 :err (.getMessage e)}))]
        (if (pos? exit)
          (binding [*out* *err*]
            (println "Could not decrypt credentials from" (str file))
