@@ -6,7 +6,10 @@
   "Apply the given task with a comma-separated profile list."
   [project profiles task-name & args]
   (let [profiles (map keyword (.split profiles ","))
-        project (project/merge-profiles project profiles)]
+        project (project/merge-profiles project profiles)
+        task-name (or (@main/aliases task-name)
+                      (get (:aliases project) task-name)
+                      task-name)]
     (main/apply-task task-name project args)))
 
 (defn ^:no-project-needed with-profile
