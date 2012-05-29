@@ -2,9 +2,18 @@
   "Build and deploy jar to remote repository."
   (:require [cemerick.pomegranate.aether :as aether]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.main :as main]
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]))
+
+(defn- abort-message [message]
+  (cond (re-find #"Return code is 405" message)
+        (str message "\n" "Ensure you are deploying over SSL.")
+        (re-find #"Return code is 401" message)
+        (str message "\n" "See `lein help deploy` for an explanation of how to"
+             " specify credentials.")
+        :else message))
 
 (defn deploy
   "Build jar and deploy to remote repository.
@@ -37,13 +46,15 @@ avoid storing plaintext credentials on your machine.
                   (not repo-opts) ["inline" {:url repository-name}]
                   (map? repo-opts) [repository-name repo-opts]
                   :else [repository-name {:url repo-opts}]))]
-       (aether/deploy :coordinates [(symbol (:group project)
-                                            (:name project))
-                                    (:version project)]
-                      :jar-file (io/file jarfile)
-                      :pom-file (io/file pomfile)
-                      :transfer-listener :stdout
-                      :repository [repo])))
+       (try (aether/deploy :coordinates [(symbol (:group project)
+                                                 (:name project))
+                                         (:version project)]
+                           :jar-file (io/file jarfile)
+                           :pom-file (io/file pomfile)
+                           :transfer-listener :stdout
+                           :repository [repo])
+            (catch org.sonatype.aether.deployment.DeploymentException e
+              (main/abort (abort-message (.getMessage e)))))))
   ([project]
      (deploy project (if (pom/snapshot? project)
                        "snapshots"
