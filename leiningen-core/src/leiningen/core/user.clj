@@ -27,7 +27,9 @@
       (read-string (slurp profiles-file)))))
 
 (defn credentials
-  ([] (credentials (io/file (leiningen-home) "credentials.clj.gpg")))
+  ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]
+        (when (.exists cred-file)
+         (credentials cred-file))))
   ([file]
      (let [{:keys [out err exit]} (try (shell/sh "gpg" "--batch" "--quiet"
                                                  "--decrypt" (str file))
