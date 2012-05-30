@@ -33,7 +33,7 @@
                               ;; TODO: point to releases-only before 2.0 is out
                               "clojars" {:url "https://clojars.org/repo/"})
                :jar-exclusions [#"^\."]
-               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.SF$"]})
+               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA)$"]})
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro."
