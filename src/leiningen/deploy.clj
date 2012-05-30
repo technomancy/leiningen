@@ -37,6 +37,9 @@ avoid storing plaintext credentials on your machine.
    \"s3p://s3-repo-bucket/releases\"
     {:username \"AKIAIN...\" :password \"1TChrGK4s...\"}}}}"
   ([project repository-name]
+     (doseq [key [:description :license :url]]
+       (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
+         (main/info "WARNING: please set" key "in project.clj.")))
      (let [jarfile (jar/jar project)
            pomfile (pom/pom project)
            repo-opts (or (get (:deploy-repositories project) repository-name)
