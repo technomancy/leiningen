@@ -7,3 +7,7 @@ branches:
     - master
 notifications:
   irc: "irc.freenode.org#leiningen"
+jdk:
+  - openjdk6
+  - openjdk7
+  - oraclejdk7
