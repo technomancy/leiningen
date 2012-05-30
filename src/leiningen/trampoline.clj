@@ -10,13 +10,21 @@
 (defn- win-batch? []
   (.endsWith (System/getProperty "leiningen.trampoline-file") ".bat"))
 
+(defn- quote-arg [arg]
+  (format "\"%s\"" arg))
+
+(defn trampoline-command-string [command]
+  (string/join " " (if (win-batch?)
+                     (map quote-arg command)
+                     (conj (vec (map quote-arg (butlast command)))
+                           (with-out-str
+                             (prn (last command)))))))
+
 (defn write-trampoline [command]
-  (main/debug "Trampoline-command:" command)
+  (main/debug "Trampoline command:"
+              (trampoline-command-string command))
   (spit (System/getProperty "leiningen.trampoline-file")
-        (string/join " " (if (win-batch?)
-                           command
-                           (conj (vec (butlast command))
-                                 (with-out-str (prn (last command))))))))
+        (trampoline-command-string command)))
 
 (defn trampoline
   "Run a task without nesting the project's JVM inside Leiningen's.
@@ -37,4 +45,3 @@ Not compatible with chaining."
     (if (realized? command)
       (write-trampoline @command)
       (main/abort task-name "did not run any project code for trampolining."))))
-
