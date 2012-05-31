@@ -103,9 +103,8 @@
        :password password})))
 
 (defn- update-policies [update checksum [repo-name opts]]
-  (let [opts (if update (assoc opts :update update) opts)
-        opts (if checksum (assoc opts :checksum checksum) opts)]
-    [repo-name opts]))
+  [repo-name (merge {:update (or update :daily)
+                     :checksum (or checksum :fail)} opts)])
 
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
