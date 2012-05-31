@@ -81,11 +81,9 @@
        (dorun (map #(.delete %) (reverse (file-seq d1))))))))
 
 (deftest test-add-auth
-  (with-redefs [user/profiles (constantly
-                               {:auth
-                                {:repository-auth
-                                 {"https://sekrit.info/repo"
-                                  {:username "milgrim" :password "reindur"}}}})]
+  (with-redefs [user/credentials (constantly
+                                  {"https://sekrit.info/repo"
+                                   {:username "milgrim" :password "reindur"}})]
     (is (= [["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
                          :url "https://sekrit.info/repo"}]]
