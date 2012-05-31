@@ -36,7 +36,7 @@
     (deploy-snapshots sample-project "lein-custom-repo" true)))
 
 (deftest test-deploy-repositories-key
-  (testing "preferring repository specified in :deploy-repositories over one specified in :repositories"
+  (testing "preferring repository in :deploy-repositories over :repositories"
     (deploy-snapshots (assoc sample-project
                         :deploy-repositories
                         {"snapshots" {:url (-> "deploy-only-repo"

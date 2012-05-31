@@ -49,13 +49,16 @@ configure your credentials so you are not prompted on each deploy."
          (main/info "WARNING: please set" key "in project.clj.")))
      (let [jarfile (jar/jar project)
            pomfile (pom/pom project)
-           repo-opts (get (merge (:repositories project)
-                                 (:deploy-repositories project)) repository-name)
+           ;; can't use merge here due to bug in ordered maps:
+           ;; https://github.com/flatland/ordered/issues/4
+           repo-opts (or (get (:deploy-repositories project) repository-name)
+                         (get (:repositories project) repository-name))
            repo (cond (not repo-opts) ["inline" {:url repository-name}]
                       (string? repo-opts) [repository-name {:url repo-opts}]
                       :else [repository-name repo-opts])
            repo (classpath/add-repo-auth repo)
            repo (add-auth-interactively repo)]
+       (main/debug "Deploying to" repo)
        (try (aether/deploy :coordinates [(symbol (:group project)
                                                  (:name project))
                                          (:version project)]
