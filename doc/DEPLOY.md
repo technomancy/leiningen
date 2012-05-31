@@ -6,18 +6,6 @@ straightforward as is documented near the end of
 However, deploying is not always as straightforward as the process
 described there.
 
-<!-- TODO: make this fit in here:
-Speaking of the local repository, all the dependencies you pull in
-using Leiningen or Maven get cached in `$HOME/.m2/repository` since
-Leiningen uses the same library as Maven under the covers. You can
-install the current project in the local repository with this command:
-
-    $ lein install
-
-    Wrote ~/src/my-stuff/target/pom.xml
-    [INFO] Installing my-stuff-0.1.0-SNAPSHOT.jar to ~/.m2/repository/myproject/myproject/0.1.0-SNAPSHOT/myproject-0.1.0-SNAPSHOT.jar
--->
-
 ## Clojars Forks
 
 Sometimes you'll need to publish libraries that you don't directly
@@ -34,12 +22,11 @@ repositories. You should use "org.clojars.$USERNAME" as the group-id
 instead.
 
 If it's a Clojure project that already has a project.clj file, it's
-easy enough to just follow the regular `lein jar, pom; scp [...]`
-path. If you don't have a readily-available pom, you can create a
+easy enough to just follow the regular `lein deploy clojars`
+path. If you don't have a readily-available project.clj, you can create a
 dummy project with `lein new`. Edit project.clj to include your
 `org.clojars.$USERNAME` group-id, the project's original artifact name,
-and the version. Then you can use the output from `lein pom` to upload
-to Clojars.
+and the version. Then deploy from there.
 
 ## Private Repositories
 
@@ -57,8 +44,7 @@ listing in project.clj. Archiva and Nexus offer separate repositories
 for snapshots and releases, so you'll want two entries for them:
 
 ```clj
-:repositories {"snapshots" {:url "http://blueant.com/archiva/snapshots"
-                            :username "milgrim" :password "locative.1"}
+:repositories {"snapshots" "http://blueant.com/archiva/snapshots"
                "releases" "http://blueant.com/archiva/internal"}
 ```
 
@@ -67,43 +53,48 @@ and never for dependency resolution, then it should be specified in a
 `:deploy-repositories` slot instead of included in the more general-purpose
 `:repositories` map; the former is checked by `lein deploy` before the latter.
 Deployment-only repositories useful across a number of locally developed
-projects may also be specified in the `settings` map in `~/.lein/init.clj`:
+projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 
 ```clj
-(def settings {:deploy-repositories { ... }})
+{:user {:deploy-repositories {"internal" "http://blueant.com/archiva/internal"}}}
 ```
 
 ### Authentication
 
-Private repositories often need authentication credentials. Check your
+Private repositories need authentication credentials. Check your
 repository's documentation for details, but you'll usually need to
 provide either a `:username`/`:password` combination or a
-`:private-key` location with or without a `:passphrase`. Since you
-should avoid putting sensitive information into your project.clj file
-as in the `releases` entry above, authentication information is
-looked up in the `:repository-auth` key of the `:auth` profile in
-`~/.lein/profiles.clj`; see `lein help deploy` for further details.
+`:private-key` location with or without a `:passphrase`. Leiningen
+will prompt you for a password if you haven't set up credentials, but
+it's convenient to set it so you don't have to re-enter it every time
+you want to deploy. You will need [gpg](http://www.gnupg.org/)
+installed and a key pair configured.
+
+First write your credentials map to `~/.lein/credentials.clj` like so:
 
 ```clj
-{:user {:plugins [...]}
- :auth {:repository-auth {#"https://internal.repo/.*"
-                          {:username "milgrim" :password "locative"}
-                          "s3://s3-repo-bucket/releases"
-                          {:username "AKIAIN..." :password "1TChrGK4s..."}}}}
+{#"https://clojars.org/repo"
+ {:username "milgrim" :password "locative1"}
+ "s3p://s3-repo-bucket/releases"
+ {:username "AKIAIN..." :password "1TChrGK4s..."}}
 ```
 
-This also allows different users using the same checkout to upload
-using different credentials.
+Then encrypt it with `gpg`:
+
+    $ gpg --default-recipient-self -e \
+        ~/.lein/credentials.clj > ~/.lein/credentials.clj.gpg
+
+Remember to delete the plaintext `credentials.clj` once you've
+encrypted it. If `gpg-agent` is functioning correctly you should only
+have to enter your GPG passphrase once per session.
 
 ### Deployment
 
 Once you've set up a private repository and configured project.clj
 appropriately, you can deploy to it:
 
-    $ lein deploy
+    $ lein deploy [repository-name]
 
-If the project's current version is a SNAPSHOT, it will deploy to the
-`snapshots` repository; otherwise it will go to `releases`. The
-`deploy` task also takes a repository name as an argument that will be
-looked up in the `:deploy-repositories` and `:repositories` maps if
-you want to override this.
+If the project's current version is a SNAPSHOT, it will default to
+deploying to the `snapshots` repository; otherwise it will default to
+`releases`.

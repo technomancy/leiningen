@@ -387,15 +387,34 @@ a public repository. While it's possible to
 [maintain your own private repository](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
 or get it into Central, the easiest way is to publish it at
 [Clojars](http://clojars.org). Once you have
-[created an account](https://clojars.org/register) there with your SSH
-public key, publishing is easy:
+[created an account](https://clojars.org/register) there, publishing
+is easy:
 
-    $ lein jar, pom
-    $ scp pom.xml target/my-stuff-0.1.0.jar clojars@clojars.org:
+    $ lein deploy clojars
+    Created ~/src/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
+    Wrote ~/src/my-stuff/pom.xml
+    No credentials found for clojars
+    See `lein help deploying` for how to configure credentials.
+    Username: me
+    Password: 
+    Retrieving my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
+        from https://clojars.org/repo/
+    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20120531.032047-14.jar (5k)
+        to https://clojars.org/repo/
+    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20120531.032047-14.pom (3k)
+        to https://clojars.org/repo/
+    Retrieving my-stuff/my-stuff/maven-metadata.xml (1k)
+        from https://clojars.org/repo/
+    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
+        to https://clojars.org/repo/
+    Sending my-stuff/my-stuff/maven-metadata.xml (1k)
+        to https://clojars.org/repo/
 
 Once that succeeds it will be available as a package on which other
-projects may depend. For further details about publishing including
-setting up private repositories, see the
+projects may depend. For instructions on storing your credentials so
+they don't have to be re-entered every time, see `lein help deploying`.
+For further details about publishing including setting up private
+repositories, see the
 [deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
 
 ## That's It!
