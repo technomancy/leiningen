@@ -2,6 +2,7 @@
 
 ## 2.0.0-preview5 / 2012-05-31
 
+* Fix a repl bug where namespaced keywords weren't read right. (Colin Jones)
 * Prompt for credentials upon deploy when none are configured.
 * Support encrypted deploy credentials using GPG.
 * Warn about missing metadata when deploying.
