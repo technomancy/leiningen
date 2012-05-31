@@ -1,5 +1,18 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview5 / 2012-05-31
+
+* Prompt for credentials upon deploy when none are configured.
+* Support encrypted deploy credentials using GPG.
+* Warn about missing metadata when deploying.
+* Default to refusing downloaded jars when checksums don't match.
+* Apply middleware before calculating profiles so they work in with-profile.
+* Allow reply dependency to be upgraded independently of Leiningen.
+* Don't write "stale" directory when running outside a project.
+* Proxy settings are passed on to project subprocesses. (Craig McDaniel)
+* Revamp tutorial, spin off profiles guide and faq.
+* Fix bug that would cause repl task to hang. (Colin Jones)
+
 ## 2.0.0-preview4 / 2012-05-11
 
 * Checkout dependencies are not applied with production profile.
