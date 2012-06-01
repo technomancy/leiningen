@@ -1,6 +1,6 @@
 @echo off
 
-set LEIN_VERSION=2.0.0-SNAPSHOT
+set LEIN_VERSION=2.0.0-preview5
 
 setLocal EnableExtensions EnableDelayedExpansion
 

@@ -1,16 +1,16 @@
 ;; This is Leiningen's own project configuration. See doc/TUTORIAL.md
 ;; file as well as sample.project.clj for help writing your own.
 
-(defproject leiningen "2.0.0-SNAPSHOT"
+(defproject leiningen "2.0.0-preview5"
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
+  :dependencies [[leiningen-core "2.0.0-preview5"]
                  [clucy "0.2.3"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.5"]
-                 [clj-http "0.3.6"]]
+                 [clj-http "0.4.2"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
