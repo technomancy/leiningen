@@ -85,8 +85,10 @@ Then encrypt it with `gpg`:
         ~/.lein/credentials.clj > ~/.lein/credentials.clj.gpg
 
 Remember to delete the plaintext `credentials.clj` once you've
-encrypted it. If `gpg-agent` is functioning correctly you should only
-have to enter your GPG passphrase once per session.
+encrypted it. Due to a bug in `gpg` you currently need to use
+`gpg-agent` and have already unlocked your key before Leiningen
+launches, but with `gpg-agent` you only have to enter your passphrase
+once per login.
 
 ### Deployment
 
