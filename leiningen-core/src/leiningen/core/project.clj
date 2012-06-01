@@ -6,6 +6,7 @@
             [clojure.set :as set]
             [ordered.map :as ordered]
             [cemerick.pomegranate :as pomegranate]
+            [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
   (:import (clojure.lang DynamicClassLoader)))
@@ -31,11 +32,9 @@
                :repositories (ordered/ordered-map
                               "central" {:url "http://repo1.maven.org/maven2"}
                               ;; TODO: point to releases-only before 2.0 is out
-                              "clojars" {:url (if (= "Windows"
-                                                     (System/getProperty "os.name"))
-                                                "http://clojars.org/repo/"
-                                                "https://clojars.org/repo/")})
+                              "clojars" {:url "https://clojars.org/repo/"})
                :jar-exclusions [#"^\."]
+               :certificates ["clojars.pem"]
                :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA)$"]})
 
 (defmacro defproject
@@ -229,6 +228,9 @@
   (when (= :leiningen (:eval-in project))
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path)))
+  (let [certs (mapcat ssl/read-certs (:certificates project))
+        context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
+    (ssl/register-scheme (ssl/https-scheme context)))
   (load-plugins project)
   (load-hooks project)
   project)
