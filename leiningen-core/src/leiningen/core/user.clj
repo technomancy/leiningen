@@ -26,12 +26,12 @@
     (if (.exists profiles-file)
       (read-string (slurp profiles-file)))))
 
-(defn credentials-fn
+(defn credentials
   ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]
         (when (.exists cred-file)
-         (credentials-fn cred-file))))
+         (credentials cred-file))))
   ([file]
-     (let [{:keys [out err exit]} (try (shell/sh "gpg" "--quiet"
+     (let [{:keys [out err exit]} (try (shell/sh "gpg" "--batch" "--quiet"
                                                  "--decrypt" (str file))
                                        (catch java.io.IOException e
                                          {:exit 1 :err (.getMessage e)}))]
@@ -40,5 +40,3 @@
            (println "Could not decrypt credentials from" (str file))
            (println err))
          (read-string out)))))
-
-(def credentials (memoize credentials-fn))
