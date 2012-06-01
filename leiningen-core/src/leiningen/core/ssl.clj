@@ -5,7 +5,11 @@
            java.security.cert.CertificateFactory
            javax.net.ssl.SSLContext
            javax.net.ssl.TrustManagerFactory
-           javax.net.ssl.X509TrustManager))
+           javax.net.ssl.X509TrustManager
+           org.apache.http.conn.ssl.SSLSocketFactory
+           org.apache.http.conn.scheme.Scheme
+           org.apache.maven.wagon.providers.http.HttpWagon
+           org.apache.http.conn.ssl.BrowserCompatHostnameVerifier))
 
 (defn ^TrustManagerFactory trust-manager-factory [^KeyStore keystore]
   (doto (TrustManagerFactory/getInstance "PKIX")
@@ -45,19 +49,16 @@
    (doto (SSLContext/getInstance "TLS")
      (.init nil (.getTrustManagers tmf) nil))))
 
-(defn https-scheme [context]
-  (let [socket-factory (org.apache.http.conn.ssl.SSLSocketFactory. context)]
-    (org.apache.http.conn.scheme.Scheme. "https" 443 socket-factory)))
+(defn https-scheme
+  "Construct a Scheme that uses a given SSLContext."
+  ([context] (https-scheme context 443))
+  ([context port]
+     (let [factory (SSLSocketFactory. context (BrowserCompatHostnameVerifier.))]
+       (Scheme. "https" port factory))))
 
-(defn register-scheme [scheme]
-  (let [wagon (org.apache.maven.wagon.providers.http.HttpWagon.)
-        connection-manager (.getConnectionManager wagon)
-        scheme-registry (.getSchemeRegistry connection-manager)]
-    (.register scheme-registry scheme)))
-
-(defn add-ca-certs
-  "Replaces the default SSLContext with one that additional trusts the
-  given certs."
-  [certs]
-  (let [certs (into (default-trusted-certs) certs)]
-    (SSLContext/setDefault (make-sslcontext certs))))
+(defn register-scheme
+  "Register a scheme with the HTTP Wagon for use with Aether."
+  [scheme]
+  (-> (.getConnectionManager (HttpWagon.))
+      (.getSchemeRegistry)
+      (.register scheme)))
