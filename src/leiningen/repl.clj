@@ -20,7 +20,7 @@
                               [org.thnetos/cd-client "0.3.4"
                                :exclusions [org.clojure/clojure]]]})
 
-(def trampoline-profile {:dependencies '[[reply "0.1.0-beta7"
+(def trampoline-profile {:dependencies '[[reply "0.1.0-beta8"
                                          :exclusions [org.clojure/clojure]]]})
 
 (defn- start-server [project port ack-port]

@@ -31,7 +31,10 @@
                :repositories (ordered/ordered-map
                               "central" {:url "http://repo1.maven.org/maven2"}
                               ;; TODO: point to releases-only before 2.0 is out
-                              "clojars" {:url "https://clojars.org/repo/"})
+                              "clojars" {:url (if (= "Windows"
+                                                     (System/getProperty "os.name"))
+                                                "http://clojars.org/repo/"
+                                                "https://clojars.org/repo/")})
                :jar-exclusions [#"^\."]
                :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA)$"]})
 
