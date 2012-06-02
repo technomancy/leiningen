@@ -26,19 +26,3 @@
                    :offline (complement :online)}
   :source-paths ["leiningen-core/src" "src"]
   :eval-in :leiningen)
-
-;;; Release Checklist
-
-;; * update NEWS, bin/lein, bin/lein.bat, project.clj, leiningen-core/project.clj
-;; * publish leiningen-core to clojars
-;; * rm -rf target leiningen-core/target
-;; * temporarily add :aot :all to leiningen-core/project.clj; lein install
-;; * bin/lein with-profile release uberjar, copy standalone to ~/.lein/self-installs
-;; * ensure "time lein version" isn't bad
-;; * upload to github
-;; * test self-install
-;; * git tag
-;; * push, push tags, update stable branch
-;; * publish leiningen-core docs
-;; * announce on mailing list
-;; * bump version numbers back to snapshot
