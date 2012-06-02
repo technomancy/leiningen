@@ -225,12 +225,12 @@
   "Initializes a project: loads plugins and hooks.
    Adds dependencies to Leiningen's classpath if required."
   [project]
-  (when (= :leiningen (:eval-in project))
-    (doseq [path (classpath/get-classpath project)]
-      (pomegranate/add-classpath path)))
   (let [certs (mapcat ssl/read-certs (:certificates project))
         context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
     (ssl/register-scheme (ssl/https-scheme context)))
+  (when (= :leiningen (:eval-in project))
+    (doseq [path (classpath/get-classpath project)]
+      (pomegranate/add-classpath path)))
   (load-plugins project)
   (load-hooks project)
   project)
