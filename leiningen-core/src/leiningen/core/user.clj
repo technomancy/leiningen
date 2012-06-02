@@ -1,6 +1,7 @@
 (ns leiningen.core.user
   "Functions exposing user-level configuration."
   (:require [clojure.java.io :as io]
+            [clojure.string :as str]
             [clojure.java.shell :as shell]))
 
 (defn leiningen-home
@@ -21,12 +22,25 @@
                       (catch Exception e
                         (.printStackTrace e))))))))
 
-(defn profiles []
+(defn profiles
+  "Load profiles.clj from your Leiningen home if present."
+  []
   (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
     (if (.exists profiles-file)
       (read-string (slurp profiles-file)))))
 
+(defn- env-auth-key [settings [k v]]
+  (assoc settings k (if (= :env v)
+                      (System/getenv (str "LEIN_" (str/upper-case (name k))))
+                      v)))
+
+(defn env-auth
+  "Replace all :env values in map with LEIN_key environment variables."
+  [settings]
+  (reduce env-auth-key {} settings))
+
 (defn credentials-fn
+  "Decrypt map from credentials.clj.gpg in Leiningen home if present."
   ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]
         (when (.exists cred-file)
          (credentials-fn cred-file))))
