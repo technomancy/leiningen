@@ -135,7 +135,9 @@ or by executing \"lein upgrade\". ")
       (System/setProperty "http.proxyHost" host)
       (System/setProperty "http.proxyPort" (str port)))
     (when-not project
-      (project/load-plugins (project/merge-profiles {} [:user :default])))
+      (let [default-project (project/merge-profiles {} [:user :default])]
+        (project/load-certificates default-project)
+        (project/load-plugins default-project)))
     (doseq [[task-name & args] (group-args args)
             :let [task-name (or (@aliases task-name)
                                 (get (:aliases project) task-name)
