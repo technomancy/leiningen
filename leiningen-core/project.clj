@@ -9,6 +9,8 @@
                  [ordered "1.2.0"]
                  [com.cemerick/pomegranate "0.0.12"
                   :exclusions [org.slf4j/slf4j-api]]]
+  ;; This is only used when releasing Leiningen. Can't put it in a
+  ;; profile since it must be installed using lein1
+  ;;:aot :all
   :dev-resources-path "dev-resources"
-  :profiles {:dev {:resource-paths ["dev-resources"]}
-             :release {:aot :all}})
+  :profiles {:dev {:resource-paths ["dev-resources"]}})

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e -u
+
+CURRENT_VERSION=$1
+RELEASE_VERSION=$2
+
+for f in bin/lein bin/lein.bat project.clj leiningen-core/project.clj; do
+    sed -i s/$CURRENT_VERSION/$RELEASE_VERSION/ $f
+done
+
+rm -rf target classes leiningen-core/target leiningen-core/classes
+rm -rf $HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar
+
+cd leiningen-core
+sed -i s/\;\;:aot/:aot/ project.clj
+lein1 clean, install
+sed -i s/:aot/\;\;:aot/ project.clj
+cd ..
+
+lein with-profile release uberjar
+cp target/leiningen-$RELEASE_VERSION-standalone.jar $HOME/.lein/self-installs
+
+cp bin/lein /tmp/lein-$RELEASE_VERSION
+cd /tmp
+
+time ./lein-$RELEASE_VERSION version
+time ./lein-$RELEASE_VERSION version
+time ./lein-$RELEASE_VERSION version
+
+echo "If these are under a second then you should be set to upload"
+echo "target/leiningen-$RELEASE_VERSION-standalone.jar to GitHub."
+echo "Also deploy this release of leiningen-core to Clojars."
+
+# Still manual for now:
+# cd leiningen-core; lein clean, deploy clojars, marg
+# scp docs/uberdoc.html leiningen.org:leiningen.org/reference.html
+# git commit -a -m "Release $RELEASE_VERSION"
+# git tag $RELEASE_VERSION
+# git push && git push --tags
+# git checkout preview && git reset --hard $RELEASE_VERSION && git push
+# Drop version back to SNAPSHOT
