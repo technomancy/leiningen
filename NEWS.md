@@ -1,5 +1,14 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview6 / 2012-06-01
+
+* Fix startup time performance regression; back under 1 second.
+* Allow lookup of :repositories credentials from environment variables.
+* Perform more SSL certificate validity checks.
+* Fix a bug where repl dependency was conflicting.
+* Add certificate for Clojars to default project settings.
+* Allow custom SSL :certificates to be specified for repositories.
+
 ## 2.0.0-preview5 / 2012-05-31
 
 * Fix a repl bug where namespaced keywords weren't read right. (Colin Jones)
