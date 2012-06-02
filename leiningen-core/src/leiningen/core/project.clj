@@ -221,13 +221,19 @@
     (require (symbol m-ns)))
   ((resolve middleware-name) project))
 
+(defn load-certificates
+  "Load the SSL certificates specified by the project and register
+   them for use by Aether."
+  [project]
+  (let [certs (mapcat ssl/read-certs (:certificates project))
+        context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
+    (ssl/register-scheme (ssl/https-scheme context))))
+
 (defn init-project
   "Initializes a project: loads plugins and hooks.
    Adds dependencies to Leiningen's classpath if required."
   [project]
-  (let [certs (mapcat ssl/read-certs (:certificates project))
-        context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
-    (ssl/register-scheme (ssl/https-scheme context)))
+  (load-certificates project)
   (when (= :leiningen (:eval-in project))
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path)))
