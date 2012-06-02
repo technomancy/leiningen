@@ -77,7 +77,8 @@
   that didn't have an explicit entry."
   [[id {:keys [url] :as repo}]]
   (let [repo-creds (or (user/credentials)
-                       (-> (user/profiles) :auth :repository-auth))]
+                       (-> (user/profiles) :auth :repository-auth))
+        repo (user/env-auth repo)]
     (when (-> (user/profiles) :auth :repository-auth)
       (println "Warning: :repository-auth in the :auth profile is deprecated.")
       (println "Please use ~/.lein/credentials.clj.gpg instead."))

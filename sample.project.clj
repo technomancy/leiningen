@@ -147,7 +147,11 @@
                  ;;                           {:username "milgrim"
                  ;;                            :password "locative.1"}}}}
                  "snapshots" "http://blueant.com/archiva/snapshots"
-                 "releases" "http://blueant.com/archiva/internal"}
+                 "releases" {:url "http://blueant.com/archiva/internal"
+                             ;; Using :env as a value here will cause an
+                             ;; enironment variable to be used based on
+                             ;; the key; in this case LEIN_PASSWORD.
+                             :username "milgrim" :password :env}}
   ;; You can set :update and :checksum policies here to have them
   ;; apply for all :repositories. Usually you will not set :update
   ;; directly but apply the "update" profile instead.
