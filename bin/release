@@ -18,7 +18,7 @@ lein1 clean, install
 sed -i s/:aot/\;\;:aot/ project.clj
 cd ..
 
-lein with-profile release uberjar
+bin/lein with-profile release uberjar
 cp target/leiningen-$RELEASE_VERSION-standalone.jar $HOME/.lein/self-installs
 
 cp bin/lein /tmp/lein-$RELEASE_VERSION
