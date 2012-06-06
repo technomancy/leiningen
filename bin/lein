@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export LEIN_VERSION="2.0.0-preview6"
 
