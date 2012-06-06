@@ -112,12 +112,15 @@ else # Not running from a checkout
     fi
 fi
 
-HTTP_CLIENT=${HTTP_CLIENT:-"wget -O"}
-if type -p curl >/dev/null 2>&1; then
-    if [ "$https_proxy" != "" ]; then
-        CURL_PROXY="-x $https_proxy"
+if [ "$HTTP_CLIENT" = "" ]; then
+    if type -p curl >/dev/null 2>&1; then
+        if [ "$https_proxy" != "" ]; then
+            CURL_PROXY="-x $https_proxy"
+        fi
+        HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
+    else
+        HTTP_CLIENT="wget -O"
     fi
-    HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
 fi
 
 export JAVA_CMD=${JAVA_CMD:-"java"}
