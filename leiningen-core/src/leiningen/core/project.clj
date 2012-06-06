@@ -38,7 +38,8 @@
                :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA)$"]})
 
 (defmacro defproject
-  "The project.clj file must either def a project map or call this macro."
+  "The project.clj file must either def a project map or call this macro.
+  See `lein help sample` to see what arguments it accepts."
   [project-name version & {:as args}]
   `(let [args# ~(unquote-project args)]
      (def ~'project
