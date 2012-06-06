@@ -177,7 +177,7 @@ elif [ "$1" = "upgrade" ]; then
                 echo
                 echo "Upgrading..."
                 TARGET="/tmp/lein-$$-upgrade"
-                if ["$OSTYPE" = "cygwin" ]; then
+                if [ "$OSTYPE" = "cygwin" ]; then
                     TARGET=`cygpath -w $TARGET`
                 fi
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
