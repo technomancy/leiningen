@@ -61,14 +61,14 @@ projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 
 ### Authentication
 
-Private repositories need authentication credentials. Check your
-repository's documentation for details, but you'll usually need to
-provide either a `:username`/`:password` combination or a
-`:private-key` location with or without a `:passphrase`. Leiningen
-will prompt you for a password if you haven't set up credentials, but
-it's convenient to set it so you don't have to re-enter it every time
-you want to deploy. You will need [gpg](http://www.gnupg.org/)
-installed and a key pair configured.
+Deploying and reading from private repositories needs authentication
+credentials. Check your repository's documentation for details, but
+you'll usually need to provide either a `:username`/`:password`
+combination or a `:private-key` location with or without a
+`:passphrase`. Leiningen will prompt you for a password if you haven't
+set up credentials, but it's convenient to set it so you don't have to
+re-enter it every time you want to deploy. You will need
+[gpg](http://www.gnupg.org/) installed and a key pair configured.
 
 First write your credentials map to `~/.lein/credentials.clj` like so:
 
@@ -89,6 +89,11 @@ encrypted it. Due to a bug in `gpg` you currently need to use
 `gpg-agent` and have already unlocked your key before Leiningen
 launches, but with `gpg-agent` you only have to enter your passphrase
 once per login.
+
+On some systems you will be prompted for your GPG passphrase if you
+haven't entered it. If yours does not, you can install
+[Keychain](https://github.com/funtoo/keychain), which provides this
+functionality portably.
 
 ### Deployment
 
