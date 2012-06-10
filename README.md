@@ -61,9 +61,10 @@ project, but here are the commonly-used tasks:
 Use `lein help` to see a complete list. `lein help $TASK` shows the
 usage for a specific task.
 
-You can also chain tasks together in a single command by using commas:
+You can also chain tasks together in a single command by using the
+`do` task with comma-separated tasks:
 
-    $ lein clean, test foo.test-core, jar
+    $ lein do clean, test foo.test-core, jar
 
 Most tasks need to be run from somewhere inside a project directory to
 work, but some (`new`, `help`, `search`, `version`, and `repl`) may

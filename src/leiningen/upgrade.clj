@@ -4,4 +4,6 @@
 ;; This file is only a placeholder. The real upgrade
 ;; implementation can be found in the 'lein' script.
 
-(defn upgrade ([]) ([target-version]))
+(defn upgrade
+  "Upgrade Leiningen to specified version or latest stable."
+  ([]) ([target-version]))

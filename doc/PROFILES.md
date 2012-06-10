@@ -92,8 +92,6 @@ Multiple profiles may be executed in series with colons:
 
     $ lein with-profile 1.3:1.4 test :database
 
-A single `with-profile` call does not apply across task comma-chained tasks.
-
 ## Debugging
 
 To see how a given profile affects your project map, use the

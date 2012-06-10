@@ -18,7 +18,6 @@
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
-          ;; TODO: any other cases where we will never need a password?
           (.startsWith (:url settings) "file://"))
     [id settings]
     (do

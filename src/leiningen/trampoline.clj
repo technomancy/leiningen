@@ -26,7 +26,7 @@
   (spit (System/getProperty "leiningen.trampoline-file")
         (trampoline-command-string command)))
 
-(defn trampoline
+(defn ^:higher-order trampoline
   "Run a task without nesting the project's JVM inside Leiningen's.
 
 Calculates what needs to run in the project's process for the provided
@@ -34,7 +34,7 @@ task and runs it after Leiningen's own JVM process has exited rather
 than as a subprocess of Leiningen's project.
 
 Use this to save memory or to work around things like stdin issues.
-Not compatible with chaining."
+Not compatible with tasks like do that call eval-in-project multiple times."
   [project task-name & args]
   (let [command (promise)]
     (when (:eval-in-leiningen project)
