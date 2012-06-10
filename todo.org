@@ -5,7 +5,7 @@ See also https://github.com/technomancy/leiningen/issues
 * For 2.0.0
 ** 2.0.0-final
    - [X] Address chaining issues in with-profile (#632)
-   - [ ] Address gpg agent issues (#615)
+   - [X] Address gpg agent issues (#615)
    - [ ] Startup performance regression (#614)
    - [ ] Stale directory clutter (#589)
    - [ ] Allow jars to be signed, document in deploying guide. (#519)
