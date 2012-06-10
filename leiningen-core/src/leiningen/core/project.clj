@@ -43,7 +43,7 @@
                :jar-exclusions [#"^\."]
                :certificates ["clojars.pem"]
                :injections [hooke-injection]
-               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA)$"]})
+               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
