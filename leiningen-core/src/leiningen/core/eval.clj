@@ -53,6 +53,7 @@
   "Return the forms that need to be injected into the project for
   certain features (e.g. test selectors) to work."
   [project]
+  ;; TODO: move hooke-injection to default profile; get rid of :disable-injection
   (if-not (:disable-injection project)
     (conj (:injections project) hooke-injection)))
 
