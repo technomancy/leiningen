@@ -20,19 +20,31 @@ inside the leiningen process rather than starting a subprocess to
 isolate the project's code. Plugins should not declare a dependency on
 Clojure itself; in fact
 [all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/master/project.clj)
-should be considered implied dependencies of every plugin.
+will be available. However, it doesn't hurt to be specific since
+Leiningen's dependencies may change in future versions.
 
 See the `lein-pprint` directory
 [in the Leiningen source](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
 for a sample of a very simple plugin.
 
+During plugin development, having to re-run `lein install` in your
+plugin project and then switch to a test project can be very
+cumbersome. You can avoid this annoyance by creating a
+`.lein-classpath` file in your test project containing the path to the
+`src` directory of your plugin.
+
+### Project Argument
+
 The first argument to your task function should be the current
 project. It will be a map which is based on the `project.clj` file,
 but it also has `:name`, `:group`, `:version`, and `:root` keys added
 in, among other things. To see what project maps look like, try using
-the `lein-pprint` plugin; then you can run `lein pprint` to examine
-any project. If you want it to take parameters from the command-line
-invocation, you can make the function take more arguments.
+the `lein-pprint` plugin; you can invoke the `pprint` task to examine
+any project. If you want your task to take parameters from the
+command-line invocation, you can make the function take more than one
+argument.
+
+TODO: mention accepting :keyword-like args for certain things
 
 Most tasks may only be run in the context of another project. If your
 task can be run outside a project directory, add `^:no-project-needed`
@@ -40,11 +52,11 @@ metadata to your task defn to indicate so. Your task should still
 accept a project as its first argument, but it will be allowed to be
 nil if it's run outside a project directory. If you are inside a
 project, Leiningen should change to the root of that project before
-launching the JVM, so `(System/getProperty "user.dir")` should be the
-project root. The current directory of the JVM cannot be changed once
-launched.
+launching the JVM, but some other tools using the `leiningen-core`
+library may not behave the same way, so for greatest portability check
+the `:root` key of the project map and work from there.
 
-TODO: mention accepting :keyword-like args for certain things
+### Documentation
 
 The `lein help` task uses docstrings. A namespace-level docstring will
 be used as the short summary if present; if not then it will take the
