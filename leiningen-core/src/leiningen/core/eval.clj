@@ -8,8 +8,7 @@
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath])
-  (:import (java.io PushbackReader)
-           (org.sonatype.aether.resolution DependencyResolutionException)))
+  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
 
 ;; # OS detection
 
@@ -42,20 +41,6 @@
           "/dev/null")))
 
 ;; # Form Wrangling
-
-(def ^:private hooke-injection
-  (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
-    `(do (ns ~'leiningen.core.injected)
-         ~@(doall (take 6 (rest (repeatedly #(read rdr)))))
-         (ns ~'user))))
-
-(defn- injected-forms
-  "Return the forms that need to be injected into the project for
-  certain features (e.g. test selectors) to work."
-  [project]
-  ;; TODO: move hooke-injection to default profile; get rid of :disable-injection
-  (if-not (:disable-injection project)
-    (conj (:injections project) hooke-injection)))
 
 (defn prep [project]
   ;; This must exist before the project is launched.
@@ -210,7 +195,7 @@
      (prep project)
      (eval-in project
               `(do ~init
-                   ~@(injected-forms project)
+                   ~@(:injections project)
                    (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))
                    ~form)))

@@ -9,7 +9,8 @@
             [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
-  (:import (clojure.lang DynamicClassLoader)))
+  (:import (clojure.lang DynamicClassLoader)
+           (java.io PushbackReader)))
 
 (defn- unquote-project
   "Inside defproject forms, unquoting (~) allows for arbitrary evaluation."
@@ -21,6 +22,12 @@
                      :else (unquote-project item)))
              identity
              args))
+
+(def ^:private hooke-injection
+  (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
+    `(do (ns ~'leiningen.core.injected)
+         ~@(doall (take 6 (rest (repeatedly #(clojure.core/read rdr)))))
+         (ns ~'user))))
 
 (def defaults {:source-paths ["src"]
                :resource-paths ["resources"]
@@ -35,6 +42,7 @@
                               "clojars" {:url "https://clojars.org/repo/"})
                :jar-exclusions [#"^\."]
                :certificates ["clojars.pem"]
+               :injections [hooke-injection]
                :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA)$"]})
 
 (defmacro defproject
