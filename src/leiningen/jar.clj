@@ -81,7 +81,7 @@
 ;;         :bytes (.getBytes (read-bin :windows))}])))
 
 (def ^:private default-manifest
-  {"Created-By" (str "Leiningen " (System/getenv "LEIN_VERSION"))
+  {"Created-By" (str "Leiningen " (main/leiningen-version))
    "Built-By" (System/getProperty "user.name")
    "Build-Jdk" (System/getProperty "java.version")})
 
