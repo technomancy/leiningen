@@ -15,6 +15,11 @@
                     "tutorial" ["help" "tutorial"]
                     "sample" ["help" "sample"]}))
 
+(defn lookup-alias [task-name project]
+  (or (@aliases task-name)
+      (get (:aliases project) task-name)
+      task-name "help"))
+
 (def ^:dynamic *debug* (System/getenv "DEBUG"))
 
 (defn debug [& args]
@@ -114,24 +119,19 @@ or by executing \"lein upgrade\". ")
     (info (format min-version-warning
                   min-lein-version (leiningen-version)))))
 
-(defn- conj-to-last [coll x]
-  (update-in coll [(dec (count coll))] conj x))
-
-(defn ^:internal group-args
-  ([args] (reduce group-args [[]] args))
-  ([groups arg]
-     (if (.endsWith arg ",")
-       (-> groups
-           (conj-to-last (subs arg 0 (dec (count arg))))
-           (conj []))
-       (conj-to-last groups arg))))
+(defn- warn-chaining [task-name args]
+  (when (and (some #(.endsWith % ",") (cons task-name args))
+             (not-any? #(= % "do") (cons task-name args)))
+    (println "WARNING: task chaining has been moved to the \"do\" task.")
+    (println "See `lein help do` for details.")))
 
 (defn -main
   "Run a task or comma-separated list of tasks."
-  [& args]
+  [& [task-name & args]]
   (user/init)
   (let [project (if (.exists (io/file "project.clj"))
-                  (project/init-project (project/read)))]
+                  (project/init-project (project/read)))
+        task-name (lookup-alias task-name project)]
     (when (:min-lein-version project)
       (verify-min-version project))
     (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
@@ -141,17 +141,14 @@ or by executing \"lein upgrade\". ")
       (let [default-project (project/merge-profiles project/defaults [:user :default])]
         (project/load-certificates default-project)
         (project/load-plugins default-project)))
-    (doseq [[task-name & args] (group-args args)
-            :let [task-name (or (@aliases task-name)
-                                (get (:aliases project) task-name)
-                                task-name "help")]]
-      (try (apply-task task-name project args)
-           (catch Exception e
-             (when-let [[_ code] (and (.getMessage e)
-                                      (re-find #"Process exited with (\d+)"
-                                               (.getMessage e)))]
-               (exit (Integer. code)))
-             (when-not (re-find #"Suppressed exit:" (or (.getMessage e) ""))
-               (.printStackTrace e))
-             (exit 1)))))
+    (try (warn-chaining task-name args)
+         (apply-task task-name project args)
+         (catch Exception e
+           (when-let [[_ code] (and (.getMessage e)
+                                    (re-find #"Process exited with (\d+)"
+                                             (.getMessage e)))]
+             (exit (Integer. code)))
+           (when-not (re-find #"Suppressed exit:" (or (.getMessage e) ""))
+             (.printStackTrace e))
+           (exit 1))))
   (exit 0))
