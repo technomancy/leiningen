@@ -89,6 +89,9 @@
              "\nExpected" (rest (:arglists (meta task)))))
     (apply task project args)))
 
+(defn leiningen-version []
+  (System/getenv "LEIN_VERSION"))
+
 (defn ^:internal version-satisfies? [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d+" (first (string/split v1 #"-" 2))))
         v2 (map #(Integer. %) (re-seq #"\d+" (first (string/split v2 #"-" 2))))]
@@ -107,9 +110,9 @@ or by executing \"lein upgrade\". ")
 
 (defn- verify-min-version
   [{:keys [min-lein-version]}]
-  (when-not (version-satisfies? (System/getenv "LEIN_VERSION") min-lein-version)
+  (when-not (version-satisfies? (leiningen-version) min-lein-version)
     (info (format min-version-warning
-                  min-lein-version (System/getenv "LEIN_VERSION")))))
+                  min-lein-version (leiningen-version)))))
 
 (defn- conj-to-last [coll x]
   (update-in coll [(dec (count coll))] conj x))
@@ -152,9 +155,3 @@ or by executing \"lein upgrade\". ")
                (.printStackTrace e))
              (exit 1)))))
   (exit 0))
-
-(defn
-  leiningen-version
-  "Returns leiningen version as a string."
-  []
-  (System/getenv "LEIN_VERSION"))
