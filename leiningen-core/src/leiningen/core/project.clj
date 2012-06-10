@@ -170,7 +170,6 @@
 
 (defn- lookup-profile [profiles profile-name]
   (let [result (profiles profile-name)]
-    ;; TODO: only warn when profiles are explicitly requested
     (when (and (nil? result) (not (#{:default :dev :user :test} profile-name)))
       (println "Warning: profile" profile-name "not found."))
     (if (keyword? result)

@@ -2,7 +2,6 @@
 
 ## 2.0.0-preview6 / 2012-06-01
 
-* Fix startup time performance regression; back under 1 second.
 * Allow lookup of :repositories credentials from environment variables.
 * Perform more SSL certificate validity checks.
 * Fix a bug where repl dependency was conflicting.
