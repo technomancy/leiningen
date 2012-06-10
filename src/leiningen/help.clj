@@ -89,7 +89,7 @@
          (binding [*out* *err*]
            (str task-ns "  Problem loading: " (.getMessage e))))))
 
-(defn ^:no-project-needed help
+(defn ^:no-project-needed ^:higher-order help
   "Display a list of tasks or help for a given task.
 
 Also provides readme, faq, tutorial, news, sample, profiles,

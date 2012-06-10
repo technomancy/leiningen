@@ -12,7 +12,7 @@
                       task-name)]
     (main/apply-task task-name project args)))
 
-(defn ^:no-project-needed with-profile
+(defn ^:no-project-needed ^:higher-order with-profile
   "Apply the given task with the profile(s) specified.
 
 Comma-separated profiles may be given to merge profiles and perform the task.
