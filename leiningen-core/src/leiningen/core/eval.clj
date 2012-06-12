@@ -124,8 +124,8 @@
                       (Thread. (fn [] (.destroy proc))))
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))]
-      (let [pump-out (doto (Thread. #(pump out *out*)) .start)
-            pump-err (doto (Thread. #(pump err *err*)) .start)]
+      (let [pump-out (doto (Thread. (bound-fn [] (pump out *out*))) .start)
+            pump-err (doto (Thread. (bound-fn [] (pump err *err*))) .start)]
         (.join pump-out)
         (.join pump-err))
       (.waitFor proc))))
