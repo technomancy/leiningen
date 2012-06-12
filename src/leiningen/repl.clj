@@ -80,7 +80,8 @@
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
-USAGE: lein repl This will launch an nREPL server behind the scenes
+USAGE: lein repl
+This will launch an nREPL server behind the scenes
 that reply will connect to. If a :port key is present in
 the :repl-options map in project.clj, that port will be used for the
 server, otherwise it is chosen randomly. If you run this command
