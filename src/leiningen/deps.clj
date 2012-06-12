@@ -37,7 +37,7 @@
         exit (binding [*err* (java.io.PrintWriter. err), *out* out]
                (eval/sh "gpg" "--verify" (str signature)))]
     (if (zero? exit)
-      :signed
+      :signed ; TODO distinguish between signed and trusted
       (fetch-key signature (str err)))))
 
 (defn- get-signature [project dep]
@@ -57,27 +57,35 @@
         status (if signature
                  (check-signature signature)
                  :unsigned)]
+    ;; TODO: support successful exit code only on fully-signed deps
     (println status (pr-str dep))))
 
 (defn deps
-  "Download or show all dependencies.
+  "Show details about dependencies.
 
-To show the full dependency tree for the current project, run:
+USAGE: lein deps :tree
+Show the full dependency tree for the current project.
 
-    lein deps :tree
+USAGE: lein deps :verify
+Check signatures of each dependency.
 
-To manually have Leiningen download all missing or out-of-date
-dependencies, you could run `lein deps`, but that's generally not
-necessary, since Leiningen automatically checks for and downloads
-those."
+USAGE: lein deps
+Force Leiningen to download the dependencies it needs. This usage is
+deprecated as it should happen automatically on demand.
+
+Normally snapshot dependencies will be checked once every 24 hours; to
+force them to be updated, use `lein -U $TASK`."
   ([project]
      (deps project nil))
-  ([project style]
+  ([project command]
      (try
-       (cond (= style ":tree")
+       (cond (= command ":force")
+             (classpath/resolve-dependencies :dependencies
+                                             (assoc project :update :always))
+             (= command ":tree")
              (walk-deps (classpath/dependency-hierarchy :dependencies project)
                         print-dep)
-             (= style ":verify")
+             (= command ":verify")
              (walk-deps (classpath/dependency-hierarchy :dependencies project)
                         (partial verify project))
              :else (classpath/resolve-dependencies :dependencies project))

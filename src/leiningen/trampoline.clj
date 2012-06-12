@@ -36,6 +36,7 @@ than as a subprocess of Leiningen's project.
 Use this to save memory or to work around things like stdin issues.
 Not compatible with tasks like do that call eval-in-project multiple times."
   [project task-name & args]
+  ;; TODO: allow trampoline calls to chain with do
   (let [command (promise)]
     (when (:eval-in-leiningen project)
       (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
