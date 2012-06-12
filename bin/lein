@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export LEIN_VERSION="2.0.0-preview6"
+export LEIN_VERSION="2.0.0-SNAPSHOT"
 
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
