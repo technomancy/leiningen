@@ -127,7 +127,12 @@ or by executing \"lein upgrade\". ")
 
 (defn- http-settings []
   "Set Java system properties controlling HTTP request behavior."
-  (System/setProperty "aether.connector.userAgent" (str "Leiningen/" (leiningen-version)))
+  (System/setProperty "aether.connector.userAgent" (str "Leiningen/" (leiningen-version)
+                                                        " (" (System/getProperty "java.vendor")
+                                                        " Java " (System/getProperty "java.version")
+                                                        "; " (System/getProperty "os.version")
+                                                        " " (System/getProperty "os.name")
+                                                        "; " (System/getProperty "os.arch") ")"))
   (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
     (System/setProperty "http.proxyPort" (str port))))
