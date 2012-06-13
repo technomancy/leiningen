@@ -125,6 +125,13 @@ or by executing \"lein upgrade\". ")
     (println "WARNING: task chaining has been moved to the \"do\" task.")
     (println "See `lein help do` for details.")))
 
+(defn- http-settings []
+  "Set Java system properties controlling HTTP request behavior."
+  (System/setProperty "aether.connector.userAgent" (str "Leiningen/" (leiningen-version)))
+  (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
+    (System/setProperty "http.proxyHost" host)
+    (System/setProperty "http.proxyPort" (str port))))
+
 (defn -main
   "Run a task or comma-separated list of tasks."
   [& [task-name & args]]
@@ -134,9 +141,7 @@ or by executing \"lein upgrade\". ")
         task-name (lookup-alias task-name project)]
     (when (:min-lein-version project)
       (verify-min-version project))
-    (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
-      (System/setProperty "http.proxyHost" host)
-      (System/setProperty "http.proxyPort" (str port)))
+    (http-settings)
     (when-not project
       (let [default-project (project/merge-profiles project/defaults [:user :default])]
         (project/load-certificates default-project)
