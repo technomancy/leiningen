@@ -82,6 +82,7 @@
     ;; logic, but since :dependencies are a vector, the :replace/:displace
     ;; calculations don't apply to nested vectors inside :dependencies.
     (let [[seen-dep] (filter #(= (first %) (first x)) deps)]
+      ;; TODO: this stomps on :classifier and :extension non-dupes
       (if (or (:displace (meta seen-dep)) (:replace (meta x)))
         [(assoc deps (.indexOf deps seen-dep) x) seen]
         [deps seen]))
