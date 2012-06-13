@@ -5,7 +5,7 @@
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [clucy.core :as clucy]
-            [clj-http.client :as client])
+            [clj-http.client :as http])
   (:import (java.util.zip ZipFile)
            (java.net URL)
            (java.io File InputStream OutputStream FileOutputStream)))
@@ -28,7 +28,8 @@
   (URL. (format "%s/.index/nexus-maven-repository-index.zip" url)))
 
 (defn- download [^URL url ^OutputStream out-stream  & {:keys [callback]}]
-  (let [resp (client/get (str url) {:as :stream})
+  (let [resp (http/get (str url) {:as :stream
+                                  :headers {"User-Agent" (main/user-agent)}})
         content-len (try (Long/valueOf
                           (get-in resp [:headers "content-length"]))
                          (catch Exception _))
