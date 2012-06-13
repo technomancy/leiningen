@@ -42,6 +42,7 @@
 
 (defn- get-signature [project dep]
   (let [dep-map (assoc (apply hash-map (drop 2 dep))
+                  ;; TODO: check pom signature too
                   :extension "jar.asc")
         dep (into (vec (take 2 dep)) (apply concat dep-map))]
     (try (->> (aether/resolve-dependencies
