@@ -125,14 +125,15 @@ or by executing \"lein upgrade\". ")
     (println "WARNING: task chaining has been moved to the \"do\" task.")
     (println "See `lein help do` for details.")))
 
+(defn user-agent []
+  (format "Leiningen/%s (Java %s; %s %s; %s)"
+          (leiningen-version) (System/getProperty "java.vm.name")
+          (System/getProperty "os.name") (System/getProperty "os.version")
+          (System/getProperty "os.arch")))
+
 (defn- http-settings []
   "Set Java system properties controlling HTTP request behavior."
-  (System/setProperty "aether.connector.userAgent" (str "Leiningen/" (leiningen-version)
-                                                        " (" (System/getProperty "java.vendor")
-                                                        " Java " (System/getProperty "java.version")
-                                                        "; " (System/getProperty "os.name")
-                                                        " " (System/getProperty "os.version")
-                                                        "; " (System/getProperty "os.arch") ")"))
+  (System/setProperty "aether.connector.userAgent" (user-agent))
   (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
     (System/setProperty "http.proxyPort" (str port))))
