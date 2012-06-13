@@ -120,7 +120,7 @@ or by executing \"lein upgrade\". ")
                   min-lein-version (leiningen-version)))))
 
 (defn- warn-chaining [task-name args]
-  (when (and (some #(.endsWith % ",") (cons task-name args))
+  (when (and (some #(.endsWith (str %) ",") (cons task-name args))
              (not-any? #(= % "do") (cons task-name args)))
     (println "WARNING: task chaining has been moved to the \"do\" task.")
     (println "See `lein help do` for details.")))
