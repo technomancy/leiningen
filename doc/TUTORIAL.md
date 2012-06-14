@@ -41,9 +41,10 @@ Note that we use `my-stuff.core` instead of just `my-stuff` since
 single-segment namespaces are discouraged in Clojure. Also note that
 namespaces with dashes in the name will have the corresponding file
 named with underscores instead since the JVM has trouble loading files
-with dashes in the name. This trips up a lot of newcomers, and while
-the default skeleton will do the right thing for your first namespace,
-it's up to you to add further namespaces.
+with dashes in the name. The intricacies of namespaces are a common
+source of confusion for newcomers, and while they are mostly outside
+the scope of this tutorial, you can
+[read up on them elsewhere](http://blog.8thlight.com/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
 
 ## project.clj
 
