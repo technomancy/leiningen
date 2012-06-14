@@ -29,7 +29,7 @@ if "x%LEIN_JAR%" == "x" set LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_V
 if "%1" == "self-install" goto SELF_INSTALL
 if "%1" == "upgrade"      goto NO_UPGRADE
 
-if exist "%~dp0..\src\leiningen" (
+if exist "%~dp0..\src\leiningen\version.clj" (
     :: Running from source checkout.
     call :SET_LEIN_ROOT "%~dp0.."
 
