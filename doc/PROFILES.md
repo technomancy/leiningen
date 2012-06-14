@@ -39,7 +39,8 @@ a `:user` profile, nor should `profiles.clj` define a `:dev` profile.
 Use the `show-profiles` task to see what's available.
 
 If you want to access dependencies during development time for any
-project place them in your `:user` profile.
+project place them in your `:user` profile. Your
+`~/.lein/profiles.clj` file could look something like this:
 
 ```clj
 {:user {:plugins [[lein-swank "1.4.0"]
