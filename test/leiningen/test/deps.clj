@@ -21,7 +21,7 @@
     (doseq [[n v] sample-deps]
       (delete-file-recursively (m2-dir n v) :silently))
     (let [out (with-out-str (deps sample-project ":tree"))]
-      (doseq [[name version] '[[org.clojure/clojure "1.1.0"]
+      (doseq [[name version] '[[org.clojure/clojure "1.3.0"]
                                [ring "1.0.0"]
                                [ring/ring-core "1.0.0"]
                                [commons-codec "1.4"]
