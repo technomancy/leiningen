@@ -3,7 +3,7 @@
 ;; just want a basic project to work from, generate a new one with
 ;; "lein new".
 
-(def clj-version "1.1.0")
+(def clj-version "1.3.0")
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :description "A test project"

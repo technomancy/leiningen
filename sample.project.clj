@@ -214,7 +214,7 @@
   ;; or :classloader (experimental) to avoid starting a subprocess.
   :eval-in :leiningen
   ;; Disable bootclasspath optimization. This improves boot time but interferes
-  ;; with using things like pomegranate at runtime.
+  ;; with using things like pomegranate at runtime and using Clojure 1.2.
   :bootclasspath false
   ;; Set parent for working with in a multi-module maven project
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
