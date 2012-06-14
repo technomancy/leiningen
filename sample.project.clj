@@ -213,6 +213,9 @@
   ;; Defaults to :subprocess, but can also be :leiningen (for plugins)
   ;; or :classloader (experimental) to avoid starting a subprocess.
   :eval-in :leiningen
+  ;; Disable bootclasspath optimization. This improves boot time but interferes
+  ;; with using things like pomegranate at runtime.
+  :bootclasspath false
   ;; Set parent for working with in a multi-module maven project
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
   ;; Extensions here will be propagated to the pom but not used by Leiningen.
