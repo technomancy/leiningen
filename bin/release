@@ -24,11 +24,17 @@ cp target/leiningen-$RELEASE_VERSION-standalone.jar $HOME/.lein/self-installs
 cp bin/lein /tmp/lein-$RELEASE_VERSION
 cd /tmp
 
-time ./lein-$RELEASE_VERSION version
-time ./lein-$RELEASE_VERSION version
-time ./lein-$RELEASE_VERSION version
+if [ ! -r test-project ]; then
+    ./lein-$RELEASE_VERSION new test-project
+fi
 
-echo "If these are under a second then you should be set to upload"
+cd test-project
+
+time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
+time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
+time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
+
+echo "If these are under 3 seconds then you should be set to upload"
 echo "target/leiningen-$RELEASE_VERSION-standalone.jar to GitHub."
 echo "Also deploy this release of leiningen-core to Clojars."
 
