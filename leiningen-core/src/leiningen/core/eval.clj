@@ -139,10 +139,17 @@
     (pr-str (pr-str form))
     (pr-str form)))
 
+(defn- classpath-arg [project]
+  (if (:bootclasspath project true)
+    [(apply str "-Xbootclasspath/a:"
+            (interpose java.io.File/pathSeparatorChar
+                       (classpath/get-classpath project)))]
+    ["-cp" (string/join java.io.File/pathSeparatorChar
+                        (classpath/get-classpath project))]))
+
 (defn shell-command [project form]
   `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
-    "-cp" ~(string/join java.io.File/pathSeparatorChar
-                        (classpath/get-classpath project))
+    ~@(classpath-arg project)
     ~@(get-jvm-args project)
     "clojure.main" "-e" ~(form-string form)))
 
