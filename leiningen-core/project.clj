@@ -9,7 +9,7 @@
                  [ordered "1.2.0"]
                  ;; currently using this branch:
                  ;; https://github.com/cemerick/pomegranate/pull/27
-                 [com.cemerick/pomegranate "0.0.13-SNAPSHOT"
+                 [com.cemerick/pomegranate "0.0.13"
                   :exclusions [org.slf4j/slf4j-api]]]
   ;; This is only used when releasing Leiningen. Can't put it in a
   ;; profile since it must be installed using lein1

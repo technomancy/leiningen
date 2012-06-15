@@ -30,26 +30,6 @@
                                     (into-array ["Password: "]))]
         [id (assoc settings :username username :password password)]))))
 
-(defn sign [file]
-  (let [exit (binding [*out* (java.io.StringWriter.)]
-               (eval/sh "gpg" "--yes" "-ab" file))]
-    (when-not (zero? exit)
-      (main/abort "Could not sign" file))
-    (io/file (str file ".asc"))))
-
-(defn signatures-for [jar-file pom-file]
-  [[(sign jar-file) :extension "jar.asc"]
-   [(sign pom-file) :extension "pom.asc"]])
-
-(defn files-for [project repo]
-  (let [jar-file (jar/jar project)
-        pom-file (pom/pom project)]
-    (concat [[jar-file :extension "jar"]
-             [pom-file :extension "pom"]]
-            (if (and (:sign-releases (second repo) true)
-                     (not (.endsWith (:version project) "-SNAPSHOT")))
-              (signatures-for jar-file pom-file)))))
-
 (defn repo-for [project repository-name]
   ;; can't use merge here due to bug in ordered maps:
   ;; https://github.com/flatland/ordered/issues/4
@@ -61,6 +41,27 @@
         repo (classpath/add-repo-auth repo)
         repo (add-auth-interactively repo)]
     repo))
+
+(defn sign [file]
+  (let [exit (binding [*out* (java.io.StringWriter.)]
+               (eval/sh "gpg" "--yes" "-ab" file))]
+    (when-not (zero? exit)
+      (main/abort "Could not sign" file))
+    (str file ".asc")))
+
+(defn signatures-for [jar-file pom-file coords]
+  {(into coords [:extension "jar.asc"]) (sign jar-file)
+   (into coords [:extension "pom.asc"]) (sign pom-file)})
+
+(defn files-for [project repo]
+  (let [coords [(symbol (:group project) (:name project)) (:version project)]
+        jar-file (jar/jar project)
+        pom-file (pom/pom project)]
+    (merge {(into coords [:extension "jar"]) jar-file
+            (into coords [:extension "pom"]) pom-file}
+           (if (and (:sign-releases (second repo) true)
+                    (not (.endsWith (:version project) "-SNAPSHOT")))
+             (signatures-for jar-file pom-file coords)))))
 
 (defn warn-missing-metadata [project]
   (doseq [key [:description :license :url]]
@@ -85,14 +86,11 @@ configure your credentials so you are not prompted on each deploy."
      (let [repo (repo-for project repository-name)
            files (files-for project repo)]
        (try
-         (doseq [[file & coords] files]
-           (main/info "Deploying" file coords "to" repo)
-           (aether/deploy-file :coordinates (into [(symbol (:group project)
-                                                           (:name project))
-                                                   (:version project)] coords)
-                               :file (io/file file)
-                               :transfer-listener :stdout
-                               :repository [repo]))
+         (main/debug "Deploying" files "to" repo)
+         (aether/deploy-artifacts :artifacts (keys files)
+                                  :files files
+                                  :transfer-listener :stdout
+                                  :repository [repo])
          (catch org.sonatype.aether.deployment.DeploymentException e
            (when main/*debug* (.printStackTrace e))
            (main/abort (abort-message (.getMessage e)))))))
