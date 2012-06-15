@@ -41,8 +41,8 @@
                               ;; TODO: point to releases-only before 2.0 is out
                               "clojars" {:url "https://clojars.org/repo/"})
                :jar-exclusions [#"^\."]
+               :jvm-opts ["-XX:+TieredCompilation"]
                :certificates ["clojars.pem"]
-               :injections [hooke-injection]
                :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
 
 (defmacro defproject
@@ -140,7 +140,7 @@
   profiles are active by default."
   (atom {:default {:resource-paths ["dev-resources"]
                    :plugins [['lein-newnew "0.3.1"]]
-                   :jvm-opts ["-XX:+TieredCompilation"]
+                   :injections [hooke-injection]
                    :checkout-deps-shares [:source-paths
                                           :resource-paths
                                           :compile-path]}
