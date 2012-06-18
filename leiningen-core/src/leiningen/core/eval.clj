@@ -187,12 +187,7 @@
             :when (.startsWith opt "-D")
             :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
       (System/setProperty k v))
-  ;; need to at least pretend to return an exit code
-  (try (eval form)
-       0
-       (catch Exception e
-         (.printStackTrace e)
-         1)))
+  (eval form))
 
 (defn eval-in-project
   "Executes form in an isolated classloader with the classpath and compile path
