@@ -55,7 +55,7 @@
                       (str/join "+" (map name keys)))
         current-value (pr-str (map (juxt identity project) keys))
         old-value (and (.exists file) (slurp file))]
-    (when (and (:target-path project) (not= current-value old-value))
+    (when (and (:name project) (:target-path project) (not= current-value old-value))
       (apply f args)
       (.mkdirs (.getParentFile file))
       (spit file (doall current-value)))))
