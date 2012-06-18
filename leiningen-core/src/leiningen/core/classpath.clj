@@ -145,8 +145,9 @@
   (let [jars (->> (apply get-dependencies dependencies-key project rest)
                   (aether/dependency-files)
                   (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
-    (when-stale [:dependencies] project
-                extract-native-deps jars native-path)
+    (when-not (= :plugins dependencies-key)
+      (when-stale [dependencies-key] project
+                  extract-native-deps jars native-path))
     jars))
 
 (defn dependency-hierarchy

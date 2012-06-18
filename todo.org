@@ -4,17 +4,20 @@ See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
 ** 2.0.0-final
-   - [X] Address chaining issues in with-profile (#632)
-   - [X] Address gpg agent issues (#615)
-   - [ ] Startup performance regression (#614)
-   - [ ] Stale directory clutter (#589)
-   - [ ] Allow jars to be signed, document in deploying guide. (#519)
-   - [ ] Isolate target dir per profile (#468)
-   - [ ] Mirror support (#271)
-   - [ ] Honor mirror for search indices (#281)
    - [ ] Reduce Aether verbosity (#610)
    - [ ] Improve speed of trampoline restarts (#573)
+   - [ ] Isolate target dir per profile (#468)
+   - [ ] Honor mirror for search indices (#281)
    - [ ] Drop clojars snapshots from default repos (#241)
+** 2.0.0-preview7
+   - [X] Address chaining issues in with-profile (#632)
+   - [X] Address gpg agent issues (#615)
+   - [X] Stale directory clutter (#589)
+   - [ ] Allow jars to be signed, document in deploying guide. (#519)
+   - [ ] Mirror support (#271)
+   - [ ] Fix de-dupe with :classifier/:extension (#645)
+   - [ ] Warn when <scm> isn't in pom (#641)
+   - [ ] Check project for :scm (#640)
 ** preview4
    - [X] Don't re-extract native deps (#535)
    - [X] Make offline profile use dev profile (#514) (LHF)
