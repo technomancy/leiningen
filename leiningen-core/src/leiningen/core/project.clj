@@ -71,8 +71,13 @@
                (for [[id repo] repositories]
                  [id (if (map? repo) repo {:url repo})]))))
 
+(defn- without-version [[id version & other]]
+  (-> (apply hash-map other)
+      (select-keys [:classifier :extension])
+      (assoc :id id)))
+
 (defn- dedupe-step [[deps seen] x]
-  (if (seen (first x))
+  (if (seen (without-version x))
     ;; this would be so much cleaner if we could just re-use profile-merge
     ;; logic, but since :dependencies are a vector, the :replace/:displace
     ;; calculations don't apply to nested vectors inside :dependencies.
@@ -80,7 +85,7 @@
       (if (or (:displace (meta seen-dep)) (:replace (meta x)))
         [(assoc deps (.indexOf deps seen-dep) x) seen]
         [deps seen]))
-    [(conj deps x) (conj seen (first x))]))
+    [(conj deps x) (conj seen (without-version x))]))
 
 (defn- dedupe-deps [deps]
   (first (reduce dedupe-step [[] #{}] deps)))

@@ -13,9 +13,9 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Address chaining issues in with-profile (#632)
    - [X] Address gpg agent issues (#615)
    - [X] Stale directory clutter (#589)
+   - [X] Fix de-dupe with :classifier/:extension (#645)
    - [ ] Allow jars to be signed, document in deploying guide. (#519)
    - [ ] Mirror support (#271)
-   - [ ] Fix de-dupe with :classifier/:extension (#645)
    - [ ] Warn when <scm> isn't in pom (#641)
    - [ ] Check project for :scm (#640)
 ** preview4
