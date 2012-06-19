@@ -5,6 +5,7 @@
             [leiningen.core.main :as main]
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
+            [leiningen.uberjar :as uber]
             [leiningen.jar :as jar]))
 
 (defn- abort-message [message]
@@ -29,24 +30,13 @@
                                     (into-array ["Password: "]))]
         [id (assoc settings :username username :password password)]))))
 
-(defn deploy
-  "Build jar and deploy to remote repository.
-
-The target repository will be looked up in :repositories in project.clj:
-
-  :repositories {\"snapshots\" \"https://internal.repo/snapshots\"
-                 \"releases\" \"https://internal.repo/releases\"
-                 \"alternate\" \"https://other.server/repo\"}
-
-If you don't provide a repository name to deploy to, either \"snapshots\" or
-\"releases\" will be used depending on your project's current version. See
-`lein help deploying` under \"Authentication\" for instructions on how to
-configure your credentials so you are not prompted on each deploy."
-  ([project repository-name]
+(defn do-deploy
+  "Implementation for deploy (also supports uberjar)"
+  ([project repository-name & {:keys [uberjar]}]
      (doseq [key [:description :license :url]]
        (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
          (main/info "WARNING: please set" key "in project.clj.")))
-     (let [jarfile (jar/jar project)
+     (let [jarfile ((if uberjar uber/uberjar jar/jar) project)
            pomfile (pom/pom project)
            ;; can't use merge here due to bug in ordered maps:
            ;; https://github.com/flatland/ordered/issues/4
@@ -66,7 +56,23 @@ configure your credentials so you are not prompted on each deploy."
                            :transfer-listener :stdout
                            :repository [repo])
             (catch org.sonatype.aether.deployment.DeploymentException e
-              (main/abort (abort-message (.getMessage e)))))))
+              (main/abort (abort-message (.getMessage e))))))))
+
+(defn deploy
+  "Build jar and deploy to remote repository.
+
+The target repository will be looked up in :repositories in project.clj:
+
+  :repositories {\"snapshots\" \"https://internal.repo/snapshots\"
+                 \"releases\" \"https://internal.repo/releases\"
+                 \"alternate\" \"https://other.server/repo\"}
+
+If you don't provide a repository name to deploy to, either \"snapshots\" or
+\"releases\" will be used depending on your project's current version. See
+`lein help deploying` under \"Authentication\" for instructions on how to
+configure your credentials so you are not prompted on each deploy."
+  ([project repository-name]
+     (do-deploy project repository-name))
   ([project]
      (deploy project (if (pom/snapshot? project)
                        "snapshots"
