@@ -79,10 +79,7 @@ force them to be updated, use `lein -U $TASK`."
      (deps project nil))
   ([project command]
      (try
-       (cond (= command ":force")
-             (classpath/resolve-dependencies :dependencies
-                                             (assoc project :update :always))
-             (= command ":tree")
+       (cond (= command ":tree")
              (walk-deps (classpath/dependency-hierarchy :dependencies project)
                         print-dep)
              (= command ":verify")
