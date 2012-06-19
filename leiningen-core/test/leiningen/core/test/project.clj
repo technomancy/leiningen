@@ -155,3 +155,12 @@
                            :c {:C 3}}}
                (merge-profiles [:a :b :c {:D 4}])
                (unmerge-profiles [:b {:D 4}]))))))
+
+(deftest test-dedupe-deps
+  (is (= '[[org.clojure/clojure "1.4.0"]
+           [org.clojure/clojure "1.3.0" :classifier "sources"]]
+         (-> {:dependencies '[[org.clojure/clojure "1.4.0"]
+                              [org.clojure/clojure "1.3.0" :classifier "sources"]
+                              [org.clojure/clojure "1.3.0"]]}
+             (normalize-deps)
+             (:dependencies)))))
