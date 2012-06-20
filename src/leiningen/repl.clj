@@ -13,14 +13,14 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
-(def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta6"
+(def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta7"
                                :exclusions [org.clojure/clojure]]
                               [clojure-complete "0.2.1"
                                :exclusions [org.clojure/clojure]]
                               [org.thnetos/cd-client "0.3.4"
                                :exclusions [org.clojure/clojure]]]})
 
-(def trampoline-profile {:dependencies '[[reply "0.1.0-beta8"
+(def trampoline-profile {:dependencies '[[reply "0.1.0-beta9"
                                          :exclusions [org.clojure/clojure]]]})
 
 (defn- start-server [project port ack-port]
