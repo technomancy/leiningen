@@ -94,6 +94,22 @@
 (defmulti ^:private xml-tags
   (fn [tag value] (keyword "leiningen.pom" (name tag))))
 
+(defn- guess-scm [project]
+  "Returns the name of the SCM used in project.clj or \"auto\" if nonexistant.
+  Example: :scm {:name \"git\" :tag \"deadbeef\"}"
+  (or (-> project :scm :name) "auto"))
+
+(defn- xmlify [scm]
+  "Converts the map identified by :scm"
+  (map #(xml-tags (first %) (second %)) scm))
+
+(defn- write-scm-tag [scm project]
+  "Write the <scm> tag for pom.xml.
+  Retains backwards compatibility without an :scm map."
+  (if
+    (= "auto" scm)
+    (make-git-scm (io/file (:root project) ".git"))
+    (xml-tags :scm (xmlify (:scm project)))))
 (defmethod xml-tags :default
   ([tag value]
      (when value
@@ -276,7 +292,7 @@
          (xml-tags :url (:url project))
          (xml-tags :license (:license project))
          (xml-tags :mailing-list (:mailing-list project))
-         (make-git-scm (io/file (:root project) ".git"))
+         (write-scm-tag (guess-scm project) project)
          (xml-tags :build [project test-project])
          (xml-tags :repositories (:repositories project))
          (xml-tags :dependencies
