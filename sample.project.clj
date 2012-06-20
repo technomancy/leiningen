@@ -220,4 +220,8 @@
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
   ;; Extensions here will be propagated to the pom but not used by Leiningen.
   :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
-               [foo/bar-baz "1.0"]])
+               [foo/bar-baz "1.0"]]
+  ;; If :scm is set, all key/value pairs appear exactly as configured, otherwise
+  ;; Leiningen will try to use information from a .git directory if it is present.
+  ;; The only purpose is the generation of the <scm> tag in pom.xml.
+  :scm {:name "git" :tag "098afd745bcd" :url "http://127.0.0.1/git/my-project"})
