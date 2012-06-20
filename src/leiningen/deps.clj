@@ -3,6 +3,7 @@
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
             [leiningen.core.eval :as eval]
+            [leiningen.core.user :as user]
             [cemerick.pomegranate.aether :as aether]
             [clojure.pprint :as pp]
             [clojure.java.io :as io])
@@ -25,7 +26,7 @@
 (defn- fetch-key [signature err]
   (if (re-find #"Can't check signature: public key not found" err)
     (let [key (second (re-find #"using \w+ key ID (.+)" err))
-          exit (eval/sh "gpg" "--recv-keys" key)]
+          exit (eval/sh (user/gpg-program) "--recv-keys" key)]
       (if (zero? exit)
         (check-signature signature)
         :no-key))
@@ -35,7 +36,7 @@
   (let [err (java.io.StringWriter.)
         out (java.io.StringWriter.)
         exit (binding [*err* (java.io.PrintWriter. err), *out* out]
-               (eval/sh "gpg" "--verify" (str signature)))]
+               (eval/sh (user/gpg-program) "--verify" (str signature)))]
     (if (zero? exit)
       :signed ; TODO distinguish between signed and trusted
       (fetch-key signature (str err)))))

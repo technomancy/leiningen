@@ -4,6 +4,7 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
             [leiningen.core.eval :as eval]
+            [leiningen.core.user :as user]
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]))
@@ -41,7 +42,7 @@
 
 (defn sign [file]
   (let [exit (binding [*out* (java.io.StringWriter.)]
-               (eval/sh "gpg" "--yes" "-ab" file))]
+               (eval/sh (user/gpg-program) "--yes" "-ab" file))]
     (when-not (zero? exit)
       (main/abort "Could not sign" file))
     (str file ".asc")))
