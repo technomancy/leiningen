@@ -7,7 +7,7 @@
                               get-default-uberjar-name]]
         [leiningen.util.file :only [tmp-dir delete-file-recursively]]
         [leiningen.util.paths :only [leiningen-home get-os]]
-        [clojure.java.io :only [file]])
+        [clojure.java.io :only [file copy]])
   (:require [leiningen.install]
             [leiningen.help])
   (:import (java.util.zip ZipOutputStream)
@@ -41,6 +41,13 @@ Syntax: lein plugin uninstall [GROUP/]ARTIFACT-ID VERSION"
           :when (re-find pat plugin)]
     (.delete (file plugins-path plugin))))
 
+(defn locate-project-file
+  [temp-project group artifact]
+  (when-not (.exists (file temp-project "project.clj"))
+    (copy
+     (file temp-project "META-INF/leiningen" group artifact "project.clj")
+     (file temp-project "project.clj"))))
+
 (defn install
   "Download, package, and install plugin jarfile into ~/.lein/plugins
 Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
@@ -55,6 +62,7 @@ Syntax: lein plugin install [GROUP/]ARTIFACT-ID VERSION
         jarfile (-> (local-repo-path (or group name) name version)
                     (.replace "$HOME" (System/getProperty "user.home")))
         _ (extract-jar (file jarfile) temp-project)
+        _ (locate-project-file temp-project (or group name) name)
         project (read-project (str (file temp-project "project.clj")))
         project (assoc project :exclusions dev-exclusions)
         standalone-filename (plugin-standalone-filename group name version)]
