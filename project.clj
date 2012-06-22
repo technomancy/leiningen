@@ -10,7 +10,7 @@
                  [clucy "0.2.3"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.6"]
-                 [reply "0.1.0-beta9"]
+                 [reply "0.1.0-beta8"]
                  ;; once reply bumps its drawbridge dep we can collapse these
                  [com.cemerick/drawbridge "0.0.6" :exclusions [ring/ring-core]]
                  [clj-http "0.4.2"]]
