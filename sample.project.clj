@@ -178,7 +178,7 @@
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
   ;; Options to pass to java compiler for java source
-  :javac-options [:destdir "classes/"]
+  :javac-options {:destdir "classes/"}
   ;; Leave the contents of :source-paths out of jars (for AOT projects)
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars
