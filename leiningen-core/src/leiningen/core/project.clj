@@ -145,12 +145,11 @@
   profiles are active by default."
   (atom {:default {:resource-paths ["dev-resources"]
                    :plugins [['lein-newnew "0.3.1"]]
-                   :injections [hooke-injection]
                    :checkout-deps-shares [:source-paths
                                           :resource-paths
                                           :compile-path]}
          :production {}
-         :test {}
+         :test {:injections [hooke-injection]}
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
