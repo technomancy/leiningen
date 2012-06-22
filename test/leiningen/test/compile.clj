@@ -70,7 +70,10 @@
   (is (empty? (.list (file (:compile-path tricky-name-project))))))
 
 (deftest test-injection
-  (eval/eval-in-project sample-project '#'leiningen.core.injected/add-hook))
+  (eval/eval-in-project (assoc sample-project
+                          :injections ['(do (ns inject.stuff)
+                                            (def beef :hot))])
+                        '#'inject.stuff/beef))
 
 ;; (deftest test-compile-java-main
 ;;   (compile dev-deps-project))

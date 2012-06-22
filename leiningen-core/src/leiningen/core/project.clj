@@ -149,7 +149,7 @@
                                           :resource-paths
                                           :compile-path]}
          :production {}
-         :test {:injections [hooke-injection]}
+         :leiningen.test/test {:injections [hooke-injection]}
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))

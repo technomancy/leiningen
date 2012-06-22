@@ -91,7 +91,7 @@ tests are run."
   [project & tests]
   (binding [main/*exit-process?* (not= :leiningen (:eval-in project))
             *exit-after-tests* (not= :leiningen (:eval-in project))]
-    (let [project (project/merge-profiles project [:test])
+    (let [project (project/merge-profiles project [::test])
           [nses selectors] (read-args tests project)
           result (doto (File/createTempFile "lein" "result") .deleteOnExit)
           form (form-for-testing-namespaces nses (.getAbsolutePath result)
