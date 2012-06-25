@@ -1,5 +1,19 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview7 / 2012-06-??
+
+* Sign jars and poms of releases upon deploy by default.
+* Don't decrypt `credentials.clj.gpg` for every request.
+* Support setting `:mirrors` in project.clj. (Chas Emerick, Nelson Morris)
+* Allow aliases shadowing task names to invoke shadowed tasks.
+* Emit `doc/intro.md` in new project templates.
+* Allow :scm to be set in project.clj for pom inclusion. (Florian Anderiasch)
+* Fix a bug where dependency :classifiers and :extensions would be ignored.
+* Speed up subprocess launches when :bootclasspath is set.
+* Set user agent. (Bruce Adams)
+* Verify signatures of dependencies with `lein deps :verify`.
+* Move task chaining to `do` task in order to allow for higher-order use.
+
 ## 2.0.0-preview6 / 2012-06-01
 
 * Allow lookup of :repositories credentials from environment variables.
