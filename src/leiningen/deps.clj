@@ -46,6 +46,7 @@
         dep (into (vec (take 2 dep)) (apply concat dep-map))]
     (try (->> (aether/resolve-dependencies
                :repositories (:repositories project)
+               :mirrors (:mirrors project)
                :coordinates [dep])
               (aether/dependency-files)
               (filter #(.endsWith (.getName %) ".asc"))

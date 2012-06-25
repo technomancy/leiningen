@@ -111,8 +111,8 @@
   (last (take-while identity (iterate (memfn getCause) e))))
 
 (defn- get-dependencies
-  [dependencies-key {:keys [repositories local-repo offline? update checksum]
-                     :as project}
+  [dependencies-key {:keys [repositories local-repo offline? update
+                            checksum mirrors] :as project}
    & {:keys [add-classpath?]}]
   {:pre [(every? vector? (project dependencies-key))]}
   (try
@@ -125,6 +125,7 @@
                         (map add-repo-auth)
                         (map (partial update-policies update checksum)))
      :coordinates (project dependencies-key)
+     :mirrors mirrors
      :transfer-listener :stdout
      :proxy (get-proxy-settings))
     (catch Exception e
