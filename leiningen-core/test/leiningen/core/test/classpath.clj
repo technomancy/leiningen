@@ -83,10 +83,18 @@
 (deftest test-add-auth
   (with-redefs [user/credentials (constantly
                                   {"https://sekrit.info/repo"
-                                   {:username "milgrim" :password "reindur"}})]
-    (is (= [["sonatype" {:url "https://oss.sonatype.org/"}]
+                                   {:username "milgrim" :password "reindur"}})
+                user/profiles (constantly {:auth {:repository-auth
+                                                  {#"clojars"
+                                                   {:username "flynn"
+                                                    :password "flotilla"}}}})]
+    (is (= [["clojars" {:url "http://clojars.org/repo"
+                        :username "flynn" :password "flotilla"}]
+            ["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
-                         :url "https://sekrit.info/repo"}]]
+                         :url "https://sekrit.info/repo" :creds :gpg}]]
            (map add-repo-auth
-                [["sonatype" {:url "https://oss.sonatype.org/"}]
-                 ["internal" {:url "https://sekrit.info/repo"}]])))))
+                [["clojars" {:url "http://clojars.org/repo"}]
+                 ["sonatype" {:url "https://oss.sonatype.org/"}]
+                 ["internal" {:url "https://sekrit.info/repo"
+                              :creds :gpg}]])))))
