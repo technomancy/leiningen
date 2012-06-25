@@ -148,8 +148,7 @@
                    :checkout-deps-shares [:source-paths
                                           :resource-paths
                                           :compile-path]}
-         :production {}
-         :leiningen.test/test {:injections [hooke-injection]}
+         :leiningen/test {:injections [hooke-injection]}
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
@@ -182,7 +181,7 @@
 
 (defn- lookup-profile [profiles profile-name]
   (let [result (profiles profile-name)]
-    (when (and (nil? result) (not (#{:default :dev :user :test} profile-name)))
+    (when (and (nil? result) (not (#{:dev :user :test :production} profile-name)))
       (println "Warning: profile" profile-name "not found."))
     (if (keyword? result)
       (recur profiles result)
