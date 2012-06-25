@@ -302,7 +302,9 @@
   ([file profiles]
      (locking read
        (binding [*ns* (find-ns 'leiningen.core.project)]
-         (load-file file))
+         (try (load-file file)
+              (catch Exception e
+                (throw (Exception. "Error loading project.clj" e)))))
        (let [project (or (resolve 'leiningen.core.project/project)
                          (throw
                           (Exception. "project.clj must define project map.")))]
