@@ -161,6 +161,14 @@
   ;; dependency resolution.
   :deploy-repositories {"releases" "http://blueant.com/archiva/internal/releases"
                         "snapshots" "http://blueant.com/archiva/internal/snapshots"}
+  ;; Fetch dependencies from mirrors. Mirrors override repositories when the key
+  ;; in the :mirrors map matches either the name or URL of a specified
+  ;; repository. All settings supported in :repositories may be set here too.
+  :mirrors {"central" {:name "Ibiblio"
+                       :url "http://mirrors.ibiblio.org/pub/mirrors/maven2"}
+            #"clojars" {:name "Internal nexus"
+                        :url "http://mvn.local/nexus/releases"
+                        :repo-manager true}}
   ;; Prevent Leiningen from checking the network for dependencies.
   ;; This wouldn't normally be set in project.clj; it would come from a profile.
   :offline? true
