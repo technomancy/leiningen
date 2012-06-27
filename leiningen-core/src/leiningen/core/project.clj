@@ -68,7 +68,9 @@
          (into (if-not omit-default-repositories
                  (:repositories defaults)
                  (ordered/ordered-map))
-               (for [[id repo] repositories]
+               (for [[id repo] repositories
+                     ;; user-level :repos entries may contain just credentials
+                     :when (or (string? repo) (:url repo))]
                  [id (if (map? repo) repo {:url repo})]))))
 
 (defn- without-version [[id version & other]]
@@ -188,6 +190,15 @@
       (recur profiles result)
       result)))
 
+(defn- warn-user-repos []
+  (when (->> (vals (user/profiles))
+             (map (comp vals :repositories))
+             (apply concat) (some :url))
+    (println "WARNING: :repositories detected in user-level profile!")
+    (println "See https://github.com/technomancy/leiningen/wiki/Repeatability")))
+
+(alter-var-root #'warn-user-repos memoize)
+
 (defn- profiles-for
   "Read profiles from a variety of sources.
 
@@ -195,16 +206,13 @@
   the profiles.clj file in the project root, and the :profiles key from the
   project map."
   [project profiles-to-apply]
-  (let [user-profiles (user/profiles)]
-    (when (some (comp :repositories val) user-profiles)
-      (println "WARNING: :repositories detected in user-level profile!")
-      (println "See https://github.com/technomancy/leiningen/wiki/Repeatability"))
-    (let [profiles (merge @default-profiles user-profiles (:profiles project))]
-      ;; We reverse because we want profile values to override the
-      ;; project, so we need "last wins" in the reduce, but we want the
-      ;; first profile specified by the user to take precedence.
-      (map #(if (keyword? %) (lookup-profile profiles %) %)
-           (reverse profiles-to-apply)))))
+  (warn-user-repos)
+  (let [profiles (merge @default-profiles (user/profiles) (:profiles project))]
+    ;; We reverse because we want profile values to override the
+    ;; project, so we need "last wins" in the reduce, but we want the
+    ;; first profile specified by the user to take precedence.
+    (map #(if (keyword? %) (lookup-profile profiles %) %)
+         (reverse profiles-to-apply))))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
