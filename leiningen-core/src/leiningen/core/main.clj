@@ -122,7 +122,7 @@ or by executing \"lein upgrade\". ")
 (defn- warn-chaining [task-name args]
   (when (and (some #(.endsWith (str %) ",") (cons task-name args))
              (not-any? #(= % "do") (cons task-name args)))
-    (println "WARNING: task chaining has been moved to the \"do\" task.")
+    (println "WARNING: task chaining has been moved to the \"do\" task. For example, \"lein javac, test\" should now be called as \"lein do javac, test\" ")
     (println "See `lein help do` for details.")))
 
 (defn user-agent []
