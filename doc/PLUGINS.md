@@ -17,11 +17,11 @@ lein-myplugin`, and edit the `myplugin` defn in the
 `leiningen.myplugin` namespace. You'll notice the `project.clj` file
 has `:eval-in-leiningen true`, which causes all tasks to operate
 inside the leiningen process rather than starting a subprocess to
-isolate the project's code. Plugins should not declare a dependency on
+isolate the project's code. Plugins need not declare a dependency on
 Clojure itself; in fact
 [all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/master/project.clj)
 will be available. However, it doesn't hurt to be specific since
-Leiningen's dependencies may change in future versions.
+Leiningen's other dependencies may change in future versions.
 
 See the `lein-pprint` directory
 [in the Leiningen source](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
@@ -106,6 +106,8 @@ need. For example, this is done in the `lein-swank` plugin like so:
                       (swank-form project port host opts))))
 ```
 
+TODO: switch to profiles for this
+
 The code in the `swank-clojure` dependency is needed inside the
 project, so it's `conj`ed into the `:dependencies`.
 
@@ -151,23 +153,18 @@ that call `add-hook`. You may place calls to `add-hook` at the
 top-level of the namespace, but if an `activate` defn is present it
 will be called; this is the best place to put `add-hook` invocations.
 
-If you need to use hooks from code that runs inside the project's
-process, you may use `leiningen.core.injected/add-hook`, which is an
-isolated copy of `robert.hooke/add-hook` injected into the project in
-order to support features like test selectors.
-
 See [the documentation for
 Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
 
 ## Clojure Version
 
-Leiningen 2.0.0 uses Clojure 1.3.0. If you need to use a different
+Leiningen 2.0.0 uses Clojure 1.4.0. If you need to use a different
 version of Clojure from within a Leiningen plugin, you can use
 `eval-in-project` with a dummy project argument:
 
 ```clj
-(eval-in-project {:dependencies '[[org.clojure/clojure "1.4.0-beta1"]]}
+(eval-in-project {:dependencies '[[org.clojure/clojure "1.5.0-alpha"]]}
                  '(println "hello from" *clojure-version*))
 ```
 
@@ -284,8 +281,8 @@ feel free to fork the project and submit a pull request.
 
 ## Have Fun
 
-Please add your plugins to [the list on the
-wiki](http://wiki.github.com/technomancy/leiningen/plugins).
+Please add your plugin to [the list on the
+wiki](http://wiki.github.com/technomancy/leiningen/plugins) once it's ready.
 
 Hopefully the plugin mechanism is simple and flexible enough to let
 you bend Leiningen to your will.
