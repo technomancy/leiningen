@@ -4,6 +4,8 @@ See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
 ** 2.0.0-final
+   - [ ] Implement add-profiles task (#661)
+   - [ ] Allow trampoline to work with chaining in do task (#665)
    - [ ] Reduce Aether verbosity (#610)
    - [ ] Improve speed of trampoline restarts (#573)
    - [ ] Isolate target dir per profile (#468)
@@ -17,7 +19,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Check project for :scm (#640)
    - [X] Mirror support (#271)
    - [X] Only look up repo credentials when necessary (#657)
-   - [ ] Allow jars to be signed, document in deploying guide. (#519)
+   - [X] Allow jars to be signed, document in deploying guide. (#519)
    - [X] Fix javac to abort on failure (#658)
 ** preview4
    - [X] Don't re-extract native deps (#535)

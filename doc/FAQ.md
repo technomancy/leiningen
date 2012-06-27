@@ -86,10 +86,12 @@
   example.) Otherwise you can use the basic `lein repl`.
 
 **Q:** Still too slow; what else can make startup faster?  
-**A:** If you are running an older version of Leiningen (before 1.7)
-  you can `export LEIN_JVM_OPTS=-XX:+TieredCompilation` to improve
-  boot time. This requires Hotspot version 20 or newer. On newer versions
-  of Leiningen it is enabled automatically.
+**A:** You can usually set `:bootclasspath true` in project.clj to
+  speed up project launches, though there are compatibility issues in
+  some cases. If you are running an older version of Leiningen (before
+  1.7) you can also `export LEIN_JVM_OPTS=-XX:+TieredCompilation` to
+  improve boot time. This requires Hotspot version 20 or newer. On
+  newer versions of Leiningen it is enabled automatically.
 
 **Q:** Why is Leiningen 2 still in a preview release?  
 **A:** As of the preview3 release, Leiningen 2 is very stable and
