@@ -82,7 +82,7 @@
           (main/info "Compiling" (count files) "source files to" compile-path)
           (.mkdirs (io/file compile-path))
           (when-not (zero? (.run compiler nil nil nil (javac-options project files args)))
-            (main/abort "Compilation of Java sources failed, aborting.")))
+            (main/abort "Compilation of Java sources (lein javac) failed, aborting.")))
         (main/abort "lein-javac: system java compiler not found;"
                     "a JDK (vs. JRE) install is required.")))))
 
