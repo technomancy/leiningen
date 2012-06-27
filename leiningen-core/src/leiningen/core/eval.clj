@@ -53,7 +53,8 @@
          (main/info "If so, see \"Free-floating Jars\" under http://j.mp/repeatability")
          (main/abort)))
   (doseq [task (:prep-tasks project)]
-    (main/apply-task task (dissoc project :prep-tasks) []))
+    (main/apply-task (main/lookup-alias task project)
+                     (dissoc project :prep-tasks) []))
   (.mkdirs (io/file (:compile-path project "/tmp")))
   (when-let [prepped (:prepped (meta project))]
     (deliver prepped true)))
