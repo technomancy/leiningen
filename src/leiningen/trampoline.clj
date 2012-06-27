@@ -41,8 +41,9 @@ Not compatible with tasks like do that call eval-in-project multiple times."
     (when (:eval-in-leiningen project)
       (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
     (binding [*trampoline?* true]
-      (main/apply-task task-name (with-meta (assoc project :eval-in :trampoline)
-                                   {:trampoline-promise command}) args))
+      (main/apply-task (main/lookup-alias task-name project)
+                       (with-meta (assoc project :eval-in :trampoline)
+                         {:trampoline-promise command}) args))
     (if (realized? command)
       (write-trampoline @command)
       (main/abort task-name "did not run any project code for trampolining."))))
