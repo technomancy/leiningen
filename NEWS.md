@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-preview7 / 2012-06-??
+## 2.0.0-preview7 / 2012-06-27
 
 * Fix a bug where failed javac wouldn't abort. (Michael Klishin)
 * Check task aliases everywhere tasks are invoked.
