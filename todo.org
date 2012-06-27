@@ -18,7 +18,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Mirror support (#271)
    - [X] Only look up repo credentials when necessary (#657)
    - [ ] Allow jars to be signed, document in deploying guide. (#519)
-   - [ ] Fix javac to abort on failure (#658)
+   - [X] Fix javac to abort on failure (#658)
 ** preview4
    - [X] Don't re-extract native deps (#535)
    - [X] Make offline profile use dev profile (#514) (LHF)
