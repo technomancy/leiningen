@@ -39,7 +39,7 @@ echo "target/leiningen-$RELEASE_VERSION-standalone.jar to GitHub."
 echo "Also deploy this release of leiningen-core to Clojars."
 
 # Still manual for now:
-# cd leiningen-core; lein clean, deploy clojars, marg
+# cd leiningen-core; lein do clean, deploy clojars, marg
 # scp docs/uberdoc.html leiningen.org:leiningen.org/reference.html
 # git commit -a -m "Release $RELEASE_VERSION"
 # git tag $RELEASE_VERSION

@@ -112,7 +112,7 @@ explains how to write plugins.
 
 Please report issues on the
 [GitHub issue tracker](https://github.com/technomancy/leiningen/issues)
-or the [mailing list](http://groups.google.com/group/leiningen).
+or the [mailing list](http://librelist.com/browser/leiningen/).
 Personal email addresses are **not** appropriate for bug reports. See
 the
 [readme for the leiningen-core library](https://github.com/technomancy/leiningen/blob/master/leiningen-core/README.md)
