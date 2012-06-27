@@ -40,6 +40,8 @@
                               "central" {:url "http://repo1.maven.org/maven2"}
                               ;; TODO: point to releases-only before 2.0 is out
                               "clojars" {:url "https://clojars.org/repo/"})
+               :deploy-repositories {"clojars" {:url "https://clojars.org/repo/"
+                                                :password :gpg}}
                :jar-exclusions [#"^\."]
                :jvm-opts ["-XX:+TieredCompilation"]
                :certificates ["clojars.pem"]
