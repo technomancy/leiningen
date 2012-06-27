@@ -7,7 +7,7 @@
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :description "A test project"
-  :url "https://github.com/technomancy/leiningen/tree/master/test_projects"
+  :url "http://leiningen.org"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[~(symbol "org.clojure" "clojure") ~clj-version]
