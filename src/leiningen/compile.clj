@@ -10,12 +10,16 @@
 (defn- regex? [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
 
+(defn- matching-nses [re-or-sym namespaces]
+  (if (regex? re-or-sym)
+    (filter #(re-find re-or-sym (name %)) namespaces)
+    [re-or-sym]))
+
 (defn- find-namespaces-by-regex [project nses]
-  (let [[res syms] ((juxt filter remove) regex? nses)
-        matches? (fn [ns] (some #(re-find % (name ns)) res))]
-    (concat syms (filter matches? (b/namespaces-on-classpath
-                                   :classpath
-                                   (map io/file (:source-paths project)))))))
+  (let [avail-nses (->> (:source-paths project)
+                     (map io/file)
+                     (b/namespaces-on-classpath :classpath))]
+   (mapcat #(matching-nses % avail-nses) nses)))
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
