@@ -7,9 +7,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "2.0.0-SNAPSHOT"]
-                 [clucy "0.2.3"]
+                 [clucy "0.3.0"]
                  [org.clojure/data.xml "0.0.3"]
-                 [bultitude "0.1.6"]
+                 [bultitude "0.1.7"]
                  [reply "0.1.0-beta8"]
                  ;; once reply bumps its drawbridge dep we can collapse these
                  [com.cemerick/drawbridge "0.0.6" :exclusions [ring/ring-core]]
