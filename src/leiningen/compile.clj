@@ -134,6 +134,7 @@ Code that should run on startup belongs in a -main defn."
                   (catch Exception e
                     (main/abort "Compilation failed."))))
            #_(finally (clean-non-project-classes project)))
+         ;; TODO: omit if possible
          (main/info "All namespaces already :aot compiled."))))
   ([project & namespaces]
      (compile (assoc project :aot (if (= namespaces [":all"])
