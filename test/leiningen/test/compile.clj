@@ -39,7 +39,7 @@
                         `(reset! eip-check true))
   (is @eip-check))
 
-(deftest ^:post-preview test-cleared-transitive-aot
+(deftest test-cleared-transitive-aot
   (compile (assoc sample-project :clean-non-project-classes true))
   (eval/eval-in-project sample-project '(require 'nom.nom.nom))
   (let [classes (seq (.list (file "test_projects" "sample" "target"
@@ -52,7 +52,7 @@
   (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "alt.class")))))
 
-(deftest ^:post-preview test-cleared-transitive-aot-by-regexes
+(deftest test-cleared-transitive-aot-by-regexes
   (compile (assoc sample-project :clean-non-project-classes [#"core"]))
   (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
