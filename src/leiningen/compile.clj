@@ -56,50 +56,60 @@
 
  ;; .class file cleanup
 
-;; (defn- has-source-package?
-;;   "Test if the class file's package exists as a directory in source-path."
-;;   [project f source-path]
-;;   (and source-path
-;;        (let [[[parent] [_ _ proxy-mod-parent]]
-;;              (->> f, (iterate #(.getParentFile %)),
-;;                   (take-while identity), rest,
-;;                   (split-with #(not (re-find #"^proxy\$" (.getName %)))))]
-;;          (.isDirectory (io/file (.replace (.getPath (or proxy-mod-parent parent))
-;;                                           (:compile-path project)
-;;                                           source-path))))))
+(defn- package-in-project?
+  "Tests if the package found in the compile path exists as a directory in the source path."
+  [found-path compile-path source-path]
+  (.isDirectory (io/file (.replace found-path compile-path source-path))))
 
-;; (defn- class-in-project? [project f]
-;;   (or (has-source-package? project f (:source-paths project))
-;;       (has-source-package? project f (:java-source-paths project))
-;;       (.exists (io/file (str (.replace (.getParent f)
-;;                                        (:compile-path project)
-;;                                        (:source-paths project)) ".clj")))))
+(defn- has-source-package?
+  "Test if the class file's package exists as a directory in source-paths."
+  [project f source-paths]
+  (and source-paths
+       (let [[[parent] [_ _ proxy-mod-parent]]
+             (->> f, (iterate #(.getParentFile %)),
+                  (take-while identity), rest,
+                  (split-with #(not (re-find #"^proxy\$" (.getName %)))))
+             found-path (.getPath (or proxy-mod-parent parent))
+             compile-path (:compile-path project)]
+         (some #(package-in-project? found-path compile-path %) source-paths))))
 
-;; (defn- relative-path [project f]
-;;   (let [root-length (if (= \/ (last (:compile-path project)))
-;;                       (count (:compile-path project))
-;;                       (inc (count (:compile-path project))))]
-;;     (subs (.getAbsolutePath f) root-length)))
+(defn- source-in-project?
+  "Tests if a file found in the compile path exists in the source path."
+  [parent compile-path source-path]
+  (.exists (io/file (str (.replace parent compile-path source-path) ".clj"))))
 
-;; (defn- blacklisted-class? [project f]
-;;   ;; true indicates all non-project classes are blacklisted
-;;   (or (true? (:clean-non-project-classes project))
-;;       (some #(re-find % (relative-path project f))
-;;             (:clean-non-project-classes project))))
+(defn- class-in-project? [project f]
+  (or (has-source-package? project f (:source-paths project))
+      (has-source-package? project f (:java-source-paths project))
+      (let [parent (.getParent f)
+            compile-path (:compile-path project)]
+        (some #(source-in-project? parent compile-path %) (:source-paths project)))))
 
-;; (defn- whitelisted-class? [project f]
-;;   (or (class-in-project? project f)
-;;       (and (:class-file-whitelist project)
-;;            (re-find (:class-file-whitelist project)
-;;                     (relative-path project f)))))
+(defn- relative-path [project f]
+  (let [root-length (if (= \/ (last (:compile-path project)))
+                      (count (:compile-path project))
+                      (inc (count (:compile-path project))))]
+    (subs (.getAbsolutePath f) root-length)))
 
-;; (defn clean-non-project-classes [project]
-;;   (when (:clean-non-project-classes project)
-;;     (doseq [f (file-seq (io/file (:compile-path project)))
-;;             :when (and (.isFile f)
-;;                        (not (whitelisted-class? project f))
-;;                        (blacklisted-class? project f))]
-;;       (.delete f))))
+(defn- blacklisted-class? [project f]
+  ;; true indicates all non-project classes are blacklisted
+  (or (true? (:clean-non-project-classes project))
+      (some #(re-find % (relative-path project f))
+            (:clean-non-project-classes project))))
+
+(defn- whitelisted-class? [project f]
+  (or (class-in-project? project f)
+      (and (:class-file-whitelist project)
+           (re-find (:class-file-whitelist project)
+                    (relative-path project f)))))
+
+(defn clean-non-project-classes [project]
+  (when (:clean-non-project-classes project)
+    (doseq [f (file-seq (io/file (:compile-path project)))
+            :when (and (.isFile f)
+                       (not (whitelisted-class? project f))
+                       (blacklisted-class? project f))]
+      (.delete f))))
 
 (defn eval-in-project [project form & [_ _ init]]
   (println "The eval-in-project function has moved to the leiningen.core.eval\n"
@@ -133,7 +143,7 @@ Code that should run on startup belongs in a -main defn."
                   (main/info "Compilation succeeded.")
                   (catch Exception e
                     (main/abort "Compilation failed."))))
-           #_(finally (clean-non-project-classes project)))
+           (finally (clean-non-project-classes project)))
          ;; TODO: omit if possible
          (main/info "All namespaces already :aot compiled."))))
   ([project & namespaces]
