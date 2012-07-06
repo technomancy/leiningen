@@ -56,24 +56,34 @@
 
  ;; .class file cleanup
 
+(defn- package-in-project?
+  "Tests if the package found in the compile path exists as a directory in the source path."
+  [found-path compile-path source-path]
+  (.isDirectory (io/file (.replace found-path compile-path source-path))))
+
 (defn- has-source-package?
-  "Test if the class file's package exists as a directory in source-path."
-  [project f source-path]
-  (and source-path
+  "Test if the class file's package exists as a directory in source-paths."
+  [project f source-paths]
+  (and source-paths
        (let [[[parent] [_ _ proxy-mod-parent]]
              (->> f, (iterate #(.getParentFile %)),
                   (take-while identity), rest,
-                  (split-with #(not (re-find #"^proxy\$" (.getName %)))))]
-         (.isDirectory (io/file (.replace (.getPath (or proxy-mod-parent parent))
-                                          (:compile-path project)
-                                          source-path))))))
+                  (split-with #(not (re-find #"^proxy\$" (.getName %)))))
+             found-path (.getPath (or proxy-mod-parent parent))
+             compile-path (:compile-path project)]
+         (some #(package-in-project? found-path compile-path %) source-paths))))
+
+(defn- source-in-project?
+  "Tests if a file found in the compile path exists in the source path."
+  [parent compile-path source-path]
+  (.exists (io/file (str (.replace parent compile-path source-path) ".clj"))))
 
 (defn- class-in-project? [project f]
   (or (has-source-package? project f (:source-paths project))
       (has-source-package? project f (:java-source-paths project))
-      (.exists (io/file (str (.replace (.getParent f)
-                                       (:compile-path project)
-                                       (:source-paths project)) ".clj")))))
+      (let [parent (.getParent f)
+            compile-path (:compile-path project)]
+        (some #(source-in-project? parent compile-path %) (:source-paths project)))))
 
 (defn- relative-path [project f]
   (let [root-length (if (= \/ (last (:compile-path project)))

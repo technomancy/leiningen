@@ -44,8 +44,8 @@
   (eval/eval-in-project sample-project '(require 'nom.nom.nom))
   (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
-    (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto____\d+.class"
-               #"nom\$_main__\d+.class" #"nom.class" #"nom__init.class"]]
+    (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto__.class"
+               #"nom\$_main.class" #"nom.class" #"nom__init.class"]]
       (is (some (partial re-find r) classes) (format "missing %s" r))))
   (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "core.class"))))
@@ -56,8 +56,8 @@
   (compile (assoc sample-project :clean-non-project-classes [#"core"]))
   (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
-    (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto____\d+.class"
-               #"nom\$_main__\d+.class" #"nom.class" #"nom__init.class"]]
+    (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto__.class"
+               #"nom\$_main.class" #"nom.class" #"nom__init.class"]]
       (is (some (partial re-find r) classes) (format "missing %s" r))))
   (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "core.class"))))
