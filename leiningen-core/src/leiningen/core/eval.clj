@@ -165,8 +165,7 @@
         (throw (Exception. (str "Process exited with " exit-code)))))))
 
 (defmethod eval-in :trampoline [project form]
-  (deliver (:trampoline-promise (meta project))
-           (shell-command project form)))
+  (swap! (:trampoline-forms (meta project)) conj form))
 
 (defmethod eval-in :classloader [project form]
   (let [classpath   (map io/file (classpath/get-classpath project))
