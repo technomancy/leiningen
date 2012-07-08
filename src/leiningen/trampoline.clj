@@ -13,18 +13,22 @@
 (defn- quote-arg [arg]
   (format "\"%s\"" arg))
 
-(defn trampoline-command-string [command]
-  (string/join " " (if (win-batch?)
-                     (map quote-arg command)
-                     (conj (vec (map quote-arg (butlast command)))
-                           (with-out-str
-                             (prn (last command)))))))
+(defn trampoline-command-string [project forms]
+  ;; each form is (do init & body)
+  (let [forms (map rest forms) ;; strip off do
+        inits (map first forms)
+        rests (mapcat rest forms)
+        command (eval/shell-command project (concat '(do) inits rests))]
+    (string/join " " (if (win-batch?)
+                       (map quote-arg command)
+                       (conj (vec (map quote-arg (butlast command)))
+                             (with-out-str
+                               (prn (last command))))))))
 
-(defn write-trampoline [command]
-  (main/debug "Trampoline command:"
-              (trampoline-command-string command))
-  (spit (System/getProperty "leiningen.trampoline-file")
-        (trampoline-command-string command)))
+(defn write-trampoline [project forms]
+  (let [command (trampoline-command-string project forms)]
+    (main/debug "Trampoline command:" command)
+    (spit (System/getProperty "leiningen.trampoline-file") command)))
 
 (defn ^:higher-order trampoline
   "Run a task without nesting the project's JVM inside Leiningen's.
@@ -33,17 +37,16 @@ Calculates what needs to run in the project's process for the provided
 task and runs it after Leiningen's own JVM process has exited rather
 than as a subprocess of Leiningen's project.
 
-Use this to save memory or to work around things like stdin issues.
-Not compatible with tasks like do that call eval-in-project multiple times."
+Use this to save memory or to work around stdin issues."
   [project task-name & args]
   ;; TODO: allow trampoline calls to chain with do
-  (let [command (promise)]
+  (let [forms (atom [])]
     (when (:eval-in-leiningen project)
       (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
     (binding [*trampoline?* true]
       (main/apply-task (main/lookup-alias task-name project)
                        (with-meta (assoc project :eval-in :trampoline)
-                         {:trampoline-promise command}) args))
-    (if (realized? command)
-      (write-trampoline @command)
+                         {:trampoline-forms forms}) args))
+    (if (seq @forms)
+      (write-trampoline project @forms)
       (main/abort task-name "did not run any project code for trampolining."))))
