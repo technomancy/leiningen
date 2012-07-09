@@ -6,6 +6,7 @@
             [clojure.set :as set]
             [ordered.map :as ordered]
             [cemerick.pomegranate :as pomegranate]
+            [cemerick.pomegranate.aether :as aether]
             [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
@@ -225,7 +226,12 @@
   ([project key]
      (when (seq (project key))
        (ensure-dynamic-classloader)
-       (classpath/resolve-dependencies key project :add-classpath? true)))
+       (classpath/resolve-dependencies key project :add-classpath? true))
+     (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
+                            (.getResources "leiningen/wagons.clj")
+                            (enumeration-seq))
+             [hint factory] (read-string (slurp wagon-file))]
+       (aether/register-wagon-factory! hint (eval factory))))
   ([project] (load-plugins project :plugins)))
 
 (defn- load-hooks [project]
