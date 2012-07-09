@@ -41,13 +41,13 @@
           "/dev/null")))
 
 (defn prep-tasks
-  "Execute all the prep-tasks. A prep task is just a string e.g
-  \"javac\". If the task takes arguments, you can just add them in the
-  string. E.g \"protobuf compile\""
+  "Execute all the prep-tasks. A task can either be a string, or a
+  vector if it takes arguments. see :prep-tasks in sample.project.clj
+  for examples"
   [{:keys [prep-tasks] :as project}]
-  (doseq [task-string prep-tasks]
-    (let [[task & task-args] (string/split (string/trim task-string) #"\s+")]
-      (main/apply-task task (dissoc project :prep-tasks) task-args))))
+  (doseq [task prep-tasks]
+    (let [[task-name & task-args] (if (vector? task) task [task])]
+      (main/apply-task task-name (dissoc project :prep-tasks) task-args))))
 
 ;; # Form Wrangling
 
