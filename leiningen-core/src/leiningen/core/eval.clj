@@ -40,6 +40,15 @@
           "NUL"
           "/dev/null")))
 
+(defn prep-tasks
+  "Execute all the prep-tasks. A prep task is just a string e.g
+  \"javac\". If the task takes arguments, you can just add them in the
+  string. E.g \"protobuf compile\""
+  [{:keys [prep-tasks] :as project}]
+  (doseq [task-string prep-tasks]
+    (let [[task & task-args] (string/split (string/trim task-string) #"\s+")]
+      (main/apply-task task (dissoc project :prep-tasks) task-args))))
+
 ;; # Form Wrangling
 
 (defn prep [project]
@@ -52,8 +61,7 @@
          (main/info "It's possible the specified jar is not in any repository.")
          (main/info "If so, see \"Free-floating Jars\" under http://j.mp/repeatability")
          (main/abort)))
-  (doseq [task (:prep-tasks project)]
-    (main/apply-task task (dissoc project :prep-tasks) []))
+  (prep-tasks project)
   (.mkdirs (io/file (:compile-path project "/tmp")))
   (when-let [prepped (:prepped (meta project))]
     (deliver prepped true)))
