@@ -20,11 +20,8 @@
       (get (:aliases project) task-name)
       task-name "help"))
 
-(defn help? [s]
-  (#{"help" "--help" "-h" "-?"} s))
-
 (defn task-args [args project]
-  (if (help? (second args))
+  (if (= "help" (@aliases (second args)))
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
 
