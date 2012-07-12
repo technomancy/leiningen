@@ -48,14 +48,15 @@ project place them in your `:user` profile. Your
                   [lein-pprint "1.1.1"]]}}
 ```
 
-Profiles are merged by taking each key, e.g. `:user`, `:dev`, etc, and combining the value if it's
-a collection and replacing it if it's not. Profiles specified earlier
-take precedence when replacing. The dev profile takes precedence over
-user by default. Maps are merged recursively, sets are combined with
-`clojure.set/union`, and lists/vectors are concatenated. You can add
-hints via metadata that a given value should take precedence
-(`:replace`) or defer to values from a different profile (`:displace`)
-if you want to override this logic:
+Profiles are merged by taking each key in the project map or profile
+map, combining the value if it's a collection and replacing it if it's
+not. Profiles specified earlier take precedence when replacing. The
+dev profile takes precedence over user by default. Maps are merged
+recursively, sets are combined with `clojure.set/union`, and
+lists/vectors are concatenated. You can add hints via metadata that a
+given value should take precedence (`:replace`) or defer to values
+from a different profile (`:displace`) if you want to override this
+logic:
 
 ```clj
 {:profiles {:dev {:prep-tasks ^:replace ["clean" "compile"]
