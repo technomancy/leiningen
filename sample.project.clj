@@ -73,7 +73,7 @@
   ;; Normally Leiningen runs the javac and compile tasks before
   ;; calling any eval-in-project code, but you can override this with
   ;; the :prep-tasks key to do other things like compile protocol buffers.
-  :prep-tasks ["protoc" "compile"]
+  :prep-tasks [["protobuf" "compile"] "javac" "compile"]
   ;; Warns users of earlier versions of Leiningen.
   :min-lein-version "2.0.0"
   ;; Paths to include on the classpath from each project in the
