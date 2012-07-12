@@ -254,8 +254,9 @@ Of course, we haven't written any tests yet, so we've just got the
 skeleton failing tests that Leiningen gave us with `lein new`. But
 once we fill it in the test suite will become more useful. Sometimes
 if you've got a large test suite you'll want to run just one or two
-namespaces at a time. You also might want to break up your tests using
-test selectors; see `lein help test` for more details.
+namespaces at a time; `lein test my.test.stuff` will do that.. You
+also might want to break up your tests using test selectors; see `lein
+help test` for more details.
 
 Running `lein test` from the command-line is suitable for regression
 testing, but the slow startup time of the JVM makes it a poor fit for
@@ -285,7 +286,8 @@ of Leiningen projects:
 For the first, you typically build an uberjar. For libraries,
 you will want to have them published to a repository like Clojars or a
 private repository. For server-side applications it varies as
-described below.
+described below. Generating a project with `lein new app myapp` will
+start you out with a few extra defaults suitable for non-library projects.
 
 ### Uberjar
 
@@ -354,31 +356,42 @@ instruct them to use `lein run` as described above.
 ### Server-side Projects
 
 There are many ways to get your project deployed as a server-side
-application. Aside from the obvious `lein run` approach, simple
+application. Aside from the obvious uberjar approach, simple
 programs can be packaged up as tarballs with accompanied shell scripts
 using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
 and then deployed using
 [pallet](http://hugoduncan.github.com/pallet/),
 [chef](http://opscode.com/chef/), or other mechanisms. Debian packages
 can be created with [lein-deb](https://github.com/travis/lein-deb).
-Web applications may be deployed using .war (web application archive)
-files created by the
-[lein-ring plugin](https://github.com/weavejester/lein-ring). You can
-even create
-[Hadoop projects](https://github.com/ndimiduk/lein-hadoop). These
-kinds of deployments are so varied that they are better-handled using
-plugins rather than tasks that are built-in to Leiningen itself.
+Web applications may be deployed as uberjars using embedded Jetty with
+`ring-jetty-adapter` or as .war (web application archive) files
+created by the
+[lein-ring plugin](https://github.com/weavejester/lein-ring). For
+things beyond uberjars, server-side deployments are so varied that they
+are better-handled using plugins rather than tasks that are built-in
+to Leiningen itself.
 
-If you do end up involving Leiningen in production, it's very
-important to ensure you take steps to freeze all the dependencies
-before deploying, otherwise it could be easy to end up with
+If you do end up involving Leiningen in production via something like
+`lein trampoline run`, it's very important to ensure you take steps to
+freeze all the dependencies before deploying, otherwise it could be
+easy to end up with
 [unrepeatable deployments](https://github.com/technomancy/leiningen/wiki/Repeatability).
-It's recommended to use Leiningen to create a deployable artifact in a
-continuous integration setting. For example, you could have a
-[Jenkins](http://jenkins-ci.org) CI server run your project's full
-test suite, and if it passes, upload a tarball to S3. Then deployment
-is just a matter of pulling down and extracting the known-good tarball
-on your production servers.
+Consider including `~/.m2/repository` in your unit of deployment along
+with your project code. It's recommended to use Leiningen to create a
+deployable artifact in a continuous integration setting. For example,
+you could have a [Jenkins](http://jenkins-ci.org) CI server run your
+project's full test suite, and if it passes, upload a tarball to S3.
+Then deployment is just a matter of pulling down and extracting the
+known-good tarball on your production servers. Over time this could
+cause unused dependencies to accumulate in the local repo, bloating up
+deploy artifact size, which the
+[lein-clean-m2](https://github.com/technomancy/lein-clean-m2) plugin
+can help with.
+
+Also remember that the `run` task defaults to including the `user`, `dev`,
+and `default` profiles, which are not suitable for production. Using
+`lein trampoline with-profile production run -m myapp.main` is
+recommended.
 
 ### Publishing Libraries
 
@@ -416,7 +429,7 @@ projects may depend. For instructions on storing your credentials so
 they don't have to be re-entered every time, see `lein help deploying`.
 For further details about publishing including setting up private
 repositories, see the
-[deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
+[deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md).
 
 ## That's It!
 
