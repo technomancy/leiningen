@@ -5,8 +5,9 @@
             [clojure.java.io :as io]
             [clojure.string :as string]))
 
-(def aliases {"--help" "help", "-h" "help", "-?" "help", "-v" "version"
-              "--version" "version", "überjar" "uberjar"
+(def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
+              "-v" "version", "-version" "version", "--version" "version",
+              "überjar" "uberjar",
               "-o" ["with-profile" "offline,dev,user,default"]
               "-U" ["with-profile" "update,dev,user,default"]
               "cp" "classpath" "halp" "help"
