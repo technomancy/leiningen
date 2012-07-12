@@ -12,6 +12,10 @@ for each task, but the settings they provide are not propagated
 downstream to projects that depend upon yours. Each profile is defined
 as a map which gets merged into your project map.
 
+You can place any arbitrary defproject entries into a given profile
+and they will be merged into the project map when that profile is
+active.
+
 The example below adds a "dummy-data" resources directory during
 development and a dependency upon "midje" that's only used for tests.
 
@@ -23,14 +27,11 @@ development and a dependency upon "midje" that's only used for tests.
                    :dependencies [[midje "1.4.0"]]}})
 ```
 
-You can place any arbitrary defproject entries into a given profile
-and they will be merged into the project map when that profile is
-active.
 
 ## Declaring Profiles
 
 In addition to `project.clj`, profiles specified in
-`~/.lein/profiles.clj` will be available in all projects, though those
+`~/.lein/profiles.clj` will be available in all projects managed by leiningen, though those
 from `profiles.clj` will be overridden by profiles of the same name in
 the `project.clj` file. This is why the `:user` profile is separate
 from `:dev`; the latter is intended to be specified in the project
@@ -47,7 +48,7 @@ project place them in your `:user` profile. Your
                   [lein-pprint "1.1.1"]]}}
 ```
 
-Profiles are merged by taking each key and combining the value if it's
+Profiles are merged by taking each key, e.g. `:user`, `:dev`, etc, and combining the value if it's
 a collection and replacing it if it's not. Profiles specified earlier
 take precedence when replacing. The dev profile takes precedence over
 user by default. Maps are merged recursively, sets are combined with
@@ -114,7 +115,7 @@ plugin:
      :description "Pretty-print a representation of the project map."}
 
 In order to prevent profile settings from being propagated to other
-projects that depend upon yours, the default profiles are removed from
+projects that depend upon yours, the `:default` profiles are removed from
 your project when generating the pom, jar, and uberjar. Profiles
 activated through an explicit `with-profile` invocation will be
 preserved. The `repl` and `test` tasks use their own profile in order
