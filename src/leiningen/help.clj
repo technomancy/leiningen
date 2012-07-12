@@ -75,7 +75,7 @@
                   (str "\n\nArguments: " (pr-str (get-arglists task))))))
          (format "Task: '%s' not found" task-name))))
   ([project task-name]
-     (let [aliases (merge @main/aliases (:aliases project))]
+     (let [aliases (merge main/aliases (:aliases project))]
        (help-for (aliases task-name task-name)))))
 
 (defn help-summary-for [task-ns]
