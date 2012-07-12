@@ -5,26 +5,24 @@
             [clojure.java.io :as io]
             [clojure.string :as string]))
 
-(def aliases (atom {"--help" "help", "-h" "help", "-?" "help", "-v" "version"
-                    "--version" "version", "überjar" "uberjar"
-                    "-o" ["with-profile" "offline,dev,user,default"]
-                    "-U" ["with-profile" "update,dev,user,default"]
-                    "cp" "classpath" "halp" "help"
-                    "with-profiles" "with-profile"
-                    "readme" ["help" "readme"]
-                    "tutorial" ["help" "tutorial"]
-                    "sample" ["help" "sample"]}))
+(def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
+              "-v" "version", "-version" "version", "--version" "version",
+              "überjar" "uberjar",
+              "-o" ["with-profile" "offline,dev,user,default"]
+              "-U" ["with-profile" "update,dev,user,default"]
+              "cp" "classpath" "halp" "help"
+              "with-profiles" "with-profile"
+              "readme" ["help" "readme"]
+              "tutorial" ["help" "tutorial"]
+              "sample" ["help" "sample"]})
 
 (defn lookup-alias [task-name project]
-  (or (@aliases task-name)
+  (or (aliases task-name)
       (get (:aliases project) task-name)
       task-name "help"))
 
-(defn help? [s]
-  (#{"help" "--help" "-h" "-?"} s))
-
 (defn task-args [args project]
-  (if (help? (second args))
+  (if (= "help" (aliases (second args)))
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
 
