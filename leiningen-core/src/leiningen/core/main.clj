@@ -20,6 +20,14 @@
       (get (:aliases project) task-name)
       task-name "help"))
 
+(defn help? [s]
+  (#{"help" "--help" "-h" "-?"} s))
+
+(defn task-args [args project]
+  (if (help? (second args))
+    ["help" [(first args)]]
+    [(lookup-alias (first args) project) (rest args)]))
+
 (def ^:dynamic *debug* (System/getenv "DEBUG"))
 
 (defn debug [& args]
@@ -141,11 +149,11 @@ or by executing \"lein upgrade\". ")
 
 (defn -main
   "Run a task or comma-separated list of tasks."
-  [& [task-name & args]]
+  [& raw-args]
   (user/init)
   (let [project (if (.exists (io/file "project.clj"))
                   (project/init-project (project/read)))
-        task-name (lookup-alias task-name project)]
+        [task-name args] (task-args raw-args project)]
     (when (:min-lein-version project)
       (verify-min-version project))
     (http-settings)
