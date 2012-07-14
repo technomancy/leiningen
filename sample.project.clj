@@ -185,8 +185,9 @@
   :target-path "target/"           ; where to place the project's jar file
   :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
   :uberjar-name "sample-standalone.jar" ; as above for uberjar
-  ;; Options to pass to java compiler for java source
-  :javac-options {:destdir "classes/"}
+  ;; Options to pass to java compiler for java source,
+  ;; exactly the same as command line arguments to javac
+  :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   ;; Leave the contents of :source-paths out of jars (for AOT projects)
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars
