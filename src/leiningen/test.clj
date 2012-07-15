@@ -66,7 +66,7 @@
                     [(:default (:test-selectors project))]
                     selectors)]
     (when (and (not (:test-selectors project)) (some keyword? args))
-      (throw (Exception. "Must specify :test-selectors in project.clj")))
+      (throw (Exception. "Please specify :test-selectors in project.clj")))
     [nses selectors]))
 
 (defn test
