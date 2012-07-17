@@ -32,6 +32,7 @@
             (while true (Thread/sleep Long/MAX_VALUE)))]
     (if project
       (eval/eval-in-project
+       ;; TODO: don't merge profile for a headless server
        (project/merge-profiles project [(:repl (user/profiles) profile)])
         server-starting-form
         '(do (require 'clojure.tools.nrepl.server)
