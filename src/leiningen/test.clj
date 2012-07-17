@@ -84,8 +84,12 @@ if they are symbols they will be treated as a list of test namespaces to run.
 With no arguments the :default test selector is used if present, otherwise all
 tests are run."
   [project & tests]
-  (binding [main/*exit-process?* (not= :leiningen (:eval-in project))
-            *exit-after-tests* (not= :leiningen (:eval-in project))]
+  (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
+                                   false
+                                   main/*exit-process?*)
+            *exit-after-tests* (if (= :leiningen (:eval-in project))
+                                   false
+                                   *exit-after-tests*)]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
           form (form-for-testing-namespaces nses nil (vec selectors))]
