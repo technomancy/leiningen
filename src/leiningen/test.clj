@@ -22,7 +22,7 @@
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
   each namespace and print an overall summary."
-  ([namespaces result-file & [selectors]]
+  ([namespaces _ & [selectors]]
      `(do
         (when (seq '~namespaces)
           (apply require :reload '~namespaces))
@@ -42,11 +42,6 @@
               summary# (binding [clojure.test/*test-out* *out*]
                          (apply ~'clojure.test/run-tests '~namespaces))]
           (spit ".lein-failures" (pr-str @failures#))
-          ;; Stupid ant won't let us return anything, so write results to disk
-          (with-open [w# (-> (java.io.File. ~result-file)
-                             (java.io.FileOutputStream.)
-                             (java.io.OutputStreamWriter.))]
-            (.write w# (pr-str summary#)))
           (when ~*exit-after-tests*
             (System/exit (+ (:error summary#) (:fail summary#))))))))
 
@@ -93,12 +88,5 @@ tests are run."
             *exit-after-tests* (not= :leiningen (:eval-in project))]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
-          result (doto (File/createTempFile "lein" "result") .deleteOnExit)
-          form (form-for-testing-namespaces nses (.getAbsolutePath result)
-                                            (vec selectors))]
-      (eval/eval-in-project project form '(require 'clojure.test))
-      (if (and (.exists result) (pos? (.length result)))
-        (let [summary (read-string (slurp (.getAbsolutePath result)))]
-          (when-not (zero? (+ (:error summary) (:fail summary)))
-            (main/abort "Tests failed.")))
-        (main/abort "Tests did not finish cleanly.")))))
+          form (form-for-testing-namespaces nses nil (vec selectors))]
+      (eval/eval-in-project project form '(require 'clojure.test)))))
