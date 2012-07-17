@@ -18,6 +18,7 @@
   (let [forms (map rest forms) ;; strip off do
         inits (map first forms)
         rests (mapcat rest forms)
+        ;; TODO: tasks that assoc :dependencies in will not be honored here
         command (eval/shell-command project (concat '(do) inits rests))]
     (string/join " " (if (win-batch?)
                        (map quote-arg command)
