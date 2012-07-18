@@ -30,14 +30,19 @@ development and a dependency upon "midje" that's only used for tests.
 
 ## Declaring Profiles
 
-In addition to `project.clj`, profiles specified in
-`~/.lein/profiles.clj` will be available in all projects managed by leiningen, though those
-from `profiles.clj` will be overridden by profiles of the same name in
-the `project.clj` file. This is why the `:user` profile is separate
-from `:dev`; the latter is intended to be specified in the project
-itself. In order to avoid collisions, the project should never define
-a `:user` profile, nor should `profiles.clj` define a `:dev` profile.
-Use the `show-profiles` task to see what's available.
+In addition to `project.clj`, profiles also can be specified in `profiles.clj`
+within the project root. Profiles specified in `profiles.clj` will override
+profiles in `project.clj`, so this can be used for project-specific overrides
+that you don't want committed in version control.
+
+Global profiles can also be specified in `~/.lein/profiles.clj`. These will be
+available in all projects managed by Leiningen, though those profiles will be
+overridden by profiles of the same name in the specified in the project.
+
+The `:user` profile is separate from `:dev`; the latter is intended to be
+specified in the project itself. In order to avoid collisions, the project
+should never define a `:user` profile, nor should `~/.lein/profiles.clj` define
+a `:dev` profile. Use the `show-profiles` task to see what's available.
 
 If you want to access dependencies during development time for any
 project place them in your `:user` profile. Your
@@ -68,6 +73,19 @@ have custom de-duplication logic since they must be specified as
 vectors even though they behave like maps (because it only makes sense
 to have a single version of a given dependency present at once). The
 replace/displace metadata hints still apply though.
+
+## Composite Profiles
+
+Sometimes it is useful to define a profile as a combination of other
+profiles. To do this, just use a vector instead of a map as the profile value.
+This can be used to avoid duplication:
+
+```clj
+{:shared {:port 9229, :protocol \"https\"}
+ :qa [:shared {:servers [\"qa.mycorp.com\"]}]
+ :stage [:shared {:servers [\"stage.mycorp.com\"]}]
+ :production [:shared {:servers [\"prod1.mycorp.com\", \"prod1.mycorp.com\"]}]}
+```
 
 ## Activating Profiles
 
