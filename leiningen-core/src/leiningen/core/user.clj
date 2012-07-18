@@ -2,7 +2,8 @@
   "Functions exposing user-level configuration."
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.java.shell :as shell])
+            [clojure.java.shell :as shell]
+            [leiningen.core.utils :as utils])
   (:import (java.util.regex Pattern)))
 
 (defn leiningen-home
@@ -25,9 +26,7 @@
 (defn profiles
   "Load profiles.clj from your Leiningen home if present."
   []
-  (let [profiles-file (io/file (leiningen-home) "profiles.clj")]
-    (if (.exists profiles-file)
-      (read-string (slurp profiles-file)))))
+  (utils/read-file (io/file (leiningen-home) "profiles.clj")))
 
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."

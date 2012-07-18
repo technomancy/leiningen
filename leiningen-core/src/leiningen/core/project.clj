@@ -7,6 +7,7 @@
             [ordered.map :as ordered]
             [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
+            [leiningen.core.utils :as utils]
             [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
@@ -201,6 +202,9 @@
 
 (alter-var-root #'warn-user-repos memoize)
 
+(defn- project-profiles [project]
+  (utils/read-file (io/file (:root project) "profiles.clj")))
+
 (defn- profiles-for
   "Read profiles from a variety of sources.
 
@@ -209,7 +213,8 @@
   project map."
   [project profiles-to-apply]
   (warn-user-repos)
-  (let [profiles (merge @default-profiles (user/profiles) (:profiles project))]
+  (let [profiles (merge @default-profiles (user/profiles)
+                        (:profiles project) (project-profiles project))]
     ;; We reverse because we want profile values to override the
     ;; project, so we need "last wins" in the reduce, but we want the
     ;; first profile specified by the user to take precedence.
