@@ -181,17 +181,31 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn- merge-profile [project profile]
-  (vary-meta (merge-with profile-key-merge project profile)
-             update-in [:included-profiles] conj profile))
+(defn- combine-profiles [project profiles]
+  ;; We reverse because we want profile values to override the project, so we
+  ;; need "last wins" in the reduce, but we want the first profile specified by
+  ;; the user to take precedence.
+  (reduce (fn [project profile]
+            (vary-meta (merge-with profile-key-merge project profile)
+                       update-in [:included-profiles] conj profile))
+          project
+          (reverse profiles)))
 
-(defn- lookup-profile [profiles profile-name]
-  (let [result (profiles profile-name)]
-    (when (and (nil? result) (not (#{:dev :user :test :production} profile-name)))
-      (println "Warning: profile" profile-name "not found."))
-    (if (keyword? result)
-      (recur profiles result)
-      result)))
+(defn- lookup-profile
+  "Lookup a profile in the given profiles map, warning when the profile doesn't
+  exist. Recurse whenever a keyword or vector is found, combining all profiles
+  in the vector."
+  [profiles profile]
+  (cond (keyword? profile)
+        (let [result (get profiles profile)]
+          (when (and (nil? result) (not (#{:dev :user :test :production} profile)))
+            (println "Warning: profile" profile "not found."))
+          (lookup-profile profiles result))
+
+        (vector? profile)
+        (combine-profiles {} (map (partial lookup-profile profiles) profile))
+
+        :else profile))
 
 (defn- warn-user-repos []
   (when (->> (vals (user/profiles))
@@ -210,16 +224,15 @@
 
   We check Leiningen's defaults, the profiles.clj file in ~/.lein/profiles.clj,
   the profiles.clj file in the project root, and the :profiles key from the
-  project map."
+  project map.
+
+  Any profile can also be a composite profile. If the profile value is a vector,
+  then the specified profiles will be combined using combine-profiles."
   [project profiles-to-apply]
   (warn-user-repos)
   (let [profiles (merge @default-profiles (user/profiles)
                         (:profiles project) (project-profiles project))]
-    ;; We reverse because we want profile values to override the
-    ;; project, so we need "last wins" in the reduce, but we want the
-    ;; first profile specified by the user to take precedence.
-    (map #(if (keyword? %) (lookup-profile profiles %) %)
-         (reverse profiles-to-apply))))
+    (map (partial lookup-profile profiles) profiles-to-apply)))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
@@ -277,8 +290,7 @@
 (defn merge-profiles
   "Look up and merge the given profile names into the project map."
   [project profiles-to-apply]
-  (let [merged (reduce merge-profile project
-                       (profiles-for project profiles-to-apply))]
+  (let [merged (combine-profiles project (profiles-for project profiles-to-apply))]
     (vary-meta (normalize merged) merge
                {:without-profiles (normalize (:without-profiles (meta project) project))
                 :included-profiles (concat (:included-profiles (meta project))

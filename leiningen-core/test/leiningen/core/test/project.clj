@@ -136,6 +136,19 @@
            (-> {:profiles {:a {:A 1} :b {:B 2}}}
                (merge-profiles [:a {:C 3}]))))))
 
+(deftest test-composite-profiles
+  (let [expected-result {:A '(2 3 1), :B 2, :C 3,
+                         :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                                        "clojars" {:url "https://clojars.org/repo/"}}
+                         :dependencies [], :compile-path "classes"}]
+    (is (= expected-result
+           (-> {:profiles {:a [:c :b]
+                           :b [:d {:A [1] :B 1 :C 1}]
+                           :c {:A [2] :B 2}
+                           :d {:A [3] :C 3}}}
+               (merge-profiles [:a])
+               (dissoc :profiles))))))
+
 (deftest test-unmerge-profiles
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
                                               :b {:B 2}
