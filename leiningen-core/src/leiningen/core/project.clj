@@ -325,9 +325,9 @@
          (try (load-file file)
               (catch Exception e
                 (throw (Exception. "Error loading project.clj" e)))))
-       (let [project (or (resolve 'leiningen.core.project/project)
-                         (throw
-                          (Exception. "project.clj must define project map.")))]
+       (let [project (resolve 'leiningen.core.project/project)]
+         (when-not project
+           (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
          (-> (reduce apply-middleware @project (:middleware @project))
