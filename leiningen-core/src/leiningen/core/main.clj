@@ -42,11 +42,11 @@
 (defn exit
   "Exit the process. Rebind *exit-process?* in order to suppress actual process
   exits for tools which may want to continue operating."
-  ([code]
+  ([exit-code]
      (if *exit-process?*
        (do (shutdown-agents)
-           (System/exit code))
-       (throw (Exception. (str "Suppressed exit: " code)))))
+           (System/exit exit-code))
+       (throw (ex-info "Suppressed exit" {:exit-code exit-code}))))
   ([] (exit 0)))
 
 (defn abort

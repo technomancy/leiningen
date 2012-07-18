@@ -170,7 +170,7 @@
   (binding [*dir* (:root project)]
     (let [exit-code (apply sh (shell-command project form))]
       (when (pos? exit-code)
-        (throw (Exception. (str "Process exited with " exit-code)))))))
+        (throw (ex-info "Subprocess failed" {:exit-code exit-code}))))))
 
 (defmethod eval-in :trampoline [project form]
   (swap! (:trampoline-forms (meta project)) conj form))

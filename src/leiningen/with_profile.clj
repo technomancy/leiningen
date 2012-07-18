@@ -31,8 +31,7 @@ For a detailed description of profiles, see `lein help profiles`."
              (catch Exception e
                (main/info (format "Error encountered performing task '%s' with profile(s): '%s'"
                            task-name profile-group))
-               (when-not (or (re-find #"Suppressed exit:" (or (.getMessage e) ""))
-                             (re-find #"Process exited with" (or (.getMessage e) "")))
+               (when-not (:exit-code (ex-data e))
                  (.printStackTrace e))
                (swap! failures inc)))))
     (when (pos? @failures)
