@@ -195,7 +195,7 @@ Create a $PROJECT-$VERSION.jar file containing project's source files as well
 as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   [project]
-  (let [project (project/unmerge-profiles project [:default :dev :user])]
+  (let [project (project/unmerge-profiles project [:default])]
     (eval/prep project)
     (let [jar-file (get-jar-filename project)]
       (write-jar project jar-file (filespecs project []))

@@ -149,11 +149,12 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:default {:resource-paths ["dev-resources"]
-                   :plugins [['lein-newnew "0.3.4"]]
-                   :checkout-deps-shares [:source-paths
-                                          :resource-paths
-                                          :compile-path]}
+  (atom {:default [:dev :user :base]
+         :base {:resource-paths ["dev-resources"]
+                :plugins [['lein-newnew "0.3.4"]]
+                :checkout-deps-shares [:source-paths
+                                       :resource-paths
+                                       :compile-path]}
          :leiningen/test {:injections [hooke-injection]}
          :update {:update :always}
          :offline {:offline? true}
@@ -346,5 +347,5 @@
          (ns-unmap 'leiningen.core.project 'project)
          (-> (reduce apply-middleware @project (:middleware @project))
              (merge-profiles profiles)))))
-  ([file] (read file [:dev :user :default]))
+  ([file] (read file [:default]))
   ([] (read "project.clj")))

@@ -88,7 +88,7 @@ as well as defining a -main function."
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
-           (let [project (project/unmerge-profiles project [:default :dev :user])
+           (let [project (project/unmerge-profiles project [:default])
                  deps (->> (classpath/resolve-dependencies :dependencies project)
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (io/file (jar/get-jar-filename project)) deps)]
