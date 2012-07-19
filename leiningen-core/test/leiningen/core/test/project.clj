@@ -149,6 +149,19 @@
                (merge-profiles [:a])
                (dissoc :profiles))))))
 
+(deftest test-override-default
+  (let [expected-result {:A 1, :B 2, :C 3
+                         :repositories {"central" {:url "http://repo1.maven.org/maven2"}
+                                        "clojars" {:url "https://clojars.org/repo/"}}
+                         :dependencies [], :compile-path "classes"}]
+    (is (= expected-result
+           (-> {:profiles {:a {:A 1 :B 2}
+                           :b {:B 2 :C 2}
+                           :c {:C 3}
+                           :default [:c :b :a]}}
+               (merge-profiles [:default])
+               (dissoc :profiles))))))
+
 (deftest test-unmerge-profiles
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
                                               :b {:B 2}
