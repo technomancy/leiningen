@@ -5,6 +5,11 @@
             [bultitude.core :as b]
             [leiningen.core.main :as main]))
 
+(def ^{:const true
+       :private true
+       :doc "How wide the task name column is in the list of tasks produced by lein -h"}
+  task-name-column-width 20)
+
 (defn tasks
   "Return a list of symbols naming all visible tasks."
   []
@@ -83,7 +88,7 @@
              ns-summary (:doc (meta (find-ns (doto task-ns require))))
              first-line (first (.split (help-for {} task-name) "\n"))]
          ;; Use first line of task docstring if ns metadata isn't present
-         (str task-name (apply str (repeat (- 13 (count task-name)) " "))
+         (str task-name (apply str (repeat (- task-name-column-width (count task-name)) " "))
               (or ns-summary first-line)))
        (catch Throwable e
          (binding [*out* *err*]
