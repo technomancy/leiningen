@@ -256,20 +256,40 @@
        (aether/register-wagon-factory! hint (eval factory))))
   ([project] (load-plugins project :plugins)))
 
-(defn- load-hooks [project]
-  (doseq [n (:hooks project)]
-    (try (require n)
-         (when-let [activate (ns-resolve n 'activate)]
+
+(defn- plugin-namespaces [project sub-ns]
+  (filter utils/ns-exists?
+          (for [[plugin] (:plugins project)]
+            (symbol (str (name plugin) "." (name sub-ns))))))
+
+(defn- plugin-hooks [project]
+  (plugin-namespaces project 'hooks))
+
+(defn- plugin-middleware [project]
+  (for [ns (plugin-namespaces project 'middleware)]
+    (symbol (name ns) "wrap")))
+
+(defn- load-hooks [project & [ignore-missing?]]
+  (doseq [hook-ns (concat (:hooks project)
+                          (plugin-hooks project))]
+    (try (require hook-ns)
+         (when-let [activate (ns-resolve hook-ns 'activate)]
            (activate))
          (catch Throwable e
            (binding [*out* *err*]
-             (println "Error: problem requiring" n "hook"))
+             (println "Error: problem requiring" hook-ns "hook"))
            (throw e)))))
 
-(defn apply-middleware [project middleware-name]
-  (when-let [m-ns (namespace middleware-name)]
-    (require (symbol m-ns)))
-  ((resolve middleware-name) project))
+(defn apply-middleware
+  ([project]
+     (with-meta (reduce apply-middleware project
+                        (concat (:middleware project)
+                                (plugin-middleware project)))
+       {:without-middleware project}))
+  ([project middleware-name]
+     (when-let [m-ns (namespace middleware-name)]
+       (require (symbol m-ns)))
+     ((resolve middleware-name) project)))
 
 (defn load-certificates
   "Load the SSL certificates specified by the project and register
@@ -280,7 +300,7 @@
     (ssl/register-scheme (ssl/https-scheme context))))
 
 (defn init-project
-  "Initializes a project: loads plugins and hooks.
+  "Initializes a project: loads plugins, then applies middleware, then loads hooks.
    Adds dependencies to Leiningen's classpath if required."
   [project]
   (load-certificates project)
@@ -288,8 +308,9 @@
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path)))
   (load-plugins project)
-  (load-hooks project)
-  project)
+  (let [project (apply-middleware project)]
+    (load-hooks project)
+    project))
 
 (defn merge-profiles
   "Look up and merge the given profile names into the project map."
@@ -346,7 +367,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (-> (reduce apply-middleware @project (:middleware @project))
-             (merge-profiles profiles)))))
+         (merge-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
