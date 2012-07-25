@@ -86,8 +86,9 @@
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
   ;; Load these namespaces on startup to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
-  ;; Predicates to determine whether to run a test or not. See tutorial.
-  :test-selectors {:default (fn [t] (not (or (:integration v) (:regression v))))
+  ;; Predicates to determine whether to run a test or not, take test metadata
+  ;; as argument. See Leiningen tutorial for more information.
+  :test-selectors {:default (fn [m] (not (or (:integration m) (:regression m))))
                    :integration :integration
                    :regression :regression}
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
