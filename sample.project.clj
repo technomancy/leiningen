@@ -157,6 +157,7 @@
   ;; apply for all :repositories. Usually you will not set :update
   ;; directly but apply the "update" profile instead.
   :update :always
+  :checksum :warn
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
   ;; dependency resolution.
