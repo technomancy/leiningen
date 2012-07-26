@@ -129,5 +129,6 @@ and port."
      ":headless" (do (start-server project
                        (repl-port project)
                        (ack-port project)))
-     ":connect" (reply/launch-nrepl {:attach (first opts)})
+     ":connect" (do (require 'cemerick.drawbridge.client)
+                    (reply/launch-nrepl {:attach (first opts)}))
      (main/abort "Unrecognized flag:" flag))))
