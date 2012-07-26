@@ -89,7 +89,8 @@
       {:host (.getHost url)
        :port (.getPort url)
        :username username
-       :password password})))
+       :password password
+       :non-proxy-hosts (System/getenv "http_nonProxyHosts")})))
 
 (defn- update-policies [update checksum [repo-name opts]]
   [repo-name (merge {:update (or update :daily)

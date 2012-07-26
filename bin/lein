@@ -94,8 +94,11 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Dclojure.compile.path=$LEIN_DIR/target/classes"}
     CLASSPATH="$LEIN_DIR/leiningen-core/src/"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/resources/"
-    CLASSPATH="$CLASSPATH:$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/lib/*"
+    if [ -r "$LEIN_DIR/.lein-classpath" ]; then
+        CLASSPATH="$CLASSPATH:$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
+    else
+        CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/lib/*"
+    fi
     CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/target/classes"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
     if [ -f .lein-classpath ]; then
