@@ -228,15 +228,12 @@
 
   We check Leiningen's defaults, the profiles.clj file in ~/.lein/profiles.clj,
   the profiles.clj file in the project root, and the :profiles key from the
-  project map.
-
-  Any profile can also be a composite profile. If the profile value is a vector,
-  then the specified profiles will be combined using combine-profiles."
-  [project profiles-to-apply]
+  project map."
+  [project profiles]
   (warn-user-repos)
-  (let [profiles (merge @default-profiles (user/profiles)
-                        (:profiles project) (project-profiles project))]
-    (map (partial lookup-profile profiles) profiles-to-apply)))
+  (let [profile-map (merge @default-profiles (user/profiles)
+                           (:profiles project) (project-profiles project))]
+    (map (partial lookup-profile profile-map) profiles)))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
@@ -267,7 +264,7 @@
 
 (defn- plugin-middleware [project]
   (for [ns (plugin-namespaces project 'middleware)]
-    (symbol (name ns) "wrap")))
+    (symbol (name ns) "project")))
 
 (defn- load-hooks [project & [ignore-missing?]]
   (doseq [hook-ns (concat (:hooks project)
@@ -282,10 +279,9 @@
 
 (defn apply-middleware
   ([project]
-     (with-meta (reduce apply-middleware project
-                        (concat (:middleware project)
-                                (plugin-middleware project)))
-       {:without-middleware project}))
+     (reduce apply-middleware project
+             (concat (plugin-middleware project)
+                     (:middleware project))))
   ([project middleware-name]
      (when-let [m-ns (namespace middleware-name)]
        (require (symbol m-ns)))
@@ -299,8 +295,40 @@
         context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
     (ssl/register-scheme (ssl/https-scheme context))))
 
+(defn- apply-profiles
+  "Look up and merge the given profiles into the project map."
+  [project profiles]
+  (let [merged (combine-profiles project (profiles-for project profiles))]
+    (vary-meta (normalize merged) merge
+               {:without-profiles (normalize (:without-profiles (meta project) project))
+                :included-profiles (concat (:included-profiles (meta project)) profiles)})))
+
+(defn reset-profiles
+  "Compute a fresh version of the project map with the specified profiles active
+   and the appropriate middleware applied."
+  [project profiles]
+  (-> (:without-profiles (meta project) project)
+      (apply-profiles profiles)
+      (apply-middleware)))
+
+(defn merge-profiles
+  "Compute a fresh version of the project map with the given profiles merged into
+   list of active profiles and the appropriate middleware applied."
+  [project profiles]
+  (reset-profiles project
+                  (concat (:included-profiles (meta project))
+                          profiles)))
+
+(defn unmerge-profiles
+  "Compute a fresh version of the project map with the given profiles unmerged from
+   list of active profiles and the appropriate middleware applied."
+  [project profiles]
+  (reset-profiles project
+                  (remove (set profiles)
+                          (:included-profiles (meta project)))))
+
 (defn init-project
-  "Initializes a project: loads plugins, then applies middleware, then loads hooks.
+  "Initializes a project: loads plugins, then applies middleware, and finally loads hooks.
    Adds dependencies to Leiningen's classpath if required."
   [project]
   (load-certificates project)
@@ -308,18 +336,8 @@
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path)))
   (load-plugins project)
-  (let [project (apply-middleware project)]
-    (load-hooks project)
-    project))
-
-(defn merge-profiles
-  "Look up and merge the given profile names into the project map."
-  [project profiles-to-apply]
-  (let [merged (combine-profiles project (profiles-for project profiles-to-apply))]
-    (vary-meta (normalize merged) merge
-               {:without-profiles (normalize (:without-profiles (meta project) project))
-                :included-profiles (concat (:included-profiles (meta project))
-                                           profiles-to-apply)})))
+  (doto (apply-middleware project)
+    (load-hooks)))
 
 (defn ^{:deprecated "2.0.0-preview3"} conj-dependency
   "Add a dependency into the project map if it's not already present. Warn the
@@ -343,17 +361,6 @@
                                            [:profiles] merge
                                            profiles-map)}))
 
-(defn unmerge-profiles
-  "Given a project map, return the project map you would have if the specified
-   profiles had never been merged into it. Expects a list of profiles, where
-   each element is either the name of a profile in the :profiles key of the
-   project, or the map of the profile itself."
-  [project profiles-to-unmerge]
-  (let [result-profiles (filter (comp not (into #{} profiles-to-unmerge))
-                                (:included-profiles (meta project)))]
-    (merge-profiles (:without-profiles (meta project) project)
-                    result-profiles)))
-
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
@@ -367,6 +374,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (merge-profiles @project profiles))))
+         (apply-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
