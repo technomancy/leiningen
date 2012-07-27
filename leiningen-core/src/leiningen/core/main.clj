@@ -141,9 +141,10 @@ or by executing \"lein upgrade\". ")
 (defn- http-settings []
   "Set Java system properties controlling HTTP request behavior."
   (System/setProperty "aether.connector.userAgent" (user-agent))
-  (when-let [{:keys [host port]} (classpath/get-proxy-settings)]
+  (when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
-    (System/setProperty "http.proxyPort" (str port))))
+    (System/setProperty "http.proxyPort" (str port))
+    (System/setProperty "http.nonProxyHosts" non-proxy-hosts)))
 
 (defn -main
   "Run a task or comma-separated list of tasks."
