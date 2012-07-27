@@ -67,7 +67,9 @@
   ;; the same way as command-line arguments to the lein command. If
   ;; the alias points to a vector, it uses partial application. For
   ;; example, "lein with-magic run -m hi.core" would be equivalent to
-  ;; "lein assoc :magic true run -m hi.core".
+  ;; "lein assoc :magic true run -m hi.core". Remember, commas are not
+  ;; considered to be special by argument parsers, they're just part
+  ;; of the preceding argument.
   :aliases {"launch" "run"
             "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]
             "test!" ["do" "clean," "deps," "test"]}
