@@ -183,15 +183,11 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn- combine-profile [project profile]
-  (vary-meta (merge-with profile-key-merge project profile)
-             update-in [:included-profiles] conj profile))
-
 (defn- combine-profiles [project profiles]
   ;; We reverse because we want profile values to override the project, so we
   ;; need "last wins" in the reduce, but we want the first profile specified by
   ;; the user to take precedence.
-  (reduce combine-profile
+  (reduce (partial merge-with profile-key-merge)
           project
           (reverse profiles)))
 
