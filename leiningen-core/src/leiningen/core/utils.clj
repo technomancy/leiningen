@@ -14,3 +14,13 @@
               (str suffix)
               io/resource))
         [".clj" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
+
+(defn resolve-symbol
+  "Resolve a fully qualified symbol by first requiring its namespace."
+  [sym]
+  (when-let [ns (namespace sym)]
+    (when (ns-exists? ns)
+      (let [ns (symbol ns)]
+        (when-not (find-ns ns)
+          (require ns)))
+      (resolve sym))))

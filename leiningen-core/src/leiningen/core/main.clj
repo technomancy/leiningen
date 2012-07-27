@@ -116,18 +116,12 @@
 
 (defn resolve-task
   ([task not-found]
-     (let [[task & pargs] (if (coll? task) task [task])
-           task-ns (symbol (str "leiningen." task))]
-       (try
-         (when-not (find-ns task-ns)
-           (require task-ns))
-         (if-let [task-var (ns-resolve task-ns (symbol task))]
-           (with-meta
-             (fn [project & args] (apply task-var project (concat pargs args)))
-             (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))
-           (not-found task))
-         (catch java.io.FileNotFoundException e
-           (not-found task)))))
+     (let [[task & pargs] (if (coll? task) task [task])]
+       (if-let [task-var (utils/resolve-symbol (symbol (str "leiningen." task) task))]
+         (with-meta
+           (fn [project & args] (apply task-var project (concat pargs args)))
+           (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))
+         (not-found task))))
   ([task] (resolve-task task #'task-not-found)))
 
 (defn ^:internal matching-arity? [task args]
