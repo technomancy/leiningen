@@ -73,7 +73,10 @@
   problems and exhibit unintuitive behaviour.
 
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
-**A:** Set the `$http_proxy` environment variable in Leiningen 2.x.
+**A:** Set the `$http_proxy` environment variable in Leiningen 2.x. You can also
+  set `$http_no_proxy` for a list of hosts that should be reached directly, bypassing
+  the proxy. This is a list of patterns separated by `|` and may start or end with
+  a `*` for wildcard, e.g. `localhost|*.mydomain.com`.
   For Leiningen 1.x versions, see the instructions for
   [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html)
   using `~/.m2/settings.xml`.
