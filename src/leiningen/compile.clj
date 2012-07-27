@@ -111,6 +111,7 @@
                        (blacklisted-class? project f))]
       (.delete f))))
 
+;; TODO: remove
 (defn eval-in-project [project form & [_ _ init]]
   (println "The eval-in-project function has moved to the leiningen.core.eval\n"
            "namespace; please update your plugin to use that instead.\n"
@@ -130,22 +131,17 @@ shouldn't need to be manually invoked. See the javac task as well.
 Compiling code loads the namespace, so keep side-effects out of the top level.
 Code that should run on startup belongs in a -main defn."
   ([project]
-     (if (seq (compilable-namespaces project))
-       (if-let [namespaces (seq (stale-namespaces project))]
-         (try
-           (let [form `(doseq [namespace# '~namespaces]
-                         (println "Compiling" namespace#)
-                         (clojure.core/compile namespace#))
-                 project (update-in project [:prep-tasks]
-                                    (partial remove #{"compile"}))]
-             (.mkdirs (io/file (:compile-path project)))
-             (try (eval/eval-in-project project form)
-                  (main/info "Compilation succeeded.")
-                  (catch Exception e
-                    (main/abort "Compilation failed."))))
-           (finally (clean-non-project-classes project)))
-         ;; TODO: omit if possible
-         (main/info "All namespaces already :aot compiled."))))
+     (if-let [namespaces (seq (stale-namespaces project))]
+       (let [form `(doseq [namespace# '~namespaces]
+                     (println "Compiling" namespace#)
+                     (clojure.core/compile namespace#))
+             project (update-in project [:prep-tasks]
+                                (partial remove #{"compile"}))]
+         (try (eval/eval-in-project project form)
+              (catch Exception e
+                (main/abort "Compilation failed."))
+              (finally (clean-non-project-classes project))))
+       (main/debug "All namespaces already AOT compiled.")))
   ([project & namespaces]
      (compile (assoc project :aot (if (= namespaces [":all"])
                                     :all
