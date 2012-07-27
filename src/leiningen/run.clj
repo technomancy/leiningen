@@ -23,10 +23,12 @@
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
   [project given & args]
-  (eval/eval-in-project project (run-form given args)
-                        `(try (require
-                               '~(symbol (namespace (normalize-main given))))
-                              (catch FileNotFoundException _#))))
+  (try (eval/eval-in-project project (run-form given args)
+                             `(try (require '~(symbol (namespace
+                                                       (normalize-main given))))
+                                   (catch FileNotFoundException _#)))
+       (catch clojure.lang.ExceptionInfo e
+         (main/abort))))
 
 (defn ^{:help-arglists '([])} run
   "Run the project's -main function.
