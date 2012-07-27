@@ -243,6 +243,7 @@
 ;; JVM_OPTS - extra options to pass to the java command
 ;; DEBUG - increased verbosity
 ;; LEIN_SNAPSHOTS_IN_RELEASE - allow releases to depend on snapshots
-;; LEIN_REPL_PORT - port on which to start nREPL server
+;; LEIN_REPL_HOST - interface on which to connect to nREPL server
+;; LEIN_REPL_PORT - port on which to start or connect to nREPL server
 ;; http_proxy - host and port to proxy HTTP connections through
-;; http_no_proxy - hosts which may be accessed without proxying
+;; http_no_proxy - pipe-separated list of hosts which may be accessed directly
