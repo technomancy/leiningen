@@ -50,7 +50,7 @@
                 0)))
 
 (defn- repl-host [project]
-  (or (System/getenv "LEIN_REPL_PORT")
+  (or (System/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)))
 
 (defn- ack-port [project]
