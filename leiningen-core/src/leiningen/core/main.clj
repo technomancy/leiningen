@@ -53,7 +53,8 @@
   "Print msg to standard err and exit with a value of 1."
   [& msg]
   (binding [*out* *err*]
-    (apply println msg)
+    (when (seq msg)
+      (apply println msg))
     (exit 1)))
 
 (defn ^:no-project-needed task-not-found [task & _]

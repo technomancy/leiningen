@@ -1,6 +1,7 @@
 (ns leiningen.check
   "Check syntax and warn on reflection."
   (:require [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [bultitude.core :as b]
             [clojure.java.io :as io]))
 
@@ -23,4 +24,6 @@
                              (swap! failures# inc)
                              (.printStackTrace e#)))))
                      (System/exit @failures#))]
-       (eval/eval-in-project project action))))
+       (try (eval/eval-in-project project action)
+            (catch clojure.lang.ExceptionInfo e
+              (main/abort "Failed."))))))

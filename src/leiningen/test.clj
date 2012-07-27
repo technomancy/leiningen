@@ -93,4 +93,6 @@ tests are run."
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
           form (form-for-testing-namespaces nses nil (vec selectors))]
-      (eval/eval-in-project project form '(require 'clojure.test)))))
+      (try (eval/eval-in-project project form '(require 'clojure.test))
+           (catch clojure.lang.ExceptionInfo e
+             (main/abort "Tests failed."))))))
