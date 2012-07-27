@@ -69,7 +69,8 @@
   ;; example, "lein with-magic run -m hi.core" would be equivalent to
   ;; "lein assoc :magic true run -m hi.core".
   :aliases {"launch" "run"
-            "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]}
+            "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]
+            "test!" ["do" "clean," "deps," "test"]}
   ;; Normally Leiningen runs the javac and compile tasks before
   ;; calling any eval-in-project code, but you can override this with
   ;; the :prep-tasks key to do other things like compile protocol buffers.
