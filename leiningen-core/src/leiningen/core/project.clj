@@ -265,9 +265,9 @@
 (defn- load-hooks [project & [ignore-missing?]]
   (doseq [hook-ns (concat (:hooks project)
                           (plugin-hooks project))]
-    (try (require hook-ns)
-         (when-let [activate (ns-resolve hook-ns 'activate)]
-           (activate))
+    (try (if-let [hook (utils/resolve-symbol (symbol hook-ns 'activate))]
+           (hook)
+           (println "Error: cannot resolve hook" hook-ns))
          (catch Throwable e
            (binding [*out* *err*]
              (println "Error: problem requiring" hook-ns "hook"))
@@ -279,9 +279,9 @@
              (concat (plugin-middleware project)
                      (:middleware project))))
   ([project middleware-name]
-     (when-let [m-ns (namespace middleware-name)]
-       (require (symbol m-ns)))
-     ((resolve middleware-name) project)))
+     (let [middleware (or (utils/resolve-symbol middleware-name)
+                          (utils/abort "Error: cannot resolve" middleware-name))]
+       (middleware project))))
 
 (defn load-certificates
   "Load the SSL certificates specified by the project and register
