@@ -40,7 +40,9 @@
           "NUL"
           "/dev/null")))
 
-(defn prep-tasks
+;; # Preparing for eval-in-project
+
+(defn run-prep-tasks
   "Execute all the prep-tasks. A task can either be a string, or a
   vector if it takes arguments. see :prep-tasks in sample.project.clj
   for examples"
@@ -49,8 +51,6 @@
     (let [[task-name & task-args] (if (vector? task) task [task])
           task-name (main/lookup-alias task-name project)]
       (main/apply-task task-name (dissoc project :prep-tasks) task-args))))
-
-;; # Form Wrangling
 
 (defn prep [project]
   ;; This must exist before the project is launched.
@@ -62,7 +62,7 @@
          (main/info "It's possible the specified jar is not in any repository.")
          (main/info "If so, see \"Free-floating Jars\" under http://j.mp/repeatability")
          (main/abort)))
-  (prep-tasks project)
+  (run-prep-tasks project)
   (.mkdirs (io/file (:compile-path project "/tmp")))
   (when-let [prepped (:prepped (meta project))]
     (deliver prepped true)))
@@ -162,6 +162,8 @@
     ~@(get-jvm-args project)
     "clojure.main" "-e" ~(form-string form)))
 
+;; # eval-in multimethod
+
 (defmulti eval-in
   "Evaluate the given from in either a subprocess or the leiningen process."
   (fn [project _] (:eval-in project)) :default :subprocess)
@@ -198,9 +200,9 @@
   (eval form))
 
 (defn eval-in-project
-  "Executes form in an isolated classloader with the classpath and compile path
-  set correctly for the project. If the form depends on any requires, put them
-  in the init arg to avoid the Gilardi Scenario: http://technomancy.us/143"
+  "Executes form in isolation with the classpath and compile path set correctly
+  for the project. If the form depends on any requires, put them in the init arg
+  to avoid the Gilardi Scenario: http://technomancy.us/143"
   ([project form init]
      (prep project)
      (eval-in project
