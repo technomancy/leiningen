@@ -16,24 +16,25 @@
 (def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta7"
                                :exclusions [org.clojure/clojure]]
                               [clojure-complete "0.2.1"
-                               :exclusions [org.clojure/clojure]]
-                              [org.thnetos/cd-client "0.3.4"
                                :exclusions [org.clojure/clojure]]]})
+
+(def reply-profile {:dependencies '[[org.thnetos/cd-client "0.3.4"
+                                     :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[[reply "0.1.0-beta9"
                                          :exclusions [org.clojure/clojure]]]})
 
-(defn- start-server [project port ack-port]
+(defn- start-server [project port ack-port & [headless?]]
   (let [server-starting-form
-          `(let [server# (clojure.tools.nrepl.server/start-server
-                           :port ~port :ack-port ~ack-port)]
-            (println "nREPL server started on port"
-              (-> server# deref :ss .getLocalPort))
-            (while true (Thread/sleep Long/MAX_VALUE)))]
+        `(let [server# (clojure.tools.nrepl.server/start-server
+                        :port ~port :ack-port ~ack-port)]
+           (println "nREPL server started on port"
+                    (-> server# deref :ss .getLocalPort))
+           (while true (Thread/sleep Long/MAX_VALUE)))]
     (if project
       (eval/eval-in-project
-       ;; TODO: don't merge profile for a headless server
-       (project/merge-profiles project [(:repl (user/profiles) profile)])
+       (project/merge-profiles project [(:repl (user/profiles) profile)
+                                        (when-not headless? reply-profile)])
         server-starting-form
         '(do (require 'clojure.tools.nrepl.server)
              (require 'complete.core)))
@@ -126,9 +127,10 @@ and port."
          (println "REPL server launch timed out."))))))
   ([project flag & opts]
    (case flag
-     ":headless" (do (start-server project
-                       (repl-port project)
-                       (ack-port project)))
+     ":headless" (start-server project
+                               (repl-port project)
+                               (ack-port project)
+                               :headless)
      ":connect" (do (require 'cemerick.drawbridge.client)
                     (reply/launch-nrepl {:attach (first opts)}))
      (main/abort "Unrecognized flag:" flag))))
