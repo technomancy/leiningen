@@ -321,15 +321,14 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (check-for-snapshot-deps project)
-     (str
-      (xml/indent-str
-       (xml/sexp-as-element
-        (xml-tags :project
-                  (relativize (remove-profiles project
-                                               [:dev :test :default])))))
-      (when disclaimer?
-        disclaimer))))
+     (let [project (remove-profiles project [:user :dev :test :default])]
+       (check-for-snapshot-deps project)
+       (str
+        (xml/indent-str
+         (xml/sexp-as-element
+          (xml-tags :project (relativize project))))
+        (when disclaimer?
+          disclaimer)))))
 
 (defn make-pom-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
