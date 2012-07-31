@@ -98,11 +98,18 @@
   ;; other Java interop functionality. Put a regex here to compile all
   ;; namespaces whose names match.
   :aot [org.example.sample]
-  ;; The -main function in this namespace will be run at launch if you
-  ;; create an uberjar. Set :skip-aot metadata on this symbol to use
+  ;; The -main function in this namespace will be run at launch (either via `lein run` or if you
+  ;; create an uberjar). It should be variadic, like so:
+  ;;
+  ;; (defn -main
+  ;;   "Application entry point"
+  ;;   [& args]
+  ;;   (comment Do app initialization here))
+  ;;
+  ;; Set :skip-aot metadata on this symbol to use
   ;; it for other things like the run task or shell wrappers without
   ;; bringing in AOT if you don't need an executable uberjar.
-  :main org.example.sample
+  :main my.service.runner
   ;; Options to change the way the REPL behaves
   :repl-options {;; Specify the string to print when prompting for input.
                  ;; defaults to something like (fn [ns] (str *ns* "=> "))
