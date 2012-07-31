@@ -144,7 +144,7 @@ or by executing \"lein upgrade\". ")
   (when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
     (System/setProperty "http.proxyPort" (str port))
-    (System/setProperty "http.nonProxyHosts" non-proxy-hosts)))
+    (when non-proxy-hosts (System/setProperty "http.nonProxyHosts" non-proxy-hosts))))
 
 (defn -main
   "Run a task or comma-separated list of tasks."
