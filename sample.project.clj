@@ -101,6 +101,9 @@
   ;; The -main function in this namespace will be run at launch (either via `lein run` or if you
   ;; create an uberjar). It should be variadic, like so:
   ;;
+  ;; (ns my.service.runner
+  ;;   (:gen-class))
+  ;;
   ;; (defn -main
   ;;   "Application entry point"
   ;;   [& args]
