@@ -299,7 +299,8 @@
                    (distinct (map (partial test-scope-excluded
                                            (:dependencies project))
                                   (concat (:dependencies project)
-                                          (:dependencies test-project)))))]))))
+                                          (:dependencies test-project)))))
+         (when (:pom-addition project) (:pom-addition project))]))))
 
 (defn snapshot? [project]
   (re-find #"SNAPSHOT" (:version project)))
