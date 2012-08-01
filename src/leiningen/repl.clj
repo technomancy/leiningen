@@ -27,10 +27,11 @@
 (defn- start-server [project host port ack-port & [headless?]]
   (let [server-starting-form
         `(let [server# (clojure.tools.nrepl.server/start-server
-                        :bind ~host :port ~port :ack-port ~ack-port)]
-           (println "nREPL server started on port"
-                    (-> server# deref :ss .getLocalPort))
-           (while true (Thread/sleep Long/MAX_VALUE)))]
+                        :bind ~host :port ~port :ack-port ~ack-port)
+               port# (-> server# deref :ss .getLocalPort)]
+           (println "nREPL server started on port" port#)
+           (spit ~(str (io/file (:target-path project) "repl-port")) port#)
+           @(promise))]
     (if project
       (eval/eval-in-project
        (project/merge-profiles project [(:repl (user/profiles) profile)
