@@ -35,4 +35,4 @@ For a detailed description of profiles, see `lein help profiles`."
                  (.printStackTrace e))
                (swap! failures inc)))))
     (when (pos? @failures)
-      (main/abort "Failed."))))
+      (main/abort))))
