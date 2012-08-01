@@ -83,7 +83,8 @@ as well as defining a -main function."
                               concat (:uberjar-inclusions project))]
        (try (jar/jar project)
             (catch Exception e
-              (main/abort "Uberjar aborting because jar/compilation failed:"))))
+              (main/abort "Uberjar aborting because jar/compilation failed:")
+              (.printStackTrace e))))
      (let [standalone-filename (jar/get-jar-filename project :uberjar)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
