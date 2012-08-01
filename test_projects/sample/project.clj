@@ -15,8 +15,6 @@
                  [ring "1.0.0"]]
   :main nom.nom.nom
   :warn-on-reflection true
-  :shell-wrapper {:main nom.nom.nom
-                  :bin "bin/nom"}
   :jar-exclusions [#"^META-INF"]
   :filespecs [{:type :fn :fn (fn [p] {:type :bytes :path "bytes.clj"
                                      :bytes (str "[:bytes \"are\" "
