@@ -139,7 +139,7 @@ Code that should run on startup belongs in a -main defn."
                                 (partial remove #{"compile"}))]
          (try (eval/eval-in-project project form)
               (catch Exception e
-                (main/abort "Compilation failed."))
+                (main/abort "Compilation failed:" (.getMessage e)))
               (finally (clean-non-project-classes project))))
        (main/debug "All namespaces already AOT compiled.")))
   ([project & namespaces]
