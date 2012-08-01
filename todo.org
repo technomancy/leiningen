@@ -5,8 +5,13 @@ See also https://github.com/technomancy/leiningen/issues
 * For 2.0.0
 ** 2.0.0-final
    - [X] Allow trampoline to work with chaining in do task (#665)
+   - [ ] Honor :local-repo in trampoline (#695)
+   - [ ] OOM in repl with lots of output (#691)
+   - [ ] Search indices on Central have moved (#683)
+   - [ ] Store repl port on filesystem (#682)
    - [ ] Improve speed of trampoline restarts (#573)
    - [ ] Reduce Aether verbosity (#610)
+   - [ ] Honor hooks/metadata in from plugins (#401)
    - [ ] Isolate target dir per profile (#468)
    - [ ] Honor mirror for search indices (#281)
    - [ ] Drop clojars snapshots from default repos (#241)

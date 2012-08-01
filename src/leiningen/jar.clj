@@ -13,72 +13,8 @@
            (java.io BufferedOutputStream FileOutputStream
                     ByteArrayInputStream)))
 
-
-;; (declare make-local-repo)
-
-;; (defn- read-resource [resource-name]
-;;   (-> (.getContextClassLoader (Thread/currentThread))
-;;       (.getResourceAsStream resource-name)
-;;       (slurp)))
-
-;; (defn- read-bin-template [system]
-;;   (case system
-;;     :unix (read-resource "script-template")
-;;     :windows (read-resource "script-template.bat")))
-
 (defn- unix-path [path]
   (.replace path "\\" "/"))
-
-;; (defn windows-path [path]
-;;   (.replace path "/" "\\"))
-
-;; (defn local-repo-path
-;;   ([group name version]
-;;      (local-repo-path {:group group :name name :version version}))
-;;   ([{:keys [group name version]}]
-;;      (unix-path (format
-;;                  "%s/%s/%s/%s/%s-%s.jar"
-;;                  (.getBasedir (make-local-repo)) (.replace group "." "/")
-;;                  name version name version))))
-
-;; (defn- script-classpath-for [project deps system]
-;;   (let [unix-paths (conj (for [dep deps]
-;;                            (unix-path (format "$HOME/.m2/repository/%s" dep)))
-;;                          (local-repo-path project))]
-;;     (case system
-;;       :unix (string/join ":" unix-paths)
-;;       :windows (string/join ";" (for [path unix-paths]
-;;                                   (windows-path
-;;                                    (.replace path "$HOME"
-;;                                              "%USERPROFILE%")))))))
-
-;; (defn- shell-wrapper-name [project]
-;;   (get-in project [:shell-wrapper :bin]
-;;           (format "bin/%s" (:name project))))
-
-;; (defn- shell-wrapper-contents [project bin-name main deps-fileset system]
-;;   (let [file-name (case system
-;;                     :unix bin-name
-;;                     :windows (format "%s.bat" bin-name))
-;;         bin-file (file file-name)]
-;;     (format (if (.exists bin-file)
-;;               (slurp bin-file)
-;;               (read-bin-template system))
-;;             (script-classpath-for project deps-fileset system)
-;;             main (:version project))))
-
-;; (defn- shell-wrapper-filespecs [project deps-fileset]
-;;   (when (:shell-wrapper project)
-;;     (let [main (or (:main (:shell-wrapper project)) (:main project))
-;;           bin-name (shell-wrapper-name project)
-;;           read-bin #(shell-wrapper-contents
-;;                      project bin-name main deps-fileset %)]
-;;       [{:type :bytes
-;;         :path bin-name
-;;         :bytes (.getBytes (read-bin :unix))}
-;;        {:type :bytes
-;;         :path (format "%s.bat" bin-name)
-;;         :bytes (.getBytes (read-bin :windows))}])))
 
 (def ^:private default-manifest
   {"Created-By" (str "Leiningen " (main/leiningen-version))
@@ -97,8 +33,6 @@
      (reduce (partial manifest-entry project)
              "Manifest-Version: 1.0"
              (merge default-manifest (:manifest project)
-                    ;; (when (:shell-wrapper project)
-                    ;;   {"Leiningen-shell-wrapper" (shell-wrapper-name project)})
                     (when-let [main (:main project)]
                       {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
 
@@ -175,9 +109,7 @@
           (if-not (:omit-source project)
             [{:type :paths :paths (:source-paths project)}
              {:type :paths :paths (:java-source-paths project)}])
-          (:filespecs project)
-          ;; (shell-wrapper-filespecs project deps-fileset)
-          ))
+          (:filespecs project)))
 
 (defn get-jar-filename
   ([project uberjar?]
