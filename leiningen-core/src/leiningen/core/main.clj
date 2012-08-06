@@ -50,7 +50,8 @@
   ([] (exit 0)))
 
 (defn abort
-  "Print msg to standard err and exit with a value of 1."
+  "Print msg to standard err and exit with a value of 1.
+  Will not directly exit under some circumstances; see `*exit-process?*`."
   [& msg]
   (binding [*out* *err*]
     (when (seq msg)
@@ -99,7 +100,14 @@
     (when-not (matching-arity? task args)
       (abort "Wrong number of arguments to" task-name "task."
              "\nExpected" (rest (:arglists (meta task)))))
-    (apply task project args)))
+    (let [value (apply task project args)]
+      ;; TODO: remove this for final release
+      (when (and value (number? value))
+        (println "WARNING: using numeric exit values in plugins is deprecated.")
+        (println "Plugins should use leiningen.core.main/abort instead.")
+        (println "Support for this will be removed before the stable 2.0.0 release.")
+        (abort task-name "failed."))
+      value)))
 
 (defn leiningen-version []
   (System/getenv "LEIN_VERSION"))
