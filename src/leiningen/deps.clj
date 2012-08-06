@@ -69,7 +69,7 @@ USAGE: lein deps :tree
 Show the full dependency tree for the current project.
 
 USAGE: lein deps :verify
-Check signatures of each dependency.
+Check signatures of each dependency. ALPHA: subject to change.
 
 USAGE: lein deps
 Force Leiningen to download the dependencies it needs. This usage is
