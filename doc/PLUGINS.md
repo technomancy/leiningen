@@ -6,7 +6,7 @@ a project that contains such a function.
 
 Using the plugin is a matter of declaring it in the `:plugins` entry
 of the project map. If a plugin is a matter of user convenience rather
-than a requirement for running the project, you should place the
+than a requirement for running the project, users should place the
 plugin declaration in the `:user` profile in `~/.lein/profiles.clj`
 instead of directly in the `project.clj` file.
 
@@ -33,18 +33,23 @@ cumbersome. You can avoid this annoyance by creating a
 `.lein-classpath` file in your test project containing the path to the
 `src` directory of your plugin.
 
-### Project Argument
+### Task Arguments
 
 The first argument to your task function should be the current
 project. It will be a map which is based on the `project.clj` file,
 but it also has `:name`, `:group`, `:version`, and `:root` keys added
 in, among other things. To see what project maps look like, try using
 the `lein-pprint` plugin; you can invoke the `pprint` task to examine
-any project. If you want your task to take parameters from the
-command-line invocation, you can make the function take more than one
-argument.
+any project.
 
-TODO: mention accepting :keyword-like args for certain things
+If you want your task to take parameters from the command-line
+invocation, you can make the function take more than one argument. In
+order to underscore the fact that tasks are just Clojure functions,
+arguments which act as flags are usually accepted as `:keywords`
+rather than traditional `--dashed` syntax. Note that all arguments are
+passed in as strings; it's up to your function to call `read-string`
+on the arguments if you want keywords, symbols, integers, etc. Keep
+this in mind when calling other tasks as functions too.
 
 Most tasks may only be run in the context of another project. If your
 task can be run outside a project directory, add `^:no-project-needed`
@@ -71,7 +76,9 @@ user. Be sure to explain all these arguments in the docstring. Note
 that all your arguments will be strings, so it's up to you to call
 `read-string` on them if you want keywords, numbers, or symbols.
 
-TODO: document subtasks and subtask help
+Often more complicated tasks get divided up into subtasks. Placing
+`:subtasks` metadata on a task defn which contains a vector of subtask
+vars will allow `lein help $TASK_CONTAINING_SUBTASKS` to list them.
 
 ## Code Evaluation
 
@@ -111,7 +118,15 @@ TODO: switch to profiles for this
 The code in the `swank-clojure` dependency is needed inside the
 project, so it's `conj`ed into the `:dependencies`.
 
-TODO: mention prep-tasks
+Before `eval-in-project` is invoked, Leiningen must "prep" a project,
+usually by ensuring that all Java code and all necessary Clojure code
+has been AOT compiled to bytecode. This is done by running all the
+tasks in the `:prep-tasks` key of the project, which defaults to
+`["javac" "compile"]`. If your plugin requires another kind of
+prepping, (for instance, compiling protocol buffers) you can instruct
+users to add another entry to `:prep-tasks`. Note that this task will
+be invoked for **every** `eval-in-project`, so take care that it runs
+quickly if nothing has changed since the last run.
 
 ## Hooks
 
@@ -201,6 +216,14 @@ you should still leave room in the arguments list for a project map;
 just expect that it will be nil if there's no project present. Use
 `^:no-project-needed` metadata to indicate this is acceptable.
 
+In Leiningen 1.x, having a task function return a numeric value was a
+way to signal the process's exit code. In Leiningen 2.x, tasks should
+call the `leiningen.core.main/abort` function when a fatal error is
+encountered. If the `leiningen.core.main/*exit-process?*` var is bound
+to true, then this will trigger an exit, but in some contexts (like
+`with-profiles`) it will simply trigger an exception and go on to the
+next task.
+
 ## 1.x Compatibility
 
 Once you've identified the changes necessary to achieve compatibility
@@ -208,9 +231,7 @@ with 2.x, you can decide whether you'd like to support 1.x and 2.x in
 the same codebase. In some cases it may be easier to simply keep them
 in separate branches, but sometimes it's better to support both.
 Luckily the strategy of using `:plugins` and adding in `:dependencies`
-just for calls to `eval-in-project` works fine in Leiningen 1.7. You
-can even get support for profiles using `lein plugin install
-lein-profiles 0.1.0`, though this support is experimental.
+just for calls to `eval-in-project` works fine in Leiningen 1.7.
 
 If you use functions that moved in 2.x, you can try requiring and
 resolving at runtime rather than compile time and falling back to the
@@ -237,9 +258,9 @@ Of course if the function has changed arities or has disappeared
 entirely this may not be feasible, but it should suffice in most
 cases.
 
-Note that a version of `eval-in-project` that supports both Leiningen 1.x and
-2.x is available from [leinjacker](https://github.com/sattvik/leinjacker), a
-library with utilities for plugin writer.
+Most widely-used functions which have changed in 2.x can be used from
+the [leinjacker](https://github.com/sattvik/leinjacker) project, which
+provides a compatibility shim supporting both 1.x and 2.x.
 
 Another key change is that `:source-path`, `:resources-path`,
 `:java-source-path`, and `:test-path` have changed to
@@ -264,20 +285,6 @@ You can also publish templates for generating project skeletons that
 work with `lein new`. See
 [the documentation for the new task](https://github.com/Raynes/lein-newnew/)
 for details on how to build templates.
-
-## Utility library for plugin creators
-
-Plugin creators often have to do the same sorts of things, such as manage
-dependencies and provide support for multiple versions of Leiningen.  To help
-you avoid duplication of code, use
-[leinjacker](https://github.com/sattvik/leinjacker), a library that contains a
-number of utilities, including:
-
-1. A version of `eval-in-project` that works with Leiningen 1.x and Leiningen 2.
-2. Utilities for querying and manipulating project dependencies.
-
-If you have functionality that you think may be useful to add to leinjacker,
-feel free to fork the project and submit a pull request.
 
 ## Have Fun
 
