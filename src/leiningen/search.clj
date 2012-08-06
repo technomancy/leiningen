@@ -43,7 +43,7 @@
             (when callback
               (callback {:byte-count cnt*
                          :content-len content-len
-                         :percentage (when content-len
+                         :percentage (if content-len
                                        (int (* 100 (/ cnt* content-len))))}))
             (recur cnt*)))))))
 

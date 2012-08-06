@@ -33,7 +33,7 @@
      (reduce (partial manifest-entry project)
              "Manifest-Version: 1.0"
              (merge default-manifest (:manifest project)
-                    (when-let [main (:main project)]
+                    (if-let [main (:main project)]
                       {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
 
 (defn ^:internal manifest-map [manifest]
