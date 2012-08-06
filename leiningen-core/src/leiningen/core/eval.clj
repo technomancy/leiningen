@@ -72,7 +72,7 @@
 (defn native-arch-path
   "Path to the os/arch-specific directory containing native libs."
   [project]
-  (when (and (get-os) (get-arch))
+  (if (and (get-os) (get-arch))
     (io/file (:native-path project) (name (get-os)) (name (get-arch)))))
 
 (defn- as-str [x]
@@ -92,8 +92,8 @@
           (str (last args) " " x))))
 
 (defn ^{:internal true} get-jvm-opts-from-env [env-opts]
-  (when (seq env-opts)
-    (reduce join-broken-arg [] (.split env-opts " "))))
+  (and (seq env-opts)
+       (reduce join-broken-arg [] (.split env-opts " "))))
 
 (defn- get-jvm-args
   "Calculate command-line arguments for launching java subprocess."
@@ -105,9 +105,9 @@
                          (str (:name project) ".version") (:version project)
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
                                                      (:debug project)))})
-      ~@(when (and native-arch-path (.exists native-arch-path))
+      ~@(if (and native-arch-path (.exists native-arch-path))
           [(d-property [:java.library.path native-arch-path])])
-      ~@(when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
+      ~@(if-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
           [(d-property [:http.proxyHost host])
            (d-property [:http.proxyPort port])
 	   (d-property [:http.nonProxyHosts non-proxy-hosts])]))))

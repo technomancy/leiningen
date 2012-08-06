@@ -11,7 +11,7 @@
            (java.io File FileOutputStream PrintWriter)))
 
 (defn read-components [zipfile]
-  (when-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
+  (if-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
     (->> (zip/xml-zip (xml/parse (.getInputStream zipfile entry)))
          zip/children
          (filter #(= (:tag %) :components))

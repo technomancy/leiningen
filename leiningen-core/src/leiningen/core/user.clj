@@ -31,8 +31,7 @@
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."
   ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]
-        (when (.exists cred-file)
-         (credentials-fn cred-file))))
+        (and (.exists cred-file) (credentials-fn cred-file))))
   ([file]
      (let [{:keys [out err exit]} (try (shell/sh "gpg" "--batch" "--quiet"
                                                  "--decrypt" (str file))

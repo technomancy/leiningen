@@ -61,7 +61,7 @@
          [nil nil])))
 
 (defn- static-help [name]
-  (when-let [resource (io/resource (format "leiningen/help/%s" name))]
+  (if-let [resource (io/resource (format "leiningen/help/%s" name))]
     (slurp resource)))
 
 (defn help-for
@@ -75,7 +75,7 @@
                     (:doc (meta task))
                     (:doc (meta (find-ns task-ns))))
                 (subtask-help-for task-ns task)
-                (when (some seq (get-arglists task))
+                (if (some seq (get-arglists task))
                   (str "\n\nArguments: " (pr-str (get-arglists task))))))
          (format "Task: '%s' not found" task-name))))
   ([project task-name]

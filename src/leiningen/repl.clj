@@ -35,7 +35,7 @@
     (if project
       (eval/eval-in-project
        (project/merge-profiles project [(:repl (user/profiles) profile)
-                                        (when-not headless? reply-profile)])
+                                        (if-not headless? reply-profile)])
         server-starting-form
         '(do (require 'clojure.tools.nrepl.server)
              (require 'complete.core)))
@@ -57,7 +57,7 @@
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
 (defn- ack-port [project]
-  (when-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
+  (if-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
                    (-> project :repl-options :ack-port))]
     (Integer. p)))
 

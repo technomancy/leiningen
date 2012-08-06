@@ -166,7 +166,8 @@ or by executing \"lein upgrade\". ")
       (verify-min-version project))
     (http-settings)
     (when-not project
-      (let [default-project (project/merge-profiles project/defaults [:user :default])]
+      (let [default-project (project/merge-profiles project/defaults
+                                                    [:user :default])]
         (project/load-certificates default-project)
         (project/load-plugins default-project)))
     (try (warn-chaining task-name args)
