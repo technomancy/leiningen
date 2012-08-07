@@ -193,7 +193,7 @@
         (if-let [resources (seq (:resource-paths test-project))]
           (vec (concat [:testResources]
                        (for [resource resources]
-                         [:resource [:directory resource]]))))
+                         [:testResource [:directory resource]]))))
         (if-let [extensions (seq (:extensions project))]
           (vec (concat [:extensions]
                        (for [[dep version] extensions]
