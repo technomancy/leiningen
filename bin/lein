@@ -6,6 +6,8 @@
 
 export LEIN_VERSION="2.0.0-SNAPSHOT"
 
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:="-Xms16m -Xmx256m"}"
+
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
     *) SNAPSHOT="NO" ;;
