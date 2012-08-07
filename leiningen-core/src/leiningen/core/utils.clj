@@ -3,4 +3,5 @@
 (defn read-file
   "Read the contents of file if it exists."
   [file]
-  (and (.exists file) (read-string (slurp file))))
+  (if (.exists file)
+    (read-string (slurp file))))
