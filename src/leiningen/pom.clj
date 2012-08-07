@@ -319,7 +319,7 @@
         (xml/indent-str
          (xml/sexp-as-element
           (xml-tags :project (relativize project))))
-        (and disclaimer? disclaimer)))))
+        (if disclaimer? disclaimer)))))
 
 (defn make-pom-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
