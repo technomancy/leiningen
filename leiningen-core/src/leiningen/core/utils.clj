@@ -15,6 +15,10 @@
               io/resource))
         [".clj" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
 
+(defn error [& args]
+  (binding [*out* *err*]
+    (apply println "Error:" args)))
+
 (defn resolve-symbol
   "Resolve a fully qualified symbol by first requiring its namespace."
   [sym]
