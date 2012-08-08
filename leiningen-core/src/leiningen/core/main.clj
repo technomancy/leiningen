@@ -89,19 +89,21 @@
        (sort)))
 
 (defn suggestions [task]
-  (for [t (tasks)
-        :let [n (.replaceAll (name t) "leiningen." "")]
-        :when (>= 3 (distance n task))]
-    n))
+  (let [suggestions (into {} (for [t (tasks)
+                                   :let [n (.replaceAll (name t)
+                                                        "leiningen." "")]]
+                               [n (distance n task)]))
+        min (apply min (vals suggestions))]
+    (when (<= min 4)
+      (map first (filter #(= min (second %)) suggestions)))))
 
 (defn ^:no-project-needed task-not-found [task & _]
   (println (str "'" task "' is not a task. See 'lein help'."))
-  (let [suggestions (suggestions task)]
-    (when (seq suggestions)
-      (println)
-      (println "Did you mean this?")
-      (doseq [suggestion suggestions]
-        (println "        " suggestion))))
+  (when-let [suggestions (suggestions task)]
+    (println)
+    (println "Did you mean this?")
+    (doseq [suggestion suggestions]
+      (println "        " suggestion)))
   (abort))
 
 ;; TODO: got to be a cleaner way to do this, right?
