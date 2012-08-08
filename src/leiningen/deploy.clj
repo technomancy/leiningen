@@ -51,7 +51,7 @@
 
 (defn signatures-for [jar-file pom-file coords]
   {(into coords [:extension "jar.asc"]) (sign jar-file)
-   (into coords [:extension "pom.asc"]) (sign pom-file)})
+   (into coords [:extension "pom.xml.asc"]) (sign pom-file)})
 
 (defn files-for [project repo]
   (let [coords [(symbol (:group project) (:name project)) (:version project)]
