@@ -170,7 +170,7 @@
         latter
 
         (and (map? result) (map? latter))
-        (merge-with profile-key-merge latter result)
+        (merge-with profile-key-merge result latter)
 
         (and (set? result) (set? latter))
         (set/union latter result)
