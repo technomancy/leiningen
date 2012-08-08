@@ -59,6 +59,26 @@
       (apply println msg))
     (exit 1)))
 
+(defn distance [s t]
+  (letfn [(iters [n f start]
+            (take n (map second
+                         (iterate f start))))]
+    (let [m (inc (count s)), n (inc (count t))
+          first-row (vec (range m))
+          matrix (iters n (fn [[j row]]
+                            [(inc j)
+                             (vec (iters m (fn [[i col]]
+                                             [(inc i)
+                                              (if (= (nth s i)
+                                                     (nth t j))
+                                                (get row i)
+                                                (inc (min (get row i)
+                                                          (get row (inc i))
+                                                          col)))])
+                                         [0 (inc j)]))])
+                        [0 first-row])]
+      (last (last matrix)))))
+
 (defn ^:no-project-needed task-not-found [task & _]
   (abort (str task " is not a task. Use \"lein help\" to list all tasks.")))
 
