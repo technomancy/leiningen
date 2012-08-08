@@ -3,7 +3,8 @@
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
             [clojure.java.io :as io]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [bultitude.core :as b]))
 
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
@@ -79,8 +80,29 @@
                         [0 first-row])]
       (last (last matrix)))))
 
+(defn tasks
+  "Return a list of symbols naming all visible tasks."
+  []
+  (->> (b/namespaces-on-classpath :prefix "leiningen")
+       (filter #(re-find #"^leiningen\.(?!core|main|util)[^\.]+$" (name %)))
+       (distinct)
+       (sort)))
+
+(defn suggestions [task]
+  (for [t (tasks)
+        :let [n (.replaceAll (name t) "leiningen." "")]
+        :when (>= 3 (distance n task))]
+    n))
+
 (defn ^:no-project-needed task-not-found [task & _]
-  (abort (str task " is not a task. Use \"lein help\" to list all tasks.")))
+  (println (str "'" task "' is not a task. See 'lein help'."))
+  (let [suggestions (suggestions task)]
+    (when (seq suggestions)
+      (println)
+      (println "Did you mean this?")
+      (doseq [suggestion suggestions]
+        (println "        " suggestion))))
+  (abort))
 
 ;; TODO: got to be a cleaner way to do this, right?
 (defn- drop-partial-args [pargs]
