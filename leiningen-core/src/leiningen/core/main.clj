@@ -19,7 +19,8 @@
 (defn lookup-alias [task-name project]
   (or (aliases task-name)
       (get (:aliases project) task-name)
-      task-name "help"))
+      task-name
+      "help"))
 
 (defn task-args [args project]
   (if (= "help" (aliases (second args)))
