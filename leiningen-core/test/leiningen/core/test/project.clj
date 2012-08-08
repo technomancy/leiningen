@@ -80,7 +80,16 @@
            (-> {:resource-paths ["resources"]
                 :profiles {:blue {:resource-paths ^:replace ["replaced"]}}}
                (merge-profiles [:blue :qa :tes])
-               :resource-paths)))))
+               :resource-paths)))
+    (is (= {:url "http://" :username "u" :password "p"}
+           (-> {:repositories {"foo" {:url "http://" :creds :gpg}}
+                :profiles {:blue {:repositories {"foo"
+                                                 ^:replace {:url "http://"
+                                                            :username "u"
+                                                            :password "p"}}}}}
+               (merge-profiles [:blue :qa :tes])
+               :repositories
+               (get "foo"))))))
 
 (deftest test-merge-profile-deps
   (with-redefs [default-profiles test-profiles]
