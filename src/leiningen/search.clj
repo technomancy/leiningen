@@ -45,7 +45,8 @@
       (disconnect [])
       (^java.io.InputStream retrieve [name]
         (println "Downloading" name "from" @base-url)
-        (:body (http/get (str @base-url "/" name) {:as :stream}))))))
+        (:body (http/get (str @base-url "/" name) {:throw-exceptions false
+                                                   :as :stream}))))))
 
 (defn update-index [context]
   (.fetchAndUpdateIndex (.lookup container IndexUpdater)
