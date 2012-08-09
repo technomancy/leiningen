@@ -10,15 +10,15 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Isolate target dir per profile (#468)
    - [ ] Honor mirror for search indices (#281)
    - [ ] Drop clojars snapshots from default repos (#241)
+** 2.0.0-preview8
    - [X] Allow trampoline to work with chaining in do task (#665)
    - [X] Store repl port on filesystem (#682)
+   - [X] Set nREPL middleware in profiles (#716)
    - [-] OOM in repl with lots of output (#691)
    - [-] Search indices on Central have moved (#683)
    - [-] Honor hooks/metadata in from plugins (#401)
-   - [ ] Better error messages on failed repl :connect (#723)
+   - [-] Better error messages on failed repl :connect (#723)
    - [ ] Document key generation (#721)
-   - [ ] Set nREPL middleware in profiles (#716)
-   - [ ] Headless repl needs stdin (#715)
 ** 2.0.0-preview7
    - [X] Address chaining issues in with-profile (#632)
    - [X] Address gpg agent issues (#615)

@@ -1,5 +1,18 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview8 / ???
+
+* Accept nREPL handlers and middleware from project config.
+* Support emitting arbitrary elements in pom.xml. (Esa Laine)
+* Fix a bug where repl task was binding to 0.0.0.0.
+* Honor $http_no_proxy host settings (Jon Pither)
+* Profiles can be specified as compositions of other profiles (Justin Balthrop)
+* Allow for :prep-tasks with arguments (Anthony Marcar)
+* Check for "help" after task name. (Bruce Adams)
+* Read dependency transport wagons from plugins.
+* Allow successive eval-in-project calls with trampoline.
+* Bring back selective post-compile cleaning. (Arlen Cuss)
+
 ## 2.0.0-preview7 / 2012-06-27
 
 * Fix a bug where failed javac wouldn't abort. (Michael Klishin)

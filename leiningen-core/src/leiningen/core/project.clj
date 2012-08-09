@@ -169,6 +169,7 @@
         (-> latter meta :replace)
         latter
 
+        ;; TODO: last-wins breaks here
         (and (map? result) (map? latter))
         (merge-with profile-key-merge result latter)
 
