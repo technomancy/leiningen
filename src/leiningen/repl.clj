@@ -30,12 +30,17 @@
 
 (defn- init-requires [project & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
-        nrepl-syms (filter symbol? (cons (:nrepl-handler project)
-                                         (:nrepl-middleware project)))]
+        nrepl-syms (->> (cons (:nrepl-handler project)
+                              (:nrepl-middleware project))
+                     (filter symbol?)
+                     (map namespace)
+                     (remove nil?)
+                     (map symbol))]
     (for [n (concat defaults nrepl-syms nses)]
       (list 'quote n))))
 
 (defn- start-server [project host port ack-port & [headless?]]
+  (println (handler-for project))
   (let [server-starting-form
         `(let [server# (clojure.tools.nrepl.server/start-server
                         :bind ~host :port ~port :ack-port ~ack-port
@@ -44,6 +49,7 @@
            (println "nREPL server started on port" port#)
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            @(promise))]
+    (println `(require ~@(init-requires project)))
     (if project
       (eval/eval-in-project
        (project/merge-profiles project [(:repl (user/profiles) profile)
