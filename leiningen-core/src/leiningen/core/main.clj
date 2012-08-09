@@ -3,7 +3,8 @@
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
             [clojure.java.io :as io]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [bultitude.core :as b]))
 
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
@@ -19,7 +20,8 @@
 (defn lookup-alias [task-name project]
   (or (aliases task-name)
       (get (:aliases project) task-name)
-      task-name "help"))
+      task-name
+      "help"))
 
 (defn task-args [args project]
   (if (= "help" (aliases (second args)))
@@ -58,8 +60,51 @@
       (apply println msg))
     (exit 1)))
 
+(defn distance [s t]
+  (letfn [(iters [n f start]
+            (take n (map second
+                         (iterate f start))))]
+    (let [m (inc (count s)), n (inc (count t))
+          first-row (vec (range m))
+          matrix (iters n (fn [[j row]]
+                            [(inc j)
+                             (vec (iters m (fn [[i col]]
+                                             [(inc i)
+                                              (if (= (nth s i)
+                                                     (nth t j))
+                                                (get row i)
+                                                (inc (min (get row i)
+                                                          (get row (inc i))
+                                                          col)))])
+                                         [0 (inc j)]))])
+                        [0 first-row])]
+      (last (last matrix)))))
+
+(defn tasks
+  "Return a list of symbols naming all visible tasks."
+  []
+  (->> (b/namespaces-on-classpath :prefix "leiningen")
+       (filter #(re-find #"^leiningen\.(?!core|main|util)[^\.]+$" (name %)))
+       (distinct)
+       (sort)))
+
+(defn suggestions [task]
+  (let [suggestions (into {} (for [t (tasks)
+                                   :let [n (.replaceAll (name t)
+                                                        "leiningen." "")]]
+                               [n (distance n task)]))
+        min (apply min (vals suggestions))]
+    (when (<= min 4)
+      (map first (filter #(= min (second %)) suggestions)))))
+
 (defn ^:no-project-needed task-not-found [task & _]
-  (abort (str task " is not a task. Use \"lein help\" to list all tasks.")))
+  (println (str "'" task "' is not a task. See 'lein help'."))
+  (when-let [suggestions (suggestions task)]
+    (println)
+    (println "Did you mean this?")
+    (doseq [suggestion suggestions]
+      (println "        " suggestion)))
+  (abort))
 
 ;; TODO: got to be a cleaner way to do this, right?
 (defn- drop-partial-args [pargs]

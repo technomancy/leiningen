@@ -2,20 +2,11 @@
   "Display a list of tasks or help for a given task."
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
-            [bultitude.core :as b]
             [leiningen.core.main :as main]))
 
 (def ^{:private true
        :doc "Width of task name column in list of tasks produced by help task."}
   task-name-column-width 20)
-
-(defn tasks
-  "Return a list of symbols naming all visible tasks."
-  []
-  (->> (b/namespaces-on-classpath :prefix "leiningen")
-       (filter #(re-find #"^leiningen\.(?!core|main|util)[^\.]+$" (name %)))
-       (distinct)
-       (sort)))
 
 (defn- get-arglists [task]
   (for [args (or (:help-arglists (meta task)) (:arglists (meta task)))]
@@ -103,7 +94,7 @@ deploying and copying info."
   ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
-     (doseq [task-ns (tasks)]
+     (doseq [task-ns (main/tasks)]
        (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
      (if-let [aliases (:aliases project)]
