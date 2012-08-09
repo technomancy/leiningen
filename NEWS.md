@@ -12,6 +12,7 @@
 * Read dependency transport wagons from plugins.
 * Allow successive eval-in-project calls with trampoline.
 * Bring back selective post-compile cleaning. (Arlen Cuss)
+* Fix memory leak in repl task
 
 ## 2.0.0-preview7 / 2012-06-27
 

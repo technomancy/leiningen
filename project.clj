@@ -13,9 +13,7 @@
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util]]
-                 [reply "0.1.0-beta8"]
-                 ;; once reply bumps its drawbridge dep we can collapse these
-                 [com.cemerick/drawbridge "0.0.6" :exclusions [ring/ring-core]]
+                 [reply "0.1.0-beta10"]
                  [clj-http "0.4.2"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
