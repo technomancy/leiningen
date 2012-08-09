@@ -24,10 +24,22 @@
 (def trampoline-profile {:dependencies '[[reply "0.1.0-beta9"
                                          :exclusions [org.clojure/clojure]]]})
 
+(defn- handler-for [project]
+  `(-> ~(:nrepl-handler project '(clojure.tools.nrepl.server/default-handler))
+       ~@(map list (:nrepl-middleware project))))
+
+(defn- init-requires [project & nses]
+  (let [defaults '[clojure.tools.nrepl.server complete.core]
+        nrepl-syms (filter symbol? (cons (:nrepl-handler project)
+                                         (:nrepl-middleware project)))]
+    (for [n (concat defaults nrepl-syms nses)]
+      (list 'quote n))))
+
 (defn- start-server [project host port ack-port & [headless?]]
   (let [server-starting-form
         `(let [server# (clojure.tools.nrepl.server/start-server
-                        :bind ~host :port ~port :ack-port ~ack-port)
+                        :bind ~host :port ~port :ack-port ~ack-port
+                        :handler ~(handler-for project))
                port# (-> server# deref :ss .getLocalPort)]
            (println "nREPL server started on port" port#)
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
@@ -36,9 +48,8 @@
       (eval/eval-in-project
        (project/merge-profiles project [(:repl (user/profiles) profile)
                                         (if-not headless? reply-profile)])
-        server-starting-form
-        '(do (require 'clojure.tools.nrepl.server)
-             (require 'complete.core)))
+       server-starting-form
+       `(require ~@(init-requires project)))
       (eval server-starting-form))))
 
 (defn- repl-port [project]
@@ -88,7 +99,7 @@
     (eval/eval-in-project
      (project/merge-profiles project profiles)
      `(reply.main/launch-nrepl ~options)
-     '(require 'reply.main 'clojure.tools.nrepl.server 'complete.core))))
+     `(require ~@(init-requires project 'reply.main)))))
 
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
