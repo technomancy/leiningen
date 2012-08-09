@@ -3,7 +3,7 @@
   (:use [clojure.test]
         [leiningen.search]))
 
-(deftest test-searchy
+#_(deftest test-searchy
   (with-redefs [remote-index-url (constantly
                                   (io/resource "sample-index.zip"))]
     (ensure-fresh-index ["test" {:url "http://example.com/repo"}])
