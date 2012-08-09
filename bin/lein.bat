@@ -43,7 +43,7 @@ if exist "%~dp0..\src\leiningen\version.clj" (
 
     :: Apply context specific CLASSPATH entries
     if exist "%~dp0..\.lein-classpath" (
-        set /P CONTEXT_CP=< "%~dp0..\.lein-classpath"
+        for /f %%i in (%~dp0...lein-classpath) do set CONTEXT_CP=%%i 
 
         if NOT "x!CONTEXT_CP!"=="x" (
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
