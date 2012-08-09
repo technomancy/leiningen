@@ -64,7 +64,3 @@ _lein_test() {
   _lein_namespaces "test/"
 }
 
-_lein_test!() {
-  _lein_namespaces "test/"
-}
-
