@@ -192,7 +192,7 @@ or by executing \"lein upgrade\". ")
           (System/getProperty "os.name") (System/getProperty "os.version")
           (System/getProperty "os.arch")))
 
-(defn- http-settings []
+(defn- configure-http []
   "Set Java system properties controlling HTTP request behavior."
   (System/setProperty "aether.connector.userAgent" (user-agent))
   (when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
@@ -203,28 +203,21 @@ or by executing \"lein upgrade\". ")
 (defn -main
   "Run a task or comma-separated list of tasks."
   [& raw-args]
-  (user/init)
-  (let [project (if (.exists (io/file "project.clj"))
-                  (project/init-project (project/read)))
-        [task-name args] (task-args raw-args project)]
-    (when (:min-lein-version project)
-      (verify-min-version project))
-    (http-settings)
-    (when-not project
-      (let [default-project (project/merge-profiles project/defaults
-                                                    [:user :default])]
-        (project/load-certificates default-project)
-        (project/load-plugins default-project)))
-    (try (warn-chaining task-name args)
-         (apply-task task-name project args)
-         (catch clojure.lang.ExceptionInfo e
-           (exit (:exit-code (ex-data e) 1)))
-         (catch Exception e
-           (when-let [[_ code] (and (.getMessage e)
-                                    (re-find #"Process exited with (\d+)"
-                                             (.getMessage e)))]
-             (exit (Integer. code)))
-           (when-not (re-find #"Suppressed exit:" (or (.getMessage e) ""))
-             (.printStackTrace e))
-           (exit 1))))
+  (try
+    (user/init)
+    (let [project (if (.exists (io/file "project.clj"))
+                    (project/init-project (project/read)))
+          [task-name args] (task-args raw-args project)]
+      (when (:min-lein-version project)
+        (verify-min-version project))
+      (configure-http)
+      (when-not project
+        (let [default-project (project/merge-profiles project/defaults
+                                                      [:user :default])]
+          (project/load-certificates default-project)
+          (project/load-plugins default-project)))
+      (warn-chaining task-name args)
+      (apply-task task-name project args))
+    (catch Exception e
+      (exit (:exit-code (ex-data e) 1))))
   (exit 0))
