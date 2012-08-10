@@ -2,6 +2,7 @@
 
 ## 2.0.0-preview8 / ???
 
+* Use new search index format, support incremental updates (Christoph Seibert)
 * Accept nREPL handlers and middleware from project config.
 * Support emitting arbitrary elements in pom.xml. (Esa Laine)
 * Fix a bug where repl task was binding to 0.0.0.0.

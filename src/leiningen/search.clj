@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
+            [leiningen.core.main :as main]
             [clj-http.client :as http])
   (:import (org.apache.maven.index ArtifactInfo IteratorSearchRequest MAVEN
                                    NexusIndexer)
@@ -37,20 +38,29 @@
 
 ;; TODO: add progress reporting back in
 (defn- http-resource-fetcher []
-  (let [base-url (promise)]
+  (let [base-url (promise)
+        stream (promise)]
     (proxy [ResourceFetcher] []
       ;; TODO: handle connect/disconnect properly
       (connect [id url]
         (deliver base-url url))
-      (disconnect [])
+      (disconnect []
+        (.close @stream))
       (^java.io.InputStream retrieve [name]
-        (println "Downloading" name "from" @base-url)
-        (:body (http/get (str @base-url "/" name) {:throw-exceptions false
-                                                   :as :stream}))))))
+        (main/debug "Downloading" (str @base-url "/" name))
+        (let [s (:body (http/get (str @base-url "/" name)
+                                 {:throw-exceptions false :as :stream}))]
+          (deliver stream s)
+          s)))))
 
-(defn update-index [context]
+(defn update-index [url context]
   (.fetchAndUpdateIndex (.lookup container IndexUpdater)
                         (IndexUpdateRequest. context (http-resource-fetcher))))
+
+(defn- refresh? [[id {:keys [url]}] project]
+  (if-not (:offline? project)
+    (< (.lastModified (io/file (index-location url) "timestamp"))
+       (- (System/currentTimeMillis) 86400000))))
 
 (defn- parse-result [result]
   (let [group-id (.groupId result)
@@ -64,25 +74,30 @@
         classifier-opts (and classifier [:classifier classifier])
         packaging-opts (if (not= "jar" packaging) [:packaging packaging])]
     [(pr-str (into [name version] (concat classifier-opts packaging-opts)))
-     (.description result)]))
+     (or (.description result) "")]))
+
+(def ^:private page-size (:search-page-size (:user (user/profiles)) 25))
 
 (defn- print-results [id response page]
   (when (seq response)
     (println " == Results from" id "-" "Showing page" page "/"
-             (.getTotalHitsCount response))
+             (-> (.getTotalHitsCount response) (/ page-size) Math/ceil int))
     (doseq [[dep description] (map parse-result response)]
       (println dep description))
     (println)))
 
-(defn search-repository [[id {:keys [url]}] query page offline?]
+(defn search-repository [[id {:keys [url]}] query page refresh?]
   (with-context [context id url]
-    (when-not offline? (update-index context))
+    (when refresh? (update-index url context))
     (let [search-expression (UserInputSearchExpression. query)
           ;; TODO: support querying other fields
           artifact-id-query (.constructQuery indexer MAVEN/ARTIFACT_ID
                                              search-expression)
-          request (IteratorSearchRequest. artifact-id-query context)]
-      (with-open [response (.searchIterator indexer request)]
+          offset (* (dec page) page-size)
+          request (doto (IteratorSearchRequest. artifact-id-query context)
+                    (.setStart offset)
+                    (.setCount page-size))]
+      (with-open [response (.searchIterator indexer request #_contexts)]
         (print-results id response page)))))
 
 (defn ^:no-project-needed search
@@ -98,8 +113,14 @@ matches or do more advanced queries such as this:
 Also accepts a second parameter for fetching successive pages."
   ([project query] (search project query 1))
   ([project query page]
-     ;; TODO: still some issues with central
-     (doseq [repo (reverse (:repositories project (:repositories project/defaults)))
-             :let [page (Integer. page)]]
-       ;; TODO: bring back pagination
-       (search-repository repo query page (:offline? project)))))
+     ;; Maven's indexer requires over 1GB of free space for a <100M index
+     (let [orig-tmp (System/getProperty "java.io.tmpdir")
+           new-tmp (io/file (user/leiningen-home) "indices" "tmp")]
+       (try
+         (.mkdirs new-tmp)
+         (System/setProperty "java.io.tmpdir" (str new-tmp))
+         ;; TODO: collapse into single search request with multiple contexts
+         (doseq [repo (:repositories project (:repositories project/defaults))
+                 :let [page (Integer. page)]]
+           (search-repository repo query page (refresh? repo project)))
+         (finally (System/setProperty "java.io.tmpdir" orig-tmp))))))
