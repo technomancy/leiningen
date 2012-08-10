@@ -6,7 +6,8 @@
             [clojure.string :as str]
             [leiningen.core.user :as user])
   (:import (java.util.jar JarFile)
-           (java.net URL)))
+           (java.net URL)
+           (org.sonatype.aether.resolution DependencyResolutionException)))
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
@@ -117,6 +118,12 @@
      :mirrors mirrors
      :transfer-listener :stdout
      :proxy (get-proxy-settings))
+    (catch DependencyResolutionException e
+      (binding [*out* *err*]
+        (println "Check :dependencies and :repositories for typos.")
+        (println "It's possible the specified jar is not in any repository.")
+        (println "If so, see \"Free-floating Jars\" under http://j.mp/repeatability"))
+      (throw (ex-info "Could not resolve dependencies" {:exit-code 1})))
     (catch Exception e
       (if (and (instance? java.net.UnknownHostException (root-cause e))
                (not offline?))

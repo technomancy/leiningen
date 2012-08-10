@@ -217,6 +217,8 @@ or by executing \"lein upgrade\". ")
         (project/load-plugins default-project)))
     (try (warn-chaining task-name args)
          (apply-task task-name project args)
+         (catch clojure.lang.ExceptionInfo e
+           (exit (:exit-code (ex-data e) 1)))
          (catch Exception e
            (when-let [[_ code] (and (.getMessage e)
                                     (re-find #"Process exited with (\d+)"

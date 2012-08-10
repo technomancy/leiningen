@@ -40,7 +40,7 @@ than as a subprocess of Leiningen's project.
 
 Use this to save memory or to work around stdin issues."
   [project task-name & args]
-  ;; TODO: allow trampoline calls to chain with do
+  ;; TODO: allow trampoline calls to chain with do (does this already work?)
   (let [forms (atom [])]
     (when (:eval-in-leiningen project)
       (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
