@@ -2,18 +2,21 @@
 
 ## 2.0.0-preview8 / ???
 
-* Use new search index format, support incremental updates (Christoph Seibert)
+* Offer similar suggestions when no task is found for input. (Joe Gallo)
+* Support TERM=dumb in repl task. (Colin Jones)
+* Fix reader mismatches between repl client and server. (Colin Jones)
+* Use new search index format, support incremental updates. (Christoph Seibert)
 * Accept nREPL handlers and middleware from project config.
 * Support emitting arbitrary elements in pom.xml. (Esa Laine)
 * Fix a bug where repl task was binding to 0.0.0.0.
-* Honor $http_no_proxy host settings (Jon Pither)
-* Profiles can be specified as compositions of other profiles (Justin Balthrop)
-* Allow for :prep-tasks with arguments (Anthony Marcar)
+* Honor $http_no_proxy host settings. (Jon Pither)
+* Profiles can be specified as compositions of other profiles. (Justin Balthrop)
+* Allow for :prep-tasks with arguments. (Anthony Marcar)
 * Check for "help" after task name. (Bruce Adams)
 * Read dependency transport wagons from plugins.
 * Allow successive eval-in-project calls with trampoline.
 * Bring back selective post-compile cleaning. (Arlen Cuss)
-* Fix memory leak in repl task
+* Fix memory leak in repl task.
 
 ## 2.0.0-preview7 / 2012-06-27
 
