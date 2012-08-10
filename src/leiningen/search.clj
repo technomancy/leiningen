@@ -1,16 +1,14 @@
 (ns leiningen.search
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
-            [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.main :as main]
             [clj-http.client :as http])
-  (:import (org.apache.maven.index ArtifactInfo IteratorSearchRequest MAVEN
-                                   NexusIndexer)
+  (:import (org.apache.maven.index IteratorSearchRequest MAVEN NexusIndexer)
            (org.apache.maven.index.context IndexingContext)
-           (org.apache.maven.index.creator
-            JarFileContentsIndexCreator MavenPluginArtifactInfoIndexCreator
-            MinimalArtifactInfoIndexCreator)
+           (org.apache.maven.index.creator JarFileContentsIndexCreator
+                                           MavenPluginArtifactInfoIndexCreator
+                                           MinimalArtifactInfoIndexCreator)
            (org.apache.maven.index.expr UserInputSearchExpression)
            (org.apache.maven.index.updater IndexUpdater IndexUpdateRequest
                                            ResourceFetcher)
@@ -27,14 +25,12 @@
 (defn index-location [url]
   (io/file (user/leiningen-home) "indices" (string/replace url #"[:/]" "_")))
 
-(defmacro with-context [[context-local id url] & body]
-  `(let [~context-local (.addIndexingContextForced
-                         indexer ~id ~url nil (index-location ~url)
-                         ~url nil default-indexers)]
-     (locking ~url
-       (try ~@body
-            (finally
-              (.removeIndexingContext indexer ~context-local false))))))
+(defn- add-context [[id {:keys [url]}]]
+  (.addIndexingContextForced indexer id url nil (index-location url)
+                             url nil default-indexers))
+
+(defn- remove-context [context]
+  (.removeIndexingContext indexer context false))
 
 ;; TODO: add progress reporting back in
 (defn- http-resource-fetcher []
@@ -53,11 +49,11 @@
           (deliver stream s)
           s)))))
 
-(defn update-index [url context]
+(defn update-index [context]
   (.fetchAndUpdateIndex (.lookup container IndexUpdater)
                         (IndexUpdateRequest. context (http-resource-fetcher))))
 
-(defn- refresh? [[id {:keys [url]}] project]
+(defn- refresh? [url project]
   (if-not (:offline? project)
     (< (.lastModified (io/file (index-location url) "timestamp"))
        (- (System/currentTimeMillis) 86400000))))
@@ -78,27 +74,24 @@
 
 (def ^:private page-size (:search-page-size (:user (user/profiles)) 25))
 
-(defn- print-results [id response page]
+(defn- print-results [response page]
   (when (seq response)
-    (println " == Results from" id "-" "Showing page" page "/"
+    (println " == Showing page" page "/"
              (-> (.getTotalHitsCount response) (/ page-size) Math/ceil int))
     (doseq [[dep description] (map parse-result response)]
       (println dep description))
     (println)))
 
-(defn search-repository [[id {:keys [url]}] query page refresh?]
-  (with-context [context id url]
-    (when refresh? (update-index url context))
-    (let [search-expression (UserInputSearchExpression. query)
-          ;; TODO: support querying other fields
-          artifact-id-query (.constructQuery indexer MAVEN/ARTIFACT_ID
-                                             search-expression)
-          offset (* (dec page) page-size)
-          request (doto (IteratorSearchRequest. artifact-id-query context)
-                    (.setStart offset)
-                    (.setCount page-size))]
-      (with-open [response (.searchIterator indexer request #_contexts)]
-        (print-results id response page)))))
+(defn search-repository [query contexts page]
+  (let [search-expression (UserInputSearchExpression. query)
+        ;; TODO: support querying other fields
+        artifact-id-query (.constructQuery indexer MAVEN/ARTIFACT_ID
+                                           search-expression)
+        request (doto (IteratorSearchRequest. artifact-id-query contexts)
+                  (.setStart (* (dec page) page-size))
+                  (.setCount page-size))]
+    (with-open [response (.searchIterator indexer request)]
+      (print-results response page))))
 
 (defn ^:no-project-needed search
   "Search remote maven repositories for matching jars.
@@ -115,12 +108,15 @@ Also accepts a second parameter for fetching successive pages."
   ([project query page]
      ;; Maven's indexer requires over 1GB of free space for a <100M index
      (let [orig-tmp (System/getProperty "java.io.tmpdir")
-           new-tmp (io/file (user/leiningen-home) "indices" "tmp")]
+           new-tmp (io/file (user/leiningen-home) "indices" "tmp")
+           contexts (doall (map add-context (:repositories project)))]
        (try
          (.mkdirs new-tmp)
          (System/setProperty "java.io.tmpdir" (str new-tmp))
-         ;; TODO: collapse into single search request with multiple contexts
-         (doseq [repo (:repositories project (:repositories project/defaults))
-                 :let [page (Integer. page)]]
-           (search-repository repo query page (refresh? repo project)))
-         (finally (System/setProperty "java.io.tmpdir" orig-tmp))))))
+         (doseq [context contexts]
+           (when (refresh? (.getRepositoryUrl context) project)
+             (update-index context)))         
+         (search-repository query contexts (Integer. page))
+         (finally
+           (doall (map remove-context contexts))
+           (System/setProperty "java.io.tmpdir" orig-tmp))))))

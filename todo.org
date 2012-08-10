@@ -14,10 +14,10 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Allow trampoline to work with chaining in do task (#665)
    - [X] Store repl port on filesystem (#682)
    - [X] Set nREPL middleware in profiles (#716)
-   - [-] OOM in repl with lots of output (#691)
-   - [-] Search indices on Central have moved (#683)
+   - [X] OOM in repl with lots of output (#691)
+   - [X] Search indices on Central have moved (#683)
+   - [X] Better error messages on failed repl :connect (#723)
    - [-] Honor hooks/metadata in from plugins (#401)
-   - [-] Better error messages on failed repl :connect (#723)
    - [ ] Document key generation (#721)
 ** 2.0.0-preview7
    - [X] Address chaining issues in with-profile (#632)
