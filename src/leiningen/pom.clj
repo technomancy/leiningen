@@ -107,7 +107,9 @@
   (if
     (= "auto" scm)
     (make-git-scm (io/file (:root project) ".git"))
-    (xml-tags :scm (xmlify (:scm project)))))
+    (xml-tags :scm (xmlify (select-keys (:scm project)
+                                        [:url :connection
+                                         :tag :developerConnection])))))
 
 (defmethod xml-tags :default
   ([tag value]
