@@ -361,8 +361,7 @@ programs can be packaged up as tarballs with accompanied shell scripts
 using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
 and then deployed using
 [pallet](http://hugoduncan.github.com/pallet/),
-[chef](http://opscode.com/chef/), or other mechanisms. Debian packages
-can be created with [lein-deb](https://github.com/travis/lein-deb).
+[chef](http://opscode.com/chef/), or other mechanisms.
 Web applications may be deployed as uberjars using embedded Jetty with
 `ring-jetty-adapter` or as .war (web application archive) files
 created by the
@@ -399,8 +398,8 @@ If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to
 [maintain your own private repository](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
-or get it into Central, the easiest way is to publish it at
-[Clojars](http://clojars.org). Once you have
+or get it into [Central](http://search.maven.org), the easiest way is
+to publish it at [Clojars](http://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
 is easy:
 
@@ -426,10 +425,13 @@ is easy:
 
 Once that succeeds it will be available as a package on which other
 projects may depend. For instructions on storing your credentials so
-they don't have to be re-entered every time, see `lein help deploying`.
-For further details about publishing including setting up private
-repositories, see the
+they don't have to be re-entered every time, see `lein help
+deploying`. When deploying a release that's not a snapshot, Leiningen
+will attempt to sign it using [GPG](http://gnupg.org) to prove your
+authorship of the release. See the
 [deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md).
+for details of how to set that up. The deploy guide includes
+instructions for deploying to other repositories as well.
 
 ## That's It!
 

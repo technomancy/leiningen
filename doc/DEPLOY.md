@@ -9,9 +9,13 @@ However, deploying is not always that straightforward.
 
 There may be times when you want to make a library available to your
 team without making it public. This is best done by setting up a
-private repository. The simplest kind of private repository is an
-[Amazon S3](http://aws.amazon.com/s3/) bucket. You can deploy to S3
-buckets using [S3 wagon private](https://github.com/technomancy/s3-wagon-private).
+private repository. The simplest kind of private repository is a web
+server pointed at a directory full of static files. You can use a
+`file:///` URL in your `:repositories` key to deploy that way if the
+directory is local to the machine on which Leiningen is running.
+[Amazon S3](http://aws.amazon.com/s3/) buckets are another simple
+choice; you can deploy to S3 buckets using
+[S3 wagon private](https://github.com/technomancy/s3-wagon-private).
 
 Alternatively you can run a private repository on your own server.
 Both [Archiva](http://archiva.apache.org/) and
@@ -69,6 +73,11 @@ First write your credentials map to `~/.lein/credentials.clj` like so:
  {:username "AKIAIN..." :passphrase "1TChrGK4s..."}}
 ```
 
+If you don't have a key pair yet, it's easy to generate one. The
+defaults should serve you well, but be sure to pick a strong passphrase.
+
+    $ gpg --gen-key
+
 Then encrypt it with `gpg`:
 
     $ gpg --default-recipient-self -e \
@@ -83,7 +92,11 @@ once per login.
 On some systems you will be prompted for your GPG passphrase if you
 haven't entered it. If yours does not, you can install
 [Keychain](https://github.com/funtoo/keychain), which provides this
-functionality portably.
+functionality portably. Your key will also be used for signing
+artifacts if the version is not a snapshot, so you may be asked for
+the passphrase multiple times if the agent is not configured. To
+disable signing of releases, set `:sign-releases` to false in the
+`:repositories` entry you are targeting.
 
 Unattended builds can specify `:env` instead of `:gpg` in the
 repository specification to have credentials looked up in the
