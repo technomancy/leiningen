@@ -62,12 +62,12 @@ lists/vectors are concatenated. You can add hints via metadata that a
 given value should take precedence (`:replace`), defer to values
 from a different profile (`:displace`) if you want to override this
 logic, or append a collection of values to afore specified property
-(`:reverse`) as opposed to them being prepended by default:
+(`:append`) as opposed to them being prepended by default:
 
 ```clj
 {:profiles {:dev {:prep-tasks ^:replace ["clean" "compile"]
                   :aliases ^:displace {"launch" "run"}
-                  :aot ^:reverse [test.test1, test.test2]}}}
+                  :aot ^:append [test.test1, test.test2]}}}
 ```
 
 The exception to this merge logic is that plugins and dependencies
