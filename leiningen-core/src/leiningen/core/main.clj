@@ -2,6 +2,7 @@
   (:require [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.utils :as utils]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [bultitude.core :as b]))
