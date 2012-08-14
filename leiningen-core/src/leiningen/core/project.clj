@@ -263,22 +263,21 @@
     (symbol (name ns) "project")))
 
 (defn- load-hook [hook-ns]
-  (if-let [hook (try (utils/resolve-symbol (symbol (name hook-ns) "activate"))
-                     (catch Throwable e
-                       (utils/error "problem requiring" hook-ns "hook")
-                       (throw e)))]
+  (when-let [hook (try (utils/resolve-symbol (symbol (name hook-ns) "activate"))
+                       (catch Throwable e
+                         (utils/error "problem requiring" hook-ns "hook")
+                         (throw e)))]
     (try (hook)
          (catch Throwable e
            (utils/error "problem activating" hook-ns "hook")
-           (throw e)))
-    (utils/error "cannot resolve" hook-ns "hook")))
+           (throw e)))))
 
 (defn- load-hooks [project & [ignore-missing?]]
   (doseq [hook-ns (plugin-hooks project)]
     (load-hook hook-ns))
   (doseq [hook-ns (:hooks project)]
     (or (load-hook hook-ns)
-        (utils/error "cannot resolve hook" hook-ns))))
+        (utils/error "cannot resolve" hook-ns "hook"))))
 
 (defn apply-middleware
   ([project]
