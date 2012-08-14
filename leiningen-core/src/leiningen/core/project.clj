@@ -310,6 +310,7 @@
    and the appropriate middleware applied."
   [project profiles]
   (-> (:without-profiles (meta project) project)
+      (with-meta (dissoc (meta project) :without-profiles :included-profiles))
       (apply-profiles profiles)
       (apply-middleware)))
 
