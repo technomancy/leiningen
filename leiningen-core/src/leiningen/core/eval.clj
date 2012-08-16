@@ -169,7 +169,8 @@
         (throw (ex-info "Subprocess failed" {:exit-code exit-code}))))))
 
 (defmethod eval-in :trampoline [project form]
-  (swap! (:trampoline-forms (meta project)) conj form))
+  (swap! (:trampoline-forms (meta project)) conj form)
+  (swap! (:trampoline-deps (meta project)) conj (:dependencies project)))
 
 (defmethod eval-in :classloader [project form]
   (let [classpath   (map io/file (classpath/get-classpath project))
