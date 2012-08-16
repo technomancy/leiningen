@@ -22,7 +22,8 @@ Leiningen bootstraps itself using the `lein` shell script;
 there is no separate install script. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](https://raw.github.com/technomancy/leiningen/preview/bin/lein).
+1. [Download the
+   script](https://raw.github.com/technomancy/leiningen/master/bin/lein).
 2. Place it on your `$PATH`. (I like to use `~/bin`)
 3. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
@@ -35,7 +36,7 @@ projects that aren't compatible with 2.x yet. The
 has instructions on migrating to version 2.
 
 On Windows most users can get
-[the batch file](https://raw.github.com/technomancy/leiningen/preview/bin/lein.bat).
+[the batch file](https://raw.github.com/technomancy/leiningen/master/bin/lein.bat).
 If you have wget.exe or curl.exe already installed and in PATH, you
 can just run `lein self-install`, otherwise get the standalone jar from the
 [downloads page](https://github.com/technomancy/leiningen/downloads).
