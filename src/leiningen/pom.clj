@@ -316,11 +316,14 @@
 
 (defn make-pom-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
-    (.store (doto (java.util.Properties.)
-              (.setProperty "version" (:version project))
-              (.setProperty "groupId" (:group project))
-              (.setProperty "artifactId" (:name project)))
-              baos "Leiningen")
+    (let [properties (doto (java.util.Properties.)
+                       (.setProperty "version" (:version project))
+                       (.setProperty "groupId" (:group project))
+                       (.setProperty "artifactId" (:name project)))
+          git-head (io/file (:root project) ".git")]
+      (when (.exists git-head)
+        (.setProperty properties "revision" (read-git-head git-head)))
+      (.store properties baos "Leiningen"))
     (str baos)))
 
 (defn ^{:help-arglists '([])} pom
