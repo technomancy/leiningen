@@ -229,14 +229,15 @@ the `-main` function in another namespace. Setting a default `:main` in
 `project.clj` lets you omit `-m`.
 
 For long-running `lein run` processes, you may wish to save memory
-with the trampoline higher-order task, which allows the Leiningen JVM
+with the higher-order trampoline task, which allows the Leiningen JVM
 process to exit before launching your project's JVM.
 
     $ lein trampoline run -m my-stuff.server 5000
 
 ## Tests
 
-It's easy to kick off a test run:
+We haven't written any tests yet, but we can run the failing tests
+included from the project template:
 
     $ lein test
 
@@ -250,9 +251,7 @@ It's easy to kick off a test run:
     Ran 1 tests containing 1 assertions.
     1 failures, 0 errors.
 
-Of course, we haven't written any tests yet, so we've just got the
-skeleton failing tests that Leiningen gave us with `lein new`. But
-once we fill it in the test suite will become more useful. Sometimes
+Once we fill it in the test suite will become more useful. Sometimes
 if you've got a large test suite you'll want to run just one or two
 namespaces at a time; `lein test my.test.stuff` will do that.. You
 also might want to break up your tests using test selectors; see `lein
@@ -266,7 +265,7 @@ either keep a repl open for running the appropriate call to
 or look into editor integration such as
 [clojure-test-mode](https://github.com/technomancy/clojure-mode).
 
-Keep in mind that while keeping a single process around is convenient,
+Keep in mind that while keeping a running process around is convenient,
 it's easy for that process to get into a state that doesn't reflect
 the files on disk—functions that are loaded and then deleted from the
 file will remain in memory, making it easy to miss problems arising
@@ -370,6 +369,8 @@ things beyond uberjars, server-side deployments are so varied that they
 are better-handled using plugins rather than tasks that are built-in
 to Leiningen itself.
 
+TODO: mention -o, :local-repo in production
+
 If you do end up involving Leiningen in production via something like
 `lein trampoline run`, it's very important to ensure you take steps to
 freeze all the dependencies before deploying, otherwise it could be
@@ -381,16 +382,17 @@ deployable artifact in a continuous integration setting. For example,
 you could have a [Jenkins](http://jenkins-ci.org) CI server run your
 project's full test suite, and if it passes, upload a tarball to S3.
 Then deployment is just a matter of pulling down and extracting the
-known-good tarball on your production servers. Over time this could
-cause unused dependencies to accumulate in the local repo, bloating up
-deploy artifact size, which the
-[lein-clean-m2](https://github.com/technomancy/lein-clean-m2) plugin
-can help with.
+known-good tarball on your production servers.
 
 Also remember that the `run` task defaults to including the `user`, `dev`,
 and `default` profiles, which are not suitable for production. Using
 `lein trampoline with-profile production run -m myapp.main` is
-recommended.
+recommended. By default the production profile is empty, but if your
+deployment includes the `~/.m2/repository` directory from the CI run
+that generated the tarball, then you should add its path as
+`:local-repo` along with `:offline? true` to the `:production`
+profile. Staying offline prevents the deployed project from diverging
+at all from the version that was tested in the CI environment.
 
 ### Publishing Libraries
 
