@@ -150,8 +150,11 @@ if [ "$1" = "self-install" ]; then
     LEIN_DIR=`dirname "$LEIN_JAR"`
     mkdir -p "$LEIN_DIR"
     LEIN_URL="https://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
-    $HTTP_CLIENT "$LEIN_JAR" "$LEIN_URL"
-    if [ $? != 0 ]; then
+    $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
+    if [ $? == 0 ]; then
+        # TODO: What kinds of validations can we do here?
+        /bin/mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+    else
         echo "Failed to download $LEIN_URL"
         echo "If you have an old version of libssl you may not have the correct"
         echo "certificate authority. Either upgrade or set HTTP_CLIENT to insecure:"
@@ -162,7 +165,7 @@ if [ "$1" = "self-install" ]; then
             echo "mvn dependency:copy-dependencies; mv target/dependency lib"
             echo "See README.md for further SNAPSHOT build instructions."
         fi
-        rm $LEIN_JAR 2> /dev/null
+        rm "$LEIN_JAR.pending" 2> /dev/null
         exit 1
     fi
 elif [ "$1" = "upgrade" ]; then
