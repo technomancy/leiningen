@@ -13,16 +13,20 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
-(def profile {:dependencies '[[org.clojure/tools.nrepl "0.2.0-beta8"
-                               :exclusions [org.clojure/clojure]]
-                              [clojure-complete "0.2.1"
-                               :exclusions [org.clojure/clojure]]]})
+(def profile {:dependencies '[^:displace
+                               [org.clojure/tools.nrepl "0.2.0-beta8"
+                                :exclusions [org.clojure/clojure]]
+                              ^:displace
+                               [clojure-complete "0.2.1"
+                                :exclusions [org.clojure/clojure]]]})
 
-(def reply-profile {:dependencies '[[org.thnetos/cd-client "0.3.4"
-                                     :exclusions [org.clojure/clojure]]]})
+(def reply-profile {:dependencies '[^:displace
+                                     [org.thnetos/cd-client "0.3.4"
+                                      :exclusions [org.clojure/clojure]]]})
 
-(def trampoline-profile {:dependencies '[[reply "0.1.0-beta10"
-                                         :exclusions [org.clojure/clojure]]]})
+(def trampoline-profile {:dependencies '[^:displace
+                                          [reply "0.1.0-beta10"
+                                           :exclusions [org.clojure/clojure]]]})
 
 (defn- handler-for [project]
   `(-> ~(:nrepl-handler project '(clojure.tools.nrepl.server/default-handler))
