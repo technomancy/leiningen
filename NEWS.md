@@ -1,7 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-preview8 / ???
+## 2.0.0-preview8 / 2012-08-16
 
+* Place SCM revision in pom.properties in jar files.
+* Allow middleware and hooks to be inferred from plugins. (Justin Balthrop)
 * Offer similar suggestions when no task is found for input. (Joe Gallo)
 * Support TERM=dumb in repl task. (Colin Jones)
 * Fix reader mismatches between repl client and server. (Colin Jones)
