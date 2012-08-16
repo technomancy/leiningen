@@ -21,8 +21,8 @@
         rests (mapcat rest forms)
         ;; This won't pick up :jvm-args that come from profiles, but it
         ;; at least gets us :dependencies.
-        project (project/normalize-deps (update-in project [:dependencies]
-                                                   (partial apply concat) deps))
+        project (project/normalize-deps (assoc project :dependencies
+                                               (apply concat deps)))
         command (eval/shell-command project (concat '(do) inits rests))]
     (string/join " " (if (win-batch?)
                        (map quote-arg command)
@@ -49,9 +49,13 @@ Use this to save memory or to work around stdin issues."
       (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
     (binding [*trampoline?* true]
       (main/apply-task (main/lookup-alias task-name project)
-                       (with-meta (assoc project :eval-in :trampoline)
-                         {:trampoline-forms forms
-                          :trampoline-deps deps}) args))
+                       (-> (assoc project :eval-in :trampoline)
+                           (vary-meta assoc
+                                      :trampoline-forms forms
+                                      :trampoline-deps deps)
+                           (vary-meta update-in [:without-profiles] assoc
+                                      :eval-in :trampoline))
+                        args))
     (if (seq @forms)
       (write-trampoline project @forms @deps)
       (main/abort task-name "did not run any project code for trampolining."))))
