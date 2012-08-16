@@ -369,8 +369,6 @@ things beyond uberjars, server-side deployments are so varied that they
 are better-handled using plugins rather than tasks that are built-in
 to Leiningen itself.
 
-TODO: mention -o, :local-repo in production
-
 If you do end up involving Leiningen in production via something like
 `lein trampoline run`, it's very important to ensure you take steps to
 freeze all the dependencies before deploying, otherwise it could be
