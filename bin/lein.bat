@@ -100,11 +100,12 @@ if ERRORLEVEL 9009 (
 )
 :: set LEIN_JAR_URL=https://github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=https://cloud.github.com/downloads/technomancy/leiningen/leiningen-%LEIN_VERSION%-standalone.jar
-%HTTP_CLIENT% "%LEIN_JAR%" %LEIN_JAR_URL%
+%HTTP_CLIENT% "%LEIN_JAR%.pending" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
-    del %LEIN_JAR%>nul 2>&1
+    del "%LEIN_JAR%.pending" >nul 2>&1
     goto DOWNLOAD_FAILED
 )
+move /y "%LEIN_JAR%.pending" "%LEIN_JAR%"
 goto EOF
 
 :DOWNLOAD_FAILED
