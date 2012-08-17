@@ -134,7 +134,10 @@
         (:arglists (meta task))))
 
 (defn apply-task [task-name project args]
-  (let [task (resolve-task task-name)]
+  (let [[task-alias] (for [[k v] (:aliases project) :when (= v task-name)] k)
+        project (update-in project [:aliases] (fnil dissoc {})
+                           (or task-alias task-name))
+        task (resolve-task task-name)]
     (when-not (or project (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))
     (when-not (matching-arity? task args)
