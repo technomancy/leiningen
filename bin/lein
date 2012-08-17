@@ -216,7 +216,7 @@ else
         echo "Leiningen's classpath: $CLASSPATH"
     fi
 
-    if [ "$LEIN_FAST_TRAMPOLINES" = "" ] || [ -f .lein-fast-trampolines ]; then
+    if [ "$LEIN_FAST_TRAMPOLINE" = "" ] && [ ! -r .lein-fast-trampoline ]; then
         TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
         trap "rm -f $TRAMPOLINE_FILE" EXIT
     else
