@@ -193,7 +193,10 @@ or by executing \"lein upgrade\". ")
   (when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
     (System/setProperty "http.proxyPort" (str port))
-    (when non-proxy-hosts (System/setProperty "http.nonProxyHosts" non-proxy-hosts))))
+    (when non-proxy-hosts (System/setProperty "http.nonProxyHosts" non-proxy-hosts)))
+  (when-let [{:keys [host port]} (classpath/get-proxy-settings "https_proxy")]
+    (System/setProperty "https.proxyHost" host)
+    (System/setProperty "https.proxyPort" (str port))))
 
 (defn -main
   "Run a task or comma-separated list of tasks."
