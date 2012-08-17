@@ -230,7 +230,7 @@ else
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
 
-    if [ "INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
+    if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
         $LEIN_JAVA_CMD \
@@ -246,7 +246,11 @@ else
         EXIT_CODE=$?
 
         if [ -r "$TRAMPOLINE_FILE" ]; then
-            exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
+            TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+            if [ "$INPUT_CHECKSUM" = "" ]; then
+                rm $TRAMPOLINE_FILE
+            fi
+            exec sh -c "exec $TRAMPOLINE"
         else
             exit $EXIT_CODE
         fi
