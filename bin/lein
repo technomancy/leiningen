@@ -216,28 +216,32 @@ else
         echo "Classpath: $CLASSPATH"
     fi
 
-    TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+    SUM=sha1sum # TODO: resolve portably
+    INPUTS="$@ $(cat project.clj) $(cat $LEIN_HOME/profiles.clj)"
+    TRAMPOLINE_FILE="target/trampolines/$(echo $INPUTS | $SUM - | cut -f 1 -d " ")"
     if [ "$OSTYPE" = "cygwin" ]; then
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
 
-    $LEIN_JAVA_CMD \
-        -client -XX:+TieredCompilation \
-        $LEIN_JVM_OPTS \
-        -Dfile.encoding=UTF-8 \
-        -Dmaven.wagon.http.ssl.easy=false \
-        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-        -Dleiningen.trampoline-file=$TRAMPOLINE_FILE \
-        -cp "$CLASSPATH" \
-        clojure.main -m leiningen.core.main "$@"
-
-    EXIT_CODE=$?
-
-    if [ -r $TRAMPOLINE_FILE ]; then
-        TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
-        rm $TRAMPOLINE_FILE
-        exec sh -c "exec $TRAMPOLINE"
+    if [ -r "$TRAMPOLINE_FILE" ]; then
+        exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
-        exit $EXIT_CODE
+        $LEIN_JAVA_CMD \
+            -client -XX:+TieredCompilation \
+            $LEIN_JVM_OPTS \
+            -Dfile.encoding=UTF-8 \
+            -Dmaven.wagon.http.ssl.easy=false \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -Dleiningen.trampoline-file="$TRAMPOLINE_FILE" \
+            -cp "$CLASSPATH" \
+            clojure.main -m leiningen.core.main "$@"
+
+        EXIT_CODE=$?
+
+        if [ -r "$TRAMPOLINE_FILE" ]; then
+            exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
+        else
+            exit $EXIT_CODE
+        fi
     fi
 fi
