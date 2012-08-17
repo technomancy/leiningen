@@ -231,6 +231,9 @@ else
     fi
 
     if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
+        if [ $DEBUG ]; then
+            echo "Fast trampoline with $TRAMPOLINE_FILE."
+        fi
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
         $LEIN_JAVA_CMD \
