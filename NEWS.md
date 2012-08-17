@@ -1,5 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview9 / ???
+
+* Cache trampoline commands for fast boot. Set $LEIN_FAST_TRAMPOLINE to enable.
+* Support setting HTTPS proxies.
+* Improved resilience when self-install is interrupted. (Bruce Adams)
+* Fix a bug where profile dependencies weren't honored in trampoline task.
+
 ## 2.0.0-preview8 / 2012-08-16
 
 * Place SCM revision in pom.properties in jar files.
@@ -221,7 +228,7 @@
 * Improve Solaris support. (Donald Clark Jackson)
 * Fix curl error relating to missing $https_proxy. (Pirmin Fix)
 
-##  1.5.1 / 2011-04-12
+## 1.5.1 / 2011-04-12
 
 * Improve rlwrap quote support. (Ambrose Bonnaire-Sergeant)
 * Prevent ns load exceptions from halting help.

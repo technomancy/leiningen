@@ -13,6 +13,10 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Honor mirror for search indices (#281)
    - [ ] Allow search queries on any field. (#243)
    - [ ] Drop clojars snapshots from default repos (#241)
+** 2.0.0-preview9
+   - [X] Fast trampolining
+   - [ ] Latest newnew
+   - [ ] Updated :eval-in :classloader
 ** 2.0.0-preview8
    - [X] Allow trampoline to work with chaining in do task (#665)
    - [X] Store repl port on filesystem (#682)
@@ -21,7 +25,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Search indices on Central have moved (#683)
    - [X] Better error messages on failed repl :connect (#723)
    - [X] Document key generation (#721)
-   - [-] Honor hooks/metadata in from plugins (#401)
+   - [X] Honor hooks/metadata in from plugins (#401)
 ** 2.0.0-preview7
    - [X] Address chaining issues in with-profile (#632)
    - [X] Address gpg agent issues (#615)
