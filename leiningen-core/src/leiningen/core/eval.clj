@@ -160,7 +160,9 @@
 
 (defmulti eval-in
   "Evaluate the given from in either a subprocess or the leiningen process."
-  (fn [project _] (:eval-in project)) :default :subprocess)
+  ;; Force it to be a keyword so that we can accept symbols too. That
+  ;; way ^:replace and ^:displace metadata can be applied.
+  (fn [project _] (keyword (name (:eval-in project)))) :default :subprocess)
 
 (defmethod eval-in :subprocess [project form]
   (binding [*dir* (:root project)]
