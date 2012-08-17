@@ -4,6 +4,7 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
+            [clojure.java.io :as io]
             [clojure.pprint :as pprint]))
 
 (def ^:dynamic *trampoline?* false)
@@ -31,9 +32,11 @@
                                (prn (last command))))))))
 
 (defn write-trampoline [project forms deps]
-  (let [command (trampoline-command-string project forms deps)]
+  (let [command (trampoline-command-string project forms deps)
+        trampoline-file (System/getProperty "leiningen.trampoline-file")]
     (main/debug "Trampoline command:" command)
-    (spit (System/getProperty "leiningen.trampoline-file") command)))
+    (.mkdirs (.getParentFile (io/file trampoline-file)))
+    (spit trampoline-file command)))
 
 (defn ^:higher-order trampoline
   "Run a task without nesting the project's JVM inside Leiningen's.
