@@ -184,7 +184,11 @@
         (cl/alter-java-library-path!
          (constantly (string/split v (re-pattern java.io.File/pathSeparator))))
         (System/setProperty k v)))
-    (cl/eval-in classloader form)))
+    (try (cl/eval-in classloader form)
+         (catch Exception e
+           (println (str "Error evaluating in classloader: " (class e) ":" (.getMessage e)))
+           (.printStackTrace e)
+           (throw (ex-info "Classloader eval failed" {:exit-code 1}))))))
 
 (defmethod eval-in :leiningen [project form]
   (when (:debug project)
