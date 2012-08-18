@@ -4,10 +4,6 @@ See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
 ** 2.0.0-final
-   - [ ] Recover from interrupted self-install (#719)
-   - [ ] Honor :local-repo in trampoline (#695)
-   - [ ] Improve speed of trampoline restarts (#573)
-   - [ ] Calculate trampoline classpath based on project at time of eval-in-project.
    - [ ] Reduce verbosity of Aether. (#610)
    - [ ] Isolate target dir per profile (#468)
    - [ ] Honor mirror for search indices (#281)
@@ -15,7 +11,7 @@ See also https://github.com/technomancy/leiningen/issues
    - [ ] Drop clojars snapshots from default repos (#241)
 ** 2.0.0-preview9
    - [X] Fast trampolining
-   - [ ] Latest newnew
+   - [X] Latest newnew
    - [ ] Updated :eval-in :classloader
 ** 2.0.0-preview8
    - [X] Allow trampoline to work with chaining in do task (#665)
