@@ -237,11 +237,19 @@
     (when-not (pomegranate/modifiable-classloader? cl)
       (.setContextClassLoader thread (DynamicClassLoader. cl)))))
 
+(defn- merge-plugin-repositories [project]
+  (if-let [pr (:plugin-repositories project)]
+    (if (:omit-default-repositories project)
+      (assoc project :repositories pr)
+      (update-in project [:repositories] merge pr))
+    project))
+
 (defn load-plugins
   ([project key]
      (when (seq (project key))
        (ensure-dynamic-classloader)
-       (classpath/resolve-dependencies key project :add-classpath? true))
+       (classpath/resolve-dependencies key (merge-plugin-repositories project)
+                                       :add-classpath? true))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
                             (.getResources "leiningen/wagons.clj")
                             (enumeration-seq))
