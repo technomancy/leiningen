@@ -101,7 +101,8 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     fi
 
     mkdir -p "$LEIN_DIR/target/classes"
-    export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xms64m -Xmx256m -Dclojure.compile.path=$LEIN_DIR/target/classes"}
+    export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:--Xms64m -Xmx256m} -Dclojure.compile.path=$LEIN_DIR/target/classes"
+
     CLASSPATH="$LEIN_DIR/leiningen-core/src/"
     CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/resources/"
     if [ -r "$LEIN_DIR/.lein-classpath" ]; then
