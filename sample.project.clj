@@ -173,6 +173,10 @@
                              ;; enironment variable to be used based on
                              ;; the key; in this case LEIN_PASSWORD.
                              :username "milgrim" :password :env}}
+  ;; These repositories will be included with :repositories when loading plugins.
+  ;; This would normally be set in a profile for non-public repositories.
+  ;; All the options are the same as in the :repositories map.
+  :plugin-repositories {"internal-plugin-repo" "http://example.org/repo"}
   ;; You can set :update and :checksum policies here to have them
   ;; apply for all :repositories. Usually you will not set :update
   ;; directly but apply the "update" profile instead.
