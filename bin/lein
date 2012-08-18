@@ -31,6 +31,12 @@ done
 
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
+for f in "$LEIN_HOME/leinrc" ".leinrc"; do
+  if [ -e $f ]; then
+    source $f
+  fi
+done
+
 if [ "$OSTYPE" = "cygwin" ]; then
     export LEIN_HOME=`cygpath -w $LEIN_HOME`
 fi
