@@ -175,6 +175,8 @@
   (swap! (:trampoline-deps (meta project)) conj (:dependencies project)))
 
 (defmethod eval-in :classloader [project form]
+  (when-let [classpath (map io/file (classpath/ext-classpath project))]
+    (cl/wrap-ext-classloader classpath))
   (let [classpath   (map io/file (classpath/get-classpath project))
         classloader (cl/classlojure classpath)]
     (doseq [opt (get-jvm-args project)

@@ -159,6 +159,23 @@
   (let [f (io/file path)]
     (.getAbsolutePath (if (.isAbsolute f) f (io/file root path)))))
 
+(defn ext-dependency?
+  "Should the given dependency be loaded in the extensions classloader?"
+  [dep]
+  (second
+   (some #(when (= :ext (first %))
+            dep)
+         (partition 2 dep))))
+
+(defn ext-classpath
+  "Return the classpath of the ext dependencies in project as a list of strings."
+  [project]
+  (seq
+   (->> (filter ext-dependency? (:dependencies project))
+        (assoc project :dependencies)
+        (resolve-dependencies :dependencies)
+        (map (memfn getAbsolutePath)))))
+
 (defn get-classpath
   "Return a the classpath for project as a list of strings."
   [project]
