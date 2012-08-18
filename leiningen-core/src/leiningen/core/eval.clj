@@ -180,7 +180,10 @@
     (doseq [opt (get-jvm-args project)
             :when (.startsWith opt "-D")
             :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
-      (System/setProperty k v))
+      (if (= k "java.library.path")
+        (cl/alter-java-library-path!
+         (constantly (string/split v (re-pattern java.io.File/pathSeparator))))
+        (System/setProperty k v)))
     (cl/eval-in classloader form)))
 
 (defmethod eval-in :leiningen [project form]
