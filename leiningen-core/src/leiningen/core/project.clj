@@ -183,7 +183,7 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn- apply-profiles-raw [project profiles]
+(defn- apply-profiles [project profiles]
   ;; We reverse because we want profile values to override the project, so we
   ;; need "last wins" in the reduce, but we want the first profile specified by
   ;; the user to take precedence.
@@ -203,7 +203,7 @@
           (lookup-profile profiles result))
 
         (vector? profile)
-        (apply-profiles-raw {} (map (partial lookup-profile profiles) profile))
+        (apply-profiles {} (map (partial lookup-profile profiles) profile))
 
         :else profile))
 
@@ -219,17 +219,16 @@
 (defn- project-profiles [project]
   (utils/read-file (io/file (:root project) "profiles.clj")))
 
-(defn- profiles-for
+(defn- read-profiles
   "Read profiles from a variety of sources.
 
   We check Leiningen's defaults, the profiles.clj file in ~/.lein/profiles.clj,
   the profiles.clj file in the project root, and the :profiles key from the
   project map."
-  [project profiles]
+  [project]
   (warn-user-repos)
-  (let [profile-map (merge @default-profiles (user/profiles)
-                           (:profiles project) (project-profiles project))]
-    (map (partial lookup-profile profile-map) profiles)))
+  (merge @default-profiles (user/profiles)
+         (:profiles project) (project-profiles project)))
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
@@ -305,37 +304,38 @@
         context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
     (ssl/register-scheme (ssl/https-scheme context))))
 
-(defn- apply-profiles
-  "Look up and merge the given profiles into the project map."
-  [project profiles]
-  (-> (apply-profiles-raw project (profiles-for project profiles))
-      (normalize)
-      (vary-meta update-in [:without-profiles] (fnil normalize project))
-      (vary-meta update-in [:included-profiles] concat profiles)))
-
-(defn reset-profiles
-  "Compute a fresh version of the project map with the specified profiles active
-   and the appropriate middleware applied."
-  [project profiles]
-  (-> (:without-profiles (meta project) project)
-      (vary-meta dissoc :without-profiles :included-profiles)
-      (apply-profiles profiles)
-      (apply-middleware)))
+(defn- reset-profiles
+  "Compute a fresh version of the project map with middleware applied, including
+  and excluding the specified profiles."
+  [project include-profiles & [exclude-profiles]]
+  (let [without-profiles (:without-profiles (meta project) project)
+        profile-map (apply dissoc (read-profiles project) exclude-profiles)
+        profiles (map (partial lookup-profile profile-map) include-profiles)]
+    (-> without-profiles
+        (apply-profiles profiles)
+        (normalize)
+        (vary-meta merge {:without-profiles without-profiles
+                          :included-profiles include-profiles
+                          :excluded-profiles exclude-profiles})
+        (apply-middleware))))
 
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
    into list of active profiles and the appropriate middleware applied."
   [project profiles]
-  (reset-profiles project (concat (:included-profiles (meta project))
-                                  profiles)))
+  (let [{:keys [included-profiles excluded-profiles]} (meta project)]
+    (reset-profiles project
+                    (concat included-profiles profiles)
+                    (remove (set profiles) excluded-profiles))))
 
 (defn unmerge-profiles
   "Compute a fresh version of the project map with the given profiles unmerged
    from list of active profiles and the appropriate middleware applied."
   [project profiles]
-  (reset-profiles project
-                  (remove (set profiles)
-                          (:included-profiles (meta project)))))
+  (let [{:keys [included-profiles excluded-profiles]} (meta project)]
+    (reset-profiles project
+                    (remove (set profiles) included-profiles)
+                    (concat excluded-profiles profiles))))
 
 (defn init-project
   "Initializes a project: loads plugins, then applies middleware, and finally
@@ -384,6 +384,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (apply-profiles @project profiles))))
+         (reset-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
