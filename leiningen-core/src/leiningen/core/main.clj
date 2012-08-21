@@ -118,8 +118,7 @@
 (defn resolve-task
   ([task not-found]
      (let [[task & pargs] (if (coll? task) task [task])]
-       (if-let [task-var (utils/resolve-symbol (symbol (str "leiningen." task)
-                                                       task))]
+       (if-let [task-var (utils/require-resolve (str "leiningen." task) task)]
          (with-meta
            (fn [project & args] (apply task-var project (concat pargs args)))
            (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))

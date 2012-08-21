@@ -271,7 +271,7 @@
     (symbol (name ns) "project")))
 
 (defn- load-hook [hook-ns]
-  (when-let [hook (try (utils/resolve-symbol (symbol (name hook-ns) "activate"))
+  (when-let [hook (try (utils/require-resolve (name hook-ns) "activate")
                        (catch Throwable e
                          (utils/error "problem requiring" hook-ns "hook")
                          (throw e)))]
@@ -293,7 +293,7 @@
              (concat (plugin-middleware project)
                      (:middleware project))))
   ([project middleware-name]
-     (if-let [middleware (utils/resolve-symbol middleware-name)]
+     (if-let [middleware (utils/require-resolve middleware-name)]
        (middleware project)
        (utils/error "cannot resolve" middleware-name "middleware"))))
 

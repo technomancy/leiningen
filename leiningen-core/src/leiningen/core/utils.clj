@@ -19,12 +19,13 @@
   (binding [*out* *err*]
     (apply println "Error:" args)))
 
-(defn resolve-symbol
+(defn require-resolve
   "Resolve a fully qualified symbol by first requiring its namespace."
-  [sym]
-  (when-let [ns (namespace sym)]
-    (when (ns-exists? ns)
-      (let [ns (symbol ns)]
-        (when-not (find-ns ns)
-          (require ns)))
-      (resolve sym))))
+  ([sym]
+     (when-let [ns (namespace sym)]
+       (when (ns-exists? ns)
+         (let [ns (symbol ns)]
+           (when-not (find-ns ns)
+             (require ns)))
+         (resolve sym))))
+  ([ns sym] (require-resolve (symbol ns sym))))
