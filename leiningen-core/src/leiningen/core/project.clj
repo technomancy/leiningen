@@ -183,7 +183,7 @@
 
         :else (doto latter (println "has a type mismatch merging profiles."))))
 
-(defn- combine-profiles [project profiles]
+(defn- apply-profiles-raw [project profiles]
   ;; We reverse because we want profile values to override the project, so we
   ;; need "last wins" in the reduce, but we want the first profile specified by
   ;; the user to take precedence.
@@ -198,12 +198,12 @@
   [profiles profile]
   (cond (keyword? profile)
         (let [result (get profiles profile)]
-          (when (and (nil? result) (not (#{:dev :user :test :production} profile)))
+          (when-not (or result (#{:dev :user :test :production} profile))
             (println "Warning: profile" profile "not found."))
           (lookup-profile profiles result))
 
         (vector? profile)
-        (combine-profiles {} (map (partial lookup-profile profiles) profile))
+        (apply-profiles-raw {} (map (partial lookup-profile profiles) profile))
 
         :else profile))
 
@@ -308,17 +308,17 @@
 (defn- apply-profiles
   "Look up and merge the given profiles into the project map."
   [project profiles]
-  (let [merged (combine-profiles project (profiles-for project profiles))]
-    (vary-meta (normalize merged) merge
-               {:without-profiles (normalize (:without-profiles (meta project) project))
-                :included-profiles (concat (:included-profiles (meta project)) profiles)})))
+  (-> (apply-profiles-raw project (profiles-for project profiles))
+      (normalize)
+      (vary-meta update-in [:without-profiles] (fnil normalize project))
+      (vary-meta update-in [:included-profiles] concat profiles)))
 
 (defn reset-profiles
   "Compute a fresh version of the project map with the specified profiles active
    and the appropriate middleware applied."
   [project profiles]
   (-> (:without-profiles (meta project) project)
-      (with-meta (dissoc (meta project) :without-profiles :included-profiles))
+      (vary-meta dissoc :without-profiles :included-profiles)
       (apply-profiles profiles)
       (apply-middleware)))
 
