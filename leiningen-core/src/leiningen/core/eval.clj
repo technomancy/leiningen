@@ -188,7 +188,8 @@
         (System/setProperty k v)))
     (try (cl/eval-in classloader form)
          (catch Exception e
-           (println (str "Error evaluating in classloader: " (class e) ":" (.getMessage e)))
+           (println (str "Error evaluating in classloader: "
+                         (class e) ":" (.getMessage e)))
            (.printStackTrace e)
            (throw (ex-info "Classloader eval failed" {:exit-code 1}))))))
 

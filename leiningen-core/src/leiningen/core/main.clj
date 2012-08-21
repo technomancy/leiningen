@@ -118,7 +118,8 @@
 (defn resolve-task
   ([task not-found]
      (let [[task & pargs] (if (coll? task) task [task])]
-       (if-let [task-var (utils/resolve-symbol (symbol (str "leiningen." task) task))]
+       (if-let [task-var (utils/resolve-symbol (symbol (str "leiningen." task)
+                                                       task))]
          (with-meta
            (fn [project & args] (apply task-var project (concat pargs args)))
            (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))
@@ -196,7 +197,8 @@ or by executing \"lein upgrade\". ")
   (when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
     (System/setProperty "http.proxyPort" (str port))
-    (when non-proxy-hosts (System/setProperty "http.nonProxyHosts" non-proxy-hosts)))
+    (when non-proxy-hosts
+      (System/setProperty "http.nonProxyHosts" non-proxy-hosts)))
   (when-let [{:keys [host port]} (classpath/get-proxy-settings "https_proxy")]
     (System/setProperty "https.proxyHost" host)
     (System/setProperty "https.proxyPort" (str port))))
@@ -213,7 +215,8 @@ or by executing \"lein upgrade\". ")
         (verify-min-version project))
       (configure-http)
       (when-not project
-        (let [default-project (project/merge-profiles project/defaults [:default])]
+        (let [default-project (project/merge-profiles project/defaults
+                                                      [:default :user])]
           (project/load-certificates default-project)
           (project/load-plugins default-project)))
       (warn-chaining task-name args)

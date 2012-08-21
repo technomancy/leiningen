@@ -323,24 +323,23 @@
       (apply-middleware)))
 
 (defn merge-profiles
-  "Compute a fresh version of the project map with the given profiles merged into
-   list of active profiles and the appropriate middleware applied."
+  "Compute a fresh version of the project map with the given profiles merged
+   into list of active profiles and the appropriate middleware applied."
   [project profiles]
-  (reset-profiles project
-                  (concat (:included-profiles (meta project))
-                          profiles)))
+  (reset-profiles project (concat (:included-profiles (meta project))
+                                  profiles)))
 
 (defn unmerge-profiles
-  "Compute a fresh version of the project map with the given profiles unmerged from
-   list of active profiles and the appropriate middleware applied."
+  "Compute a fresh version of the project map with the given profiles unmerged
+   from list of active profiles and the appropriate middleware applied."
   [project profiles]
   (reset-profiles project
                   (remove (set profiles)
                           (:included-profiles (meta project)))))
 
 (defn init-project
-  "Initializes a project: loads plugins, then applies middleware, and finally loads hooks.
-   Adds dependencies to Leiningen's classpath if required."
+  "Initializes a project: loads plugins, then applies middleware, and finally
+   loads hooks. Adds dependencies to Leiningen's classpath if required."
   [project]
   (load-certificates project)
   (when (= :leiningen (:eval-in project))
