@@ -55,7 +55,8 @@
                       (str/join "+" (map name keys)))
         current-value (pr-str (map (juxt identity project) keys))
         old-value (and (.exists file) (slurp file))]
-    (when (and (:name project) (:target-path project) (not= current-value old-value))
+    (when (and (:name project) (:target-path project)
+               (not= current-value old-value))
       (apply f args)
       (.mkdirs (.getParentFile file))
       (spit file (doall current-value)))))
@@ -163,12 +164,11 @@
   "Should the given dependency be loaded in the extensions classloader?"
   [dep]
   (second
-   (some #(when (= :ext (first %))
-            dep)
+   (some #(if (= :ext (first %)) dep)
          (partition 2 dep))))
 
 (defn ext-classpath
-  "Return the classpath of the ext dependencies in project as a list of strings."
+  "Classpath of the extensions dependencies in project as a list of strings."
   [project]
   (seq
    (->> (filter ext-dependency? (:dependencies project))
