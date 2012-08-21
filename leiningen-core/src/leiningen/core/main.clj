@@ -214,10 +214,9 @@ or by executing \"lein upgrade\". ")
         (verify-min-version project))
       (configure-http)
       (when-not project
-        (let [default-project (project/merge-profiles project/defaults
-                                                      [:default :user])]
-          (project/load-certificates default-project)
-          (project/load-plugins default-project)))
+        (project/load-certificates project/defaults)
+        (project/load-plugins project/defaults)
+        (project/load-plugins (:user (user/profiles))))
       (warn-chaining task-name args)
       (apply-task task-name project args))
     (catch Exception e
