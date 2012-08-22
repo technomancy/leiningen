@@ -129,15 +129,24 @@
                  ;; If nREPL takes too long to load it may timeout,
                  ;; increase this to wait longer before timing out.
                  ;; Defaults to 30000 (30 seconds)
-                 :timeout 40000}
-  ;; Use a different server-side nREPL handler.
-  :nrepl-handler (clojure.tools.nrepl.server/default-handler)
-  ;; Add server-side middleware to nREPL stack.
-  :nrepl-middleware [my.nrepl.thing/wrap-amazingness
-                     (fn [handler]
-                       (fn [& args]
-                         (prn :middle args)
-                         (apply handler args)))]
+                 :timeout 40000
+                 ;; nREPL server customization
+                 ;; Only one of #{:nrepl-handler :nrepl-middleware}
+                 ;; may be used at a time
+                 ;; Use a different server-side nREPL handler
+                 :nrepl-handler (clojure.tools.nrepl.server/default-handler)
+                 ;; Add server-side middleware to nREPL stack
+                 :nrepl-middleware [;; note that symbols are resolved to the vars they name
+                                    my.nrepl.thing/wrap-amazingness
+                                    ;; middleware without appropriate metadata
+                                    ;; (see clojure.tools.nrepl.middleware/set-descriptor!
+                                    ;; for details) will simply be appended to the stack
+                                    ;; of middleware (rather than ordered based on its
+                                    ;; expectations and requirements)
+                                    (fn [handler]
+                                      (fn [& args]
+                                        (prn :middle args)
+                                        (apply handler args)))]}
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
   :injections [(require 'clojure.pprint)]

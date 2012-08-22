@@ -14,7 +14,7 @@
             [leiningen.core.main :as main]))
 
 (def profile {:dependencies '[^:displace
-                               [org.clojure/tools.nrepl "0.2.0-beta8"
+                               [org.clojure/tools.nrepl "0.2.0-beta9"
                                 :exclusions [org.clojure/clojure]]
                               ^:displace
                                [clojure-complete "0.2.1"
@@ -28,14 +28,19 @@
                                           [reply "0.1.0-beta10"
                                            :exclusions [org.clojure/clojure]]]})
 
-(defn- handler-for [project]
-  `(-> ~(:nrepl-handler project '(clojure.tools.nrepl.server/default-handler))
-       ~@(map list (:nrepl-middleware project))))
+(defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
+  (when (and nrepl-middleware nrepl-handler)
+    (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
+  (if nrepl-middleware
+    `(clojure.tools.nrepl.server/default-handler
+       ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware))
+    (or nrepl-handler '(clojure.tools.nrepl.server/default-handler))))
 
-(defn- init-requires [project & nses]
+(defn- init-requires [{{:keys [nrepl-middleware nrepl-handler]} :repl-options
+                       :as project}
+                      & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
-        nrepl-syms (->> (cons (:nrepl-handler project)
-                              (:nrepl-middleware project))
+        nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                      (filter symbol?)
                      (map namespace)
                      (remove nil?)
