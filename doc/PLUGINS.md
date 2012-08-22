@@ -96,7 +96,7 @@ this purpose. It accepts a project argument as well as a form to
 evaluate, and the final (optional) argument is another form called
 `init` that is evaluated up-front before the main form. This may be
 used to require a namespace earlier in order to avoid the
-[Gilardi Scenario](http://technomancy.us/143). 
+[Gilardi Scenario](http://technomancy.us/143).
 
 Inside the `eval-in-project` call the project's own classpath will be
 active and Leiningen's own internals and plugins will not be
@@ -108,7 +108,7 @@ need. For example, this is done in the `lein-swank` plugin like so:
 (defn swank
   "Launch swank server for Emacs to connect. Optionally takes PORT and HOST."
   ([project port host & opts]
-     (eval-in-project (update-in project [:dependencies] 
+     (eval-in-project (update-in project [:dependencies]
                                  conj ['swank-clojure "1.4.0"])
                       (swank-form project port host opts))))
 ```
@@ -143,7 +143,7 @@ conditionally, etc. The `add-hook` function takes a var of the task it's
 meant to apply to and a function to perform the wrapping:
 
 ```clj
-(ns leiningen.hooks.integration
+(ns lein-integration.plugin
   (:require [robert.hooke]
             [leiningen.test]))
 
@@ -156,21 +156,58 @@ meant to apply to and a function to perform the wrapping:
 
 ;; Place the body of the activate function at the top-level for
 ;; compatibility with Leiningen 1.x
-(defn activate []
+(defn hooks []
   (robert.hooke/add-hook #'leiningen.test/form-for-testing-namespaces
                          add-test-var-println))
 ```
 
-Hooks compose, so be aware that your hook may be running inside
-another hook. To take advantage of your hooks functionality, projects
-must set the `:hooks` key in project.clj to a seq of namespaces to load
-that call `add-hook`. You may place calls to `add-hook` at the
-top-level of the namespace, but if an `activate` defn is present it
-will be called; this is the best place to put `add-hook` invocations.
-
-See [the documentation for
+Hooks compose, so be aware that your hook may be running inside another
+hook. See [the documentation for
 Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
+
+If you want your hooks to be loaded automatically with your plugin,
+activate them in a function called `plugin-name.plugin/hooks`. So in the
+example above the plugin is called `lein-integration`, and the function
+`lein-integration.plugin/hooks` is automatically called to activate hooks
+when the `lein-integration` plugin is loaded.
+
+Hooks can also be loaded manually by setting the `:hooks` key in project.clj to
+a seq of vars to call to activate your hooks. For backward compatibility, you
+can also specify namespaces instead of vars in `:hooks`, and the `activate`
+function in that namespace will be called. Note: automatic hooks are activated
+before manually specified hooks.
+
+## Project Middleware
+
+Project middleware is just a function that is called on a project map returning
+a new project map. Middleware gives a plugin the power to do almost anything.
+For example, a plugin could use middleware to reimplement Leiningen's profiles
+functionality.
+
+The following middleware injects the contents of project map into your project's
+resources folder so it can be read from the project code:
+
+```clj
+(ns lein-inject.plugin)
+
+(defn middleware [project]
+  (update-in project [:injections] concat
+             `[(spit "resources/project.clj" ~(prn-str project))]))
+```
+
+
+Like hooks, middleware will be applied automatically for plugins if you put it
+in `plugin-name.plugin/middleware`. You can also load middleware manually by
+setting the `:middleware` key in project.clj to a seq of vars to call to
+transform your project map. Note that automatic middleware is applied before
+manually specified middleware.
+
+Also note that the currently active middleware depends on which profiles are
+active. This means we need to reapply the middleware functions to the project
+map whenever the active profiles change. We accomplish this by storing the fresh
+project map and starting from that whenever we call `merge-profiles`,
+`unmerge-profiles` or `set-profiles`.
 
 ## Clojure Version
 
