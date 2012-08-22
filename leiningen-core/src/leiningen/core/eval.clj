@@ -51,14 +51,17 @@
           task-name (main/lookup-alias task-name project)]
       (main/apply-task task-name (dissoc project :prep-tasks) task-args))))
 
+;; Some tasks need to wait till the project is fully prepped before continuing.
+(defonce prep-blocker (atom (promise)))
+
 (defn prep [project]
   ;; This must exist before the project is launched.
   (.mkdirs (io/file (:compile-path project "/tmp")))
   (classpath/resolve-dependencies :dependencies project)
   (run-prep-tasks project)
   (.mkdirs (io/file (:compile-path project "/tmp")))
-  (when-let [prepped (:prepped (meta project))]
-    (deliver prepped true)))
+  (deliver @prep-blocker true)
+  (reset! prep-blocker (promise)))
 
 ;; # Subprocess stuff
 
