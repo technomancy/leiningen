@@ -304,7 +304,7 @@
         context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
     (ssl/register-scheme (ssl/https-scheme context))))
 
-(defn- reset-profiles
+(defn with-profiles
   "Compute a fresh version of the project map with middleware applied, including
   and excluding the specified profiles."
   [project include-profiles & [exclude-profiles]]
@@ -324,18 +324,18 @@
    into list of active profiles and the appropriate middleware applied."
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
-    (reset-profiles project
-                    (concat included-profiles profiles)
-                    (remove (set profiles) excluded-profiles))))
+    (with-profiles project
+      (concat included-profiles profiles)
+      (remove (set profiles) excluded-profiles))))
 
 (defn unmerge-profiles
   "Compute a fresh version of the project map with the given profiles unmerged
    from list of active profiles and the appropriate middleware applied."
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
-    (reset-profiles project
-                    (remove (set profiles) included-profiles)
-                    (concat excluded-profiles profiles))))
+    (with-profiles project
+      (remove (set profiles) included-profiles)
+      (concat excluded-profiles profiles))))
 
 (defn init-project
   "Initializes a project: loads plugins, then applies middleware, and finally
@@ -384,6 +384,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (reset-profiles @project profiles))))
+         (with-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
