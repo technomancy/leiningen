@@ -310,7 +310,7 @@
     (ssl/register-scheme (ssl/https-scheme context))
     project))
 
-(defn- reset-profiles
+(defn reset-profiles
   "Compute a fresh version of the project map with middleware applied, including
   and excluding the specified profiles."
   [project include-profiles & [exclude-profiles]]
