@@ -264,32 +264,38 @@
      project)
   ([project] (load-plugins project :plugins)))
 
-(defn- plugin-namespaces [project sub-ns]
-  (filter utils/ns-exists?
-          (for [[plugin] (:plugins project)]
-            (symbol (str (name plugin) "." (name sub-ns))))))
+(defn- plugin-vars [project var-name]
+  (for [[plugin] (:plugins project)]
+    (with-meta (symbol (str (name plugin) ".plugin")
+                       (name var-name))
+      {:optional true})))
 
 (defn- plugin-hooks [project]
-  (plugin-namespaces project 'hooks))
-
-(defn- load-hook [hook-ns]
-  (when-let [hook (try (utils/require-resolve (name hook-ns) "activate")
-                       (catch Throwable e
-                         (utils/error "problem requiring" hook-ns "hook")
-                         (throw e)))]
-    (try (hook)
-         (catch Throwable e
-           (utils/error "problem activating" hook-ns "hook")
-           (throw e)))))
-
-(defn load-hooks [project & [ignore-missing?]]
-  (doseq [hook-ns (concat (plugin-hooks project) (:hooks project))]
-    (load-hook hook-ns))
-  project)
+  (plugin-vars project 'hooks))
 
 (defn- plugin-middleware [project]
-  (for [ns (plugin-namespaces project 'middleware)]
-    (symbol (name ns) "project")))
+  (plugin-vars project 'middleware))
+
+(defn- load-hook [hook-name]
+  (if-let [hook (try (utils/require-resolve hook-name)
+                     (catch Throwable e
+                       (utils/error "problem requiring" hook-name "hook")
+                       (throw e)))]
+    (try (hook)
+         (catch Throwable e
+           (utils/error "problem activating" hook-name "hook")
+           (throw e)))
+    (when-not (:optional (meta hook-name))
+      (utils/error "cannot resolve" hook-name "hook"))))
+
+(defn load-hooks [project & [ignore-missing?]]
+  (doseq [hook-name (concat (plugin-hooks project) (:hooks project))]
+    ;; if hook-name is just a namespace assume hook fn is called activate
+    (let [hook-name (if (namespace hook-name)
+                       hook-name
+                       (symbol (name hook-name) "activate"))]
+      (load-hook hook-name)))
+  project)
 
 (defn apply-middleware
   ([project]
@@ -299,7 +305,9 @@
   ([project middleware-name]
      (if-let [middleware (utils/require-resolve middleware-name)]
        (middleware project)
-       (utils/error "cannot resolve" middleware-name "middleware"))))
+       (do (when-not (:optional (meta middleware-name))
+             (utils/error "cannot resolve" middleware-name "middleware"))
+           project))))
 
 (defn load-certificates
   "Load the SSL certificates specified by the project and register
