@@ -215,7 +215,7 @@ or by executing \"lein upgrade\". ")
       (configure-http)
       (when-not project
         (project/load-certificates project/defaults)
-        (project/load-plugins project/defaults)
+        (project/load-plugins (:base @project/default-profiles))
         (project/load-plugins (:user (user/profiles))))
       (warn-chaining task-name args)
       (apply-task task-name project args))
