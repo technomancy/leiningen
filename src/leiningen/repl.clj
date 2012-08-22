@@ -131,15 +131,14 @@ and port."
   ([project]
   (if trampoline/*trampoline?*
     (trampoline-repl project)
-    (let [prepped (promise)]
+    (let [prep-blocker @eval/prep-blocker]
       (nrepl.ack/reset-ack-port!)
       (.start
        (Thread.
         (bound-fn []
-          (start-server (and project (vary-meta project assoc :prepped prepped))
-                        (repl-host project) (repl-port project)
+          (start-server project (repl-host project) (repl-port project)
                         (-> @lein-repl-server deref :ss .getLocalPort)))))
-      (when project @prepped)
+      @prep-blocker
       (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
                                                      :repl-options
                                                      (:timeout 30000)))]
