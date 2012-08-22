@@ -206,6 +206,7 @@
             (println "Warning: profile" profile "not found."))
           (lookup-profile profiles result))
 
+        ;; composite profile
         (vector? profile)
         (apply-profiles {} (map (partial lookup-profile profiles) profile))
 
