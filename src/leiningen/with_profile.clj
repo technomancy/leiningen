@@ -6,7 +6,7 @@
   "Apply the given task with a comma-separated profile list."
   [project profiles task-name & args]
   (let [profiles (map keyword (.split profiles ","))
-        project (and project (project/reset-profiles project profiles))
+        project (and project (project/set-profiles project profiles))
         task-name (main/lookup-alias task-name project)]
     (main/apply-task task-name project args)))
 
