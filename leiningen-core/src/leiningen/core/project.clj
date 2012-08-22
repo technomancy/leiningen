@@ -280,11 +280,8 @@
            (throw e)))))
 
 (defn- load-hooks [project & [ignore-missing?]]
-  (doseq [hook-ns (plugin-hooks project)]
-    (load-hook hook-ns))
-  (doseq [hook-ns (:hooks project)]
-    (or (load-hook hook-ns)
-        (utils/error "cannot resolve" hook-ns "hook"))))
+  (doseq [hook-ns (concat (plugin-hooks project) (:hooks project))]
+    (load-hook hook-ns)))
 
 (defn apply-middleware
   ([project]
