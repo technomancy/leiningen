@@ -87,7 +87,7 @@
   ;; the following to share code from the test suite:
   :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
-  ;; Load these namespaces on startup to pick up hooks from them.
+  ;; Load these namespaces from within Leiningen to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
   ;; Predicates to determine whether to run a test or not, take test metadata
   ;; as argument. See Leiningen tutorial for more information.
@@ -98,8 +98,8 @@
   ;; other Java interop functionality. Put a regex here to compile all
   ;; namespaces whose names match.
   :aot [org.example.sample]
-  ;; The -main function in this namespace will be run at launch (either via `lein run` or if you
-  ;; create an uberjar). It should be variadic, like so:
+  ;; The -main function in this namespace will be run at launch
+  ;; (either via `lein run` or from an uberjar). It should be variadic:
   ;;
   ;; (ns my.service.runner
   ;;   (:gen-class))
@@ -136,8 +136,8 @@
                  ;; Use a different server-side nREPL handler
                  :nrepl-handler (clojure.tools.nrepl.server/default-handler)
                  ;; Add server-side middleware to nREPL stack
-                 :nrepl-middleware [;; note that symbols are resolved to the vars they name
-                                    my.nrepl.thing/wrap-amazingness
+                 :nrepl-middleware [my.nrepl.thing/wrap-amazingness
+                                    ;; TODO: link to more detailed documentation
                                     ;; middleware without appropriate metadata
                                     ;; (see clojure.tools.nrepl.middleware/set-descriptor!
                                     ;; for details) will simply be appended to the stack
@@ -271,8 +271,7 @@
   :scm {:name "git" :tag "098afd745bcd" :url "http://127.0.0.1/git/my-project"}
 
   ;; include arbitrary xml in generated pom.xml file
-  :pom-addition [:developers [:developer [:name "My Name"]]]
-  )
+  :pom-addition [:developers [:developer [:name "My Name"]]])
 
 ;;; Environment Variables used by Leiningen
 
