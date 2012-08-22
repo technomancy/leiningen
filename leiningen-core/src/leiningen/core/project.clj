@@ -310,7 +310,9 @@
     (ssl/register-scheme (ssl/https-scheme context))
     project))
 
-(defn reset-profiles
+;; # High-level profile operations
+
+(defn set-profiles
   "Compute a fresh version of the project map with middleware applied, including
   and excluding the specified profiles."
   [project include-profiles & [exclude-profiles]]
@@ -327,14 +329,12 @@
         (load-certificates)
         (load-hooks))))
 
-;; # High-level profile operations
-
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
    into list of active profiles and the appropriate middleware applied."
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
-    (reset-profiles project
+    (set-profiles project
       (concat included-profiles profiles)
       (remove (set profiles) excluded-profiles))))
 
@@ -343,11 +343,11 @@
    from list of active profiles and the appropriate middleware applied."
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
-    (reset-profiles project
+    (set-profiles project
       (remove (set profiles) included-profiles)
       (concat excluded-profiles profiles))))
 
-;; TODO: unify with reset-profiles above
+;; TODO: unify with set-profiles above?
 (defn init-project
   "Initializes a project: loads certificates, loads plugins, then applies
    middleware, and finally loads hooks. Adds dependencies to Leiningen's
@@ -396,6 +396,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (reset-profiles @project profiles))))
+         (set-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
