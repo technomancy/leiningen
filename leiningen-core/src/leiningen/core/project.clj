@@ -14,6 +14,8 @@
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader)))
 
+;; # Project definition and normalization
+
 (defn- unquote-project
   "Inside defproject forms, unquoting (~) allows for arbitrary evaluation."
   [args]
@@ -146,6 +148,8 @@
   "Normalize project map to standard representation."
   (comp normalize-repos normalize-deps absolutize-paths remove-aliases))
 
+;; # Profiles: basic merge logic
+
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
@@ -230,6 +234,8 @@
   (merge @default-profiles (user/profiles)
          (:profiles project) (project-profiles project)))
 
+;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
+
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
         cl (.getContextClassLoader thread)]
@@ -253,9 +259,9 @@
                             (.getResources "leiningen/wagons.clj")
                             (enumeration-seq))
              [hint factory] (read-string (slurp wagon-file))]
-       (aether/register-wagon-factory! hint (eval factory))))
+       (aether/register-wagon-factory! hint (eval factory)))
+     project)
   ([project] (load-plugins project :plugins)))
-
 
 (defn- plugin-namespaces [project sub-ns]
   (filter utils/ns-exists?
@@ -264,10 +270,6 @@
 
 (defn- plugin-hooks [project]
   (plugin-namespaces project 'hooks))
-
-(defn- plugin-middleware [project]
-  (for [ns (plugin-namespaces project 'middleware)]
-    (symbol (name ns) "project")))
 
 (defn- load-hook [hook-ns]
   (when-let [hook (try (utils/require-resolve (name hook-ns) "activate")
@@ -279,9 +281,14 @@
            (utils/error "problem activating" hook-ns "hook")
            (throw e)))))
 
-(defn- load-hooks [project & [ignore-missing?]]
+(defn load-hooks [project & [ignore-missing?]]
   (doseq [hook-ns (concat (plugin-hooks project) (:hooks project))]
-    (load-hook hook-ns)))
+    (load-hook hook-ns))
+  project)
+
+(defn- plugin-middleware [project]
+  (for [ns (plugin-namespaces project 'middleware)]
+    (symbol (name ns) "project")))
 
 (defn apply-middleware
   ([project]
@@ -319,6 +326,8 @@
         (load-certificates)
         (load-hooks))))
 
+;; # High-level profile operations
+
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
    into list of active profiles and the appropriate middleware applied."
@@ -337,9 +346,11 @@
       (remove (set profiles) included-profiles)
       (concat excluded-profiles profiles))))
 
+;; TODO: unify with reset-profiles above
 (defn init-project
-  "Initializes a project: loads plugins, then applies middleware, and finally
-   loads hooks. Adds dependencies to Leiningen's classpath if required."
+  "Initializes a project: loads certificates, loads plugins, then applies
+   middleware, and finally loads hooks. Adds dependencies to Leiningen's
+   classpath if required."
   [project]
   (load-certificates project)
   (when (= :leiningen (:eval-in project))
