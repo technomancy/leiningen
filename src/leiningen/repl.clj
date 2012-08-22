@@ -138,7 +138,7 @@ and port."
         (bound-fn []
           (start-server project (repl-host project) (repl-port project)
                         (-> @lein-repl-server deref :ss .getLocalPort)))))
-      @prep-blocker
+      (when project @prep-blocker)
       (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
                                                      :repl-options
                                                      (:timeout 30000)))]
