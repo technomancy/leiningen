@@ -299,7 +299,8 @@
   [project]
   (let [certs (mapcat ssl/read-certs (:certificates project))
         context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
-    (ssl/register-scheme (ssl/https-scheme context))))
+    (ssl/register-scheme (ssl/https-scheme context))
+    project))
 
 (defn- reset-profiles
   "Compute a fresh version of the project map with middleware applied, including
@@ -314,7 +315,9 @@
         (vary-meta merge {:without-profiles without-profiles
                           :included-profiles include-profiles
                           :excluded-profiles exclude-profiles})
-        (apply-middleware))))
+        (apply-middleware)
+        (load-certificates)
+        (load-hooks))))
 
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
