@@ -245,7 +245,7 @@
 
 (defn load-plugins
   ([project key]
-     (when (seq (project key))
+     (when (seq (get project key))
        (ensure-dynamic-classloader)
        (classpath/resolve-dependencies key (merge-plugin-repositories project)
                                        :add-classpath? true))
