@@ -138,6 +138,7 @@
         project (and project (update-in project [:aliases] (fnil dissoc {})
                                         (or task-alias task-name)))
         task (resolve-task task-name)]
+    ;; TODO: this breaks when using with-profile
     (when-not (or project (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))
     (when-not (matching-arity? task args)
