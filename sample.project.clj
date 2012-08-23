@@ -47,7 +47,9 @@
   ;; provides new tasks or hooks.
   :plugins [[lein-pprint "1.1.1"]
             [lein-assoc "0.1.0"]
-            [s3-wagon-private "1.1.1"]]
+            [s3-wagon-private "1.1.1"]
+            [lein-foo "0.0.1" :hooks false]
+            [lein-bar "0.0.1" :middleware false]]
   ;; If you configure a custom repository with a self-signed SSL
   ;; certificate, you will need to add it here. Paths should be either
   ;; be on Leiningen's classpath or relative to the project root.

@@ -209,6 +209,20 @@ map whenever the active profiles change. We accomplish this by storing the fresh
 project map and starting from that whenever we call `merge-profiles`,
 `unmerge-profiles` or `set-profiles`.
 
+## Requiring Plugins
+
+To use a plugin in your project, just add a `:plugins` key to your project.clj
+with the same format as `:dependencies`. In addition to the options allowed by
+`:dependencies`, `:plugins` also allows you to disable auto-loading of hooks or
+middleware.
+
+```clj
+(defproject foo "0.1.0"
+  :plugins [[lein-pprint "1.1.1"]
+            [lein-foo "0.0.1" :hooks false]
+            [lein-bar "0.0.1" :middleware false]])
+```
+
 ## Clojure Version
 
 Leiningen 2.0.0 uses Clojure 1.4.0. If you need to use a different
