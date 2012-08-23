@@ -4,7 +4,6 @@
   (:require [clojure.walk :as walk]
             [clojure.java.io :as io]
             [clojure.set :as set]
-            [ordered.map :as ordered]
             [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.utils :as utils]
@@ -40,12 +39,11 @@
                :compile-path "target/classes"
                :target-path "target"
                :prep-tasks ["javac" "compile"]
-               :repositories (ordered/ordered-map
-                              "central" {:url "http://repo1.maven.org/maven2"}
+               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
                               ;; TODO: point to releases-only before 2.0 is out
-                              "clojars" {:url "https://clojars.org/repo/"})
-               :deploy-repositories {"clojars" {:url "https://clojars.org/repo/"
-                                                :password :gpg}}
+                              ["clojars" {:url "https://clojars.org/repo/"}]]
+               :deploy-repositories [["clojars" {:url "https://clojars.org/repo/"
+                                                 :password :gpg}]]
                :jar-exclusions [#"^\."]
                :jvm-opts ["-XX:+TieredCompilation"]
                :certificates ["clojars.pem"]
@@ -73,7 +71,7 @@
   (assoc project :repositories
          (into (if-not omit-default-repositories
                  (:repositories defaults)
-                 (ordered/ordered-map))
+                 [])
                (for [[id repo] repositories
                      ;; user-level :repos entries may contain just credentials
                      :when (or (string? repo) (:url repo))]

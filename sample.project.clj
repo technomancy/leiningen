@@ -158,36 +158,34 @@
   :omit-default-repositories true
   ;; These repositories will be searched for :dependencies and
   ;; :plugins and will also be available to deploy to.
-  :repositories {"java.net" "http://download.java.net/maven/2"
-                 "sonatype"
-                 {:url "http://oss.sonatype.org/content/repositories/releases"
-                  ;; If a repository contains  releases only; setting :snapshots
-                  ;; to false will speed up dependency checking.
-                  :snapshots false
-                  ;; You can also set the policies for how to handle :checksum
-                  ;; failures to :fail, :warn, or :ignore. In :releases, :daily,
-                  ;; :always, and :never are supported.
-                  :releases {:checksum :fail :update :always}
-                  ;; You can set :checksum and :update here for them
-                  ;; to apply to both :releases and :snapshots:
-                  :update :always, :checksum :fail}
+  :repositories [["java.net" "http://download.java.net/maven/2"]
+                 ["sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
+                              ;; If a repository contains releases only setting
+                              ;; :snapshots to false will speed up dependencies.
+                              :snapshots false
+                              ;; You can also set the policies for how to handle
+                              ;; :checksum failures to :fail, :warn, or :ignore.
+                              :checksum :fail
+                              ;; How often should this repository be checked
+                              ;; for updates? (:daily, :always, or :never)
+                              :update :always
+                              ;; You can also apply them to releases only:
+                              :releases {:checksum :fail :update :always}}]
                  ;; Repositories named "snapshots" and "releases" automatically
                  ;; have their :snapshots and :releases disabled as appropriate.
                  ;; Credentials for repositories should *not* be stored
-                 ;; in project.clj but in ~/.lein/profiles.clj instead:
-                 ;; {:auth {:repository-auth {#"http://blueant.com/archiva/"
-                 ;;                           {:username "milgrim"
-                 ;;                            :password "locative.1"}}}}
+                 ;; in project.clj but in ~/.lein/credentials.clj.gpg instead,
+                 ;; see `lein help deploying` under "Authentication".
                  "snapshots" "http://blueant.com/archiva/snapshots"
                  "releases" {:url "http://blueant.com/archiva/internal"
                              ;; Using :env as a value here will cause an
                              ;; enironment variable to be used based on
                              ;; the key; in this case LEIN_PASSWORD.
-                             :username "milgrim" :password :env}}
+                             :username "milgrim" :password :env}]
   ;; These repositories will be included with :repositories when loading plugins.
   ;; This would normally be set in a profile for non-public repositories.
   ;; All the options are the same as in the :repositories map.
-  :plugin-repositories {"internal-plugin-repo" "http://example.org/repo"}
+  :plugin-repositories [["internal-plugin-repo" "http://example.org/repo"]]
   ;; You can set :update and :checksum policies here to have them
   ;; apply for all :repositories. Usually you will not set :update
   ;; directly but apply the "update" profile instead.
@@ -196,8 +194,8 @@
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
   ;; dependency resolution.
-  :deploy-repositories {"releases" "http://blueant.com/archiva/internal/releases"
-                        "snapshots" "http://blueant.com/archiva/internal/snapshots"}
+  :deploy-repositories [["releases" "http://blueant.com/archiva/internal/releases"]
+                        ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
   ;; Fetch dependencies from mirrors. Mirrors override repositories when the key
   ;; in the :mirrors map matches either the name or URL of a specified
   ;; repository. All settings supported in :repositories may be set here too.
@@ -209,8 +207,8 @@
   ;; Prevent Leiningen from checking the network for dependencies.
   ;; This wouldn't normally be set in project.clj; it would come from a profile.
   :offline? true
-  ;; Override the location of the local maven repository.
-  :local-repo "/home/dude/.lein/repo"
+  ;; Override location of the local maven repository. Relative to project root.
+  :local-repo "local-m2"
   ;; If you'd rather use a different directory structure, you can set these.
   ;; Paths that contain "inputs" are vectors, "outputs" are strings.
   :source-paths ["src" "src/main/clojure"]
