@@ -318,11 +318,19 @@
     (ssl/register-scheme (ssl/https-scheme context))
     project))
 
+(defn activate-middleware
+  "A helper funtction to apply middleware and then load certificates and hooks,
+  since we always do these three things together, at least so far."
+  [project]
+  (doto (apply-middleware project)
+    (load-certificates)
+    (load-hooks)))
+
 ;; # High-level profile operations
 
-(defn set-profiles
-  "Compute a fresh version of the project map with middleware applied, including
-  and excluding the specified profiles."
+(defn- init-profiles
+  "Compute a fresh version of the project map, including and excluding the
+  specified profiles."
   [project include-profiles & [exclude-profiles]]
   (let [without-profiles (:without-profiles (meta project) project)
         profile-map (apply dissoc (read-profiles project) exclude-profiles)
@@ -332,10 +340,14 @@
         (normalize)
         (vary-meta merge {:without-profiles without-profiles
                           :included-profiles include-profiles
-                          :excluded-profiles exclude-profiles})
-        (apply-middleware)
-        (load-certificates)
-        (load-hooks))))
+                          :excluded-profiles exclude-profiles}))))
+
+(defn set-profiles
+  "Compute a fresh version of the project map, with "
+  [project include-profiles & [exclude-profiles]]
+  (-> project
+      (init-profiles include-profiles exclude-profiles)
+      (activate-middleware)))
 
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
@@ -355,19 +367,22 @@
       (remove (set profiles) included-profiles)
       (concat excluded-profiles profiles))))
 
-;; TODO: unify with set-profiles above?
-(defn init-project
-  "Initializes a project: loads certificates, loads plugins, then applies
-   middleware, and finally loads hooks. Adds dependencies to Leiningen's
-   classpath if required."
+(defn- init-lein-classpath
+  "Adds dependencies to Leiningen's classpath if required."
   [project]
-  (load-certificates project)
   (when (= :leiningen (:eval-in project))
     (doseq [path (classpath/get-classpath project)]
-      (pomegranate/add-classpath path)))
-  (load-plugins project)
-  (doto (apply-middleware project)
-    (load-hooks)))
+      (pomegranate/add-classpath path))))
+
+(defn init-project
+  "Initializes a project. This is called at startup with the default profiles."
+  [project]
+  (-> project
+      (doto
+        (load-certificates)
+        (init-lein-classpath)
+        (load-plugins))
+      (activate-middleware)))
 
 (defn ^{:deprecated "2.0.0-preview3"} conj-dependency
   "Add a dependency into the project map if it's not already present. Warn the
@@ -404,6 +419,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (set-profiles @project profiles))))
+         (init-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
