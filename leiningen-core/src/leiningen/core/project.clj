@@ -264,10 +264,11 @@
      project)
   ([project] (load-plugins project :plugins)))
 
-(defn- plugin-vars [project var-name]
-  (for [[plugin] (:plugins project)]
+(defn plugin-vars [project type]
+  (for [[plugin _ & {:as opts}] (:plugins project)
+        :when (get opts type true)]
     (with-meta (symbol (str (name plugin) ".plugin")
-                       (name var-name))
+                       (name type))
       {:optional true})))
 
 (defn- plugin-hooks [project]

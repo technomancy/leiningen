@@ -127,6 +127,21 @@
            (binding [*err* *out*]
              (init-project (read (.getFile (io/resource "p3.clj")))))))))
 
+(deftest test-plugin-vars
+  (are [project hooks middleware] (= (list hooks middleware)
+                                     (map (partial plugin-vars project) [:hooks :middleware]))
+       {:plugins '[[lein-foo "1.2.3"]]}
+       '(lein-foo.plugin/hooks) '(lein-foo.plugin/middleware)
+
+       {:plugins '[[lein-foo "1.2.3" :hooks false]]}
+       '() '(lein-foo.plugin/middleware)
+
+       {:plugins '[[lein-foo "1.2.3" :middleware false]]}
+       '(lein-foo.plugin/hooks) '()
+
+       {:plugins '[[lein-foo "1.2.3" :hooks false :middleware false]]}
+       '() '()))
+
 (deftest test-add-profiles
   (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
                                                      :a2 {:src-paths ["a2/"]}}}]
