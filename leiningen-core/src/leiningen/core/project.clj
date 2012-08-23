@@ -272,10 +272,10 @@
       {:optional true})))
 
 (defn- plugin-hooks [project]
-  (plugin-vars project 'hooks))
+  (plugin-vars project :hooks))
 
 (defn- plugin-middleware [project]
-  (plugin-vars project 'middleware))
+  (plugin-vars project :middleware))
 
 (defn- load-hook [hook-name]
   (if-let [hook (try (utils/require-resolve hook-name)
