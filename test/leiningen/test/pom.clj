@@ -148,6 +148,25 @@
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))))
 
+(deftest provided-dependencies-are-provided-scoped
+  (let [xml (xml/parse-str
+             (make-pom (with-profile
+                         sample-project
+                         :provided
+                         {:dependencies '[[peridot "0.0.5"]]})))]
+    (is (= ["org.clojure" "rome" "ring" "peridot"]
+           (map #(first-in % [:dependency :groupId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["clojure" "rome" "ring" "peridot"]
+           (map #(first-in % [:dependency :artifactId])
+                (deep-content xml [:project :dependencies]))))
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5"]
+           (map #(first-in % [:dependency :version])
+                (deep-content xml [:project :dependencies]))))
+    (is (= [nil nil nil "provided"]
+           (map #(first-in % [:dependency :scope])
+                (deep-content xml [:project :dependencies]))))))
+
 (deftest dependency-options
   (let [xml (xml/parse-str
              (make-pom (with-profile

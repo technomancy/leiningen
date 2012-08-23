@@ -80,9 +80,6 @@
   It should not be considered canonical data. For more information see
   https://github.com/technomancy/leiningen -->\n")
 
-(defn- make-test-scope [[dep version opts]]
-  [dep version (assoc opts :scope "test")])
-
 (defn- camelize [string]
   (s/replace string #"[-_](\w)" (comp s/upper-case second)))
 
@@ -253,21 +250,28 @@
                         (for [other other-archives]
                           [:otherArchive other]))))]])))
 
-(defn- test-scope-excluded [deps [dep version & opts :as depspec]]
-  (if (some #{depspec} deps)
-    depspec
-    (concat [dep version]
-            (apply concat (update-in (apply hash-map opts)
-                                     [:scope]
-                                     #(if-not % "test"))))))
+(defn- distinct-key [k xs]
+  ((fn step [seen xs]
+     (lazy-seq
+      (when (seq xs)
+        (let [x (first xs), key (k x)]
+          (if (seen key)
+            (step seen (rest xs))
+            (cons x (step (conj seen key) (rest xs))))))))
+   #{} (seq xs)))
+
+(defn- make-scope [scope [dep version & opts]]
+  (list* dep version (apply concat (assoc (apply hash-map opts) :scope scope))))
 
 (defmethod xml-tags ::project
   ([_ project]
-     (let [test-project (-> project
-                            (project/merge-profiles [:dev :test :default])
-                            (relativize))]
+     (let [reprofile #(-> project (project/merge-profiles %) (relativize))
+           provided-project (reprofile [:provided])
+           test-project (reprofile [:provided :dev :test :default])]
        (list
-        [:project {:xsi:schemaLocation "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        [:project {:xsi:schemaLocation
+                   (str "http://maven.apache.org/POM/4.0.0"
+                        " http://maven.apache.org/xsd/maven-4.0.0.xsd")
                    :xmlns "http://maven.apache.org/POM/4.0.0"
                    :xmlns:xsi "http://www.w3.org/2001/XMLSchema-instance"}
          [:modelVersion "4.0.0"]
@@ -286,10 +290,12 @@
          (xml-tags :build [project test-project])
          (xml-tags :repositories (:repositories project))
          (xml-tags :dependencies
-                   (distinct (map (partial test-scope-excluded
-                                           (:dependencies project))
-                                  (concat (:dependencies project)
-                                          (:dependencies test-project)))))
+                   (->> (concat (->> project :dependencies)
+                                (->> provided-project :dependencies
+                                     (map (partial make-scope "provided")))
+                                (->> test-project :dependencies
+                                     (map (partial make-scope "test"))))
+                        (distinct-key (partial take 2))))
          (and (:pom-addition project) (:pom-addition project))]))))
 
 (defn snapshot? [project]
@@ -306,7 +312,8 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [project (project/unmerge-profiles project [:user :dev :test :default])]
+     (let [special-profiles [:user :provided :dev :test :default]
+           project (project/unmerge-profiles project special-profiles)]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str
