@@ -11,7 +11,7 @@ There may be times when you want to make a library available to your
 team without making it public. This is best done by setting up a
 private repository. The simplest kind of private repository is a web
 server pointed at a directory full of static files. You can use a
-`file:///` URL in your `:repositories` key to deploy that way if the
+`file:///` URL in your `:repositories` to deploy that way if the
 directory is local to the machine on which Leiningen is running.
 [Amazon S3](http://aws.amazon.com/s3/) buckets are another simple
 choice; you can deploy to S3 buckets using
@@ -29,8 +29,8 @@ listing in project.clj. Archiva and Nexus offer separate repositories
 for snapshots and releases, so you'll want two entries for them:
 
 ```clj
-:repositories {"snapshots" "http://blueant.com/archiva/snapshots"
-               "releases" "http://blueant.com/archiva/internal"}
+:repositories [["snapshots" "http://blueant.com/archiva/snapshots"]
+               ["releases" "http://blueant.com/archiva/internal"]]
 ```
 
 If you are are deploying to a repository that is _only_ used for deployment
@@ -41,7 +41,7 @@ Deployment-only repositories useful across a number of locally developed
 projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 
 ```clj
-{:user {:deploy-repositories {"internal" "http://blueant.com/archiva/internal"}}}
+{:user {:deploy-repositories [["internal" "http://blueant.com/archiva/internal"]]}}
 ```
 
 ## Authentication
@@ -59,8 +59,8 @@ Leiningen will decrypt `~/.lein/credentials.clj.gpg` and use that to
 find the proper credentials for the given repository.
 
 ```clj
-:repositories {"releases" {:url "http://blueant.com/archiva/internal"
-                           :username "milgrim" :password :gpg}}
+:repositories [["releases" {:url "http://blueant.com/archiva/internal"
+                           :username "milgrim" :password :gpg}]]
 ```
 
 First write your credentials map to `~/.lein/credentials.clj` like so:
@@ -151,10 +151,10 @@ plain-text `credentials.clj` using GPG.
 
 3. Add the OSS deployment repository endpoints to your project.clj, e.g.:
 ```clojure
-:deploy-repositories {"releases" {:url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                                  :creds :gpg}
-                      "snapshots" {:url "https://oss.sonatype.org/content/repositories/snapshots/"
-                                   :creds :gpg}}
+:deploy-repositories [["releases" {:url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                                   :creds :gpg}
+                       "snapshots" {:url "https://oss.sonatype.org/content/repositories/snapshots/"
+                                    :creds :gpg}]]
 ```
 
 4. Conform to OSS' requirements for uploaded artifacts' `pom.xml` files;
