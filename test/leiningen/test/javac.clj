@@ -7,11 +7,11 @@
 
 (deftest test-javac-options-normalization
   (testing "that Leiningen 2 style options are returned unmodified"
-    (are [arg] (is (= arg (normalize-javac-options arg)))
+    (are [arg] (= arg (normalize-javac-options arg))
       ["-target" "1.6" "-source" "1.6"]
       ["-deprecation" "-g"]))
   (testing "conversion of Leiningen 1 style options that are supported"
-    (are [old new] (is (= new (normalize-javac-options old)))
+    (are [old new] (= new (normalize-javac-options old))
          {:debug false}                ["-g:none"]
          {:debug "off"}                ["-g:none"]
          ;; overriden by :compile-path
