@@ -173,9 +173,12 @@
       (when (pos? exit-code)
         (throw (ex-info "Subprocess failed" {:exit-code exit-code}))))))
 
+(defonce trampoline-forms (atom []))
+(defonce trampoline-deps (atom []))
+
 (defmethod eval-in :trampoline [project form]
-  (swap! (:trampoline-forms (meta project)) conj form)
-  (swap! (:trampoline-deps (meta project)) conj (:dependencies project)))
+  (swap! trampoline-forms conj form)
+  (swap! trampoline-deps conj (:dependencies project)))
 
 (defmethod eval-in :classloader [project form]
   (when-let [classpath (map io/file (classpath/ext-classpath project))]
