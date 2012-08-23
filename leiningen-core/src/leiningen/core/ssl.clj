@@ -56,9 +56,9 @@
      (let [factory (SSLSocketFactory. context (BrowserCompatHostnameVerifier.))]
        (Scheme. "https" port factory))))
 
-(defn register-scheme
+(def register-scheme
   "Register a scheme with the HTTP Wagon for use with Aether."
-  [scheme]
-  (-> (.getConnectionManager (HttpWagon.))
-      (.getSchemeRegistry)
-      (.register scheme)))
+  (memoize (fn [scheme]
+             (-> (.getConnectionManager (HttpWagon.))
+                 (.getSchemeRegistry)
+                 (.register scheme)))))
