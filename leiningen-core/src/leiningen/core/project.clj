@@ -156,7 +156,7 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev and :user
   profiles are active by default."
-  (atom {:default [:dev :user :base]
+  (atom {:default [:provided :dev :user :base]
          :base {:resource-paths ["dev-resources"]
                 :plugins [['lein-newnew "0.3.5"]]
                 :checkout-deps-shares [:source-paths
@@ -205,7 +205,7 @@
   [profiles profile]
   (cond (keyword? profile)
         (let [result (get profiles profile)]
-          (when-not (or result (#{:dev :user :test :production} profile))
+          (when-not (or result (#{:provided :dev :user :test :production} profile))
             (println "Warning: profile" profile "not found."))
           (lookup-profile profiles result))
 
