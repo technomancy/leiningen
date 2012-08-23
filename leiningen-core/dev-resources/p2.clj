@@ -1,3 +1,3 @@
-(defproject middler "2.0.0-SNAPSHOT"
-  :description "Automate Clojure projects without setting your hair on fire."
+(defproject middler "0.0.1"
+  :description "Test some middleware."
   :middleware [leiningen.core.test.project/add-seven])
