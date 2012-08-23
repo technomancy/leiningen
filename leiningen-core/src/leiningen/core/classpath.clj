@@ -106,7 +106,7 @@
   [dependencies-key {:keys [repositories local-repo offline? update
                             checksum mirrors] :as project}
    & {:keys [add-classpath?]}]
-  {:pre [(every? vector? (project dependencies-key))]}
+  {:pre [(every? vector? (get project dependencies-key))]}
   (try
     ((if add-classpath?
        pomegranate/add-dependencies
@@ -116,7 +116,7 @@
      :repositories (->> repositories
                         (map add-repo-auth)
                         (map (partial update-policies update checksum)))
-     :coordinates (project dependencies-key)
+     :coordinates (get project dependencies-key)
      :mirrors mirrors
      :transfer-listener :stdout
      :proxy (get-proxy-settings))
@@ -153,7 +153,7 @@
   "Returns a graph of the project's dependencies."
   [dependencies-key project]
   (aether/dependency-hierarchy
-   (project dependencies-key)
+   (get project dependencies-key)
    (get-dependencies dependencies-key project)))
 
 (defn- normalize-path [root path]
