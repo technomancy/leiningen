@@ -47,18 +47,14 @@ than as a subprocess of Leiningen's project.
 
 Use this to save memory or to work around stdin issues."
   [project task-name & args]
-  (let [forms (atom []), deps (atom [])]
-    (when (:eval-in-leiningen project)
-      (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
-    (binding [*trampoline?* true]
-      (main/apply-task (main/lookup-alias task-name project)
-                       (-> (assoc project :eval-in :trampoline)
-                           (vary-meta assoc
-                                      :trampoline-forms forms
-                                      :trampoline-deps deps)
-                           (vary-meta update-in [:without-profiles] assoc
-                                      :eval-in :trampoline))
-                        args))
-    (if (seq @forms)
-      (write-trampoline project @forms @deps)
-      (main/abort task-name "did not run any project code for trampolining."))))
+  (when (= :leiningen (:eval-in project))
+    (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
+  (binding [*trampoline?* true]
+    (main/apply-task (main/lookup-alias task-name project)
+                     (-> (assoc project :eval-in :trampoline)
+                         (vary-meta update-in [:without-profiles] assoc
+                                    :eval-in :trampoline))
+                     args))
+  (if (seq @eval/trampoline-forms)
+    (write-trampoline project @eval/trampoline-forms @eval/trampoline-deps)
+    (main/abort task-name "did not run any project code for trampolining.")))

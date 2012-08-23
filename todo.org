@@ -12,7 +12,9 @@ See also https://github.com/technomancy/leiningen/issues
 ** 2.0.0-preview9
    - [X] Fast trampolining
    - [X] Latest newnew
-   - [ ] Updated :eval-in :classloader
+   - [X] Updated :eval-in :classloader
+   - [ ] Vector for :repositories
+   - [ ] Fix middleware
 ** 2.0.0-preview8
    - [X] Allow trampoline to work with chaining in do task (#665)
    - [X] Store repl port on filesystem (#682)
