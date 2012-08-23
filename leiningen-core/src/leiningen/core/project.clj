@@ -66,16 +66,21 @@
                               :leiningen
                               :subprocess))}))))
 
-(defn normalize-repos [{:keys [omit-default-repositories
-                               repositories] :as project}]
+(defn- de-dupe-repo [[repositories seen?] [id settings]]
+  (let [settings (if (string? settings) {:url settings} settings)]
+    ;; repositories from user profiles can be just credentials, so check :url
+    (if (or (seen? id) (not (:url settings)))
+      [repositories seen?]
+      [(conj repositories [id settings]) (conj seen? id)])))
+
+(defn normalize-repos [{:keys [omit-default-repositories repositories]
+                        :as project}]
   (assoc project :repositories
-         (into (if-not omit-default-repositories
-                 (:repositories defaults)
-                 [])
-               (for [[id repo] repositories
-                     ;; user-level :repos entries may contain just credentials
-                     :when (or (string? repo) (:url repo))]
-                 [id (if (map? repo) repo {:url repo})]))))
+         (first (reduce de-dupe-repo
+                        (if-not omit-default-repositories
+                          [(:repositories defaults)
+                           (set (map first (:repositories defaults)))]
+                          [[] #{}]) repositories))))
 
 (defn- without-version [[id version & other]]
   (-> (apply hash-map other)
