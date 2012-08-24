@@ -7,10 +7,10 @@ without including them in the jar, or you may want to have Swank
 Clojure available in every project you hack on without modifying every
 single project.clj you use.
 
-By default the `:dev`, `:user`, and `:base` profiles are activated
-for each task, but the settings they provide are not propagated
-downstream to projects that depend upon yours. Each profile is defined
-as a map which gets merged into your project map.
+By default the `:dev`, `:provided`, `:user`, and `:base` profiles are
+activated for each task, but the settings they provide are not
+propagated downstream to projects that depend upon yours. Each profile
+is defined as a map which gets merged into your project map.
 
 You can place any arbitrary defproject entries into a given profile
 and they will be merged into the project map when that profile is
@@ -114,10 +114,11 @@ This can be used to avoid duplication:
  :production [:shared {:servers [\"prod1.mycorp.com\", \"prod1.mycorp.com\"]}]}
 ```
 
-Composite profiles are used by Leiningen internally for the `:default` profile,
-which is the profile used if you don't change it using `with-profile`. The
-`:default` profile is defined to be a composite of `[:dev :user :base]`, but you
-can change this in your `project.clj` just like any other profile.
+Composite profiles are used by Leiningen internally for the `:default`
+profile, which is the profile used if you don't change it using
+`with-profile`. The `:default` profile is defined to be a composite of
+`[:dev :provided :user :base]`, but you can change this in your
+`project.clj` just like any other profile.
 
 ## Debugging
 
