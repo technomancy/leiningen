@@ -1,7 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-preview9 / ???
+## 2.0.0-preview9 / 2012-08-24
 
+* Use :provided profile by default everywhere except uberjar. (Marshall Vandegrift)
+* Unify format for auto-loading middleware and hooks. (Justin Balthrop)
+* Allow more declarative :nrepl-middleware settings. (Chas Emerick)
+* Fix :eval-in :classloader for native dependencies. (Justin Balthrop)
+* Support project and user leinrc file for shell-level customization. (Justin Balthrop)
 * Cache trampoline commands for fast boot. Set $LEIN_FAST_TRAMPOLINE to enable.
 * Support setting HTTPS proxies.
 * Improved resilience when self-install is interrupted. (Bruce Adams)
