@@ -352,6 +352,45 @@ yourself, so it's not a good solution for end-users.
 Of course if your users already have Leiningen installed, you can
 instruct them to use `lein run` as described above.
 
+### Framework (Uber)jars
+
+Many Java frameworks expect deployment of a jar file or derived archive
+sub-format containing a subset of the application's necessary
+dependencies.  The framework expects to provide the missing dependencies
+itself at run-time.  Dependencies which are provided by a framework in
+this fashion may be specified in the `:provided` profile.  Such
+dependencies will be available during compilation, testing, etc., but
+won't be included by default by the `uberjar` task or plugin tasks
+intended to produce stable deployment artifacts.
+
+For example, Hadoop job jars may be just regular (uber)jar files
+containing all dependencies except the Hadoop libraries themselves:
+
+```clj
+(project example.hadoop "0.1.0"
+  ...
+  :profiles {:provided
+             {:dependencies
+              [[org.apache.hadoop/hadoop-core "0.20.2-dev"]]}}
+  :main example.hadoop)
+```
+
+    $ lein uberjar
+    Compiling example.hadoop
+    Created /home/xmpl/src/example.hadoop/example.hadoop-0.1.0.jar
+    Including example.hadoop-0.1.0.jar
+    Including clojure-1.4.0.jar
+    Created /home/xmpl/src/example.hadoop/example.hadoop-0.1.0-standalone.jar
+    $ hadoop jar example.hadoop-0.1.0-standalone.jar
+    12/08/24 08:28:30 INFO util.Util: resolving application jar from found main method on: example.hadoop
+    12/08/24 08:28:30 INFO flow.MultiMapReducePlanner: using application jar: /home/xmpl/src/example.hadoop/./example.hadoop-0.1.0-standalone.jar
+    ...
+
+Plugins are required to generate framework deployment jar derivatives
+(such as WAR files) which include additional metadata, but the
+`:provided` profile provides a general mechanism for handling the
+framework dependencies.
+
 ### Server-side Projects
 
 There are many ways to get your project deployed as a server-side
