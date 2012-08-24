@@ -143,15 +143,15 @@ mailing list and mailing a self-addressed, stamped envelope.
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place.
 
-For the master branch, use Leiningen 1.x to run `lein install` in the
-`leiningen-core` subproject directory. When the dependencies change
-you will also have to do `rm .lein-classpath` in the project root.
+For the master branch, use an existing Leiningen version to run `lein
+install` in the `leiningen-core` subproject directory. When the
+dependencies change you will also have to do `rm .lein-classpath` in
+the project root. It's not yet possible to bootstrap a development
+version of Leiningen without having an older version installed.
 
 Once you've done that, symlink `bin/lein` to somewhere on your
-`$PATH`, usually as `lein2` in order to keep it distinct from your
-existing installation.
-
-If you want to develop on the 1.x branch, this should be unnecessary.
+`$PATH`. Usually you'll want to rename your existing installation to
+keep them from interfering.
 
 ## License
 
