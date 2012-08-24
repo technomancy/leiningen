@@ -154,9 +154,9 @@
 ;; # Profiles: basic merge logic
 
 (def default-profiles
-  "Profiles get merged into the project map. The :dev and :user
+  "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
-  (atom {:default [:provided :dev :user :base]
+  (atom {:default [:dev :provided :user :base]
          :base {:resource-paths ["dev-resources"]
                 :plugins [['lein-newnew "0.3.5"]]
                 :checkout-deps-shares [:source-paths
