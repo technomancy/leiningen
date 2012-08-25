@@ -47,5 +47,4 @@ echo "Also deploy this release of leiningen-core to Clojars."
 # git checkout preview && git reset --hard $RELEASE_VERSION && git push
 # Drop version back to SNAPSHOT
 
-# (require 'tentacles.repos)
-# (apply + (for [d (tentacles.repos/downloads "technomancy" "leiningen") :when (re-find #"[0-9]-standalone\.jar$" (:name d))] (:download_count d)))
+# (require 'tentacles.repos) (apply + (for [d (tentacles.repos/downloads "technomancy" "leiningen") :when (re-find #"[0-9]-standalone\.jar$" (:name d))] (:download_count d)))
