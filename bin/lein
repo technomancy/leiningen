@@ -141,6 +141,16 @@ if [ "$HTTP_CLIENT" = "" ]; then
     fi
 fi
 
+function download_failed_message {
+    echo "Failed to download $1"
+    echo "It's possible your HTTP client's certificate store does not have the"
+    echo "correct certificate authority needed. This is often caused by an"
+    echo "out-of-date version of libssl. Either upgrade it or set HTTP_CLIENT"
+    echo "to turn off certificate checks:"
+    echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
+    echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o"
+}
+
 # TODO: explain what to do when Java is missing
 export JAVA_CMD=${JAVA_CMD:-"java"}
 export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
@@ -163,20 +173,14 @@ if [ "$1" = "self-install" ]; then
     LEIN_URL="https://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
     $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
     if [ $? == 0 ]; then
-        # TODO: What kinds of validations can we do here?
-        /bin/mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+        # TODO: checksum
+        mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
     else
-        echo "Failed to download $LEIN_URL"
-        echo "If you have an old version of libssl you may not have the correct"
-        echo "certificate authority. Either upgrade or set HTTP_CLIENT to insecure:"
-        echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
-        echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o"
-        if [ $SNAPSHOT = "YES" ]; then
-            echo "If you have Maven installed, you can do"
-            echo "mvn dependency:copy-dependencies; mv target/dependency lib"
-            echo "See README.md for further SNAPSHOT build instructions."
-        fi
         rm "$LEIN_JAR.pending" 2> /dev/null
+        downoad_failed_message "$LEIN_URL"
+        if [ $SNAPSHOT = "YES" ]; then
+            echo "See README.md for SNAPSHOT-specific build instructions."
+        fi
         exit 1
     fi
 elif [ "$1" = "upgrade" ]; then
@@ -206,11 +210,16 @@ elif [ "$1" = "upgrade" ]; then
                     TARGET=`cygpath -w $TARGET`
                 fi
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
-                $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL" \
-                    && mv "$TARGET" "$SCRIPT" \
-                    && chmod +x "$SCRIPT" \
-                    && echo && "$SCRIPT" self-install && echo && echo "Now running" `$SCRIPT version`
-                exit $?;;
+                $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
+                if [ $? == 0 ]; then
+                    mv "$TARGET" "$SCRIPT" \
+                        && chmod +x "$SCRIPT" \
+                        && echo && "$SCRIPT" self-install \
+                        && echo && echo "Now running" `$SCRIPT version`
+                    exit $?
+                else
+                    download_failed_message "$LEIN_SCRIPT_URL"
+                fi;;
             *)
                 echo "Aborted."
                 exit 1;;
