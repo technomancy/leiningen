@@ -214,9 +214,11 @@ or by executing \"lein upgrade\". ")
         (verify-min-version project))
       (configure-http)
       (when-not project
-        (project/load-certificates project/defaults)
-        (project/load-plugins (:base @project/default-profiles))
-        (project/load-plugins (:user (user/profiles))))
+        ;; We don't use merge-profiles because we don't want to apply middleware
+        ;; since middleware won't be ready until plugins are loaded.
+        (let [dummy (project/init-profiles project/defaults [:base :user])]
+          (project/load-certificates dummy)
+          (project/load-plugins dummy)))
       (warn-chaining task-name args)
       (apply-task task-name project args))
     (catch Exception e
