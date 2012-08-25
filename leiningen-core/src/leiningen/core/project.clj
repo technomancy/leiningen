@@ -330,9 +330,7 @@
     (load-certificates)
     (load-hooks)))
 
-;; # High-level profile operations
-
-(defn- init-profiles
+(defn ^:internal init-profiles
   "Compute a fresh version of the project map, including and excluding the
   specified profiles."
   [project include-profiles & [exclude-profiles]]
@@ -345,6 +343,8 @@
         (vary-meta merge {:without-profiles without-profiles
                           :included-profiles include-profiles
                           :excluded-profiles exclude-profiles}))))
+
+;; # High-level profile operations
 
 (defn set-profiles
   "Compute a fresh version of the project map, with "
