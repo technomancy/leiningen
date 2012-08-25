@@ -73,7 +73,7 @@
 (defn- repl-host [project]
   (or (System/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)
-      "localhost"))
+      "127.0.0.1"))
 
 (def lein-repl-server
   (delay (nrepl.server/start-server
