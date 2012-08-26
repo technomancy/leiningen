@@ -53,6 +53,14 @@ if exist "%~dp0..\src\leiningen\version.clj" (
     :: Not running from a checkout.
     if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
     set CLASSPATH=%LEIN_JAR%
+  
+    if exist ".lein-classpath" (
+        for /f %%i in (.lein-classpath) do set CONTEXT_CP=%%i 
+
+        if NOT "x!CONTEXT_CP!"=="x" (
+            set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
+        )
+    )
 )
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
