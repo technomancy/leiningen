@@ -1,5 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-preview10 / 2012-08-25
+
+* Fix a bug where repositories wouldn't be checked running outside a project.
+* Make repl listen on 127.0.0.1 instead of localhost to address IPv6 issues.
+
 ## 2.0.0-preview9 / 2012-08-24
 
 * Use :provided profile by default everywhere except uberjar. (Marshall Vandegrift)
