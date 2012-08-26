@@ -177,7 +177,7 @@ if [ "$1" = "self-install" ]; then
         mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
     else
         rm "$LEIN_JAR.pending" 2> /dev/null
-        downoad_failed_message "$LEIN_URL"
+        download_failed_message "$LEIN_URL"
         if [ $SNAPSHOT = "YES" ]; then
             echo "See README.md for SNAPSHOT-specific build instructions."
         fi
