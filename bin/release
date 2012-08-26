@@ -39,12 +39,12 @@ echo "target/leiningen-$RELEASE_VERSION-standalone.jar to GitHub."
 echo "Also deploy this release of leiningen-core to Clojars."
 
 # Still manual for now:
-# cd leiningen-core; lein do clean, deploy clojars, marg
-# scp docs/uberdoc.html leiningen.org:leiningen.org/reference.html
 # git commit -a -m "Release $RELEASE_VERSION"
 # git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
+# cd leiningen-core; lein do clean, deploy clojars, marg
+# scp docs/uberdoc.html leiningen.org:leiningen.org/reference.html
 # git push && git push --tags
-# git checkout preview && git reset --hard $RELEASE_VERSION && git push
+# git checkout preview && git merge master && git push
 # Drop version back to SNAPSHOT
 
 # (require 'tentacles.repos) (apply + (for [d (tentacles.repos/downloads "technomancy" "leiningen") :when (re-find #"[0-9]-standalone\.jar$" (:name d))] (:download_count d)))
