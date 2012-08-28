@@ -23,5 +23,5 @@
                    :default (complement :integration)
                    :random (fn [_] (> (rand) ~(float 1/2)))
                    :all (constantly true)}
-  :repositories {"snapshots" ~(format "file://%s/lein-repo"
-                                      (System/getProperty "java.io.tmpdir"))})
+  :deploy-repositories {"snapshots" ~(format "file://%s/lein-repo"
+                                             (System/getProperty "java.io.tmpdir"))})

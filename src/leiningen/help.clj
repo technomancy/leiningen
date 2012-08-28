@@ -90,6 +90,7 @@
 
 Also provides readme, faq, tutorial, news, sample, profiles,
 deploying and copying info."
+  ;; TODO: explain partial aliases in specific help
   ([project task] (println (or (static-help task) (help-for project task))))
   ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
@@ -97,10 +98,11 @@ deploying and copying info."
      (doseq [task-ns (main/tasks)]
        (println (help-summary-for task-ns)))
      (println "\nRun lein help $TASK for details.")
+     ;; TODO: show user-level aliases too
      (if-let [aliases (:aliases project)]
        (do
          (println "\nAliases:")
          (doseq [[k v] aliases]
            (println (str k  " " v)))))
-     (println "\nSee also: readme, faq, tutorial, news, sample, profiles,
-deploying and copying.")))
+     (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
+              "deploying and copying.")))

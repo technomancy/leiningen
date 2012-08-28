@@ -67,20 +67,27 @@
                               :subprocess))}))))
 
 (defn- de-dupe-repo [[repositories seen?] [id settings]]
-  (let [settings (if (string? settings) {:url settings} settings)]
-    ;; repositories from user profiles can be just credentials, so check :url
-    (if (or (seen? id) (not (:url settings)))
-      [repositories seen?]
-      [(conj repositories [id settings]) (conj seen? id)])))
+  ;; repositories from user profiles can be just credentials, so check :url
+  (if (or (seen? id) (not (:url settings)))
+    [repositories seen?]
+    [(conj repositories [id settings]) (conj seen? id)]))
+
+(defn- mapize-settings [repositories]
+  (for [[id settings] repositories]
+    [id (if (string? settings) {:url settings} settings)]))
 
 (defn normalize-repos [{:keys [omit-default-repositories repositories]
                         :as project}]
-  (assoc project :repositories
-         (first (reduce de-dupe-repo
-                        (if-not omit-default-repositories
-                          [(:repositories defaults)
-                           (set (map first (:repositories defaults)))]
-                          [[] #{}]) repositories))))
+  (-> project
+      (update-in [:repositories] mapize-settings)
+      (update-in [:deploy-repositories] mapize-settings)
+      (update-in [:plugin-repositories] mapize-settings)
+      (assoc :repositories
+        (first (reduce de-dupe-repo
+                       (if-not omit-default-repositories
+                         [(:repositories defaults)
+                          (set (map first (:repositories defaults)))]
+                         [[] #{}]) repositories)))))
 
 (defn- without-version [[id version & other]]
   (-> (apply hash-map other)
