@@ -167,9 +167,8 @@ if [ "$1" = "self-install" ]; then
       echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
       exit 1
     fi
-    echo "Downloading Leiningen now..."
-    LEIN_DIR=`dirname "$LEIN_JAR"`
-    mkdir -p "$LEIN_DIR"
+    echo "Downloading Leiningen to $LEIN_JAR now..."
+    mkdir -p $(dirname "$LEIN_JAR")
     LEIN_URL="https://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
     $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
     if [ $? == 0 ]; then
