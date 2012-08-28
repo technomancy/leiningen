@@ -29,9 +29,9 @@ for a sample of a very simple plugin.
 
 During plugin development, having to re-run `lein install` in your
 plugin project and then switch to a test project can be very
-cumbersome. You can avoid this annoyance by creating a
-`.lein-classpath` file in your test project containing the path to the
-`src` directory of your plugin.
+cumbersome. Once you've installed the plugin once, you can avoid this
+annoyance by creating a `.lein-classpath` file in your test project
+containing the path to the `src` directory of your plugin.
 
 ### Task Arguments
 
