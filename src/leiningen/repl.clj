@@ -25,7 +25,7 @@
                                       :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
-                                          [reply "0.1.0-beta10"
+                                          [reply "0.1.0-beta11"
                                            :exclusions [org.clojure/clojure]]]})
 
 (defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
