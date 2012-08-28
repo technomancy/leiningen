@@ -13,7 +13,7 @@
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util]]
-                 [reply "0.1.0-beta10" :exclusions [ring/ring-core]]
+                 [reply "0.1.0-beta11" :exclusions [ring/ring-core]]
                  [clj-http "0.4.2"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
