@@ -222,7 +222,7 @@ or by executing \"lein upgrade\". ")
       (warn-chaining task-name args)
       (apply-task task-name project args))
     (catch Exception e
-      (if *debug*
+      (if (or *debug* (not (:exit-code (ex-data e))))
         (.printStackTrace e)
         (println (.getMessage e)))
       (exit (:exit-code (ex-data e) 1))))
