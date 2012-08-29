@@ -99,6 +99,7 @@
       ~@(:jvm-opts project)
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
+                         :file.encoding (or (System/getProperty "file.encoding") "UTF-8")
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
                                                      (:debug project)))})
       ~@(if (and native-arch-path (.exists native-arch-path))
