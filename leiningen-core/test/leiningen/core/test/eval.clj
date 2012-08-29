@@ -28,6 +28,11 @@
          (get-jvm-opts-from-env (str "-Dhello=\"guten tag\" "
                                      "-XX:+HeapDumpOnOutOfMemoryError")))))
 
+(deftest test-file-encoding-in-jvm-args
+  (is (contains? 
+          (set (#'leiningen.core.eval/get-jvm-args project))
+          (str "-Dfile.encoding=" (System/getProperty "file.encoding")))))
+
 (deftest test-get-jvm-args-with-proxy-settings
   ;; Mock get-proxy-settings to return test values
   (with-redefs [classpath/get-proxy-settings
