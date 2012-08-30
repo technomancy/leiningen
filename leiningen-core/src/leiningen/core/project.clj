@@ -76,8 +76,7 @@
   (for [[id settings] repositories]
     [id (if (string? settings) {:url settings} settings)]))
 
-(defn normalize-repos [{:keys [omit-default-repositories repositories]
-                        :as project}]
+(defn normalize-repos [project]
   ;; TODO: got to be a way to tidy this up
   (let [project (update-in project [:repositories] mapize-settings)
         project (if (:deploy-repositories project)
@@ -88,10 +87,10 @@
                   project)]
     (assoc project :repositories
            (first (reduce de-dupe-repo
-                          (if-not omit-default-repositories
+                          (if-not (:omit-default-repositories project)
                             [(:repositories defaults)
                              (set (map first (:repositories defaults)))]
-                            [[] #{}]) repositories)))))
+                            [[] #{}]) (:repositories project))))))
 
 (defn- without-version [[id version & other]]
   (-> (apply hash-map other)
