@@ -141,8 +141,8 @@
 ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
 ;; currently being passed; see http://www.perlmonks.org/?node_id=300286
 ;; for some of the landmines involved in doing it properly
-(defn- form-string [form]
-  (if (= (get-os) :windows)
+(defn- form-string [form eval-in]
+  (if (and (= (get-os) :windows) (not= :trampoline eval-in))
     (pr-str (pr-str form))
     (pr-str form)))
 
@@ -158,7 +158,7 @@
   `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
     ~@(classpath-arg project)
     ~@(get-jvm-args project)
-    "clojure.main" "-e" ~(form-string form)))
+    "clojure.main" "-e" ~(form-string form (:eval-in project))))
 
 ;; # eval-in multimethod
 
