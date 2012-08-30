@@ -69,8 +69,7 @@
                 (deep-content xml [:project :repositories])))
         "repositories are named")
     (is (= ["http://repo1.maven.org/maven2" "https://clojars.org/repo/"
-            (format "file://%s/lein-repo"
-                    (System/getProperty "java.io.tmpdir"))]
+            "http://example.com/repo"]
            (map #(first-in % [:repository :url])
                 (deep-content xml [:project :repositories])))
         "repositories have correct location")

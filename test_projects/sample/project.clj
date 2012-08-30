@@ -24,5 +24,5 @@
                    :random (fn [_] (> (rand) ~(float 1/2)))
                    :all (constantly true)}
   :repositories {"other" "http://example.com/repo"}
-  :deploy-repositories {"snapshots" ~(format "file://%s/lein-snapshots"
+  :deploy-repositories {"snapshots" ~(format "file://%s/lein-repo"
                                              (System/getProperty "java.io.tmpdir"))})
