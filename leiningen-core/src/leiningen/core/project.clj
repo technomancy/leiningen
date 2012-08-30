@@ -78,16 +78,20 @@
 
 (defn normalize-repos [{:keys [omit-default-repositories repositories]
                         :as project}]
-  (-> project
-      (update-in [:repositories] mapize-settings)
-      (update-in [:deploy-repositories] mapize-settings)
-      (update-in [:plugin-repositories] mapize-settings)
-      (assoc :repositories
-        (first (reduce de-dupe-repo
-                       (if-not omit-default-repositories
-                         [(:repositories defaults)
-                          (set (map first (:repositories defaults)))]
-                         [[] #{}]) repositories)))))
+  ;; TODO: got to be a way to tidy this up
+  (let [project (update-in project [:repositories] mapize-settings)
+        project (if (:deploy-repositories project)
+                  (update-in project [:deploy-repositories] mapize-settings)
+                  project)
+        project (if (:plugin-repositories project)
+                  (update-in project [:plugin-repositories] mapize-settings)
+                  project)]
+    (assoc project :repositories
+           (first (reduce de-dupe-repo
+                          (if-not omit-default-repositories
+                            [(:repositories defaults)
+                             (set (map first (:repositories defaults)))]
+                            [[] #{}]) repositories)))))
 
 (defn- without-version [[id version & other]]
   (-> (apply hash-map other)
