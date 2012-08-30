@@ -64,7 +64,7 @@
         "description is included")
     (is (= nil (first-in xml [:project :mailingLists]))
         "no mailing list")
-    (is (= ["central" "clojars" "snapshots"]
+    (is (= ["central" "clojars" "other"]
            (map #(first-in % [:repository :id])
                 (deep-content xml [:project :repositories])))
         "repositories are named")
