@@ -31,14 +31,21 @@
          (println "Error reading profiles.clj from" (leiningen-home))
          (println (.getMessage e)))))
 
+(defn gpg-program
+  "Lookup the gpg program to use, defaulting to 'gpg'"
+  []
+  (or (System/getenv "LEIN_GPG") "gpg"))
+
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."
   ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]
         (if (.exists cred-file)
           (credentials-fn cred-file))))
   ([file]
-     (let [{:keys [out err exit]} (try (shell/sh "gpg" "--batch" "--quiet"
-                                                 "--decrypt" (str file))
+     (let [{:keys [out err exit]} (try (shell/sh
+                                        (gpg-program)
+                                        "--quiet" "--batch"
+                                        "--decrypt" (str file))
                                        (catch java.io.IOException e
                                          {:exit 1 :err (.getMessage e)}))]
        (if (pos? exit)
