@@ -56,6 +56,7 @@
                port# (-> server# deref :ss .getLocalPort)]
            (println "nREPL server started on port" port#)
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
+           (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
            @(promise))]
     (if project
       (eval/eval-in-project
