@@ -155,7 +155,7 @@ function download_failed_message {
 export JAVA_CMD=${JAVA_CMD:-"java"}
 export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
-if [[ "$LEIN_JAVA_CMD" == *drip ]]; then
+if [[ "$(basename $LEIN_JAVA_CMD)" == *drip* ]]; then
     export DRIP_INIT=$(printf -- "-e\n(require 'leiningen.repl)")
 fi
 
