@@ -3,6 +3,7 @@
             [clojure.string :as string]
             [leiningen.core.user :as user]
             [leiningen.core.main :as main]
+            [leiningen.core.project :as core-project]
             [clj-http.client :as http])
   (:import (org.apache.maven.index IteratorSearchRequest MAVEN NexusIndexer)
            (org.apache.maven.index.context IndexingContext)
@@ -109,14 +110,14 @@ Also accepts a second parameter for fetching successive pages."
      ;; Maven's indexer requires over 1GB of free space for a <100M index
      (let [orig-tmp (System/getProperty "java.io.tmpdir")
            new-tmp (io/file (user/leiningen-home) "indices" "tmp")
-           ;; TODO: check when project is nil
+           project (or project core-project/defaults)
            contexts (doall (map add-context (:repositories project)))]
        (try
          (.mkdirs new-tmp)
          (System/setProperty "java.io.tmpdir" (str new-tmp))
          (doseq [context contexts]
            (when (refresh? (.getRepositoryUrl context) project)
-             (update-index context)))         
+             (update-index context)))
          (search-repository query contexts (Integer. page))
          (finally
            (doall (map remove-context contexts))
