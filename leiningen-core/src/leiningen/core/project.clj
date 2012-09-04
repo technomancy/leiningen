@@ -260,7 +260,7 @@
   (if-let [pr (:plugin-repositories project)]
     (if (:omit-default-repositories project)
       (assoc project :repositories pr)
-      (update-in project [:repositories] merge pr))
+      (update-in project [:repositories] concat pr))
     project))
 
 (defn load-plugins
