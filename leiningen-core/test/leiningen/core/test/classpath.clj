@@ -92,9 +92,9 @@
                         :username "flynn" :password "flotilla"}]
             ["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
-                         :url "https://sekrit.info/repo" :creds :gpg}]]
+                         :url "https://sekrit.info/repo"}]]
            (map add-repo-auth
                 [["clojars" {:url "http://clojars.org/repo"}]
                  ["sonatype" {:url "https://oss.sonatype.org/"}]
                  ["internal" {:url "https://sekrit.info/repo"
-                              :creds :gpg}]])))))
+                              :username :gpg :password :gpg}]])))))

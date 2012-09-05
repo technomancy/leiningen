@@ -56,16 +56,6 @@
 
 (def credentials (memoize credentials-fn))
 
-(defn- env-auth-key [settings [k v]]
-  (assoc settings k (if (= :env v)
-                      (System/getenv (str "LEIN_" (str/upper-case (name k))))
-                      v)))
-
-(defn env-auth
-  "Replace all :env values in map with LEIN_key environment variables."
-  [settings]
-  (reduce env-auth-key {} settings))
-
 (defn- match-credentials [settings auth-map]
   (get auth-map (:url settings)
        (first (for [[re? cred] auth-map
@@ -73,12 +63,31 @@
                                (re-find re? (:url settings)))]
                 cred))))
 
-(defn gpg-auth
-  "Merge values from ~/.lein/credentials.gpg if settings include :gpg."
+(defn- resolve-credential
+  [source-settings result [k v]]
+  (letfn [(resolve [v]
+            (cond
+              (= :env v)
+              (System/getenv (str "LEIN_" (str/upper-case (name k))))
+              
+              (and (keyword? v) (= "env" (namespace v)))
+              (System/getenv (str/upper-case (name v)))
+              
+              (= :gpg v)
+              (get (match-credentials source-settings (credentials)) k)
+              
+              (coll? v)
+              (->> (map resolve v)
+                (remove nil?)
+                first)
+              :else v))]
+    (assoc result k (resolve v))))
+
+(defn resolve-credentials
+  "Applies credentials from environment or ~/.lein/credentials.clj.gpg
+   as they are specified and available."
   [settings]
-  (if (some (partial = :gpg) (vals settings))
-    (merge settings (match-credentials settings (credentials)))
-    settings))
+  (reduce (partial resolve-credential settings) (empty settings) settings))
 
 (def profile-auth-warn
   (delay (println "Warning: :repository-auth in the :auth profile is deprecated.")
