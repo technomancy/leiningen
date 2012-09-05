@@ -43,6 +43,7 @@
                               ;; TODO: point to releases-only before 2.0 is out
                               ["clojars" {:url "https://clojars.org/repo/"}]]
                :deploy-repositories [["clojars" {:url "https://clojars.org/repo/"
+                                                 :username :gpg
                                                  :password :gpg}]]
                :jar-exclusions [#"^\."]
                :jvm-opts ["-XX:+TieredCompilation"]

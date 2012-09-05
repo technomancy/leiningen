@@ -81,7 +81,7 @@
   would be applied to all repositories with URLs matching the regex key
   that didn't have an explicit entry."
   [[id repo]]
-  [id (-> repo user/profile-auth user/gpg-auth user/env-auth)])
+  [id (-> repo user/profile-auth user/resolve-credentials)])
 
 (defn get-proxy-settings
   "Returns a map of the JVM proxy settings"
