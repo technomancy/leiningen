@@ -39,7 +39,7 @@
                :compile-path "target/classes"
                :target-path "target"
                :prep-tasks ["javac" "compile"]
-               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+               :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
                               ;; TODO: point to releases-only before 2.0 is out
                               ["clojars" {:url "https://clojars.org/repo/"}]]
                :deploy-repositories [["clojars" {:url "https://clojars.org/repo/"

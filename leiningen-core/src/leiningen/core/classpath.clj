@@ -118,7 +118,27 @@
                         (map (partial update-policies update checksum)))
      :coordinates (get project dependencies-key)
      :mirrors mirrors
-     :transfer-listener :stdout
+     :transfer-listener
+     (bound-fn [e]
+       (let [{:keys [type resource error]} e]
+         (let [{:keys [repository name size]} resource]
+           (case type
+             :started
+             (println "Retrieving"
+                      name
+                      (if (neg? size)
+                        ""
+                        (format "(%sk)"
+                                (Math/round (double (max 1 (/ size 1024))))))
+                      "from"
+                      (or (first (first (filter #(= repository (:url (second %)))
+                                                repositories)))
+                          repository))
+             :failed
+             (if (and (= repository (:url (second (last repositories))))
+                      error)
+               (println "Failed to find" name))
+             nil))))
      :proxy (get-proxy-settings))
     (catch DependencyResolutionException e
       (binding [*out* *err*]
