@@ -35,7 +35,7 @@
                                [stencil "0.2.0"]],
                :twelve 12 ; testing unquote
 
-               :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+               :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
                               ["clojars" {:url "https://clojars.org/repo/"}]]})
 
 (deftest test-read-project
@@ -160,7 +160,7 @@
 (deftest test-merge-anon-profiles
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
                                               :b {:B 2}}
-                         :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+                         :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
                                         ["clojars" {:url "https://clojars.org/repo/"}]]
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
@@ -169,7 +169,7 @@
 
 (deftest test-composite-profiles
   (let [expected-result {:A '(2 3 1), :B 2, :C 3,
-                         :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+                         :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
                                         ["clojars" {:url "https://clojars.org/repo/"}]]
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
@@ -182,7 +182,7 @@
 
 (deftest test-override-default
   (let [expected-result {:A 1, :B 2, :C 3
-                         :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+                         :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
                                         ["clojars" {:url "https://clojars.org/repo/"}]]
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
@@ -197,7 +197,7 @@
   (let [expected-result {:A 1 :C 3 :profiles {:a {:A 1}
                                               :b {:B 2}
                                               :c {:C 3}}
-                         :repositories [["central" {:url "http://repo1.maven.org/maven2"}]
+                         :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
                                         ["clojars" {:url "https://clojars.org/repo/"}]]
                          :dependencies [], :compile-path "classes"}]
     (is (= expected-result
