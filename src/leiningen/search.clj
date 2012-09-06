@@ -118,6 +118,7 @@ Also accepts a second parameter for fetching successive pages."
          (doseq [context contexts]
            (when (refresh? (.getRepositoryUrl context) project)
              (update-index context)))
+         ;; TODO: improve error message when page isn't numeric
          (search-repository query contexts (Integer. page))
          (finally
            (doall (map remove-context contexts))
