@@ -80,9 +80,9 @@ Often more complicated tasks get divided up into subtasks. Placing
 `:subtasks` metadata on a task defn which contains a vector of subtask
 vars will allow `lein help $TASK_CONTAINING_SUBTASKS` to list them.
 
-### Project-specific Plugins
+### Project-specific Tasks
 
-Occasionally, the need arises for a plugin specific to a project, so
+Occasionally, the need arises for a task specific to a project, so
 that, for example, `lein foo` is available from within that project's
 repo without a `lein install` or dependency download.  To enable this
 behavior, place the `foo.clj` file defining the new task in
