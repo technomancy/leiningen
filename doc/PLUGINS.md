@@ -80,6 +80,27 @@ Often more complicated tasks get divided up into subtasks. Placing
 `:subtasks` metadata on a task defn which contains a vector of subtask
 vars will allow `lein help $TASK_CONTAINING_SUBTASKS` to list them.
 
+### Project-specific Plugins
+
+Occasionally, the need arises for a plugin specific to a project, so
+that, for example, `lein foo` is available from within that project's
+repo without a `lein install` or dependency download.  To enable this
+behavior, place the `foo.clj` file defining the new task in
+`tasks/leiningen/` and add `tasks` to your `.lein-classpath`:
+
+```
+$ ls
+README.md	project.clj	src		tasks		test
+$ ls -R tasks
+leiningen
+
+tasks/leiningen:
+foo.clj
+$ echo -ne ":tasks" | cat >> .lein-classpath
+$ lein foo
+Hello, Foo!
+```
+
 ## Code Evaluation
 
 Plugin functions run inside Leiningen's process, so they have access
