@@ -155,6 +155,10 @@ function download_failed_message {
 export JAVA_CMD=${JAVA_CMD:-"java"}
 export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
+if [[ "$(basename $LEIN_JAVA_CMD)" == *drip* ]]; then
+    export DRIP_INIT=$(printf -- "-e\n(require 'leiningen.repl)")
+fi
+
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
@@ -255,13 +259,13 @@ else
         fi
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
+        export TRAMPOLINE_FILE
         $LEIN_JAVA_CMD \
             -client -XX:+TieredCompilation \
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -Dleiningen.trampoline-file="$TRAMPOLINE_FILE" \
             -cp "$CLASSPATH" \
             clojure.main -m leiningen.core.main "$@"
 
