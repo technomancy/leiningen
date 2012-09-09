@@ -193,6 +193,9 @@
         (and (set? result) (set? latter))
         (set/union latter result)
 
+        (and (-> latter meta :append) (coll? result) (coll? latter))
+        (concat result latter)
+
         (and (coll? result) (coll? latter))
         (concat latter result)
 

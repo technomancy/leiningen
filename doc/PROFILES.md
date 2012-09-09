@@ -59,13 +59,15 @@ not. Profiles specified earlier take precedence when replacing. The
 dev profile takes precedence over user by default. Maps are merged
 recursively, sets are combined with `clojure.set/union`, and
 lists/vectors are concatenated. You can add hints via metadata that a
-given value should take precedence (`:replace`) or defer to values
+given value should take precedence (`:replace`), defer to values
 from a different profile (`:displace`) if you want to override this
-logic:
+logic, or append a collection of values to afore specified property
+(`:append`) as opposed to them being prepended by default:
 
 ```clj
 {:profiles {:dev {:prep-tasks ^:replace ["clean" "compile"]
-                  :aliases ^:displace {"launch" "run"}}}}
+                  :aliases ^:displace {"launch" "run"}
+                  :aot ^:append [test.test1, test.test2]}}}
 ```
 
 The exception to this merge logic is that plugins and dependencies
