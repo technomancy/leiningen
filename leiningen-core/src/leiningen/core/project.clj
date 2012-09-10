@@ -433,6 +433,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (init-profiles (into {} @project) profiles))))
+         (init-profiles @project profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
