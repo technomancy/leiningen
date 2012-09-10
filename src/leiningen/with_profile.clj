@@ -29,7 +29,8 @@ For a detailed description of profiles, see `lein help profiles`."
              (catch Exception e
                (main/info (format "Error encountered performing task '%s' with profile(s): '%s'"
                            task-name profile-group))
-               (when-not (:exit-code (ex-data e))
+               (if (and (:exit-code (ex-data e)) (not main/*debug*))
+                 (main/info (.getMessage e))
                  (.printStackTrace e))
                (swap! failures inc)))))
     (when (pos? @failures)
