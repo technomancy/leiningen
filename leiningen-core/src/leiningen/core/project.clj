@@ -357,7 +357,8 @@
 ;; # High-level profile operations
 
 (defn set-profiles
-  "Compute a fresh version of the project map, with "
+  "Compute a fresh version of the project map, with middleware applied, including
+   and excluding the specified profiles."
   [project include-profiles & [exclude-profiles]]
   (-> project
       (init-profiles include-profiles exclude-profiles)
