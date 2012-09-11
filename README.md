@@ -138,16 +138,24 @@ Contributors are also welcome to request a free
 [Leiningen sticker](http://twitpic.com/2e33r1) by asking on the
 mailing list and mailing a self-addressed, stamped envelope.
 
+Leiningen is [mirrored at Gitorious](https://gitorious.org/leiningen/leiningen)
+and [tested on Travis](http://travis-ci.org/#!/technomancy/leiningen).
+
 ## Building
 
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place.
 
-For the master branch, use an existing Leiningen version (currently this means
-Leiningen 1) to run `lein install` in the `leiningen-core` subproject directory. When the
-dependencies change you will also have to do `rm .lein-classpath` in
-the project root. It's not yet possible to bootstrap a development
-version of Leiningen without having an older version installed.
+For the master branch, use an existing Leiningen version (currently
+this means Leiningen 1) to run `lein install` in the `leiningen-core`
+subproject directory. When the dependencies change you will also have
+to do `rm .lein-classpath` in the project root. It's not yet possible
+to bootstrap a development version of Leiningen without having an
+older version installed.
+
+Using `bin/lein` alone from the master branch is not supported. The
+master branch is designed to be used from a full git checkout. If you
+want to just grab a shell script to work with, use the preview branch.
 
 Once you've done that, symlink `bin/lein` to somewhere on your
 `$PATH`. Usually you'll want to rename your existing installation to
