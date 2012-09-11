@@ -80,27 +80,6 @@ Often more complicated tasks get divided up into subtasks. Placing
 `:subtasks` metadata on a task defn which contains a vector of subtask
 vars will allow `lein help $TASK_CONTAINING_SUBTASKS` to list them.
 
-### Project-specific Tasks
-
-Occasionally, the need arises for a task specific to a project, so
-that, for example, `lein foo` is available from within that project's
-repo without a `lein install` or dependency download.  To enable this
-behavior, place the `foo.clj` file defining the new task in
-`tasks/leiningen/` and add `tasks` to your `.lein-classpath`:
-
-```
-$ ls
-README.md	project.clj	src		tasks		test
-$ ls -R tasks
-leiningen
-
-tasks/leiningen:
-foo.clj
-$ echo -ne ":tasks" | cat >> .lein-classpath
-$ lein foo
-Hello, Foo!
-```
-
 ## Code Evaluation
 
 Plugin functions run inside Leiningen's process, so they have access
@@ -350,6 +329,32 @@ it to be nil if it's not present. You can try checking the first
 argument to see if it's a project map, but if you have more than two
 arities this can get very tricky; it may just be better to maintain
 separate branches of your codebase in this situation.
+
+### Project-specific Tasks
+
+Occasionally, the need arises for a task specific to a project, so
+that, for example, `lein foo` is available from within that project's
+repo without a `lein install` or dependency download. To enable this
+behavior, place the `foo.clj` file defining the new task in
+`tasks/leiningen/` and add `tasks` to your `.lein-classpath`:
+
+```
+$ ls
+README.md	project.clj	src		tasks		test
+$ ls -R tasks
+leiningen
+
+tasks/leiningen:
+foo.clj
+$ echo -ne ":tasks" | cat >> .lein-classpath
+$ lein foo
+Hello, Foo!
+```
+
+Note that in most cases it's better to spin off tasks into their own
+plugin projects; using `.lein-classpath` is mainly appropriate for
+experimentation or cases when there isn't enough time to create a
+proper plugin.
 
 ## Templates
 
