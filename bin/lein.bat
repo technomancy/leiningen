@@ -67,9 +67,33 @@ if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
 :: ##################################################
 
 
-if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
+call :EnsureIsSet JAVA_CMD java
+rem if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
+
+:EnsureIsSet 
+rem Variable DefaultValue
+rem Variable's value can be empty, if it is then it will be set to the DefaultValue(which is not modified/stripped)
+rem it will strip all encountered double quotes from Variable and from Variable's value
+rem this script will fail if Variable contains characters like >, <, |, & or even parentheses or even number of double quotes
+rem the Variable's value will be surrounded by double quotes (no inner double quotes though, they're all stripped)
+rem  except in the case of DefaultValue which is set as it is
+
+SETLOCAL
+set _var=%~1
+
+call set _result=%%%_var%%%
+
+for /f "useback tokens=*" %%a in ('%_result%') do (
+set _result=%%~a
+set _result=%_result:"=%
+)
+
+( ENDLOCAL
+  if "x%_result%" == "x" (set %_var%=%2) ELSE (set %_var%="%_result%")
+)
+goto :eof
 
 
 :NO_LEIN_JAR
