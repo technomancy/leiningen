@@ -12,9 +12,11 @@
   "Install current project to the local repository."
   ([project]
      (let [jarfile (jar/jar project)
-           pomfile (pom/pom project)]
+           pomfile (pom/pom project)
+           local-repo (:local-repo project)]
        (aether/install :coordinates [(symbol (:group project)
                                              (:name project))
                                      (:version project)]
                        :jar-file (io/file jarfile)
-                       :pom-file (io/file pomfile)))))
+                       :pom-file (io/file pomfile)
+                       :local-repo local-repo))))
