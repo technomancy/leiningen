@@ -22,8 +22,8 @@
 
 (def ^{:private true
        :doc "Legacy (Lein1/Ant task) javac options that do not translate
-             to the new (JDK's javac) format as key-value pairs. For example, :debug \"off\"
-             needs to be translated to -g:none."}
+             to the new (JDK's javac) format as key-value pairs. For example,
+             :debug \"off\" needs to be translated to -g:none."}
   special-ant-javac-keys [:destdir :debug :debugLevel])
 
 (defn- normalize-specials
@@ -81,10 +81,12 @@
         (do
           (main/info "Compiling" (count files) "source files to" compile-path)
           (.mkdirs (io/file compile-path))
-          (when-not (zero? (.run compiler nil nil nil (javac-options project files args)))
-            (main/abort "Compilation of Java sources (lein javac) failed, aborting.")))
+          (when-not (zero? (.run compiler nil nil nil
+                                 (javac-options project files args)))
+            (main/abort "Compilation of Java sources (lein javac) failed.")))
         (main/abort "lein-javac: system java compiler not found;"
-                    "a JDK (vs. JRE) install is required.")))))
+                    "Be sure to use java from a JDK\nrather than a JRE by"
+                    "either modifying PATH or setting JAVA_CMD.")))))
 
 (defn javac
   "Compile Java source files.
