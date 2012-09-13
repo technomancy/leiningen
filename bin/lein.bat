@@ -68,12 +68,13 @@ if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
 
 
 call :EnsureIsSet JAVA_CMD java
+call :EnsureIsSet LEIN_JAVA_CMD %JAVA_CMD%
 rem if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
 
 :EnsureIsSet 
-rem Variable DefaultValue
+rem parameters: Variable DefaultValue
 rem Variable's value can be empty, if it is then it will be set to the DefaultValue(which is not modified/stripped)
 rem it will strip all encountered double quotes from Variable and from Variable's value
 rem this script will fail if Variable contains characters like >, <, |, & or even parentheses or even number of double quotes
@@ -211,7 +212,7 @@ if "%1" == "trampoline" (goto RUN_TRAMPOLINE) else (goto RUN_NORMAL)
 
 :RUN_TRAMPOLINE
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
-%JAVA_CMD% -client %LEIN_JVM_OPTS% ^
+%LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp "%CLASSPATH%" clojure.main -e "(use 'leiningen.core.main)(apply -main "%TRAMPOLINE_FILE%" (map str '(%*)))"
 
@@ -221,7 +222,7 @@ del "%TRAMPOLINE_FILE%"
 goto EOF
 
 :RUN_NORMAL
-%JAVA_CMD% -client %LEIN_JVM_OPTS% ^
+%LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
