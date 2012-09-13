@@ -1,8 +1,8 @@
 @echo off
 
-set LEIN_VERSION=2.0.0-SNAPSHOT
-
 setLocal EnableExtensions EnableDelayedExpansion
+
+set LEIN_VERSION=2.0.0-SNAPSHOT
 
 if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=YES
