@@ -148,7 +148,7 @@ function download_failed_message {
     echo "out-of-date version of libssl. Either upgrade it or set HTTP_CLIENT"
     echo "to turn off certificate checks:"
     echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
-    echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o"
+    echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o\""
 }
 
 # TODO: explain what to do when Java is missing
@@ -177,7 +177,7 @@ if [ "$1" = "self-install" ]; then
         mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
     else
         rm "$LEIN_JAR.pending" 2> /dev/null
-        downoad_failed_message "$LEIN_URL"
+        download_failed_message "$LEIN_URL"
         if [ $SNAPSHOT = "YES" ]; then
             echo "See README.md for SNAPSHOT-specific build instructions."
         fi
