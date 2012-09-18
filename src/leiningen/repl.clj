@@ -112,7 +112,9 @@
         profiles [(:repl (user/profiles) profile) trampoline-profile]]
     (eval/eval-in-project
      (project/merge-profiles project profiles)
-     `(reply.main/launch-nrepl ~options)
+     (if (:standalone options)
+       `(reply.main/launch-standalone ~options)
+       `(reply.main/launch-nrepl ~options))
      `(require ~@(init-requires project 'reply.main)))))
 
 (defn ^:no-project-needed repl
