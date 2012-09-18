@@ -64,7 +64,8 @@
                :eval-in (or (:eval-in args#)
                             (if (:eval-in-leiningen args#)
                               :leiningen
-                              :subprocess))}))))
+                              :subprocess))
+               :offline? ~(not (nil? (System/getenv "LEIN_OFFLINE")))}))))
 
 (defn- de-dupe-repo [[repositories seen?] [id settings]]
   ;; repositories from user profiles can be just credentials, so check :url
