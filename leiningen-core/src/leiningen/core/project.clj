@@ -47,8 +47,7 @@
                :jar-exclusions [#"^\."]
                :jvm-opts ["-XX:+TieredCompilation"]
                :certificates ["clojars.pem"]
-               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
-               :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))})
+               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
@@ -65,7 +64,8 @@
                :eval-in (or (:eval-in args#)
                             (if (:eval-in-leiningen args#)
                               :leiningen
-                              :subprocess))}))))
+                              :subprocess))
+               :offline? ~(not (nil? (System/getenv "LEIN_OFFLINE")))}))))
 
 (defn- de-dupe-repo [[repositories seen?] [id settings]]
   ;; repositories from user profiles can be just credentials, so check :url
