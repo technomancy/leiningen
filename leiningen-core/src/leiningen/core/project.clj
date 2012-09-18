@@ -47,7 +47,8 @@
                :jar-exclusions [#"^\."]
                :jvm-opts ["-XX:+TieredCompilation"]
                :certificates ["clojars.pem"]
-               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
+               :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
+               :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))})
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
