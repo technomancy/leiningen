@@ -17,7 +17,7 @@
                                [org.clojure/tools.nrepl "0.2.0-beta9"
                                 :exclusions [org.clojure/clojure]]
                               ^:displace
-                               [clojure-complete "0.2.1"
+                               [clojure-complete "0.2.2"
                                 :exclusions [org.clojure/clojure]]]})
 
 (def reply-profile {:dependencies '[^:displace
