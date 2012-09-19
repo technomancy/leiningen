@@ -87,7 +87,13 @@
     (Integer. p)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
-  (let [repl-options (:repl-options project)]
+  (let [history-file (if (:root project)
+                       ;; we are in project
+                       "./.lein-repl-history"
+                       ;; outside of project
+                       (str (io/file (user/leiningen-home) "repl-history")))
+        repl-options (merge {:history-file history-file}
+                            (:repl-options project))]
     (clojure.set/rename-keys
       (merge
         repl-options
