@@ -7,13 +7,10 @@ lib/
 pom.xml
 autodoc/
 bin/nom
-.lein-failures
+.lein-*
 /lein.man
 /scratch.clj
-.lein-deps-sum
 docs
-.lein-classpath
-.lein-project-checksum
 /leiningen-core/.lein-plugins/checksum
 /wiki
 /web
