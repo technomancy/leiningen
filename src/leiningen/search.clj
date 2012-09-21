@@ -117,7 +117,9 @@ Also accepts a second parameter for fetching successive pages."
          (System/setProperty "java.io.tmpdir" (str new-tmp))
          (doseq [context contexts]
            (when (refresh? (.getRepositoryUrl context) project)
-             (update-index context)))
+             (do
+               (println "Updating the search index. This may take a few minutes...")
+               (update-index context))))
          ;; TODO: improve error message when page isn't numeric
          (search-repository query contexts (Integer. page))
          (finally
