@@ -89,6 +89,7 @@
 (defn- lookup-lucene-field-for
   [^String s]
   (case (-> (or s "") .toLowerCase .trim)
+    ""            MAVEN/ARTIFACT_ID
     "id"          MAVEN/ARTIFACT_ID
     "a"           MAVEN/ARTIFACT_ID
     "artifact-id" MAVEN/ARTIFACT_ID
