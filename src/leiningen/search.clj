@@ -118,6 +118,7 @@
                   (.setStart (* (dec page) page-size))
                   (.setCount page-size))]
     (with-open [response (.searchIterator indexer request)]
+      (println (format "Searching over %s..." (.getDescription field)))
       (print-results response page))))
 
 (defn ^:no-project-needed search
