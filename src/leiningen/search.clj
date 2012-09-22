@@ -83,12 +83,38 @@
       (println dep description))
     (println)))
 
+(def ^{:private true}
+  field-splitter-re #"^([a-z]+)(?:\:)(.+)")
+
+(defn- lookup-lucene-field-for
+  [^String s]
+  (case (-> (or s "") .toLowerCase .trim)
+    "id"          MAVEN/ARTIFACT_ID
+    "a"           MAVEN/ARTIFACT_ID
+    "artifact-id" MAVEN/ARTIFACT_ID
+    "artifact_id" MAVEN/ARTIFACT_ID
+    "g"           MAVEN/GROUP_ID
+    "group"       MAVEN/GROUP_ID
+    "group-id"    MAVEN/GROUP_ID
+    "group_id"    MAVEN/GROUP_ID
+    "d"           MAVEN/DESCRIPTION
+    "desc"        MAVEN/DESCRIPTION
+    "description" MAVEN/DESCRIPTION
+    MAVEN/ARTIFACT_ID))
+
+(defn- split-query
+  "Splits \"field:query\" into \"field\" and \"query\""
+  [^String s]
+  (let [[_ field query] (re-find field-splitter-re s)]
+    [(lookup-lucene-field-for field)
+     (or query s)]))
+
 (defn search-repository [query contexts page]
-  (let [search-expression (UserInputSearchExpression. query)
-        ;; TODO: support querying other fields
-        artifact-id-query (.constructQuery indexer MAVEN/ARTIFACT_ID
+  (let [[field q]         (split-query query)
+        search-expression (UserInputSearchExpression. q)
+        constructed-query (.constructQuery indexer field
                                            search-expression)
-        request (doto (IteratorSearchRequest. artifact-id-query contexts)
+        request (doto (IteratorSearchRequest. constructed-query contexts)
                   (.setStart (* (dec page) page-size))
                   (.setCount page-size))]
     (with-open [response (.searchIterator indexer request)]
@@ -102,7 +128,10 @@ The first run will download a set of indices, which will take a very long time.
 The query is evaluated as a lucene search. You can search for simple string
 matches or do more advanced queries such as this:
 
-  $ lein search \"clojure AND http AND NOT g:org.clojars*\"
+  $ lein search clojure
+  $ lein search description:crawl
+  $ lein search group:clojurewerkz
+  $ lein search \"Riak client\"
 
 Also accepts a second parameter for fetching successive pages."
   ([project query] (search project query 1))
