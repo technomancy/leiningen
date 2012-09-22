@@ -100,7 +100,7 @@
     "d"           MAVEN/DESCRIPTION
     "desc"        MAVEN/DESCRIPTION
     "description" MAVEN/DESCRIPTION
-    MAVEN/ARTIFACT_ID))
+    (throw (IllegalArgumentException. (format "search over the field %s is not supported; known fields: id, description (aliased as d), group (aliased as group)" s)))))
 
 (defn- split-query
   "Splits \"field:query\" into \"field\" and \"query\""
