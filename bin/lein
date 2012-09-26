@@ -136,16 +136,8 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     else
         add_path CLASSPATH "$LEIN_DIR/leiningen-core/lib/*"
     fi
-
-    if [ -f .lein-classpath ]; then
-        add_path CLASSPATH "$(cat .lein-classpath)"
-    fi
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
-    # apply context specific CLASSPATH entries
-    if [ -f .lein-classpath ]; then
-        add_path CLASSPATH "$LEIN_JAR" "$(cat .lein-classpath)"
-    fi
 
     export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
 
@@ -256,6 +248,11 @@ else
     if [ "$OSTYPE" = "cygwin" ]; then
         # When running on Cygwin, use Windows-style paths for java
         ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
+    fi
+
+    # apply context specific CLASSPATH entries
+    if [ -f .lein-classpath ]; then
+        add_path CLASSPATH "$(cat .lein-classpath)"
     fi
 
     if [ $DEBUG ]; then
