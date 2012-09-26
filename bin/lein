@@ -128,25 +128,23 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 
     mkdir -p "$LEIN_DIR/target/classes"
     export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:--Xms64m -Xmx256m} -Dclojure.compile.path=$LEIN_DIR/target/classes"
+    add_path CLASSPATH "$LEIN_DIR/leiningen-core/src/" "$LEIN_DIR/leiningen-core/resources/" \
+                          "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
 
-    CLASSPATH="$LEIN_DIR/leiningen-core/src/"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/resources/"
     if [ -r "$LEIN_DIR/.lein-classpath" ]; then
-        CLASSPATH="$CLASSPATH:$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
+        add_path CLASSPATH "$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
     else
-        CLASSPATH="$CLASSPATH:$LEIN_DIR/leiningen-core/lib/*"
+        add_path CLASSPATH "$LEIN_DIR/leiningen-core/lib/*"
     fi
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/test:$LEIN_DIR/target/classes"
-    CLASSPATH="$CLASSPATH:$LEIN_DIR/src:$LEIN_DIR/resources:$LEIN_JAR"
+
     if [ -f .lein-classpath ]; then
-        CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
+        add_path CLASSPATH "$(cat .lein-classpath)"
     fi
 else # Not running from a checkout
+    add_path CLASSPATH "$LEIN_JAR"
     # apply context specific CLASSPATH entries
     if [ -f .lein-classpath ]; then
-        CLASSPATH="`cat .lein-classpath`:$LEIN_JAR"
-    else
-        CLASSPATH="$LEIN_JAR"
+        add_path CLASSPATH "$LEIN_JAR" "$(cat .lein-classpath)"
     fi
 
     export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
@@ -258,7 +256,6 @@ else
     if [ "$OSTYPE" = "cygwin" ]; then
         # When running on Cygwin, use Windows-style paths for java
         ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
-        CLASSPATH=`cygpath -wp "$CLASSPATH"`
     fi
 
     if [ $DEBUG ]; then
