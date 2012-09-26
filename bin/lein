@@ -11,6 +11,32 @@ case $LEIN_VERSION in
     *) SNAPSHOT="NO" ;;
 esac
 
+if [[ "$OSTYPE" == "cygwin" ]]; then
+    delimiter=";"
+else
+    delimiter=":"
+fi
+
+function make_native_path {
+    # ensure we have native paths
+    if [[ "$OSTYPE" == "cygwin" && "$1"  == /* ]]; then
+	echo -n "$(cygpath -wp "$1")"
+    else
+	echo -n "$1"
+    fi
+}
+
+#  usage : add_path PATH_VAR [PATH]...
+function add_path {
+    local path_var=$1
+    shift
+    while [ -n "$1" ];do
+        # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
+	export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+	shift
+    done
+}
+
 if [ `id -u` -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
