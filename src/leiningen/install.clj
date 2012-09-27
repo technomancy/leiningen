@@ -14,6 +14,7 @@
      (let [jarfile (jar/jar project)
            pomfile (pom/pom project)
            local-repo (:local-repo project)]
+       (println "Installing" jarfile)
        (aether/install :coordinates [(symbol (:group project)
                                              (:name project))
                                      (:version project)]
