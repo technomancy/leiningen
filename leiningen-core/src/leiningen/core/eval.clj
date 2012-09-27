@@ -151,8 +151,8 @@
     [(apply str "-Xbootclasspath/a:"
             (interpose java.io.File/pathSeparatorChar
                        (classpath/get-classpath project)))]
-    ["-cp" (string/join java.io.File/pathSeparatorChar
-                        (classpath/get-classpath project))]))
+    ["-classpath" (string/join java.io.File/pathSeparatorChar
+                               (classpath/get-classpath project))]))
 
 (defn shell-command [project form]
   `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
