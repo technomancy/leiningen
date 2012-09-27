@@ -7,7 +7,7 @@ lib/
 pom.xml
 autodoc/
 bin/nom
-.lein-*
+.lein*
 /lein.man
 /scratch.clj
 docs
