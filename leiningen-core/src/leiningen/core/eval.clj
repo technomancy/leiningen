@@ -24,6 +24,9 @@
    "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
    "arm" :arm "SunOS" :solaris "sparc" :sparc "Darwin" :macosx})
 
+(def ^:private arch-options
+  {:x86 ["-d32"] :x86_64 ["-d64"]})
+
 (defn get-os
   "Returns a keyword naming the host OS."
   []
@@ -68,8 +71,10 @@
 (defn native-arch-path
   "Path to the os/arch-specific directory containing native libs."
   [project]
-  (if (and (get-os) (get-arch))
-    (io/file (:native-path project) (name (get-os)) (name (get-arch)))))
+  (let [os (:os project (get-os))
+        arch (:arch project (get-arch))]
+    (if (and os arch)
+      (io/file (:native-path project) (name os) (name arch)))))
 
 (defn- as-str [x]
   (if (instance? clojure.lang.Named x)
@@ -97,6 +102,7 @@
   (let [native-arch-path (native-arch-path project)]
     `(~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
       ~@(:jvm-opts project)
+      ~@(get arch-options (:arch project))
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
                          :file.encoding (or (System/getProperty "file.encoding") "UTF-8")
