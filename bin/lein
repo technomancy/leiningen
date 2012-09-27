@@ -287,7 +287,7 @@ else
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -cp "$CLASSPATH" \
+            -classpath "$CLASSPATH" \
             clojure.main -m leiningen.core.main "$@"
 
         EXIT_CODE=$?
