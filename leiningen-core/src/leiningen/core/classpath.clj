@@ -48,18 +48,22 @@
             (io/copy (.getInputStream jar entry) f))))))
 
 (defn when-stale
-  "Call f with args when keys in project.clj have changed since the last run.
-  Stores value of project keys in stale directory inside :target-path."
-  [keys project f & args]
+  "Call f with args when keys in project.clj have changed since the last
+  run. Stores value of project keys in stale directory inside :target-path.
+  Because multiple callers may check the same keys, you must also provide a
+  token to keep your stale value separate. Returns true if the code was executed
+  and nil otherwise."
+  [token keys project f & args]
   (let [file (io/file (:target-path project) "stale"
-                      (str/join "+" (map name keys)))
+                      (str token "." (str/join "+" (map name keys))))
         current-value (pr-str (map (juxt identity project) keys))
         old-value (and (.exists file) (slurp file))]
     (when (and (:name project) (:target-path project)
                (not= current-value old-value))
       (apply f args)
       (.mkdirs (.getParentFile file))
-      (spit file (doall current-value)))))
+      (spit file (doall current-value))
+      true)))
 
 (defn add-repo-auth
   "Repository credentials (a map containing some of
@@ -165,8 +169,11 @@
                   (aether/dependency-files)
                   (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
     (when-not (= :plugins dependencies-key)
-      (when-stale [dependencies-key] project
-                  extract-native-deps jars native-path))
+      (or (when-stale :extract-native [dependencies-key] project
+                      extract-native-deps jars native-path)
+          ;; Always extract native deps from SNAPSHOT jars.
+          (extract-native-deps (filter #(re-find #"SNAPSHOT" (.getName %)) jars)
+                               native-path)))
     jars))
 
 (defn dependency-hierarchy
