@@ -128,10 +128,19 @@
 
 (def ^:dynamic *env* nil)
 
+(defn- overridden-env
+  "Returns an overridden version of the current environment as an Array of
+  Strings of the form name=val, suitable for passing to Runtime#exec."
+  [env]
+  (->> (merge {} (System/getenv) env)
+       (filter val)
+       (map #(str (name (key %)) "=" (val %)))
+       (into-array String)))
+
 (defn sh
   "A version of clojure.java.shell/sh that streams out/err."
   [& cmd]
-  (let [env (and *env* (into-array String (map name (apply concat *env*))))
+  (let [env (overridden-env *env*)
         proc (.exec (Runtime/getRuntime) (into-array cmd) env (io/file *dir*))]
     (.addShutdownHook (Runtime/getRuntime)
                       (Thread. (fn [] (.destroy proc))))
