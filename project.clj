@@ -12,7 +12,8 @@
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
-                               org.sonatype.aether/aether-util]]
+                               org.sonatype.aether/aether-util
+                               org.sonatype.sisu/sisu-inject-plexus]]
                  [reply "0.1.0-beta11" :exclusions [ring/ring-core]]
                  [clj-http "0.4.2"]]
   ;; checkout-deps don't work with :eval-in :leiningen
