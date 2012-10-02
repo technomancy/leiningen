@@ -15,7 +15,8 @@
      (leiningen.core.injected/add-hook
       (resolve 'clojure.test/test-var)
       (fn test-var-with-selector [test-var# var#]
-        (when (reduce #(or %1 (%2 (assoc (meta var#) ::var var#)))
+        (when (reduce #(or %1 (%2 (merge (-> var# meta :ns meta)
+                                         (assoc (meta var#) ::var var#))))
                       false ~selectors)
           (test-var# var#))))))
 
