@@ -10,12 +10,11 @@
                 (f)
                 (.delete (java.io.File. tmp-dir "lein-test-ran"))))
 
-(defn ran? [& expected]
+(defn ran? []
   (let [ran-file (io/file tmp-dir "lein-test-ran")]
     (and (.exists ran-file)
-         (= (set expected)
-            (set (for [ran (.split (slurp ran-file) "\n")]
-                   (read-string ran)))))))
+         (set (for [ran (.split (slurp ran-file) "\n")]
+                (read-string ran))))))
 
 (deftest test-project-selectors
   (is (= [:default :integration :int2 :no-custom]
@@ -24,16 +23,20 @@
 
 (deftest test-default-selector
   (test sample-no-aot-project ":default")
-  (is (ran? :regular :int2 :not-custom)))
+  (is (= (ran?) #{:regular :int2 :not-custom})))
 
 (deftest test-basic-selector
   (test sample-no-aot-project ":integration")
-  (is (ran? :integration)))
+  (is (= (ran?) #{:integration :integration-ns})))
 
 (deftest test-complex-selector
   (test sample-no-aot-project ":no-custom")
-  (is (ran? :integration :regular :int2)))
+  (is (= (ran?) #{:integration :integration-ns :regular :int2})))
 
 (deftest test-two-selectors
   (test sample-no-aot-project ":integration" ":int2")
-  (is (ran? :integration :int2)))
+  (is (= (ran?) #{:integration :integration-ns :int2})))
+
+(deftest test-override-namespace-selector
+  (test sample-no-aot-project ":int2")
+  (is (= (ran?) #{:integration-ns :int2})))
