@@ -143,6 +143,7 @@
     (when-not (matching-arity? task args)
       (abort "Wrong number of arguments to" task-name "task."
              "\nExpected" (rest (:arglists (meta task)))))
+    (debug "Applying task" task-name "to" args)
     (let [value (apply task project args)]
       ;; TODO: remove this for final release
       (when (and value (number? value))

@@ -139,6 +139,8 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
 
+    # TODO: unify setting this; it's a complete mess. Should be able
+    # to easily modify jvm opts without losing bootclasspath
     export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
