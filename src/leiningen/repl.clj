@@ -1,7 +1,7 @@
 (ns leiningen.repl
   "Start a repl session either with the current project or standalone."
-  (:require clojure.main
-            clojure.set
+  (:require [clojure.main]
+            [clojure.set]
             [reply.main :as reply]
             [clojure.java.io :as io]
             [leiningen.core.eval :as eval]
@@ -13,20 +13,24 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
-(def profile {:dependencies '[^:displace
-                               [org.clojure/tools.nrepl "0.2.0-beta9"
-                                :exclusions [org.clojure/clojure]]
-                              ^:displace
-                               [clojure-complete "0.2.2"
-                                :exclusions [org.clojure/clojure]]]})
-
-(def reply-profile {:dependencies '[^:displace
+(def reply-profile {:dependencies '[^:displace ; TODO: displace ignored here
                                      [org.thnetos/cd-client "0.3.4"
                                       :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
                                           [reply "0.1.0-beta11"
                                            :exclusions [org.clojure/clojure]]]})
+
+(defn profiles-for [project trampoline? reply?]
+  (let [base (or (:repl (:profiles project))
+                 (:repl (user/profiles))
+                 {:dependencies '[^:displace
+                                  [org.clojure/tools.nrepl "0.2.0-beta9"
+                                   :exclusions [org.clojure/clojure]]
+                                  ^:displace
+                                  [clojure-complete "0.2.2"
+                                   :exclusions [org.clojure/clojure]]]})]
+    [base (if reply? reply-profile) (if trampoline? trampoline-profile)]))
 
 (defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
   (when (and nrepl-middleware nrepl-handler)
@@ -60,8 +64,8 @@
            @(promise))]
     (if project
       (eval/eval-in-project
-       (project/merge-profiles project [(:repl (user/profiles) profile)
-                                        (if-not headless? reply-profile)])
+       (project/merge-profiles project
+                               (profiles-for project false (not headless?)))
        server-starting-form
        `(require ~@(init-requires project)))
       (eval server-starting-form))))
@@ -114,10 +118,9 @@
        :init :custom-init})))
 
 (defn- trampoline-repl [project]
-  (let [options (options-for-reply project :port (repl-port project))
-        profiles [(:repl (user/profiles) profile) trampoline-profile]]
+  (let [options (options-for-reply project :port (repl-port project))]
     (eval/eval-in-project
-     (project/merge-profiles project profiles)
+     (project/merge-profiles project (profiles-for project :trampoline true))
      (if (:standalone options)
        `(reply.main/launch-standalone ~options)
        `(reply.main/launch-nrepl ~options))
@@ -143,8 +146,8 @@ Connects to the nREPL server running at the given host (defaults to localhost)
 and port."
   ([] (repl nil))
   ([project]
-  (if trampoline/*trampoline?*
-    (trampoline-repl project)
+  (if trampoline/*trampoline?* ; TODO: does trampolining the other
+    (trampoline-repl project)  ; arities need special handling?
     (let [prep-blocker @eval/prep-blocker]
       (nrepl.ack/reset-ack-port!)
       (.start

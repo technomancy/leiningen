@@ -76,3 +76,13 @@
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
+(deftest repl-profile-in-project
+  (let [p (promise)
+        version "0.2.0-beta8"
+        project {:profiles {:repl {:dependencies
+                                   [['org.clojure/tools.nrepl version]]}}}]
+    (with-redefs [leiningen.core.eval/eval-in-project #(deliver p %&)]
+      (#'leiningen.repl/start-server project "localhost" 9999 9998))
+    (is (= version (first (for [dep (:dependencies (first @p))
+                                :when (= 'org.clojure/tools.nrepl (first dep))]
+                       (second dep)))))))
