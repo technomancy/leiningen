@@ -1,18 +1,23 @@
 (ns leiningen.test.repl
-  (:use [clojure.test]
-        [leiningen.repl]))
+  (:require [clojure.test :refer :all]
+            [leiningen.repl :refer :all]
+            [leiningen.core.user :as user]))
+
+(def history-file (str (user/leiningen-home) "/repl-history"))
 
 (deftest test-options-for-reply-empty
   (let [project {}]
     (is (= {:attach "127.0.0.1:9876"
-            :custom-init nil}
+            :custom-init nil
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-host
   (let [project {:repl-options {:host "192.168.0.10"}}]
     (is (= {:attach "192.168.0.10:9876"
             :host "192.168.0.10"
-            :custom-init nil}
+            :custom-init nil
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-prompt
@@ -20,14 +25,16 @@
         project   {:repl-options {:prompt prompt-fn}}]
     (is (= {:attach "127.0.0.1:9876"
             :custom-prompt prompt-fn
-            :custom-init nil}
+            :custom-init nil
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-init
   (let [init-form '(println "ohai")
         project   {:repl-options {:init init-form}}]
     (is (= {:attach "127.0.0.1:9876"
-            :custom-init init-form}
+            :custom-init init-form
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-init-ns
@@ -36,7 +43,8 @@
             :init-ns 'foo.core
             :custom-init '(do (clojure.core/require 'foo.core)
                               (clojure.core/in-ns 'foo.core)
-                              nil)}
+                              nil)
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-init-ns-and-init
@@ -45,7 +53,8 @@
             :init-ns 'foo.core
             :custom-init '(do (clojure.core/require 'foo.core)
                               (clojure.core/in-ns 'foo.core)
-                              (println "ohai"))}
+                              (println "ohai"))
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-main-ns
@@ -53,7 +62,8 @@
     (is (= {:attach "127.0.0.1:9876"
             :custom-init '(do (clojure.core/require 'foo.core)
                               (clojure.core/in-ns 'foo.core)
-                              nil)}
+                              nil)
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-init-ns-beats-main
@@ -62,6 +72,7 @@
             :init-ns 'winner.here
             :custom-init '(do (clojure.core/require 'winner.here)
                               (clojure.core/in-ns 'winner.here)
-                              nil)}
+                              nil)
+            :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
