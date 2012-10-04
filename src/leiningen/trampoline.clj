@@ -44,9 +44,9 @@
 (defn ^:higher-order trampoline
   "Run a task without nesting the project's JVM inside Leiningen's.
 
-Calculates what needs to run in the project's process for the provided
-task and runs it after Leiningen's own JVM process has exited rather
-than as a subprocess of Leiningen's project.
+Calculates the Clojure code to run in the project's process for the
+given task and allows Leiningen's own JVM process to exit before
+running it rather than launching a subprocess of Leiningen's JVM.
 
 Use this to save memory or to work around stdin issues."
   [project task-name & args]
