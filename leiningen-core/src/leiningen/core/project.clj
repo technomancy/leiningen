@@ -363,6 +363,7 @@
   [project include-profiles & [exclude-profiles]]
   (-> project
       (init-profiles include-profiles exclude-profiles)
+      (load-plugins)
       (activate-middleware)))
 
 (defn merge-profiles
