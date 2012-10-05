@@ -20,6 +20,11 @@
     (is (re-find #"template\s+A meta-template for 'lein new' templates."
                  subtask-help))))
 
+(deftest subtask-help-for-new-default
+  (let [subtask-help (help-for-subtask "new" "default")]
+    (is (re-find #"^A general project template." subtask-help))
+    (is (re-find #"Arguments: \(\[name\]\)" subtask-help))))
+
 (deftest test-docstring-formatting
   (is (= "This is an
               AWESOME command

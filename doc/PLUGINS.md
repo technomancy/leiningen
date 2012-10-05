@@ -79,6 +79,9 @@ that all your arguments will be strings, so it's up to you to call
 Often more complicated tasks get divided up into subtasks. Placing
 `:subtasks` metadata on a task defn which contains a vector of subtask
 vars will allow `lein help $TASK_CONTAINING_SUBTASKS` to list them.
+This list of subtasks will show the first line of the docstring for each
+subtask. The full help for a subtask can be viewed via 
+`lein help $TASK_CONTAINING_SUBTASKS $SUBTASK`. 
 
 ## Code Evaluation
 
