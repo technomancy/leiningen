@@ -63,6 +63,11 @@
                                (re-find re? (:url settings)))]
                 cred))))
 
+;; TODO remove after some period of time, maybe just prior to 2.0.0 going out?
+(def ^:private creds-value-warning
+  (delay (println "Warning: if you want to load all credentials for a repository from")
+         (println "~/.lein/credentials.clj.gpg, add :creds :gpg in the repository map.")))
+
 (defn- resolve-credential
   [source-settings result [k v]]
   (letfn [(resolve [v]
@@ -74,7 +79,8 @@
               (System/getenv (str/upper-case (name v)))
               
               (= :gpg v)
-              (get (match-credentials source-settings (credentials)) k)
+              (do (force creds-value-warning)
+                (get (match-credentials source-settings (credentials)) k))
               
               (coll? v)
               (->> (map resolve v)
@@ -84,10 +90,17 @@
     (assoc result k (resolve v))))
 
 (defn resolve-credentials
-  "Applies credentials from environment or ~/.lein/credentials.clj.gpg
+  "Applies credentials from the environment or ~/.lein/credentials.clj.gpg
    as they are specified and available."
   [settings]
-  (reduce (partial resolve-credential settings) (empty settings) settings))
+  (let [gpg-creds (when (= :gpg (:creds settings))
+                    (match-credentials settings (credentials)))
+        resolved (reduce (partial resolve-credential settings)
+                         (empty settings)
+                         settings)]
+    (if gpg-creds
+      (dissoc (merge gpg-creds resolved) :creds)
+      resolved)))
 
 (def profile-auth-warn
   (delay (println "Warning: :repository-auth in the :auth profile is deprecated.")
