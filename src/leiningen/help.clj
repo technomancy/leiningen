@@ -42,7 +42,9 @@
       (string/join "\n" (concat ["\n\nSubtasks available:"]
                                 (for [[subtask doc] subtasks]
                                   (formatted-help subtask doc
-                                                  longest-key-length)))))))
+                                                  longest-key-length))
+                                [(str "\nRun `lein help " (:name (meta task))
+                                      " $SUBTASK` for subtask details.")])))))
 
 (defn- resolve-task [task-name]
   (try (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
@@ -51,13 +53,19 @@
        (catch java.io.FileNotFoundException e
          [nil nil])))
 
+(defn- resolve-subtask [task-name subtask-name]
+  (let [[_ task] (resolve-task task-name)]
+    (some #(if (= (symbol subtask-name) (:name (meta %))) %)
+          (:subtasks (meta task)))))
+
 (defn- static-help [name]
   (if-let [resource (io/resource (format "leiningen/help/%s" name))]
     (slurp resource)))
 
 (defn help-for
-  "Help for a task is stored in its docstring, or if that's not present
-  in its namespace."
+  "Returns a string containing help for a task.
+Looks for a function named 'help' in the subtask's namespace,
+then a docstring on the task, then a docstring on the task ns."
   ([task-name]
      (let [[task-ns task] (resolve-task task-name)]
        (if task
@@ -73,6 +81,24 @@
      (let [aliases (merge main/aliases (:aliases project))]
        (help-for (aliases task-name task-name)))))
 
+(defn help-for-subtask
+  "Returns a string containing help for a subtask.
+Looks for a function named 'help-<subtask>' in the subtask's namespace,
+using the subtask's docstring if the help function is not found."
+  ([task-name subtask-name]
+     (if-let [subtask (resolve-subtask task-name subtask-name)]
+       (let [subtask-meta (meta subtask)
+             help-fn (ns-resolve (:ns subtask-meta)
+                                 (symbol (str "help-" subtask-name)))
+             arglists (get-arglists subtask)]
+         (str (or (and help-fn (help-fn)) (:doc subtask-meta))
+              (if (some seq arglists)
+                (str "\n\nArguments: " (pr-str arglists)))))
+       (format "Subtask: '%s %s' not found" task-name subtask-name)))
+  ([project task-name subtask-name]
+     (let [aliases (merge main/aliases (:aliases project))]
+       (help-for-subtask (aliases task-name task-name) subtask-name))))
+
 (defn help-summary-for [task-ns]
   (try (let [task-name (last (.split (name task-ns) "\\."))
              ns-summary (:doc (meta (find-ns (doto task-ns require))))
@@ -86,18 +112,20 @@
            (str task-ns "  Problem loading: " (.getMessage e))))))
 
 (defn ^:no-project-needed ^:higher-order help
-  "Display a list of tasks or help for a given task.
+  "Display a list of tasks or help for a given task or subtask.
 
 Also provides readme, faq, tutorial, news, sample, profiles,
 deploying and copying info."
   ;; TODO: explain partial aliases in specific help
+  ([project task subtask] (println (or (static-help (str task "-" subtask))
+                                       (help-for-subtask project task subtask))))
   ([project task] (println (or (static-help task) (help-for project task))))
   ([project]
      (println "Leiningen is a tool for working with Clojure projects.\n")
      (println "Several tasks are available:")
      (doseq [task-ns (main/tasks)]
        (println (help-summary-for task-ns)))
-     (println "\nRun lein help $TASK for details.")
+     (println "\nRun `lein help $TASK` for details.")
      ;; TODO: show user-level aliases too
      (if-let [aliases (:aliases project)]
        (do
