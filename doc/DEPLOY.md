@@ -54,13 +54,13 @@ set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
 [gpg](http://www.gnupg.org/) installed and a key pair configured.
 
-If you specify `:gpg` in one of your `:repositories` settings maps,
-Leiningen will decrypt `~/.lein/credentials.clj.gpg` and use that to
-find the proper credentials for the given repository.
+If you specify a `:creds :gpg` entry in one of your `:repositories` settings
+maps, Leiningen will decrypt `~/.lein/credentials.clj.gpg` and use that to find
+the proper credentials for the given repository.
 
 ```clj
 :repositories [["releases" {:url "http://blueant.com/archiva/internal"
-                           :username "milgrim" :password :gpg}]]
+                            :creds :gpg}]]
 ```
 
 First write your credentials map to `~/.lein/credentials.clj` like so:
@@ -102,6 +102,29 @@ Unattended builds can specify `:env` instead of `:gpg` in the
 repository specification to have credentials looked up in the
 environment. For example, specifying `:password :env` will cause
 Leiningen to look up `(System/getenv "LEIN_PASSWORD")` for that value.
+You can control which environment variable is looked up for each value
+by using a namespaced keyword, like so:
+
+```clj
+:repositories [["releases" {:url "http://blueant.com/archiva/internal"
+                            :username :env/archiva_username
+                            :passphrase :env/archiva_passphrase}]]
+```
+
+Finally, you can opt to load credentials from the environment _or_ GPG credentials
+by using a vector of `:gpg` and `:env/*` values to define the priority of each:
+
+```clj
+:repositories [["releases" {:url "http://blueant.com/archiva/internal"
+                            :username [:gpg :env/archiva_username]
+                            :passphrase [:gpg :env/archiva_passphrase]}]]
+```
+
+In this example, both `:username` and `:password` will be looked up in
+`~/.lein/credentials.clj.gpg` first, and only if a value is not available there will
+the `ARCHIVA_*` env vars be checked.  This allows you to avoid creating profiles
+just to use different credential sources in e.g. a local development environment
+vs. a centralized build environment.
 
 ## Deployment
 
