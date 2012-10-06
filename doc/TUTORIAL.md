@@ -1,14 +1,63 @@
 # Tutorial
 
+## What is Leiningen
+
+Leiningen is a tool for automating Clojure projects without setting your hair on fire.
+
+Leiningen makes it easy to
+
+ * Manage dependencies for your project
+ * Run tests
+ * Access the REPL without worrying about adding dependencies to classpath
+ * Compile Java sources (if any)
+ * Run the app
+ * Compile and package projects for deployment
+ * Publish libraries to repositories such as [Clojars](http://clojars.org)
+ * Write custom automation tasks in Clojure
+
+If you come from the Java world, Leiningen is "Maven meets Ant without the pain". For Ruby and Python
+folks, Leiningen combines RubyGems/Bundler/Rake and pip/Fabric in a single tool.
+
+
+## What This Tutorial Covers
+
+This tutorial will briefly cover project structure, dependency management, running tests,
+the REPL and topics related to deployment.
+
 For those of you new to the JVM who have never touched Ant or Maven in
 anger: don't panic. Leiningen is designed with you in mind. This
 tutorial will help you get started and explain Leiningen's take on
 project automation and JVM-land dependency management.
 
+
+## Getting Help
+
 Also keep in mind that Leiningen ships with fairly comprehensive help;
 `lein help` gives a list of tasks while `lein help task` provides
 details. Further documentation such as the readme, sample
 configuration, and even this tutorial are also provided.
+
+
+## Leiningen Projects
+
+Leiningen works with *projects*. A project is a group of Clojure (and, possibly, Java)
+source files with a bit of metadata about them. The metadata is stored in a file named
+`project.clj` (by convention) in the repository root. `project.clj` is how you tell
+Leiningen about things like
+
+ * Project name
+ * Project description
+ * What libraries the project depends on
+ * What Clojure version to use
+ * Where to find source files
+ * What's the main namespace of the app
+
+and more.
+
+Most Leiningen tasks only make sense in the context of a project. Some (for example, `lein repl`)
+can also work globally, from any directory.
+
+Next lets take a look at how projects are created.
 
 ## Creating a Project
 
@@ -32,10 +81,17 @@ Generating a new project is easy:
         `-- my_stuff
             `-- core_test.clj
 
+### Directory Layout
+
 Here we've got your project's README, a `src/` directory containing the
 code, a `test/` directory, and a `project.clj` file which describes your
 project to Leiningen. The `src/my_stuff/core.clj` file corresponds to
 the `my-stuff.core` namespace.
+
+Even though most pure Clojure projects never need to customize directory layout,
+it is possible with Leiningen.
+
+### Filename-to-Namespace Mapping Convention
 
 Note that we use `my-stuff.core` instead of just `my-stuff` since
 single-segment namespaces are discouraged in Clojure. Also note that
@@ -68,21 +124,25 @@ Unlike most languages, it's easy to swap out any version of Clojure.
 
 ## Dependencies
 
-By default, Leiningen projects download dependencies from
-[Clojars](http://clojars.org) and [Central](http://search.maven.org).
-Clojars is the Clojure community's centralized jar repository, while
-Central is for the wider JVM community.
+### Overview
 
-Libraries for the JVM are packaged up as .jar files, which are
-basically just .zip files with a little extra JVM-specific metadata.
-They usually contain .class files (JVM bytecode) and .clj source
+Clojure is a hosted language and Clojure libraries are distributed the same
+way as in other JVM languages: as JARs.
+
+JARs (`.jar` files) are basically just `.zip` files with a little extra JVM-specific
+metadata. They usually contain `.class` files (JVM bytecode) and `.clj` source
 files, but they can also contain other things like config
-files.
+files, JavaScript files or text files with static data.
+
+Published JVM libraries have *identifiers* (artifact group, artifact id) and
+*versions*.
+
+### Artifact IDs, Groups and Versions
 
 You can [search Clojars](http://clojars.org/search?q=clj-http) using its
 web interface. On the page for `clj-http` it shows this:
 
-    [clj-http "0.4.1"]
+    [clj-http "0.5.5"]
 
 There are two different ways of specifying a dependency on the latest
 stable version of the `clj-http` library, one in Leiningen format
@@ -92,7 +152,7 @@ though you'll need to learn to read it for Java libraries from
 directly into the `:dependencies` vector in `project.clj`.
 
 Within the vector, "clj-http" is referred to as the "artifact id".
-"0.4.1" is the version. Some libraries will also have "group ids",
+"0.5.5" is the version. Some libraries will also have "group ids",
 which are displayed like this:
 
     [com.cedarsoft.utils.legacy/hibernate "1.3.4"]
@@ -103,6 +163,8 @@ use the same group-id and artifact-id (as with clj-http), in which case
 you can omit the group-id. If there is a library that's part of a
 larger group (such as `ring-jetty-adapter` being part of the `ring`
 project), the group-id is often the same across all the sub-projects.
+
+### Snapshot Versions
 
 Sometimes versions will end in "-SNAPSHOT". This means that it is not
 an official release but a development build. Relying on snapshot
@@ -121,6 +183,15 @@ correspond with the namespace they provide inside the jar, but this is
 just a convention. There is no guarantee they will match up at all, so
 consult the library's documentation before writing your `:require`
 and `:import` clauses.
+
+### Repositories
+
+Dependencies are stored in *repositories*. If you are familiar with CPAN, PyPi, rubygems.org
+or NPM, it's the same thing. Leiningen reuses existing JVM repositories infrastructure. There
+are several popular open source repositories. Leiningen by default will use two of them: [clojars.org](http://clojars.org)
+and [Maven Central](http://search.maven.org/).
+
+Clojars is the Clojure community's centralized jar repository, while Central is for the wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
@@ -253,7 +324,7 @@ included from the project template:
 
 Once we fill it in the test suite will become more useful. Sometimes
 if you've got a large test suite you'll want to run just one or two
-namespaces at a time; `lein test my.test.stuff` will do that.. You
+namespaces at a time; `lein test my.test.stuff` will do that. You
 also might want to break up your tests using test selectors; see `lein
 help test` for more details.
 
