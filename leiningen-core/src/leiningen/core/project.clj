@@ -179,8 +179,8 @@
          :offline {:offline? true}
          :debug {:debug true}}))
 
-(defn- profile-key-merge
-  "Merge profile values into the project map based on their type."
+(defn- meta-merge
+  "Recursively merge values based on the information in their metadata."
   [result latter]
   (cond (-> result meta :displace)
         latter
@@ -190,7 +190,7 @@
 
         ;; TODO: last-wins breaks here
         (and (map? result) (map? latter))
-        (merge-with profile-key-merge result latter)
+        (merge-with meta-merge result latter)
 
         (and (set? result) (set? latter))
         (set/union latter result)
@@ -206,7 +206,7 @@
   ;; We reverse because we want profile values to override the project, so we
   ;; need "last wins" in the reduce, but we want the first profile specified by
   ;; the user to take precedence.
-  (reduce (partial merge-with profile-key-merge)
+  (reduce (partial merge-with meta-merge)
           project
           (reverse profiles)))
 
