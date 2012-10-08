@@ -44,23 +44,30 @@
                :certificates ["clojars.pem"]
                :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
 
+(defn make
+  ([project project-name version root]
+     (make (assoc project
+             :name (name project-name)
+             :group (or (namespace project-name)
+                        (name project-name))
+             :version version
+             :root root)))
+  ([project]
+     (-> (merge defaults project)
+         (dissoc :eval-in-leiningen :omit-default-repositories)
+         (assoc :eval-in (or (:eval-in project)
+                             (if (:eval-in-leiningen project)
+                               :leiningen, :subprocess))
+                :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))))))
+
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
   See `lein help sample` to see what arguments it accepts."
   [project-name version & {:as args}]
-  `(let [args# ~(unquote-project args)]
+  `(let [args# ~(unquote-project args)
+         root# ~(.getParent (io/file *file*))]
      (def ~'project
-       (merge defaults args#
-              {:name ~(name project-name)
-               :group ~(or (namespace project-name)
-                           (name project-name))
-               :version ~version
-               :root ~(.getParent (io/file *file*))
-               :eval-in (or (:eval-in args#)
-                            (if (:eval-in-leiningen args#)
-                              :leiningen
-                              :subprocess))
-               :offline? ~(not (nil? (System/getenv "LEIN_OFFLINE")))}))))
+       (make args# '~project-name ~version root#))))
 
 (defn- de-dupe-repo [[repositories seen?] [id settings]]
   ;; repositories from user profiles can be just credentials, so check :url
