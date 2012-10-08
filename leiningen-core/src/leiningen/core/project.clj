@@ -26,12 +26,6 @@
              identity
              args))
 
-(def ^:private hooke-injection
-  (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
-    `(do (ns ~'leiningen.core.injected)
-         ~@(doall (take 6 (rest (repeatedly #(clojure.core/read rdr)))))
-         (ns ~'user))))
-
 (def defaults {:source-paths ["src"]
                :resource-paths ["resources"]
                :test-paths ["test"]
@@ -164,6 +158,12 @@
   (comp normalize-repos normalize-deps absolutize-paths remove-aliases))
 
 ;; # Profiles: basic merge logic
+
+(def ^:private hooke-injection
+  (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
+    `(do (ns ~'leiningen.core.injected)
+         ~@(doall (take 6 (rest (repeatedly #(clojure.core/read rdr)))))
+         (ns ~'user))))
 
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
