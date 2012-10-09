@@ -25,8 +25,7 @@
         rests (mapcat rest forms)
         ;; This won't pick up :jvm-args that come from profiles, but it
         ;; at least gets us :dependencies.
-        project (project/normalize-deps (assoc project :dependencies
-                                               (apply concat deps)))
+        project (project/merge-profiles project {:dependencies deps})
         command (eval/shell-command project (concat '(do) inits rests))]
     (string/join " " (if (win-batch?)
                        (map quote-arg command)
