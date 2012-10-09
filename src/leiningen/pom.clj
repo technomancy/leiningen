@@ -177,6 +177,13 @@
                             [key (name val)]))]
             [:licenses [:license tags]]))))
 
+(defn- resource-tags [project type]
+  (if-let [resources (seq (:resource-paths project))]
+    (let [types (keyword (str (name type) "s"))]
+      (vec (concat [types]
+                   (for [resource resources]
+                     [type [:directory resource]]))))))
+
 (defmethod xml-tags ::build
   ([_ [project test-project]]
      (let [[src & extra-src] (concat (:source-paths project)
@@ -185,14 +192,8 @@
        [:build
         [:sourceDirectory src]
         (xml-tags :testSourceDirectory test)
-        (if-let [resources (seq (:resource-paths project))]
-          (vec (concat [:resources]
-                       (for [resource resources]
-                         [:resource [:directory resource]]))))
-        (if-let [resources (seq (:resource-paths test-project))]
-          (vec (concat [:testResources]
-                       (for [resource resources]
-                         [:testResource [:directory resource]]))))
+        (resource-tags project :resource)
+        (resource-tags test-project :testResource)
         (if-let [extensions (seq (:extensions project))]
           (vec (concat [:extensions]
                        (for [[dep version] extensions]
