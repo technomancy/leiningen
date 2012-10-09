@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [bultitude "0.1.7"]
                  [classlojure "0.6.6"]
+                 [useful "0.8.6"]
                  [robert/hooke "1.1.2"]
                  [com.cemerick/pomegranate "0.0.13"
                   :exclusions [org.slf4j/slf4j-api]]]
