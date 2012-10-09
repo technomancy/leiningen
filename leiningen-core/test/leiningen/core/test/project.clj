@@ -70,19 +70,19 @@
            (-> (make
                 {:resource-paths ["resources"]
                  :profiles {:blue {:resource-paths ["blue-resources"]}}})
-               (merge-profiles [:qa :tes :blue])
+               (merge-profiles [:blue :tes :qa])
                :resource-paths)))
     (is (= ["/etc/myapp" "test/hi" "blue-resources"]
            (-> (make
                 {:resource-paths ^:displace ["resources"]
                  :profiles {:blue {:resource-paths ["blue-resources"]}}})
-               (merge-profiles [:qa :tes :blue])
+               (merge-profiles [:blue :tes :qa])
                :resource-paths)))
     (is (= ["replaced"]
            (-> (make
                 {:resource-paths ["resources"]
                  :profiles {:blue {:resource-paths ^:replace ["replaced"]}}})
-               (merge-profiles [:blue :qa :tes])
+               (merge-profiles [:tes :qa :blue])
                :resource-paths)))
     (is (= {:url "http://" :username "u" :password "p"}
            (-> (make
@@ -169,13 +169,13 @@
 (deftest test-merge-anon-profiles
   (is (= {:A 1, :C 3}
          (-> {:profiles {:a {:A 1} :b {:B 2}}}
-             (merge-profiles [:a {:C 3}])
+             (merge-profiles [{:C 3} :a])
              (dissoc :profiles)))))
 
 (deftest test-composite-profiles
   (is (= {:A '(1 3 2), :B 2, :C 3}
-         (-> {:profiles {:a [:c :b]
-                         :b [:d {:A [1] :B 1 :C 1}]
+         (-> {:profiles {:a [:b :c]
+                         :b [{:A [1] :B 1 :C 1} :d]
                          :c {:A [2] :B 2}
                          :d {:A [3] :C 3}}}
              (merge-profiles [:a])
@@ -186,7 +186,7 @@
          (-> {:profiles {:a {:A 1 :B 2}
                          :b {:B 2 :C 2}
                          :c {:C 3}
-                         :default [:c :b :a]}}
+                         :default [:a :b :c]}}
              (merge-profiles [:default])
              (dissoc :profiles)))))
 
