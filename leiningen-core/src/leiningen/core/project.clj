@@ -264,15 +264,12 @@
             right)))
 
 (defn- apply-profiles [project profiles]
-  ;; We reverse because we want profile values to override the project, so we
-  ;; need "last wins" in the reduce, but we want the first profile specified by
-  ;; the user to take precedence.
   (reduce (fn [project profile]
             (with-meta
               (meta-merge project profile)
               (meta-merge (meta project) (meta profile))))
           project
-          (reverse profiles)))
+          profiles))
 
 (defn- lookup-profile
   "Lookup a profile in the given profiles map, warning when the profile doesn't
