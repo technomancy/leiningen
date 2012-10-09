@@ -226,13 +226,14 @@
         (let [result (get profiles profile)]
           (when-not (or result (#{:provided :dev :user :test :production} profile))
             (println "Warning: profile" profile "not found."))
-          (lookup-profile profiles result))
+          (vary-meta (lookup-profile profiles result)
+                     update-in [:active-profiles] (fnil conj []) profile))
 
         ;; composite profile
         (vector? profile)
         (apply-profiles {} (map (partial lookup-profile profiles) profile))
 
-        :else profile))
+        :else (or profile {})))
 
 (defn- warn-user-repos []
   (when (->> (vals (user/profiles))
