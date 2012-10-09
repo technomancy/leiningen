@@ -141,7 +141,7 @@ Also accepts a second parameter for fetching successive pages."
      ;; Maven's indexer requires over 1GB of free space for a <100M index
      (let [orig-tmp (System/getProperty "java.io.tmpdir")
            new-tmp (io/file (user/leiningen-home) "indices" "tmp")
-           project (or project (project/normalize-repos project/defaults))
+           project (or project (project/make {}))
            contexts (doall (map add-context (:repositories project)))]
        (try
          (.mkdirs new-tmp)

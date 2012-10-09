@@ -33,14 +33,10 @@
   ([project profile]
      (with-profile project :test-pom profile))
   ([project name profile]
-     (let [{:keys [included-profiles
-                   without-profiles]} (meta project)]
-       (-> without-profiles
-           (update-in [:profiles] #(assoc % name profile))
-           (project/merge-profiles
-            (if (some #{name} included-profiles)
-              included-profiles
-              (conj included-profiles name)))))))
+     (-> project
+         (vary-meta update-in [:without-profiles :profiles]
+                    assoc name profile)
+         (project/merge-profiles [name]))))
 
 (deftest test-pom-default-values
   (let [xml (xml/parse-str (make-pom sample-project))]
@@ -179,37 +175,37 @@
                                            [[ring-mock
                                              :classifier "cla"
                                              :extension "dom"]]]]})))]
-    (is (= ["peridot" "org.clojure" "rome" "ring"]
+    (is (= ["org.clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [ "peridot" "clojure" "rome" "ring"]
+    (is (= ["clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["0.0.5" "1.3.0" "0.9" "1.0.0"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["provided" nil nil nil]
+    (is (= [nil nil nil "provided"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["true" nil nil nil]
+    (is (= [nil nil nil "true"]
            (map #(first-in % [:dependency :optional])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["sources" nil nil nil]
+    (is (= [nil nil nil "sources"]
            (map #(first-in % [:dependency :classifier])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["pom" nil nil nil]
+    (is (= [nil nil nil "pom"]
            (map #(first-in % [:dependency :type])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["ring-mock" nil nil nil]
+    (is (= [nil nil nil "ring-mock"]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["ring-mock" nil nil nil]
+    (is (= [nil nil nil "ring-mock"]
            (map #(first-in % [:dependency :exclusions :exclusion :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["cla" nil nil nil]
+    (is (= [nil nil nil "cla"]
            (map #(first-in % [:dependency :exclusions :exclusion :classifier])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["dom" nil nil nil]
+    (is (= [nil nil nil "dom"]
            (map #(first-in % [:dependency :exclusions :exclusion :type])
                 (deep-content xml [:project :dependencies])))))
   (let [xml (xml/parse-str
@@ -219,19 +215,19 @@
                                            :scope "provided"
                                            :exclusions
                                            [ring-mock]]]})))]
-    (is (= ["peridot" "org.clojure" "rome" "ring"]
+    (is (= ["org.clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [ "peridot" "clojure" "rome" "ring"]
+    (is (= ["clojure" "rome" "ring" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["0.0.5" "1.3.0" "0.9" "1.0.0"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["provided" nil nil nil]
+    (is (= [nil nil nil "provided"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["ring-mock" nil nil nil]
+    (is (= [nil nil nil "ring-mock"]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil nil]
