@@ -102,12 +102,7 @@
       (dissoc (merge gpg-creds resolved) :creds)
       resolved)))
 
-(def profile-auth-warn
-  (delay (println "Warning: :repository-auth in the :auth profile is deprecated.")
-         (println "Please use ~/.lein/credentials.clj.gpg instead.")))
-
 (defn profile-auth [settings]
   (if-let [repo-auth (-> (profiles) :auth :repository-auth)]
-    (do (force profile-auth-warn)
-        (merge settings (match-credentials settings repo-auth)))
+    (merge settings (match-credentials settings repo-auth))
     settings))

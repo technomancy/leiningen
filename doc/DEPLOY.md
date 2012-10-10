@@ -3,7 +3,7 @@
 Getting your library into [Clojars](http://clojars.org) is fairly
 straightforward as is documented near the end of
 [the Leiningen tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md).
-However, deploying is not always that straightforward.
+However, deploying elsewhere is not always that straightforward.
 
 ## Private Repositories
 
@@ -54,6 +54,8 @@ set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
 [gpg](http://www.gnupg.org/) installed and a key pair configured.
 
+### GPG
+
 If you specify a `:creds :gpg` entry in one of your `:repositories` settings
 maps, Leiningen will decrypt `~/.lein/credentials.clj.gpg` and use that to find
 the proper credentials for the given repository.
@@ -97,6 +99,22 @@ artifacts if the version is not a snapshot, so you may be asked for
 the passphrase multiple times if the agent is not configured. To
 disable signing of releases, set `:sign-releases` to false in the
 `:repositories` entry you are targeting.
+
+### Full-disk Encryption
+
+If you use full-disk encryption, it may be safe to store your
+credentials without using GPG. In this case, you can create an `:auth`
+profile containing a `:repository-auth` key mapping URL regexes to
+credentials. Your `~/.lein/profiles.clj` file would look something
+like this:
+
+```clj
+{:user {...}
+ :auth {:repository-auth {#"blueant" {:username "milgrim"
+                                      :password "locative1"}}}}
+```
+
+### Credentials in the Environment
 
 Unattended builds can specify `:env` instead of `:gpg` in the
 repository specification to have credentials looked up in the
