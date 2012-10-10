@@ -35,10 +35,11 @@ To compile Java sources, you can explicitly run
 
     lein javac
 
-However, it is usually not necessary because tasks such as `lein test` will
-trigger compilation automatically. Manually running `lein javac` may be necessary
-when using `lein do`, `lein with-profiles` or `lein repl` actively while also
-actively changing Java sources in the project.
+However, it is usually not necessary because tasks that need to run
+project code (`lein test`, `lein run`, etc.) will trigger compilation
+automatically. Manually running `lein javac` may be necessary when
+using `lein do`, `lein with-profiles` or `lein repl` actively while
+also actively changing Java sources in the project.
 
 Running
 
@@ -71,3 +72,10 @@ Leiningen 2 and later versions uses the [JDK compiler API](http://docs.oracle.co
 Failing to specify the target version will lead JDK compiler to target whatever JDK
 Leiningen is running on. It is a good practice to explicitly specify target JVM
 version in mixed Clojure/Java projects.
+
+## Other Languages
+
+Java is not the only language you can mix with Leiningen, but it's the
+only one supported out of the box. Plugins exist for
+[Scala](https://github.com/technomancy/lein-scalac) and
+[Groovy](https://github.com/kurtharriger/lein-groovyc) as well.
