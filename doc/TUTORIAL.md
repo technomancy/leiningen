@@ -225,7 +225,7 @@ In case of `megacorp/superlib3`, symlink `checkouts/superlib3`:
     |-- project.clj
     |-- README.md
     |-- checkouts
-    |   `-- superlib3 [link to ~/code/oss/superlib2]
+    |   `-- superlib2 [link to ~/code/oss/superlib2]
     |   `-- superlib3 [link to ~/code/megacorp/superlib3]
     |-- src
     |   `-- my_stuff
