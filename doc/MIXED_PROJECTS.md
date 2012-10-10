@@ -12,9 +12,7 @@ compile Java sources and other topics related to polyglot codebases.
 
 By default, Leiningen assumes your project only has Clojure source code under
 `src`. When using both Clojure and Java in the same codebase, however, it is
-necessary to tell Leiningen where to find Java sources and *use a separate
-directory for Clojure code*. The latter is also a highly recommended practice
-if you use an IDE such as IntelliJ IDEA or Eclipse.
+necessary to tell Leiningen where to find Java sources.
 
 To do so, use `:source-paths` and `:java-source-path` options in the project
 definition:
@@ -27,7 +25,8 @@ definition:
   :java-source-paths ["src/java"])
 ```
 
-Overlapping source roots (e.g. `src` and `src/java`) can cause obscure problems.
+Having one source root contain another (e.g. `src` and `src/java`) can
+cause obscure problems.
 
 
 ## Java Source Compilation
@@ -45,7 +44,7 @@ Running
 
     lein clean
 
-will clean all compilation artifacts.
+will remove all compilation artifacts.
 
 
 ## Setting Java Compiler Options With Leiningen
@@ -62,7 +61,7 @@ sources use features up to JDK 6 and target JVM is also version 6:
 (defproject megacorp/superservice "1.0.0-SNAPSHOT"
   :description "A Clojure project with a little bit of Java sprinkled here and there"
   :min-lein-version "2.0.0"
-    :source-paths ["src/clojure"]
+  :source-paths ["src/clojure"]
   :java-source-paths ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"])
 ```
