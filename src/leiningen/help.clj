@@ -115,7 +115,7 @@ using the subtask's docstring if the help function is not found."
   "Display a list of tasks or help for a given task or subtask.
 
 Also provides readme, faq, tutorial, news, sample, profiles,
-deploying and copying info."
+deploying, mixed-source, and copying info."
   ;; TODO: explain partial aliases in specific help
   ([project task subtask] (println (or (static-help (str task "-" subtask))
                                        (help-for-subtask project task subtask))))
@@ -133,4 +133,4 @@ deploying and copying info."
          (doseq [[k v] aliases]
            (println (str k  " " v)))))
      (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
-              "deploying and copying.")))
+              "deploying, mixed-source, and copying.")))
