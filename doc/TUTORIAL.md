@@ -197,6 +197,53 @@ You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj).
 
+
+### Checkout Dependencies
+
+Sometimes it is necessary to develop two projects in parallel but it is very inconvenient to run `lein install`
+in one of them all the time.
+
+Leiningen provides a solution called *checkout dependencies* (or just *checkouts*). To use it, create a
+directory called `checkouts` in the project root, like so:
+
+    .
+    |-- project.clj
+    |-- README.md
+    |-- checkouts
+    |-- src
+    |   `-- my_stuff
+    |       `-- core.clj
+    `-- test
+        `-- my_stuff
+            `-- core_test.clj
+
+Then, under the checkouts directory, create symlinks to projects you need following a simple convention.
+If you develop a library with artifact id `superlib2`, symlink `checkouts/superlib2` to its local repository.
+In case of `megacorp/superlib3`, symlink `checkouts/superlib3`:
+
+    .
+    |-- project.clj
+    |-- README.md
+    |-- checkouts
+    |   `-- superlib3 [link to ~/code/oss/superlib2]
+    |   `-- superlib3 [link to ~/code/megacorp/superlib3]
+    |-- src
+    |   `-- my_stuff
+    |       `-- core.clj
+    `-- test
+        `-- my_stuff
+            `-- core_test.clj
+
+In other words, Leiningen takes artifact id of a dependency and looks it up under the `checkouts` directory and
+if such directory exists, it is prepended to classpath and will be available to load.
+
+Libraries located under the `checkouts` directory take precendence over libraries pulled from repositories.
+Checkout dependencies must be managed by Leiningen, too.
+
+The checkouts feature is not transitive: in other words, Leiningen will not find checkout dependencies of
+a checkout dependency.
+
+
 ## Running Code
 
 Enough setup; let's see some code running. Start with a REPL
