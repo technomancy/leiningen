@@ -71,9 +71,6 @@ Most tasks need to be run from somewhere inside a project directory to
 work, but some (`new`, `help`, `search`, `version`, and `repl`) may
 run from anywhere.
 
-See the [FAQ](https://github.com/technomancy/leiningen/blob/master/doc/FAQ.md)
-for more details.
-
 ## Configuration
 
 The `project.clj` file in the project root should look like this:
@@ -94,6 +91,19 @@ configuration options.
 
 The `project.clj` file can be customized further with the use of
 [profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md).
+
+
+## Documentation
+
+Leiningen documentation is organized as a number of guides:
+
+ * [Tutorial](https://github.com/technomancy/leiningen/blob/master/doc/TUTORIAL.md)
+ * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/master/doc/MIXED_PROJECTS.md)
+ * Leiningen [Profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md)
+ * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md)
+ * [Plugins](https://github.com/technomancy/leiningen/blob/master/doc/PLUGINS.md)
+ * [FAQ](https://github.com/technomancy/leiningen/blob/master/doc/FAQ.md)
+
 
 ## Plugins
 
