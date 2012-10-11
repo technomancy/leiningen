@@ -58,6 +58,7 @@
                         :bind ~host :port ~port :ack-port ~ack-port
                         :handler ~(handler-for project))
                port# (-> server# deref :ss .getLocalPort)]
+           (do ~(if headless? (-> project :repl-options :init)))
            (println "nREPL server started on port" port#)
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
