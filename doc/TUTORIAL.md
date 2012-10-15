@@ -2,18 +2,20 @@
 
 ## What is Leiningen
 
-Leiningen is a tool for automating Clojure projects without setting your hair on fire.
+Leiningen is a tool for managing Clojure projects without setting your hair on fire.
 
-Leiningen makes it easy to
+It automates various project-management tasks, and can:
 
- * Manage dependencies for your project
- * Run tests
- * Access the REPL without worrying about adding dependencies to classpath
- * Compile Java sources (if any)
- * Run the app
- * Compile and package projects for deployment
- * Publish libraries to repositories such as [Clojars](http://clojars.org)
- * Write custom automation tasks in Clojure
+ * create new projects
+ * manage dependencies for your project
+ * run tests
+ * run a REPL (without you having to worry about adding dependencies to the classpath)
+ * compile Java sources (if any)
+ * run the project (if the project is an app)
+ * generate a maven-style "pom" file for the project
+ * compile and package projects for deployment
+ * publish libraries to package repositories such as [Clojars](http://clojars.org)
+ * run custom automation tasks written in Clojure (leiningen plug-ins)
 
 If you come from the Java world, Leiningen is "Maven meets Ant without the pain". For Ruby and Python
 folks, Leiningen combines RubyGems/Bundler/Rake and pip/Fabric in a single tool.
@@ -40,8 +42,8 @@ configuration, and even this tutorial are also provided.
 
 ## Leiningen Projects
 
-Leiningen works with *projects*. A project is a group of Clojure (and, possibly, Java)
-source files with a bit of metadata about them. The metadata is stored in a file named
+Leiningen works with *projects*. A project is a directory containing a group of Clojure (and, possibly, Java)
+source files, along with a bit of metadata about them. The metadata is stored in a file named
 `project.clj` (by convention) in the repository root. `project.clj` is how you tell
 Leiningen about things like
 
@@ -104,7 +106,7 @@ the scope of this tutorial, you can
 
 ## project.clj
 
-    $ cat project.clj
+A default project.clj file will start off looking something like the this:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
@@ -112,12 +114,13 @@ the scope of this tutorial, you can
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.3.0"]])
+  :dependencies [[org.clojure/clojure "1.4.0"]])
 ```
 
 If you don't fill in the `:description` with a short sentence, your
 project will be harder to find in search results, so start there. Be
-sure to fix the `:url` as well. At some point you'll need to flesh out
+sure to fix the `:url` as well (this will often just be the project's
+github project url). At some point you'll need to flesh out
 the README too, but for now let's skip ahead to setting
 `:dependencies`. Note that Clojure is just another dependency here.
 Unlike most languages, it's easy to swap out any version of Clojure.
