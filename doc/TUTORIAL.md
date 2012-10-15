@@ -119,8 +119,7 @@ A default project.clj file will start off looking something like the this:
 
 If you don't fill in the `:description` with a short sentence, your
 project will be harder to find in search results, so start there. Be
-sure to fix the `:url` as well (this will often just be the project's
-github project url). At some point you'll need to flesh out
+sure to fix the `:url` as well. At some point you'll need to flesh out
 the README too, but for now let's skip ahead to setting
 `:dependencies`. Note that Clojure is just another dependency here.
 Unlike most languages, it's easy to swap out any version of Clojure.
