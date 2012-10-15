@@ -2,9 +2,9 @@
 
 ## What is Leiningen
 
-Leiningen is a tool for managing Clojure projects without setting your hair on fire.
+Leiningen is a tool for automating Clojure projects without setting your hair on fire.
 
-It automates various project-management tasks, and can:
+It manages various project-related tasks, and can:
 
  * create new projects
  * manage dependencies for your project
