@@ -23,7 +23,7 @@
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
   each namespace and print an overall summary."
-  ([namespaces _ & [selectors]]
+  ([namespaces & [selectors]]
      `(do
         (when (seq '~namespaces)
           (apply require :reload '~namespaces))
@@ -93,7 +93,7 @@ tests are run."
                                    *exit-after-tests*)]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
-          form (form-for-testing-namespaces nses nil (vec selectors))]
+          form (form-for-testing-namespaces nses (vec selectors))]
       (try (eval/eval-in-project project form '(require 'clojure.test))
            (catch clojure.lang.ExceptionInfo e
              (main/abort "Tests failed."))))))
