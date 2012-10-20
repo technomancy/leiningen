@@ -40,3 +40,7 @@
 (deftest test-override-namespace-selector
   (test sample-no-aot-project ":int2")
   (is (= (ran?) #{:integration-ns :int2})))
+
+(deftest test-only-selector
+  (test sample-no-aot-project ":only" "selectors/regular")
+  (is (= (ran?) #{:regular})))
