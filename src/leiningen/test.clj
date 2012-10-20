@@ -51,14 +51,13 @@
             (System/exit (+ (:error summary#) (:fail summary#))))))))
 
 (defn- split-selectors [args]
-  (let [[nses selectors] ((juxt take-while drop-while) (complement keyword?) args)]
+  (let [[nses selectors] (split-with (complement keyword?) args)]
     [nses
-     (loop [acc {} selector (first selectors) selectors (rest selectors)]
+     (loop [acc {} [selector & selectors] selectors]
        (if (seq selectors)
          (let [[args next] (split-with (complement keyword?) selectors)]
            (recur (assoc acc selector (list 'quote args))
-                  (first next)
-                  (rest next)))
+                  next))
          (if selector
            (assoc acc selector ())
            acc)))]))
