@@ -68,27 +68,27 @@
         :when selector-form]
     [selector-form v]))
 
-(def ^:private specific-form
+(def ^:private only-form
   '(fn [m & vars]
      (some #(= (str "#'" %) (-> m ::var str)) vars)))
 
 (defn- read-args [args project]
   (let [args (map read-string args)
-        [nses cmd-selectors] (split-selectors args)
+        [nses given-selectors] (split-selectors args)
         nses (or (seq nses)
                  (sort
                   (b/namespaces-on-classpath
                    :classpath (map io/file (:test-paths project)))))
         selectors (partial-selectors (merge {:all '(constantly true)}
-                                            {:specific specific-form}
+                                            {:only only-form}
                                             (:test-selectors project))
-                                     cmd-selectors) 
+                                     given-selectors) 
         selectors (if (and (empty? selectors)
                            (:default (:test-selectors project)))
                     [[(:default (:test-selectors project)) ()]]
                     selectors)]
     (when (and (empty? selectors) 
-               (seq cmd-selectors))
+               (seq given-selectors))
       (main/abort "Please specify :test-selectors in project.clj"))
     [nses selectors]))
 
