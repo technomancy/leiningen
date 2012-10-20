@@ -9,9 +9,9 @@
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]]
               :root "/tmp/lein-sample-project"
               :target-path "/tmp/lein-sample-project/target"
-              :source-path ["/tmp/lein-sample-project/src"]
-              :resources-path ["/tmp/lein-sample-project/resources"]
-              :test-path ["/tmp/lein-sample-project/test"]
+              :source-paths ["/tmp/lein-sample-project/src"]
+              :resource-paths ["/tmp/lein-sample-project/resources"]
+              :test-paths ["/tmp/lein-sample-project/test"]
               :compile-path "/tmp/lein-sample-project/classes"})
 
 (deftest test-eval-in-project
@@ -29,7 +29,7 @@
                                      "-XX:+HeapDumpOnOutOfMemoryError")))))
 
 (deftest test-file-encoding-in-jvm-args
-  (is (contains? 
+  (is (contains?
           (set (#'leiningen.core.eval/get-jvm-args project))
           (str "-Dfile.encoding=" (System/getProperty "file.encoding")))))
 

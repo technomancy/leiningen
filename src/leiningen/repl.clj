@@ -101,7 +101,8 @@
                             (:repl-options project))]
     (clojure.set/rename-keys
       (merge
-        repl-options
+       repl-options
+        ;; TODO: make this consistent with :injections
         {:init (if-let [init-ns (or (:init-ns repl-options) (:main project))]
                  `(do (require '~init-ns) (in-ns '~init-ns)
                       ~(:init repl-options))
