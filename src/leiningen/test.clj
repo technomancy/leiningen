@@ -15,15 +15,19 @@
      (leiningen.core.injected/add-hook
       (resolve 'clojure.test/test-var)
       (fn test-var-with-selector [test-var# var#]
-        (when (reduce #(or %1 (%2 (merge (-> var# meta :ns meta)
-                                         (assoc (meta var#) ::var var#))))
+        (when (reduce (fn [acc# [selector# args#]]
+                        (or acc#
+                            (apply selector#
+                                   (merge (-> var# meta :ns meta)
+                                          (assoc (meta var#) ::var var#))
+                                   args#)))
                       false ~selectors)
           (test-var# var#))))))
 
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
   each namespace and print an overall summary."
-  ([namespaces & [selectors]]
+  ([namespaces _ & [selectors]]
      `(do
         (when (seq '~namespaces)
           (apply require :reload '~namespaces))
@@ -46,22 +50,48 @@
           (when ~*exit-after-tests*
             (System/exit (+ (:error summary#) (:fail summary#))))))))
 
+(defn- split-selectors [args]
+  (let [[nses selectors] ((juxt take-while drop-while) (complement keyword?) args)]
+    [nses
+     (loop [acc {} selector (first selectors) selectors (rest selectors)]
+       (if (seq selectors)
+         (let [[args next] (split-with (complement keyword?) selectors)]
+           (recur (assoc acc selector (list 'quote args))
+                  (first next)
+                  (rest next)))
+         (if selector
+           (assoc acc selector ())
+           acc)))]))
+
+(defn- partial-selectors [project-selectors selectors]
+  (for [[k v] selectors
+        :let [selector-form (k project-selectors)]
+        :when selector-form]
+    [selector-form v]))
+
+(def ^:private specific-form
+  '(fn [m & vars]
+     (some #(= (str "#'" %) (-> m ::var str)) vars)))
+
 (defn- read-args [args project]
   (let [args (map read-string args)
-        nses (if (or (empty? args) (every? keyword? args))
-               ;; maybe this is stupid and all *-path entries should
-               ;; be absolute?
-               (sort
-                 (b/namespaces-on-classpath
-                   :classpath (map io/file (:test-paths project))))
-               (filter symbol? args))
-        selectors (map (merge {:all '(constantly true)}
-                              (:test-selectors project)) (filter keyword? args))
+        [nses cmd-selectors] (split-selectors args)
+        nses (or (seq nses)
+                 ;; maybe this is stupid and all *-path entries should
+                 ;; be absolute?
+                 (sort
+                  (b/namespaces-on-classpath
+                   :classpath (map io/file (:test-paths project)))))
+        selectors (partial-selectors (merge {:all '(constantly true)}
+                                            {:specific specific-form}
+                                            (:test-selectors project))
+                                     cmd-selectors) 
         selectors (if (and (empty? selectors)
                            (:default (:test-selectors project)))
-                    [(:default (:test-selectors project))]
+                    [[(:default (:test-selectors project)) ()]]
                     selectors)]
-    (when (and (not (:test-selectors project)) (some keyword? args))
+    (when (and (empty? selectors) 
+               (seq cmd-selectors))
       (main/abort "Please specify :test-selectors in project.clj"))
     [nses selectors]))
 
@@ -93,7 +123,7 @@ tests are run."
                                    *exit-after-tests*)]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
-          form (form-for-testing-namespaces nses (vec selectors))]
+          form (form-for-testing-namespaces nses nil (vec selectors))]
       (try (eval/eval-in-project project form '(require 'clojure.test))
            (catch clojure.lang.ExceptionInfo e
              (main/abort "Tests failed."))))))
