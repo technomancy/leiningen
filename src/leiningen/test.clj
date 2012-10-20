@@ -76,8 +76,6 @@
   (let [args (map read-string args)
         [nses cmd-selectors] (split-selectors args)
         nses (or (seq nses)
-                 ;; maybe this is stupid and all *-path entries should
-                 ;; be absolute?
                  (sort
                   (b/namespaces-on-classpath
                    :classpath (map io/file (:test-paths project)))))
