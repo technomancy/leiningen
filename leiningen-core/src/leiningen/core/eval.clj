@@ -128,6 +128,8 @@
 
 (def ^:dynamic *env* nil)
 
+(def ^:dynamic *pump-in* true)
+
 (defn- overridden-env
   "Returns an overridden version of the current environment as an Array of
   Strings of the form name=val, suitable for passing to Runtime#exec."
@@ -149,7 +151,8 @@
                 in (io/writer (.getOutputStream proc))]
       (let [pump-out (doto (Thread. (bound-fn [] (pump out *out*))) .start)
             pump-err (doto (Thread. (bound-fn [] (pump err *err*))) .start)
-            pump-in (doto (Thread. (bound-fn [] (pump *in* in))) .start)]
+            pump-in (Thread. (bound-fn [] (pump *in* in)))]
+        (when *pump-in* (.start pump-in))
         (.join pump-out)
         (.join pump-err))
       (.waitFor proc))))

@@ -101,11 +101,3 @@
   which is undesirable. Since switching the default repositories to a
   releases-only Clojars (which is still in development) would be a
   breaking change, a series of previews is being released in the mean time.
-
-**Q:** I don't have access to stdin inside my project.  
-**A:** This is a limitation of the JVM's process-handling methods;
-  none of them expose stdin correctly. This means that functions like
-  `read-line` will not work as expected in most contexts, though the
-  `repl` task necessarily includes a workaround. You can also use the
-  `trampoline` task to launch your project's JVM after Leiningen's has
-  exited rather than launching it as a subprocess.
