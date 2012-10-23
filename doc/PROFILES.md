@@ -23,7 +23,7 @@ development and a dependency upon "midje" that's only used for tests.
 (defproject myproject "0.5.0-SNAPSHOT"
   :description "A project for doing things."
   :dependencies [[org.clojure/clojure "1.4.0"]]
-  :profiles {:dev {:resources-path ["dummy-data"]
+  :profiles {:dev {:resources-paths ["dummy-data"]
                    :dependencies [[midje "1.4.0"]]}})
 ```
 
