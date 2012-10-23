@@ -155,8 +155,9 @@ and port."
       (.start
        (Thread.
         (bound-fn []
-          (start-server project (repl-host project) (repl-port project)
-                        (-> @lein-repl-server deref :ss .getLocalPort)))))
+          (binding [eval/*pump-in* false]
+            (start-server project (repl-host project) (repl-port project)
+                          (-> @lein-repl-server deref :ss .getLocalPort))))))
       (when project @prep-blocker)
       (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
                                                      :repl-options
