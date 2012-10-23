@@ -335,10 +335,25 @@ separate branches of your codebase in this situation.
 
 ### Project-specific Tasks
 
-Occasionally, the need arises for a task specific to a project, so
-that, for example, `lein foo` is available from within that project's
-repo without a `lein install` or dependency download. To enable this
-behavior, place the `foo.clj` file defining the new task in
+Occasionally, the need arises for a task to be included in a project's
+codebase. However, this is much less common than people think. If you
+simply have some code that needs to be invoked from the command-line
+via `lein foo`, it's much simpler to have your code run inside your
+project and alias `foo` to `run -m myproject.foo`:
+
+``clj
+:aliases {"foo" ["run" "-m" "myproject.foo"]}
+```
+
+You only need to write a Leiningen task if you need to operate outside
+the context of your project, for instance if you need to adjust the
+project map before calling `eval-in-project` or some other task where
+you need direct access to Leiningen internals. The vast majority of
+these cases are already covered by
+[existing plugins](http://wiki.github.com/technomancy/leiningen/plugins),
+but if you have a case that doesn't exist and for some reason can't
+spin it off into its own separate plugin, you can enable this behavior
+by placing the `foo.clj` file defining the new task in
 `tasks/leiningen/` and add `tasks` to your `.lein-classpath`:
 
 ```
