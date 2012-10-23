@@ -145,9 +145,11 @@
     (.addShutdownHook (Runtime/getRuntime)
                       (Thread. (fn [] (.destroy proc))))
     (with-open [out (io/reader (.getInputStream proc))
-                err (io/reader (.getErrorStream proc))]
+                err (io/reader (.getErrorStream proc))
+                in (io/writer (.getOutputStream proc))]
       (let [pump-out (doto (Thread. (bound-fn [] (pump out *out*))) .start)
-            pump-err (doto (Thread. (bound-fn [] (pump err *err*))) .start)]
+            pump-err (doto (Thread. (bound-fn [] (pump err *err*))) .start)
+            pump-in (doto (Thread. (bound-fn [] (pump *in* in))) .start)]
         (.join pump-out)
         (.join pump-err))
       (.waitFor proc))))
