@@ -32,8 +32,8 @@ done
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
 for f in "$LEIN_HOME/leinrc" ".leinrc"; do
-  if [ -e $f ]; then
-    source $f
+  if [ -e "$f" ]; then
+    source "$f"
   fi
 done
 
@@ -123,7 +123,7 @@ else # Not running from a checkout
         CLASSPATH="$LEIN_JAR"
     fi
 
-    export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
+    export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:\"$LEIN_JAR\""}
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         "$0" self-install
@@ -256,14 +256,14 @@ else
         fi
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
-        $LEIN_JAVA_CMD \
+        eval $LEIN_JAVA_CMD \
             -client -XX:+TieredCompilation \
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -Dleiningen.trampoline-file="$TRAMPOLINE_FILE" \
-            -cp "$CLASSPATH" \
+            \"-Dleiningen.original.pwd="$ORIGINAL_PWD"\" \
+            \"-Dleiningen.trampoline-file="$TRAMPOLINE_FILE"\" \
+            -cp \""$CLASSPATH"\" \
             clojure.main -m leiningen.core.main "$@"
 
         EXIT_CODE=$?
