@@ -55,7 +55,7 @@
   and nil otherwise."
   [token keys project f & args]
   (let [file (io/file (:target-path project) "stale"
-                      (str token "." (str/join "+" (map name keys))))
+                      (str (name token) "." (str/join "+" (map name keys))))
         current-value (pr-str (map (juxt identity project) keys))
         old-value (and (.exists file) (slurp file))]
     (when (and (:name project) (:target-path project)
