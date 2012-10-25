@@ -125,9 +125,10 @@ explains how to write plugins.
 
 Please report issues on the
 [GitHub issue tracker](https://github.com/technomancy/leiningen/issues)
-or the [mailing list](http://librelist.com/browser/leiningen/).
-Personal email addresses are **not** appropriate for bug reports. See
-the
+or the [mailing list](http://librelist.com/browser/leiningen/). To
+join the mailing list, email `leiningen@librelist.org`; your first
+message to that address will subscribe you without being posted.
+Personal email addresses are not appropriate for bug reports. See the
 [readme for the leiningen-core library](https://github.com/technomancy/leiningen/blob/master/leiningen-core/README.md)
 and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
 structured. Design discussions also occur in the
