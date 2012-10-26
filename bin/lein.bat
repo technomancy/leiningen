@@ -215,7 +215,8 @@ set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 %LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp "%CLASSPATH%" clojure.main -e "(use 'leiningen.core.main)(apply -main "%TRAMPOLINE_FILE%" (map str '(%*)))"
+ -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
+ -cp "%CLASSPATH%" clojure.main -e "(use 'leiningen.core.main)(apply -main (map str '(%*)))"
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
