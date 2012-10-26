@@ -229,3 +229,4 @@ goto EOF
  -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
 :EOF
+
