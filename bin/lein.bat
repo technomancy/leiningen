@@ -213,7 +213,7 @@ if "%1" == "trampoline" (goto RUN_TRAMPOLINE) else (goto RUN_NORMAL)
 :RUN_TRAMPOLINE
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 %LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
- -Dclojure.compile.path=%DIR_CONTAINING%/target/classes ^
+ -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp "%CLASSPATH%" clojure.main -e "(use 'leiningen.core.main)(apply -main "%TRAMPOLINE_FILE%" (map str '(%*)))"
 
@@ -224,7 +224,7 @@ goto EOF
 
 :RUN_NORMAL
 %LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
- -Dclojure.compile.path=%DIR_CONTAINING%/target/classes ^
+ -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
