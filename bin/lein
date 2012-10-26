@@ -28,7 +28,7 @@ function make_native_path {
 
 #  usage : add_path PATH_VAR [PATH]...
 function add_path {
-    local path_var=$1
+    local path_var="$1"
     shift
     while [ -n "$1" ];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
@@ -58,13 +58,13 @@ done
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
 for f in "$LEIN_HOME/leinrc" ".leinrc"; do
-  if [ -e $f ]; then
-    source $f
+  if [ -e "$f" ]; then
+    source "$f"
   fi
 done
 
 if [ "$OSTYPE" = "cygwin" ]; then
-    export LEIN_HOME=`cygpath -w $LEIN_HOME`
+    export LEIN_HOME=`cygpath -w "$LEIN_HOME"`
 fi
 
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
@@ -91,14 +91,14 @@ BIN_DIR="$(dirname "$SCRIPT")"
 
 # Try to make the default more sane for :eval-in :classloader.lein
 grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null &&
-LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}
+LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}"
 
 if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
 
     # Need to use lein 1.x to bootstrap the leiningen-core library (for aether)
-    if [ "$(ls $LEIN_DIR/leiningen-core/lib/*)" = "" ]; then
+    if [ "$(ls "$LEIN_DIR"/leiningen-core/lib/*)" = "" ]; then
         echo "Leiningen is missing its dependencies."
         echo "Please see \"Building\" in the README."
         exit 1
@@ -121,7 +121,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         cd "$LEIN_DIR"
 
         $0 classpath .lein-classpath
-        sum $LEIN_DIR/project.clj $LEIN_DIR/leiningen-core/project.clj > \
+        sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj" > \
             .lein-project-checksum
         cd "$ORIG_PWD"
     fi
@@ -132,7 +132,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
                           "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
 
     if [ -r "$LEIN_DIR/.lein-classpath" ]; then
-        add_path CLASSPATH "$(cat $LEIN_DIR/.lein-classpath 2> /dev/null)"
+        add_path CLASSPATH "$(cat "$LEIN_DIR/.lein-classpath" 2> /dev/null)"
     else
         add_path CLASSPATH "$LEIN_DIR/leiningen-core/lib/*"
     fi
@@ -141,7 +141,7 @@ else # Not running from a checkout
 
     # TODO: unify setting this; it's a complete mess. Should be able
     # to easily modify jvm opts without losing bootclasspath
-    export LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}
+    export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-"-Xbootclasspath/a:$LEIN_JAR"}"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         "$0" self-install
@@ -170,11 +170,11 @@ function download_failed_message {
 }
 
 # TODO: explain what to do when Java is missing
-export JAVA_CMD=${JAVA_CMD:-"java"}
-export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
+export JAVA_CMD="${JAVA_CMD:-"java"}"
+export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
 
-if [[ "$(basename $LEIN_JAVA_CMD)" == *drip* ]]; then
-    export DRIP_INIT=$(printf -- "-e\n(require 'leiningen.repl)")
+if [[ "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
+    export DRIP_INIT="$(printf -- "-e\n(require 'leiningen.repl)")"
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
@@ -263,7 +263,7 @@ else
 
     if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
         [ -r project.clj ]; then
-        INPUTS="$@ $(cat project.clj) $(cat $LEIN_HOME/profiles.clj)"
+        INPUTS="$@ $(cat project.clj) $(cat "$LEIN_HOME/profiles.clj")"
         INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
@@ -283,7 +283,7 @@ else
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
         export TRAMPOLINE_FILE
-        $LEIN_JAVA_CMD \
+        "$LEIN_JAVA_CMD" \
             -client -XX:+TieredCompilation \
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
