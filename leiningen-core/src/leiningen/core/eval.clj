@@ -163,7 +163,7 @@
 ;; for some of the landmines involved in doing it properly
 (defn- form-string [form eval-in]
   (if (and (= (get-os) :windows) (not= :trampoline eval-in))
-    (pr-str (pr-str form))
+    (let [s (pr-str (pr-str form))] (subs s 1 (dec (.length s))))
     (pr-str form)))
 
 (defn- classpath-arg [project]
