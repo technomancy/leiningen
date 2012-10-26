@@ -102,7 +102,7 @@ Leiningen documentation is organized as a number of guides:
  * Leiningen [Profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md)
  * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md)
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj)
- * [Plugins](https://github.com/technomancy/leiningen/blob/master/doc/PLUGINS.md)
+ * [Writing Plugins](https://github.com/technomancy/leiningen/blob/master/doc/PLUGINS.md)
  * [FAQ](https://github.com/technomancy/leiningen/blob/master/doc/FAQ.md)
 
 
@@ -158,20 +158,21 @@ and [tested on Travis](http://travis-ci.org/#!/technomancy/leiningen).
 You don't need to "build" Leiningen per se, but when you're using a
 checkout you will need to get its dependencies in place.
 
-For the master branch, use an existing Leiningen version (currently
-this means Leiningen 1) to run `lein install` in the `leiningen-core`
-subproject directory. When the dependencies change you will also have
-to do `rm .lein-classpath` in the project root. It's not yet possible
-to bootstrap a development version of Leiningen without having an
-older version installed.
-
-Using `bin/lein` alone from the master branch is not supported. The
-master branch is designed to be used from a full git checkout. If you
-want to just grab a shell script to work with, use the preview branch.
+For the master branch, use Leiningen 1 to run `lein install` in the
+`leiningen-core` subproject directory. Alternately you can run `mvn
+dependency:copy-dependencies` in the same directory followed by `cp
+-r target/dependency lib`.
 
 Once you've done that, symlink `bin/lein` to somewhere on your
 `$PATH`. Usually you'll want to rename your existing installation to
 keep them from interfering.
+
+When the dependencies change you will also have to do `rm
+.lein-classpath` in the project root.
+
+Using `bin/lein` alone from the master branch without a full checkout
+is not supported. If you want to just grab a shell script to work
+with, use the preview branch.
 
 ## License
 
