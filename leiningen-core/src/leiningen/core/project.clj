@@ -72,7 +72,11 @@
                (cond (and (seq? item) (= `unquote (first item))) (second item)
                      ;; needed if we want fn literals preserved
                      (or (seq? item) (symbol? item)) (list 'quote item)
-                     :else (unquote-project item)))
+                     :else (let [result (unquote-project item)]
+                             ;; clojure.walk strips metadata
+                             (if-let [m (meta item)]
+                               (with-meta result m)
+                               result))))
              identity
              args))
 
