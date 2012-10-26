@@ -18,14 +18,14 @@
 (defn- quote-arg [arg]
   (format "\"%s\"" arg))
 
-(defn trampoline-command-string [project forms deps]
+(defn trampoline-command-string [project forms profiles]
   ;; each form is (do init & body)
   (let [forms (map rest forms) ;; strip off do
         inits (map first forms)
         rests (mapcat rest forms)
         ;; This won't pick up :jvm-args that come from profiles, but it
         ;; at least gets us :dependencies.
-        project (project/merge-profiles project {:dependencies deps})
+        project (project/merge-profiles project profiles)
         command (eval/shell-command project (concat '(do) inits rests))]
     (string/join " " (if (win-batch?)
                        (map quote-arg command)
@@ -33,8 +33,8 @@
                              (with-out-str
                                (prn (last command))))))))
 
-(defn write-trampoline [project forms deps]
-  (let [command (trampoline-command-string project forms deps)
+(defn write-trampoline [project forms profiles]
+  (let [command (trampoline-command-string project forms profiles)
         trampoline (trampoline-file)]
     (main/debug "Trampoline command:" command)
     (.mkdirs (.getParentFile (io/file trampoline)))
@@ -58,5 +58,5 @@ Use this to save memory or to work around stdin issues."
                                     :eval-in :trampoline))
                      args))
   (if (seq @eval/trampoline-forms)
-    (write-trampoline project @eval/trampoline-forms @eval/trampoline-deps)
+    (write-trampoline project @eval/trampoline-forms @eval/trampoline-profiles)
     (main/abort task-name "did not run any project code for trampolining.")))
