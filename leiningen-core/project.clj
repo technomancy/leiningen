@@ -7,7 +7,7 @@
                  [bultitude "0.1.7"]
                  [classlojure "0.6.6"]
                  [useful "0.8.6"]
-                 [robert/hooke "1.1.2"]
+                 [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.0.13"
                   :exclusions [org.slf4j/slf4j-api]]]
   ;; This is only used when releasing Leiningen. Can't put it in a

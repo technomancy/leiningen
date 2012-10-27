@@ -1,14 +1,16 @@
 (ns leiningen.with-profile
   (:require [leiningen.core.main :as main]
-            [leiningen.core.project :as project]))
+            [leiningen.core.project :as project]
+            [robert.hooke :as hooke]))
 
 (defn- with-profile*
   "Apply the given task with a comma-separated profile list."
   [project profiles task-name & args]
-  (let [profiles (map keyword (.split profiles ","))
-        project (and project (project/set-profiles project profiles))
-        task-name (main/lookup-alias task-name project)]
-    (main/apply-task task-name project args)))
+  (hooke/with-scope
+    (let [profiles (map keyword (.split profiles ","))
+          project (and project (project/set-profiles project profiles))
+          task-name (main/lookup-alias task-name project)]
+      (main/apply-task task-name project args))))
 
 (defn ^:no-project-needed ^:higher-order with-profile
   "Apply the given task with the profile(s) specified.
