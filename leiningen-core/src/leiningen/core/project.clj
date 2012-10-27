@@ -213,7 +213,7 @@
 (def ^:private hooke-injection
   (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
     `(do (ns ~'leiningen.core.injected)
-         ~@(doall (take 6 (rest (repeatedly #(clojure.core/read rdr)))))
+         ~@(doall (take 19 (rest (repeatedly #(clojure.core/read rdr)))))
          (ns ~'user))))
 
 (def default-profiles
