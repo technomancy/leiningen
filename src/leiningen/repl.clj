@@ -14,18 +14,18 @@
             [leiningen.core.main :as main]))
 
 (def reply-profile {:dependencies '[^:displace ; TODO: displace ignored here
-                                     [org.thnetos/cd-client "0.3.4"
+                                     [org.thnetos/cd-client "0.3.6"
                                       :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
-                                          [reply "0.1.0-beta11"
+                                          [reply "0.1.0"
                                            :exclusions [org.clojure/clojure]]]})
 
 (defn profiles-for [project trampoline? reply?]
   (let [base (or (:repl (:profiles project))
                  (:repl (user/profiles))
                  {:dependencies '[^:displace
-                                  [org.clojure/tools.nrepl "0.2.0-beta9"
+                                  [org.clojure/tools.nrepl "0.2.0-RC1"
                                    :exclusions [org.clojure/clojure]]
                                   ^:displace
                                   [clojure-complete "0.2.2"
