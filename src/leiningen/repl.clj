@@ -58,8 +58,8 @@
                         :bind ~host :port ~port :ack-port ~ack-port
                         :handler ~(handler-for project))
                port# (-> server# deref :ss .getLocalPort)]
+           (when ~headless? (println "nREPL server started on port" port#))
            (do ~(if headless? (-> project :repl-options :init)))
-           (println "nREPL server started on port" port#)
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
            @(promise))]
@@ -162,7 +162,9 @@ and port."
       (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
                                                      :repl-options
                                                      (:timeout 30000)))]
-        (reply/launch-nrepl (options-for-reply project :attach repl-port))
+        (do
+          (println "nREPL server started on port" repl-port)
+          (reply/launch-nrepl (options-for-reply project :attach repl-port)))
         (println "REPL server launch timed out.")))))
   ([project flag & opts]
    (case flag
