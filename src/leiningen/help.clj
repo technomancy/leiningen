@@ -126,11 +126,9 @@ deploying, mixed-source, and copying info."
      (doseq [task-ns (main/tasks)]
        (println (help-summary-for task-ns)))
      (println "\nRun `lein help $TASK` for details.")
-     ;; TODO: show user-level aliases too
-     (if-let [aliases (:aliases project)]
-       (do
-         (println "\nAliases:")
-         (doseq [[k v] aliases]
-           (println (str k  " " v)))))
+     (when-let [aliases (:aliases project)]
+       (println "\nAliases:")
+       (doseq [[k v] aliases]
+         (println (str k  " " v))))
      (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
               "deploying, mixed-source, and copying.")))
