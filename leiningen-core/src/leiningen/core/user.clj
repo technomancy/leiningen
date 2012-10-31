@@ -65,28 +65,28 @@
 
 ;; TODO remove after some period of time, maybe just prior to 2.0.0 going out?
 (def ^:private creds-value-warning
-  (delay (println "Warning: if you want to load all credentials for a repository from")
-         (println "~/.lein/credentials.clj.gpg, add :creds :gpg in the repository map.")))
+  (delay (println "Warning: if you want to load all credentials for a")
+         (println "repository from ~/.lein/credentials.clj.gpg, add")
+         (println ":creds :gpg in the repository map.")))
 
 (defn- resolve-credential
   [source-settings result [k v]]
   (letfn [(resolve [v]
-            (cond
-              (= :env v)
-              (System/getenv (str "LEIN_" (str/upper-case (name k))))
-              
-              (and (keyword? v) (= "env" (namespace v)))
-              (System/getenv (str/upper-case (name v)))
-              
-              (= :gpg v)
-              (do (force creds-value-warning)
-                (get (match-credentials source-settings (credentials)) k))
-              
-              (coll? v)
-              (->> (map resolve v)
-                (remove nil?)
-                first)
-              :else v))]
+            (cond (= :env v)
+                  (System/getenv (str "LEIN_" (str/upper-case (name k))))
+
+                  (and (keyword? v) (= "env" (namespace v)))
+                  (System/getenv (str/upper-case (name v)))
+
+                  (= :gpg v)
+                  (do (force creds-value-warning)
+                      (get (match-credentials source-settings (credentials)) k))
+
+                  (coll? v)
+                  (->> (map resolve v)
+                       (remove nil?)
+                       first)
+                  :else v))]
     (assoc result k (resolve v))))
 
 (defn resolve-credentials
