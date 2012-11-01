@@ -145,14 +145,7 @@
       (abort "Wrong number of arguments to" task-name "task."
              "\nExpected" (rest (:arglists (meta task)))))
     (debug "Applying task" task-name "to" args)
-    (let [value (apply task project args)]
-      ;; TODO: remove this for final release
-      (when (and value (number? value))
-        (println "WARNING: using numeric exit values in plugins is deprecated.")
-        (println "Plugins should use leiningen.core.main/abort instead.")
-        (println "Support for this will be removed before the stable 2.0.0 release.")
-        (abort task-name "failed."))
-      value)))
+    (apply task project args)))
 
 (defn leiningen-version []
   (System/getenv "LEIN_VERSION"))
