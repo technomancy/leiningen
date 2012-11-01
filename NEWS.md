@@ -1,5 +1,27 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-RC1 / ???
+
+* Check Clojars releases repository by default instead of legacy Clojars.
+* Allow hooks from profiles to apply with limited scope. (Hugo Duncan)
+* Fix a bug where profile-specific paths were ignored in trampoline.
+* Support reading from stdin inside project process.
+* Add :only test selector. (Anthony Grimes)
+* Support partial application for test selectors. (Anthony Grimes)
+* Un-deprecate :auth profile for full-disk-encryption users.
+* Add documentation for mixed-source projects. (Michael Klishin)
+* Make later profiles take precedence in with-profile task. (Justin Balthrop)
+* Improve help for subtasks. (Tobias Crawley)
+* Allow vectors to specify multiple credential sources. (Chas Emerick)
+* Look up credentials in environment using namespaced keywords. (Chas Emerick)
+* Support overriding :repl profile from project.clj or profiles.clj.
+* Allow test selectors to operate on namespace. (Jim Crossley)
+* Honor environment variables in project.clj. (Justin Balthrop)
+* Allow searching over fields other than artifact id. (Michael Klishin)
+* Honor per-project REPL history. (Michael Klishin, Colin Jones)
+* Reduce output during dependency resolution. (Nelson Morris)
+* Fix search task outside project. (Bruce Adams)
+
 ## 2.0.0-preview10 / 2012-08-25
 
 * Fix a bug where repositories wouldn't be checked running outside a project.
