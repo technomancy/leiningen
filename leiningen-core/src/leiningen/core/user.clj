@@ -63,12 +63,6 @@
                                (re-find re? (:url settings)))]
                 cred))))
 
-;; TODO remove after some period of time, maybe just prior to 2.0.0 going out?
-(def ^:private creds-value-warning
-  (delay (println "Warning: if you want to load all credentials for a")
-         (println "repository from ~/.lein/credentials.clj.gpg, add")
-         (println ":creds :gpg in the repository map.")))
-
 (defn- resolve-credential
   [source-settings result [k v]]
   (letfn [(resolve [v]
@@ -79,8 +73,7 @@
                   (System/getenv (str/upper-case (name v)))
 
                   (= :gpg v)
-                  (do (force creds-value-warning)
-                      (get (match-credentials source-settings (credentials)) k))
+                  (get (match-credentials source-settings (credentials)) k)
 
                   (coll? v)
                   (->> (map resolve v)

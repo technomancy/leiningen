@@ -116,7 +116,6 @@ using the subtask's docstring if the help function is not found."
 
 Also provides readme, faq, tutorial, news, sample, profiles,
 deploying, mixed-source, and copying info."
-  ;; TODO: explain partial aliases in specific help
   ([project task subtask] (println (or (static-help (str task "-" subtask))
                                        (help-for-subtask project task subtask))))
   ([project task] (println (or (static-help task) (help-for project task))))
