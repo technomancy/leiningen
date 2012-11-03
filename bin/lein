@@ -293,7 +293,7 @@ else
 
         EXIT_CODE=$?
 
-        if [ -r "$TRAMPOLINE_FILE" ]; then
+        if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
             if [ "$INPUT_CHECKSUM" = "" ]; then
                 rm $TRAMPOLINE_FILE
