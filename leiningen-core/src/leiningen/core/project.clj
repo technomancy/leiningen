@@ -178,8 +178,8 @@
 
 (defn- add-exclusions [exclusions dep]
   (dependency-vec
-   (meta-merge (dependency-map dep)
-               {:exclusions (map exclusion-map exclusions)})))
+   (update (dependency-map dep) :exclusions
+           meta-merge (map exclusion-map exclusions))))
 
 (defn- add-global-exclusions [project]
   (let [{:keys [dependencies exclusions]} project]
