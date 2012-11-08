@@ -461,15 +461,6 @@
         (load-plugins))
       (activate-middleware)))
 
-(defn ^{:deprecated "2.0.0-preview3"} conj-dependency
-  "Add a dependency into the project map if it's not already present. Warn the
-  user if it is. Plugins should use this rather than altering :dependencies.
-
-  Deprecated in 2.0.0-preview3."
-  [project dependency]
-  (println "WARNING: conj-dependencies is deprecated.")
-  (update-in project [:dependencies] conj dependency))
-
 (defn add-profiles
   "Add the profiles in the given profiles map to the project map, taking care
    to preserve project map metadata. Note that these profiles are not merged,
