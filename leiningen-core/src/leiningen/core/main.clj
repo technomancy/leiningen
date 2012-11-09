@@ -32,12 +32,16 @@
 
 (def ^:dynamic *debug* (System/getenv "DEBUG"))
 
-(defn debug [& args]
+(defn debug
+  "Print if *debug* (from DEBUG environment variable) is truthy."
+  [& args]
   (when *debug* (apply println args)))
 
 (def ^:dynamic *info* true)
 
-(defn info [& args]
+(defn info
+  "Print unless *info* has been rebound to false."
+  [& args]
   (when *info* (apply println args)))
 
 (def ^:dynamic *exit-process?*
@@ -45,7 +49,8 @@
 
 (defn exit
   "Exit the process. Rebind *exit-process?* in order to suppress actual process
-  exits for tools which may want to continue operating."
+  exits for tools which may want to continue operating. Never call
+  System/exit directly."
   ([exit-code]
      (if *exit-process?*
        (do (shutdown-agents)
@@ -55,14 +60,14 @@
 
 (defn abort
   "Print msg to standard err and exit with a value of 1.
-  Will not directly exit under some circumstances; see `*exit-process?*`."
+  Will not directly exit under some circumstances; see *exit-process?*."
   [& msg]
   (binding [*out* *err*]
     (when (seq msg)
       (apply println msg))
     (exit 1)))
 
-(defn distance [s t]
+(defn- distance [s t]
   (letfn [(iters [n f start]
             (take n (map second
                          (iterate f start))))]
@@ -90,18 +95,20 @@
        (distinct)
        (sort)))
 
-(defn suggestions [task]
-  (let [suggestions (into {} (for [t (tasks)
+(defn suggestions
+  "Suggest possible misspellings for task from list of tasks."
+  [task tasks]
+  (let [suggestions (into {} (for [t tasks
                                    :let [n (.replaceAll (name t)
                                                         "leiningen." "")]]
                                [n (distance n task)]))
         min (apply min (vals suggestions))]
-    (when (<= min 4)
+    (if (<= min 4)
       (map first (filter #(= min (second %)) suggestions)))))
 
 (defn ^:no-project-needed task-not-found [task & _]
   (println (str "'" task "' is not a task. See 'lein help'."))
-  (when-let [suggestions (suggestions task)]
+  (when-let [suggestions (suggestions task (tasks))]
     (println)
     (println "Did you mean this?")
     (doseq [suggestion suggestions]
@@ -117,6 +124,7 @@
      (cons f (drop non-varargs r))))
 
 (defn resolve-task
+  "Look up task function and perform partial application if applicable."
   ([task not-found]
      (let [[task & pargs] (if (coll? task) task [task])]
        (if-let [task-var (utils/require-resolve (str "leiningen." task) task)]
@@ -134,7 +142,9 @@
                parameters))
         (:arglists (meta task))))
 
-(defn apply-task [task-name project args]
+(defn apply-task
+  "Resolve task-name to a function and apply project and args if arity matches."
+  [task-name project args]
   (let [[task-alias] (for [[k v] (:aliases project) :when (= v task-name)] k)
         project (and project (update-in project [:aliases] (fnil dissoc {})
                                         (or task-alias task-name)))
@@ -163,14 +173,13 @@
 (def ^:private min-version-warning
   "*** Warning: This project requires Leiningen %s, but you have %s ***
 
-Get the latest verison of Leiningen at https://github.com/technomancy/leiningen
-or by executing \"lein upgrade\". ")
+Get the latest verison of Leiningen at http://leiningen.org or by executing
+\"lein upgrade\".")
 
 (defn- verify-min-version
   [{:keys [min-lein-version]}]
   (when-not (version-satisfies? (leiningen-version) min-lein-version)
-    (info (format min-version-warning
-                  min-lein-version (leiningen-version)))))
+    (info (format min-version-warning min-lein-version (leiningen-version)))))
 
 (defn- warn-chaining [task-name args]
   (when (and (some #(.endsWith (str %) ",") (cons task-name args))
@@ -198,7 +207,7 @@ or by executing \"lein upgrade\". ")
     (System/setProperty "https.proxyPort" (str port))))
 
 (defn -main
-  "Run a task or comma-separated list of tasks."
+  "Command-line entry point."
   [& raw-args]
   (try
     (user/init)

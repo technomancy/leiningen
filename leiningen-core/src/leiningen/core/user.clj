@@ -28,8 +28,9 @@
   []
   (try (utils/read-file (io/file (leiningen-home) "profiles.clj"))
        (catch Exception e
-         (println "Error reading profiles.clj from" (leiningen-home))
-         (println (.getMessage e)))))
+         (binding [*out* *err*]
+           (println "Error reading profiles.clj from" (leiningen-home))
+           (println (.getMessage e))))))
 
 (defn gpg-program
   "Lookup the gpg program to use, defaulting to 'gpg'"
@@ -95,7 +96,9 @@
       (dissoc (merge gpg-creds resolved) :creds)
       resolved)))
 
-(defn profile-auth [settings]
+(defn profile-auth
+  "Look up credentials for a given repository in :auth profile."
+  [settings]
   (if-let [repo-auth (-> (profiles) :auth :repository-auth)]
     (merge settings (match-credentials settings repo-auth))
     settings))
