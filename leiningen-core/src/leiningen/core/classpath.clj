@@ -23,7 +23,8 @@
        "WARN ignoring checkouts directory" dep
        "as it does not contain a project.clj file."))))
 
-(defn- checkout-dep-paths [project dep dep-project]
+(defn- checkout-dep-paths [project dep-project]
+  ;; can't mapcat here since :checkout-deps-shares points to vectors and strings
   (flatten (map dep-project (:checkout-deps-shares project))))
 
 (defn- checkout-deps-paths
@@ -35,7 +36,7 @@
                       :let [dep-project (read-dependency-project
                                          (:root project) dep)]
                       :when dep-project]
-                  (checkout-dep-paths project dep dep-project))))
+                  (checkout-dep-paths project dep-project))))
 
 (defn extract-native-deps [deps native-path]
   (doseq [jar (map #(JarFile. %) deps)
