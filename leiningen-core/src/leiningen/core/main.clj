@@ -19,11 +19,11 @@
               "tutorial" ["help" "tutorial"]
               "sample" ["help" "sample"]})
 
-(defn lookup-alias [task-name project]
+(defn lookup-alias [task-name project & [not-found]]
   (or (aliases task-name)
       (get (:aliases project) task-name)
       task-name
-      "help"))
+      (or not-found "help")))
 
 (defn task-args [args project]
   (if (= "help" (aliases (second args)))
