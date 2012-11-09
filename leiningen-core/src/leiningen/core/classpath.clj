@@ -204,7 +204,7 @@
         (map (memfn getAbsolutePath)))))
 
 (defn get-classpath
-  "Return a the classpath for project as a list of strings."
+  "Return the classpath for project as a list of strings."
   [project]
   (for [path (concat (:test-paths project)
                      (:source-paths project)
