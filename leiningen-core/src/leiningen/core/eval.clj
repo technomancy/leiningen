@@ -124,23 +124,32 @@
         (Thread/sleep 100)
         (recur (.read reader buffer))))))
 
-(def ^:dynamic *dir* (System/getProperty "user.dir"))
+(def ^:dynamic *dir*
+  "Directory in which to start subprocesses with eval-in-project or sh."
+  (System/getProperty "user.dir"))
 
-(def ^:dynamic *env* nil)
+(def ^:dynamic *env*
+  "Environment map with which to start subprocesses with eval-in-project or sh.
+  Merged into the current environment unless ^:replace metadata is attached."
+  nil)
 
-(def ^:dynamic *pump-in* true)
+(def ^:dynamic *pump-in*
+  "Rebind this to false to disable forwarding *in* to subprocesses."
+  true)
 
 (defn- overridden-env
   "Returns an overridden version of the current environment as an Array of
   Strings of the form name=val, suitable for passing to Runtime#exec."
   [env]
-  (->> (merge {} (System/getenv) env)
+  (->> (if (:replace (meta env))
+         env
+         (merge {} (System/getenv) env))
        (filter val)
        (map #(str (name (key %)) "=" (val %)))
        (into-array String)))
 
 (defn sh
-  "A version of clojure.java.shell/sh that streams out/err."
+  "A version of clojure.java.shell/sh that streams in/out/err."
   [& cmd]
   (let [env (overridden-env *env*)
         proc (.exec (Runtime/getRuntime) (into-array cmd) env (io/file *dir*))]
