@@ -21,22 +21,13 @@
                      (b/namespaces-on-classpath :classpath))]
    (mapcat #(matching-nses % avail-nses) nses)))
 
-(defn- compile-main? [{:keys [main source-paths] :as project}]
-  (and main (not (:skip-aot (meta main)))
-       (some #(.exists (io/file % (b/path-for main))) source-paths)))
-
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
-  [project]
-  (let [nses (:aot project)
-        nses (if (= :all nses)
-               (b/namespaces-on-classpath :classpath (map io/file
-                                                          (:source-paths project)))
-               (find-namespaces-by-regex project nses))]
-    (if (compile-main? project)
-      (conj nses (:main project))
-      nses)))
+  [{:keys [aot source-paths] :as project}]
+  (if (= :all aot)
+    (b/namespaces-on-classpath :classpath (map io/file source-paths))
+    (find-namespaces-by-regex project aot)))
 
 (defn stale-namespaces
   "Return a seq of namespaces that are both compilable and that have missing or

@@ -110,9 +110,6 @@
   ;;   "Application entry point"
   ;;   [& args]
   ;;   (comment Do app initialization here))
-  ;;
-  ;; Set :skip-aot metadata on this symbol to use it for other things like the
-  ;; run task without triggering AOT if you don't need an executable uberjar.
   :main my.service.runner
   ;; Options to change the way the REPL behaves
   :repl-options {;; Specify the string to print when prompting for input.

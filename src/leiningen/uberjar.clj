@@ -3,6 +3,7 @@
   (:require [clojure.xml :as xml]
             [clojure.zip :as zip]
             [clojure.java.io :as io]
+            [bultitude.core :as b]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
@@ -65,6 +66,17 @@
         (.flush *out*))
       (.closeEntry out))))
 
+(defn- compile-main? [{:keys [main source-paths] :as project}]
+  (and main (some #(.exists (io/file % (b/path-for main))) source-paths)))
+
+(defn- add-main [project given-main]
+  (let [project (if given-main
+                  (assoc project :main (symbol given-main))
+                  project)]
+    (if (compile-main? project)
+      (update-in project [:aot] conj (:main project))
+      project)))
+
 (defn uberjar
   "Package up the project files and all dependencies into a jar file.
 
@@ -76,9 +88,7 @@ With an argument, the uberjar will be built with an alternate main.
 The namespace you choose as main should have :gen-class in its ns form
 as well as defining a -main function."
   ([project main]
-     (let [project (if main
-                     (assoc project :main (symbol main))
-                     project)
+     (let [project (add-main project main)
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))]
        (try (jar/jar project)
