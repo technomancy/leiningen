@@ -18,7 +18,7 @@
                       (f)))
 
 (deftest test-compile
-  (compile sample-project)
+  (compile sample-project "nom.nom.nom")
   (is (.exists (file "test_projects" "sample" "target"
                      "classes" "nom" "nom" "nom.class")))
   (is (thrown? Exception (compile sample-failing-project))))
@@ -40,7 +40,7 @@
   (is @eip-check))
 
 (deftest test-cleared-transitive-aot
-  (compile (assoc sample-project :clean-non-project-classes true))
+  (compile (assoc sample-project :clean-non-project-classes true) "nom.nom.nom")
   (eval/eval-in-project sample-project '(require 'nom.nom.nom))
   (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
@@ -53,7 +53,8 @@
                           "classes" "sample2" "alt.class")))))
 
 (deftest test-cleared-transitive-aot-by-regexes
-  (compile (assoc sample-project :clean-non-project-classes [#"core"]))
+  (compile (assoc sample-project :clean-non-project-classes [#"core"])
+           "nom.nom.nom")
   (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
     (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto__.class"
@@ -63,11 +64,6 @@
                           "classes" "sample2" "core.class"))))
   (is (.exists (file "test_projects" "sample" "target" "classes"
                      "sample2" "alt__init.class"))))
-
-(deftest test-skip-aot-on-main
-  (delete-file-recursively (:compile-path tricky-name-project) :silent)
-  (compile tricky-name-project)
-  (is (empty? (.list (file (:compile-path tricky-name-project))))))
 
 (deftest test-injection
   (eval/eval-in-project (assoc sample-project

@@ -2,19 +2,20 @@
 
 ## 2.0.0-RC1 / ???
 
+* Don't AOT the `:main` namespace outside of uberjar task.
 * Check Clojars releases repository by default instead of legacy Clojars.
 * Allow hooks from profiles to apply with limited scope. (Hugo Duncan)
 * Fix a bug where profile-specific paths were ignored in trampoline.
 * Support reading from stdin inside project process.
-* Add :only test selector. (Anthony Grimes)
+* Add `:only` test selector. (Anthony Grimes)
 * Support partial application for test selectors. (Anthony Grimes)
-* Un-deprecate :auth profile for full-disk-encryption users.
+* Un-deprecate `:auth` profile for full-disk-encryption users.
 * Add documentation for mixed-source projects. (Michael Klishin)
 * Make later profiles take precedence in with-profile task. (Justin Balthrop)
 * Improve help for subtasks. (Tobias Crawley)
 * Allow vectors to specify multiple credential sources. (Chas Emerick)
 * Look up credentials in environment using namespaced keywords. (Chas Emerick)
-* Support overriding :repl profile from project.clj or profiles.clj.
+* Support overriding repl profile from project.clj or profiles.clj.
 * Allow test selectors to operate on namespace. (Jim Crossley)
 * Honor environment variables in project.clj. (Justin Balthrop)
 * Allow searching over fields other than artifact id. (Michael Klishin)
@@ -29,12 +30,12 @@
 
 ## 2.0.0-preview9 / 2012-08-24
 
-* Use :provided profile by default everywhere except uberjar. (Marshall Vandegrift)
+* Use provided profile by default everywhere except uberjar. (Marshall Vandegrift)
 * Unify format for auto-loading middleware and hooks. (Justin Balthrop)
 * Allow more declarative :nrepl-middleware settings. (Chas Emerick)
-* Fix :eval-in :classloader for native dependencies. (Justin Balthrop)
+* Fix `:eval-in :classloader` for native dependencies. (Justin Balthrop)
 * Support project and user leinrc file for shell-level customization. (Justin Balthrop)
-* Cache trampoline commands for fast boot. Set $LEIN_FAST_TRAMPOLINE to enable.
+* Cache trampoline commands for fast boot. Set `$LEIN_FAST_TRAMPOLINE` to enable.
 * Support setting HTTPS proxies.
 * Improved resilience when self-install is interrupted. (Bruce Adams)
 * Fix a bug where profile dependencies weren't honored in trampoline task.
@@ -44,15 +45,15 @@
 * Place SCM revision in pom.properties in jar files.
 * Allow middleware and hooks to be inferred from plugins. (Justin Balthrop)
 * Offer similar suggestions when no task is found for input. (Joe Gallo)
-* Support TERM=dumb in repl task. (Colin Jones)
+* Support `TERM=dumb` in repl task. (Colin Jones)
 * Fix reader mismatches between repl client and server. (Colin Jones)
 * Use new search index format, support incremental updates. (Christoph Seibert)
 * Accept nREPL handlers and middleware from project config.
 * Support emitting arbitrary elements in pom.xml. (Esa Laine)
 * Fix a bug where repl task was binding to 0.0.0.0.
-* Honor $http_no_proxy host settings. (Jon Pither)
+* Honor `$http_no_proxy` host settings. (Jon Pither)
 * Profiles can be specified as compositions of other profiles. (Justin Balthrop)
-* Allow for :prep-tasks with arguments. (Anthony Marcar)
+* Allow for `:prep-tasks` with arguments. (Anthony Marcar)
 * Check for "help" after task name. (Bruce Adams)
 * Read dependency transport wagons from plugins.
 * Allow successive eval-in-project calls with trampoline.
@@ -77,11 +78,11 @@
 
 ## 2.0.0-preview6 / 2012-06-01
 
-* Allow lookup of :repositories credentials from environment variables.
+* Allow lookup of `:repositories` credentials from environment variables.
 * Perform more SSL certificate validity checks.
 * Fix a bug where repl dependency was conflicting.
 * Add certificate for Clojars to default project settings.
-* Allow custom SSL :certificates to be specified for repositories.
+* Allow custom SSL `:certificates` to be specified for repositories.
 
 ## 2.0.0-preview5 / 2012-05-31
 
