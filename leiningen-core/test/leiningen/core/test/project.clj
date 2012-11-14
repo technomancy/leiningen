@@ -113,17 +113,16 @@
                  :dependencies))))))
 
 (deftest test-global-exclusions
-  (is (= '[[[org.clojure/clojure]]
-           [[pomegranate/pomegranate] [org.clojure/clojure]]
-           [[org.clojure/clojure]]]
-         (map #(distinct (:exclusions (apply hash-map %)))
-              (-> {:dependencies
-                   '[[lancet "1.0.1"]
-                     [leiningen-core "2.0.0-SNAPSHOT" :exclusions [pomegranate]]
-                     [clucy "0.2.2" :exclusions [org.clojure/clojure]]]
-                   :exclusions '[org.clojure/clojure]}
-                  (merge-profiles [:default])
-                  :dependencies)))))
+  (let [project {:dependencies
+                 '[[lancet "1.0.1"]
+                   [leiningen-core "2.0.0-SNAPSHOT" :exclusions [pomegranate]]
+                   [clucy "0.2.2" :exclusions [org.clojure/clojure]]]
+                 :exclusions '[org.clojure/clojure]}
+        dependencies (:dependencies (merge-profiles project [:default]))]
+    (is (= '[[[org.clojure/clojure]]
+             [[org.clojure/clojure] [pomegranate/pomegranate]]
+             [[org.clojure/clojure]]]
+           (map #(distinct (:exclusions (apply hash-map %))) dependencies)))))
 
 (defn add-seven [project]
   (assoc project :seven 7))
