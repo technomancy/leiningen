@@ -153,7 +153,8 @@
       (abort "Couldn't find project.clj, which is needed for" task-name))
     (when-not (matching-arity? task args)
       (abort "Wrong number of arguments to" task-name "task."
-             "\nExpected" (rest (:arglists (meta task)))))
+             "\nExpected" (string/join " or " (map next (:arglists
+                                                         (meta task))))))
     (debug "Applying task" task-name "to" args)
     (apply task project args)))
 
