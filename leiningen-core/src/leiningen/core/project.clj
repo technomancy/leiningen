@@ -127,8 +127,7 @@
 (def default-repositories
   (with-meta
     [["central" {:url "http://repo1.maven.org/maven2/"}]
-     ;; TODO: point to releases-only before 2.0 is out
-     ["clojars" {:url "https://clojars.org/repo/"}]]
+     ["clojars" {:url "http://releases.clojars.org/repo/"}]]
     {:reduce add-repo}))
 
 (def deploy-repositories

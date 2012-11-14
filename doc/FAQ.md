@@ -5,14 +5,14 @@
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](https://github.com/technomancy/leiningen/blob/preview/doc/TUTORIAL.md)
+  [tutorial](https://github.com/technomancy/leiningen/blob/rc/doc/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org).
 
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
+**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md)
   explains how to set up a private repository. If you are not sharing
   them with a team you could also just
   [install locally](https://github.com/kumarshantanu/lein-localrepo).
@@ -20,7 +20,7 @@
   the [s3-wagon-private](https://github.com/technomancy/s3-wagon-private) plugin.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
-**A:** Leiningen provides a feature called *checkout dependencies*. See the [tutorial](https://github.com/technomancy/leiningen/blob/preview/doc/TUTORIAL.md)
+**A:** Leiningen provides a feature called *checkout dependencies*. See the [tutorial](https://github.com/technomancy/leiningen/blob/rc/doc/TUTORIAL.md)
   to learn more.
 
 **Q:** Is it possible to exclude indirect dependencies?  
@@ -93,11 +93,14 @@
   project launches, though there are compatibility issues with some
   libraries.
 
-**Q:** Why is Leiningen 2 still in a preview release?  
-**A:** As of the preview3 release, Leiningen 2 is very stable and
-  recommended for general use. The main thing keeping it from a final
-  release is the fact that the current Clojars repository
-  [mingles snapshots with releases](https://github.com/ato/clojars-web/issues/24),
-  which is undesirable. Since switching the default repositories to a
-  releases-only Clojars (which is still in development) would be a
-  breaking change, a series of previews is being released in the mean time.
+**Q:** Leiningen can't find some jars that the preview version could!  
+**A:** As of 2.0.0-RC1, Leiningen no longer checks the
+  [Clojars classic repository](https://clojars.org/repo) by default,
+  replacing it with the
+  [Clojars releases repository](https://github.com/ato/clojars-web/wiki/Releases).
+  This speeds up dependency resolution and allows for more secure
+  builds which enforce artifact signatures, but many libraries haven't
+  been promoted to the releases repository yet. If you need such a
+  library (or any snapshot version), you can add the old repo to your
+  `:repositories` in `project.clj`: `:repositories
+  [["clojars-classic" "https://clojars.org/repo"]]`

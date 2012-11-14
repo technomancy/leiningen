@@ -64,7 +64,7 @@ Next lets take a look at how projects are created.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[README](https://github.com/technomancy/leiningen/blob/preview/README.md).
+[README](https://github.com/technomancy/leiningen/blob/rc/README.md).
 Generating a new project is easy:
 
     $ lein new my-stuff
@@ -197,7 +197,7 @@ Clojars is the Clojure community's centralized jar repository, while Central is 
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj).
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/rc/sample.project.clj).
 
 ### Checkout Dependencies
 
@@ -551,7 +551,7 @@ at all from the version that was tested in the CI environment.
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to
-[maintain your own private repository](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md)
+[maintain your own private repository](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md)
 or get it into [Central](http://search.maven.org), the easiest way is
 to publish it at [Clojars](http://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
@@ -583,7 +583,7 @@ they don't have to be re-entered every time, see `lein help
 deploying`. When deploying a release that's not a snapshot, Leiningen
 will attempt to sign it using [GPG](http://gnupg.org) to prove your
 authorship of the release. See the
-[deploy guide](https://github.com/technomancy/leiningen/blob/preview/doc/DEPLOY.md).
+[deploy guide](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md).
 for details of how to set that up. The deploy guide includes
 instructions for deploying to other repositories as well.
 

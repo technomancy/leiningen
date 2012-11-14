@@ -216,6 +216,7 @@ elif [ "$1" = "upgrade" ]; then
         echo "You do not have permission to upgrade the installation in $SCRIPT"
         exit 1
     else
+        # TODO: change to stable when 2.0.0 is released
         TARGET_VERSION="${2:-'preview'}"
         echo "The script at $SCRIPT will be upgraded to the latest $TARGET_VERSION version."
         echo -n "Do you want to continue [Y/n]? "

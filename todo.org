@@ -4,12 +4,16 @@ See also https://github.com/technomancy/leiningen/issues
 
 * For 2.0.0
 ** 2.0.0-final
-   - [ ] Reduce verbosity of Aether. (#610)
-   - [ ] Global offline flag. (#687)
-   - [ ] Honor mirror for search indices (#281)
-   - [ ] Allow search queries on any field. (#243)
-   - [ ] Drop clojars snapshots from default repos (#241)
-   - look at http://nullprogram.com/blog/2011/11/06/ ?
+   - [X] Reduce verbosity of Aether. (#610)
+   - [X] Global offline flag. (#687)
+   - [X] Honor mirror for search indices (#281)
+   - [X] Allow search queries on any field. (#243)
+   - [X] Drop clojars snapshots from default repos (#241)
+   - [X] Remove mention of preview branch from docs, bin/lein
+   - [ ] Deploy and configure clojars promotion functionality
+   - [ ] Check to see that libraries are being promoted
+   - [ ] Document releases repository on Clojars wiki
+         https://github.com/ato/clojars-web/wiki/Releases
 ** 2.0.0-preview9
    - [X] Fast trampolining
    - [X] Latest newnew
