@@ -17,6 +17,7 @@
                  [reply "0.1.2" :exclusions [ring/ring-core]]
                  ;; drawbridge specifies an ancient version here, so bump it
                  [clj-http "0.5.6" :exclusions [crouton cheshire]]]
+  :repositories [["classic" "https://clojars.org/repo/"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}

@@ -19,7 +19,7 @@
      (walk-deps deps f 0)))
 
 (defn- print-dep [dep level]
-  (println (str (apply str (repeat (* 2 level) \space))) (pr-str dep)))
+  (println (apply str (repeat (* 2 level) \space)) (pr-str dep)))
 
 (declare check-signature)
 
