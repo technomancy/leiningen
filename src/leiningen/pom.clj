@@ -179,9 +179,11 @@
 (defmethod xml-tags ::license
   ([_ opts]
      (and opts
-          (if-let [tags (seq (for [key [:name :url :distribution :comments]
-                                :let [val (opts key)] :when val]
-                            [key (name val)]))]
+          (if-let [tags (if (string? opts)
+                          [:name opts]
+                          (seq (for [key [:name :url :distribution :comments]
+                                     :let [val (opts key)] :when val]
+                                 [key (name val)])))]
             [:licenses [:license tags]]))))
 
 (defn- resource-tags [project type]
