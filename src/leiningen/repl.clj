@@ -128,6 +128,14 @@
        `(reply.main/launch-nrepl ~options))
      `(require ~@(init-requires project 'reply.main)))))
 
+(defn- opt-port
+  "Extract port number from the given options."
+  [opts]
+  (when-let [port (first
+                   (for [[i o] (map-indexed vector opts) :when (= o ":port")]
+                     (nth opts (inc i))))]
+    (Integer. port)))
+
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
@@ -148,29 +156,30 @@ Connects to the nREPL server running at the given host (defaults to localhost)
 and port."
   ([] (repl nil))
   ([project]
-  (if trampoline/*trampoline?* ; TODO: does trampolining the other
-    (trampoline-repl project)  ; arities need special handling?
-    (let [prep-blocker @eval/prep-blocker]
-      (nrepl.ack/reset-ack-port!)
-      (.start
-       (Thread.
-        (bound-fn []
-          (binding [eval/*pump-in* false]
-            (start-server project (repl-host project) (repl-port project)
-                          (-> @lein-repl-server deref :ss .getLocalPort))))))
-      (when project @prep-blocker)
-      (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
-                                                     :repl-options
-                                                     (:timeout 30000)))]
-        (do
-          (println "nREPL server started on port" repl-port)
-          (reply/launch-nrepl (options-for-reply project :attach repl-port)))
-        (println "REPL server launch timed out.")))))
+     (if trampoline/*trampoline?*    ; TODO: does trampolining the other
+       (trampoline-repl project)     ; arities need special handling?
+       (let [prep-blocker @eval/prep-blocker]
+         (nrepl.ack/reset-ack-port!)
+         (.start
+          (Thread.
+           (bound-fn []
+             (binding [eval/*pump-in* false]
+               (start-server project (repl-host project) (repl-port project)
+                             (-> @lein-repl-server deref :ss .getLocalPort))))))
+         (when project @prep-blocker)
+         (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
+                                                        :repl-options
+                                                        (:timeout 30000)))]
+           (do
+             (println "nREPL server started on port" repl-port)
+             (reply/launch-nrepl (options-for-reply project :attach repl-port)))
+           (println "REPL server launch timed out.")))))
   ([project flag & opts]
-   (case flag
-     ":headless" (start-server project
-                               (repl-host project) (repl-port project)
-                               (ack-port project) :headless)
-     ":connect" (do (require 'cemerick.drawbridge.client)
-                    (reply/launch-nrepl {:attach (first opts)}))
-     (main/abort "Unrecognized flag:" flag))))
+     (case flag
+       ":headless" (start-server project
+                                 (repl-host project) (or (opt-port opts)
+                                                         (repl-port project))
+                                 (ack-port project) :headless)
+       ":connect" (do (require 'cemerick.drawbridge.client)
+                      (reply/launch-nrepl {:attach (first opts)}))
+       (main/abort "Unrecognized flag:" flag))))
