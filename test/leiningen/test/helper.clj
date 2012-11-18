@@ -27,6 +27,8 @@
 
 (def native-project (read-test-project "native"))
 
+(def provided-project (read-test-project "provided"))
+
 (def overlapped-sourcepaths-project (read-test-project "overlapped-sourcepaths"))
 
 ;; grumble, grumble; why didn't this make it into clojure.java.io?
