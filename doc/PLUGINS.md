@@ -341,7 +341,7 @@ simply have some code that needs to be invoked from the command-line
 via `lein foo`, it's much simpler to have your code run inside your
 project and alias `foo` to `run -m myproject.foo`:
 
-``clj
+```clj
 :aliases {"foo" ["run" "-m" "myproject.foo"]}
 ```
 
