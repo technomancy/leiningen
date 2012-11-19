@@ -142,13 +142,17 @@
   "Rebind this to false to disable forwarding *in* to subprocesses."
   true)
 
+(def drip-env
+  {"DRIP_INIT" nil
+   "DRIP_INIT_CLASS" nil})
+
 (defn- overridden-env
   "Returns an overridden version of the current environment as an Array of
   Strings of the form name=val, suitable for passing to Runtime#exec."
   [env]
   (->> (if (:replace (meta env))
          env
-         (merge {} (System/getenv) env))
+         (merge {} (System/getenv) drip-env env))
        (filter val)
        (map #(str (name (key %)) "=" (val %)))
        (into-array String)))
