@@ -98,7 +98,8 @@
 
 (defn ^:internal get-jvm-opts-from-env [env-opts]
   (and (seq env-opts)
-       (reduce join-broken-arg [] (.split env-opts " "))))
+       (reduce join-broken-arg []
+               (.split (string/trim env-opts) " "))))
 
 (defn- get-jvm-args
   "Calculate command-line arguments for launching java subprocess."
