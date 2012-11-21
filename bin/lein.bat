@@ -197,14 +197,6 @@ echo Curl: "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
 echo.
 goto EOF
 
-:NO_UPGRADE
-echo.
-echo Upgrade feature is not available on Windows. Please edit the value of
-echo variable LEIN_VERSION in file %~f0
-echo then run "lein self-install".
-echo.
-goto EOF
-
 
 :SET_LEIN_ROOT
 set LEIN_ROOT=%~f1
