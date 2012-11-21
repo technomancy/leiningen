@@ -27,7 +27,7 @@ if "x%LEIN_HOME%" == "x" (
 if "x%LEIN_JAR%" == "x" set LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar
 
 if "%1" == "self-install" goto SELF_INSTALL
-if "%1" == "upgrade"      goto NO_UPGRADE
+if "%1" == "upgrade"      goto UPGRADE
 
 if exist "%~dp0..\src\leiningen\version.clj" (
     :: Running from source checkout.
@@ -147,6 +147,45 @@ echo Failed to download %LEIN_JAR_URL%
 if %SNAPSHOT% == YES echo See README.md for SNAPSHOT build instructions.
 echo.
 goto EOF
+
+
+:UPGRADE
+set LEIN_BAT=%~dp0%~nx0
+echo The script at %LEIN_BAT% will be upgraded to the latest version in series %LEIN_VERSION%.
+set /P ANSWER=Do you want to continue (Y/N)?
+if /i {%ANSWER%}=={y}   goto YES_UPGRADE
+if /i {%ANSWER%}=={yes} goto YES_UPGRADE
+echo Aborted.
+exit /B 1
+
+
+:YES_UPGRADE
+echo Downloading latest Leiningen batch script...
+
+set HTTP_CLIENT=wget --no-check-certificate -O
+wget>nul 2>&1
+if ERRORLEVEL 9009 (
+    curl>nul 2>&1
+    if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
+    set HTTP_CLIENT=curl --insecure -f -L -o
+)
+::set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/master/bin/lein.bat
+set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/preview/bin/lein.bat
+set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
+%HTTP_CLIENT% "%LEIN_BAT%.pending" %LEIN_BAT_URL%
+if ERRORLEVEL 1 (
+    del "%LEIN_BAT%.pending" >nul 2>&1
+    echo Failed to download %LEIN_BAT_URL%
+    goto EOF
+)
+move /y "%LEIN_BAT%.pending" "%TEMP_BAT%"
+echo.
+echo Upgrading...
+set LEIN_JAR=
+call "%TEMP_BAT%" self-install
+move /y "%TEMP_BAT%" "%LEIN_BAT%" && goto EOF
+goto EOF
+
 
 :NO_HTTP_CLIENT
 echo.
