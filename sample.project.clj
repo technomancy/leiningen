@@ -275,6 +275,7 @@
 ;; JAVA_CMD - executable to use for java(1)
 ;; JVM_OPTS - extra options to pass to the java command
 ;; DEBUG - increased verbosity
+;; LEIN_HOME - directory in which to look for user settings
 ;; LEIN_SNAPSHOTS_IN_RELEASE - allow releases to depend on snapshots
 ;; LEIN_REPL_HOST - interface on which to connect to nREPL server
 ;; LEIN_REPL_PORT - port on which to start or connect to nREPL server
