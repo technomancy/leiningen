@@ -151,8 +151,9 @@ inside of a project, it will be run in the context of that classpath.
 If the command is run outside of a project, it'll be standalone and
 the classpath will be that of Leiningen.
 
-USAGE: lein repl :headless
+USAGE: lein repl :headless [:port port]
 This will launch an nREPL server and wait, rather than connecting reply to it.
+If :port is specified, the port given is used instead of a random one.
 
 USAGE: lein repl :connect [host:]port
 Connects to the nREPL server running at the given host (defaults to localhost)
