@@ -1,3 +1,4 @@
+<!-- TODO update for with-profile +/- syntax -->
 # Profiles
 
 In Leiningen 2.x you can change the configuration of your project by
