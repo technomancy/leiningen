@@ -14,7 +14,7 @@ It manages various project-related tasks, and can:
  * run the project (if the project is an app)
  * generate a maven-style "pom" file for the project
  * compile and package projects for deployment
- * publish libraries to package repositories such as [Clojars](http://clojars.org)
+ * publish libraries to maven artifact repositories such as [Clojars](http://clojars.org)
  * run custom automation tasks written in Clojure (leiningen plug-ins)
 
 If you come from the Java world, Leiningen is "Maven meets Ant without the pain". For Ruby and Python
@@ -24,7 +24,7 @@ folks, Leiningen combines RubyGems/Bundler/Rake and pip/Fabric in a single tool.
 ## What This Tutorial Covers
 
 This tutorial will briefly cover project structure, dependency management, running tests,
-the REPL and topics related to deployment.
+the REPL, and topics related to deployment.
 
 For those of you new to the JVM who have never touched Ant or Maven in
 anger: don't panic. Leiningen is designed with you in mind. This
@@ -44,7 +44,7 @@ configuration, and even this tutorial are also provided.
 
 Leiningen works with *projects*. A project is a directory containing a group of Clojure (and, possibly, Java)
 source files, along with a bit of metadata about them. The metadata is stored in a file named
-`project.clj` (by convention) in the repository root. `project.clj` is how you tell
+`project.clj` (by convention) in the project's root directory. The `project.clj` file is how you tell
 Leiningen about things like
 
  * Project name
@@ -139,7 +139,7 @@ files, JavaScript files or text files with static data.
 Published JVM libraries have *identifiers* (artifact group, artifact id) and
 *versions*.
 
-### Artifact IDs, Groups and Versions
+### Artifact IDs, Groups, and Versions
 
 You can [search Clojars](http://clojars.org/search?q=clj-http) using its
 web interface. On the page for `clj-http` it shows this:
@@ -188,12 +188,17 @@ and `:import` clauses.
 
 ### Repositories
 
-Dependencies are stored in *repositories*. If you are familiar with CPAN, PyPi, rubygems.org
-or NPM, it's the same thing. Leiningen reuses existing JVM repositories infrastructure. There
+Dependencies are stored in a *maven repository* (or, more formally, "maven
+artifact repository", or just "repository" if there's little chance of
+ambiguity).
+If you are familiar with Perl's CPAN, Python's Cheeseshop (aka PyPi), Ruby's rubygems.org,
+or Node.js's NPM, it's the same thing.
+Leiningen reuses existing JVM repositories infrastructure. There
 are several popular open source repositories. Leiningen by default will use two of them: [clojars.org](http://clojars.org)
 and [Maven Central](http://search.maven.org/).
 
-Clojars is the Clojure community's centralized jar repository, while Central is for the wider JVM community.
+[Clojars](https://clojars.org/) is the Clojure community's centralized maven repository,
+while [Central](http://search.maven.org/) is for the wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
