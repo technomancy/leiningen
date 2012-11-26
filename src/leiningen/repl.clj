@@ -133,7 +133,10 @@
   [opts]
   (when-let [port (first
                    (for [[i o] (map-indexed vector opts) :when (= o ":port")]
-                     (nth opts (inc i))))]
+                     (try
+                       (nth opts (inc i))
+                       (catch Exception _
+                         nil))))]
     (Integer. port)))
 
 (defn ^:no-project-needed repl
