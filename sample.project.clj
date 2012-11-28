@@ -265,7 +265,13 @@
   ;; Include <scm> tag in generated pom.xml file. All key/value pairs
   ;; appear exactly as configured. If absent, Leiningen will try to
   ;; use information from a .git directory.
-  :scm {:name "git" :tag "098afd745bcd" :url "http://127.0.0.1/git/my-project"}
+  :scm {:name "git"
+        :tag "098afd745bcd"
+        :url "http://127.0.0.1/git/my-project"
+        ;; Allows you to use a repository in a different directory than the
+        ;; project's root, for instance, if you had multiple projects in a
+        ;; single git repository.
+        :dir ".."}
 
   ;; include arbitrary xml in generated pom.xml file
   :pom-addition [:developers [:developer [:name "My Name"]]])
