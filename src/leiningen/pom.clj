@@ -20,12 +20,13 @@
 
 ;; git scm
 
-(defn- resolve-git-dir [git-dir]
-  (let [git-dir-file (io/file git-dir)]
-    (cond
-      (.isDirectory git-dir-file) git-dir-file
-      (.isFile git-dir-file) (io/file (second (re-find #"gitdir: (\S+)" (slurp (str git-dir-file)))))
-      :else git-dir)))
+(defn- resolve-git-dir [project]
+  (let [alternate-git-root (io/file (get-in project [:scm :dir]))
+        git-dir-file (io/file (or alternate-git-root (:root project)) ".git")]
+    (if
+      (.isFile git-dir-file)
+      (io/file (second (re-find #"gitdir: (\S+)" (slurp (str git-dir-file)))))
+      git-dir-file)))
 
 (defn- read-git-ref
   "Reads the commit SHA1 for a git ref path."
@@ -110,7 +111,7 @@
   Retains backwards compatibility without an :scm map."
   (if
     (= "auto" scm)
-    (make-git-scm (resolve-git-dir (io/file (:root project) ".git")))
+    (make-git-scm (resolve-git-dir project))
     (xml-tags :scm (xmlify (select-keys (:scm project)
                                         [:url :connection
                                          :tag :developerConnection])))))
@@ -337,7 +338,7 @@
                        (.setProperty "version" (:version project))
                        (.setProperty "groupId" (:group project))
                        (.setProperty "artifactId" (:name project)))
-          git-head (resolve-git-dir (io/file (:root project) ".git"))]
+          git-head (resolve-git-dir project)]
       (when (.exists git-head)
         (.setProperty properties "revision" (read-git-head git-head)))
       (.store properties baos "Leiningen"))
