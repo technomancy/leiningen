@@ -33,6 +33,19 @@
           (apply require :reload '~namespaces))
         ~(form-for-hook-selectors selectors)
         (let [failures# (atom #{})
+              selected-namespaces# ~(if (seq selectors)
+                                    `(distinct
+                                       (for [ns# '~namespaces
+                                             [_# var#] (ns-publics ns#)
+                                             :when (reduce (fn [acc# [selector# args#]]
+                                                             (or acc#
+                                                               (apply selector#
+                                                                      (merge (-> var# meta :ns meta)
+                                                                             (assoc (meta var#) ::var var#))
+                                                                      args#)))
+                                                     false ~selectors)]
+                                           ns#))
+                                      'namespaces)
               _# (leiningen.core.injected/add-hook
                   #'clojure.test/report
                   (fn [report# m# & args#]
@@ -45,20 +58,7 @@
                         (println "\nlein test" (ns-name (:ns m#))))
                       (apply report# m# args#))))
               summary# (binding [clojure.test/*test-out* *out*]
-                          (apply ~'clojure.test/run-tests
-                             ~(if (seq selectors)
-                                `(distinct
-                                   (for [ns# '~namespaces
-                                         [_# var#] (ns-publics ns#)
-                                         :when (reduce (fn [acc# [selector# args#]]
-                                                         (or acc#
-                                                           (apply selector#
-                                                                  (merge (-> var# meta :ns meta)
-                                                                         (assoc (meta var#) ::var var#))
-                                                                  args#)))
-                                                 false ~selectors)]
-                                       ns#))
-                                  'namespaces)))]
+                          (apply ~'clojure.test/run-tests selected-namespaces#))]
           (spit ".lein-failures" (pr-str @failures#))
           (when ~*exit-after-tests*
             (System/exit (+ (:error summary#) (:fail summary#))))))))
