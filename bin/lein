@@ -289,6 +289,7 @@ else
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -Dleiningen.script="$SCRIPT" \
             -classpath "$CLASSPATH" \
             clojure.main -m leiningen.core.main "$@"
 
