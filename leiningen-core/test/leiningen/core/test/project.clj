@@ -36,7 +36,7 @@
                :twelve 12 ; testing unquote
 
                :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
-                              ["clojars" {:url "http://releases.clojars.org/repo/"}]]})
+                              ["clojars" {:url "https://clojars.org/repo/"}]]})
 
 (deftest test-read-project
   (let [actual (read (.getFile (io/resource "p1.clj")))]
