@@ -44,11 +44,11 @@
         (is (.contains out (format "[%s \"%s\"]" name version)))))))
 
 (deftest ^:online test-snapshots-releases
-  (let [pr (assoc sample-project :omit-default-repositories true
-                  :repositories {"clojars" {:url "http://clojars.org/repo/"
+  (let [pr (assoc sample-project
+                  :repositories ^:replace {"clojars" {:url "http://clojars.org/repo/"
                                             :snapshots false}})
-        ps (assoc sample-project :omit-default-repositories true
-                  :repositories {"clojars" {:url "http://clojars.org/repo/"
+        ps (assoc sample-project
+                  :repositories ^:replace {"clojars" {:url "http://clojars.org/repo/"
                                             :releases false}})
         slamhound ['slamhound "1.1.0-SNAPSHOT"]
         hooke ['robert/hooke "1.0.1"]
