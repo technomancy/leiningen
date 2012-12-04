@@ -151,10 +151,9 @@
   :injections [(require 'clojure.pprint)]
   ;; Emit warnings on all reflection calls.
   :warn-on-reflection true
-  ;; Set this in order to only use the :repositories you list below.
-  :omit-default-repositories true
   ;; These repositories will be searched for :dependencies and
   ;; :plugins and will also be available to deploy to.
+  ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you list below
   :repositories [["java.net" "http://download.java.net/maven/2"]
                  ["sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                               ;; If a repository contains releases only setting
