@@ -91,7 +91,8 @@
    :jar-exclusions [#"^\."]
    :jvm-opts ["-XX:+TieredCompilation"]
    :certificates ["clojars.pem"]
-   :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
+   :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
+   :test-selectors {:default '(constantly true)}})
 
 (defn- dep-key
   "The unique key used to dedupe dependencies."
