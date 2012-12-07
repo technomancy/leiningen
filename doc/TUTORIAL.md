@@ -64,7 +64,7 @@ Next lets take a look at how projects are created.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[README](https://github.com/technomancy/leiningen/blob/rc/README.md).
+[README](https://github.com/technomancy/leiningen/blob/master/README.md).
 Generating a new project is easy:
 
     $ lein new my-stuff
