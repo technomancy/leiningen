@@ -16,52 +16,63 @@
       (resolve 'clojure.test/test-var)
       (fn test-var-with-selector [test-var# var#]
         (when (reduce (fn [acc# [selector# args#]]
-                        (or acc#
-                            (apply selector#
-                                   (merge (-> var# meta :ns meta)
-                                          (assoc (meta var#) ::var var#))
-                                   args#)))
+                        (let [sfn# (if (vector? selector#)
+                                     (second selector#)
+                                     selector#)]
+                          (or acc#
+                              (apply sfn#
+                                     (merge (-> var# meta :ns meta)
+                                            (assoc (meta var#) ::var var#))
+                                     args#))))
                       false ~selectors)
           (test-var# var#))))))
+
+(defn- form-for-select-namespaces [namespaces selectors]
+  `(reduce (fn [acc# [f# args#]]
+             (if (vector? f#)               
+               (filter #(apply (first f#) % args#) acc#)
+               acc#))
+           '~namespaces ~selectors))
 
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
   each namespace and print an overall summary."
   ([namespaces _ & [selectors]]
-     `(do
-        (when (seq '~namespaces)
-          (apply require :reload '~namespaces))
-        ~(form-for-hook-selectors selectors)
-        (let [failures# (atom #{})
-              selected-namespaces# ~(if (seq selectors)
-                                    `(distinct
-                                       (for [ns# '~namespaces
-                                             [_# var#] (ns-publics ns#)
-                                             :when (reduce (fn [acc# [selector# args#]]
-                                                             (or acc#
-                                                               (apply selector#
-                                                                      (merge (-> var# meta :ns meta)
-                                                                             (assoc (meta var#) ::var var#))
-                                                                      args#)))
-                                                     false ~selectors)]
-                                           ns#))
-                                      'namespaces)
-              _# (leiningen.core.injected/add-hook
-                  #'clojure.test/report
-                  (fn [report# m# & args#]
-                    (when (#{:error :fail} (:type m#))
-                      (swap! failures# conj
-                             (-> clojure.test/*testing-vars*
-                                 first meta :ns ns-name)))
-                    (if (= :begin-test-ns (:type m#))
-                      (clojure.test/with-test-out
-                        (println "\nlein test" (ns-name (:ns m#))))
-                      (apply report# m# args#))))
-              summary# (binding [clojure.test/*test-out* *out*]
-                          (apply ~'clojure.test/run-tests selected-namespaces#))]
-          (spit ".lein-failures" (pr-str @failures#))
-          (when ~*exit-after-tests*
-            (System/exit (+ (:error summary#) (:fail summary#))))))))
+     (let [ns-sym (gensym "namespaces")]
+       `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
+          (when (seq ~ns-sym)
+            (apply require :reload ~ns-sym))
+          ~(form-for-hook-selectors selectors)
+          (let [failures# (atom #{})
+                selected-namespaces# (distinct
+                                      (for [ns# ~ns-sym
+                                            [_# var#] (ns-publics ns#)
+                                            :when (reduce (fn [acc# [selector# args#]]
+                                                            (or acc#
+                                                                (apply (if (vector? selector#)
+                                                                         (second selector#)
+                                                                         selector#)
+                                                                       (merge (-> var# meta :ns meta)
+                                                                              (assoc (meta var#) ::var var#))
+                                                                       args#)))
+                                                          false ~selectors)]
+                                        ns#))
+                _# (leiningen.core.injected/add-hook
+                    #'clojure.test/report
+                    (fn [report# m# & args#]
+                      (when (#{:error :fail} (:type m#))
+                        (swap! failures# conj
+                               (-> clojure.test/*testing-vars*
+                                   first meta :ns ns-name)))
+                      (if (= :begin-test-ns (:type m#))
+                        (clojure.test/with-test-out
+                          (println "\nlein test" (ns-name (:ns m#))))
+                        (apply report# m# args#))))
+                summary# (binding [clojure.test/*test-out* *out*]
+                           (apply ~'clojure.test/run-tests selected-namespaces#))]
+            (spit ".lein-failures" (pr-str @failures#))
+            (when ~*exit-after-tests*
+              (System/exit (+ (:error summary#) (:fail summary#)))))))))
 
 (defn- split-selectors [args]
   (let [[nses selectors] (split-with (complement keyword?) args)]
@@ -82,8 +93,15 @@
     [selector-form v]))
 
 (def ^:private only-form
-  '(fn [m & vars]
-     (some #(= (str "#'" %) (-> m ::var str)) vars)))
+  ['(fn [ns & vars]
+      ((set (for [v vars]
+              (-> (str v)
+                  (.split "/")
+                  (first)
+                  (symbol))))
+       ns))
+   '(fn [m & vars]
+      (some #(= (str "#'" %) (-> m ::var str)) vars))])
 
 (defn- read-args [args project]
   (let [args (map read-string args)
