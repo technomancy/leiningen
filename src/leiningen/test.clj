@@ -34,6 +34,21 @@
                acc#))
            '~namespaces ~selectors))
 
+(defn- form-for-nses-selectors-match [selectors ns-sym]
+  `(distinct
+    (for [ns# ~ns-sym
+          [_# var#] (ns-publics ns#)
+          :when (reduce (fn [acc# [selector# args#]]
+                          (or acc#
+                              (apply (if (vector? selector#)
+                                       (second selector#)
+                                       selector#)
+                                     (merge (-> var# meta :ns meta)
+                                            (assoc (meta var#) ::var var#))
+                                     args#)))
+                        false ~selectors)]
+      ns#)))
+
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
   each namespace and print an overall summary."
@@ -44,19 +59,7 @@
             (apply require :reload ~ns-sym))
           ~(form-for-hook-selectors selectors)
           (let [failures# (atom #{})
-                selected-namespaces# (distinct
-                                      (for [ns# ~ns-sym
-                                            [_# var#] (ns-publics ns#)
-                                            :when (reduce (fn [acc# [selector# args#]]
-                                                            (or acc#
-                                                                (apply (if (vector? selector#)
-                                                                         (second selector#)
-                                                                         selector#)
-                                                                       (merge (-> var# meta :ns meta)
-                                                                              (assoc (meta var#) ::var var#))
-                                                                       args#)))
-                                                          false ~selectors)]
-                                        ns#))
+                selected-namespaces#  ~(form-for-nses-selectors-match selectors ns-sym)
                 _# (leiningen.core.injected/add-hook
                     #'clojure.test/report
                     (fn [report# m# & args#]
