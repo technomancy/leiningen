@@ -161,7 +161,9 @@
          :resource-paths empty-paths
          :test-paths empty-paths}
         (-> (merge defaults project)
-            (dissoc :eval-in-leiningen :omit-default-repositories)
+            (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
+                                 (:jvm-opts defaults)))
+            (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
             (assoc :eval-in (or (:eval-in project)
                                 (if (:eval-in-leiningen project)
                                   :leiningen, :subprocess))
