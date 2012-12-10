@@ -248,6 +248,7 @@
              ;; symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
   ;; You can set JVM-level options here.
+  ;; It is also possible to use :java-opts, which is an alias for :jvm-opts.
   :jvm-opts ["-Xmx1g"]
   ;; Control the context in which your project code is evaluated.
   ;; Defaults to :subprocess, but can also be :leiningen (for plugins)
