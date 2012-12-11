@@ -142,12 +142,20 @@
                parameters))
         (:arglists (meta task))))
 
+(defn- remove-alias
+  "Removes an alias from the specified project and its metadata (which lies
+   within :without-profiles) to avoid recursive alias calls."
+  [project alias]
+  (-> project
+      (update-in [:aliases] dissoc alias)
+      (vary-meta update-in [:without-profiles :aliases] dissoc alias)))
+
 (defn apply-task
   "Resolve task-name to a function and apply project and args if arity matches."
   [task-name project args]
   (let [[task-alias] (for [[k v] (:aliases project) :when (= v task-name)] k)
-        project (and project (update-in project [:aliases] (fnil dissoc {})
-                                        (or task-alias task-name)))
+        project (and project (remove-alias project
+                                           (or task-alias task-name)))
         task (resolve-task task-name)]
     (when-not (or project (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))
