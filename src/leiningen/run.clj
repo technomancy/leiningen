@@ -24,6 +24,7 @@
   ns/f, passing it the args."
   [project given & args]
   (try (eval/eval-in-project project (run-form given args)
+                             ;; TODO: why are we using both init and resolve?
                              `(try (require '~(symbol (namespace
                                                        (normalize-main given))))
                                    (catch FileNotFoundException _#)))
