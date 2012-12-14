@@ -1,10 +1,9 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:require [leiningen.classpath :as classpath]
-            [leiningen.core
-             [main :as main]
-             [eval :as eval]
-             [project :as project]]
+            [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
+            [leiningen.core.project :as project]
             [clojure.java.io :as io])
   (:import java.io.File
            javax.tools.ToolProvider))
@@ -72,8 +71,7 @@
 ;; Pure java projects will not have Clojure on the classpath. As such, we need
 ;; to add it if it's not already there.
 (def subprocess-profile
-  {:dependencies [^:displace
-                  ['org.clojure/clojure (clojure-version)]]
+  {:dependencies [^:displace ['org.clojure/clojure (clojure-version)]]
    :eval-in :subprocess})
 
 (defn- subprocess-form
