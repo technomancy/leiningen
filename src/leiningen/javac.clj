@@ -70,10 +70,29 @@
            files)))
 
 ;; Pure java projects will not have Clojure on the classpath. As such, we need
-;; to put it there ourselves for compiling.
+;; to add it if it's not already there.
 (def subprocess-profile
-  {:dependencies [['org.clojure/clojure (clojure-version)]]
+  {:dependencies [^:displace
+                  ['org.clojure/clojure (clojure-version)]]
    :eval-in :subprocess})
+
+(defn- subprocess-form
+  "Creates a form for running javac in a subprocess."
+  [compile-path files javac-opts]
+  `(let [abort# (fn [& msg#]
+                  (.println java.lang.System/err (apply str msg#))
+                  (java.lang.System/exit 1))]
+     (if-let [compiler# (javax.tools.ToolProvider/getSystemJavaCompiler)]
+       (do
+         (println "Compiling" ~(count files) "source files to" ~compile-path)
+         (.mkdirs (clojure.java.io/file ~compile-path))
+         (when-not (zero?
+                    (.run compiler# nil nil nil
+                          (into-array java.lang.String ~javac-opts)))
+           (abort# "Compilation of Java sources(lein javac) failed.")))
+       (abort# "lein-javac: system java compiler not found; "
+               "Be sure to use java from a JDK\nrather than a JRE by"
+               " either modifying PATH or setting JAVA_CMD."))))
 
 ;; We can't really control what is printed here. We're just going to
 ;; allow `.run` to attach in, out, and err to the standard streams. This
@@ -89,24 +108,11 @@
   (let [compile-path (:compile-path project)
         files (stale-java-sources (:java-source-paths project) compile-path)
         javac-opts (vec (javac-options project files args))
-        form `(do (println "Compiling" ~(count files)
-                           "source files to" ~compile-path)
-                  (.mkdirs (io/file ~compile-path))
-                  (when-not (zero? (.run (ToolProvider/getSystemJavaCompiler)
-                                         nil nil nil
-                                         (into-array String ~javac-opts)))
-                    (.println System/err
-                              "Compilation of Java sources(lein javac) failed.")
-                    (System/exit 1)))] ; Ok here, as we're in a subprocess.
+        form (subprocess-form compile-path files javac-opts)]
     (when (seq files)
-      (if (ToolProvider/getSystemJavaCompiler)
-        ;; compiler will be available from subprocess if available from here 
-        (eval/eval-in
-         (project/merge-profiles project [subprocess-profile])
-         form)
-        (main/abort "lein-javac: system java compiler not found;"
-                    "Be sure to use java from a JDK\nrather than a JRE by"
-                    "either modifying PATH or setting JAVA_CMD.")))))
+      (eval/eval-in
+       (project/merge-profiles project [subprocess-profile])
+       form))))
 
 (defn javac
   "Compile Java source files.
