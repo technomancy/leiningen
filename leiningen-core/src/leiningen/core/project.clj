@@ -223,7 +223,7 @@
   profiles are active by default."
   (atom {:default [:base :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
-                :plugins [['lein-newnew "0.3.5"]]
+                :plugins [['lein-newnew "0.3.6"]]
                 :checkout-deps-shares [:source-paths
                                        :resource-paths
                                        :compile-path]}
