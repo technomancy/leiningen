@@ -1,7 +1,10 @@
 (ns leiningen.javac
   "Compile Java source files."
   (:require [leiningen.classpath :as classpath]
-            [leiningen.core.main :as main]
+            [leiningen.core
+             [main :as main]
+             [eval :as eval]
+             [project :as project]]
             [clojure.java.io :as io])
   (:import java.io.File
            javax.tools.ToolProvider))
@@ -66,27 +69,50 @@
             "-d" (:compile-path project)]
            files)))
 
+;; Pure java projects will not have Clojure on the classpath. As such, we need
+;; to add it if it's not already there.
+(def subprocess-profile
+  {:dependencies [^:displace
+                  ['org.clojure/clojure (clojure-version)]]
+   :eval-in :subprocess})
+
+(defn- subprocess-form
+  "Creates a form for running javac in a subprocess."
+  [compile-path files javac-opts]
+  `(let [abort# (fn [& msg#]
+                  (.println java.lang.System/err (apply str msg#))
+                  (java.lang.System/exit 1))]
+     (if-let [compiler# (javax.tools.ToolProvider/getSystemJavaCompiler)]
+       (do
+         (println "Compiling" ~(count files) "source files to" ~compile-path)
+         (.mkdirs (clojure.java.io/file ~compile-path))
+         (when-not (zero?
+                    (.run compiler# nil nil nil
+                          (into-array java.lang.String ~javac-opts)))
+           (abort# "Compilation of Java sources(lein javac) failed.")))
+       (abort# "lein-javac: system java compiler not found; "
+               "Be sure to use java from a JDK\nrather than a JRE by"
+               " either modifying PATH or setting JAVA_CMD."))))
+
 ;; We can't really control what is printed here. We're just going to
 ;; allow `.run` to attach in, out, and err to the standard streams. This
 ;; should have the effect of compile errors being printed. javac doesn't
 ;; actually output any compilation info unless it has to (for an error)
 ;; or you make it do so with `-verbose`.
-(defn- run-javac-task
-  "Run javac to compile all source files in the project."
+(defn- run-javac-subprocess
+  "Run javac to compile all source files in the project. The compilation is run
+  in a subprocess to avoid it from adding the leiningen standalone to the
+  classpath, as leiningen adds itself to the classpath through the
+  bootclasspath."
   [project args]
   (let [compile-path (:compile-path project)
-        files (stale-java-sources (:java-source-paths project) compile-path)]
+        files (stale-java-sources (:java-source-paths project) compile-path)
+        javac-opts (vec (javac-options project files args))
+        form (subprocess-form compile-path files javac-opts)]
     (when (seq files)
-      (if-let [compiler (ToolProvider/getSystemJavaCompiler)]
-        (do
-          (main/info "Compiling" (count files) "source files to" compile-path)
-          (.mkdirs (io/file compile-path))
-          (when-not (zero? (.run compiler nil nil nil
-                                 (javac-options project files args)))
-            (main/abort "Compilation of Java sources (lein javac) failed.")))
-        (main/abort "lein-javac: system java compiler not found;"
-                    "Be sure to use java from a JDK\nrather than a JRE by"
-                    "either modifying PATH or setting JAVA_CMD.")))))
+      (eval/eval-in
+       (project/merge-profiles project [subprocess-profile])
+       form))))
 
 (defn javac
   "Compile Java source files.
@@ -99,4 +125,4 @@ Like the compile and deps tasks, this should be invoked automatically when
 needed and shouldn't ever need to be run by hand. By default it is called before
 compilation of Clojure source; change :prep-tasks to alter this."
   [project & args]
-  (run-javac-task project args))
+  (run-javac-subprocess project args))
