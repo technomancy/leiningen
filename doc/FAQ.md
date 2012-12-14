@@ -12,12 +12,15 @@
 **A:** Use [semantic versioning](http://semver.org).
 
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** The [deploy guide](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md)
-  explains how to set up a private repository. If you are not sharing
-  them with a team you could also just
+**A:** The best thing to do is to get them in a repository. The
+  [deploy guide](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md)
+  explains how to set up a private repository. In general it's easiest
+  to deploy them to a static HTTP server or a private S3
+  bucket with the
+  [s3-wagon-private](https://github.com/technomancy/s3-wagon-private)
+  plugin. If you are just doing exploratory coding and not
+  collaborating with a team you could
   [install locally](https://github.com/kumarshantanu/lein-localrepo).
-  In general it's easiest to deploy them to a private S3 bucket with
-  the [s3-wagon-private](https://github.com/technomancy/s3-wagon-private) plugin.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
 **A:** Leiningen provides a feature called *checkout dependencies*. See the [tutorial](https://github.com/technomancy/leiningen/blob/rc/doc/TUTORIAL.md)
@@ -37,7 +40,7 @@
   plugin ecosystem, this is no longer needed; jars can be referenced
   directly out of the `~/.m2/repository` directory. If you need to see
   a listing of all the dependencies that will be used and their
-  versions, use `lein deps :tree`.
+  versions, use `lein deps :tree`. To get the classpath use `lein classpath`.
 
 **Q:** What does `java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V` mean?  
 **A:** It means you have some code that was AOT (ahead-of-time)
@@ -56,8 +59,9 @@
   dependency on a hard version range, which overrides your "soft"
   declaration. If you change yours to a hard version range, it will
   refuse to function due to conflicts, so it's best to find the
-  dependency that's at fault via `lein deps :tree` and add an
-  `:exclusions` clause to it. See `lein help sample` for how
+  dependency that's at fault via the
+  [lein-pedantic plugin](https://github.com/xeqi/lein-pedantic) and
+  add an `:exclusions` clause to it. See `lein help sample` for how
   exclusions work. You may also want to report a bug with the
   dependency that uses hard version ranges as they cause all kinds of
   problems and exhibit unintuitive behaviour.
@@ -77,8 +81,8 @@
   single REPL process running for as long as you're working on that
   project. Depending on your editor you may be able to do this via its
   Clojure integration. (See
-  [swank-clojure](http://github.com/technomancy/swank-clojure) or
-  [VimClojure](https://bitbucket.org/kotarak/vimclojure), for
+  [nrepl.el](https://github.com/kingtim/nrepl.el) or
+  [foreplay](http://github.com/tpope/foreplay), for
   example.) Otherwise you can use the basic `lein repl`.
 
 **Q:** Still too slow; what else can make startup faster?  
