@@ -139,10 +139,18 @@
                       (or (first (first (filter #(= repository (:url (second %)))
                                                 repositories)))
                           repository))
+             :corrupted
+             (when error
+               (println "Failed to download" name "from"
+                        (or (first (first (filter #(= repository (:url (second %)))
+                                                  repositories)))
+                            repository)
+                        ":"
+                        (.getMessage error)))
              :failed
-             (if (and (= repository (:url (second (last repositories))))
-                      error)
-               (println "Failed to find" name))
+             (when (and (= repository (:url (second (last repositories))))
+                        error)
+               (println "Failed to download" name))
              nil))))
      :proxy (get-proxy-settings))
     (catch DependencyResolutionException e
