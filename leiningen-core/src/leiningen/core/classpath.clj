@@ -126,32 +126,31 @@
      :transfer-listener
      (bound-fn [e]
        (let [{:keys [type resource error]} e]
-         (let [{:keys [repository name size]} resource]
-           (case type
-             :started
-             (println "Retrieving"
-                      name
-                      (if (neg? size)
-                        ""
-                        (format "(%sk)"
-                                (Math/round (double (max 1 (/ size 1024))))))
-                      "from"
-                      (or (first (first (filter #(= repository (:url (second %)))
-                                                repositories)))
-                          repository))
-             :corrupted
-             (when error
-               (println "Failed to download" name "from"
-                        (or (first (first (filter #(= repository (:url (second %)))
-                                                  repositories)))
-                            repository)
-                        ":"
-                        (.getMessage error)))
-             :failed
-             (when (and (= repository (:url (second (last repositories))))
-                        error)
-               (println "Failed to download" name))
-             nil))))
+         (let [{:keys [repository name size trace]} resource]
+           (let [aether-repos (if trace (.getRepositories (.getData trace)))]
+             (case type
+               :started
+               (if-let [repo (first (filter
+                                     #(or (= (.getUrl %) repository)
+                                          ;; sometimes the "base" url
+                                          ;; doesn't have a slash on it
+                                          (= (str (.getUrl %) "/") repository))
+                                     aether-repos))]
+                 (println "Retrieving"
+                          name
+                          "from"
+                          (.getId repo))
+                 ;;else case happens for metadata files
+                 )
+               :corrupted
+               (when error
+                 (println (.getMessage error)))
+               :failed
+               (when (and error
+                          (= (.getRepository error)
+                             (last aether-repos)))
+                 (println "Failed to download" name))
+               nil)))))
      :proxy (get-proxy-settings))
     (catch DependencyResolutionException e
       (binding [*out* *err*]
