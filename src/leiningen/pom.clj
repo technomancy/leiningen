@@ -29,12 +29,16 @@
       git-dir-file)))
 
 (defn- read-git-ref
-  "Reads the commit SHA1 for a git ref path."
+  "Reads the commit SHA1 for a git ref path, or nil if no commit exist."
   [git-dir ref-path]
-  (.trim (slurp (str (io/file git-dir ref-path)))))
+  (let [ref (io/file git-dir ref-path)]
+    (if (.exists ref)
+      (.trim (slurp ref))
+      nil)))
 
 (defn- read-git-head
-  "Reads the value of HEAD and returns a commit SHA1."
+  "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
+  exist."
   [git-dir]
   (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
     (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
@@ -78,7 +82,8 @@
             [:connection (str "scm:git:" (:public-clone urls))])
        (and (:dev-clone urls)
             [:developerConnection (str "scm:git:" (:dev-clone urls))])
-       [:tag head]
+       (and head
+            [:tag head])
        [:url (:browse urls)]])
     (catch java.io.FileNotFoundException _)))
 
@@ -340,7 +345,8 @@
                        (.setProperty "artifactId" (:name project)))
           git-head (resolve-git-dir project)]
       (when (.exists git-head)
-        (.setProperty properties "revision" (read-git-head git-head)))
+        (if-let [revision (read-git-head git-head)]
+          (.setProperty properties "revision" revision)))
       (.store properties baos "Leiningen"))
     (str baos)))
 
