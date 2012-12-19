@@ -90,6 +90,7 @@
                          (JarOutputStream. (make-manifest project)))]
     (reduce (partial copy-to-jar project jar-os) #{} filespecs)))
 
+;; TODO: change in 3.0; this is hideous
 (defn- filespecs [project deps-fileset]
   (concat [{:type :bytes
             :path (format "META-INF/maven/%s/%s/pom.xml"
