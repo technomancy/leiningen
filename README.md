@@ -109,15 +109,15 @@ Leiningen documentation is organized as a number of guides:
 ## Plugins
 
 Leiningen supports plugins which may contain both new tasks and hooks
-that modify behaivour of existing tasks. See
+that modify behaviour of existing tasks. See
 [the plugins wiki page](https://github.com/technomancy/leiningen/wiki/Plugins)
 for a full list. If a plugin is needed for successful test or build
 runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
 `swank-clojure`) then it should be added to the `:plugins` list in the
-`:user` profile from `~/.lein/profiles.clj`. See the
+`:user` profile in `~/.lein/profiles.clj`. See the
 [profiles guide](https://github.com/technomancy/leiningen/blob/preview/doc/PROFILES.md)
-for details on how to add to your user profile. The
+for details on how to add to your `:user` profile. The
 [plugin guide](https://github.com/technomancy/leiningen/blob/preview/doc/PLUGINS.md)
 explains how to write plugins.
 
