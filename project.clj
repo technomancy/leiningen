@@ -28,7 +28,7 @@
                              clojure.tools.nrepl
                              clj-http.core
                              ordered.map]}}
-  :test-selectors {:default (complement :post-preview)
+  :test-selectors {:default (complement :disabled)
                    :offline (complement :online)}
   :source-paths ["leiningen-core/src" "src"]
   ;; work around Clojure bug http://dev.clojure.org/jira/browse/CLJ-1034

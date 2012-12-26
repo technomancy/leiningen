@@ -21,7 +21,7 @@
          {:source 1.5   "target" 1.5} ["-target" "1.5" "-source" "1.5"]
          {:debugLevel "source,lines"}  ["-g:source,lines"])))
 
-(deftest ^:post-preview ; not really; need to fix this
+(deftest ^:disabled ; not really; need to fix this
   test-javac
   #_(delete-file-recursively (:compile-path dev-deps-project) true)
   #_(javac dev-deps-project)

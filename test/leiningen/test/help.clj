@@ -39,7 +39,7 @@
                   For real!"
       (formatted-help "install" "This is an\nAWESOME command\nFor real!" 15))))
 
-(deftest ^:post-preview test-get-subtasks
+(deftest ^:disabled test-get-subtasks
   (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
     (is (= ["install" "uninstall"]
            (sort (keys m))))))
