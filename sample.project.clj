@@ -273,8 +273,11 @@
         ;; single git repository.
         :dir ".."}
 
-  ;; include arbitrary xml in generated pom.xml file
-  :pom-addition [:developers [:developer [:name "My Name"]]])
+  ;; Include arbitrary xml in generated pom.xml file as parsed by
+  ;; parsed by clojure.data.xml/sexp-as-element.
+  :pom-addition [:developers [:developer {:id "benbit"}
+                              [:name "Ben Bitdiddle"]
+                              [:url "http://www.example.com/benjamin"]]])
 
 ;;; Environment Variables used by Leiningen
 
@@ -285,5 +288,7 @@
 ;; LEIN_SNAPSHOTS_IN_RELEASE - allow releases to depend on snapshots
 ;; LEIN_REPL_HOST - interface on which to connect to nREPL server
 ;; LEIN_REPL_PORT - port on which to start or connect to nREPL server
+;; LEIN_OFFLINE - equivalent of :offline? true but works for plugins
+;; LEIN_GPG - gpg executable to use for encryption/signing
 ;; http_proxy - host and port to proxy HTTP connections through
 ;; http_no_proxy - pipe-separated list of hosts which may be accessed directly
