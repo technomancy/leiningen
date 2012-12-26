@@ -23,8 +23,7 @@
 (defn- resolve-git-dir [project]
   (let [alternate-git-root (io/file (get-in project [:scm :dir]))
         git-dir-file (io/file (or alternate-git-root (:root project)) ".git")]
-    (if
-      (.isFile git-dir-file)
+    (if (.isFile git-dir-file)
       (io/file (second (re-find #"gitdir: (\S+)" (slurp (str git-dir-file)))))
       git-dir-file)))
 
@@ -114,8 +113,7 @@
 (defn- write-scm-tag [scm project]
   "Write the <scm> tag for pom.xml.
   Retains backwards compatibility without an :scm map."
-  (if
-    (= "auto" scm)
+  (if (= "auto" scm)
     (make-git-scm (resolve-git-dir project))
     (xml-tags :scm (xmlify (select-keys (:scm project)
                                         [:url :connection
