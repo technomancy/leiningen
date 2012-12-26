@@ -99,7 +99,9 @@ as well as defining a -main function."
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
-           (let [project (project/unmerge-profiles project [:default])
+           (let [whitelisted (select-keys project jar/whitelist-keys)
+                 project (merge (project/unmerge-profiles project [:default])
+                                whitelisted)
                  deps (->> (classpath/resolve-dependencies :dependencies project)
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (io/file (jar/get-jar-filename project)) deps)]

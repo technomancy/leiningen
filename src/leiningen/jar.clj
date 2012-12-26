@@ -122,6 +122,11 @@
        (str (io/file target jar-name))))
   ([project] (get-jar-filename project false)))
 
+(def whitelist-keys
+  "Project keys which don't affect the production of the jar should be
+propagated to the compilation phase and not stripped out."
+  [:offline? :local-repo :certificates :warn-on-reflection])
+
 (defn jar
   "Package up all the project's files into a jar file.
 
@@ -130,7 +135,8 @@ as .class files if applicable. If project.clj contains a :main key, the -main
 function in that namespace will be used as the main-class for executable jar."
   [project]
   (let [project (-> (project/unmerge-profiles project [:default])
-                    (project/merge-profiles [:provided]))]
+                    (project/merge-profiles [:provided])
+                    (merge (select-keys project whitelist-keys)))]
     (eval/prep project)
     (let [jar-file (get-jar-filename project)]
       (write-jar project jar-file (filespecs project []))
