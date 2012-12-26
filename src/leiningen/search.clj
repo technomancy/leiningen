@@ -73,7 +73,7 @@
     [(pr-str (into [name version] (concat classifier-opts packaging-opts)))
      (or (.description result) "")]))
 
-(def ^:private page-size (:search-page-size (:user (user/profiles)) 25))
+(def ^:private page-size (:search-page-size (:user (user/profiles)) 50))
 
 (defn- print-results [response page]
   (when (seq response)
