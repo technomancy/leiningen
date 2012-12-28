@@ -588,7 +588,7 @@ they don't have to be re-entered every time, see `lein help
 deploying`. When deploying a release that's not a snapshot, Leiningen
 will attempt to sign it using [GPG](http://gnupg.org) to prove your
 authorship of the release. See the
-[deploy guide](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md).
+[deploy guide](https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md).
 for details of how to set that up. The deploy guide includes
 instructions for deploying to other repositories as well.
 
