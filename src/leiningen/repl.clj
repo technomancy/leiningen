@@ -13,7 +13,7 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
-(def reply-profile {:dependencies '[^:displace ; TODO: displace ignored here
+(def reply-profile {:dependencies '[^:displace
                                      [org.thnetos/cd-client "0.3.6"
                                       :exclusions [org.clojure/clojure]]]})
 
@@ -21,16 +21,16 @@
                                           [reply "0.1.2"
                                            :exclusions [org.clojure/clojure]]]})
 
+(def base-profile {:dependencies '[^:displace
+                                    [org.clojure/tools.nrepl "0.2.0-RC1"
+                                     :exclusions [org.clojure/clojure]]
+                                   ^:displace
+                                    [clojure-complete "0.2.2"
+                                     :exclusions [org.clojure/clojure]]]})
+
 (defn profiles-for [project trampoline? reply?]
-  (let [base (or (:repl (:profiles project))
-                 (:repl (user/profiles))
-                 {:dependencies '[^:displace
-                                  [org.clojure/tools.nrepl "0.2.0-RC1"
-                                   :exclusions [org.clojure/clojure]]
-                                  ^:displace
-                                  [clojure-complete "0.2.2"
-                                   :exclusions [org.clojure/clojure]]]})]
-    [base (if reply? reply-profile) (if trampoline? trampoline-profile)]))
+  [(if reply? reply-profile) (if trampoline? trampoline-profile)
+   base-profile (:repl (:profiles project)) (:repl (user/profiles))])
 
 (defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
   (when (and nrepl-middleware nrepl-handler)
