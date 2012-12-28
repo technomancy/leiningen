@@ -273,8 +273,8 @@
         ;; single git repository.
         :dir ".."}
 
-  ;; Include arbitrary xml in generated pom.xml file as parsed by
-  ;; parsed by clojure.data.xml/sexp-as-element.
+  ;; Include arbitrary xml in generated pom.xml file,
+  ;; as parsed by clojure.data.xml/sexp-as-element.
   :pom-addition [:developers [:developer {:id "benbit"}
                               [:name "Ben Bitdiddle"]
                               [:url "http://www.example.com/benjamin"]]])
