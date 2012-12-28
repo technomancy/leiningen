@@ -232,22 +232,48 @@
          :offline {:offline? true}
          :debug {:debug true}}))
 
+(defn- displace?
+  "Returns true if the object is marked as displaceable"
+  [obj]
+  (-> obj meta :displace))
+
+(defn- replace?
+  "Returns true if the object is marked as replaceable"
+  [obj]
+  (-> obj meta :replace))
+
 (defn- meta-merge
   "Recursively merge values based on the information in their metadata."
   [left right]
-  (cond (or (-> left meta :displace)
-            (-> right meta :replace))
+  (cond (nil? left) right
+        (nil? right) left
+
+        (and (displace? left)   ;; Pick the rightmost
+             (displace? right)) ;; if both are marked as displaceable
         (with-meta right
-          (merge (-> left meta (dissoc :displace))
-                 (-> right meta (dissoc :replace))))
+          (merge (meta left) (meta right)))
+
+        (and (replace? left)    ;; Pick the rightmost
+             (replace? right))  ;; if both are marked as replaceable
+        (with-meta right
+          (merge (meta left) (meta right)))
+
+        (or (displace? left)
+            (replace? right))
+        (with-meta right
+          (merge (-> right meta (dissoc :replace))
+                 (-> left meta (dissoc :displace))))
+
+        (or (replace? left)
+            (displace? right))
+        (with-meta left
+          (merge (-> left meta (dissoc :replace))
+                 (-> right meta (dissoc :displace))))
 
         (-> left meta :reduce)
         (-> left meta :reduce
             (reduce left right)
             (with-meta (meta left)))
-
-        (nil? left) right
-        (nil? right) left
 
         (and (map? left) (map? right))
         (merge-with meta-merge left right)
