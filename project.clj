@@ -14,7 +14,7 @@
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus]]
-                 [reply "0.1.3" :exclusions [ring/ring-core]]
+                 [reply "0.1.4" :exclusions [ring/ring-core]]
                  ;; drawbridge specifies an ancient version here, so bump it
                  [clj-http "0.5.8" :exclusions [crouton cheshire]]]
   :repositories [["classic" "https://clojars.org/repo/"]]
