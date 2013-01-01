@@ -135,7 +135,7 @@ propagated to the compilation phase and not stripped out."
   (let [project (if given-main
                   (assoc project :main (symbol given-main))
                   project)]
-    (if (compile-main? project)
+    (if (and (compile-main? project) (not= :all (:aot project)))
       (update-in project [:aot] conj (:main project))
       project)))
 
