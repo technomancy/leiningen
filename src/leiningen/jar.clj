@@ -5,6 +5,7 @@
             [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [bultitude.core :as b]
             [clojure.string :as string]
             [clojure.java.io :as io])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
@@ -127,18 +128,33 @@
 propagated to the compilation phase and not stripped out."
   [:offline? :local-repo :certificates :warn-on-reflection])
 
+(defn- compile-main? [{:keys [main source-paths] :as project}]
+  (and main (some #(.exists (io/file % (b/path-for main))) source-paths)))
+
+(defn- add-main [project given-main]
+  (let [project (if given-main
+                  (assoc project :main (symbol given-main))
+                  project)]
+    (if (compile-main? project)
+      (update-in project [:aot] conj (:main project))
+      project)))
+
 (defn jar
   "Package up all the project's files into a jar file.
 
 Create a $PROJECT-$VERSION.jar file containing project's source files as well
 as .class files if applicable. If project.clj contains a :main key, the -main
-function in that namespace will be used as the main-class for executable jar."
-  [project]
-  (let [project (-> (project/unmerge-profiles project [:default])
-                    (project/merge-profiles [:provided])
-                    (merge (select-keys project whitelist-keys)))]
-    (eval/prep project)
-    (let [jar-file (get-jar-filename project)]
-      (write-jar project jar-file (filespecs project []))
-      (main/info "Created" (str jar-file))
-      jar-file)))
+function in that namespace will be used as the main-class for executable jar.
+
+With an argument, the jar will be built with an alternate main."
+  ([project main]
+     (let [project (-> (project/unmerge-profiles project [:default])
+                       (project/merge-profiles [:provided])
+                       (merge (select-keys project whitelist-keys))
+                       (add-main main))]
+       (eval/prep project)
+       (let [jar-file (get-jar-filename project)]
+         (write-jar project jar-file (filespecs project []))
+         (main/info "Created" (str jar-file))
+         jar-file)))
+  ([project] (jar project nil)))
