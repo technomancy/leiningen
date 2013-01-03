@@ -108,6 +108,7 @@
     `(~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
       ~@(:jvm-opts project)
       ~@(get arch-options (:arch project))
+      ;; TODO: support -Xverify:none
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
                          :file.encoding (or (System/getProperty "file.encoding") "UTF-8")
