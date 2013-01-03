@@ -2,7 +2,9 @@
 
 Leiningen tasks are simply functions named $TASK in a leiningen.$TASK
 namespace. So writing a Leiningen plugin is just a matter of creating
-a project that contains such a function.
+a project that contains such a function, but much of this
+documentation applies equally to the tasks that ship with Leiningen
+itself.
 
 Using the plugin is a matter of declaring it in the `:plugins` entry
 of the project map. If a plugin is a matter of user convenience rather
@@ -38,8 +40,8 @@ containing the path to the `src` directory of your plugin.
 The first argument to your task function should be the current
 project. It will be a map which is based on the `project.clj` file,
 but it also has `:name`, `:group`, `:version`, and `:root` keys added
-in, among other things. To see what project maps look like, try using
-the `lein-pprint` plugin; you can invoke the `pprint` task to examine
+in, among other things. Try using the `lein-pprint` plugin to see what
+project maps look like; you can invoke the `pprint` task to examine
 any project.
 
 If you want your task to take parameters from the command-line

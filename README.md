@@ -78,6 +78,7 @@ The `project.clj` file in the project root should look like this:
 ```clj
 (defproject myproject "0.5.0-SNAPSHOT"
   :description "A project for doing things."
+  :license "Eclipse Public License 1.0"
   :url "http://github.com/technomancy/myproject"
   :dependencies [[org.clojure/clojure "1.4.0"]]
   :plugins [[lein-ring "0.4.5"]])
@@ -92,7 +93,6 @@ configuration options.
 The `project.clj` file can be customized further with the use of
 [profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md).
 
-
 ## Documentation
 
 Leiningen documentation is organized as a number of guides:
@@ -104,7 +104,7 @@ Leiningen documentation is organized as a number of guides:
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj)
  * [Writing Plugins](https://github.com/technomancy/leiningen/blob/master/doc/PLUGINS.md)
  * [FAQ](https://github.com/technomancy/leiningen/blob/master/doc/FAQ.md)
-
+ * [Contributing](https://github.com/technomancy/leiningen/blob/master/CONTRIBUTING.md)
 
 ## Plugins
 
@@ -121,62 +121,9 @@ for details on how to add to your `:user` profile. The
 [plugin guide](https://github.com/technomancy/leiningen/blob/preview/doc/PLUGINS.md)
 explains how to write plugins.
 
-## Contributing
-
-Please report issues on the
-[GitHub issue tracker](https://github.com/technomancy/leiningen/issues)
-or the [mailing list](http://librelist.com/browser/leiningen/). To
-join the mailing list, email `leiningen@librelist.org`; your first
-message to that address will subscribe you without being posted.
-Personal email addresses are not appropriate for bug reports. See the
-[readme for the leiningen-core library](https://github.com/technomancy/leiningen/blob/master/leiningen-core/README.md)
-and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
-structured. Design discussions also occur in the
-[#leiningen channel on Freenode](irc://chat.freenode.net#leiningen).
-
-Patches are preferred as GitHub pull requests, though patches from
-`git format-patch` are also welcome on the mailing list. Please use
-topic branches when sending pull requests rather than committing
-directly to master in order to minimize unnecessary merge commit
-clutter.
-
-Contributors who have had a single patch accepted may request commit
-rights on the mailing list or in IRC. Please use your judgment
-regarding potentially-destabilizing work and branches. Other
-contributors will usually be glad to review topic branches before
-merging if you ask on IRC or the mailing list.
-
-Contributors are also welcome to request a free
-[Leiningen sticker](http://twitpic.com/2e33r1) by asking on the
-mailing list and mailing a self-addressed, stamped envelope.
-
-Leiningen is [mirrored at Gitorious](https://gitorious.org/leiningen/leiningen)
-and [tested on Travis](http://travis-ci.org/#!/technomancy/leiningen).
-
-## Building
-
-You don't need to "build" Leiningen per se, but when you're using a
-checkout you will need to get its dependencies in place.
-
-For the master branch, use Leiningen 1 to run `lein install` in the
-`leiningen-core` subproject directory. Alternately you can run `mvn
-dependency:copy-dependencies` in the same directory followed by `cp
--r target/dependency lib`.
-
-Once you've done that, symlink `bin/lein` to somewhere on your
-`$PATH`. Usually you'll want to rename your existing installation to
-keep them from interfering.
-
-When the dependencies change you will also have to do `rm
-.lein-classpath` in the project root.
-
-Using `bin/lein` alone from the master branch without a full checkout
-is not supported. If you want to just grab a shell script to work
-with, use the preview branch.
-
 ## License
 
-Source Copyright © 2009-2012 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+Source Copyright © 2009-2013 Phil Hagelberg, Alex Osborne, Dan Larkin, and
 [contributors](https://github.com/technomancy/leiningen/contributors). 
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.
