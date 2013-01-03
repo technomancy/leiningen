@@ -20,9 +20,9 @@ fi
 function make_native_path {
     # ensure we have native paths
     if [[ "$OSTYPE" == "cygwin" && "$1"  == /* ]]; then
-	echo -n "$(cygpath -wp "$1")"
+    echo -n "$(cygpath -wp "$1")"
     else
-	echo -n "$1"
+    echo -n "$1"
     fi
 }
 
@@ -32,8 +32,8 @@ function add_path {
     shift
     while [ -n "$1" ];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
-	export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
-	shift
+    export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+    shift
     done
 }
 
@@ -100,7 +100,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Need to use lein 1.x to bootstrap the leiningen-core library (for aether)
     if [ "$(ls "$LEIN_DIR"/leiningen-core/lib/*)" = "" ]; then
         echo "Leiningen is missing its dependencies."
-        echo "Please see \"Building\" in the README."
+        echo "Please see \"Building\" in CONTRIBUTING.md."
         exit 1
     fi
 
