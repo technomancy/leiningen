@@ -50,7 +50,7 @@
 (defn exit
   "Exit the process. Rebind *exit-process?* in order to suppress actual process
   exits for tools which may want to continue operating. Never call
-  System/exit directly."
+  System/exit directly in Leiningen's own process."
   ([exit-code]
      (if *exit-process?*
        (do (shutdown-agents)
