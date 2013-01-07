@@ -112,6 +112,31 @@
              (-> (merge-profiles project [:dev])
                  :dependencies))))))
 
+(deftest test-merge-profile-repos
+  (with-redefs [default-profiles test-profiles]
+    (let [project
+          (make
+           {:profiles {:clojars {:repositories ^:replace
+                                [["clojars.org" "https://clojars.org/repo/"]]}
+                       :blue {:repositories
+                              [["my-repo" "https://my-repo.org/"]]}
+                       :empty {:repositories ^:replace []}}})]
+      (is (= default-repositories
+             (:repositories project)))
+      (is (= []
+             (-> (merge-profiles project [:empty])
+                 :repositories)))
+      (is (= [["my-repo" {:url "https://my-repo.org/"}]]
+             (-> (merge-profiles project [:empty :blue])
+                 :repositories)))
+      (is (= [["clojars.org" {:url "https://clojars.org/repo/"}]]
+             (-> (merge-profiles project [:clojars])
+                 :repositories)))
+      (is (= [["clojars.org" {:url "https://clojars.org/repo/"}]
+              ["my-repo" {:url "https://my-repo.org/"}]]
+             (-> (merge-profiles project [:clojars :blue])
+                 :repositories))))))
+
 (deftest test-global-exclusions
   (let [project {:dependencies
                  '[[lancet "1.0.1"]
