@@ -49,8 +49,7 @@
     (let [special-opts (select-keys opts special-ant-javac-keys)
           other-opts   (apply dissoc (concat [opts] special-ant-javac-keys))
           specials     (normalize-specials special-opts)
-          others       (flatten (vec (map (fn [[k v]]
-                                            [(str "-" (name k)) v]) other-opts)))]
+          others       (mapcat (fn [[k v]] [(str "-" (name k)) v]) other-opts)]
       (vec (map (comp name str) (flatten (concat specials others)))))
     opts))
 
@@ -60,13 +59,11 @@
   "Compile all sources of possible options and add important defaults.
   Result is a String java array of options."
   [project files args]
-  (into-array
-   String
-   (concat (normalize-javac-options (:javac-options project))
-           args
-           ["-cp" (classpath/get-classpath-string project)
-            "-d" (:compile-path project)]
-           files)))
+  (into-array String (concat (normalize-javac-options (:javac-options project))
+                             args
+                             ["-cp" (classpath/get-classpath-string project)
+                              "-d" (:compile-path project)]
+                             files)))
 
 ;; Pure java projects will not have Clojure on the classpath. As such, we need
 ;; to add it if it's not already there.
@@ -77,6 +74,7 @@
 (defn- subprocess-form
   "Creates a form for running javac in a subprocess."
   [compile-path files javac-opts]
+  (main/debug "Running javac with" javac-opts)
   `(let [abort# (fn [& msg#]
                   (.println java.lang.System/err (apply str msg#))
                   (java.lang.System/exit 1))]
