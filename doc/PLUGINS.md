@@ -360,7 +360,7 @@ by placing the `foo.clj` file defining the new task in
 
 ```
 $ ls
-README.md	project.clj	src		tasks		test
+README.md project.clj src tasks test
 $ ls -R tasks
 leiningen
 
