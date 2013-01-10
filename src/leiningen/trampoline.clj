@@ -13,7 +13,8 @@
   (System/getenv "TRAMPOLINE_FILE"))
 
 (defn- win-batch? []
-  (.endsWith (trampoline-file) ".bat"))
+  (if-let [t (trampoline-file)]
+    (.endsWith t ".bat")))
 
 (defn- quote-arg [arg]
   (format "\"%s\"" arg))
