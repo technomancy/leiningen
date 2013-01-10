@@ -35,7 +35,8 @@
                                [stencil/stencil "0.2.0"]],
                :twelve 12 ; testing unquote
 
-               :repositories [["central" {:url "http://repo1.maven.org/maven2/"}]
+               :repositories [["central" {:url "http://repo1.maven.org/maven2/"
+                                          :snapshots false}]
                               ["clojars" {:url "https://clojars.org/repo/"}]]})
 
 (deftest test-read-project

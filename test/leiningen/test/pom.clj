@@ -69,10 +69,10 @@
            (map #(first-in % [:repository :url])
                 (deep-content xml [:project :repositories])))
         "repositories have correct location")
-    (is (= ["true" "true" "true"]
+    (is (= ["false" "true" "true"]
            (map #(first-in % [:repository :snapshots :enabled])
                 (deep-content xml [:project :repositories])))
-        "snapshots are enabled")
+        "some snapshots are enabled")
     (is (= ["true" "true" "true"]
            (map #(first-in % [:repository :releases :enabled])
                 (deep-content xml [:project :repositories])))
