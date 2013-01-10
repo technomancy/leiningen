@@ -12,7 +12,7 @@
             [leiningen.core.classpath :as classpath]
             [useful.fn :refer [fix]]
             [useful.seq :refer [update-first]]
-            [useful.map :refer [update update-each]])
+            [useful.map :refer [update update-each map-vals]])
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader)))
 
@@ -109,12 +109,26 @@
                      (meta-merge (dependency-map existing)
                                  (dependency-map dep)))))))
 
-(defn- add-repo [repos repo]
-  (let [[id opts] repo
-        opts (fix opts string? (partial hash-map :url))]
-    (update-first repos #(= id (first %))
-                  (fn [[_ existing]]
-                    [id (meta-merge existing opts)]))))
+(defn- normalize-repo
+  "Normalizes a repository to the canonical repository form."
+  [[id opts :as repo]]
+  (with-meta
+    [id (fix opts string? (partial hash-map :url))]
+    (meta repo)))
+
+(defn- normalize-repos
+  "Normalizes a vector of repositories to the canonical repository form."
+  [repos]
+  (with-meta
+    (mapv normalize-repo repos)
+    (meta repos)))
+
+(defn- add-repo [repos [id opts :as repo]]
+  ;; TODO - we completely ignore metadata here. Should follow
+  ;; ^:replace/^:displace conventions and merge metadata
+  (update-first repos #(= id (first %))
+                (fn [[_ existing]]
+                  [id (meta-merge existing opts)])))
 
 (def empty-dependencies
   (with-meta [] {:reduce add-dep}))
@@ -135,6 +149,20 @@
   (with-meta
     [["clojars" {:url "https://clojars.org/repo/", :password :gpg, :username :gpg}]]
     {:reduce add-repo}))
+
+(defn update-if-in-map
+  "Like update-each, but will only update if the key is within the map."
+  [m ks f & args]
+  (apply update-each m (filter (partial contains? m) ks) f args))
+
+(defn normalize-values
+  "Transform values within a project map to normalized values, such that
+  internal functions can assume that the values are already normalized."
+  [project]
+  (-> project
+      (update-if-in-map [:repositories :deploy-repositories
+                         :plugin-repositories] normalize-repos)
+      (update-if-in-map [:profiles] map-vals normalize-values)))
 
 (defn make
   ([project project-name version root]
@@ -167,7 +195,8 @@
             (assoc :eval-in (or (:eval-in project)
                                 (if (:eval-in-leiningen project)
                                   :leiningen, :subprocess))
-                   :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))))))))
+                   :offline? (not (nil? (System/getenv "LEIN_OFFLINE"))))
+            (normalize-values))))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
