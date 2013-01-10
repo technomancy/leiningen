@@ -10,10 +10,11 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Allow search queries on any field. (#243)
    - [X] Drop clojars snapshots from default repos (#241)
    - [X] Remove mention of preview branch from docs, bin/lein
-   - [ ] Deploy and configure clojars promotion functionality
-   - [ ] Check to see that libraries are being promoted
-   - [ ] Document releases repository on Clojars wiki
-         https://github.com/ato/clojars-web/wiki/Releases
+   - [X] Deploy and configure clojars promotion functionality
+   - [X] Document releases repository on Clojars wiki
+   - [ ] missing dependency resolution output
+   - [ ] Move downloads to S3 (#885)
+   - [ ] Prevent overwrites in Clojars
 ** 2.0.0-preview9
    - [X] Fast trampolining
    - [X] Latest newnew

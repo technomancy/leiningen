@@ -2,6 +2,10 @@
 
 ## 2.0.0-RC1 / ???
 
+* Fix some reader bugs in repl task. (Colin Jones)
+* Fix a bug where Leiningen's deps could affect javac. (Jean Niklas L'orange)
+* Test selectors may allow entire namespaces to be skipped. (Anthony Grimes)
+* Allow project's git repo to be different than project root. (David Greenberg)
 * Don't AOT the `:main` namespace outside of uberjar task.
 * Check Clojars releases repository by default instead of legacy Clojars.
 * Allow hooks from profiles to apply with limited scope. (Hugo Duncan)
