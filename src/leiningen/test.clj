@@ -69,7 +69,8 @@
                                    first meta :ns ns-name)))
                       (if (= :begin-test-ns (:type m#))
                         (clojure.test/with-test-out
-                          (println "\nlein test" (ns-name (:ns m#))))
+                          (println "\nlein test" (ns-name (:ns m#)))
+                          (apply report# m# args#))
                         (apply report# m# args#))))
                 summary# (binding [clojure.test/*test-out* *out*]
                            (apply ~'clojure.test/run-tests selected-namespaces#))]
