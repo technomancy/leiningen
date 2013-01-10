@@ -1,6 +1,6 @@
 # Leiningen
 
-<img src="https://github.com/downloads/technomancy/leiningen/leiningen-banner.png"
+<img src="http://leiningen.org/img/leiningen-banner.png"
  alt="Leiningen logo" title="The man himself" align="right" />
 
 > "Leiningen!" he shouted. "You're insane! They're not creatures you can
@@ -133,5 +133,5 @@ me that good builds are important.
 
 Images Copyright © 2010 Phil Hagelberg. Distributed under the Creative
 Commons Attribution + ShareAlike
-License. [Full-size version](https://github.com/downloads/technomancy/leiningen/leiningen-full.jpg)
+License. [Full-size version](http://leiningen.org/img/leiningen-full.jpg)
 available.

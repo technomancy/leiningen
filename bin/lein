@@ -189,7 +189,7 @@ if [ "$1" = "self-install" ]; then
     fi
     echo "Downloading Leiningen to $LEIN_JAR now..."
     mkdir -p "$(dirname "$LEIN_JAR")"
-    LEIN_URL="https://github.com/downloads/technomancy/leiningen/leiningen-$LEIN_VERSION-standalone.jar"
+    LEIN_URL="https://leiningen.s3.amazonaws.com/downloads/leiningen-$LEIN_VERSION-standalone.jar"
     $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
     if [ $? == 0 ]; then
         # TODO: checksum
