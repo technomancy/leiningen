@@ -65,6 +65,7 @@
 
 (declare meta-merge)
 
+;; TODO: drop this and use read-eval syntax in 3.0
 (defn- unquote-project
   "Inside defproject forms, unquoting (~) allows for arbitrary evaluation."
   [args]

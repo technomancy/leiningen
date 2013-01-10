@@ -96,15 +96,3 @@
   can usually set `:bootclasspath true` in project.clj to speed up
   project launches, though there are compatibility issues with some
   libraries.
-
-**Q:** Leiningen can't find some jars that the preview version could!  
-**A:** As of 2.0.0-RC1, Leiningen no longer checks the
-  [Clojars classic repository](https://clojars.org/repo) by default,
-  replacing it with the
-  [Clojars releases repository](https://github.com/ato/clojars-web/wiki/Releases).
-  This speeds up dependency resolution and allows for more secure
-  builds which enforce artifact signatures, but many libraries haven't
-  been promoted to the releases repository yet. If you need such a
-  library (or any snapshot version), you can add the old repo to your
-  `:repositories` in `project.clj`: `:repositories
-  [["clojars-classic" "https://clojars.org/repo"]]`
