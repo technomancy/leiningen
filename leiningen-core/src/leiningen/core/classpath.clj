@@ -155,9 +155,9 @@
     (catch DependencyResolutionException e
       (binding [*out* *err*]
         (println "This could be due to a typo in :dependencies or network issues.")
-        (when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
-          (println "It's possible the specified jar is in the old Clojars Classic repo.")
-          (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
+        #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
+            (println "It's possible the specified jar is in the old Clojars Classic repo.")
+            (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
       (throw (ex-info "Could not resolve dependencies" {:exit-code 1})))
     (catch Exception e
       (if (and (instance? java.net.UnknownHostException (root-cause e))
