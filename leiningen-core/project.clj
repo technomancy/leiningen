@@ -10,7 +10,6 @@
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.0.13"
                   :exclusions [org.slf4j/slf4j-api]]]
-  :repositories [["classic" "https://clojars.org/repo/"]]
   :scm {:dir ".."}
   ;; This is only used when releasing Leiningen. Can't put it in a
   ;; profile since it must be installed using lein1
