@@ -108,7 +108,10 @@
   (doseq [result (.getArtifactResults (.getResult e))
           :when (.isMissing result)
           exception (.getExceptions result)]
-    (println (.getMessage exception))))
+    (println (.getMessage exception)))
+  (doseq [ex (.getCollectExceptions (.getResult e))
+          ex2 (.getExceptions (.getResult ex))]
+    (println (.getMessage ex2))))
 
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
