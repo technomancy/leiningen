@@ -104,6 +104,12 @@
   [repo-name (merge {:update (or update :daily)
                      :checksum (or checksum :fail)} opts)])
 
+(defn- print-failures [e]
+  (doseq [result (.getArtifactResults (.getResult e))
+          :when (.isMissing result)
+          exception (.getExceptions result)]
+    (println (.getMessage exception))))
+
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
 
@@ -142,18 +148,12 @@
                           (.getId repo))
                  ;;else case happens for metadata files
                  )
-               :corrupted
-               (when error
-                 (println (.getMessage error)))
-               :failed
-               (when (and error
-                          (= (.getRepository error)
-                             (last aether-repos)))
-                 (println "Failed to download" name))
                nil)))))
      :proxy (get-proxy-settings))
     (catch DependencyResolutionException e
       (binding [*out* *err*]
+        ;; Cannot recur from catch/finally so have to put this in its own defn
+        (print-failures e)
         (println "This could be due to a typo in :dependencies or network issues.")
         #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
             (println "It's possible the specified jar is in the old Clojars Classic repo.")
