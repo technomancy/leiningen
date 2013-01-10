@@ -253,7 +253,7 @@
   profiles are active by default."
   (atom {:default [:base :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
-                :plugins [['lein-newnew "0.3.6"
+                :plugins [['lein-newnew "0.3.7"
                            :exclusions ['org.clojure/clojure]]]
                 :checkout-deps-shares [:source-paths
                                        :resource-paths
