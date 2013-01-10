@@ -72,16 +72,19 @@ Generating a new project is easy:
     Generating a project called my-stuff based on the 'default' template.
 
     $ cd my-stuff
-    $ tree
+    $ find .
     .
-    |-- project.clj
-    |-- README.md
-    |-- src
-    |   `-- my_stuff
-    |       `-- core.clj
-    `-- test
-        `-- my_stuff
-            `-- core_test.clj
+    ./.gitignore
+    ./doc
+    ./doc/intro.md
+    ./project.clj
+    ./README.md
+    ./src
+    ./src/my_stuff
+    ./src/my_stuff/core.clj
+    ./test
+    ./test/my_stuff
+    ./test/my_stuff/core_test.clj
 
 ### Directory Layout
 
