@@ -44,3 +44,13 @@
 (deftest test-only-selector
   (test sample-no-aot-project ":only" "selectors/regular")
   (is (= (ran?) #{:regular})))
+
+(def called? (atom false))
+
+(defmethod clojure.test/report :begin-test-ns [_]
+  (reset! called? true))
+
+(deftest test-report-call-through
+  (is (true? @called?))
+  (reset! called? false))
+
