@@ -12,9 +12,9 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Remove mention of preview branch from docs, bin/lein
    - [X] Deploy and configure clojars promotion functionality
    - [X] Document releases repository on Clojars wiki
+   - [X] Move downloads to S3 (#885)
    - [ ] missing dependency resolution output
-   - [ ] Move downloads to S3 (#885)
-   - [ ] Prevent overwrites in Clojars
+   - [ ] Prevent overwrites in Clojars (can happen post-RC)
 ** 2.0.0-preview9
    - [X] Fast trampolining
    - [X] Latest newnew
