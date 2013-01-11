@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.0.0-RC1 / ???
+## 2.0.0-RC1 / 2013-01-10
 
 * Fix some reader bugs in repl task. (Colin Jones)
 * Fix a bug where Leiningen's deps could affect javac. (Jean Niklas L'orange)
