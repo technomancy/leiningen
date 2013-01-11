@@ -43,6 +43,7 @@ echo "Also deploy this release of leiningen-core to Clojars."
 # git commit -a -m "Release $RELEASE_VERSION"
 # git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 # cd leiningen-core; lein do clean, deploy clojars, marg
+# deploy leiningen itself
 # scp docs/uberdoc.html leiningen.org:leiningen.org/reference.html
 # git push && git push --tags
 # git checkout preview && git merge master && git push
