@@ -13,8 +13,8 @@
 
 (deftest test-new-with-group-and-project-name
   (leiningen.new/new nil "orgname/a-project")
-  (is (= #{"README.md" "project.clj" "orgname" "src" "core.clj" "test"
-           "doc" "intro.md" "a_project" "core_test.clj" ".gitignore"}
+  (is (= #{"src" "a_project_test.clj" "project.clj" "a_project.clj" "orgname"
+           "test" ".gitignore" "README.md" "doc" "intro.md"}
          (set (map (memfn getName)
                    (rest (file-seq (file "a-project")))))))
   (delete-file-recursively (file "a-project") :silently))
