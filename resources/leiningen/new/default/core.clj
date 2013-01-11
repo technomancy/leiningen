@@ -1,4 +1,4 @@
-(ns {{namespace}}.core)
+(ns {{namespace}})
 
 (defn foo
   "I don't do a whole lot."

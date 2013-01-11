@@ -31,6 +31,15 @@
   [s]
   (string/replace s #"-" "_"))
 
+(defn multi-segment
+  "Make a namespace multi-segmented by adding another segment if necessary.
+The additional segment defaults to \"core\"."
+  ([s] (multi-segment s "core"))
+  ([s final-segment]
+     (if (.contains s ".")
+       s
+       (format "%s.%s" s final-segment))))
+
 (defn name-to-path
   "Constructs directory structure from fully qualified artifact name:
 
