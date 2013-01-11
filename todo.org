@@ -13,7 +13,12 @@ See also https://github.com/technomancy/leiningen/issues
    - [X] Deploy and configure clojars promotion functionality
    - [X] Document releases repository on Clojars wiki
    - [X] Move downloads to S3 (#885)
-   - [ ] missing dependency resolution output
+   - [X] missing dependency resolution output
+   - [X] Merge lein-newnew into lein proper
+   - [X] Check for single-quote ${} in bin/lein
+   - [ ] nrepl RC2
+   - [ ] backslash issue in repl
+   - [ ] newnew broken on windows
    - [ ] Prevent overwrites in Clojars (can happen post-RC)
 ** 2.0.0-preview9
    - [X] Fast trampolining
