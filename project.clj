@@ -9,6 +9,7 @@
   :dependencies [[leiningen-core "2.0.0-RC1"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.1.7"]
+                 [stencil "0.3.1"]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
