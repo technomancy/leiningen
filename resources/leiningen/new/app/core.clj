@@ -1,4 +1,4 @@
-(ns {{namespace}}.core
+(ns {{namespace}}
   (:gen-class))
 
 (defn -main
