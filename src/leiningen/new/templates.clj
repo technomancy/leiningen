@@ -11,6 +11,7 @@
 (ns leiningen.new.templates
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
+            [leiningen.core.eval :as eval]
             [stencil.core :as stencil]))
 
 (defn project-name
@@ -48,7 +49,9 @@ The additional segment defaults to \"core\"."
 
    and so on. Uses platform-specific file separators."
   [s]
-  (-> s sanitize (string/replace #"\." java.io.File/separator)))
+  (-> s sanitize (string/replace #"\." (if (= :windows (main/get-os))
+                                         "\\\\"
+                                         java.io.File/separator))))
 
 (defn sanitize-ns
   "Returns project namespace name from (possibly group-qualified) project name:
