@@ -115,7 +115,7 @@ using the subtask's docstring if the help function is not found."
   "Display a list of tasks or help for a given task or subtask.
 
 Also provides readme, faq, tutorial, news, sample, profiles,
-deploying, mixed-source, and copying info."
+deploying, mixed-source, templates, and copying info."
   ([project task subtask] (println (or (static-help (str task "-" subtask))
                                        (help-for-subtask project task subtask))))
   ([project task] (println (or (static-help task) (help-for project task))))
@@ -130,4 +130,4 @@ deploying, mixed-source, and copying info."
        (doseq [[k v] aliases]
          (println (str k  " " v))))
      (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
-              "deploying, mixed-source, and copying.")))
+              "deploying, mixed-source, templates, and copying.")))
