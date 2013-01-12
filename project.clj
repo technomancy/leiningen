@@ -15,7 +15,7 @@
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus]]
-                 [reply "0.1.5" :exclusions [ring/ring-core]]
+                 [reply "0.1.6" :exclusions [ring/ring-core]]
                  ;; drawbridge specifies an ancient version here, so bump it
                  [clj-http "0.5.8" :exclusions [crouton cheshire]]]
   ;; checkout-deps don't work with :eval-in :leiningen

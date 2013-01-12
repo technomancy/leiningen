@@ -18,11 +18,11 @@
                                       :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
-                                          [reply "0.1.5"
+                                          [reply "0.1.6"
                                            :exclusions [org.clojure/clojure]]]})
 
 (def base-profile {:dependencies '[^:displace
-                                    [org.clojure/tools.nrepl "0.2.0-RC2"
+                                    [org.clojure/tools.nrepl "0.2.0"
                                      :exclusions [org.clojure/clojure]]
                                    ^:displace
                                     [clojure-complete "0.2.2"
