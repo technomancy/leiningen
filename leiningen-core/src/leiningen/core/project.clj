@@ -385,6 +385,9 @@
   ([project key]
      (when (seq (get project key))
        (ensure-dynamic-classloader)
+       (let [project (if (:repositories project)
+                       project
+                       (assoc project :repositories default-repositories))])
        (classpath/resolve-dependencies key project
                                        :add-classpath? true))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
