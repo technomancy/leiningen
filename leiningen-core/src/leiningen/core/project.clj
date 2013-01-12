@@ -157,10 +157,10 @@
   (apply update-each m (filter (partial contains? m) ks) f args))
 
 (defn normalize-values
-  "Transform values within a project map to normalized values, such that
+  "Transform values within a project or profile map to normalized values, such that
   internal functions can assume that the values are already normalized."
-  [project]
-  (-> project
+  [map]
+  (-> map
       (update-if-in-map [:repositories :deploy-repositories
                          :plugin-repositories] normalize-repos)
       (update-if-in-map [:profiles] map-vals normalize-values)))
@@ -463,9 +463,10 @@
   [project include-profiles & [exclude-profiles]]
   (let [project (:without-profiles (meta project) project)
         profile-map (apply dissoc (read-profiles project) exclude-profiles)
-        profiles (map (partial lookup-profile profile-map) include-profiles)]
+        profiles (map (partial lookup-profile profile-map) include-profiles)
+        normalized-profiles (map normalize-values profiles)]
     (-> project
-        (apply-profiles profiles)
+        (apply-profiles normalized-profiles)
         (absolutize-paths)
         (add-global-exclusions)
         (vary-meta merge {:without-profiles project
