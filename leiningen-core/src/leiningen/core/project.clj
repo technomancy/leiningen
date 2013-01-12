@@ -82,6 +82,7 @@
              args))
 
 (def defaults
+  ;; TODO: why isn't :repositories in here?
   {:source-paths ["src"]
    :resource-paths ["resources"]
    :test-paths ["test"]
@@ -245,7 +246,9 @@
 (def ^:private hooke-injection
   (with-open [rdr (-> "robert/hooke.clj" io/resource io/reader PushbackReader.)]
     `(do (ns ~'leiningen.core.injected)
-         ~@(doall (take 19 (rest (repeatedly #(clojure.core/read rdr)))))
+         ~@(doall (take-while #(not= % ::eof)
+                              (rest (repeatedly #(clojure.core/read
+                                                  rdr false ::eof)))))
          (ns ~'user))))
 
 (def default-profiles
