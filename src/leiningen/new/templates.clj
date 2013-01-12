@@ -49,7 +49,7 @@ The additional segment defaults to \"core\"."
 
    and so on. Uses platform-specific file separators."
   [s]
-  (-> s sanitize (string/replace #"\." (if (= :windows (main/get-os))
+  (-> s sanitize (string/replace #"\." (if (= :windows (eval/get-os))
                                          "\\\\"
                                          java.io.File/separator))))
 
