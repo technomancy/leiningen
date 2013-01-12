@@ -385,9 +385,12 @@
   ([project key]
      (when (seq (get project key))
        (ensure-dynamic-classloader)
-       (classpath/resolve-dependencies
-        key (or project {:repositories default-repositories})
-        :add-classpath? true))
+       (let [project (if (:repositories project)
+                       project
+                       (assoc project :repositories default-repositories))]
+         (cond (System/getenv "DEBUG") (println "Project: " project))
+         (classpath/resolve-dependencies key project
+                                         :add-classpath? true)))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
                             (.getResources "leiningen/wagons.clj")
                             (enumeration-seq))
