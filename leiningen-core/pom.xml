@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
-  <packaging>jar</packaging>
-  <version>2.0.0-RC1</version>
+  <version>2.0.0-RC2</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -14,12 +14,6 @@
       <url>http://www.eclipse.org/legal/epl-v10.html</url>
     </license>
   </licenses>
-  <scm>
-    <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>2f1725c1b54ba9e40ee09f77a428c4ef11ade4bf</tag>
-    <url>https://github.com/technomancy/leiningen</url>
-  </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
@@ -32,39 +26,16 @@
       <testResource>
         <directory>dev-resources</directory>
       </testResource>
-      <testResource>
-        <directory>dev-resources</directory>
-      </testResource>
-      <testResource>
-        <directory>dev-resources</directory>
-      </testResource>
-      <testResource>
-        <directory>resources</directory>
-      </testResource>
     </testResources>
-    <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
   </build>
   <repositories>
     <repository>
       <id>central</id>
-      <url>http://repo1.maven.org/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
+      <url>http://repo1.maven.org/maven2</url>
     </repository>
     <repository>
       <id>clojars</id>
-      <url>https://clojars.org/repo/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
+      <url>http://clojars.org/repo/</url>
     </repository>
   </repositories>
   <dependencies>
@@ -99,8 +70,8 @@
       <version>0.0.13</version>
       <exclusions>
         <exclusion>
-          <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
     </dependency>
