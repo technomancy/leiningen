@@ -293,14 +293,14 @@
         (or (displace? left)
             (replace? right))
         (with-meta right
-          (merge (-> right meta (dissoc :replace))
-                 (-> left meta (dissoc :displace))))
+          (merge (-> left meta (dissoc :displace))
+                 (-> right meta (dissoc :replace))))
 
         (or (replace? left)
             (displace? right))
         (with-meta left
-          (merge (-> left meta (dissoc :replace))
-                 (-> right meta (dissoc :displace))))
+          (merge (-> right meta (dissoc :displace))
+                 (-> left meta (dissoc :replace))))
 
         (-> left meta :reduce)
         (-> left meta :reduce
