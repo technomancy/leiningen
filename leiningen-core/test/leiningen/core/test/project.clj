@@ -55,6 +55,136 @@
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
 
+(deftest test-merge-profile-displace-replace
+  (let [test-profiles {:carmine {:foo [3 4]}
+                       :carmined {:foo ^:displace [3 4]}
+                       :carminer {:foo ^:replace [3 4]}
+                       :blue {:foo [5 6]}
+                       :blued {:foo ^:displace [5 6]}
+                       :bluer {:foo ^:replace [5 6]}
+                       :jade {:foo [7 8]}
+                       :jaded {:foo ^:displace [7 8]}
+                       :jader {:foo ^:replace [7 8]}}]
+    (with-redefs [default-profiles (atom test-profiles)]
+      (testing "that :^displace throws away the value if another exist"
+        (is (= [1 2]
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:carmined])
+                   :foo)))
+        (is (= [1 2 5 6]
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:carmined :blue :jaded])
+                   :foo)))
+        (is (= [5 6]
+               (-> (make {:foo ^:displace [1 2]})
+                   (merge-profiles [:carmined :blued])
+                   :foo)))
+        (is (= [7 8 5 6]
+               (-> (make {:foo ^:displace [1 2]})
+                   (merge-profiles [:carmined :jade :blued :blue])
+                   :foo))))
+      (testing "that :^displace preserves metadata"
+        (is (= {}
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:carmined])
+                   :foo meta)))
+        (is (= {:quux :frob}
+               (-> (make {:foo ^{:quux :frob} [1 2]})
+                   (merge-profiles [:carmined])
+                   :foo meta)))
+        (is (= {:displace true, :quux :frob}
+               (-> (make {:foo ^{:displace true, :quux :frob} [1 2]})
+                   (merge-profiles [:carmined :blued :jaded])
+                   :foo meta)))
+        (is (= {:displace true, :a 1, :b 2}
+               (-> (make {:foo ^{:displace true, :a 1} [1 2]
+                          :profiles {:bar {:foo
+                                           ^{:displace true, :b 2} [9 0]}}})
+                   (merge-profiles [:jaded :bar :carmined])
+                   :foo meta))))
+      (testing "that ^:replace replaces other values (at most once)"
+        (is (= [1 2]
+               (-> (make {:foo ^:replace [1 2]})
+                   (merge-profiles [:carmine])
+                   :foo)))
+        (is (= [3 4]
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:carminer])
+                   :foo)))
+        (is (= [1 2 5 6]
+               (-> (make {:foo ^:replace [1 2]})
+                   (merge-profiles [:carmine :blue])
+                   :foo)))
+        (is (= [3 4]
+               (-> (make {:foo ^:replace [1 2]})
+                   (merge-profiles [:carminer])
+                   :foo)))
+        (is (= [7 8]
+               (-> (make {:foo ^:replace [1 2]})
+                   (merge-profiles [:jader :blue])
+                   :foo)))
+        (is (= [3 4]
+               (-> (make {:foo ^:replace [1 2]})
+                   (merge-profiles [:carminer :jade])
+                   :foo))))
+      (testing "that ^:replace preserves metadata"
+        (is (= {}
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:carminer])
+                   :foo meta)))
+        (is (= {:quux :frob}
+               (-> (make {:foo ^{:quux :frob} [1 2]})
+                   (merge-profiles [:carminer])
+                   :foo meta)))
+        (is (= {:replace true, :quux :frob}
+               (-> (make {:foo ^{:replace true, :quux :frob} [1 2]})
+                   (merge-profiles [:carminer :jader :bluer])
+                   :foo meta)))
+        (is (= {:replace true, :a 1, :b 2}
+               (-> (make {:foo ^{:replace true, :a 1} [1 2]
+                          :profiles {:bar {:foo
+                                           ^{:replace true, :b 2} [9 0]}}})
+                   (merge-profiles [:jader :bar :carminer])
+                   :foo meta))))
+      (testing "that ^:displace and ^:replace operates correctly together"
+        (is (= [5 6]
+               (-> (make {:foo ^:displace [1 2]})
+                   (merge-profiles [:bluer])
+                   :foo)))
+        (is (= [1 2]
+               (-> (make {:foo ^:replace [1 2]})
+                   (merge-profiles [:blued])
+                   :foo)))
+        (is (= [7 8]
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:jader :carmined])
+                   :foo)))
+        (is (= [7 8]
+               (-> (make {:foo [1 2]})
+                   (merge-profiles [:carmined :jader])
+                   :foo))))
+      (testing "that metadata is preserved at ^:displace/^:replace clashes"
+        (is (= {:frob true}
+               (-> (make {:foo ^{:displace true, :frob true} [1 2]})
+                   (merge-profiles [:carminer])
+                   :foo meta)))
+        (is (= {:frob true}
+               (-> (make {:foo ^{:replace true, :frob true} [1 2]})
+                   (merge-profiles [:carmined])
+                   :foo meta)))
+        (is (= {:a 1, :b 2}
+               (-> (make {:foo ^{:replace true, :a 1} [1 2]
+                          :profiles
+                            {:bar {:foo ^{:displace true, :a 3, :b 2} [3 4]}}})
+                   (merge-profiles [:bar])
+                   :foo meta)))
+        (is (= {:a 3, :b 2}
+               (-> (make {:foo ^{:displace true, :a 1} [1 2]
+                          :profiles
+                            {:bar {:foo ^{:replace true, :a 3, :b 2} [3 4]}}})
+                   (merge-profiles [:bar])
+                   :foo meta)))))))
+
 (def test-profiles (atom {:qa {:resource-paths ["/etc/myapp"]}
                           :test {:resource-paths ["test/hi"]}
                           :repl {:dependencies
