@@ -389,7 +389,7 @@
      (when (seq (get project key))
        (ensure-dynamic-classloader)
        (classpath/resolve-dependencies
-        key (merge {:repositories default-repositories} project)
+        key project
         :add-classpath? true))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
                             (.getResources "leiningen/wagons.clj")
