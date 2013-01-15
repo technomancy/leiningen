@@ -1,5 +1,11 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0-RC2 / 2013-01-12
+
+* Fix bug where newnew wouldn't be loaded from outside a project.
+* Fix Windows bug in project generation.
+* Fix `lein upgrade` bug.
+
 ## 2.0.0-RC1 / 2013-01-10
 
 * Fix some reader bugs in repl task. (Colin Jones)
