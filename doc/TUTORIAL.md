@@ -244,10 +244,13 @@ Then, under the checkouts directory, create symlinks to projects you need.
 Libraries located under the `checkouts` directory take precedence
 over libraries pulled from repositories, but this is not a replacement
 for listing the project in your main project's `:dependencies`; it
-simply supplements that for convenience.
+simply supplements that for convenience. If you have a project in
+`checkouts` without putting it in `:dependencies` then its source will
+be visible but its dependencies will not be found.
 
-The checkouts feature is not transitive: in other words, Leiningen
-will not find checkout dependencies of a checkout dependency.
+Checkouts are an opt-in feature; not everyone who is working on the
+project will have the same set of checkouts, so your project should
+work without checkouts before you push or merge.
 
 ## Running Code
 
