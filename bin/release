@@ -5,7 +5,7 @@ set -e -u
 CURRENT_VERSION=$1
 RELEASE_VERSION=$2
 
-for f in bin/lein bin/lein.bat project.clj leiningen-core/project.clj; do
+for f in bin/lein bin/lein-pkg bin/lein.bat project.clj leiningen-core/project.clj; do
     sed -i s/$CURRENT_VERSION/$RELEASE_VERSION/ $f
 done
 
