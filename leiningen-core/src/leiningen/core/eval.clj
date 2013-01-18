@@ -121,14 +121,28 @@
            (d-property [:http.proxyPort port])
            (d-property [:http.nonProxyHosts non-proxy-hosts])]))))
 
-(defn- pump [reader out]
+(defn- out-pump [reader out]
   (let [buffer (make-array Character/TYPE 1000)]
     (loop [len (.read reader buffer)]
       (when-not (neg? len)
         (.write out buffer 0 len)
         (.flush out)
-        (Thread/sleep 100)
+        (Thread/sleep 100) ;; TODO: Why is this here?
         (recur (.read reader buffer))))))
+
+(defn- in-pump
+  "Redirects input from this process to the input stream to the other process,
+  one byte at a time. Instead of blocking when reading, busy waits in order to
+  gracefully exit and not read other sub-processes' input."
+  [reader out done?]
+  (loop []
+    (if (.ready reader)
+      (do
+        (.write out (.read reader))
+        (.flush out))
+      (Thread/sleep 10))
+    (when (not @done?)
+      (recur))))
 
 (def ^:dynamic *dir*
   "Directory in which to start subprocesses with eval-in-project or sh."
@@ -168,13 +182,18 @@
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))
                 in (io/writer (.getOutputStream proc))]
-      (let [pump-out (doto (Thread. (bound-fn [] (pump out *out*))) .start)
-            pump-err (doto (Thread. (bound-fn [] (pump err *err*))) .start)
-            pump-in (Thread. (bound-fn [] (pump *in* in)))]
+      (let [done (atom false)
+            pump-out (doto (Thread. (bound-fn [] (out-pump out *out*))) .start)
+            pump-err (doto (Thread. (bound-fn [] (out-pump err *err*))) .start)
+            pump-in (Thread. (bound-fn [] (in-pump *in* in done)))]
         (when *pump-in* (.start pump-in))
         (.join pump-out)
-        (.join pump-err))
-      (.waitFor proc))))
+        (.join pump-err)
+        (let [exit-value (.waitFor proc)]
+          (when *pump-in*
+            (reset! done true)
+            (.join pump-in))
+          exit-value)))))
 
 ;; work around java's command line handling on windows
 ;; http://bit.ly/9c6biv This isn't perfect, but works for what's
