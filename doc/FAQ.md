@@ -96,3 +96,15 @@
   can usually set `:bootclasspath true` in project.clj to speed up
   project launches, though there are compatibility issues with some
   libraries.
+
+**Q:** It looks like a different set of dependencies are being used in
+  the repl vs other tasks.  
+**A:** The repl needs to add a few extra implicit dependencies in
+  order to function. For instance, it needs to load an
+  [nREPL server](https://github.com/clojure/tools.nrepl), and it loads
+  a client for fetching
+  [ClojureDocs examples](http://clojuredocs.org), both which have
+  dependencies that could interfere with the dependencies declared in
+  your own project. You can load a bare repl without these by invoking
+  `lein trampoline run -m clojure.main/repl`, though you may want to
+  use `rlwrap` on that to get proper key bindings and history.
