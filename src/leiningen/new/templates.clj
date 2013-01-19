@@ -30,7 +30,7 @@
 (defn sanitize
   "Replace hyphens with underscores."
   [s]
-  (string/replace s #"-" "_"))
+  (string/replace s "-" "_"))
 
 (defn multi-segment
   "Make a namespace multi-segmented by adding another segment if necessary.
@@ -44,14 +44,11 @@ The additional segment defaults to \"core\"."
 (defn name-to-path
   "Constructs directory structure from fully qualified artifact name:
 
-   myproject         creates src/myproject/* directory
-   mygroup.myproject creates src/mygroup/myproject/* directory
+   \"foo-bar.baz\" becomes \"foo_bar/baz\"
 
    and so on. Uses platform-specific file separators."
   [s]
-  (-> s sanitize (string/replace #"\." (if (= :windows (eval/get-os))
-                                         "\\\\"
-                                         java.io.File/separator))))
+  (-> s sanitize (string/replace "." java.io.File/separator)))
 
 (defn sanitize-ns
   "Returns project namespace name from (possibly group-qualified) project name:
@@ -61,8 +58,8 @@ The additional segment defaults to \"core\"."
    mygroup/my_proj => mygroup.my-proj"
   [s]
   (-> s
-      (string/replace #"/" ".")
-      (string/replace #"_" "-")))
+      (string/replace "/" ".")
+      (string/replace "_" "-")))
 
 (defn year
   "Get the current year. Useful for setting copyright years and such."
