@@ -246,7 +246,10 @@ over libraries pulled from repositories, but this is not a replacement
 for listing the project in your main project's `:dependencies`; it
 simply supplements that for convenience. If you have a project in
 `checkouts` without putting it in `:dependencies` then its source will
-be visible but its dependencies will not be found.
+be visible but its dependencies will not be found. If you change the
+dependencies of a checkout project you will still have to run `lein
+install` and restart your repl; it's just that source changes will be
+picked up immediately.
 
 Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
