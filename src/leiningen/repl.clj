@@ -29,8 +29,11 @@
                                      :exclusions [org.clojure/clojure]]]})
 
 (defn profiles-for [project trampoline? reply?]
-  [(if reply? reply-profile) (if trampoline? trampoline-profile)
-   base-profile (:repl (:profiles project)) (:repl (user/profiles))])
+  [(if reply? (:leiningen/reply (:profiles project) reply-profile))
+   (if trampoline? (:leiningen/trampoline-repl (:profiles project)
+                                               trampoline-profile))
+   (:leiningen/repl (:profiles project) base-profile)
+   (:repl (:profiles project)) (:repl (user/profiles))])
 
 (defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
   (when (and nrepl-middleware nrepl-handler)
