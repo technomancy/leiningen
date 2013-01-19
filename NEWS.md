@@ -1,5 +1,14 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.0.0 / 2013-01-19
+
+* Allow implicit repl profiles to be overridden.
+* Accept `:main` as an alias for `-m` in `run` task.
+* Reader fixes for `repl`. (Colin Jones, Chas Emerick)
+* Fix bug around stdin for subprocesses that have stopped. (Jean Niklas L'orange)
+* Warn when `:user` profile is found in `project.clj`. (Michael Grubb)
+* Treat `:user` profile as project map outside of project. (Jean Niklas L'orange)
+
 ## 2.0.0-RC2 / 2013-01-12
 
 * Fix bug where newnew wouldn't be loaded from outside a project.

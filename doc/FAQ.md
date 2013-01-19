@@ -105,6 +105,10 @@
   a client for fetching
   [ClojureDocs examples](http://clojuredocs.org), both which have
   dependencies that could interfere with the dependencies declared in
-  your own project. You can load a bare repl without these by invoking
-  `lein trampoline run -m clojure.main/repl`, though you may want to
-  use `rlwrap` on that to get proper key bindings and history.
+  your own project. You can declare a `:leiningen/reply` profile to
+  override the clojuredocs client dependencies. While you can't run
+  the repl task without nREPL in the dependencies, specifying your own
+  version of it will override the version Leiningen adds. Another way
+  around the problem would be to load a bare repl by invoking `lein
+  trampoline run -m clojure.main/repl`, though you may want to use
+  `rlwrap` on that to get proper key bindings and history.
