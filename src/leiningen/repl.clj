@@ -18,7 +18,7 @@
                                       :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
-                                          [reply "0.1.8"
+                                          [reply "0.1.9"
                                            :exclusions [org.clojure/clojure]]]})
 
 (def base-profile {:dependencies '[^:displace
