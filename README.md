@@ -22,12 +22,12 @@ Leiningen bootstraps itself using the `lein` shell script;
 there is no separate install script. It installs its dependencies
 upon the first run on unix, so the first run will take longer.
 
-1. [Download the script](https://raw.github.com/technomancy/leiningen/preview/bin/lein).
+1. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 2. Place it on your `$PATH`. (I like to use `~/bin`)
 3. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
-The link above will get you the 2.x preview release. There is still a
-lot of extant material on the Web concerning the older
+There is still a lot of extant material on the Web concerning the
+older
 [Leiningen 1.x](https://raw.github.com/technomancy/leiningen/stable/bin/lein)
 version, which is still available if you need to work on older
 projects that aren't compatible with 2.x yet. The
@@ -35,7 +35,7 @@ projects that aren't compatible with 2.x yet. The
 has instructions on migrating to version 2.
 
 On Windows most users can get
-[the batch file](https://raw.github.com/technomancy/leiningen/preview/bin/lein.bat).
+[the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
 If you have wget.exe or curl.exe already installed and in PATH, you
 can just run `lein self-install`, otherwise get the standalone jar from the
 [downloads page](https://github.com/technomancy/leiningen/downloads).
@@ -45,7 +45,7 @@ the shell script above rather than the batch file.
 ## Basic Usage
 
 The
-[tutorial](https://github.com/technomancy/leiningen/blob/preview/doc/TUTORIAL.md)
+[tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
@@ -86,25 +86,25 @@ The `project.clj` file in the project root should look like this:
 
 The `lein new` task generates a project skeleton with an appropriate
 starting point from which you can work. See the
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj)
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
 file (also available via `lein help sample`) for a detailed listing of
 configuration options.
 
 The `project.clj` file can be customized further with the use of
-[profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md).
+[profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md).
 
 ## Documentation
 
 Leiningen documentation is organized as a number of guides:
 
- * [Tutorial](https://github.com/technomancy/leiningen/blob/master/doc/TUTORIAL.md)
- * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/master/doc/MIXED_PROJECTS.md)
- * Leiningen [Profiles](https://github.com/technomancy/leiningen/blob/master/doc/PROFILES.md)
- * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md)
- * [Sample project.clj](https://github.com/technomancy/leiningen/blob/preview/sample.project.clj)
- * [Writing Plugins](https://github.com/technomancy/leiningen/blob/master/doc/PLUGINS.md)
- * [FAQ](https://github.com/technomancy/leiningen/blob/master/doc/FAQ.md)
- * [Contributing](https://github.com/technomancy/leiningen/blob/master/CONTRIBUTING.md)
+ * [Tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
+ * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
+ * Leiningen [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
+ * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+ * [Sample project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+ * [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+ * [FAQ](https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md)
+ * [Contributing](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md)
 
 ## Plugins
 
@@ -116,9 +116,9 @@ runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
 `swank-clojure`) then it should be added to the `:plugins` list in the
 `:user` profile in `~/.lein/profiles.clj`. See the
-[profiles guide](https://github.com/technomancy/leiningen/blob/preview/doc/PROFILES.md)
+[profiles guide](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
 for details on how to add to your `:user` profile. The
-[plugin guide](https://github.com/technomancy/leiningen/blob/preview/doc/PLUGINS.md)
+[plugin guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
 explains how to write plugins.
 
 ## License

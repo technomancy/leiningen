@@ -2,7 +2,7 @@
 
 Getting your library into [Clojars](http://clojars.org) is fairly
 straightforward as is documented near the end of
-[the Leiningen tutorial](https://github.com/technomancy/leiningen/blob/preview/doc/TUTORIAL.md).
+[the Leiningen tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md).
 However, deploying elsewhere is not always that straightforward.
 
 ## Private Repositories

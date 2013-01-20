@@ -62,5 +62,5 @@ in the project root, though in most cases this can be done automatically.
 
 Using `bin/lein` alone from the master branch without a full checkout
 is not supported. If you want to just grab a shell script to work
-with, use the `preview` branch.
+with, use the `stable` branch.
 

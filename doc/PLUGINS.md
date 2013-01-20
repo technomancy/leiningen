@@ -21,12 +21,12 @@ has `:eval-in-leiningen true`, which causes all tasks to operate
 inside the leiningen process rather than starting a subprocess to
 isolate the project's code. Plugins need not declare a dependency on
 Clojure itself; in fact
-[all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/master/project.clj)
+[all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/stable/project.clj)
 will be available. However, it doesn't hurt to be specific since
 Leiningen's other dependencies may change in future versions.
 
 See the `lein-pprint` directory
-[in the Leiningen source](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
+[in the Leiningen source](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
 for a sample of a very simple plugin.
 
 During plugin development, having to re-run `lein install` in your
