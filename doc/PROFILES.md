@@ -124,7 +124,7 @@ profile, which is the profile used if you don't change it using
 ## Debugging
 
 To see how a given profile affects your project map, use the
-[lein-pprint](https://github.com/technomancy/leiningen/tree/master/lein-pprint)
+[lein-pprint](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
 plugin:
 
     $ lein with-profile 1.4 pprint
