@@ -82,7 +82,7 @@
   project. Depending on your editor you may be able to do this via its
   Clojure integration. (See
   [nrepl.el](https://github.com/kingtim/nrepl.el) or
-  [foreplay](http://github.com/tpope/foreplay), for
+  [foreplay](https://github.com/tpope/vim-foreplay), for
   example.) Otherwise you can use the basic `lein repl`.
 
 **Q:** Still too slow; what else can make startup faster?  
