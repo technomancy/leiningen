@@ -28,7 +28,7 @@ upon the first run on unix, so the first run will take longer.
 
 There is still a lot of extant material on the Web concerning the
 older
-[Leiningen 1.x](https://raw.github.com/technomancy/leiningen/stable/bin/lein)
+[Leiningen 1.x](https://raw.github.com/technomancy/leiningen/1.7.1/bin/lein)
 version, which is still available if you need to work on older
 projects that aren't compatible with 2.x yet. The
 [upgrade guide](https://github.com/technomancy/leiningen/wiki/Upgrading)
