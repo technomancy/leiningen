@@ -4,16 +4,16 @@
 In Leiningen 2.x you can change the configuration of your project by
 applying various profiles. For instance, you may want to have a few
 extra test data directories on the classpath during development
-without including them in the jar, or you may want to have Swank
-Clojure available in every project you hack on without modifying every
-single project.clj you use.
+without including them in the jar, or you may want to have Slamhound
+available in every project you hack on without modifying every single
+project.clj you use.
 
 By default the `:dev`, `:provided`, `:user`, and `:base` profiles are
 activated for each task, but the settings they provide are not
 propagated downstream to projects that depend upon yours. Each profile
 is defined as a map which gets merged into your project map.
 
-You can place any arbitrary defproject entries into a given profile
+You can place any arbitrary `defproject` entries into a given profile
 and they will be merged into the project map when that profile is
 active.
 
@@ -50,8 +50,8 @@ project place them in your `:user` profile. Your
 `~/.lein/profiles.clj` file could look something like this:
 
 ```clj
-{:user {:plugins [[lein-swank "1.4.0"]
-                  [lein-pprint "1.1.1"]]}}
+{:user {:plugins [[lein-pprint "1.1.1"]]
+        :dependencies [[slamhound "1.3.1"]]}}
 ```
 
 Profiles are merged by taking each key in the project map or profile
