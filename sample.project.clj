@@ -11,7 +11,7 @@
 (defproject org.example/sample "1.0.0-SNAPSHOT" ; version "1.0.0-SNAPSHOT"
   ;; Beyond this point you may prepend a form with unquote, or ~, to eval it.
 
-  ;; The descrption text is searchable from repositories like Clojars.
+  ;; The description text is searchable from repositories like Clojars.
   :description "A sample project"
   :url "http://example.org/sample-clojure-project"
   ;; The mailing list of the project. If the project has multiple mailing
@@ -51,7 +51,7 @@
             [lein-foo "0.0.1" :hooks false]
             [lein-bar "0.0.1" :middleware false]]
   ;; If you configure a custom repository with a self-signed SSL
-  ;; certificate, you will need to add it here. Paths should be either
+  ;; certificate, you will need to add it here. Paths should either
   ;; be on Leiningen's classpath or relative to the project root.
   :certificates ["blueant.pem"]
   ;; Each active profile gets merged into the project map. The :dev
@@ -175,7 +175,7 @@
                  "snapshots" "http://blueant.com/archiva/snapshots"
                  "releases" {:url "http://blueant.com/archiva/internal"
                              ;; Using :env as a value here will cause an
-                             ;; enironment variable to be used based on
+                             ;; environment variable to be used based on
                              ;; the key; in this case LEIN_PASSWORD.
                              :username "milgrim" :password :env}]
   ;; These repositories will be included with :repositories when loading plugins.
