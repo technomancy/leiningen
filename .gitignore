@@ -14,6 +14,7 @@ docs
 /leiningen-core/.lein-plugins/checksum
 /wiki
 /web
+/logs
 TAGS
 /leiningen-core/dev-resources/target
 *asc
