@@ -23,14 +23,20 @@
                       (catch Exception e
                         (.printStackTrace e))))))))
 
+(def ^:private load-profiles
+  "Load profiles.clj from your Leiningen home if present."
+  (memoize
+   (fn []
+     (try (utils/read-file (io/file (leiningen-home) "profiles.clj"))
+          (catch Exception e
+            (binding [*out* *err*]
+              (println "Error reading profiles.clj from" (leiningen-home))
+              (println (.getMessage e))))))))
+
 (defn profiles
   "Load profiles.clj from your Leiningen home if present."
   []
-  (try (utils/read-file (io/file (leiningen-home) "profiles.clj"))
-       (catch Exception e
-         (binding [*out* *err*]
-           (println "Error reading profiles.clj from" (leiningen-home))
-           (println (.getMessage e))))))
+  (load-profiles))
 
 (defn gpg-program
   "Lookup the gpg program to use, defaulting to 'gpg'"
