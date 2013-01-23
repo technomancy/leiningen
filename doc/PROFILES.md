@@ -36,14 +36,16 @@ within the project root. Profiles specified in `profiles.clj` will override
 profiles in `project.clj`, so this can be used for project-specific overrides
 that you don't want committed in version control.
 
-Global profiles can also be specified in `~/.lein/profiles.clj`. These will be
-available in all projects managed by Leiningen, though those profiles will be
-overridden by profiles of the same name in the specified in the project.
+Global profiles can also be specified in `~/.lein/profiles.clj` and in
+`clj`-files within `~/.lein/profiles.d`. These will be available in all projects
+managed by Leiningen, though those profiles will be overridden by profiles of
+the same name in the specified in the project. Defining the same global profile
+in multiple different files is considered an error.
 
 The `:user` profile is separate from `:dev`; the latter is intended to be
 specified in the project itself. In order to avoid collisions, the project
-should never define a `:user` profile, nor should `~/.lein/profiles.clj` define
-a `:dev` profile. Use the `show-profiles` task to see what's available.
+should never define a `:user` profile, nor should a global `:dev` profile be
+defined. Use the `show-profiles` task to see what's available.
 
 If you want to access dependencies during development time for any
 project place them in your `:user` profile. Your
