@@ -54,7 +54,7 @@ When compiling Java sources, it may be necessary to pass extra arguments to the
 compiler. For example, it is very important to target the JVM version you are
 going to deploy your project to.
 
-This is done via the `;javac-options` which takes a vector of arguments as you
+This is done via the `:javac-options` which takes a vector of arguments as you
 would pass them to `javac` on the command line. In this case we say that Java
 sources use features up to JDK 6 and target JVM is also version 6:
 
