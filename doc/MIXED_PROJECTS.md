@@ -22,7 +22,7 @@ definition:
   :description "A Clojure project with a little bit of Java sprinkled here and there"
   :min-lein-version  "2.0.0"
   :source-paths      ["src/clojure"]
-  :java-source-paths ["src/java"])
+  :java-source-path  ["src/java"])
 ```
 
 Having one source root contain another (e.g. `src` and `src/java`) can
@@ -54,7 +54,7 @@ When compiling Java sources, it may be necessary to pass extra arguments to the
 compiler. For example, it is very important to target the JVM version you are
 going to deploy your project to.
 
-This is done via the `;javac-options` which takes a vector of arguments as you
+This is done via the `:javac-options` which takes a vector of arguments as you
 would pass them to `javac` on the command line. In this case we say that Java
 sources use features up to JDK 6 and target JVM is also version 6:
 
@@ -63,7 +63,7 @@ sources use features up to JDK 6 and target JVM is also version 6:
   :description "A Clojure project with a little bit of Java sprinkled here and there"
   :min-lein-version "2.0.0"
   :source-paths ["src/clojure"]
-  :java-source-paths ["src/java"]
+  :java-source-path  ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"])
 ```
 
