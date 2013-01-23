@@ -23,6 +23,23 @@
                       (catch Exception e
                         (.printStackTrace e))))))))
 
+(def profiles-d-profiles
+  "Load all Clojure files from the profiles.d folder in your Leiningen home if
+  present. Returns a realized seq with the different profiles."
+  (memoize
+   (fn []
+     (let [profile-dir (io/file (leiningen-home) "profiles.d")]
+       (when (and (.exists profile-dir) (.isDirectory profile-dir))
+         (doall
+          (for [file (.listFiles profile-dir)
+                :when (.. file getName (endsWith ".clj"))]
+            (try (utils/read-file file)
+                 (catch Exception e
+                   (binding [*out* *err*]
+                     (println "Error reading" (.getName file)
+                              "from" (str (leiningen-home) "/profiles.d:"))
+                     (println (.getMessage e))))))))))))
+
 (def ^:private load-profiles
   "Load profiles.clj from your Leiningen home if present."
   (memoize
@@ -33,10 +50,20 @@
               (println "Error reading profiles.clj from" (leiningen-home))
               (println (.getMessage e))))))))
 
-(defn profiles
-  "Load profiles.clj from your Leiningen home if present."
-  []
-  (load-profiles))
+(def profiles
+  "Load profiles.clj from your Leiningen home and profiles.d if present."
+  (memoize
+   (fn []
+     (let [error-fn ;; TODO: More descriptive error messages.
+           (fn [a b]
+             (binding [*out* *err*]
+               (println "Error: A profile is defined multiple times!")
+               (println "Please check your profiles.clj and your profiles"
+                        "in the profiles.d directory."))
+             (throw (Exception. "Multiple profiles defined in ~/.lein")))]
+       (try (apply merge-with error-fn
+                   (load-profiles) (profiles-d-profiles))
+            (catch Exception e))))))
 
 (defn gpg-program
   "Lookup the gpg program to use, defaulting to 'gpg'"
