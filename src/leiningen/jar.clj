@@ -51,7 +51,10 @@
 (defmulti ^:private copy-to-jar (fn [project jar-os acc spec] (:type spec)))
 
 (defn- trim-leading [s to-trim]
-  (.replaceAll s (str "^" (Pattern/quote to-trim)) ""))
+  (let [size (.length to-trim)]
+    (if (.startsWith s to-trim)
+      (.substring s size)
+      s)))
 
 (defmethod copy-to-jar :path [project jar-os acc spec]
   (when-not (acc (:path spec))
