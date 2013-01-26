@@ -43,16 +43,17 @@
        ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware))
     (or nrepl-handler '(clojure.tools.nrepl.server/default-handler))))
 
-(defn- init-requires [{{:keys [nrepl-middleware nrepl-handler]} :repl-options
-                       :as project}
+(defn- init-requires [{{:keys [init-ns nrepl-middleware nrepl-handler]} :repl-options
+                       :keys [main], :as project}
                       & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                      (filter symbol?)
                      (map namespace)
                      (remove nil?)
-                     (map symbol))]
-    (for [n (concat defaults nrepl-syms nses)]
+                     (map symbol))
+        init-ns (when-let [init-ns (or init-ns main)] [init-ns])]
+    (for [n (concat init-ns defaults nrepl-syms nses)]
       (list 'quote n))))
 
 (defn- start-server [project host port ack-port & [headless?]]
@@ -106,7 +107,7 @@
       (merge
        repl-options
        {:init (when-let [init-ns (or (:init-ns repl-options) (:main project))]
-                `(do (require '~init-ns) (in-ns '~init-ns)))}
+                `(in-ns '~init-ns))}
         (cond
           attach
             {:attach (if-let [host (repl-host project)]
