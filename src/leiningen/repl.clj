@@ -62,7 +62,6 @@
                         :handler ~(handler-for project))
                port# (-> server# deref :ss .getLocalPort)]
            (when ~headless? (println "nREPL server started on port" port#))
-           (do ~(if headless? (-> project :repl-options :init)))
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
            @(promise))]
@@ -70,7 +69,8 @@
       (eval/eval-in-project
        (project/merge-profiles project
                                (profiles-for project false (not headless?)))
-       server-starting-form
+       `(do ~(-> project :repl-options :init)
+            ~server-starting-form)
        `(require ~@(init-requires project)))
       (eval server-starting-form))))
 
@@ -105,11 +105,8 @@
     (clojure.set/rename-keys
       (merge
        repl-options
-        ;; TODO: make this consistent with :injections
-        {:init (if-let [init-ns (or (:init-ns repl-options) (:main project))]
-                 `(do (require '~init-ns) (in-ns '~init-ns)
-                      ~(:init repl-options))
-                 (:init repl-options))}
+       {:init (when-let [init-ns (or (:init-ns repl-options) (:main project))]
+                `(do (require '~init-ns) (in-ns '~init-ns)))}
         (cond
           attach
             {:attach (if-let [host (repl-host project)]
