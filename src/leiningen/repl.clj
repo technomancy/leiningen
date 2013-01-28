@@ -70,7 +70,9 @@
       (eval/eval-in-project
        (project/merge-profiles project
                                (profiles-for project false (not headless?)))
-       `(do ~(-> project :repl-options :init)
+       `(do (binding [*ns* (create-ns '~'leiningen.repl.config)]
+              (eval `(def ~'~'project-map '~'~project)))
+            ~(-> project :repl-options :init)
             ~server-starting-form)
        `(require ~@(init-requires project)))
       (eval server-starting-form))))
