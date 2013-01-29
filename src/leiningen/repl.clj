@@ -176,7 +176,7 @@ and port."
          (when project @prep-blocker)
          (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
                                                         :repl-options
-                                                        (:timeout 30000)))]
+                                                        (:timeout 60000)))]
            (do
              (println "nREPL server started on port" repl-port)
              (reply/launch-nrepl (options-for-reply project :attach repl-port)))
