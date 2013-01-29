@@ -74,7 +74,11 @@
               (eval `(def ~'~'project-map '~'~project)))
             ~(-> project :repl-options :init)
             ~server-starting-form)
-       `(require ~@(init-requires project)))
+       `(do ~@(for [n (init-requires project)]
+                `(try (require ~n)
+                      (catch Throwable t#
+                        (println "Error loading" (str ~n ":")
+                                 (or (.getMessage t#) (type t#))))))))
       (eval server-starting-form))))
 
 (defn- repl-port [project]
