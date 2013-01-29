@@ -29,21 +29,11 @@
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
-(deftest test-options-for-reply-init
-  (let [init-form '(println "ohai")
-        project   {:repl-options {:init init-form}}]
-    (is (= {:attach "127.0.0.1:9876"
-            :custom-init init-form
-            :history-file history-file}
-           (options-for-reply project :attach 9876)))))
-
 (deftest test-options-for-reply-init-ns
   (let [project {:repl-options {:init-ns 'foo.core}}]
     (is (= {:attach "127.0.0.1:9876"
             :init-ns 'foo.core
-            :custom-init '(do (clojure.core/require 'foo.core)
-                              (clojure.core/in-ns 'foo.core)
-                              nil)
+            :custom-init '(clojure.core/in-ns 'foo.core)
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
@@ -51,18 +41,14 @@
   (let [project {:repl-options {:init-ns 'foo.core :init '(println "ohai")}}]
     (is (= {:attach "127.0.0.1:9876"
             :init-ns 'foo.core
-            :custom-init '(do (clojure.core/require 'foo.core)
-                              (clojure.core/in-ns 'foo.core)
-                              (println "ohai"))
+            :custom-init '(clojure.core/in-ns 'foo.core)
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-main-ns
   (let [project {:main 'foo.core}]
     (is (= {:attach "127.0.0.1:9876"
-            :custom-init '(do (clojure.core/require 'foo.core)
-                              (clojure.core/in-ns 'foo.core)
-                              nil)
+            :custom-init '(clojure.core/in-ns 'foo.core)
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
@@ -70,9 +56,7 @@
   (let [project {:main 'foo.core :repl-options {:init-ns 'winner.here}}]
     (is (= {:attach "127.0.0.1:9876"
             :init-ns 'winner.here
-            :custom-init '(do (clojure.core/require 'winner.here)
-                              (clojure.core/in-ns 'winner.here)
-                              nil)
+            :custom-init '(clojure.core/in-ns 'winner.here)
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
