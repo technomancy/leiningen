@@ -109,7 +109,7 @@ goto EOF
 :NO_DEPENDENCIES
 echo.
 echo Leiningen is missing its dependencies.
-echo Please see "Building" in the README.
+echo Please see "Bootstrapping" in CONTRIBUTING.md.
 echo.
 goto EOF
 
