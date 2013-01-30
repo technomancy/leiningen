@@ -100,7 +100,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Need to use lein 1.x to bootstrap the leiningen-core library (for aether)
     if [ "$(ls "$LEIN_DIR"/leiningen-core/lib/*)" = "" ]; then
         echo "Leiningen is missing its dependencies."
-        echo "Please see \"Building\" in CONTRIBUTING.md."
+        echo "Please see \"Bootstrapping\" in CONTRIBUTING.md."
         exit 1
     fi
 
