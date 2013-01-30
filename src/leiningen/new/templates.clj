@@ -12,6 +12,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [stencil.core :as stencil]))
 
 (defn project-name
@@ -25,7 +26,9 @@
 (defn slurp-resource
   "Reads the contents of a file on the classpath."
   [resource-path]
-  (-> resource-path io/resource io/reader slurp))
+  (if-let [res (io/resource resource-path)]
+    (-> res io/reader slurp)
+    (main/abort (format "Template resource '%s' not found." resource-path))))
 
 (defn sanitize
   "Replace hyphens with underscores."
