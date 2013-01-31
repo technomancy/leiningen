@@ -12,6 +12,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [stencil.core :as stencil]))
 
 (defn project-name
@@ -23,9 +24,9 @@
   (last (string/split s #"/")))
 
 (defn slurp-resource
-  "Reads the contents of a file on the classpath."
-  [resource-path]
-  (-> resource-path io/resource io/reader slurp))
+  "Reads the contents of a resource."
+  [resource]
+  (-> resource io/reader slurp))
 
 (defn sanitize
   "Replace hyphens with underscores."
@@ -90,9 +91,11 @@ The additional segment defaults to \"core\"."
   [name]
   (fn [template & [data]]
     (let [path (string/join "/" ["leiningen" "new" (sanitize name) template])]
-      (if data
-        (render-text (slurp-resource path) data)
-        (io/reader (io/resource path))))))
+      (if-let [resource (io/resource path)]
+        (if data
+          (render-text (slurp-resource resource) data)
+          (io/reader resource))
+        (main/abort (format "Template resource '%s' not found." path))))))
 
 ;; Our file-generating function, `->files` is very simple. We'd like
 ;; to keep it that way. Sometimes you need your file paths to be
