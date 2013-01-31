@@ -67,9 +67,9 @@ We'll assume you've got Leiningen installed as per the
 [README](https://github.com/technomancy/leiningen/blob/stable/README.md).
 Generating a new project is easy:
 
-    $ lein new my-stuff
+    $ lein new app my-stuff
 
-    Generating a project called my-stuff based on the 'default' template.
+    Generating a project called my-stuff based on the 'app' template.
 
     $ cd my-stuff
     $ find .
@@ -109,7 +109,7 @@ the scope of this tutorial, you can
 
 ## project.clj
 
-A default project.clj file will start off looking something like the this:
+An app project.clj file will start off looking something like the this:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
@@ -117,7 +117,8 @@ A default project.clj file will start off looking something like the this:
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.4.0"]])
+  :dependencies [[org.clojure/clojure "1.4.0"]]
+  :main my-stuff.core)
 ```
 
 If you don't fill in the `:description` with a short sentence, your
@@ -350,10 +351,10 @@ You can even examine the source of functions:
 If you already have code in a `-main` function ready to go and don't
 need to enter code interactively, the `run` task is simpler:
 
-    $ lein run -m my-stuff.core
+    $ lein run
     Hello, World!
 
-Providing an alternate `-m` argument will tell Leiningen to look for
+Providing a `-m` argument will tell Leiningen to look for
 the `-main` function in another namespace. Setting a default `:main` in
 `project.clj` lets you omit `-m`.
 
