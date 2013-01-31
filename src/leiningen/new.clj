@@ -92,6 +92,8 @@
     (println "Argument list:" (or (:help-arglists resolved)
                                   (:arglists resolved)))))
 
+(def ^{:dynamic true :doc "Bound to project map at runtime"} *project* nil)
+
 (defn ^{:no-project-needed true
         :help-arglists '[[project project-name]
                          [project template project-name & args]]
@@ -118,14 +120,12 @@ Use `lein new $TEMPLATE :show` to see details about a given template.
 To create a new template of your own, see the documentation for the
 lein-newnew Leiningin plug-in."
 
-  [& args]
-  (let [args (if (or (map? (first args)) (nil? (first args)))
-               (rest args)
-               args)
-        [top [_ dir & rest]] (split-with #(not= % "--to-dir") args)
-        args (concat top rest)]
-    (binding [*dir* dir]
-      (cond (empty? args) ((ns-resolve (doto 'leiningen.help require) 'help)
-                           nil "new")
-            (= ":show" (second args)) (show (first args))
-            :else (apply create args)))))
+  [project & args]
+  (binding [*project* project]
+    (let [[top [_ dir & rest]] (split-with #(not= % "--to-dir") args)
+          args (concat top rest)]
+      (binding [*dir* dir]
+        (cond (empty? args) ((ns-resolve (doto 'leiningen.help require) 'help)
+                             nil "new")
+              (= ":show" (second args)) (show (first args))
+              :else (apply create args))))))
