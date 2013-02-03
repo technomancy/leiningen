@@ -19,9 +19,23 @@
               "tutorial" ["help" "tutorial"]
               "sample" ["help" "sample"]})
 
+(def ^:private profile-aliases
+  "User profile aliases, used only when Lein is not within a project."
+  (atom (-> (user/profiles) :user :aliases)))
+
+(defn- get-and-dissoc!
+  "Returns a value associated with a key in a hash map contained in an atom,
+  removing it if it exists."
+  [atom key]
+  (when-let [[k v] (find @atom key)]
+    (swap! atom dissoc key)
+    v))
+
 (defn lookup-alias [task-name project & [not-found]]
   (or (aliases task-name)
       (get (:aliases project) task-name)
+      (when-not project
+        (get-and-dissoc! profile-aliases task-name))
       task-name
       (or not-found "help")))
 
