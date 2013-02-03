@@ -70,9 +70,7 @@
       (eval/eval-in-project
        (project/merge-profiles project
                                (profiles-for project false (not headless?)))
-       `(do (binding [*ns* (create-ns '~'leiningen.repl.config)]
-              (eval `(def ~'~'project-map '~'~project)))
-            ~(-> project :repl-options :init)
+       `(do ~(-> project :repl-options :init)
             ~server-starting-form)
        `(do ~@(for [n (init-requires project)]
                 `(try (require ~n)
@@ -111,9 +109,7 @@
                             (:repl-options project))]
     (clojure.set/rename-keys
       (merge
-       repl-options
-       {:init (when-let [init-ns (or (:init-ns repl-options) (:main project))]
-                `(in-ns '~init-ns))}
+       (dissoc repl-options :init)
         (cond
           attach
             {:attach (if-let [host (repl-host project)]
@@ -123,8 +119,7 @@
             {:port (str port)}
           :else
             {}))
-      {:prompt :custom-prompt
-       :init :custom-init})))
+      {:prompt :custom-prompt})))
 
 (defn- trampoline-repl [project]
   (let [options (options-for-reply project :port (repl-port project))]
