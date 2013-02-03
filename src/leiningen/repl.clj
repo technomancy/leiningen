@@ -9,6 +9,7 @@
             [leiningen.trampoline :as trampoline]
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
+            [clojure.tools.nrepl.middleware :refer (set-descriptor!)]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
@@ -37,13 +38,31 @@
 
 (defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}] (or init-ns main))
 
-(defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
+(defn- wrap-init-ns [project]
+  (when-let [init-ns (init-ns project)]
+    `(with-local-vars
+         [wrap-init-ns#
+          (fn [h#]
+            (with-local-vars [init-ns-sentinel# nil]
+              (fn [{:keys [~'session] :as msg#}]
+                (when-not (@~'session init-ns-sentinel#)
+                  (swap! ~'session assoc (var *ns*) (create-ns '~init-ns)
+                         init-ns-sentinel# "init-ns-sentinel"))
+                (h# msg#))))]
+       (doto wrap-init-ns#
+         (set-descriptor!
+          {:requires #{(var clojure.tools.nrepl.middleware.session/session)}
+           :expects #{"eval"}})
+         (alter-var-root (constantly @wrap-init-ns#))))))
+
+(defn- handler-for
+  [{{:keys [nrepl-middleware nrepl-handler]} :repl-options, :as project}]
   (when (and nrepl-middleware nrepl-handler)
     (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
-  (if nrepl-middleware
-    `(clojure.tools.nrepl.server/default-handler
-       ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware))
-    (or nrepl-handler '(clojure.tools.nrepl.server/default-handler))))
+  (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)] nrepl-middleware))]
+    (or nrepl-handler
+        `(clojure.tools.nrepl.server/default-handler
+           ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware)))))
 
 (defn- init-requires
   [{{:keys [nrepl-middleware nrepl-handler]} :repl-options :as project} & nses]
