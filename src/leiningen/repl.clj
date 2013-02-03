@@ -35,6 +35,8 @@
    (:leiningen/repl (:profiles project) base-profile)
    (:repl (:profiles project)) (:repl (user/profiles))])
 
+(defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}] (or init-ns main))
+
 (defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
   (when (and nrepl-middleware nrepl-handler)
     (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
@@ -43,17 +45,15 @@
        ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware))
     (or nrepl-handler '(clojure.tools.nrepl.server/default-handler))))
 
-(defn- init-requires [{{:keys [init-ns nrepl-middleware nrepl-handler]} :repl-options
-                       :keys [main], :as project}
-                      & nses]
+(defn- init-requires
+  [{{:keys [nrepl-middleware nrepl-handler]} :repl-options :as project} & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                      (filter symbol?)
                      (map namespace)
                      (remove nil?)
-                     (map symbol))
-        init-ns (when-let [init-ns (or init-ns main)] [init-ns])]
-    (for [n (concat init-ns defaults nrepl-syms nses)]
+                     (map symbol))]
+    (for [n (concat (remove nil? [(init-ns project)]) defaults nrepl-syms nses)]
       (list 'quote n))))
 
 (defn- start-server [project host port ack-port & [headless?]]
