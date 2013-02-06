@@ -165,6 +165,8 @@ function download_failed_message {
     echo "to turn off certificate checks:"
     echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
     echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o\""
+    echo "It's also possible that you're behind a firewall haven't yet"
+    echo "set HTTP_PROXY and HTTPS_PROXY."
 }
 
 # TODO: explain what to do when Java is missing
