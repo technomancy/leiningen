@@ -377,11 +377,17 @@
         :else (or profile {})))
 
 (defn- warn-user-repos []
-  (when (->> (vals (user/profiles))
-             (map (comp second :repositories))
-             (apply concat) (some :url))
-    (println "WARNING: :repositories detected in user-level profile!")
-    (println "See https://github.com/technomancy/leiningen/wiki/Repeatability")))
+  (let [profiles (filter #(->> (val %)
+                               :repositories
+                               vals
+                               (some :url))
+                         (user/profiles))]
+    (when (and (seq profiles)
+               (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
+      (println
+       "WARNING: :repositories detected in user-level profiles!"
+       (vec (map key profiles)))
+      (println "See https://github.com/technomancy/leiningen/wiki/Repeatability"))))
 
 (alter-var-root #'warn-user-repos memoize)
 
