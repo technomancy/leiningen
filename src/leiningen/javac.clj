@@ -4,7 +4,8 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.string :as string])
   (:import java.io.File
            javax.tools.ToolProvider))
 
@@ -59,11 +60,16 @@
   "Compile all sources of possible options and add important defaults.
   Result is a String java array of options."
   [project files args]
-  (into-array String (concat (normalize-javac-options (:javac-options project))
-                             args
-                             ["-cp" (classpath/get-classpath-string project)
-                              "-d" (:compile-path project)]
-                             files)))
+  (let [options-file (File/createTempFile ".leiningen-cmdline" nil)]
+    (with-open [options-file (io/writer options-file)]
+      (doto options-file
+        (.write (format "-cp %s\n" (classpath/get-classpath-string project)))
+        (.write (format "-d %s\n" (:compile-path project)))
+        (.write (string/join "\n" files))))
+    (into-array String
+                (concat (normalize-javac-options (:javac-options project))
+                        args
+                        [(str "@" options-file)]))))
 
 ;; Pure java projects will not have Clojure on the classpath. As such, we need
 ;; to add it if it's not already there.
