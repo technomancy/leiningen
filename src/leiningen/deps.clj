@@ -26,7 +26,7 @@
 (defn- fetch-key [signature err]
   (if (re-find #"Can't check signature: public key not found" err)
     (let [key (second (re-find #"using \w+ key ID (.+)" err))
-          exit (eval/sh (user/gpg-program) "--recv-keys" key)]
+          exit (eval/sh (user/gpg-program) "--recv-keys" "--" key)]
       (if (zero? exit)
         (check-signature signature)
         :no-key))
@@ -36,7 +36,7 @@
   (let [err (java.io.StringWriter.)
         out (java.io.StringWriter.)
         exit (binding [*err* (java.io.PrintWriter. err), *out* out]
-               (eval/sh (user/gpg-program) "--verify" (str signature)))]
+               (eval/sh (user/gpg-program) "--verify" "--" (str signature)))]
     (if (zero? exit)
       :signed ; TODO distinguish between signed and trusted
       (fetch-key signature (str err)))))

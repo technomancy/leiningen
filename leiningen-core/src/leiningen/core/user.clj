@@ -79,7 +79,7 @@
      (let [{:keys [out err exit]} (try (shell/sh
                                         (gpg-program)
                                         "--quiet" "--batch"
-                                        "--decrypt" (str file))
+                                        "--decrypt" "--" (str file))
                                        (catch java.io.IOException e
                                          {:exit 1 :err (.getMessage e)}))]
        (if (pos? exit)
