@@ -262,6 +262,26 @@
            (.printStackTrace e)
            (throw (ex-info "Classloader eval failed" {:exit-code 1}))))))
 
+(defmethod eval-in :nrepl [project form]
+  (require 'clojure.tools.nrepl)
+  (let [port-file (io/file (:target-path project) "repl-port")
+        connect (resolve 'clojure.tools.nrepl/connect)
+        client (resolve 'clojure.tools.nrepl/client)
+        client-session (resolve 'clojure.tools.nrepl/client-session)
+        message (resolve 'clojure.tools.nrepl/message)
+        recv (resolve 'clojure.tools.nrepl.transport/recv)]
+    (if (.exists port-file)
+      (let [transport (connect :host "localhost"
+                               :port (Integer. (slurp port-file)))
+            client (client-session (client transport Long/MAX_VALUE))]
+        (message client {:op "eval" :code (pr-str form)})
+        (doseq [{:keys [out err status]} (repeatedly #(recv transport 100))
+                :while (not (some #{"done" "interrupted" "error"} status))]
+          (when out (println out))
+          (when err (binding [*out* *err*] (println err)))))
+      ;; TODO: warn that repl couldn't be used?
+      (eval-in (assoc project :eval-in :subprocess) form))))
+
 (defmethod eval-in :leiningen [project form]
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
