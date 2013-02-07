@@ -64,9 +64,12 @@
                     #'clojure.test/report
                     (fn [report# m# & args#]
                       (when (#{:error :fail} (:type m#))
-                        (swap! failures# conj
-                               (-> clojure.test/*testing-vars*
-                                   first meta :ns ns-name)))
+                        (let [first-var# (-> clojure.test/*testing-vars* first meta)]
+                          (swap! failures# conj (ns-name (:ns first-var#)))
+                          (println "\nlein test :only"
+                                   (str (ns-name (:ns first-var#))
+                                        "/"
+                                        (:name first-var#)))))
                       (if (= :begin-test-ns (:type m#))
                         (clojure.test/with-test-out
                           (println "\nlein test" (ns-name (:ns m#)))
