@@ -171,11 +171,12 @@
     (meta repos)))
 
 (defn- add-repo [repos [id opts :as repo]]
-  ;; TODO - we completely ignore metadata here. Should follow
-  ;; ^:replace/^:displace conventions and merge metadata
   (update-first repos #(= id (first %))
-                (fn [[_ existing]]
-                  [id (meta-merge existing opts)])))
+                (fn [[_ existing :as original]]
+                  (if (different-priority? repo original)
+                    (pick-prioritized repo original)
+                    (with-meta [id (meta-merge existing opts)]
+                      (merge (meta original) (meta repo)))))))
 
 (def empty-dependencies
   (with-meta [] {:reduce add-dep}))
