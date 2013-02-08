@@ -47,20 +47,25 @@
       (main/abort "Could not sign" file))
     (str file ".asc")))
 
-(defn signatures-for [jar-file pom-file]
-  {[:extension "jar.asc"] (sign jar-file)
-   [:extension "pom.asc"] (sign pom-file)})
+(defn signature-for [extension file]
+  {[:extension extension] (sign file)})
+
+(defn signature-for-artifact [[coords artifact-file]]
+  {(apply concat
+          (update-in
+           (apply hash-map coords) [:extension]
+           #(str (or % "jar") ".asc")))
+   (sign artifact-file)})
 
 (defn sign-for-repo? [repo]
   (:sign-releases (second repo) true))
 
 (defn files-for [project signed?]
-  (let [jar-file (jar/jar project)
-        pom-file (pom/pom project)]
-    (merge {[:extension "jar"] jar-file
-            [:extension "pom"] pom-file}
-           (if (and signed? (not (.endsWith (:version project) "-SNAPSHOT")))
-             (signatures-for jar-file pom-file)))))
+  (let [artifacts (merge {[:extension "pom"] (pom/pom project)}
+                         (jar/jar project))]
+    (if (and signed? (not (.endsWith (:version project) "-SNAPSHOT")))
+      (reduce merge artifacts (map signature-for-artifact artifacts))
+      artifacts)))
 
 (defn warn-missing-metadata [project]
   (doseq [key [:description :license :url]]
