@@ -126,14 +126,15 @@
           (:filespecs project)))
 
 (defn get-jar-filename
-  ([project uberjar?]
+  ([project classifier]
      (let [target (doto (io/file (:target-path project)) .mkdirs)
-           suffix (if uberjar? "-standalone.jar" ".jar")
+           suffix (if classifier (str "-" (name classifier) ".jar") ".jar")
            ;; TODO: splice in version to :jar-name
-           jar-name (or (project (if uberjar? :uberjar-name :jar-name))
+           name-kw (if (= classifier :standalone) :uberjar-name :jar-name)
+           jar-name (or (project name-kw)
                         (str (:name project) "-" (:version project) suffix))]
        (str (io/file target jar-name))))
-  ([project] (get-jar-filename project false)))
+  ([project] (get-jar-filename project nil)))
 
 (def whitelist-keys
   "Project keys which don't affect the production of the jar should be
@@ -150,6 +151,45 @@ propagated to the compilation phase and not stripped out."
     (if (and (compile-main? project) (not= :all (:aot project)))
       (update-in project [:aot] conj (:main project))
       project)))
+
+(defn classifier-jar
+  "Package up all the project's classified files into jars file.
+
+Create a $PROJECT-$VERSION-$CLASSIFIER.jar file containing project's source
+files as well as .class files if applicable. If project.clj contains a :main
+key, the -main function in that namespace will be used as the main-class for
+executable jar.
+
+With an argument, the jar will be built with an alternate main."
+  [{:keys [target-path] :as project} classifier spec]
+  (let [spec (assoc spec
+               :target-path (.getPath (io/file target-path (name classifier))))
+        project (-> (project/unmerge-profiles project [:default])
+                    (project/merge-profiles [spec])
+                    (merge (select-keys project whitelist-keys)))]
+    (eval/prep project)
+    (let [jar-file (get-jar-filename project classifier)]
+      (write-jar project jar-file (filespecs project []))
+      (main/info "Created" (str jar-file))
+      jar-file)))
+
+(defn classifier-jars
+  "Package up all the project's classified files into jars file.
+
+Create a $PROJECT-$VERSION-$CLASSIFIER.jar file containing project's source
+files as well as .class files if applicable. If project.clj contains a :main
+key, the -main function in that namespace will be used as the main-class for
+executable jar.
+
+With an argument, the jar will be built with an alternate main."
+  [{:keys [classifiers] :as project}]
+  (reduce
+   (fn [result [classifier spec]]
+     (assoc result
+       [:classifier (name classifier) :extension "jar"]
+       (classifier-jar project classifier spec)))
+   {}
+   classifiers))
 
 (defn jar
   "Package up all the project's files into a jar file.
@@ -168,5 +208,6 @@ With an argument, the jar will be built with an alternate main."
        (let [jar-file (get-jar-filename project)]
          (write-jar project jar-file (filespecs project []))
          (main/info "Created" (str jar-file))
-         jar-file)))
+         (merge {[:extension "jar"] jar-file}
+                (classifier-jars project)))))
   ([project] (jar project nil)))

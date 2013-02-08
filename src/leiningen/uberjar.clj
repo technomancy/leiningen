@@ -82,7 +82,7 @@ as well as defining a -main function."
             (catch Exception e
               (main/abort "Uberjar aborting because jar/compilation failed:"
                           (.getMessage e)))))
-     (let [standalone-filename (jar/get-jar-filename project :uberjar)]
+     (let [standalone-filename (jar/get-jar-filename project :standalone)]
          (with-open [out (-> standalone-filename
                              (FileOutputStream.)
                              (ZipOutputStream.))]
