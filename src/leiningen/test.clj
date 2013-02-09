@@ -147,8 +147,9 @@ if they are symbols they will be treated as a list of test namespaces to run.
 With no arguments the :default test selector is used if present, otherwise all
 tests are run.
 
-A default :only test-selector is available to run test fns. For example,
-`lein test :only my-ns/my-fn` only runs the test for the specified fn."
+A default :only test-selector is available to run select tests. For example,
+`lein test :only leiningen.test.test/test-default-selector` only runs the
+specified test."
   [project & tests]
   (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
                                    false
