@@ -36,6 +36,8 @@
      (-> project
          (vary-meta update-in [:without-profiles :profiles]
                     assoc name profile)
+         (vary-meta update-in [:profiles]
+                    assoc name profile)
          (project/merge-profiles [name]))))
 
 (deftest test-pom-default-values
