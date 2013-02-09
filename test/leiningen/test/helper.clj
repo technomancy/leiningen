@@ -14,8 +14,10 @@
 
 (defn- read-test-project [name]
   (with-redefs [user/profiles (constantly {})]
-    (project/init-project
-     (project/read (format "test_projects/%s/project.clj" name)))))
+    (let [project (project/read (format "test_projects/%s/project.clj" name))]
+      (project/init-project
+       (project/project-with-profiles-meta
+         project (merge @project/default-profiles (:profiles project)))))))
 
 (def sample-project (read-test-project "sample"))
 
