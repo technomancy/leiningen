@@ -28,9 +28,11 @@
     (is (jar sample-no-aot-project))))
 
 (deftest test-no-deps-jar
-  (let [jar-file (jar (dissoc sample-project :dependencies :main))]
-    (and (is (not (number? jar-file)))
-         (is (.exists (io/file jar-file))))))
+  (let [[coord jar-file] (first
+                          (jar (dissoc sample-project :dependencies :main)))]
+    (is (not (number? jar-file)))
+    (is (.exists (io/file jar-file)))
+    (is (= coord [:extension "jar"]))))
 
 (deftest overlapped-paths
   (is (jar overlapped-sourcepaths-project)))

@@ -10,14 +10,13 @@
 
 (defn install
   "Install current project to the local repository."
-  ([project]
-     (let [jarfile (jar/jar project)
-           pomfile (pom/pom project)
-           local-repo (:local-repo project)]
-       (println "Installing" jarfile)
-       (aether/install :coordinates [(symbol (:group project)
-                                             (:name project))
-                                     (:version project)]
-                       :jar-file (io/file jarfile)
-                       :pom-file (io/file pomfile)
-                       :local-repo local-repo))))
+  [project]
+  (let [jarfiles (jar/jar project)
+        pomfile (pom/pom project)
+        local-repo (:local-repo project)]
+    (aether/install
+     :coordinates [(symbol (:group project) (:name project))
+                   (:version project)]
+     :artifact-map jarfiles
+     :pom-file (io/file pomfile)
+     :local-repo local-repo)))
