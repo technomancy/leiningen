@@ -35,7 +35,8 @@
    (:leiningen/repl (:profiles project) base-profile)
    (:repl (:profiles project)) (:repl (user/profiles))])
 
-(defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}] (or init-ns main))
+(defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
+  (or init-ns main))
 
 (defn- wrap-init-ns [project]
   (when-let [init-ns (init-ns project)]
@@ -54,17 +55,18 @@
            :expects #{"eval"}})
          (alter-var-root (constantly @wrap-init-ns#))))))
 
-(defn- handler-for
-  [{{:keys [nrepl-middleware nrepl-handler]} :repl-options, :as project}]
+(defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options,
+                     :as project}]
   (when (and nrepl-middleware nrepl-handler)
     (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
-  (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)] nrepl-middleware))]
+  (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)]
+                                              nrepl-middleware))]
     (or nrepl-handler
         `(clojure.tools.nrepl.server/default-handler
            ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware)))))
 
-(defn- init-requires
-  [{{:keys [nrepl-middleware nrepl-handler]} :repl-options :as project} & nses]
+(defn- init-requires [{{:keys [nrepl-middleware nrepl-handler]} :repl-options
+                       :as project} & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                      (filter symbol?)
