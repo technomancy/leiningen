@@ -39,15 +39,15 @@
 
 (defn- wrap-init-ns [project]
   (when-let [init-ns (init-ns project)]
+    ;; set-descriptor! currently nREPL only accepts a var
     `(with-local-vars
          [wrap-init-ns#
           (fn [h#]
-            (with-local-vars [init-ns-sentinel# nil]
-              (fn [{:keys [~'session] :as msg#}]
-                (when-not (@~'session init-ns-sentinel#)
-                  (swap! ~'session assoc (var *ns*) (create-ns '~init-ns)
-                         init-ns-sentinel# "init-ns-sentinel"))
-                (h# msg#))))]
+            (fn [{:keys [~'session] :as msg#}]
+              (when-not (@~'session 'init-ns-sentinel#)
+                (swap! ~'session assoc (var *ns*) (create-ns '~init-ns)
+                       'init-ns-sentinel# true))
+              (h# msg#)))]
        (doto wrap-init-ns#
          (clojure.tools.nrepl.middleware/set-descriptor!
           {:requires #{(var clojure.tools.nrepl.middleware.session/session)}
