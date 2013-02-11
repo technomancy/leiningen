@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [test])
   (:use [clojure.test]
         [leiningen.test]
-        [leiningen.test.helper :only [tmp-dir sample-no-aot-project]])
+        [leiningen.test.helper :only [tmp-dir sample-no-aot-project abort-msg]])
   (:require [clojure.java.io :as io]))
 
 (use-fixtures :each
@@ -52,6 +52,12 @@
 (deftest test-namespace-argument
   (test sample-no-aot-project "selectors")
   (is (= (ran?) #{:regular :not-custom :int2})))
+
+(deftest test-invalid-namespace-argument
+  (is (.contains
+       (abort-msg
+        test sample-no-aot-project "boom")
+       "java.io.FileNotFoundException: Could not locate")))
 
 (def called? (atom false))
 
