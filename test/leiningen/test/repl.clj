@@ -7,16 +7,12 @@
 
 (deftest test-options-for-reply-empty
   (let [project {}]
-    (is (= {:attach "127.0.0.1:9876"
-            :custom-init nil
-            :history-file history-file}
+    (is (= {:attach "127.0.0.1:9876" :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest test-options-for-reply-host
   (let [project {:repl-options {:host "192.168.0.10"}}]
-    (is (= {:attach "192.168.0.10:9876"
-            :host "192.168.0.10"
-            :custom-init nil
+    (is (= {:attach "192.168.0.10:9876" :host "192.168.0.10"
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
@@ -24,9 +20,7 @@
   (let [prompt-fn (fn [ns] "hi ")
         project   {:repl-options {:prompt prompt-fn}}]
     (is (= {:attach "127.0.0.1:9876"
-            :custom-prompt prompt-fn
-            :custom-init nil
-            :history-file history-file}
+            :custom-prompt prompt-fn :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
 (deftest repl-profile-in-project
