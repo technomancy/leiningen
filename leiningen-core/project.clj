@@ -9,6 +9,9 @@
                  [useful "0.8.6"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.0.14-SNAPSHOT"]]
+  ;; until the pomegratate snapshot is released:
+  :repositories [["sonatype"
+                  "https://oss.sonatype.org/content/repositories/snapshots/"]]
   :scm {:dir ".."}
   ;; This is only used when releasing Leiningen. Can't put it in a
   ;; profile since it must be installed using lein1
