@@ -133,8 +133,8 @@
 (defn test
   "Run the project's tests.
 
-Marking deftest forms with metadata allows you to pick selectors to specify
-a subset of your test suite to run:
+Marking deftest or ns forms with metadata allows you to pick selectors to
+specify a subset of your test suite to run:
 
     (deftest ^:integration network-heavy-test
       (is (= [1 2 3] (:numbers (network-operation)))))
@@ -148,7 +148,11 @@ Write the selectors in project.clj:
 Arguments to this task will be considered test selectors if they are keywords;
 if they are symbols they will be treated as a list of test namespaces to run.
 With no arguments the :default test selector is used if present, otherwise all
-tests are run."
+tests are run.
+
+A default :only test-selector is available to run select tests. For example,
+`lein test :only leiningen.test.test/test-default-selector` only runs the
+specified test."
   [project & tests]
   (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
                                    false

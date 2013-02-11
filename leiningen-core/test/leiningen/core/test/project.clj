@@ -253,6 +253,11 @@
                                [["clojars.org" "https://new-link.org/"]]}
                        :blue {:repositories
                               [["my-repo" "https://my-repo.org/"]]}
+                       :red {:repositories
+                             [^:replace ["my-repo" "https://my-repo.org/red"]]}
+                       :green {:repositories
+                               [^:displace
+                                ["my-repo" "https://my-repo.org/green"]]}
                        :empty {:repositories ^:replace []}}})]
       (is (= default-repositories
              (:repositories project)))
@@ -272,6 +277,18 @@
       (is (= [["clojars.org" {:url "https://new-link.org/"}]
               ["my-repo" {:url "https://my-repo.org/"}]]
              (-> (merge-profiles project [:clojars :blue :clj-2])
+                 :repositories)))
+      (is (= [["clojars.org" {:url "https://clojars.org/repo/"}]
+              ["my-repo" {:url "https://my-repo.org/"}]]
+             (-> (merge-profiles project [:clojars :blue :green])
+                 :repositories)))
+      (is (= [["clojars.org" {:url "https://clojars.org/repo/"}]
+              ["my-repo" {:url "https://my-repo.org/red"}]]
+             (-> (merge-profiles project [:blue :clojars :red])
+                 :repositories)))
+      (is (= [["my-repo" {:url "https://my-repo.org/red"}]
+              ["clojars.org" {:url "https://new-link.org/"}]]
+             (-> (merge-profiles project [:empty :red :clj-2 :green])
                  :repositories))))))
 
 (deftest test-global-exclusions

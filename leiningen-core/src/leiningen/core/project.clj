@@ -63,6 +63,51 @@
              (into [(symbol group-id artifact-id) version]))
         (with-meta (meta dep)))))
 
+(defn- displace?
+  "Returns true if the object is marked as displaceable"
+  [obj]
+  (-> obj meta :displace))
+
+(defn- replace?
+  "Returns true if the object is marked as replaceable"
+  [obj]
+  (-> obj meta :replace))
+
+(defn- different-priority?
+  "Returns true if either left has a higher priority than right or vice versa."
+  [left right]
+  (boolean
+   (some (some-fn nil? displace? replace?) [left right])))
+
+(defn- pick-prioritized
+  "Picks the highest prioritized element of left and right and merge their
+  metadata."
+  [left right]
+  (cond (nil? left) right
+        (nil? right) left
+
+        (and (displace? left)   ;; Pick the rightmost
+             (displace? right)) ;; if both are marked as displaceable
+        (with-meta right
+          (merge (meta left) (meta right)))
+
+        (and (replace? left)    ;; Pick the rightmost
+             (replace? right))  ;; if both are marked as replaceable
+        (with-meta right
+          (merge (meta left) (meta right)))
+
+        (or (displace? left)
+            (replace? right))
+        (with-meta right
+          (merge (-> left meta (dissoc :displace))
+                 (-> right meta (dissoc :replace))))
+
+        (or (replace? left)
+            (displace? right))
+        (with-meta left
+          (merge (-> right meta (dissoc :displace))
+                 (-> left meta (dissoc :replace))))))
+
 (declare meta-merge)
 
 ;; TODO: drop this and use read-eval syntax in 3.0
@@ -126,11 +171,12 @@
     (meta repos)))
 
 (defn- add-repo [repos [id opts :as repo]]
-  ;; TODO - we completely ignore metadata here. Should follow
-  ;; ^:replace/^:displace conventions and merge metadata
   (update-first repos #(= id (first %))
-                (fn [[_ existing]]
-                  [id (meta-merge existing opts)])))
+                (fn [[_ existing :as original]]
+                  (if (different-priority? repo original)
+                    (pick-prioritized repo original)
+                    (with-meta [id (meta-merge existing opts)]
+                      (merge (meta original) (meta repo)))))))
 
 (def empty-dependencies
   (with-meta [] {:reduce add-dep}))
@@ -264,43 +310,13 @@
          :offline {:offline? true}
          :debug {:debug true}}))
 
-(defn- displace?
-  "Returns true if the object is marked as displaceable"
-  [obj]
-  (-> obj meta :displace))
 
-(defn- replace?
-  "Returns true if the object is marked as replaceable"
-  [obj]
-  (-> obj meta :replace))
 
 (defn- meta-merge
   "Recursively merge values based on the information in their metadata."
   [left right]
-  (cond (nil? left) right
-        (nil? right) left
-
-        (and (displace? left)   ;; Pick the rightmost
-             (displace? right)) ;; if both are marked as displaceable
-        (with-meta right
-          (merge (meta left) (meta right)))
-
-        (and (replace? left)    ;; Pick the rightmost
-             (replace? right))  ;; if both are marked as replaceable
-        (with-meta right
-          (merge (meta left) (meta right)))
-
-        (or (displace? left)
-            (replace? right))
-        (with-meta right
-          (merge (-> left meta (dissoc :displace))
-                 (-> right meta (dissoc :replace))))
-
-        (or (replace? left)
-            (displace? right))
-        (with-meta left
-          (merge (-> right meta (dissoc :displace))
-                 (-> left meta (dissoc :replace))))
+  (cond (different-priority? left right)
+        (pick-prioritized left right)
 
         (-> left meta :reduce)
         (-> left meta :reduce
