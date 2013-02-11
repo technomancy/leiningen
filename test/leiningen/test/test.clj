@@ -25,6 +25,10 @@
   (test sample-no-aot-project ":default")
   (is (= (ran?) #{:regular :int2 :not-custom})))
 
+(deftest test-no-args-defaults-to-default-selector
+  (test sample-no-aot-project)
+  (is (= (ran?) #{:regular :int2 :not-custom})))
+
 (deftest test-basic-selector
   (test sample-no-aot-project ":integration")
   (is (= (ran?) #{:integration :integration-ns})))
@@ -44,6 +48,10 @@
 (deftest test-only-selector
   (test sample-no-aot-project ":only" "selectors/regular")
   (is (= (ran?) #{:regular})))
+
+(deftest test-namespace-argument
+  (test sample-no-aot-project "selectors")
+  (is (= (ran?) #{:regular :not-custom :int2})))
 
 (def called? (atom false))
 
