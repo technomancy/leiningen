@@ -47,19 +47,20 @@
       (main/abort "Could not sign" file))
     (str file ".asc")))
 
-(defn signatures-for [jar-file pom-file coords]
-  {(into coords [:extension "jar.asc"]) (sign jar-file)
-   (into coords [:extension "pom.asc"]) (sign pom-file)})
+(defn signatures-for [jar-file pom-file]
+  {[:extension "jar.asc"] (sign jar-file)
+   [:extension "pom.asc"] (sign pom-file)})
 
-(defn files-for [project repo]
-  (let [coords [(symbol (:group project) (:name project)) (:version project)]
-        jar-file (jar/jar project)
+(defn sign-for-repo? [repo]
+  (:sign-releases (second repo) true))
+
+(defn files-for [project signed?]
+  (let [jar-file (jar/jar project)
         pom-file (pom/pom project)]
-    (merge {(into coords [:extension "jar"]) jar-file
-            (into coords [:extension "pom"]) pom-file}
-           (if (and (:sign-releases (second repo) true)
-                    (not (.endsWith (:version project) "-SNAPSHOT")))
-             (signatures-for jar-file pom-file coords)))))
+    (merge {[:extension "jar"] jar-file
+            [:extension "pom"] pom-file}
+           (if (and signed? (not (.endsWith (:version project) "-SNAPSHOT")))
+             (signatures-for jar-file pom-file)))))
 
 (defn warn-missing-metadata [project]
   (doseq [key [:description :license :url]]
@@ -82,13 +83,15 @@ configure your credentials so you are not prompted on each deploy."
   ([project repository-name]
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
-           files (files-for project repo)]
+           files (files-for project (sign-for-repo? repo))]
        (try
          (main/debug "Deploying" files "to" repo)
-         (aether/deploy-artifacts :artifacts (keys files)
-                                  :files files
-                                  :transfer-listener :stdout
-                                  :repository [repo])
+         (aether/deploy
+          :coordinates [(symbol (:group project) (:name project))
+                        (:version project)]
+          :artifact-map files
+          :transfer-listener :stdout
+          :repository [repo])
          (catch org.sonatype.aether.deployment.DeploymentException e
            (when main/*debug* (.printStackTrace e))
            (main/abort (abort-message (.getMessage e)))))))
