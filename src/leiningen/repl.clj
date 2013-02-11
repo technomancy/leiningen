@@ -9,6 +9,7 @@
             [leiningen.trampoline :as trampoline]
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
+            [clojure.tools.nrepl.middleware :refer (set-descriptor!)]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
@@ -35,24 +36,43 @@
    (:leiningen/repl (:profiles project) base-profile)
    (:repl (:profiles project)) (:repl (user/profiles))])
 
-(defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options}]
+(defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}] (or init-ns main))
+
+(defn- wrap-init-ns [project]
+  (when-let [init-ns (init-ns project)]
+    `(with-local-vars
+         [wrap-init-ns#
+          (fn [h#]
+            (with-local-vars [init-ns-sentinel# nil]
+              (fn [{:keys [~'session] :as msg#}]
+                (when-not (@~'session init-ns-sentinel#)
+                  (swap! ~'session assoc (var *ns*) (create-ns '~init-ns)
+                         init-ns-sentinel# "init-ns-sentinel"))
+                (h# msg#))))]
+       (doto wrap-init-ns#
+         (set-descriptor!
+          {:requires #{(var clojure.tools.nrepl.middleware.session/session)}
+           :expects #{"eval"}})
+         (alter-var-root (constantly @wrap-init-ns#))))))
+
+(defn- handler-for
+  [{{:keys [nrepl-middleware nrepl-handler]} :repl-options, :as project}]
   (when (and nrepl-middleware nrepl-handler)
     (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
-  (if nrepl-middleware
-    `(clojure.tools.nrepl.server/default-handler
-       ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware))
-    (or nrepl-handler '(clojure.tools.nrepl.server/default-handler))))
+  (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)] nrepl-middleware))]
+    (or nrepl-handler
+        `(clojure.tools.nrepl.server/default-handler
+           ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware)))))
 
-(defn- init-requires [{{:keys [nrepl-middleware nrepl-handler]} :repl-options
-                       :as project}
-                      & nses]
+(defn- init-requires
+  [{{:keys [nrepl-middleware nrepl-handler]} :repl-options :as project} & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                      (filter symbol?)
                      (map namespace)
                      (remove nil?)
                      (map symbol))]
-    (for [n (concat defaults nrepl-syms nses)]
+    (for [n (concat (remove nil? [(init-ns project)]) defaults nrepl-syms nses)]
       (list 'quote n))))
 
 (defn- start-server [project host port ack-port & [headless?]]
@@ -62,7 +82,6 @@
                         :handler ~(handler-for project))
                port# (-> server# deref :ss .getLocalPort)]
            (when ~headless? (println "nREPL server started on port" port#))
-           (do ~(if headless? (-> project :repl-options :init)))
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
            @(promise))]
@@ -70,8 +89,13 @@
       (eval/eval-in-project
        (project/merge-profiles project
                                (profiles-for project false (not headless?)))
-       server-starting-form
-       `(require ~@(init-requires project)))
+       `(do ~(-> project :repl-options :init)
+            ~server-starting-form)
+       `(do ~@(for [n (init-requires project)]
+                `(try (require ~n)
+                      (catch Throwable t#
+                        (println "Error loading" (str ~n ":")
+                                 (or (.getMessage t#) (type t#))))))))
       (eval server-starting-form))))
 
 (defn- repl-port [project]
@@ -104,12 +128,7 @@
                             (:repl-options project))]
     (clojure.set/rename-keys
       (merge
-       repl-options
-        ;; TODO: make this consistent with :injections
-        {:init (if-let [init-ns (or (:init-ns repl-options) (:main project))]
-                 `(do (require '~init-ns) (in-ns '~init-ns)
-                      ~(:init repl-options))
-                 (:init repl-options))}
+       (dissoc repl-options :init)
         (cond
           attach
             {:attach (if-let [host (repl-host project)]
@@ -119,8 +138,7 @@
             {:port (str port)}
           :else
             {}))
-      {:prompt :custom-prompt
-       :init :custom-init})))
+      {:prompt :custom-prompt})))
 
 (defn- trampoline-repl [project]
   (let [options (options-for-reply project :port (repl-port project))]
@@ -176,7 +194,7 @@ and port."
          (when project @prep-blocker)
          (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
                                                         :repl-options
-                                                        (:timeout 30000)))]
+                                                        (:timeout 60000)))]
            (do
              (println "nREPL server started on port" repl-port)
              (reply/launch-nrepl (options-for-reply project :attach repl-port)))

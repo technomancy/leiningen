@@ -29,53 +29,6 @@
             :history-file history-file}
            (options-for-reply project :attach 9876)))))
 
-(deftest test-options-for-reply-init
-  (let [init-form '(println "ohai")
-        project   {:repl-options {:init init-form}}]
-    (is (= {:attach "127.0.0.1:9876"
-            :custom-init init-form
-            :history-file history-file}
-           (options-for-reply project :attach 9876)))))
-
-(deftest test-options-for-reply-init-ns
-  (let [project {:repl-options {:init-ns 'foo.core}}]
-    (is (= {:attach "127.0.0.1:9876"
-            :init-ns 'foo.core
-            :custom-init '(do (clojure.core/require 'foo.core)
-                              (clojure.core/in-ns 'foo.core)
-                              nil)
-            :history-file history-file}
-           (options-for-reply project :attach 9876)))))
-
-(deftest test-options-for-reply-init-ns-and-init
-  (let [project {:repl-options {:init-ns 'foo.core :init '(println "ohai")}}]
-    (is (= {:attach "127.0.0.1:9876"
-            :init-ns 'foo.core
-            :custom-init '(do (clojure.core/require 'foo.core)
-                              (clojure.core/in-ns 'foo.core)
-                              (println "ohai"))
-            :history-file history-file}
-           (options-for-reply project :attach 9876)))))
-
-(deftest test-options-for-reply-main-ns
-  (let [project {:main 'foo.core}]
-    (is (= {:attach "127.0.0.1:9876"
-            :custom-init '(do (clojure.core/require 'foo.core)
-                              (clojure.core/in-ns 'foo.core)
-                              nil)
-            :history-file history-file}
-           (options-for-reply project :attach 9876)))))
-
-(deftest test-options-for-reply-init-ns-beats-main
-  (let [project {:main 'foo.core :repl-options {:init-ns 'winner.here}}]
-    (is (= {:attach "127.0.0.1:9876"
-            :init-ns 'winner.here
-            :custom-init '(do (clojure.core/require 'winner.here)
-                              (clojure.core/in-ns 'winner.here)
-                              nil)
-            :history-file history-file}
-           (options-for-reply project :attach 9876)))))
-
 (deftest repl-profile-in-project
   (let [p (promise)
         version-url {:url "0.2.0-beta8"}
