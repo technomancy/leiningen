@@ -9,7 +9,6 @@
             [leiningen.trampoline :as trampoline]
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
-            [clojure.tools.nrepl.middleware :refer (set-descriptor!)]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
@@ -50,7 +49,7 @@
                          init-ns-sentinel# "init-ns-sentinel"))
                 (h# msg#))))]
        (doto wrap-init-ns#
-         (set-descriptor!
+         (clojure.tools.nrepl.middleware/set-descriptor!
           {:requires #{(var clojure.tools.nrepl.middleware.session/session)}
            :expects #{"eval"}})
          (alter-var-root (constantly @wrap-init-ns#))))))
