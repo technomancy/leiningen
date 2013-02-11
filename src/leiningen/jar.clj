@@ -153,16 +153,16 @@ propagated to the compilation phase and not stripped out."
       project)))
 
 (defn classifier-jar
-  "Package up all the project's classified files into jars file.
+  "Package up all the project's classified files into a jar file.
 
 Create a $PROJECT-$VERSION-$CLASSIFIER.jar file containing project's source
-files as well as .class files if applicable. If project.clj contains a :main
-key, the -main function in that namespace will be used as the main-class for
-executable jar.
-
-With an argument, the jar will be built with an alternate main."
+files as well as .class files if applicable. The classifier is looked up in the
+project`s :classifiers map. If it's a map, it's merged like a profile. If it's a
+keyword, it's looked up in :profiles before being merged."
   [{:keys [target-path] :as project} classifier spec]
-  (let [spec (assoc spec
+  (let [spec (assoc (if (keyword? spec)
+                      (-> project :profiles spec)
+                      spec)
                :target-path (.getPath (io/file target-path (name classifier))))
         project (-> (project/unmerge-profiles project [:default])
                     (project/merge-profiles [spec])
@@ -174,14 +174,10 @@ With an argument, the jar will be built with an alternate main."
       jar-file)))
 
 (defn classifier-jars
-  "Package up all the project's classified files into jars file.
+  "Package up all the project's classified files into jar files.
 
-Create a $PROJECT-$VERSION-$CLASSIFIER.jar file containing project's source
-files as well as .class files if applicable. If project.clj contains a :main
-key, the -main function in that namespace will be used as the main-class for
-executable jar.
-
-With an argument, the jar will be built with an alternate main."
+Create a $PROJECT-$VERSION-$CLASSIFIER.jar file for each entry in the project's
+:classifiers. Returns a map of :classifier/:extension coordinates to files."
   [{:keys [classifiers] :as project}]
   (reduce
    (fn [result [classifier spec]]
