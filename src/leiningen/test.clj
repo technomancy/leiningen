@@ -72,8 +72,7 @@
                                         (:name first-var#)))))
                       (if (= :begin-test-ns (:type m#))
                         (clojure.test/with-test-out
-                          (println "\nlein test" (ns-name (:ns m#)))
-                          (apply report# m# args#))
+                          (println "\nlein test" (ns-name (:ns m#))))
                         (apply report# m# args#))))
                 summary# (binding [clojure.test/*test-out* *out*]
                            (apply ~'clojure.test/run-tests selected-namespaces#))]
