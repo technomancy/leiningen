@@ -142,8 +142,10 @@ propagated to the compilation phase and not stripped out."
   [:offline? :local-repo :certificates :warn-on-reflection])
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
-  (and main (some #(.exists (io/file % (b/path-for main))) source-paths)))
+  (and main (not (:skip-aot (meta main)))
+       (some #(.exists (io/file % (b/path-for main))) source-paths)))
 
+;; TODO: remove or move this to uberjar for 3.0
 (defn- add-main [project given-main]
   (let [project (if given-main
                   (assoc project :main (symbol given-main))
