@@ -285,7 +285,7 @@ else
     else
         export TRAMPOLINE_FILE
         "$LEIN_JAVA_CMD" \
-            -client -XX:+TieredCompilation \
+            -client -XX:+TieredCompilation -XX:TieredStopAtLevel=1 \
             "${BOOTCLASSPATH[@]}" \
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
