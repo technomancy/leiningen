@@ -1,6 +1,7 @@
 (ns leiningen.test.new.templates
   (:use clojure.test
-        leiningen.new.templates))
+        leiningen.new.templates)
+  (:require [leiningen.test.helper :refer [abort-msg]]))
 
 (deftest project-names
   (is (= (project-name "org.example/foo.bar") "foo.bar"))
@@ -16,13 +17,6 @@
 
 (deftest paths
   (is (= (name-to-path "foo-bar.baz") "foo_bar/baz")))
-
-(defn- abort-msg [f & args]
-  (with-out-str
-    (binding [*err* *out*]
-      (try
-        (apply f args)
-        (catch clojure.lang.ExceptionInfo e)))))
 
 (deftest renderers
   (is (= (abort-msg (renderer "my-template") "boom" {})
