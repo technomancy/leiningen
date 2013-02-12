@@ -21,7 +21,7 @@
 * Fix a bug where Leiningen's deps could affect javac. (Jean Niklas L'orange)
 * Test selectors may allow entire namespaces to be skipped. (Anthony Grimes)
 * Allow project's git repo to be different than project root. (David Greenberg)
-* Don't AOT the `:main` namespace outside of uberjar task.
+* Don't AOT the `:main` namespace outside of jar/uberjar task.
 * Allow hooks from profiles to apply with limited scope. (Hugo Duncan)
 * Fix a bug where profile-specific paths were ignored in trampoline.
 * Support reading from stdin inside project process.
