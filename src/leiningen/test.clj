@@ -6,7 +6,7 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project])
-  (:import (java.io File)))
+  (:import (java.io File PushbackReader)))
 
 (def ^:dynamic *exit-after-tests* true)
 
@@ -109,8 +109,17 @@
    '(fn [m & vars]
       (some #(= (str "#'" %) (-> m ::var str)) vars))])
 
+;; from bultitude's namespaces-in-dir
+(defn- ns-form-for-file [file]
+  (with-open [r (PushbackReader. (io/reader file))] (@#'b/read-ns-form r)))
+
+(defn- convert-to-ns [possible-file]
+  (if (and (.endsWith possible-file ".clj") (.exists (io/file possible-file)))
+    (str (ns-form-for-file possible-file))
+    possible-file))
+
 (defn- read-args [args project]
-  (let [args (map read-string args)
+  (let [args  (->> args (map convert-to-ns) (map read-string))
         [nses given-selectors] (split-selectors args)
         nses (or (seq nses)
                  (sort
