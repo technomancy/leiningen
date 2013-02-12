@@ -63,13 +63,3 @@
   (let [file (io/file (first (:test-paths sample-no-aot-project)) "selectors.clj")]
     (test sample-no-aot-project (.getPath file)))
   (is (= (ran?) #{:regular :not-custom :int2})))
-
-(def called? (atom false))
-
-(defmethod clojure.test/report :begin-test-ns [_]
-  (reset! called? true))
-
-(deftest test-report-call-through
-  (is (true? @called?))
-  (reset! called? false))
-
