@@ -153,14 +153,14 @@ Write the selectors in project.clj:
                      :integration :integration
                      :all (constantly true)}
 
-Arguments to this task will be considered test selectors if they are keywords;
-if they are symbols they will be treated as a list of test namespaces to run.
-With no arguments the :default test selector is used if present, otherwise all
+Arguments to this task will be considered test selectors if they are keywords,
+otherwise arguments must be test namespaces or files to run. With no
+arguments the :default test selector is used if present, otherwise all
 tests are run.
 
 A default :only test-selector is available to run select tests. For example,
 `lein test :only leiningen.test.test/test-default-selector` only runs the
-specified test."
+specified test. A default :all test-selector is available to run all tests."
   [project & tests]
   (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
                                    false
