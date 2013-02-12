@@ -206,7 +206,7 @@ while [Central](http://search.maven.org/) is for the wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/rc/sample.project.clj).
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
 
 ### Checkout Dependencies
 
@@ -566,7 +566,7 @@ at all from the version that was tested in the CI environment.
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to
-[maintain your own private repository](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md)
+[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
 or get it into [Central](http://search.maven.org), the easiest way is
 to publish it at [Clojars](http://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
@@ -578,7 +578,7 @@ is easy:
     No credentials found for clojars
     See `lein help deploying` for how to configure credentials.
     Username: me
-    Password: 
+    Password:
     Retrieving my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
         from https://clojars.org/repo/
     Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20120531.032047-14.jar (5k)
