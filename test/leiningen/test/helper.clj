@@ -31,6 +31,18 @@
 
 (def overlapped-sourcepaths-project (read-test-project "overlapped-sourcepaths"))
 
+(defn abort-msg
+  "Catches main/abort thrown by calling f on its args and returns its error
+ message."
+  [f & args]
+  (with-out-str
+    (binding [*err* *out*]
+      (try
+        (apply f args)
+        (catch clojure.lang.ExceptionInfo e
+          (when-not (= "Suppressed exit" (.getMessage e))
+            (throw e)))))))
+
 ;; grumble, grumble; why didn't this make it into clojure.java.io?
 (defn delete-file-recursively
   "Delete file f. If it's a directory, recursively delete all its contents.
