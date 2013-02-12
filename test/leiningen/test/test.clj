@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [test])
   (:use [clojure.test]
         [leiningen.test]
-        [leiningen.test.helper :only [tmp-dir sample-no-aot-project]])
+        [leiningen.test.helper :only [tmp-dir sample-no-aot-project abort-msg]])
   (:require [clojure.java.io :as io]))
 
 (use-fixtures :each
@@ -25,6 +25,10 @@
   (test sample-no-aot-project ":default")
   (is (= (ran?) #{:regular :int2 :not-custom})))
 
+(deftest test-no-args-defaults-to-default-selector
+  (test sample-no-aot-project)
+  (is (= (ran?) #{:regular :int2 :not-custom})))
+
 (deftest test-basic-selector
   (test sample-no-aot-project ":integration")
   (is (= (ran?) #{:integration :integration-ns})))
@@ -45,12 +49,17 @@
   (test sample-no-aot-project ":only" "selectors/regular")
   (is (= (ran?) #{:regular})))
 
-(def called? (atom false))
+(deftest test-namespace-argument
+  (test sample-no-aot-project "selectors")
+  (is (= (ran?) #{:regular :not-custom :int2})))
 
-(defmethod clojure.test/report :begin-test-ns [_]
-  (reset! called? true))
+(deftest test-invalid-namespace-argument
+  (is (.contains
+       (abort-msg
+        test sample-no-aot-project "boom")
+       "java.io.FileNotFoundException: Could not locate")))
 
-(deftest test-report-call-through
-  (is (true? @called?))
-  (reset! called? false))
-
+(deftest test-file-argument
+  (let [file (io/file (first (:test-paths sample-no-aot-project)) "selectors.clj")]
+    (test sample-no-aot-project (.getPath file)))
+  (is (= (ran?) #{:regular :not-custom :int2})))
