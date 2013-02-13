@@ -8,7 +8,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "2.1.0-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.3"]
-                 [bultitude "0.1.7"]
+                 [bultitude "0.2.1"]
                  [stencil "0.3.1"]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
