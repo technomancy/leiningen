@@ -109,13 +109,9 @@
    '(fn [m & vars]
       (some #(= (str "#'" %) (-> m ::var str)) vars))])
 
-;; from bultitude's namespaces-in-dir
-(defn- ns-form-for-file [file]
-  (with-open [r (PushbackReader. (io/reader file))] (@#'b/read-ns-form r)))
-
 (defn- convert-to-ns [possible-file]
   (if (and (.endsWith possible-file ".clj") (.exists (io/file possible-file)))
-    (str (ns-form-for-file possible-file))
+    (str (b/ns-form-for-file possible-file))
     possible-file))
 
 (defn- read-args [args project]
