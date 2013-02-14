@@ -8,7 +8,8 @@
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]
-            [clojure.java.shell :as sh]))
+            [clojure.java.shell :as sh]
+            [clojure.string :as str]))
 
 (defn- abort-message [message]
   (cond (re-find #"Return code is 405" message)
@@ -73,6 +74,14 @@
     (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
       (main/info "WARNING: please set" key "in project.clj."))))
 
+(defn- in-branches [branches]
+  (-> (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD")
+      :out
+      butlast
+      str/join
+      branches
+      not))
+
 (defn deploy
   "Build jar and deploy to remote repository.
 
@@ -90,9 +99,10 @@ configure your credentials so you are not prompted on each deploy."
      (when (and (:never-deploy-snapshots project)
                 (pom/snapshot? project))
        (main/abort "Cannot deploy snapshots with :never-deploy-snapshots set."))
-     (when (and (:only-deploy-master project)
-                (not= "master\n" (:out (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD"))))
-       (main/abort "Cannot deploy from any branch other than master with :only-deploy-master set."))
+     (let [branches (set (:deploy-branches project))]
+       (when (and (seq branches)
+                  (in-branches branches))
+         (apply main/abort "Can only deploy from branches listed in :deploy-branches:" branches)))
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
            files (files-for project (sign-for-repo? repo))]
