@@ -86,6 +86,9 @@ If you don't provide a repository name to deploy to, either \"snapshots\" or
 `lein help deploying` under \"Authentication\" for instructions on how to
 configure your credentials so you are not prompted on each deploy."
   ([project repository-name]
+     (when (and (:never-deploy-snapshots project)
+                (pom/snapshot? project))
+       (main/abort "Cannot deploy snapshots with :never-deploy-snapshots set."))
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
            files (files-for project (sign-for-repo? repo))]
