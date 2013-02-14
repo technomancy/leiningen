@@ -2,6 +2,7 @@
   "Install the current project to the local repository."
   (:require [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project]
+            [leiningen.core.main :as main]
             [leiningen.jar :as jar]
             [leiningen.pom :as pom]
             [clojure.java.io :as io])
@@ -11,6 +12,9 @@
 (defn install
   "Install current project to the local repository."
   [project]
+  (when (and (:only-install-snapshots project)
+             (not (pom/snapshot? project)))
+    (main/abort "Can only install snapshot artifacts when :only-install snapshots is set."))
   (let [jarfiles (jar/jar project)
         pomfile (pom/pom project)
         local-repo (:local-repo project)]
