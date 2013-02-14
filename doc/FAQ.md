@@ -5,7 +5,7 @@
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](https://github.com/technomancy/leiningen/blob/rc/doc/TUTORIAL.md)
+  [tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
@@ -13,7 +13,7 @@
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** The best thing to do is to get them in a repository. The
-  [deploy guide](https://github.com/technomancy/leiningen/blob/rc/doc/DEPLOY.md)
+  [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
   explains how to set up a private repository. In general it's easiest
   to deploy them to a static HTTP server or a private S3
   bucket with the
@@ -23,7 +23,7 @@
   [install locally](https://github.com/kumarshantanu/lein-localrepo).
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
-**A:** Leiningen provides a feature called *checkout dependencies*. See the [tutorial](https://github.com/technomancy/leiningen/blob/rc/doc/TUTORIAL.md)
+**A:** Leiningen provides a feature called *checkout dependencies*. See the [tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
   to learn more.
 
 **Q:** Is it possible to exclude indirect dependencies?  
