@@ -7,7 +7,8 @@
             [leiningen.core.user :as user]
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
-            [leiningen.jar :as jar]))
+            [leiningen.jar :as jar]
+            [clojure.java.shell :as sh]))
 
 (defn- abort-message [message]
   (cond (re-find #"Return code is 405" message)
@@ -89,6 +90,9 @@ configure your credentials so you are not prompted on each deploy."
      (when (and (:never-deploy-snapshots project)
                 (pom/snapshot? project))
        (main/abort "Cannot deploy snapshots with :never-deploy-snapshots set."))
+     (when (and (:only-deploy-master project)
+                (not= "master\n" (:out (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD"))))
+       (main/abort "Cannot deploy from any branch other than master with :only-deploy-master set."))
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
            files (files-for project (sign-for-repo? repo))]
