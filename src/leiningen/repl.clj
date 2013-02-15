@@ -18,7 +18,7 @@
                                       :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
-                                          [reply "0.1.9"
+                                          [reply "0.1.10"
                                            :exclusions [org.clojure/clojure]]]})
 
 (def base-profile {:dependencies '[^:displace
@@ -42,13 +42,16 @@
   (when-let [init-ns (init-ns project)]
     ;; set-descriptor! currently nREPL only accepts a var
     `(with-local-vars
-         [wrap-init-ns#
-          (fn [h#]
-            (fn [{:keys [~'session] :as msg#}]
-              (when-not (@~'session 'init-ns-sentinel#)
-                (swap! ~'session assoc (var *ns*) (create-ns '~init-ns)
-                       'init-ns-sentinel# true))
-              (h# msg#)))]
+       [wrap-init-ns#
+         (fn [h#]
+           ;; this needs to be a var, since it's in the nREPL session
+           (with-local-vars [init-ns-sentinel# nil]
+             (fn [{:keys [~'session] :as msg#}]
+               (when-not (@~'session init-ns-sentinel#)
+                 (swap! ~'session assoc
+                        (var *ns*) (create-ns '~init-ns)
+                        init-ns-sentinel# true))
+               (h# msg#))))]
        (doto wrap-init-ns#
          (clojure.tools.nrepl.middleware/set-descriptor!
           {:requires #{(var clojure.tools.nrepl.middleware.session/session)}
