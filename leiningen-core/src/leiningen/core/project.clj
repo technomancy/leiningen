@@ -11,7 +11,7 @@
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
             [useful.fn :refer [fix]]
-            [useful.seq :refer [update-first]]
+            [useful.seq :refer [update-first find-first]]
             [useful.map :refer [update update-each map-vals]])
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader)))
@@ -170,13 +170,20 @@
     (mapv normalize-repo repos)
     (meta repos)))
 
-(defn- add-repo [repos [id opts :as repo]]
+(defn- add-repo [repos [id opts]]
   (update-first repos #(= id (first %))
                 (fn [[_ existing :as original]]
-                  (if (different-priority? repo original)
-                    (pick-prioritized repo original)
-                    (with-meta [id (meta-merge existing opts)]
-                      (merge (meta original) (meta repo)))))))
+                  (let [opts (if (keyword? opts)
+                               (-> (find-first #(= (first %)
+                                                   (name opts))
+                                               repos)
+                                   second)
+                               {})
+                        repo [id opts]]
+                    (if (different-priority? repo original)
+                      (pick-prioritized repo original)
+                      (with-meta [id (meta-merge existing opts)]
+                        (merge (meta original) (meta repo))))))))
 
 (def empty-dependencies
   (with-meta [] {:reduce add-dep}))

@@ -95,10 +95,7 @@ If you don't provide a repository name to deploy to, either \"snapshots\" or
 \"releases\" will be used depending on your project's current version. See
 `lein help deploying` under \"Authentication\" for instructions on how to
 configure your credentials so you are not prompted on each deploy."
-  ([project repository-name]
-     (when (and (:never-deploy-snapshots project)
-                (pom/snapshot? project))
-       (main/abort "Cannot deploy snapshots with :never-deploy-snapshots set."))
+  ([project repository-name] 
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))
