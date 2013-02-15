@@ -277,7 +277,18 @@
   ;; as parsed by clojure.data.xml/sexp-as-element.
   :pom-addition [:developers [:developer {:id "benbit"}
                               [:name "Ben Bitdiddle"]
-                              [:url "http://www.example.com/benjamin"]]])
+                              [:url "http://www.example.com/benjamin"]]]
+
+  ;; Indicate whether or not `lein install` should abort when trying to install
+  ;; releases. When false, trying to run `lein install` in a project with a version
+  ;; that isn't a snapshot will cause leiningen to abort with a descriptive error
+  ;; message.
+  :install-releases? false
+
+  ;; Dictate which git branches deploys should be allowed from. When set,
+  ;; `lein deploy` will only work from the git branches included and will
+  ;; abort otherwise.
+  :deploy-branches ["master"])
 
 ;;; Environment Variables used by Leiningen
 
