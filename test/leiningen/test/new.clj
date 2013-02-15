@@ -64,3 +64,18 @@
            "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
          (set (map (memfn getName) (rest (file-seq (file "my-proj")))))))
   (delete-file-recursively (file "my-proj") :silently))
+
+(deftest test-new-generates-in-the-current-directory
+  (let [original-pwd (System/getProperty "leiningen.original.pwd")
+        new-pwd (file original-pwd "subdir")
+        _ (.mkdir new-pwd)
+        new-pwd (str new-pwd)]
+    ;; Simulate being in a directory other than the project's top-level dir
+    (System/setProperty "leiningen.original.pwd" new-pwd)
+
+    (leiningen.new/new nil "test-new-proj")
+    (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+             "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
+           (set (map (memfn getName) (rest (file-seq (file new-pwd "test-new-proj")))))))
+    (System/setProperty "leiningen.original.pwd" original-pwd)
+    (delete-file-recursively (file new-pwd "test-new-proj") :silently)))
