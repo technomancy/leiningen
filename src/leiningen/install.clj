@@ -12,9 +12,9 @@
 (defn install
   "Install current project to the local repository."
   [project]
-  (when (and (:only-install-snapshots project)
-             (not (pom/snapshot? project)))
-    (main/abort "Can only install snapshot artifacts when :only-install snapshots is set."))
+  (when (not (or (:install-releases? project true)
+                 (pom/snapshot? project)))
+    (main/abort "Can't install release artifacts when :install-releases? is set to false."))
   (let [jarfiles (jar/jar project)
         pomfile (pom/pom project)
         local-repo (:local-repo project)]
