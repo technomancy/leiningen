@@ -112,9 +112,13 @@
         javac-opts (vec (javac-options project files args))
         form (subprocess-form compile-path files javac-opts)]
     (when (seq files)
-      (eval/eval-in
-       (project/merge-profiles project [subprocess-profile])
-       form))))
+      (try (eval/eval-in
+            (project/merge-profiles project [subprocess-profile])
+            form)
+           (catch Exception e
+             (if-let [exit-code (:exit-code (ex-data e))]
+               (main/exit exit-code)
+               (throw e)))))))
 
 (defn javac
   "Compile Java source files.
