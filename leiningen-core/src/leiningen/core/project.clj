@@ -170,7 +170,7 @@
     (mapv normalize-repo repos)
     (meta repos)))
 
-(defn- add-repo [repos [id opts]]
+(defn- add-repo [repos [id opts :as repo]]
   (update-first repos #(= id (first %))
                 (fn [[_ existing :as original]]
                   (let [opts (if (keyword? opts)
@@ -178,8 +178,8 @@
                                                    (name opts))
                                                repos)
                                    second)
-                               {})
-                        repo [id opts]]
+                               opts)
+                        repo (with-meta [id opts] (meta repo))]
                     (if (different-priority? repo original)
                       (pick-prioritized repo original)
                       (with-meta [id (meta-merge existing opts)]
