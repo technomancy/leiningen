@@ -44,6 +44,7 @@
     `(with-local-vars
        [wrap-init-ns#
          (fn [h#]
+           ;; this needs to be a var, since it's in the nREPL session
            (with-local-vars [init-ns-sentinel# nil]
              (fn [{:keys [~'session] :as msg#}]
                (when-not (@~'session init-ns-sentinel#)
