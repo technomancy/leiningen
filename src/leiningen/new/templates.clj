@@ -125,7 +125,8 @@ The additional segment defaults to \"core\"."
    be created automatically. Data should include a key for :name so that
    the project is created in the correct directory"
   [{:keys [name] :as data} & paths]
-  (let [dir (or *dir* name)]
+  (let [dir (or *dir*
+                (.getPath (io/file (System/getProperty "leiningen.original.pwd") name)))]
     (if (or *dir* (.mkdir (io/file dir)))
       (doseq [path paths]
         (if (string? path)
