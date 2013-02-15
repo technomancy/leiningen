@@ -109,6 +109,10 @@ and the second is used as the name of the project, for example:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME
 
+To generate to a directory different than your project's name use --to-dir:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR
+
 The list of built-in templates can be shown with `lein help new`. Third-party
 templates can be found at https://clojars.org/search?q=lein-template.
 When creating a new project from a third-party template, use its group-id
