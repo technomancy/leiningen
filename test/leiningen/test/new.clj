@@ -18,3 +18,10 @@
          (set (map (memfn getName)
                    (rest (file-seq (file "a-project")))))))
   (delete-file-recursively (file "a-project") :silently))
+
+(deftest test-new-with-to-dir-option
+  (leiningen.new/new nil "test-new-proj" "--to-dir" "my-proj")
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
+         (set (map (memfn getName) (rest (file-seq (file "my-proj")))))))
+  (delete-file-recursively (file "my-proj") :silently))
