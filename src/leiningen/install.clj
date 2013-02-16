@@ -2,7 +2,7 @@
   "Install the current project to the local repository."
   (:require [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.jar :as jar]
             [leiningen.pom :as pom]
             [clojure.java.io :as io])
@@ -14,7 +14,7 @@
   [project]
   (when (not (or (:install-releases? project true)
                  (pom/snapshot? project)))
-    (main/abort "Can't install release artifacts when :install-releases? is set to false."))
+    (log/abort "Can't install release artifacts when :install-releases? is set to false."))
   (let [jarfiles (jar/jar project)
         pomfile (pom/pom project)
         local-repo (:local-repo project)]

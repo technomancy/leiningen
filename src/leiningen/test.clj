@@ -4,7 +4,7 @@
   (:require [clojure.java.io :as io]
             [bultitude.core :as b]
             [leiningen.core.eval :as eval]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.core.project :as project])
   (:import (java.io File PushbackReader)))
 
@@ -135,7 +135,7 @@
                     selectors)]
     (when (and (empty? selectors)
                (seq given-selectors))
-      (main/abort "Please specify :test-selectors in project.clj"))
+      (log/abort "Please specify :test-selectors in project.clj"))
     [nses selectors]))
 
 (defn test
@@ -173,4 +173,4 @@ specified test. A default :all test-selector is available to run all tests."
           form (form-for-testing-namespaces nses nil (vec selectors))]
       (try (eval/eval-in-project project form '(require 'clojure.test))
            (catch clojure.lang.ExceptionInfo e
-             (main/abort "Tests failed."))))))
+             (log/abort "Tests failed."))))))
