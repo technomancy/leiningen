@@ -107,7 +107,11 @@
                   (symbol))))
        ns))
    '(fn [m & vars]
-      (some #(= (str "#'" %) (-> m ::var str)) vars))])
+      (some #(let [var (str "#'" %)]
+               (if (some #{\/} var)
+                 (= var (-> m ::var str))
+                 (= % (ns-name (:ns m)))))
+            vars))])
 
 (defn- convert-to-ns [possible-file]
   (if (and (.endsWith possible-file ".clj") (.exists (io/file possible-file)))
