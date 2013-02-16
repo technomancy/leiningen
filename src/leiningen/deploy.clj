@@ -2,7 +2,7 @@
   "Build and deploy jar to remote repository."
   (:require [cemerick.pomegranate.aether :as aether]
             [leiningen.core.classpath :as classpath]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.core.eval :as eval]
             [leiningen.core.user :as user]
             [clojure.java.io :as io]
@@ -46,7 +46,7 @@
   (let [exit (binding [*out* (java.io.StringWriter.)]
                (eval/sh (user/gpg-program) "--yes" "-ab" "--" file))]
     (when-not (zero? exit)
-      (main/abort "Could not sign" file))
+      (log/abort "Could not sign" file))
     (str file ".asc")))
 
 (defn signature-for [extension file]
@@ -72,7 +72,7 @@
 (defn warn-missing-metadata [project]
   (doseq [key [:description :license :url]]
     (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
-      (main/info "WARNING: please set" key "in project.clj."))))
+      (log/info "please set" key "in project.clj."))))
 
 (defn- in-branches [branches]
   (-> (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD")
@@ -99,12 +99,12 @@ configure your credentials so you are not prompted on each deploy."
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))
-         (apply main/abort "Can only deploy from branches listed in :deploy-branches:" branches)))
+         (apply log/abort "Can only deploy from branches listed in :deploy-branches:" branches)))
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
            files (files-for project (sign-for-repo? repo))]
        (try
-         (main/debug "Deploying" files "to" repo)
+         (log/debug "Deploying" files "to" repo)
          (aether/deploy
           :coordinates [(symbol (:group project) (:name project))
                         (:version project)]
@@ -113,7 +113,7 @@ configure your credentials so you are not prompted on each deploy."
           :repository [repo])
          (catch org.sonatype.aether.deployment.DeploymentException e
            (when main/*debug* (.printStackTrace e))
-           (main/abort (abort-message (.getMessage e)))))))
+           (log/abort (abort-message (.getMessage e)))))))
   ([project]
      (deploy project (if (pom/snapshot? project)
                        "snapshots"

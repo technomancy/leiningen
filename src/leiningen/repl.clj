@@ -10,6 +10,7 @@
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
             [leiningen.core.user :as user]
+            [leiningen.core.logger :as log]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
@@ -61,7 +62,7 @@
 (defn- handler-for [{{:keys [nrepl-middleware nrepl-handler]} :repl-options,
                      :as project}]
   (when (and nrepl-middleware nrepl-handler)
-    (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
+    (log/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
   (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)]
                                               nrepl-middleware))]
     (or nrepl-handler
@@ -211,4 +212,4 @@ and port."
                                  (ack-port project) :headless)
        ":connect" (do (require 'cemerick.drawbridge.client)
                       (reply/launch-nrepl {:attach (first opts)}))
-       (main/abort "Unrecognized flag:" flag))))
+       (log/abort "Unrecognized flag:" flag))))

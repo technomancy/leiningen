@@ -2,7 +2,7 @@
   "Compile Java source files."
   (:require [leiningen.classpath :as classpath]
             [leiningen.core.eval :as eval]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as string])
@@ -80,7 +80,7 @@
 (defn- subprocess-form
   "Creates a form for running javac in a subprocess."
   [compile-path files javac-opts]
-  (main/debug "Running javac with" javac-opts)
+  (log/debug "Running javac with" javac-opts)
   `(let [abort# (fn [& msg#]
                   (.println java.lang.System/err (apply str msg#))
                   (java.lang.System/exit 1))]
@@ -91,10 +91,10 @@
          (when-not (zero?
                     (.run compiler# nil nil nil
                           (into-array java.lang.String ~javac-opts)))
-           (abort# "Compilation of Java sources(lein javac) failed.")))
-       (abort# "lein-javac: system java compiler not found; "
-               "Be sure to use java from a JDK\nrather than a JRE by"
-               " either modifying PATH or setting JAVA_CMD."))))
+           (abort# "Compilation of Java sources (lein javac) failed.")))
+       (abort# "lein-javac: system java compiler not found.\n"
+               "Be sure to use java from a JDK rather than a JRE"
+               "by either modifying PATH or setting JAVA_CMD."))))
 
 ;; We can't really control what is printed here. We're just going to
 ;; allow `.run` to attach in, out, and err to the standard streams. This
@@ -117,7 +117,7 @@
             form)
            (catch Exception e
              (if-let [exit-code (:exit-code (ex-data e))]
-               (main/exit exit-code)
+               (log/exit exit-code)
                (throw e)))))))
 
 (defn javac
