@@ -1,6 +1,7 @@
 (ns leiningen.test.helper
   (:require [leiningen.core.project :as project]
             [leiningen.core.user :as user]
+            [leiningen.core.test.helper :as helper]
             [clojure.java.io :as io]))
 
 ;; TODO: fix
@@ -35,13 +36,7 @@
   "Catches main/abort thrown by calling f on its args and returns its error
  message."
   [f & args]
-  (with-out-str
-    (binding [*err* *out*]
-      (try
-        (apply f args)
-        (catch clojure.lang.ExceptionInfo e
-          (when-not (= "Suppressed exit" (.getMessage e))
-            (throw e)))))))
+  (apply helper/abort-msg f args))
 
 ;; grumble, grumble; why didn't this make it into clojure.java.io?
 (defn delete-file-recursively
