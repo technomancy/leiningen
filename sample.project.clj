@@ -25,7 +25,7 @@
                  :subscribe "list-subscribe@example.org"
                  :unsubscribe "list-unsubscribe@example.org"}
   ;; The project's license. :distribution should be :repo or :manual;
-  ;; :repo means it is ok for public repositories to host this project's
+  ;; :repo means it is OK for public repositories to host this project's
   ;; artifacts. A seq of :licenses is also supported.
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
@@ -40,11 +40,11 @@
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]]
   ;; Global exclusions are applied across the board, as an alternative
-  ;; to duplication for multiple depedencies with the same excluded libraries.
+  ;; to duplication for multiple dependencies with the same excluded libraries.
   :exclusions [org.apache.poi/poi
                org.apache.poi/poi-ooxml]
   ;; Plugins are code that runs in Leiningen itself and usually
-  ;; provides new tasks or hooks.
+  ;; provide new tasks or hooks.
   :plugins [[lein-pprint "1.1.1"]
             [lein-assoc "0.1.0"]
             [s3-wagon-private "1.1.1"]
@@ -111,7 +111,7 @@
   ;;   [& args]
   ;;   (comment Do app initialization here))
   :main my.service.runner
-  ;; Options to change the way the REPL behaves
+  ;; Options to change the way the REPL behaves.
   :repl-options {;; Specify the string to print when prompting for input.
                  ;; defaults to something like (fn [ns] (str *ns* "=> "))
                  :prompt (fn [ns] (str "your command for <" ns ">, master? " ))
@@ -119,7 +119,7 @@
                  ;; this case only)
                  :init-ns foo.bar
                  ;; This expression will run when first opening a REPL, in the
-                 ;; namespace from :init-ns or :main if specified
+                 ;; namespace from :init-ns or :main if specified.
                  :init (println "here we are in" *ns*)
                  ;; Customize the socket the repl task listens on and
                  ;; attaches to.
@@ -131,17 +131,17 @@
                  :timeout 40000
                  ;; nREPL server customization
                  ;; Only one of #{:nrepl-handler :nrepl-middleware}
-                 ;; may be used at a time
-                 ;; Use a different server-side nREPL handler
+                 ;; may be used at a time.
+                 ;; Use a different server-side nREPL handler.
                  :nrepl-handler (clojure.tools.nrepl.server/default-handler)
-                 ;; Add server-side middleware to nREPL stack
+                 ;; Add server-side middleware to nREPL stack.
                  :nrepl-middleware [my.nrepl.thing/wrap-amazingness
-                                    ;; TODO: link to more detailed documentation
-                                    ;; middleware without appropriate metadata
+                                    ;; TODO: link to more detailed documentation.
+                                    ;; Middleware without appropriate metadata
                                     ;; (see clojure.tools.nrepl.middleware/set-descriptor!
                                     ;; for details) will simply be appended to the stack
                                     ;; of middleware (rather than ordered based on its
-                                    ;; expectations and requirements)
+                                    ;; expectations and requirements).
                                     (fn [handler]
                                       (fn [& args]
                                         (prn :middle args)
@@ -153,7 +153,7 @@
   :warn-on-reflection true
   ;; These repositories will be searched for :dependencies and
   ;; :plugins and will also be available to deploy to.
-  ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you list below
+  ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you list below.
   :repositories [["java.net" "http://download.java.net/maven/2"]
                  ["sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                               ;; If a repository contains releases only setting
@@ -210,28 +210,28 @@
   :source-paths ["src" "src/main/clojure"]
   :java-source-paths ["src/main/java"] ; Java source is stored separately.
   :test-paths ["test" "src/test/clojure"]
-  :resource-paths ["src/main/resource"] ; non-code files included in classpath/jar
-  :compile-path "target/classes"   ; for .class files
-  :native-path "src/native"        ; where to extract native dependencies
-  :target-path "target/"           ; where to place the project's jar file
-  :jar-name "sample.jar"           ; name of the jar produced by 'lein jar'
-  :uberjar-name "sample-standalone.jar" ; as above for uberjar
+  :resource-paths ["src/main/resource"] ; Non-code files included in classpath/jar.
+  :compile-path "target/classes"   ; For .class files.
+  :native-path "src/native"        ; Where to extract native dependencies.
+  :target-path "target/"           ; Where to place the project's jar file.
+  :jar-name "sample.jar"           ; Name of the jar produced by 'lein jar'.
+  :uberjar-name "sample-standalone.jar" ; As above for uberjar.
   ;; Options to pass to java compiler for java source,
-  ;; exactly the same as command line arguments to javac
+  ;; exactly the same as command line arguments to javac.
   :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
-  ;; Leave the contents of :source-paths out of jars (for AOT projects)
+  ;; Leave the contents of :source-paths out of jars (for AOT projects).
   :omit-source true
-  ;; Files with names matching any of these patterns will be excluded from jars
+  ;; Files with names matching any of these patterns will be excluded from jars.
   :jar-exclusions [#"(?:^|/).svn/"]
   ;; Same thing, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
   ;; Add arbitrary jar entries. Supports :path, :paths, :bytes, and :fn types.
   :filespecs [{:type :path :path "config/base.clj"}
-              ;; directory paths are included recursively
+              ;; Directory paths are included recursively.
               {:type :paths :paths ["config/web" "config/cli"]}
-              ;; programmatically-generated content can use :bytes
+              ;; Programmatically-generated content can use :bytes.
               {:type :bytes :path "project.clj"
-               ;; strings or byte arrays are accepted
+               ;; Strings or byte arrays are accepted.
                :bytes ~(slurp "project.clj")}
               ;; :fn filespecs take the project as an argument and
               ;; should return a filespec map of one of the other types.
@@ -241,11 +241,11 @@
                                               "git" "log" "-n" "1"))})}]
   ;; Set arbitrary key/value pairs for the jar's manifest.
   :manifest {"Project-awesome-level" "super-great"
-             ;; function values will be called with the project as an argument.
+             ;; Function values will be called with the project as an argument.
              "Class-Path" ~#(clojure.string/join
                              \space
                              (leiningen.core.classpath/get-classpath %))
-             ;; symbol values will be resolved to find a function to call.
+             ;; Symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
   ;; You can set JVM-level options here.
   ;; It is also possible to use :java-opts, which is an alias for :jvm-opts.
@@ -257,7 +257,7 @@
   ;; Enable bootclasspath optimization. This improves boot time but interferes
   ;; with using things like pomegranate at runtime and using Clojure 1.2.
   :bootclasspath true
-  ;; Set parent for working with in a multi-module maven project
+  ;; Set parent for working with in a multi-module maven project.
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
   ;; Extensions here will be propagated to the pom but not used by Leiningen.
   :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
