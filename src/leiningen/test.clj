@@ -162,9 +162,9 @@ A default :only test-selector is available to run select tests. For example,
 `lein test :only leiningen.test.test/test-default-selector` only runs the
 specified test. A default :all test-selector is available to run all tests."
   [project & tests]
-  (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
+  (binding [log/*exit-process?* (if (= :leiningen (:eval-in project))
                                    false
-                                   main/*exit-process?*)
+                                   log/*exit-process?*)
             *exit-after-tests* (if (= :leiningen (:eval-in project))
                                    false
                                    *exit-after-tests*)]

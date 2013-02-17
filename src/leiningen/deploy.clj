@@ -112,7 +112,7 @@ configure your credentials so you are not prompted on each deploy."
           :transfer-listener :stdout
           :repository [repo])
          (catch org.sonatype.aether.deployment.DeploymentException e
-           (when main/*debug* (.printStackTrace e))
+           (when log/*debug* (.printStackTrace e))
            (log/abort (abort-message (.getMessage e)))))))
   ([project]
      (deploy project (if (pom/snapshot? project)
