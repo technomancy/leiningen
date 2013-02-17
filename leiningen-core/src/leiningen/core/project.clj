@@ -376,17 +376,18 @@
 
         :else (or profile {})))
 
-(defn- warn-user-repos []
-  (let [profiles (filter #(->> (val %)
+(defn- warn-user-repos [profiles]
+  (let [has-url? (fn [entry] (or (string? entry) (:url entry)))
+        profiles (filter #(->> (second %)
                                :repositories
-                               vals
-                               (some :url))
-                         (user/profiles))]
+                               (map second)
+                               (some has-url?))
+                         profiles)]
     (when (and (seq profiles)
                (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
       (println
        "WARNING: :repositories detected in user-level profiles!"
-       (vec (map key profiles)))
+       (vec (map first profiles)))
       (println "See https://github.com/technomancy/leiningen/wiki/Repeatability"))))
 
 (alter-var-root #'warn-user-repos memoize)
@@ -409,7 +410,7 @@
   the profiles.clj file in the project root, and the :profiles key from the
   project map."
   [project]
-  (warn-user-repos)
+  (warn-user-repos (user/profiles))
   (warn-user-profile (:profiles project))
   (merge @default-profiles (user/profiles)
          (:profiles project) (project-profiles project)))
