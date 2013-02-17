@@ -1,6 +1,7 @@
 (ns leiningen.with-profile
   (:require [clojure.string :as string]
             [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.core.project :as project]
             [robert.hooke :as hooke]))
 
@@ -56,19 +57,18 @@ For a detailed description of profiles, see `lein help profiles`."
   (let [profile-groups (seq (.split profiles ":"))
         failures (atom 0)]
     (doseq [profiles (map (partial profiles-in-group project) profile-groups)]
-      (main/info (format "Performing task '%s' with profile(s): '%s'"
+      (log/info (format "Performing task '%s' with profile(s): '%s'"
                          task-name (string/join "," (map name profiles))))
       (binding [main/*exit-process?* false]
         (try
           (with-profiles* project profiles task-name args)
           (catch Exception e
-            (main/info
-             (format
+            (log/info (format
               "Error encountered performing task '%s' with profile(s): '%s'"
               task-name (string/join "," (map name profiles))))
             (if (and (:exit-code (ex-data e)) (not main/*debug*))
-              (main/info (.getMessage e))
+              (log/info (.getMessage e))
               (.printStackTrace e))
             (swap! failures inc)))))
     (when (pos? @failures)
-      (main/abort))))
+      (log/abort))))

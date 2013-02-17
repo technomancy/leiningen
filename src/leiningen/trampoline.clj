@@ -3,6 +3,7 @@
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]))
@@ -37,7 +38,7 @@
 (defn write-trampoline [project forms profiles]
   (let [command (trampoline-command-string project forms profiles)
         trampoline (trampoline-file)]
-    (main/debug "Trampoline command:" command)
+    (log/debug "Trampoline command:" command)
     (.mkdirs (.getParentFile (io/file trampoline)))
     (spit trampoline command)))
 
@@ -51,7 +52,7 @@ running it rather than launching a subprocess of Leiningen's JVM.
 Use this to save memory or to work around stdin issues."
   [project task-name & args]
   (when (= :leiningen (:eval-in project))
-    (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
+    (log/info "trampoline has no effect with :eval-in-leiningen."))
   (binding [*trampoline?* true]
     (main/apply-task (main/lookup-alias task-name project)
                      (-> (assoc project :eval-in :trampoline)
@@ -60,4 +61,4 @@ Use this to save memory or to work around stdin issues."
                      args))
   (if (seq @eval/trampoline-forms)
     (write-trampoline project @eval/trampoline-forms @eval/trampoline-profiles)
-    (main/abort task-name "did not run any project code for trampolining.")))
+    (log/abort task-name "did not run any project code for trampolining.")))
