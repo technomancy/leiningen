@@ -4,6 +4,7 @@
         [leiningen.core.project :as project])
   (:require [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.test.helper :refer [abort-msg]]
             [clojure.java.io :as io]))
 
 (use-fixtures :once
@@ -398,40 +399,40 @@
   (if (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")
     (testing "no output with suppression"
       (is (= ""
-             (with-out-str
-               (#'project/warn-user-repos
-                {:user {:repositories
-                        {"central" {:url "http://repo1.maven.org/maven2/"
-                                    :snapshots false}
-                         "clojars" {:url "https://clojars.org/repo/"}}}})))))
+             (abort-msg
+              #'project/warn-user-repos
+              {:user {:repositories
+                      {"central" {:url "http://repo1.maven.org/maven2/"
+                                  :snapshots false}
+                       "clojars" {:url "https://clojars.org/repo/"}}}}))))
     (testing "with no suppression,"
       (testing "no warning without user level repo"
-        (is (= "" (with-out-str (#'project/warn-user-repos {})))
+        (is (= "" (abort-msg #'project/warn-user-repos {}))
             "No warning in base case"))
       (testing "Warning with user level repo"
         (is (re-find
              #"WARNING: :repositories .* [:user].*"
-             (with-out-str
-               (#'project/warn-user-repos
-                {:user {:repositories
-                        {"central" {:url "http://repo1.maven.org/maven2/"
-                                    :snapshots false}
-                         "clojars" {:url "https://clojars.org/repo/"}}}})))))
+             (abort-msg
+              #'project/warn-user-repos
+              {:user {:repositories
+                      {"central" {:url "http://repo1.maven.org/maven2/"
+                                  :snapshots false}
+                       "clojars" {:url "https://clojars.org/repo/"}}}}))))
       (testing "Warning with user level repo"
         (is (re-find
              #"WARNING: :repositories .* [:user].*"
-             (with-out-str
-               (#'project/warn-user-repos
-                {:user {:repositories
-                        {"central" "http://repo1.maven.org/maven2/"
-                         "clojars" "https://clojars.org/repo/"}}})))))
+             (abort-msg
+              #'project/warn-user-repos
+              {:user {:repositories
+                      {"central" "http://repo1.maven.org/maven2/"
+                       "clojars" "https://clojars.org/repo/"}}}))))
       (testing "Warning with user level repo"
         (is (re-find
              #"WARNING: :repositories .* [:user].*"
-             (with-out-str
-               (#'project/warn-user-repos
-                {:user
-                 {:repositories
-                  [["central" {:url "http://repo1.maven.org/maven2/"
-                               :snapshots false}]
-                   ["clojars" {:url "https://clojars.org/repo/"}]]}}))))))))
+             (abort-msg
+              #'project/warn-user-repos
+              {:user
+               {:repositories
+                [["central" {:url "http://repo1.maven.org/maven2/"
+                             :snapshots false}]
+                 ["clojars" {:url "https://clojars.org/repo/"}]]}})))))))
