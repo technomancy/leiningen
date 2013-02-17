@@ -8,6 +8,25 @@
             [clojure.string :as string]
             [bultitude.core :as b]))
 
+(def ^:deprecated exit
+  "Exit the process. Deprecated, use leiningen.core.logger/exit instead."
+  log/exit)
+
+(def ^:deprecated debug
+  "Print if *debug* (from DEBUG environment variable) is truthy.
+  Deprecated, use leiningen.core.logger/debug instead."
+  log/debug)
+
+(def ^:deprecated info
+  "Print unless *info* has been rebound to false.
+  Deprecated, use leiningen.core.logger/info instead."
+  log/info)
+
+(def ^:deprecated abort
+  "Print an error msg to standard err and exit with a value of 1.
+  Deprecated, use leiningen.core.logger/abort instead."
+  log/abort)
+
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
               "überjar" "uberjar",
