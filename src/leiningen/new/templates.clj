@@ -12,7 +12,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.eval :as eval]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [stencil.core :as stencil]))
 
 (defn project-name
@@ -95,7 +95,7 @@ The additional segment defaults to \"core\"."
         (if data
           (render-text (slurp-resource resource) data)
           (io/reader resource))
-        (main/abort (format "Template resource '%s' not found." path))))))
+        (log/abort (format "Template resource '%s' not found." path))))))
 
 ;; Our file-generating function, `->files` is very simple. We'd like
 ;; to keep it that way. Sometimes you need your file paths to be
