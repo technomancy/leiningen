@@ -1,7 +1,7 @@
 (ns leiningen.compile
   "Compile Clojure source into .class files."
   (:require [leiningen.core.eval :as eval]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [bultitude.core :as b]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile])
@@ -122,9 +122,9 @@ Code that should run on startup belongs in a -main defn."
                                 (partial remove #{"compile"}))]
          (try (eval/eval-in-project project form)
               (catch Exception e
-                (main/abort "Compilation failed:" (.getMessage e)))
+                (log/abort "Compilation failed:" (.getMessage e)))
               (finally (clean-non-project-classes project))))
-       (main/debug "All namespaces already AOT compiled.")))
+       (log/debug "All namespaces already AOT compiled.")))
   ([project & namespaces]
      (compile (assoc project :aot (if (= namespaces [":all"])
                                     :all

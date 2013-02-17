@@ -5,6 +5,7 @@
             [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [bultitude.core :as b]
             [clojure.string :as string]
             [clojure.java.io :as io])
@@ -172,7 +173,7 @@ keyword, it's looked up in :profiles before being merged."
     (eval/prep project)
     (let [jar-file (get-jar-filename project classifier)]
       (write-jar project jar-file (filespecs project []))
-      (main/info "Created" (str jar-file))
+      (log/info "Created" (str jar-file))
       jar-file)))
 
 (defn classifier-jars
@@ -205,7 +206,7 @@ With an argument, the jar will be built with an alternate main."
        (eval/prep project)
        (let [jar-file (get-jar-filename project)]
          (write-jar project jar-file (filespecs project []))
-         (main/info "Created" (str jar-file))
+         (log/info "Created" (str jar-file))
          (merge {[:extension "jar"] jar-file}
                 (classifier-jars project)))))
   ([project] (jar project nil)))

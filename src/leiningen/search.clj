@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.user :as user]
-            [leiningen.core.main :as main]
+            [leiningen.core.logger :as log]
             [leiningen.core.project :as project]
             [clj-http.client :as http])
   (:import (org.apache.maven.index IteratorSearchRequest MAVEN NexusIndexer)
@@ -44,7 +44,7 @@
       (disconnect []
         (.close @stream))
       (^java.io.InputStream retrieve [name]
-        (main/debug "Downloading" (str @base-url "/" name))
+        (log/debug "Downloading" (str @base-url "/" name))
         (let [s (:body (http/get (str @base-url "/" name)
                                  {:throw-exceptions false :as :stream}))]
           (deliver stream s)
