@@ -77,8 +77,9 @@
                 summary# (binding [clojure.test/*test-out* *out*]
                            (apply ~'clojure.test/run-tests selected-namespaces#))]
             (spit ".lein-failures" (pr-str @failures#))
-            (when ~*exit-after-tests*
-              (System/exit (+ (:error summary#) (:fail summary#)))))))))
+            (if ~*exit-after-tests*
+              (System/exit (+ (:error summary#) (:fail summary#)))
+              (+ (:error summary#) (:fail summary#))))))))
 
 (defn- split-selectors [args]
   (let [[nses selectors] (split-with (complement keyword?) args)]
@@ -171,6 +172,8 @@ specified test. A default :all test-selector is available to run all tests."
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
           form (form-for-testing-namespaces nses nil (vec selectors))]
-      (try (eval/eval-in-project project form '(require 'clojure.test))
+      (try (when-let [n (eval/eval-in-project project form '(require 'clojure.test))]
+             (when (pos? n)
+               (throw (ex-info "Tests Failed" {:exit-code n}))))
            (catch clojure.lang.ExceptionInfo e
              (log/abort "Tests failed."))))))
