@@ -227,4 +227,6 @@
                      (for [dep (resolve-dependencies :dependencies project)]
                        (.getAbsolutePath dep)))
         :when path]
-    (normalize-path (:root project) path)))
+    (let [normalized (normalize-path (:root project) path)]
+      (log/debug "classpath:" normalized)
+      normalized)))
