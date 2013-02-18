@@ -125,6 +125,11 @@ deploying, mixed-source, templates, and copying info."
      (doseq [task-ns (main/tasks)]
        (println (help-summary-for task-ns)))
      (println "\nRun `lein help $TASK` for details.")
+     (println "\nGlobal Options:")
+     (println "  -o             Run a task offline.")
+     (println "  -U             Run a task after forcing update of snapshots.")
+     (println "  -h, --help     Print this help.")
+     (println "  -v, --version  Print Leiningen's version.")
      (when-let [aliases (:aliases project)]
        (println "\nAliases:")
        (doseq [[k v] aliases]
