@@ -19,7 +19,7 @@
   (is (= (name-to-path "foo-bar.baz") "foo_bar/baz")))
 
 (deftest renderers
-  (is (= (abort-msg (renderer "my-template") "boom" {})
-         "Template resource 'leiningen/new/my_template/boom' not found.\n"))
-  (is (= (abort-msg (renderer "my-template") "boom")
-         "Template resource 'leiningen/new/my_template/boom' not found.\n")))
+  (is (.contains (abort-msg (renderer "my-template") "boom" {})
+                 "ERROR: Template resource 'leiningen/new/my_template/boom' not found.\n"))
+  (is (.contains (abort-msg (renderer "my-template") "boom")
+                 "ERROR: Template resource 'leiningen/new/my_template/boom' not found.\n")))
