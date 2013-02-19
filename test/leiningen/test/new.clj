@@ -48,7 +48,7 @@
 
 (deftest test-new-with-nonexistent-template
   (is (re-find
-       #"^Could not find template zzz"
+       #"ERROR: Could not find template zzz"
        (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
          (abort-msg leiningen.new/new nil "zzz" "my-zzz")))))
 
