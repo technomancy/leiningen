@@ -39,7 +39,7 @@ that you don't want committed in version control.
 Global profiles can also be specified in `~/.lein/profiles.clj` and in
 `clj`-files within `~/.lein/profiles.d`. These will be available in all projects
 managed by Leiningen, though those profiles will be overridden by profiles of
-the same name in the specified in the project. Defining the same global profile
+the same name specified in the project. Defining the same global profile
 in multiple different files is considered an error.
 
 The `:user` profile is separate from `:dev`; the latter is intended to be
