@@ -45,13 +45,13 @@
      (cond
       (and (re-find #"(?i)(?<!(clo|compo))jure" name)
            (not (System/getenv "LEIN_IRONIC_JURE")))
-      (log/abort 
+      (log/abort
         "Sorry, names based on non-ironic *jure puns are not allowed.\n"
         "If you intend to use this name ironically, please set the"
         "LEIN_IRONIC_JURE environment variable and try again.")
       (and (re-find #"[A-Z]" name)
            (not (System/getenv "LEIN_BREAK_CONVENTION")))
-      (log/abort 
+      (log/abort
         "Project names containing uppercase letters are not recommended"
         "and will be rejected by repositories like Clojars and Central.\n"
         "If you're truly unable to use a lowercase name, please set the"
@@ -118,7 +118,7 @@ party template --- lein will automatically fetch it for you.
 Use `lein new $TEMPLATE :show` to see details about a given template.
 
 To create a new template of your own, see the documentation for the
-lein-newnew Leiningin plug-in."
+lein-new Leiningen plug-in."
 
   [project & args]
   (binding [*project* project]

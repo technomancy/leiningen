@@ -112,7 +112,7 @@ the scope of this tutorial you can
 
 ## project.clj
 
-Your `project.clj` file will start off looking something like the this:
+Your `project.clj` file will start off looking something like this:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
