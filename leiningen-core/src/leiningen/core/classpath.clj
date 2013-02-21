@@ -4,7 +4,6 @@
             [cemerick.pomegranate :as pomegranate]
             [clojure.java.io :as io]
             [clojure.string :as str]
-            [leiningen.core.logger :as log]
             [leiningen.core.user :as user])
   (:import (java.util.jar JarFile)
            (java.net URL)
@@ -20,8 +19,8 @@
         (try ((resolve 'leiningen.core.project/read) project [])
              (catch Exception e
                (throw (Exception. (format "Problem loading %s" project) e)))))
-      (log/warn
-       "ignoring checkouts directory" dep
+      (println
+       "WARN ignoring checkouts directory" dep
        "as it does not contain a project.clj file."))))
 
 (defn- checkout-dep-paths [project dep-project]
@@ -227,6 +226,4 @@
                      (for [dep (resolve-dependencies :dependencies project)]
                        (.getAbsolutePath dep)))
         :when path]
-    (let [normalized (normalize-path (:root project) path)]
-      (log/debug "classpath:" normalized)
-      normalized)))
+    (normalize-path (:root project) path)))

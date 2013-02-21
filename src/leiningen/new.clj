@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [new list])
   (:use [leiningen.new.templates :only [*dir*]])
   (:require [bultitude.core :as bultitude]
-            [leiningen.core.logger :as log])
+            [leiningen.core.main :refer [abort]])
   (:import java.io.FileNotFoundException))
 
 (defn- fake-project [name]
@@ -25,7 +25,7 @@
              (catch FileNotFoundException _
                (resolve-remote-template name sym)))
       (resolve (symbol (str sym "/" name)))
-      (log/abort "Could not find template" name "on the classpath."))))
+      (abort "Could not find template" name "on the classpath."))))
 
 ;; A lein-newnew template is actually just a function that generates files and
 ;; directories. We have a bit of convention: we expect that each template is on
@@ -45,19 +45,17 @@
      (cond
       (and (re-find #"(?i)(?<!(clo|compo))jure" name)
            (not (System/getenv "LEIN_IRONIC_JURE")))
-      (log/abort
-        "Sorry, names based on non-ironic *jure puns are not allowed.\n"
-        "If you intend to use this name ironically, please set the"
-        "LEIN_IRONIC_JURE environment variable and try again.")
+      (abort "Sorry, names based on non-ironic *jure puns are not allowed."
+             "\nIf you intend to use this name ironically, please set the"
+             "\nLEIN_IRONIC_JURE environment variable and try again.")
       (and (re-find #"[A-Z]" name)
            (not (System/getenv "LEIN_BREAK_CONVENTION")))
-      (log/abort
-        "Project names containing uppercase letters are not recommended"
-        "and will be rejected by repositories like Clojars and Central.\n"
-        "If you're truly unable to use a lowercase name, please set the"
-        "LEIN_BREAK_CONVENTION environment variable and try again.")
+      (abort "Project names containing uppercase letters are not recommended"
+             "\nand will be rejected by repositories like Clojars and Central."
+             "\nIf you're truly unable to use a lowercase name, please set the"
+             "\nLEIN_BREAK_CONVENTION environment variable and try again.")
       (not (symbol? (try (read-string name) (catch Exception _))))
-      (log/abort "Project names must be valid Clojure symbols.")
+      (abort "Project names must be valid Clojure symbols.")
       :else (apply (resolve-template template) name args))))
 
 ;; Since we have our convention of templates always being at
