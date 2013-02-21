@@ -144,8 +144,13 @@
    within :without-profiles) to avoid recursive alias calls."
   [project alias]
   (-> project
-      (update-in [:aliases] dissoc alias)
-      (vary-meta update-in [:without-profiles :aliases] dissoc alias)))
+      (update-in [:aliases] #(if (map? %) (dissoc % alias) %))
+      (vary-meta update-in [:without-profiles :aliases] dissoc alias)
+      (vary-meta update-in [:profiles]
+                 #(zipmap
+                   (keys %)
+                   (map (fn [p] (if (map? p) (remove-alias p alias) p))
+                        (vals %))))))
 
 (defn apply-task
   "Resolve task-name to a function and apply project and args if arity matches."

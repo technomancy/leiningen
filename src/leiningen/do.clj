@@ -22,4 +22,4 @@ Each comma-separated group should be a task name followed by optional arguments.
 USAGE: lein do test, compile :all, deploy private-repo"
   [project & args]
   (doseq [[task-name & args] (group-args args)]
-    (main/apply-task (main/lookup-alias task-name project) project args)))
+    (main/apply-task task-name project args)))
