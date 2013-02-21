@@ -4,11 +4,13 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [bultitude "0.1.7"]
+                 [bultitude "0.1.7" :exclusions [dynapath]]
                  [classlojure "0.6.6"]
                  [useful "0.8.6"]
                  [robert/hooke "1.3.0"]
-                 [com.cemerick/pomegranate "0.0.14-SNAPSHOT"]]
+                 [com.cemerick/pomegranate "0.0.14-SNAPSHOT" :exclusions [org.tcrawley/dynapath]]
+                 ;; depend on this directly until pomegranate upgrades
+                 [org.tcrawley/dynapath "0.2.3"]]
   ;; until the pomegratate snapshot is released:
   :repositories [["sonatype"
                   "https://oss.sonatype.org/content/repositories/snapshots/"]]
