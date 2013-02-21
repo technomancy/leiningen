@@ -20,6 +20,6 @@
 
 (deftest renderers
   (is (.contains (abort-msg (renderer "my-template") "boom" {})
-                 "ERROR: Template resource 'leiningen/new/my_template/boom' not found.\n"))
+                 "Template resource 'leiningen/new/my_template/boom' not found.\n"))
   (is (.contains (abort-msg (renderer "my-template") "boom")
-                 "ERROR: Template resource 'leiningen/new/my_template/boom' not found.\n")))
+                 "Template resource 'leiningen/new/my_template/boom' not found.\n")))

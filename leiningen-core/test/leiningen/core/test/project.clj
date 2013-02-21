@@ -441,7 +441,7 @@
             "No warning in base case"))
       (testing "Warning with user level repo"
         (is (re-find
-             #"WARNING: :repositories .* [:user].*"
+             #":repositories .* [:user].*"
              (abort-msg
               #'project/warn-user-repos
               {:user {:repositories
@@ -450,7 +450,7 @@
                        "clojars" {:url "https://clojars.org/repo/"}}}}))))
       (testing "Warning with user level repo"
         (is (re-find
-             #"WARNING: :repositories .* [:user].*"
+             #":repositories .* [:user].*"
              (abort-msg
               #'project/warn-user-repos
               {:user {:repositories
@@ -458,7 +458,7 @@
                        "clojars" "https://clojars.org/repo/"}}}))))
       (testing "Warning with user level repo"
         (is (re-find
-             #"WARNING: :repositories .* [:user].*"
+             #":repositories .* [:user].*"
              (abort-msg
               #'project/warn-user-repos
               {:user
