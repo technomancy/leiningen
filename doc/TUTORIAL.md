@@ -1,30 +1,30 @@
 # Tutorial
 
-## What is Leiningen
+Leiningen is for automating Clojure projects without setting your hair on fire.
 
-Leiningen is a tool for automating Clojure projects without setting your hair on fire.
-
-It manages various project-related tasks, and can:
+It offers various project-related tasks and can:
 
  * create new projects
- * manage dependencies for your project
+ * fetch dependencies for your project
  * run tests
- * run a REPL (without you having to worry about adding dependencies to the classpath)
+ * run a fully-configured REPL
  * compile Java sources (if any)
- * run the project (if the project is an app)
- * generate a maven-style "pom" file for the project
+ * run the project (if the project isn't a library)
+ * generate a maven-style "pom" file for the project for interop
  * compile and package projects for deployment
- * publish libraries to maven artifact repositories such as [Clojars](http://clojars.org)
+ * publish libraries to repositories such as [Clojars](http://clojars.org)
  * run custom automation tasks written in Clojure (leiningen plug-ins)
 
-If you come from the Java world, Leiningen is "Maven meets Ant without the pain". For Ruby and Python
-folks, Leiningen combines RubyGems/Bundler/Rake and pip/Fabric in a single tool.
+If you come from the Java world, Leiningen could be thought of as
+"Maven meets Ant without the pain". For Ruby and Python folks,
+Leiningen combines RubyGems/Bundler/Rake and pip/Fabric in a single
+tool.
 
 
 ## What This Tutorial Covers
 
-This tutorial will briefly cover project structure, dependency management, running tests,
-the REPL, and topics related to deployment.
+This tutorial will briefly cover project structure, dependency
+management, running tests, the REPL, and topics related to deployment.
 
 For those of you new to the JVM who have never touched Ant or Maven in
 anger: don't panic. Leiningen is designed with you in mind. This
@@ -35,16 +35,17 @@ project automation and JVM-land dependency management.
 ## Getting Help
 
 Also keep in mind that Leiningen ships with fairly comprehensive help;
-`lein help` gives a list of tasks while `lein help task` provides
+`lein help` gives a list of tasks while `lein help $TASK` provides
 details. Further documentation such as the readme, sample
 configuration, and even this tutorial are also provided.
 
 
 ## Leiningen Projects
 
-Leiningen works with *projects*. A project is a directory containing a group of Clojure (and, possibly, Java)
-source files, along with a bit of metadata about them. The metadata is stored in a file named
-`project.clj` (by convention) in the project's root directory. The `project.clj` file is how you tell
+Leiningen works with *projects*. A project is a directory containing a
+group of Clojure (and possibly Java) source files, along with a bit of
+metadata about them. The metadata is stored in a file named
+`project.clj` in the project's root directory, which is how you tell
 Leiningen about things like
 
  * Project name
@@ -56,10 +57,10 @@ Leiningen about things like
 
 and more.
 
-Most Leiningen tasks only make sense in the context of a project. Some (for example, `lein repl`)
-can also work globally, from any directory.
+Most Leiningen tasks only make sense in the context of a project. Some
+(for example, `repl` or `help`) can also from any directory.
 
-Next lets take a look at how projects are created.
+Next let's take a look at how projects are created.
 
 ## Creating a Project
 
@@ -86,15 +87,17 @@ Generating a new project is easy:
     ./test/my_stuff
     ./test/my_stuff/core_test.clj
 
+In this example we're using the `app` template, which is intended for
+an application project rather than a library. Omitting the `app`
+argument will use the `default` template, which is suitable for
+libraries.
+
 ### Directory Layout
 
 Here we've got your project's README, a `src/` directory containing the
 code, a `test/` directory, and a `project.clj` file which describes your
 project to Leiningen. The `src/my_stuff/core.clj` file corresponds to
 the `my-stuff.core` namespace.
-
-Even though most pure Clojure projects never need to customize directory layout,
-it is possible with Leiningen.
 
 ### Filename-to-Namespace Mapping Convention
 
@@ -104,12 +107,12 @@ namespaces with dashes in the name will have the corresponding file
 named with underscores instead since the JVM has trouble loading files
 with dashes in the name. The intricacies of namespaces are a common
 source of confusion for newcomers, and while they are mostly outside
-the scope of this tutorial, you can
+the scope of this tutorial you can
 [read up on them elsewhere](http://blog.8thlight.com/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
 
 ## project.clj
 
-An app project.clj file will start off looking something like the this:
+Your `project.clj` file will start off looking something like the this:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
@@ -124,7 +127,7 @@ An app project.clj file will start off looking something like the this:
 If you don't fill in the `:description` with a short sentence, your
 project will be harder to find in search results, so start there. Be
 sure to fix the `:url` as well. At some point you'll need to flesh out
-the README too, but for now let's skip ahead to setting
+the `README.md` file too, but for now let's skip ahead to setting
 `:dependencies`. Note that Clojure is just another dependency here.
 Unlike most languages, it's easy to swap out any version of Clojure.
 
@@ -133,9 +136,9 @@ Unlike most languages, it's easy to swap out any version of Clojure.
 ### Overview
 
 Clojure is a hosted language and Clojure libraries are distributed the same
-way as in other JVM languages: as JARs.
+way as in other JVM languages: as jar files.
 
-JARs (`.jar` files) are basically just `.zip` files with a little extra JVM-specific
+Jar files are basically just `.zip` files with a little extra JVM-specific
 metadata. They usually contain `.class` files (JVM bytecode) and `.clj` source
 files, but they can also contain other things like config
 files, JavaScript files or text files with static data.
@@ -145,8 +148,9 @@ Published JVM libraries have *identifiers* (artifact group, artifact id) and
 
 ### Artifact IDs, Groups, and Versions
 
-You can [search Clojars](http://clojars.org/search?q=clj-http) using its
-web interface. On the page for `clj-http` it shows this:
+You can [search Clojars](http://clojars.org/search?q=clj-http) using
+its web interface or via `lein search $TERM`. On the page for
+`clj-http` it shows this:
 
     [clj-http "0.5.5"]
 
@@ -192,17 +196,17 @@ and `:import` clauses.
 
 ### Repositories
 
-Dependencies are stored in a *maven repository* (or, more formally, "maven
-artifact repository", or just "repository" if there's little chance of
-ambiguity).
-If you are familiar with Perl's CPAN, Python's Cheeseshop (aka PyPi), Ruby's rubygems.org,
-or Node.js's NPM, it's the same thing.
-Leiningen reuses existing JVM repositories infrastructure. There
-are several popular open source repositories. Leiningen by default will use two of them: [clojars.org](http://clojars.org)
-and [Maven Central](http://search.maven.org/).
+Dependencies are stored in *artifact repositories*. If you are
+familiar with Perl's CPAN, Python's Cheeseshop (aka PyPi), Ruby's
+rubygems.org, or Node.js's NPM, it's the same thing. Leiningen reuses
+existing JVM repository infrastructure. There are several popular
+open source repositories. Leiningen by default will use two of them:
+[clojars.org](http://clojars.org) and
+[Maven Central](http://search.maven.org/).
 
-[Clojars](https://clojars.org/) is the Clojure community's centralized maven repository,
-while [Central](http://search.maven.org/) is for the wider JVM community.
+[Clojars](https://clojars.org/) is the Clojure community's centralized
+maven repository, while [Central](http://search.maven.org/) is for the
+wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
@@ -326,7 +330,7 @@ offers more thorough examples from the
                               (take 5 (range))))))
       #'user/*map*
       user=> *map*
-      {:e {:e 4, :d 3, :c 2, :b 1, :a 0}, :d {:e 4, :d 3, :c 2, :b 1, :a 0}, :c {:e 4, :d 3, :c 2, :b 1, :a 0}, :b {:e 4, :d 3, :c 2, :b 1, :a 0}, :a {:e 4, :d 3, :c 2, :b 1, :a 0}}
+      {:e {:e 4, :d 3, :c 2, :b 1, :a 0}, :d {:e 4, :d 3, :c 2, :b 1, [...]}}
 
       user=> (clojure.pprint/pprint *map*)
       {:e {:e 4, :d 3, :c 2, :b 1, :a 0},
@@ -412,19 +416,23 @@ of Leiningen projects:
 * A server-side application
 * A library for other Clojure projects to consume
 
-For the first, you typically build an uberjar. For libraries,
-you will want to have them published to a repository like Clojars or a
-private repository. For server-side applications it varies as
-described below. Generating a project with `lein new app myapp` will
-start you out with a few extra defaults suitable for non-library projects.
+For the first, you typically build an uberjar. For libraries, you will
+want to have them published to a repository like Clojars or a private
+repository. For server-side applications it varies as described below.
+Generating a project with `lein new app myapp` will start you out with
+a few extra defaults suitable for non-library projects, or you can
+browse the
+[available templates on Clojars](https://clojars.org/search?q=lein-template)
+for things like specific web technologies or other project types.
 
 ### Uberjar
 
 The simplest thing to do is to distribute an uberjar. This is a single
 standalone executable jar file most suitable for giving to
 nontechnical users. For this to work you'll need to specify a
-namespace as your `:main` in `project.clj`. By this point our
-`project.clj` file should look like this:
+namespace as your `:main` in `project.clj` and ensure it's also AOT
+compiled by adding it to `:aot`. By this point our `project.clj` file
+should look like this:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
@@ -435,11 +443,12 @@ namespace as your `:main` in `project.clj`. By this point our
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.apache.lucene/lucene-core "3.0.2"]
                  [clj-http "0.4.1"]]
-  :profiles {:dev {:dependencies [[midje "1.3.1"]]}}
+  :profiles {:dev {:dependencies [[ring/ring-devel "1.2.0"]]}}
   :test-selectors {:default (complement :integration)
                   :integration :integration
                   :all (fn [_] true)}
-  :main my.stuff)
+  :main my.stuff
+  :aot [my.stuff])
 ```
 
 The namespace you specify will need to contain a `-main` function that
@@ -551,8 +560,8 @@ project's full test suite, and if it passes, upload a tarball to S3.
 Then deployment is just a matter of pulling down and extracting the
 known-good tarball on your production servers.
 
-Also remember that the `run` task defaults to including the `user`, `dev`,
-and `default` profiles, which are not suitable for production. Using
+Also remember that the `user`, `dev`, and `default` profiles are
+included by default, which is not suitable for production. Using
 `lein trampoline with-profile production run -m myapp.main` is
 recommended. By default the production profile is empty, but if your
 deployment includes the `~/.m2/repository` directory from the CI run
