@@ -104,13 +104,14 @@
       (map first (filter #(= min (second %)) suggestions)))))
 
 (defn ^:no-project-needed task-not-found [task & _]
-  (println (str "'" task "' is not a task. See 'lein help'."))
-  (when-let [suggestions (suggestions task (tasks))]
-    (println)
-    (println "Did you mean this?")
-    (doseq [suggestion suggestions]
-      (println "        " suggestion)))
-  (log/abort))
+  (binding [*out* *err*]
+    (println (str "'" task "' is not a task. See 'lein help'."))
+    (when-let [suggestions (suggestions task (tasks))]
+      (println)
+      (println "Did you mean this?")
+      (doseq [suggestion suggestions]
+        (println "        " suggestion))))
+  (throw (ex-info "Task not found" {:exit-code 1 :suppress-msg true})))
 
 ;; TODO: got to be a cleaner way to do this, right?
 (defn- drop-partial-args [pargs]
@@ -242,6 +243,7 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (catch Exception e
       (if (or log/*debug* (not (:exit-code (ex-data e))))
         (.printStackTrace e)
-        (println (.getMessage e)))
+        (when-not (:suppress-msg (ex-data e))
+          (println (.getMessage e))))
       (log/exit (:exit-code (ex-data e) 1))))
   (log/exit 0))
