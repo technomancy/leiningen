@@ -222,12 +222,13 @@
 
 (defn make
   ([project project-name version root]
-     (make (assoc project
-             :name (name project-name)
-             :group (or (namespace project-name)
-                        (name project-name))
-             :version version
-             :root root)))
+     (make (with-meta (assoc project
+                        :name (name project-name)
+                        :group (or (namespace project-name)
+                                   (name project-name))
+                        :version version
+                        :root root)
+             (meta project))))
   ([project]
      (let [repos (if (:omit-default-repositories project)
                    (do (log/warn
@@ -235,24 +236,26 @@
                           "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
-       (meta-merge
-        {:repositories repos
-         :plugin-repositories repos
-         :deploy-repositories deploy-repositories
-         :plugins empty-dependencies
-         :dependencies empty-dependencies
-         :source-paths empty-paths
-         :resource-paths empty-paths
-         :test-paths empty-paths}
-        (-> (merge defaults project)
-            (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
-                                 (:jvm-opts defaults)))
-            (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
-            (assoc :eval-in (or (:eval-in project)
-                                (if (:eval-in-leiningen project)
-                                  :leiningen, :subprocess))
-                   :offline? (not (nil? (System/getenv "LEIN_OFFLINE"))))
-            (normalize-values))))))
+       (with-meta
+         (meta-merge
+          {:repositories repos
+           :plugin-repositories repos
+           :deploy-repositories deploy-repositories
+           :plugins empty-dependencies
+           :dependencies empty-dependencies
+           :source-paths empty-paths
+           :resource-paths empty-paths
+           :test-paths empty-paths}
+          (-> (merge defaults project)
+              (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
+                                   (:jvm-opts defaults)))
+              (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
+              (assoc :eval-in (or (:eval-in project)
+                                  (if (:eval-in-leiningen project)
+                                    :leiningen, :subprocess))
+                     :offline? (not (nil? (System/getenv "LEIN_OFFLINE"))))
+              (normalize-values)))
+         (meta project)))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
@@ -501,12 +504,25 @@
     (load-certificates)
     (load-hooks)))
 
+(defn project-with-profiles-meta [project profiles]
+
+  ;;; should this dissoc :default?
+  ;; (vary-meta project assoc :profiles (dissoc profiles :default))
+  (vary-meta project assoc
+             :profiles profiles))
+
+
+(defn project-with-profiles [project]
+  (project-with-profiles-meta project (read-profiles project)))
+
 (defn ^:internal init-profiles
   "Compute a fresh version of the project map, including and excluding the
   specified profiles."
   [project include-profiles & [exclude-profiles]]
-  (let [project (:without-profiles (meta project) project)
-        profile-map (apply dissoc (read-profiles project) exclude-profiles)
+  (let [project (with-meta
+                  (:without-profiles (meta project) project)
+                  (meta project))
+        profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
         profiles (map (partial lookup-profile profile-map) include-profiles)
         normalized-profiles (map normalize-values profiles)]
     (-> project
@@ -589,6 +605,6 @@
            (throw (Exception. "project.clj must define project map.")))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (init-profiles @project profiles))))
+         (init-profiles (project-with-profiles @project) profiles))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))

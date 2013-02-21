@@ -19,13 +19,13 @@
         prefixes (map first profiles)]
     (cond
      (every? #{\+ \-} prefixes)
-     (reduce
-      (fn [result profile]
-        (if (= \+ (first profile))
-          (concat result [(keyword (subs profile 1))])
-          (remove #(= (keyword (subs profile 1)) %) result)))
-      (:active-profiles (meta project))
-      profiles)
+     (distinct (reduce
+                (fn [result profile]
+                  (if (= \+ (first profile))
+                    (concat result [(keyword (subs profile 1))])
+                    (remove #(= (keyword (subs profile 1)) %) result)))
+                (:active-profiles (meta project))
+                profiles))
 
      (not-any? #{\+ \-} prefixes)
      (map keyword profiles)
