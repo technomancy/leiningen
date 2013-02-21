@@ -9,7 +9,6 @@
             [leiningen.core.utils :as utils]
             [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
-            [leiningen.core.logger :as log]
             [leiningen.core.classpath :as classpath]
             [useful.fn :refer [fix]]
             [useful.seq :refer [update-first find-first]]
@@ -231,9 +230,9 @@
              (meta project))))
   ([project]
      (let [repos (if (:omit-default-repositories project)
-                   (do (log/warn
-                          ":omit-default-repositories is deprecated.\n"
-                          "use :repositories ^:replace [...] instead.")
+                   (do (println "WARNING:"
+                                ":omit-default-repositories is deprecated;"
+                                "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
        (with-meta
@@ -370,7 +369,7 @@
   (cond (keyword? profile)
         (let [result (get profiles profile)]
           (when-not (or result (#{:provided :dev :user :test :production} profile))
-            (log/warn "profile" profile "not found."))
+            (println "Warning: profile" profile "not found."))
           (vary-meta (lookup-profile profiles result)
                      update-in [:active-profiles] (fnil conj []) profile))
 
@@ -389,16 +388,15 @@
                          profiles)]
     (when (and (seq profiles)
                (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
-      (log/warn
-       ":repositories detected in user-level profiles!"
-       (vec (map first profiles))
-       "\nSee https://github.com/technomancy/leiningen/wiki/Repeatability"))))
+      (println ":repositories detected in user-level profiles!"
+               (vec (map first profiles)) "\nSee"
+               "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
 
 (alter-var-root #'warn-user-repos memoize)
 
 (defn- warn-user-profile [profiles]
   (when (contains? profiles :user)
-    (log/warn "user-level profile defined in project files.")))
+    (println "WARNING: user-level profile defined in project files.")))
 
 (alter-var-root #'warn-user-profile memoize)
 

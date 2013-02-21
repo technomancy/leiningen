@@ -4,7 +4,7 @@
   (:require [clojure.java.io :as io]
             [bultitude.core :as b]
             [leiningen.core.eval :as eval]
-            [leiningen.core.logger :as log]
+            [leiningen.core.main :as main]
             [leiningen.core.project :as project])
   (:import (java.io File PushbackReader)))
 
@@ -136,7 +136,7 @@
                     selectors)]
     (when (and (empty? selectors)
                (seq given-selectors))
-      (log/abort "Please specify :test-selectors in project.clj"))
+      (main/abort "Please specify :test-selectors in project.clj"))
     [nses selectors]))
 
 (defn test
@@ -163,9 +163,9 @@ A default :only test-selector is available to run select tests. For example,
 `lein test :only leiningen.test.test/test-default-selector` only runs the
 specified test. A default :all test-selector is available to run all tests."
   [project & tests]
-  (binding [log/*exit-process?* (if (= :leiningen (:eval-in project))
+  (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
                                    false
-                                   log/*exit-process?*)
+                                   main/*exit-process?*)
             *exit-after-tests* (if (= :leiningen (:eval-in project))
                                    false
                                    *exit-after-tests*)]
@@ -176,4 +176,4 @@ specified test. A default :all test-selector is available to run all tests."
              (when (pos? n)
                (throw (ex-info "Tests Failed" {:exit-code n}))))
            (catch clojure.lang.ExceptionInfo e
-             (log/abort "Tests failed."))))))
+             (main/abort "Tests failed."))))))

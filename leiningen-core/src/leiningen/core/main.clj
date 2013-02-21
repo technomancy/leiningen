@@ -3,29 +3,46 @@
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils]
-            [leiningen.core.logger :as log]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [bultitude.core :as b]))
 
-(def ^:deprecated exit
-  "Exit the process. Deprecated, use leiningen.core.logger/exit instead."
-  log/exit)
+(def ^:dynamic *debug* (System/getenv "DEBUG"))
 
-(def ^:deprecated debug
-  "Print if *debug* (from DEBUG environment variable) is truthy.
-  Deprecated, use leiningen.core.logger/debug instead."
-  log/debug)
+(defn debug
+  "Print if *debug* (from DEBUG environment variable) is truthy."
+  [& args]
+  (when *debug* (apply println args)))
 
-(def ^:deprecated info
-  "Print unless *info* has been rebound to false.
-  Deprecated, use leiningen.core.logger/info instead."
-  log/info)
+(def ^:dynamic *info* true)
 
-(def ^:deprecated abort
-  "Print an error msg to standard err and exit with a value of 1.
-  Deprecated, use leiningen.core.logger/abort instead."
-  log/abort)
+(defn info
+  "Print unless *info* has been rebound to false."
+  [& args]
+  (when *info* (apply println args)))
+
+(def ^:dynamic *exit-process?*
+  "Bind to false to suppress process termination." true)
+
+(defn exit
+  "Exit the process. Rebind *exit-process?* in order to suppress actual process
+  exits for tools which may want to continue operating. Never call
+  System/exit directly in Leiningen's own process."
+  ([exit-code]
+     (if *exit-process?*
+       (do (shutdown-agents)
+           (System/exit exit-code))
+       (throw (ex-info "Suppressed exit" {:exit-code exit-code}))))
+  ([] (exit 0)))
+
+(defn abort
+  "Print msg to standard err and exit with a value of 1.
+  Will not directly exit under some circumstances; see *exit-process?*."
+  [& msg]
+  (binding [*out* *err*]
+    (when (seq msg)
+      (apply println msg))
+    (exit 1)))
 
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
@@ -63,6 +80,43 @@
   (if (= "help" (aliases (second args)))
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
+
+(def ^:dynamic *debug* (System/getenv "DEBUG"))
+
+(defn debug
+  "Print if *debug* (from DEBUG environment variable) is truthy."
+  [& args]
+  (when *debug* (apply println args)))
+
+(def ^:dynamic *info* true)
+
+(defn info
+  "Print unless *info* has been rebound to false."
+  [& args]
+  (when *info* (apply println args)))
+
+(def ^:dynamic *exit-process?*
+  "Bind to false to suppress process termination." true)
+
+(defn exit
+  "Exit the process. Rebind *exit-process?* in order to suppress actual process
+  exits for tools which may want to continue operating. Never call
+  System/exit directly in Leiningen's own process."
+  ([exit-code]
+     (if *exit-process?*
+       (do (shutdown-agents)
+           (System/exit exit-code))
+       (throw (ex-info "Suppressed exit" {:exit-code exit-code}))))
+  ([] (exit 0)))
+
+(defn abort
+  "Print msg to standard err and exit with a value of 1.
+  Will not directly exit under some circumstances; see *exit-process?*."
+  [& msg]
+  (binding [*out* *err*]
+    (when (seq msg)
+      (apply println msg))
+    (exit 1)))
 
 (defn- distance [s t]
   (letfn [(iters [n f start]
@@ -161,12 +215,12 @@
                                            (or task-alias task-name)))
         task (resolve-task task-name)]
     (when-not (or project (:no-project-needed (meta task)))
-      (log/abort "Couldn't find project.clj, which is needed for" task-name))
+      (abort "Couldn't find project.clj, which is needed for" task-name))
     (when-not (matching-arity? task args)
-      (log/abort 
-        "Wrong number of arguments to" task-name "task.\n"
-        "Expected" (string/join " or " (map next (:arglists (meta task))))))
-    (log/debug "Applying task" task-name "to" args)
+      (abort "Wrong number of arguments to" task-name "task."
+             "\nExpected" (string/join " or " (map next (:arglists
+                                                         (meta task))))))
+    (debug "Applying task" task-name "to" args)
     (apply task project args)))
 
 (defn leiningen-version []
@@ -183,7 +237,7 @@
             (< seg1 seg2) false))))
 
 (def ^:private min-version-warning
-  "This project requires Leiningen %s, but you have %s ***
+  "*** Warning: This project requires Leiningen %s, but you have %s ***
 
 Get the latest version of Leiningen at http://leiningen.org or by executing
 \"lein upgrade\".")
@@ -191,16 +245,14 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
 (defn- verify-min-version
   [{:keys [min-lein-version]}]
   (when-not (version-satisfies? (leiningen-version) min-lein-version)
-    (log/info (format min-version-warning min-lein-version (leiningen-version)))))
+    (info (format min-version-warning min-lein-version (leiningen-version)))))
 
 (defn- warn-chaining [task-name args]
   (when (and (some #(.endsWith (str %) ",") (cons task-name args))
              (not-any? #(= % "do") (cons task-name args)))
-    (log/warn 
-      "task chaining has been moved to the \"do\" task. \n"
-      "For example, \"lein javac, test\" should now be called"
-      "as \"lein do javac, test\"\n"
-      "See `lein help do` for details.")))
+    (println "WARNING: task chaining has been moved to the \"do\" task. For example,")
+    (println "\"lein javac, test\" should now be called as \"lein do javac, test\" ")
+    (println "See `lein help do` for details.")))
 
 (defn user-agent []
   (format "Leiningen/%s (Java %s; %s %s; %s)"
@@ -241,9 +293,9 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
       (warn-chaining task-name args)
       (apply-task task-name project args))
     (catch Exception e
-      (if (or log/*debug* (not (:exit-code (ex-data e))))
+      (if (or *debug* (not (:exit-code (ex-data e))))
         (.printStackTrace e)
         (when-not (:suppress-msg (ex-data e))
           (println (.getMessage e))))
-      (log/exit (:exit-code (ex-data e) 1))))
-  (log/exit 0))
+      (exit (:exit-code (ex-data e) 1))))
+  (exit 0))

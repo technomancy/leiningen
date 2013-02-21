@@ -5,7 +5,7 @@
             [clojure.java.io :as io]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project]
-            [leiningen.core.logger :as log]
+            [leiningen.core.main :as main]
             [leiningen.jar :as jar])
   (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
            (java.io File FileOutputStream PrintWriter)))
@@ -42,7 +42,7 @@
 ;; skip duplicates.  We also collect together all the plexus components so
 ;; that we can merge them.
 (defn- include-dep [out skip-pred [skip-set components] dep]
-  (log/info "Including" (.getName dep))
+  (main/info "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
     [(into skip-set (copy-entries zipfile out skip-set skip-pred))
      (concat components (read-components zipfile))]))
@@ -80,7 +80,7 @@ as well as defining a -main function."
                               concat (:uberjar-inclusions project))]
        (try (jar/jar project main)
             (catch Exception e
-              (log/abort "Uberjar aborting because jar/compilation failed:"
+              (main/abort "Uberjar aborting because jar/compilation failed:"
                           (.getMessage e)))))
      (let [standalone-filename (jar/get-jar-filename project :standalone)]
          (with-open [out (-> standalone-filename
@@ -93,6 +93,6 @@ as well as defining a -main function."
                            (filter #(.endsWith (.getName %) ".jar")))
                  jars (cons (io/file (jar/get-jar-filename project)) deps)]
              (write-components project jars out)))
-         (log/info "Created" standalone-filename)
+         (main/info "Created" standalone-filename)
          standalone-filename))
   ([project] (uberjar project nil)))

@@ -6,7 +6,7 @@
         [leiningen.test.helper :only [sample-project]])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
-            [leiningen.core.logger :as log]))
+            [leiningen.core.main :as main]))
 
 (use-fixtures :once (fn [f]
                       (with-redefs [user/profiles (constantly {})]
@@ -294,7 +294,7 @@
 
 
 (deftest test-snapshot-checking
-  (binding [log/*exit-process?* false]
+  (binding [main/*exit-process?* false]
     (let [project (vary-meta sample-project update-in [:without-profiles] assoc
                              :version "1.0"
                              :dependencies [['clojure "1.0.0-SNAPSHOT"]])]
