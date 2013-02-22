@@ -136,7 +136,6 @@
    :target-path "target"
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
-   :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]
    :certificates ["clojars.pem"]
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
    :test-selectors {:default '(constantly true)}})
@@ -312,6 +311,7 @@
   profiles are active by default."
   (atom {:default [:base :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
+                :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]
                 :checkout-deps-shares [:source-paths
                                        :resource-paths
                                        :compile-path]}
