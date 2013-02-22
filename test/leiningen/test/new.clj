@@ -6,7 +6,7 @@
 
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
-  (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+  (is (= #{"README.md" "project.clj" "resources" "src" "core.clj" "test"
            "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-proj")))))))
   (delete-file-recursively (file "test-new-proj") :silently))
@@ -14,14 +14,14 @@
 (deftest test-new-with-group-and-project-name
   (leiningen.new/new nil "orgname/a-project")
   (is (= #{"src" "a_project_test.clj" "project.clj" "a_project.clj" "orgname"
-           "test" ".gitignore" "README.md" "doc" "intro.md"}
+           "resources" "test" ".gitignore" "README.md" "doc" "intro.md"}
          (set (map (memfn getName)
                    (rest (file-seq (file "a-project")))))))
   (delete-file-recursively (file "a-project") :silently))
 
 (deftest test-new-with-explicit-default-template
   (leiningen.new/new nil "default" "test-new-proj")
-  (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
            "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-proj")))))))
   (delete-file-recursively (file "test-new-proj") :silently))
@@ -60,7 +60,7 @@
 
 (deftest test-new-with-to-dir-option
   (leiningen.new/new nil "test-new-proj" "--to-dir" "my-proj")
-  (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
            "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
          (set (map (memfn getName) (rest (file-seq (file "my-proj")))))))
   (delete-file-recursively (file "my-proj") :silently))
@@ -74,7 +74,7 @@
     (System/setProperty "leiningen.original.pwd" new-pwd)
 
     (leiningen.new/new nil "test-new-proj")
-    (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+    (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
              "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"}
            (set (map (memfn getName) (rest (file-seq (file new-pwd "test-new-proj")))))))
     (System/setProperty "leiningen.original.pwd" original-pwd)
