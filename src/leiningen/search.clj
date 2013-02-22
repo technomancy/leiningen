@@ -101,7 +101,7 @@
     "d"           MAVEN/DESCRIPTION
     "desc"        MAVEN/DESCRIPTION
     "description" MAVEN/DESCRIPTION
-    (throw (IllegalArgumentException. (format "search over the field %s is not supported; known fields: id, description (aliased as d), group (aliased as group)" s)))))
+    (throw (IllegalArgumentException. (format "search over the field %s is not supported; known fields: id, description (aliased as d), group (aliased as g)" s)))))
 
 (defn- split-query
   "Splits \"field:query\" into \"field\" and \"query\""
