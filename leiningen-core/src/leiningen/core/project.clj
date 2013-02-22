@@ -136,7 +136,7 @@
    :target-path "target"
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
-   :jvm-opts ["-XX:+TieredCompilation"]
+   :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]
    :certificates ["clojars.pem"]
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
    :test-selectors {:default '(constantly true)}})
