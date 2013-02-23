@@ -106,7 +106,7 @@
 
 (defn- print-failures [e]
   (doseq [result (.getArtifactResults (.getResult e))
-          :when (.isMissing result)
+          :when (not (.isResolved result))
           exception (.getExceptions result)]
     (println (.getMessage exception)))
   (doseq [ex (.getCollectExceptions (.getResult e))
