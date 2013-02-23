@@ -45,9 +45,12 @@
      (cond
       (and (re-find #"(?i)(?<!(clo|compo))jure" name)
            (not (System/getenv "LEIN_IRONIC_JURE")))
-      (abort "Sorry, names based on non-ironic *jure puns are not allowed."
+      (abort "Sorry, names such as clojure or *jure are not allowed."
              "\nIf you intend to use this name ironically, please set the"
              "\nLEIN_IRONIC_JURE environment variable and try again.")
+      (= name "clojure")
+      (abort "Sorry, clojure can't be used as a project name."
+             "\nIt will confuse Clojure compiler and cause obscure issues.")
       (and (re-find #"[A-Z]" name)
            (not (System/getenv "LEIN_BREAK_CONVENTION")))
       (abort "Project names containing uppercase letters are not recommended"
