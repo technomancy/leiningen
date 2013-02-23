@@ -52,6 +52,18 @@
        (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
          (abort-msg leiningen.new/new nil "zzz" "my-zzz")))))
 
+(deftest test-new-with-*-jure-project-name
+  (is (re-find
+       #"names such as clojure .* are not allowed"
+       (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
+         (abort-msg leiningen.new/new nil "awesomejure")))))
+
+(deftest test-new-with-clojure-project-name
+  (is (re-find
+       #"clojure can't be used as a project name"
+       (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
+         (abort-msg leiningen.new/new nil "clojure")))))
+
 (deftest test-new-with-show-describes-a-template
   (is (re-find
        #"^A general project template for libraries"
