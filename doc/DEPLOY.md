@@ -225,3 +225,49 @@ will eventually be automated through the use of a plugin.) The release
 will show up in OSS' releases repository immediately, and sync to Maven
 Central on the next cycle (~ 1-4 hours usually). 
 
+## Using Git submodules with Leiningen
+
+You can use
+[Git submodules](http://git-scm.com/book/en/Git-Tools-Submodules) with
+Leiningen.
+
+One way to do it is to use Leiningen's
+[checkout dependencies](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md#checkout-dependencies)
+feature.
+
+For example, if `project-a` depends on `project-b`:
+
+1. Create a directory that will holds all the submodules:
+```sh
+cd project-a
+mkdir subs
+```
+
+2. Add the submodule:
+```sh
+git submodule add git/url/to/project-b subs/project-b
+```
+
+3. Register the submodule to Leiningen:
+```sh
+mkdir -p checkouts
+cd checkouts
+ln -s ../subs/project-b
+cd ..
+```
+
+4. Force the symlink addition:
+```sh
+git add -f checkouts/project-b
+```
+
+5. We are done:
+```sh
+git commit -m "added project-b submodule"
+```
+
+**Note:** When cloning, don't forget to fetch the submodules:
+```sh
+git clone --recursive git/path/to/project-a
+```
+
