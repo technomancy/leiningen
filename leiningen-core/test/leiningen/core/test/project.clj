@@ -201,7 +201,12 @@
                          :profiles
                          {:bar {:foo ^{:replace true, :a 3, :b 2} [3 4]}}}))
                  (merge-profiles [:bar])
-                 :foo meta))))))
+                 :foo meta))))
+    (testing "that built-in ^:replace values are properly replaced"
+      (is (= '(constantly false)
+             (-> (make {:test-selectors {:default '(constantly false)}})
+                 (merge-profiles [:base])
+                 :test-selectors :default))))))
 
 (def test-profiles (atom {:qa {:resource-paths ["/etc/myapp"]}
                           :test {:resource-paths ["test/hi"]}
