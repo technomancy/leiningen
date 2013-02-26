@@ -29,7 +29,7 @@
 
 (defn- form-for-select-namespaces [namespaces selectors]
   `(reduce (fn [acc# [f# args#]]
-             (if (vector? f#)               
+             (if (vector? f#)
                (filter #(apply (first f#) % args#) acc#)
                acc#))
            '~namespaces ~selectors))
@@ -172,7 +172,8 @@ specified test. A default :all test-selector is available to run all tests."
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
           form (form-for-testing-namespaces nses nil (vec selectors))]
-      (try (when-let [n (eval/eval-in-project project form '(require 'clojure.test))]
+      (try (when-let [n (eval/eval-in-project project form
+                                              '(require 'clojure.test))]
              (when (pos? n)
                (throw (ex-info "Tests Failed" {:exit-code n}))))
            (catch clojure.lang.ExceptionInfo e

@@ -48,3 +48,5 @@ echo "Also deploy this release of leiningen-core to Clojars."
 # git push && git push --tags
 # git checkout preview && git merge master && git push
 # Drop version back to SNAPSHOT
+
+# TODO: update windows install instructions on leiningen.org for 2.1

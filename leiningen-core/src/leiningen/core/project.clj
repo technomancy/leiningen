@@ -311,7 +311,8 @@
   (atom {:default [:base :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]
-                :test-selectors {:default '(constantly true)}
+                :test-selectors {:default (with-meta '(constantly true)
+                                            {:displace true})}
                 :checkout-deps-shares [:source-paths
                                        :resource-paths
                                        :compile-path]}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Ensure this file is executable via chmod a+x lein, then place it
+# Ensure this file is executable via `chmod a+x lein`, then place it
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
