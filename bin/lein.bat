@@ -73,6 +73,11 @@ rem if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
 
+:DownloadFile
+rem parameters: TargetFileName Address
+powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" %~2 %~1
+goto EOF
+
 :EnsureIsSet 
 rem parameters: Variable DefaultValue
 rem Variable's value can be empty, if it is then it will be set to the DefaultValue(which is not modified/stripped)
@@ -124,16 +129,9 @@ if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
 echo Downloading Leiningen now...
 
-set HTTP_CLIENT=wget --no-check-certificate -O
-wget>nul 2>&1
-if ERRORLEVEL 9009 (
-    curl>nul 2>&1
-    if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
-    set HTTP_CLIENT=curl --insecure -f -L -o
-)
 :: set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
-%HTTP_CLIENT% "%LEIN_JAR%.pending" %LEIN_JAR_URL%
+call :DownloadFile "%LEIN_JAR%.pending" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
     del "%LEIN_JAR%.pending" >nul 2>&1
     goto DOWNLOAD_FAILED
@@ -162,17 +160,10 @@ exit /B 1
 :YES_UPGRADE
 echo Downloading latest Leiningen batch script...
 
-set HTTP_CLIENT=wget --no-check-certificate -O
-wget>nul 2>&1
-if ERRORLEVEL 9009 (
-    curl>nul 2>&1
-    if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
-    set HTTP_CLIENT=curl --insecure -f -L -o
-)
 ::set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/master/bin/lein.bat
-set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/preview/bin/lein.bat
+set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
-%HTTP_CLIENT% "%LEIN_BAT%.pending" %LEIN_BAT_URL%
+call :DownloadFile "%LEIN_BAT%.pending" %LEIN_BAT_URL%
 if ERRORLEVEL 1 (
     del "%LEIN_BAT%.pending" >nul 2>&1
     echo Failed to download %LEIN_BAT_URL%
@@ -184,17 +175,6 @@ echo Upgrading...
 set LEIN_JAR=
 call "%TEMP_BAT%" self-install
 move /y "%TEMP_BAT%" "%LEIN_BAT%" && goto EOF
-goto EOF
-
-
-:NO_HTTP_CLIENT
-echo.
-echo ERROR: Wget/Curl not found. Make sure at least either of Wget and Curl is
-echo        installed and is in PATH. You can get them from URLs below:
-echo.
-echo Wget: "http://users.ugent.be/~bpuype/wget/"
-echo Curl: "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
-echo.
 goto EOF
 
 
