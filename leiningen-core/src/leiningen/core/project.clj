@@ -137,8 +137,7 @@
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
-   :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
-   :test-selectors {:default '(constantly true)}})
+   :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
 
 (defn- dep-key
   "The unique key used to dedupe dependencies."
@@ -312,6 +311,7 @@
   (atom {:default [:base :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]
+                :test-selectors {:default '(constantly true)}
                 :checkout-deps-shares [:source-paths
                                        :resource-paths
                                        :compile-path]}
