@@ -38,11 +38,13 @@
                       :when dep-project]
                   (checkout-dep-paths project dep-project))))
 
-(defn extract-native-deps [deps native-path]
-  (doseq [jar (map #(JarFile. %) deps)
+(defn extract-native-deps [files native-path native-prefixes]
+  (doseq [file files
+          :let [native-prefix (get native-prefixes file "native/")
+                jar (JarFile. file)]
           entry (enumeration-seq (.entries jar))
-          :when (.startsWith (.getName entry) "native/")]
-    (let [f (io/file native-path (subs (.getName entry) (count "native/")))]
+          :when (.startsWith (.getName entry) native-prefix)]
+    (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
       (if (.isDirectory entry)
         (.mkdirs f)
         (do (.mkdirs (.getParentFile f))
@@ -166,6 +168,36 @@
         (get-dependencies dependencies-key (assoc project :offline? true))
         (throw e)))))
 
+(defn- get-original-dependency
+  "Return a match to dep (a single dependency vector) in
+  dependencies (a dependencies vector, such as :dependencies in
+  project.clj). Matching is done on the basis of the group/artifact id
+  and version."
+  [dep dependencies]
+  (some (fn [v] ; not certain if this is the best matching fn
+          (when (= (subvec dep 0 2) (subvec v 0 2 )) v))
+        dependencies))
+
+(defn- get-native-prefix
+  [[id version & {:as opts}]]
+  (get opts :native-prefix))
+
+(defn- get-native-prefixes
+  "Given a dependencies vector (such as :dependencies in project.clj)
+  and a dependencies tree, as returned by get-dependencies, return a
+  mapping from the Files those dependencies entail to
+  the :native-prefix, if any, referenced in the dependencies vector."
+  [dependencies dependencies-tree]
+  (let [override-deps (->> (map #(get-original-dependency
+                                  % dependencies)
+                                (keys dependencies-tree))
+                           (map get-native-prefix))]
+    (->> (aether/dependency-files dependencies-tree)
+         (#(map vector % override-deps))
+         (filter second)
+         (filter #(re-find #"\.(jar|zip)$" (.getName (first %))))
+         (into {}))))
+
 (defn resolve-dependencies
   "Delegate dependencies to pomegranate. This will ensure they are
   downloaded into ~/.m2/repository and that native components of
@@ -175,15 +207,20 @@
 
   Returns a seq of the dependencies' files."
   [dependencies-key {:keys [repositories native-path] :as project} & rest]
-  (let [jars (->> (apply get-dependencies dependencies-key project rest)
+  (let [dependencies-tree
+        (apply get-dependencies dependencies-key project rest)
+        jars (->> dependencies-tree
                   (aether/dependency-files)
-                  (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
+                  (filter #(re-find #"\.(jar|zip)$" (.getName %))))
+        native-prefixes (get-native-prefixes (get project dependencies-key)
+                                             dependencies-tree)]
     (when-not (= :plugins dependencies-key)
       (or (when-stale :extract-native [dependencies-key] project
-                      extract-native-deps jars native-path)
+                      extract-native-deps jars native-path native-prefixes)
           ;; Always extract native deps from SNAPSHOT jars.
           (extract-native-deps (filter #(re-find #"SNAPSHOT" (.getName %)) jars)
-                               native-path)))
+                               native-path
+                               native-prefixes)))
     jars))
 
 (defn dependency-hierarchy
