@@ -1,6 +1,14 @@
 (ns leiningen.core.utils
   (:require [clojure.java.io :as io])
-  (:import [java.io File]))
+  (:import [java.io File]
+           [java.net URL]))
+
+(defn build-url
+  "Creates java.net.URL from string"
+  [url]
+   (try (URL. url)
+        (catch java.net.MalformedURLException _
+          (URL. (str "http://" url)))))
 
 (defn read-file
   "Read the contents of file if it exists."
