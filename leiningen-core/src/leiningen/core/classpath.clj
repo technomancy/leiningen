@@ -4,9 +4,9 @@
             [cemerick.pomegranate :as pomegranate]
             [clojure.java.io :as io]
             [clojure.string :as str]
-            [leiningen.core.user :as user])
+            [leiningen.core.user :as user]
+            [leiningen.core.utils :as utils])
   (:import (java.util.jar JarFile)
-           (java.net URL)
            (org.sonatype.aether.resolution DependencyResolutionException)))
 
 ;; Basically just for re-throwing a more comprehensible error.
@@ -89,9 +89,7 @@
   ([] (get-proxy-settings "http_proxy"))
   ([key]
      (if-let [proxy (System/getenv key)]
-       (let [url (try (URL. proxy)
-                      (catch java.net.MalformedURLException _
-                        (URL. (str "http://" proxy))))
+       (let [url (utils/build-url proxy)
              user-info (.getUserInfo url)
              [username password] (and user-info (.split user-info ":"))]
          {:host (.getHost url)

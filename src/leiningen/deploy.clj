@@ -5,6 +5,7 @@
             [leiningen.core.main :as main]
             [leiningen.core.eval :as eval]
             [leiningen.core.user :as user]
+            [leiningen.core.utils :as utils]
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]
@@ -18,6 +19,14 @@
         (str message "\n" "See `lein help deploy` for an explanation of how to"
              " specify credentials.")
         :else message))
+
+(defn add-auth-from-url
+  [[id settings]]
+   (if-let [url (utils/build-url id)]
+     (let [user-info (.getUserInfo url)
+           [username password] (and user-info (.split user-info ":"))]
+      [id (assoc settings :username username :password password)])
+     [id settings]))
 
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
@@ -40,6 +49,7 @@
                          :when (= id name)] settings)]
     (-> [name settings]
         (classpath/add-repo-auth)
+        (add-auth-from-url)
         (add-auth-interactively))))
 
 (defn sign [file]
