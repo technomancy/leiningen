@@ -401,6 +401,9 @@
 
 (alter-var-root #'warn-user-profile memoize)
 
+(defn- system-profiles []
+  (user/load-profiles (io/file "/etc" "leiningen")))
+
 (defn- project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
     (warn-user-profile profiles)
@@ -415,7 +418,7 @@
   [project]
   (warn-user-repos (user/profiles))
   (warn-user-profile (:profiles project))
-  (merge @default-profiles (user/profiles)
+  (merge @default-profiles (system-profiles) (user/profiles)
          (:profiles project) (project-profiles project)))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs

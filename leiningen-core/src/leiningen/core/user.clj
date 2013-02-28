@@ -40,14 +40,14 @@
                               "from" (str (leiningen-home) "/profiles.d:"))
                      (println (.getMessage e))))))))))))
 
-(def ^:private load-profiles
-  "Load profiles.clj from your Leiningen home if present."
+(def ^:internal load-profiles
+  "Load profiles.clj from dir if present."
   (memoize
-   (fn []
-     (try (utils/read-file (io/file (leiningen-home) "profiles.clj"))
+   (fn [dir]
+     (try (utils/read-file (io/file dir "profiles.clj"))
           (catch Exception e
             (binding [*out* *err*]
-              (println "Error reading profiles.clj from" (leiningen-home))
+              (println "Error reading profiles.clj from" dir)
               (println (.getMessage e))))))))
 
 (def profiles
@@ -62,7 +62,7 @@
                         "in the profiles.d directory."))
              (throw (Exception. "Multiple profiles defined in ~/.lein")))]
        (try (apply merge-with error-fn
-                   (load-profiles) (profiles-d-profiles))
+                   (load-profiles (leiningen-home)) (profiles-d-profiles))
             (catch Exception e))))))
 
 (defn gpg-program
