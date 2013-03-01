@@ -14,19 +14,19 @@
             [leiningen.core.main :as main]))
 
 (def reply-profile {:dependencies '[^:displace
-                                     [org.thnetos/cd-client "0.3.6"
-                                      :exclusions [org.clojure/clojure]]]})
+                                    [org.thnetos/cd-client "0.3.6"
+                                     :exclusions [org.clojure/clojure]]]})
 
 (def trampoline-profile {:dependencies '[^:displace
-                                          [reply "0.1.10"
-                                           :exclusions [org.clojure/clojure]]]})
+                                         [reply "0.1.10"
+                                          :exclusions [org.clojure/clojure]]]})
 
 (def base-profile {:dependencies '[^:displace
-                                    [org.clojure/tools.nrepl "0.2.1"
-                                     :exclusions [org.clojure/clojure]]
+                                   [org.clojure/tools.nrepl "0.2.1"
+                                    :exclusions [org.clojure/clojure]]
                                    ^:displace
-                                    [clojure-complete "0.2.2"
-                                     :exclusions [org.clojure/clojure]]]})
+                                   [clojure-complete "0.2.2"
+                                    :exclusions [org.clojure/clojure]]]})
 
 (defn profiles-for [project trampoline? reply?]
   [(if reply? (:leiningen/reply (:profiles project) reply-profile))
@@ -123,7 +123,7 @@
 
 (defn- ack-port [project]
   (if-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
-                   (-> project :repl-options :ack-port))]
+                 (-> project :repl-options :ack-port))]
     (Integer. p)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
@@ -135,18 +135,18 @@
         repl-options (merge {:history-file history-file}
                             (:repl-options project))]
     (clojure.set/rename-keys
-      (merge
-       (dissoc repl-options :init)
-        (cond
-          attach
-            {:attach (if-let [host (repl-host project)]
-                       (str host ":" attach)
-                       (str attach))}
-          port
-            {:port (str port)}
-          :else
-            {}))
-      {:prompt :custom-prompt})))
+     (merge
+      (dissoc repl-options :init)
+      (cond
+       attach
+       {:attach (if-let [host (repl-host project)]
+                  (str host ":" attach)
+                  (str attach))}
+       port
+       {:port (str port)}
+       :else
+       {}))
+     {:prompt :custom-prompt})))
 
 (defn- trampoline-repl [project]
   (let [options (options-for-reply project :port (repl-port project))]
@@ -199,8 +199,7 @@ and port."
           (Thread.
            (bound-fn []
              (binding [eval/*pump-in* false]
-               (start-server (merge (:user (user/profiles))
-                                    project)
+               (start-server (or (:user (user/profiles)) project)
                              (repl-host project)
                              (repl-port project)
                              (-> @lein-repl-server deref :ss .getLocalPort))))))
