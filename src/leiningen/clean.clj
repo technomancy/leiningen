@@ -21,11 +21,8 @@ Raise an exception if any deletion fails unless silently is true."
     (when (real-directory? f)
       (doseq [child (.listFiles f)]
         (delete-file-recursively child silently)))
-    (io/delete-file f silently)
-    ;; This sometimes helps release files for deletion on windows, but
-    ;; is slow as the dickens.
-    (when (= :windows (eval/get-os))
-      (System/gc))))
+    (.setWritable f true)
+    (io/delete-file f silently)))
 
 (defn clean
   "Remove all files from project's target-path."
