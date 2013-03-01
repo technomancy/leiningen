@@ -97,10 +97,11 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
     LEIN_DIR="$(dirname "$BIN_DIR")"
 
-    # Need to use lein 1.x to bootstrap the leiningen-core library (for aether)
-    if [ "$(ls "$LEIN_DIR"/leiningen-core/lib/*)" = "" ]; then
+    # Need to use lein release to bootstrap the leiningen-core library (for aether)
+    if [ ! -r "$LEIN_DIR/leiningen-core/.lein-bootstrap" ]; then
         echo "Leiningen is missing its dependencies."
-        echo "Please see \"Bootstrapping\" in CONTRIBUTING.md."
+        echo "Please run `lein do install, classpath .lein-bootstrap` in the leiningen-core/"
+        echo "directory with a stable release of Leiningen. See CONTRIBUTING.md for details."
         exit 1
     fi
 
@@ -113,8 +114,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         fi
     fi
 
-    # Use bin/lein to calculate its own classpath since src/ and
-    # leiningen-core/lib/*jar suffices to run the classpath task.
+    # Use bin/lein to calculate its own classpath.
     if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ "$1" != "classpath" ]; then
         echo "Recalculating Leiningen's classpath."
         ORIG_PWD="$PWD"
@@ -129,12 +129,12 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     mkdir -p "$LEIN_DIR/target/classes"
     export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-"-Xms64m -Xmx256m"} -Dclojure.compile.path=$LEIN_DIR/target/classes"
     add_path CLASSPATH "$LEIN_DIR/leiningen-core/src/" "$LEIN_DIR/leiningen-core/resources/" \
-                          "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
+        "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
 
     if [ -r "$LEIN_DIR/.lein-classpath" ]; then
         add_path CLASSPATH "$(cat "$LEIN_DIR/.lein-classpath" 2> /dev/null)"
     else
-        add_path CLASSPATH "$LEIN_DIR/leiningen-core/lib/*"
+        add_path CLASSPATH "$(cat "$LEIN_DIR/leiningen-core/.lein-bootstrap" 2> /dev/null)"
     fi
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
