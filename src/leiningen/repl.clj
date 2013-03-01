@@ -89,7 +89,7 @@
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
            @(promise))]
-    (if project
+    (if (:root project)
       (eval/eval-in-project
        (project/merge-profiles project
                                (profiles-for project false (not headless?)))
