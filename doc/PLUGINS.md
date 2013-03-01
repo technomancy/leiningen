@@ -230,22 +230,6 @@ middleware.
             [lein-bar "0.0.1" :middleware false]])
 ```
 
-## Projects vs Standalone Execution
-
-Some Leiningen tasks can be executed from any directory (e.g. `lein repl`).
-Some only make sense in the context of a project.
-
-To check whether Leiningen is running in the context of a project
-(that is, if a `project.clj` is present in the current directory),
-check for the `:root` key in the project map:
-
-``` clojure
-(if (:root project)
-  (comment "Running in a project directory")
-  (comment "Running standalone"))
-```
-
-
 ## Clojure Version
 
 Leiningen 2.0.0 uses Clojure 1.4.0. If you need to use a different
@@ -284,6 +268,21 @@ project. If your plugin currently has code that needs to run in both
 contexts it must be split into multiple projects, one for `:plugins`
 and one for `:dependencies`. See the example of `lein-swank` above to
 see how to inject `:dependencies` in `eval-in-project` calls.
+
+## Projects vs Standalone Execution
+
+Some Leiningen tasks can be executed from any directory (e.g. `lein repl`).
+Some only make sense in the context of a project.
+
+To check whether Leiningen is running in the context of a project
+(that is, if a `project.clj` is present in the current directory),
+check for the `:root` key in the project map:
+
+``` clojure
+(if (:root project)
+  (comment "Running in a project directory")
+  (comment "Running standalone"))
+```
 
 If your plugin may run outside the context of the project entirely,
 you should still leave room in the arguments list for a project map;
