@@ -43,19 +43,19 @@ functionality they change are especially welcome.
 
 ## Bootstrapping
 
-You don't need to "build" Leiningen per se, but when you're using a
-checkout you will need to get its dependencies in place.
+You don't need to "build" Leiningen per se, but when you're developing
+on a checkout you will need to get its dependencies in place. Just use
+a stable release of Leiningen to run `lein do install, classpath
+.lein-bootstrap` in the `leiningen-core` directory.
 
-Use Leiningen 1.x to run `lein1 install` in the `leiningen-core`
-directory. If you don't have 1.x installed, simply check out the `1.x`
-branch and copy `bin/lein` to `lein1` somewhere on your `$PATH`, then
-switch your branch back. Alternately you can run `mvn
-dependency:copy-dependencies` in the same directory followed by `cp -r
-target/dependency lib`.
+If you don't have a stable `lein` installed, simply check out the
+`stable` branch and copy `bin/lein` to somewhere on your `$PATH`, then
+switch your branch back.
 
-Once you've done that, symlink `bin/lein` to somewhere on your
-`$PATH`. Usually you'll want to rename your existing installation to
-keep them from interfering.
+If you want to use your development copy for everyday usage, symlink
+`bin/lein` to somewhere on your `$PATH`. You'll want to rename your
+stable installation to keep them from interfering; typically you can
+name that `lein2` or `lein-stable`.
 
 When the dependencies change you may have to do `rm .lein-classpath`
 in the project root, though in most cases this can be done automatically.
