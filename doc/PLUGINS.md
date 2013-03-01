@@ -95,6 +95,8 @@ as well as each individual task functions. Other non-task functions in
 task namespaces should be considered internal and may change inside
 point releases.
 
+### Evaluating In Project Context
+
 Many tasks need to execute code inside the context of the project
 itself. The `leiningen.core.eval/eval-in-project` function is used for
 this purpose. It accepts a project argument as well as a form to
@@ -228,6 +230,22 @@ middleware.
             [lein-bar "0.0.1" :middleware false]])
 ```
 
+## Projects vs Standalone Execution
+
+Some Leiningen tasks can be executed from any directory (e.g. `lein repl`).
+Some only make sense in the context of a project.
+
+To check whether Leiningen is running in the context of a project
+(that is, if a `project.clj` is present in the current directory),
+check for the `:root` key in the project map:
+
+``` clojure
+(if (:root project)
+  (comment "Running in a project directory")
+  (comment "Running standalone"))
+```
+
+
 ## Clojure Version
 
 Leiningen 2.0.0 uses Clojure 1.4.0. If you need to use a different
@@ -235,7 +253,7 @@ version of Clojure from within a Leiningen plugin, you can use
 `eval-in-project` with a dummy project argument:
 
 ```clj
-(eval-in-project {:dependencies '[[org.clojure/clojure "1.5.0-alpha"]]}
+(eval-in-project {:dependencies '[[org.clojure/clojure "1.5.0"]]}
                  '(println "hello from" *clojure-version*))
 ```
 
