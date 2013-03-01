@@ -49,7 +49,9 @@
              (fn [{:keys [~'session] :as msg#}]
                (when-not (@~'session init-ns-sentinel#)
                  (swap! ~'session assoc
-                        (var *ns*) (create-ns '~init-ns)
+                        (var *ns*)
+                        (try (require '~init-ns) (create-ns '~init-ns)
+                          (catch Throwable t# (create-ns '~'user)))
                         init-ns-sentinel# true))
                (h# msg#))))]
        (doto wrap-init-ns#
@@ -76,7 +78,7 @@
                      (map namespace)
                      (remove nil?)
                      (map symbol))]
-    (for [n (concat (remove nil? [(init-ns project)]) defaults nrepl-syms nses)]
+    (for [n (concat defaults nrepl-syms nses)]
       (list 'quote n))))
 
 (defn- start-server [project host port ack-port & [headless?]]
@@ -95,7 +97,9 @@
                                (profiles-for project false (not headless?)))
        `(do ~(-> project :repl-options :init)
             ~server-starting-form)
-       `(do ~@(for [n (init-requires project)]
+       `(do ~(when-let [init-ns (init-ns project)]
+               `(try (require '~init-ns) (catch Throwable t#)))
+            ~@(for [n (init-requires project)]
                 `(try (require ~n)
                       (catch Throwable t#
                         (println "Error loading" (str ~n ":")
@@ -151,7 +155,9 @@
      (if (:standalone options)
        `(reply.main/launch-standalone ~options)
        `(reply.main/launch-nrepl ~options))
-     `(require ~@(init-requires project 'reply.main)))))
+     `(do
+        (try (require '~(init-ns project)) (catch Throwable t#))
+        (require ~@(init-requires project 'reply.main))))))
 
 (defn- opt-port
   "Extract port number from the given options."
@@ -201,7 +207,8 @@ and port."
                                                         (:timeout 60000)))]
            (do
              (println "nREPL server started on port" repl-port)
-             (reply/launch-nrepl (options-for-reply project :attach repl-port)))
+             (let [options (options-for-reply project :attach repl-port)]
+               (reply/launch-nrepl options)))
            (println "REPL server launch timed out.")))))
   ([project flag & opts]
      (case flag
