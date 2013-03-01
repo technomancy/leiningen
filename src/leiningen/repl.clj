@@ -199,7 +199,10 @@ and port."
           (Thread.
            (bound-fn []
              (binding [eval/*pump-in* false]
-               (start-server project (repl-host project) (repl-port project)
+               (start-server (merge (user/profiles)
+                                    project)
+                             (repl-host project)
+                             (repl-port project)
                              (-> @lein-repl-server deref :ss .getLocalPort))))))
          (when project @prep-blocker)
          (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
