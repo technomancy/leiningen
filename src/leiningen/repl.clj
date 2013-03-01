@@ -199,7 +199,7 @@ and port."
           (Thread.
            (bound-fn []
              (binding [eval/*pump-in* false]
-               (start-server (merge (user/profiles)
+               (start-server (merge (:user (user/profiles))
                                     project)
                              (repl-host project)
                              (repl-port project)
