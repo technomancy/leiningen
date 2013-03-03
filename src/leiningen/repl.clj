@@ -133,7 +133,8 @@
                        ;; outside of project
                        (str (io/file (user/leiningen-home)
                                      "repl-history")))
-        repl-options (merge {:history-file history-file}
+        repl-options (merge {:history-file history-file,
+                             :input-stream System/in}
                             (:repl-options project))]
     (clojure.set/rename-keys
       (merge

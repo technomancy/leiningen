@@ -11,7 +11,8 @@
                  [com.cemerick/pomegranate "0.0.14-SNAPSHOT" :exclusions [org.tcrawley/dynapath]]
                  ;; depend on this directly until pomegranate upgrades
                  [org.tcrawley/dynapath "0.2.3"]
-                 [org.apache.maven.wagon/wagon-http "2.4"]]
+                 [org.apache.maven.wagon/wagon-http "2.4"]
+                 [com.hypirion/io "0.1.0"]]
   ;; until the pomegratate snapshot is released:
   :repositories [["sonatype"
                   "https://oss.sonatype.org/content/repositories/snapshots/"]]
