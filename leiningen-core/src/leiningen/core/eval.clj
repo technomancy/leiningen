@@ -195,7 +195,9 @@
         (let [exit-value (.waitFor proc)]
           (when *pump-in*
             (reset! done true)
-            (.join pump-in))
+            (.kill System/in)
+            (.join pump-in)
+            (.resurrect System/in))
           exit-value)))))
 
 ;; work around java's command line handling on windows
