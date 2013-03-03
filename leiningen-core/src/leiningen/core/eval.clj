@@ -139,13 +139,13 @@
   gracefully exit and not read other sub-processes' input."
   [reader out done?]
   (loop []
-    (if (.ready reader)
-      (do
-        (.write out (.read reader))
-        (.flush out))
-      (Thread/sleep 10))
-    (when (not @done?)
-      (recur))))
+    (let [val (.read reader)]
+      (if-not (neg? val)
+        (do (.write out val)
+            (.flush out))
+        (.close out))
+      (when-not (or @done? (neg? val))
+        (recur)))))
 
 (def ^:dynamic *dir*
   "Directory in which to start subprocesses with eval-in-project or sh."
@@ -184,11 +184,11 @@
                       (Thread. (fn [] (.destroy proc))))
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))
-                in (io/writer (.getOutputStream proc))]
+                in (.getOutputStream proc)]
       (let [done (atom false)
             pump-out (doto (Thread. (bound-fn [] (out-pump out *out*))) .start)
             pump-err (doto (Thread. (bound-fn [] (out-pump err *err*))) .start)
-            pump-in (Thread. (bound-fn [] (in-pump *in* in done)))]
+            pump-in (Thread. (bound-fn [] (in-pump System/in in done)))]
         (when *pump-in* (.start pump-in))
         (.join pump-out)
         (.join pump-err)
