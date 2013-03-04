@@ -22,11 +22,12 @@
 
 (defn add-auth-from-url
   [[id settings]]
-   (if-let [url (utils/build-url id)]
-     (let [user-info (.getUserInfo url)
-           [username password] (and user-info (.split user-info ":"))]
-      [id (assoc settings :username username :password password)])
-     [id settings]))
+  (let [url (utils/build-url id)
+        user-info (and url (.getUserInfo url))
+        [username password] (and user-info (.split user-info ":"))]
+    (if username
+      [id (assoc settings :username username :password password)]
+      [id settings])))
 
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
