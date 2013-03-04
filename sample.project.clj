@@ -64,7 +64,8 @@
                    :dependencies [[clj-stacktrace "0.2.4"]]}
              :debug {:debug true
                      :injections [(prn (into {} (System/getProperties)))]}
-             :1.4 {:dependencies [[org.clojure/clojure "1.4.0-alpha1"]]}}
+             :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}}
   ;; Support project-specific task aliases. These are interpreted in
   ;; the same way as command-line arguments to the lein command. If
   ;; the alias points to a vector, it uses partial application. For
