@@ -19,7 +19,8 @@
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]
                               [ring/ring-core "1.0.0"
                                :exclusions [commons-codec]]]
-              :checkout-deps-shares [:source-paths :resource-paths :compile-path]
+              :checkout-deps-shares [:source-paths :resource-paths
+                                     :compile-path #(str (:root %) "/foo")]
               :repositories (:repositories project/defaults)
               :root "/tmp/lein-sample-project"
               :target-path "/tmp/lein-sample-project/target"
@@ -73,7 +74,7 @@
       (.mkdirs d1)
       (spit (io/file d1 "project.clj")
             (pr-str '(defproject hello "1.0")))
-      (is (= (for [path ["src" "resources" "target/classes"]]
+      (is (= (for [path ["src" "resources" "target/classes" "foo"]]
                (format "/tmp/lein-sample-project/checkouts/d1/%s" path))
              (#'leiningen.core.classpath/checkout-deps-paths project)))
       (finally
