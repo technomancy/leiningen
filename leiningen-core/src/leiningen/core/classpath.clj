@@ -25,7 +25,7 @@
 
 (defn- checkout-dep-paths [project dep-project]
   ;; can't mapcat here since :checkout-deps-shares points to vectors and strings
-  (flatten (map dep-project (:checkout-deps-shares project))))
+  (flatten (map #(% dep-project) (:checkout-deps-shares project))))
 
 (defn- checkout-deps-paths
   "Checkout dependencies are used to place source for a dependency
