@@ -37,7 +37,6 @@
             pwd (when-not (= "" pass) (.toCharArray pass))
             store (if (= "" prov) (KeyStore/getInstance type) (KeyStore/getInstance type prov))
             kmf (KeyManagerFactory/getInstance (KeyManagerFactory/getDefaultAlgorithm))]
-        (println (str "key manager properties: " props))
         (.load store fis pwd)
         (when fis (.close fis))
         (.init kmf store pwd)
