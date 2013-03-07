@@ -2,7 +2,9 @@
   (:require [clojure.java.io :as io])
   (:import java.security.KeyStore
            java.security.KeyStore$TrustedCertificateEntry
+           java.security.Security
            java.security.cert.CertificateFactory
+           javax.net.ssl.KeyManagerFactory
            javax.net.ssl.SSLContext
            javax.net.ssl.TrustManagerFactory
            javax.net.ssl.X509TrustManager
@@ -19,6 +21,26 @@
   (let [tmf (trust-manager-factory nil)
         tms (.getTrustManagers tmf)]
     (filter #(instance? X509TrustManager %) tms)))
+
+(defn default-key-manager-properties []
+  (let [read #(java.lang.System/getProperty % %2)]
+    {:file (read "javax.net.ssl.keyStore" "NONE")
+     :type (read "javax.net.ssl.keyStoreType" (KeyStore/getDefaultType))
+     :prov (read "javax.net.ssl.keyStoreProvider" "")
+     :pass (read "javax.net.ssl.keyStorePassword" "")}))
+
+(def default-key-managers
+  (memoize
+    (fn ^KeyManagerFactory default-key-managers []
+      (let [{:keys [file type prov pass] :as props} (default-key-manager-properties)
+            fis (when-not (contains? #{nil "" "NONE"} file) (java.io.FileInputStream. file))
+            pwd (when-not (= "" pass) (.toCharArray pass))
+            store (if (= "" prov) (KeyStore/getInstance type) (KeyStore/getInstance type prov))
+            kmf (KeyManagerFactory/getInstance (KeyManagerFactory/getDefaultAlgorithm))]
+        (.load store fis pwd)
+        (when fis (.close fis))
+        (.init kmf store pwd)
+        kmf))))
 
 (defn default-trusted-certs
   "Lists the CA certificates trusted by the JVM."
@@ -45,9 +67,10 @@
   "Construct an SSLContext that trusts a collection of certificatess."
   [trusted-certs]
   (let [ks (make-keystore trusted-certs)
+        kmf (default-key-managers)
         tmf (trust-manager-factory ks)]
    (doto (SSLContext/getInstance "TLS")
-     (.init nil (.getTrustManagers tmf) nil))))
+     (.init (when kmf (.getKeyManagers kmf)) (.getTrustManagers tmf) nil))))
 
 (defn https-scheme
   "Construct a Scheme that uses a given SSLContext."
