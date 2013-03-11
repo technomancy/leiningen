@@ -139,7 +139,7 @@
 (def whitelist-keys
   "Project keys which don't affect the production of the jar should be
 propagated to the compilation phase and not stripped out."
-  [:offline? :local-repo :certificates :warn-on-reflection])
+  [:offline? :local-repo :certificates :warn-on-reflection :mirrors])
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
