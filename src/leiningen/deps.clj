@@ -7,7 +7,46 @@
             [cemerick.pomegranate.aether :as aether]
             [clojure.pprint :as pp]
             [clojure.java.io :as io])
-  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
+  (:import (org.sonatype.aether.resolution DependencyResolutionException)
+           (org.sonatype.aether.collection DependencyGraphTransformer)
+           (org.sonatype.aether.util.graph.transformer
+            ChainedDependencyGraphTransformer)))
+
+(defn message-for-version-range [path]
+  (str (->> path
+            (map #(if-let [dependency (.getDependency %)]
+                    (if-let [artifact (.getArtifact dependency)]
+                      (str "["
+                           (.getGroupId artifact)
+                           "/"
+                           (.getArtifactId artifact)
+                           " \""
+                           (.getVersionConstraint %)
+                           "\"]"))))
+            (remove nil?)
+            (interpose " -> ")
+            (apply str))))
+
+(def ranges (atom []))
+
+(defn- check-for-range [node parents]
+  (if-let [vc (.getVersionConstraint node)]
+    (if-not (empty? (.getRanges vc))
+      (swap! ranges conj (conj parents node))))
+  (every? #(check-for-range % (conj parents node))
+          (.getChildren node)))
+
+(defn add-no-ranges-transformer [session]
+  (.setDependencyGraphTransformer
+   session
+   (ChainedDependencyGraphTransformer.
+    (into-array DependencyGraphTransformer
+                [(reify DependencyGraphTransformer
+                   (transformGraph [self node context]
+                     (reset! ranges [])
+                     (check-for-range node [])
+                     node))
+                 (.getDependencyGraphTransformer session)]))))
 
 (defn- walk-deps
   ([deps f level]
@@ -83,8 +122,20 @@ force them to be updated, use `lein -U $TASK`."
   ([project command]
      (try
        (cond (= command ":tree")
-             (walk-deps (classpath/dependency-hierarchy :dependencies project)
-                        print-dep)
+             (let [hierarchy (classpath/dependency-hierarchy
+                              :dependencies project
+                              :repository-session-fn
+                              (comp add-no-ranges-transformer
+                                    aether/repository-session))
+                   ranges (distinct (map message-for-version-range
+                                         @ranges))]
+               (when (not (empty? ranges))
+                 (println "WARNING!!! version ranges found for:")
+                 (doseq [dep-string ranges]
+                   (println dep-string))
+                 (println))
+               (walk-deps hierarchy
+                          print-dep))
              (= command ":verify")
              (walk-deps (classpath/dependency-hierarchy :dependencies project)
                         (partial verify project))

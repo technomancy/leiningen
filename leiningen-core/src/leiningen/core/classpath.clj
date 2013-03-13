@@ -118,13 +118,15 @@
 
 (defn- get-dependencies
   [dependencies-key {:keys [repositories local-repo offline? update
-                            checksum mirrors] :as project}
-   & {:keys [add-classpath?]}]
+                            checksum mirrors]
+                     :as project}
+   & {:keys [add-classpath? repository-session-fn]}]
   {:pre [(every? vector? (get project dependencies-key))]}
   (try
     ((if add-classpath?
        pomegranate/add-dependencies
        aether/resolve-dependencies)
+     :repository-session-fn repository-session-fn
      :local-repo local-repo
      :offline? offline?
      :repositories (->> repositories
@@ -225,10 +227,10 @@
 
 (defn dependency-hierarchy
   "Returns a graph of the project's dependencies."
-  [dependencies-key project]
+  [dependencies-key project & options]
   (aether/dependency-hierarchy
    (get project dependencies-key)
-   (get-dependencies dependencies-key project)))
+   (apply get-dependencies dependencies-key project options)))
 
 (defn- normalize-path [root path]
   (let [f (io/file path)]
