@@ -43,10 +43,10 @@ functionality they change are especially welcome.
 
 ## Bootstrapping
 
-You don't need to "build" Leiningen per se, but when you're developing
-on a checkout you will need to get its dependencies in place. Just use
-a stable release of Leiningen to run `lein do install, classpath
-.lein-bootstrap` in the `leiningen-core` directory.
+You don't need to "build" Leiningen per se, but when you're developing on a
+checkout you will need to get its dependencies in place. Just use a stable
+release of Leiningen to run `lein bootstrap` (an alias for `lein do install,
+classpath .lein-bootstrap`) in the `leiningen-core` directory.
 
 If you don't have a stable `lein` installed, simply check out the
 `stable` branch and copy `bin/lein` to somewhere on your `$PATH`, then
