@@ -502,7 +502,7 @@
     project))
 
 (defn activate-middleware
-  "A helper funtction to apply middleware and then load certificates and hooks,
+  "A helper function to apply middleware and then load certificates and hooks,
   since we always do these three things together, at least so far."
   [project]
   (doto (apply-middleware project)
