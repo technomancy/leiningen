@@ -174,7 +174,7 @@ keyword, it's looked up in :profiles before being merged."
                     (project/merge-profiles [spec])
                     (merge (select-keys project whitelist-keys)))]
     (eval/prep project)
-    (let [jar-file (get-jar-filename project classifier)]
+    (let [jar-file (get-classified-jar-filename project classifier)]
       (write-jar project jar-file (filespecs project []))
       (main/info "Created" (str jar-file))
       jar-file)))
