@@ -116,10 +116,13 @@
                                                      (:debug project)))})
       ~@(if (and native-arch-path (.exists native-arch-path))
           [(d-property [:java.library.path native-arch-path])])
-      ~@(if-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
+      ~@(when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
           [(d-property [:http.proxyHost host])
            (d-property [:http.proxyPort port])
-           (d-property [:http.nonProxyHosts non-proxy-hosts])]))))
+           (d-property [:http.nonProxyHosts non-proxy-hosts])])
+      ~@(when-let [{:keys [host port]} (classpath/get-proxy-settings "https_proxy")]
+          [(d-property [:https.proxyHost host])
+           (d-property [:https.proxyPort port])]))))
 
 (defn- out-pump [reader out]
   (let [buffer (make-array Character/TYPE 1000)]

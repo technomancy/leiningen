@@ -36,7 +36,10 @@
 (deftest test-get-jvm-args-with-proxy-settings
   ;; Mock get-proxy-settings to return test values
   (with-redefs [classpath/get-proxy-settings
-                (constantly {:host "foo.com" :port "8080"})]
+                (fn ([] {:host "foo.com" :port "8080"})
+                    ([https] {:host "secure-foo.com", :port "443"}))]
     (let [args (set (shell-command project 'repl))]
       (is (and (contains? args "-Dhttp.proxyHost=foo.com")
-               (contains? args "-Dhttp.proxyPort=8080"))))))
+               (contains? args "-Dhttp.proxyPort=8080")
+               (contains? args "-Dhttps.proxyHost=secure-foo.com")
+               (contains? args "-Dhttps.proxyPort=443"))))))
