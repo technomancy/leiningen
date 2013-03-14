@@ -1,5 +1,22 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.1.0 / ???
+
+* Add update task for arbitrary project map transformations. (Phil Hagelberg)
+* Add support for msys on Windows machines. (megri)
+* Allow use of :mirrors when building jars/uberjars. (Tim McCormack)
+* Dependencies may include native components more flexibly. (Marc Liberatore)
+* Implement system-level profiles. (Phil Hagelberg)
+* Accept repo credentials on the CLI for deploy. (Max Prokopiev)
+* Fix a bug breaking recursive aliases. (Hugo Duncan)
+* Add support for preventing deployment of branches. (Anthony Grimes)
+* Improve boot time by limiting tiered compilation in dev. (Phil Hagelberg)
+* Allow building jars with classifiers. (Hugo Duncan)
+* Allow :init-ns to be honored by other nrepl clients. (Marko Topolnik)
+* Add experimental support for :eval-in :nrepl. (Phil Hagelberg)
+* Don't follow symlinks in clean task. (Jean Niklas L'orange)
+* Add support for ~/.lein/profiles.d. (Jean Niklas L'orange)
+
 ## 2.0.0 / 2013-01-19
 
 * Allow implicit repl profiles to be overridden.
