@@ -37,6 +37,10 @@
     (do
       (println "No credentials found for" id)
       (println "See `lein help deploying` for how to configure credentials.")
+      (when @utils/rebound-io?
+        (main/info
+         "WARNING: Leiningen has already been used to read from the terminal.")
+        (main/info "This may cause issues when reading passwords."))
       (print "Username: ") (flush)
       (let [username (read-line)
             password (.readPassword (System/console) "%s"
@@ -106,7 +110,7 @@ If you don't provide a repository name to deploy to, either \"snapshots\" or
 \"releases\" will be used depending on your project's current version. See
 `lein help deploying` under \"Authentication\" for instructions on how to
 configure your credentials so you are not prompted on each deploy."
-  ([project repository-name] 
+  ([project repository-name]
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))

@@ -2,19 +2,18 @@
   (:require [clojure.java.io :as io])
   (:import [com.hypirion.io RevivableInputStream]
            [clojure.lang LineNumberingPushbackReader]
-           [java.io File FileDescriptor FileInputStream
-                    InputStreamReader Console Console$LineReader]
-           [java.net URL]
-           [sun.nio.cs StreamDecoder]))
+           [java.io File FileDescriptor FileInputStream InputStreamReader]
+           [java.net URL]))
+
+(def rebound-io? (atom false))
 
 (defn rebind-io! []
-  (let [new-in (-> FileDescriptor/in FileInputStream. RevivableInputStream.)]
-    (System/setIn new-in)
-    (.bindRoot #'*in* (-> new-in InputStreamReader.
-                          LineNumberingPushbackReader.))
-    :done)) ;; Shouldn't leak these variables.
-
-(alter-var-root #'rebind-io! memoize)
+  (when-not @rebound-io?
+    (let [new-in (-> FileDescriptor/in FileInputStream. RevivableInputStream.)]
+      (System/setIn new-in)
+      (.bindRoot #'*in* (-> new-in InputStreamReader.
+                            LineNumberingPushbackReader.)))
+    (reset! rebound-io? true)))
 
 (defn build-url
   "Creates java.net.URL from string"
