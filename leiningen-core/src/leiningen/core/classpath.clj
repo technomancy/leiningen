@@ -163,7 +163,8 @@
         #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
             (println "It's possible the specified jar is in the old Clojars Classic repo.")
             (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
-      (throw (ex-info "Could not resolve dependencies" {:exit-code 1} e)))
+      (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
+                                                        :exit-code 1} e)))
     (catch Exception e
       (if (and (instance? java.net.UnknownHostException (root-cause e))
                (not offline?))
