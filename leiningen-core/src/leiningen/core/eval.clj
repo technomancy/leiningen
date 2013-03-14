@@ -7,7 +7,8 @@
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
-            [leiningen.core.classpath :as classpath]))
+            [leiningen.core.classpath :as classpath]
+            [leiningen.core.utils :as utils]))
 
 ;; # OS detection
 
@@ -178,6 +179,8 @@
 (defn sh
   "A version of clojure.java.shell/sh that streams in/out/err."
   [& cmd]
+  (when *pump-in*
+    (utils/rebind-io!))
   (let [env (overridden-env *env*)
         proc (.exec (Runtime/getRuntime) (into-array cmd) env (io/file *dir*))]
     (.addShutdownHook (Runtime/getRuntime)

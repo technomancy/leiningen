@@ -276,7 +276,6 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
   "Command-line entry point."
   [& raw-args]
   (try
-    (utils/rebind-io!)
     (user/init)
     (let [project (if (.exists (io/file "project.clj"))
                     (project/init-project (project/read)))
