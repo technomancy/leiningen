@@ -24,6 +24,8 @@
                              (swap! failures# inc)
                              (.printStackTrace e#)))))
                      (System/exit @failures#))]
-       (try (eval/eval-in-project project action)
-            (catch clojure.lang.ExceptionInfo e
-              (main/abort "Failed."))))))
+       (try
+         (binding [eval/*pump-in* false]
+           (eval/eval-in-project project action))
+         (catch clojure.lang.ExceptionInfo e
+           (main/abort "Failed."))))))
