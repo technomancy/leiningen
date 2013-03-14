@@ -5,6 +5,7 @@
   (:require [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.test.helper :refer [abort-msg]]
+            [leiningen.core.utils :as utils]
             [clojure.java.io :as io]))
 
 (use-fixtures :once
@@ -342,10 +343,10 @@
   (is (= 7 (:seven (init-project (read (.getFile (io/resource "p2.clj"))))))))
 
 (deftest test-activate-middleware
-  (is (= ""
-         (with-out-str
-           (binding [*err* *out*]
-             (init-project (read (.getFile (io/resource "p3.clj")))))))))
+  (let [errors (atom [])]
+    (with-redefs [utils/error (fn [& args] (swap! errors conj args))]
+      (init-project (read (.getFile (io/resource "p3.clj")))))
+    (is (= [] @errors))))
 
 (deftest test-plugin-vars
   (are [project hooks middleware] (= (list hooks middleware)

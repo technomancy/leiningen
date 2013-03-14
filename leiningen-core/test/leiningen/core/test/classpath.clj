@@ -21,7 +21,7 @@
                                :exclusions [commons-codec]]]
               :checkout-deps-shares [:source-paths :resource-paths
                                      :compile-path #(str (:root %) "/foo")]
-              :repositories (:repositories project/defaults)
+              :repositories project/default-repositories
               :root "/tmp/lein-sample-project"
               :target-path "/tmp/lein-sample-project/target"
               :source-paths ["/tmp/lein-sample-project/src"]
