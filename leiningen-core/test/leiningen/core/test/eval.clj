@@ -3,11 +3,13 @@
         [leiningen.core.eval])
   (:require [clojure.java.io :as io]
             [clojure.set :as set]
-            [leiningen.core.classpath :as classpath])
+            [leiningen.core.classpath :as classpath]
+            [leiningen.core.project :as project])
   (:import (java.io File)))
 
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]]
               :root "/tmp/lein-sample-project"
+              :repositories project/default-repositories
               :target-path "/tmp/lein-sample-project/target"
               :source-paths ["/tmp/lein-sample-project/src"]
               :resource-paths ["/tmp/lein-sample-project/resources"]
@@ -36,8 +38,8 @@
 (deftest test-get-jvm-args-with-proxy-settings
   ;; Mock get-proxy-settings to return test values
   (with-redefs [classpath/get-proxy-settings
-                (fn ([] {:host "foo.com" :port "8080"})
-                    ([https] {:host "secure-foo.com", :port "443"}))]
+                (fn ([] {:host "foo.com" :port 8080})
+                    ([https] {:host "secure-foo.com", :port 443}))]
     (let [args (set (shell-command project 'repl))]
       (is (and (contains? args "-Dhttp.proxyHost=foo.com")
                (contains? args "-Dhttp.proxyPort=8080")
