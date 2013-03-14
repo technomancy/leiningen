@@ -17,6 +17,7 @@
 * Add experimental support for :eval-in :nrepl. (Phil Hagelberg)
 * Don't follow symlinks in clean task. (Jean Niklas L'orange)
 * Add support for ~/.lein/profiles.d. (Jean Niklas L'orange)
+* Allow ctrl-c to interrupt repl input (Colin Jones)
 
 ## 2.0.0 / 2013-01-19
 
