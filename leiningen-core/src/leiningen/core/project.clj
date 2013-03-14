@@ -137,6 +137,7 @@
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
+   :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
 
 (defn- dep-key
@@ -249,8 +250,7 @@
               (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
               (assoc :eval-in (or (:eval-in project)
                                   (if (:eval-in-leiningen project)
-                                    :leiningen, :subprocess))
-                     :offline? (not (nil? (System/getenv "LEIN_OFFLINE"))))
+                                    :leiningen, :subprocess)))
               (normalize-values)))
          (meta project)))))
 
