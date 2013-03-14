@@ -125,15 +125,19 @@
              {:type :paths :paths (:java-source-paths project)}])
           (:filespecs project)))
 
+;; Split out backwards-compatibility. Collapse into get-jar-filename for 3.0
+(defn get-classified-jar-filename [project classifier]
+  (let [target (doto (io/file (:target-path project)) .mkdirs)
+        suffix (if classifier (str "-" (name classifier) ".jar") ".jar")
+        ;; TODO: splice in version to :jar-name
+        name-kw (if (= classifier :standalone) :uberjar-name :jar-name)
+        jar-name (or (project name-kw)
+                     (str (:name project) "-" (:version project) suffix))]
+    (str (io/file target jar-name))))
+
 (defn get-jar-filename
-  ([project classifier]
-     (let [target (doto (io/file (:target-path project)) .mkdirs)
-           suffix (if classifier (str "-" (name classifier) ".jar") ".jar")
-           ;; TODO: splice in version to :jar-name
-           name-kw (if (= classifier :standalone) :uberjar-name :jar-name)
-           jar-name (or (project name-kw)
-                        (str (:name project) "-" (:version project) suffix))]
-       (str (io/file target jar-name))))
+  ([project uberjar?]
+     (get-classified-jar-filename project (if uberjar? :standalone)))
   ([project] (get-jar-filename project nil)))
 
 (def whitelist-keys
