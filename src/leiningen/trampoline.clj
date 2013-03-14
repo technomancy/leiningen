@@ -26,7 +26,7 @@
         rests (mapcat rest forms)
         ;; This won't pick up :jvm-args that come from profiles, but it
         ;; at least gets us :dependencies.
-        project (project/merge-profiles project profiles)
+        project (project/set-profiles project profiles)
         command (eval/shell-command project (concat '(do) inits rests))]
     (string/join " " (if (win-batch?)
                        (map quote-arg command)
