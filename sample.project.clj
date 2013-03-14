@@ -248,6 +248,8 @@
                              (leiningen.core.classpath/get-classpath %))
              ;; Symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
+  ;; Use a different `java` executable for project JVMs.
+  :java-cmd "/home/phil/bin/java1.7"
   ;; You can set JVM-level options here.
   ;; It is also possible to use :java-opts, which is an alias for :jvm-opts.
   :jvm-opts ["-Xmx1g"]
