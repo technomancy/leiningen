@@ -17,7 +17,7 @@
                                org.sonatype.sisu/sisu-inject-plexus]]
                  [reply "0.1.10" :exclusions [ring/ring-core]]
                  ;; drawbridge specifies an ancient version here, so bump it
-                 [clj-http "0.5.8" :exclusions [crouton cheshire]]]
+                 [clj-http "0.6.5" :exclusions [crouton cheshire]]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
