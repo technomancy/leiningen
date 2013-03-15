@@ -75,7 +75,20 @@ goto RUN
 
 :DownloadFile
 rem parameters: TargetFileName Address
-powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" %~2 %~1
+powershell -? >nul 2>&1
+if NOT ERRORLEVEL 9009 (
+    powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" %~2 %~1
+) else (
+    wget >nul 2>&1
+    if NOT ERRORLEVEL 9009 (
+        wget --no-check-certificate -O %1 %2
+    ) else (
+        curl>nul 2>&1
+        if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
+        curl --insecure -f -L -o  %1 %2
+    )
+)
+
 goto EOF
 
 :EnsureIsSet 
@@ -129,7 +142,6 @@ if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
 echo Downloading Leiningen now...
 
-:: set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
 call :DownloadFile "%LEIN_JAR%.pending" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
@@ -160,7 +172,6 @@ exit /B 1
 :YES_UPGRADE
 echo Downloading latest Leiningen batch script...
 
-::set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/master/bin/lein.bat
 set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
 call :DownloadFile "%LEIN_BAT%.pending" %LEIN_BAT_URL%
@@ -175,6 +186,19 @@ echo Upgrading...
 set LEIN_JAR=
 call "%TEMP_BAT%" self-install
 move /y "%TEMP_BAT%" "%LEIN_BAT%" && goto EOF
+goto EOF
+
+
+:NO_HTTP_CLIENT
+echo.
+echo ERROR: Neither PowerShell, Wget, or Curl could be found.
+echo        Make sure at least one of these tools is installed
+echo        and is in PATH. You can get them from URLs below:
+echo.
+echo PowerShell: "http://www.microsoft.com/powershell"
+echo Wget:       "http://users.ugent.be/~bpuype/wget/"
+echo Curl:       "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
+echo.
 goto EOF
 
 
