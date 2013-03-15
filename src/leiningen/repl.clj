@@ -81,7 +81,7 @@
     (for [n (concat defaults nrepl-syms nses)]
       (list 'quote n))))
 
-(defn- start-server [project host port ack-port & [headless?]]
+(defn- start-server [project host port ack-port headless?]
   (let [server-starting-form
         `(let [server# (clojure.tools.nrepl.server/start-server
                         :bind ~host :port ~port :ack-port ~ack-port
@@ -109,6 +109,7 @@
 (defn- repl-port [project]
   (Integer. (or (System/getenv "LEIN_REPL_PORT")
                 (-> project :repl-options :port)
+                (-> (user/profiles) :user :repl-options :port)
                 0)))
 
 (defn- repl-host [project]
@@ -143,8 +144,8 @@
                   :else {}))
      {:prompt :custom-prompt})))
 
-(defn- trampoline-repl [project]
-  (let [options (options-for-reply project :port (repl-port project))]
+(defn- trampoline-repl [project port]
+  (let [options (options-for-reply project :port port)]
     (eval/eval-in-project
      (project/merge-profiles project (profiles-for project :trampoline true))
      (if (:standalone options)
@@ -153,63 +154,62 @@
      `(do (try (require '~(init-ns project)) (catch Throwable t#))
           (require ~@(init-requires project 'reply.main))))))
 
-(defn- opt-port
-  "Extract port number from the given options."
-  [opts]
+(defn- opt-port [opts]
   (when-let [port (first
                    (for [[i o] (map-indexed vector opts) :when (= o ":port")]
-                     (try
-                       (nth opts (inc i))
-                       (catch Exception _
-                         nil))))]
+                     (try (nth opts (inc i))
+                          (catch Exception _))))]
     (Integer. port)))
 
+(defn server [project host port headless?]
+  (let [prep-blocker @eval/prep-blocker]
+    (nrepl.ack/reset-ack-port!)
+    (-> (bound-fn []
+          (binding [eval/*pump-in* false]
+            (start-server project (repl-host project) (repl-port project)
+                          (-> @lein-repl-server deref :ss .getLocalPort)
+                          headless?)))
+        (Thread.) (.start))
+    (when project @prep-blocker)
+    (when headless? @(promise))
+    (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
+                                                   :repl-options
+                                                   (:timeout 60000)))]
+      (do (println "nREPL server started on port" repl-port) repl-port)
+      (main/abort "REPL server launch timed out."))))
+
+(defn client [project host attach]
+  (when (and (string? attach) (.startsWith attach "http"))
+    (require 'cemerick.drawbridge.client))
+  (reply/launch-nrepl (options-for-reply project :attach attach)))
+
 (defn ^:no-project-needed repl
-  "Start a repl session either with the current project or standalone.
+"Start a repl session either with the current project or standalone.
 
-USAGE: lein repl
-This will launch an nREPL server behind the scenes
-that reply will connect to. If a :port key is present in
-the :repl-options map in project.clj, that port will be used for the
-server, otherwise it is chosen randomly. If you run this command
-inside of a project, it will be run in the context of that classpath.
-If the command is run outside of a project, it'll be standalone and
-the classpath will be that of Leiningen.
+Subcommands:
 
-USAGE: lein repl :headless [:port port]
-This will launch an nREPL server and wait, rather than connecting reply to it.
-If :port is specified, the port given is used instead of a random one.
+:start (default)
+  This will launch an nREPL server and connect a client to it. If
+  a :port key is present in the :repl-options map in project.clj, that
+  port will be used for the server, otherwise it is chosen randomly.
+  When run outside of a project, it will run internally to Leiningen.
 
-USAGE: lein repl :connect [host:]port
-Connects to the nREPL server running at the given host (defaults to localhost)
-and port."
-  ([] (repl nil))
-  ([project]
-     (if trampoline/*trampoline?*    ; TODO: does trampolining the other
-       (trampoline-repl project)     ; arities need special handling?
-       (let [prep-blocker @eval/prep-blocker]
-         (nrepl.ack/reset-ack-port!)
-         (.start
-          (Thread.
-           (bound-fn []
-             (binding [eval/*pump-in* false]
-               (start-server project (repl-host project) (repl-port project)
-                             (-> @lein-repl-server deref :ss .getLocalPort))))))
-         (when project @prep-blocker)
-         (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
-                                                        :repl-options
-                                                        (:timeout 60000)))]
-           (do
-             (println "nREPL server started on port" repl-port)
-             (let [options (options-for-reply project :attach repl-port)]
-               (reply/launch-nrepl options)))
-           (println "REPL server launch timed out.")))))
-  ([project flag & opts]
-     (case flag
-       ":headless" (start-server project
-                                 (repl-host project) (or (opt-port opts)
-                                                         (repl-port project))
-                                 (ack-port project) :headless)
-       ":connect" (do (require 'cemerick.drawbridge.client)
-                      (reply/launch-nrepl {:attach (first opts)}))
-       (main/abort "Unrecognized flag:" flag))))
+:headless [:port port]
+  This will launch an nREPL server and wait, rather than connecting
+  a client to it.
+
+:connect [host:]port
+  Connects to the nREPL server running at the given host (defaults to
+  localhost) and port."
+  ([project] (repl project ":start"))
+  ([project subcommand & opts]
+     (let [host (repl-host project)
+           port (or (opt-port opts) (repl-port project))]
+       (case subcommand
+         ":start" (if trampoline/*trampoline?*
+                    (trampoline-repl project port)
+                    (let [port (server project host port false)]
+                        (client project host port)))
+         ":headless" (server project host port true)
+         ":connect" (client project host (or (first opts) port))
+         (main/abort "Unknown subcommand")))))
