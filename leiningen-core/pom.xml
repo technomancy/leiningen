@@ -46,18 +46,12 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.4.0</version>
+      <version>1.5.1</version>
     </dependency>
     <dependency>
       <groupId>bultitude</groupId>
       <artifactId>bultitude</artifactId>
-      <version>0.1.7</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>dynapath</artifactId>
-          <groupId>dynapath</groupId>
-        </exclusion>
-      </exclusions>
+      <version>0.2.2</version>
     </dependency>
     <dependency>
       <groupId>classlojure</groupId>
@@ -89,6 +83,11 @@
       <groupId>org.tcrawley</groupId>
       <artifactId>dynapath</artifactId>
       <version>0.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-http</artifactId>
+      <version>2.4</version>
     </dependency>
   </dependencies>
 </project>
