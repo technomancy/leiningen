@@ -66,40 +66,33 @@ if exist "%~dp0..\src\leiningen\version.clj" (
 if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
 :: ##################################################
 
+if "x!JAVA_CMD!" == "x" set JAVA_CMD=java
+if "x!LEIN_JAVA_CMD!" == "x" set LEIN_JAVA_CMD=%JAVA_CMD%
 
-call :EnsureIsSet JAVA_CMD java
-call :EnsureIsSet LEIN_JAVA_CMD %JAVA_CMD%
-rem if "x%JAVA_CMD%" == "x" set JAVA_CMD="java"
+rem ensure a single set of quotes around java commands
+for /f "usebackq delims=" %%i in ('!JAVA_CMD!') do set JAVA_CMD="%%~i"
+for /f "usebackq delims=" %%i in ('!LEIN_JAVA_CMD!') do set LEIN_JAVA_CMD="%%~i"
+
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
 
 :DownloadFile
 rem parameters: TargetFileName Address
-powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" %~2 %~1
+powershell -? >nul 2>&1
+if NOT ERRORLEVEL 9009 (
+    powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" %~2 %~1
+) else (
+    wget >nul 2>&1
+    if NOT ERRORLEVEL 9009 (
+        wget --no-check-certificate -O %1 %2
+    ) else (
+        curl>nul 2>&1
+        if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
+        curl --insecure -f -L -o  %1 %2
+    )
+)
+
 goto EOF
-
-:EnsureIsSet 
-rem parameters: Variable DefaultValue
-rem Variable's value can be empty, if it is then it will be set to the DefaultValue(which is not modified/stripped)
-rem it will strip all encountered double quotes from Variable and from Variable's value
-rem this script will fail if Variable contains characters like >, <, |, & or even parentheses or even number of double quotes
-rem the Variable's value will be surrounded by double quotes (no inner double quotes though, they're all stripped)
-rem  except in the case of DefaultValue which is set as it is
-
-SETLOCAL
-set _var=%~1
-
-call set _result=%%%_var%%%
-
-for /f "useback tokens=*" %%a in ('%_result%') do (
-set _result=%%~a
-set _result=%_result:"=%
-)
-
-( ENDLOCAL
-  if "x%_result%" == "x" (set %_var%=%2) ELSE (set %_var%="%_result%")
-)
-goto :eof
 
 
 :NO_LEIN_JAR
@@ -129,7 +122,6 @@ if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
 echo Downloading Leiningen now...
 
-:: set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
 set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
 call :DownloadFile "%LEIN_JAR%.pending" %LEIN_JAR_URL%
 if ERRORLEVEL 1 (
@@ -160,7 +152,6 @@ exit /B 1
 :YES_UPGRADE
 echo Downloading latest Leiningen batch script...
 
-::set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/master/bin/lein.bat
 set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
 call :DownloadFile "%LEIN_BAT%.pending" %LEIN_BAT_URL%
@@ -175,6 +166,19 @@ echo Upgrading...
 set LEIN_JAR=
 call "%TEMP_BAT%" self-install
 move /y "%TEMP_BAT%" "%LEIN_BAT%" && goto EOF
+goto EOF
+
+
+:NO_HTTP_CLIENT
+echo.
+echo ERROR: Neither PowerShell, Wget, or Curl could be found.
+echo        Make sure at least one of these tools is installed
+echo        and is in PATH. You can get them from URLs below:
+echo.
+echo PowerShell: "http://www.microsoft.com/powershell"
+echo Wget:       "http://users.ugent.be/~bpuype/wget/"
+echo Curl:       "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
+echo.
 goto EOF
 
 
