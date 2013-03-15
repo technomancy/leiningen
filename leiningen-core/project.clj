@@ -4,7 +4,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [bultitude "0.2.1" :exclusions [dynapath]]
+                 [bultitude "0.2.2"]
                  [classlojure "0.6.6"]
                  [useful "0.8.6"]
                  [robert/hooke "1.3.0"]
