@@ -157,7 +157,7 @@ Write the selectors in project.clj:
 Arguments to this task will be considered test selectors if they are keywords,
 otherwise arguments must be test namespaces or files to run. With no
 arguments the :default test selector is used if present, otherwise all
-tests are run.
+tests are run. Test selector arguments must come after the list of namespaces.
 
 A default :only test-selector is available to run select tests. For example,
 `lein test :only leiningen.test.test/test-default-selector` only runs the
