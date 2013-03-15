@@ -32,21 +32,18 @@
             :password (read "javax.net.ssl.keyStorePassword")}
            (-> (user/profiles) :user :key-manager-properties))))
 
-(def key-manager-factory
-  (memoize
-    (fn ^KeyManagerFactory key-manager-factory []
-      (let [{:keys [file type provider password]
-             :or {type (KeyStore/getDefaultType)}} (key-manager-props)
-            fis (if-not (empty? file) (FileInputStream. file))
-            pwd (and password (.toCharArray password))
-            store (if provider
-                    (KeyStore/getInstance type)
-                    (KeyStore/getInstance type provider))]
-        (.load store fis pwd)
-        (when fis (.close fis))
-        (doto (KeyManagerFactory/getInstance
-               (KeyManagerFactory/getDefaultAlgorithm))
-          (.init store pwd))))))
+(defn key-manager-factory [{:keys [file type provider password]}]
+  (let [type (or type (KeyStore/getDefaultType))
+        fis (if-not (empty? file) (FileInputStream. file))
+        pwd (and password (.toCharArray password))
+        store (if provider
+                (KeyStore/getInstance type provider)
+                (KeyStore/getInstance type))]
+    (.load store fis pwd)
+    (when fis (.close fis))
+    (doto (KeyManagerFactory/getInstance
+           (KeyManagerFactory/getDefaultAlgorithm))
+      (.init store pwd))))
 
 (defn default-trusted-certs
   "Lists the CA certificates trusted by the JVM."
@@ -69,14 +66,17 @@
       (.setEntry ks (str i) (KeyStore$TrustedCertificateEntry. cert) nil))
     ks))
 
+;; TODO: honor settings from project.clj, not just user profile
 (defn make-sslcontext
   "Construct an SSLContext that trusts a collection of certificatess."
   [trusted-certs]
   (let [ks (make-keystore trusted-certs)
-        kmf (key-manager-factory)
+        kmf (key-manager-factory (key-manager-props))
         tmf (trust-manager-factory ks)]
    (doto (SSLContext/getInstance "TLS")
      (.init (.getKeyManagers kmf) (.getTrustManagers tmf) nil))))
+
+(alter-var-root #'make-sslcontext memoize)
 
 (defn https-scheme
   "Construct a Scheme that uses a given SSLContext."
