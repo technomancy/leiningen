@@ -1,5 +1,6 @@
 (ns leiningen.core.ssl
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [leiningen.core.user :as user])
   (:import java.security.KeyStore
            java.security.KeyStore$TrustedCertificateEntry
            java.security.Security
@@ -8,6 +9,7 @@
            javax.net.ssl.SSLContext
            javax.net.ssl.TrustManagerFactory
            javax.net.ssl.X509TrustManager
+           java.io.FileInputStream
            org.apache.http.conn.ssl.SSLSocketFactory
            org.apache.http.conn.scheme.Scheme
            org.apache.maven.wagon.providers.http.HttpWagon
@@ -22,25 +24,29 @@
         tms (.getTrustManagers tmf)]
     (filter #(instance? X509TrustManager %) tms)))
 
-(defn default-key-manager-properties []
-  (let [read #(java.lang.System/getProperty % %2)]
-    {:file (read "javax.net.ssl.keyStore" "NONE")
-     :type (read "javax.net.ssl.keyStoreType" (KeyStore/getDefaultType))
-     :prov (read "javax.net.ssl.keyStoreProvider" "")
-     :pass (read "javax.net.ssl.keyStorePassword" "")}))
+(defn key-manager-props []
+  (let [read #(java.lang.System/getProperty %)]
+    (merge {:file (read "javax.net.ssl.keyStore")
+            :type (read "javax.net.ssl.keyStoreType")
+            :provider (read "javax.net.ssl.keyStoreProvider")
+            :password (read "javax.net.ssl.keyStorePassword")}
+           (-> (user/profiles) :user :key-manager-properties))))
 
-(def default-key-managers
+(def key-manager-factory
   (memoize
-    (fn ^KeyManagerFactory default-key-managers []
-      (let [{:keys [file type prov pass] :as props} (default-key-manager-properties)
-            fis (when-not (contains? #{nil "" "NONE"} file) (java.io.FileInputStream. file))
-            pwd (when-not (= "" pass) (.toCharArray pass))
-            store (if (= "" prov) (KeyStore/getInstance type) (KeyStore/getInstance type prov))
-            kmf (KeyManagerFactory/getInstance (KeyManagerFactory/getDefaultAlgorithm))]
+    (fn ^KeyManagerFactory key-manager-factory []
+      (let [{:keys [file type provider password]
+             :or {type (KeyStore/getDefaultType)}} (key-manager-props)
+            fis (if-not (empty? file) (FileInputStream. file))
+            pwd (and password (.toCharArray password))
+            store (if provider
+                    (KeyStore/getInstance type)
+                    (KeyStore/getInstance type provider))]
         (.load store fis pwd)
         (when fis (.close fis))
-        (.init kmf store pwd)
-        kmf))))
+        (doto (KeyManagerFactory/getInstance
+               (KeyManagerFactory/getDefaultAlgorithm))
+          (.init store pwd))))))
 
 (defn default-trusted-certs
   "Lists the CA certificates trusted by the JVM."
@@ -67,10 +73,10 @@
   "Construct an SSLContext that trusts a collection of certificatess."
   [trusted-certs]
   (let [ks (make-keystore trusted-certs)
-        kmf (default-key-managers)
+        kmf (key-manager-factory)
         tmf (trust-manager-factory ks)]
    (doto (SSLContext/getInstance "TLS")
-     (.init (when kmf (.getKeyManagers kmf)) (.getTrustManagers tmf) nil))))
+     (.init (.getKeyManagers kmf) (.getTrustManagers tmf) nil))))
 
 (defn https-scheme
   "Construct a Scheme that uses a given SSLContext."
