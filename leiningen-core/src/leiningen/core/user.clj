@@ -70,18 +70,28 @@
   []
   (or (System/getenv "LEIN_GPG") "gpg"))
 
+(defn gpg
+  "Shells out to (gpg-program) with the given arguments"
+  [& args]
+  (try
+    (apply shell/sh (gpg-program) args)
+    (catch java.io.IOException e
+      {:exit 1 :err (.getMessage e)})))
+
+(defn gpg-available?
+  "Verifies (gpg-program) exists"
+  []
+  (= 0 (:exit (gpg "--version"))))
+
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."
   ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]
         (if (.exists cred-file)
           (credentials-fn cred-file))))
   ([file]
-     (let [{:keys [out err exit]} (try (shell/sh
-                                        (gpg-program)
-                                        "--quiet" "--batch"
-                                        "--decrypt" "--" (str file))
-                                       (catch java.io.IOException e
-                                         {:exit 1 :err (.getMessage e)}))]
+     (let [{:keys [out err exit]} (gpg 
+                                   "--quiet" "--batch"
+                                   "--decrypt" "--" (str file))]
        (if (pos? exit)
          (binding [*out* *err*]
            (println "Could not decrypt credentials from" (str file))
