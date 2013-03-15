@@ -30,22 +30,28 @@
       [id settings])))
 
 (defn add-auth-interactively [[id settings]]
-  (if (or (and (:username settings) (some settings [:password :passphrase
-                                                    :private-key-file]))
-          (.startsWith (:url settings) "file://"))
-    [id settings]
-    (do
-      (println "No credentials found for" id)
-      (println "See `lein help deploying` for how to configure credentials.")
-      (when @utils/rebound-io?
-        (main/info
-         "WARNING: Leiningen has already been used to read from the terminal.")
-        (main/info "This may cause issues when reading passwords."))
-      (print "Username: ") (flush)
-      (let [username (read-line)
-            password (.readPassword (System/console) "%s"
-                                    (into-array ["Password: "]))]
-        [id (assoc settings :username username :password password)]))))
+  (cond
+   (or (and (:username settings) (some settings [:password :passphrase
+                                                 :private-key-file]))
+       (.startsWith (:url settings) "file://"))
+   [id settings]
+
+   @utils/rebound-io?
+   (main/abort "No credentials found for" id
+               "\nPassword prompts are not supported when ran after other"
+               "(potentially)\ninteractive tasks. Maybe setting up credentials"
+               "may be an idea?\n\nSee `lein help deploy` for an explanation of"
+               "how to specify credentials.")
+
+   :else
+   (do
+     (println "No credentials found for" id)
+     (println "See `lein help deploying` for how to configure credentials.")
+     (print "Username: ") (flush)
+     (let [username (read-line)
+           password (.readPassword (System/console) "%s"
+                                   (into-array ["Password: "]))]
+       [id (assoc settings :username username :password password)]))))
 
 (defn repo-for [project name]
   (let [[settings] (for [[id settings] (concat (:deploy-repositories project)
