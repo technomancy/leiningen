@@ -1,7 +1,7 @@
-(ns leiningen.update
+(ns leiningen.update-in
   (:require [leiningen.core.main :as main]))
 
-(defn ^:higher-order update
+(defn ^:higher-order update-in
   "Perform arbitrary transformations on your project map.
 
 Acts a lot like calling `clojure.core/update-in` on your project map
@@ -11,7 +11,7 @@ together like \":repl-options:port\". Provide the arguments to f
 (which must be a resolvable var) followed by \"--\", and then the
 task name and arguments to the task:
 
-    $ lein update :dependencies conj \"[slamhound \\\"1.1.3\\\"]\" -- repl"
+    $ lein update-in :dependencies conj \"[slamhound \\\"1.1.3\\\"]\" -- repl"
   [project keys f & args]
   (let [keys-vec (map keyword (rest (.split keys ":")))
         update-args (map read-string (take-while (partial not= "--") args))
