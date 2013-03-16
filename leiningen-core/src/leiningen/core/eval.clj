@@ -8,7 +8,8 @@
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
-            [leiningen.core.utils :as utils]))
+            [leiningen.core.utils :as utils])
+  (:import [com.hypirion.io Pipe ClosingPipe]))
 
 ;; # OS detection
 
@@ -125,29 +126,6 @@
           [(d-property [:https.proxyHost host])
            (d-property [:https.proxyPort port])]))))
 
-(defn- out-pump [reader out]
-  (let [buffer (make-array Character/TYPE 1000)]
-    (loop [len (.read reader buffer)]
-      (when-not (neg? len)
-        (.write out buffer 0 len)
-        (.flush out)
-        (Thread/sleep 100) ;; TODO: Why is this here?
-        (recur (.read reader buffer))))))
-
-(defn- in-pump
-  "Redirects input from this process to the input stream to the other process,
-  one byte at a time. Instead of blocking when reading, busy waits in order to
-  gracefully exit and not read other sub-processes' input."
-  [reader out done?]
-  (loop []
-    (let [val (.read reader)]
-      (if-not (neg? val)
-        (do (.write out val)
-            (.flush out))
-        (.close out))
-      (when-not (or @done? (neg? val))
-        (recur)))))
-
 (def ^:dynamic *dir*
   "Directory in which to start subprocesses with eval-in-project or sh."
   (System/getProperty "user.dir"))
@@ -188,16 +166,14 @@
     (with-open [out (io/reader (.getInputStream proc))
                 err (io/reader (.getErrorStream proc))
                 in (.getOutputStream proc)]
-      (let [done (atom false)
-            pump-out (doto (Thread. (bound-fn [] (out-pump out *out*))) .start)
-            pump-err (doto (Thread. (bound-fn [] (out-pump err *err*))) .start)
-            pump-in (Thread. (bound-fn [] (in-pump System/in in done)))]
+      (let [pump-out (doto (Pipe. out *out*) .start)
+            pump-err (doto (Pipe. err *err*) .start)
+            pump-in (ClosingPipe. System/in in)]
         (when *pump-in* (.start pump-in))
         (.join pump-out)
         (.join pump-err)
         (let [exit-value (.waitFor proc)]
           (when *pump-in*
-            (reset! done true)
             (.kill System/in)
             (.join pump-in)
             (.resurrect System/in))
