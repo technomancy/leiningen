@@ -40,13 +40,13 @@
    (main/abort "No credentials found for" id
                "\nPassword prompts are not supported when ran after other"
                "(potentially)\ninteractive tasks. Maybe setting up credentials"
-               "may be an idea?\n\nSee `lein help deploy` for an explanation of"
+               "may be an idea?\n\nSee `lein help gpg` for an explanation of"
                "how to specify credentials.")
 
    :else
    (do
      (println "No credentials found for" id)
-     (println "See `lein help deploying` for how to configure credentials.")
+     (println "See `lein help gpg` for how to configure credentials.")
      (print "Username: ") (flush)
      (let [username (read-line)
            password (.readPassword (System/console) "%s"
