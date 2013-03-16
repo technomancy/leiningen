@@ -34,6 +34,8 @@
 
 (def overlapped-sourcepaths-project (read-test-project "overlapped-sourcepaths"))
 
+(def more-gen-classes-project (read-test-project "more-gen-classes"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
  message."

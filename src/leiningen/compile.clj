@@ -102,11 +102,48 @@
                        (blacklisted-class? project f))]
       (.delete f))))
 
+(require 'clojure.test)
+(refer 'clojure.test :only '[with-test testing is])
+(with-test
+  (defn- probably-cli-regex? [thing]
+    (.startsWith thing "#\""))
+  (testing "that we correctly identify a string that the user intends to be a regex"
+    (is (probably-cli-regex? "#\"^jwz is displeased$\"")))
+  (testing "that we don't think _everything_ is a regex"
+    (is (not (probably-cli-regex? "^jwz is displeased$")))))
+
+(with-test
+  (defn regex? [v]
+    (instance? java.util.regex.Pattern v))
+  (is (regex? #"blah"))
+  (is (not (regex? "blah")))
+  (is (regex? (re-pattern "blah"))))
+
+;; @TODO are we consistent about "regex" vs "regexp"?
+;; I felt compelled to include the :pre/:post-conditions as a
+;; result of using `read-string`
+(defn compilation-specs [cli-args]
+  {:pre [(every? string? cli-args)]
+   :post [(or (= % :all)
+              (every? (some-fn symbol? regex?)
+                      %))]}
+  (cond (empty? cli-args)      nil
+
+        (= cli-args [":all"])  :all
+
+        :else
+        (let [{namespaces false
+               regexps    true} (group-by probably-cli-regex? cli-args)]
+          (concat
+           (map symbol namespaces)
+           (map read-string regexps)))))
+
 (defn compile
   "Compile Clojure source into .class files.
 
 Uses the namespaces specified under :aot in project.clj or those given
-as command-line arguments. Use :all argument to compile everything.
+as command-line arguments. Use :all argument to compile everything. Pass
+#\"regular expressions\" to compile any matching namespaces.
 
 This should automatically happen when required if it's configured correctly; it
 shouldn't need to be manually invoked. See the javac task as well.
@@ -125,7 +162,7 @@ Code that should run on startup belongs in a -main defn."
                 (main/abort "Compilation failed:" (.getMessage e)))
               (finally (clean-non-project-classes project))))
        (main/debug "All namespaces already AOT compiled.")))
-  ([project & namespaces]
-     (compile (assoc project :aot (if (= namespaces [":all"])
-                                    :all
-                                    (map symbol namespaces))))))
+  ([project & args]
+     (compile
+      (assoc-in project [:aot]
+                (compilation-specs args)))))
