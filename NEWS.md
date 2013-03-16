@@ -2,7 +2,7 @@
 
 ## 2.1.0 / ???
 
-* Add update task for arbitrary project map transformations. (Phil Hagelberg)
+* Add update-in task for arbitrary project map changes. (Phil Hagelberg)
 * Warn when version ranges are detected. (Nelson Morris)
 * Add support for msys on Windows machines. (megri)
 * Allow use of :mirrors when building jars/uberjars. (Tim McCormack)
