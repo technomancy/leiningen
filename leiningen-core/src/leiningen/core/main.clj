@@ -287,7 +287,7 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
         ;; We don't use merge-profiles because we don't want to apply middleware
         ;; since middleware won't be ready until plugins are loaded.
         (let [dummy (-> (project/make (:user (user/profiles)))
-                        (project/init-profiles [:base :user]))]
+                        (project/init-profiles [:user]))]
           (project/load-certificates dummy)
           (project/load-plugins dummy)))
       (warn-chaining task-name args)
