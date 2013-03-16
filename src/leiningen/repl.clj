@@ -91,20 +91,21 @@
            (spit ~(str (io/file (:target-path project) "repl-port")) port#)
            (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
            @(promise))]
-    (if (:root project)
-      (eval/eval-in-project
-       (project/merge-profiles project
-                               (profiles-for project false (not headless?)))
-       `(do ~(-> project :repl-options :init)
-            ~server-starting-form)
-       `(do ~(when-let [init-ns (init-ns project)]
-               `(try (require '~init-ns) (catch Throwable t#)))
-            ~@(for [n (init-requires project)]
-                `(try (require ~n)
-                      (catch Throwable t#
-                        (println "Error loading" (str ~n ":")
-                                 (or (.getMessage t#) (type t#))))))))
-      (eval server-starting-form))))
+    (eval/eval-in-project
+     (if (= :leiningen (:eval-in project))
+       project
+       (project/merge-profiles project (profiles-for project false
+                                                     (not headless?))))
+     `(do ~(-> project :repl-options :init)
+          ~server-starting-form)
+     ;; TODO: remove in favour of :injections in the :repl profile
+     `(do ~(when-let [init-ns (init-ns project)]
+             `(try (require '~init-ns) (catch Exception _#)))
+          ~@(for [n (init-requires project)]
+              `(try (require ~n)
+                    (catch Throwable t#
+                      (println "Error loading" (str ~n ":")
+                               (or (.getMessage t#) (type t#))))))))))
 
 (defn- repl-port [project]
   (Integer. (or (System/getenv "LEIN_REPL_PORT")

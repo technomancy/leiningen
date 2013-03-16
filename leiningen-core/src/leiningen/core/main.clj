@@ -214,7 +214,7 @@
         project (and project (remove-alias project
                                            (or task-alias task-name)))
         task (resolve-task task-name)]
-    (when-not (or project (:no-project-needed (meta task)))
+    (when-not (or (:root project) (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))
     (when-not (matching-arity? task args)
       (abort "Wrong number of arguments to" task-name "task."
@@ -277,19 +277,14 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
   [& raw-args]
   (try
     (user/init)
-    (let [project (if (.exists (io/file "project.clj"))
-                    (project/init-project (project/read)))
+    (let [project (project/init-project
+                   (if (.exists (io/file "project.clj"))
+                     (project/read)
+                     (assoc (project/make (:user (user/profiles)))
+                       :eval-in :leiningen)))
           [task-name args] (task-args raw-args project)]
-      (when (:min-lein-version project)
-        (verify-min-version project))
+      (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
-      (when-not project
-        ;; We don't use merge-profiles because we don't want to apply middleware
-        ;; since middleware won't be ready until plugins are loaded.
-        (let [dummy (-> (project/make (:user (user/profiles)))
-                        (project/init-profiles [:user]))]
-          (project/load-certificates dummy)
-          (project/load-plugins dummy)))
       (warn-chaining task-name args)
       (apply-task task-name project args))
     (catch Exception e
