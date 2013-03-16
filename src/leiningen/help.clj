@@ -135,4 +135,4 @@ deploying, mixed-source, templates, and copying info."
        (doseq [[k v] aliases]
          (println (str k  " " v))))
      (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
-              "deploying, mixed-source, templates, and copying.")))
+              "deploying, gpg, mixed-source, templates, and copying.")))
