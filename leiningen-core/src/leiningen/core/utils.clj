@@ -1,7 +1,19 @@
 (ns leiningen.core.utils
   (:require [clojure.java.io :as io])
-  (:import [java.io File]
+  (:import [com.hypirion.io RevivableInputStream]
+           [clojure.lang LineNumberingPushbackReader]
+           [java.io File FileDescriptor FileInputStream InputStreamReader]
            [java.net URL]))
+
+(def rebound-io? (atom false))
+
+(defn rebind-io! []
+  (when-not @rebound-io?
+    (let [new-in (-> FileDescriptor/in FileInputStream. RevivableInputStream.)]
+      (System/setIn new-in)
+      (.bindRoot #'*in* (-> new-in InputStreamReader.
+                            LineNumberingPushbackReader.)))
+    (reset! rebound-io? true)))
 
 (defn build-url
   "Creates java.net.URL from string"
