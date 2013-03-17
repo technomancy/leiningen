@@ -65,7 +65,8 @@
                                      eval/*pump-in* false]
                              (user/gpg "--yes" "-ab" "--" file))]
     (when-not (zero? exit)
-      (main/abort "Could not sign" (str file "\n" err)))
+      (main/abort "Could not sign"
+                  (str file "\n" err "\nSee `lein help gpg` for how to setup gpg." )))
     (str file ".asc")))
 
 (defn signature-for [extension file]

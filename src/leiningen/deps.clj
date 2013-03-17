@@ -137,7 +137,8 @@ force them to be updated, use `lein -U $TASK`."
              (if (user/gpg-available?)
                (walk-deps (classpath/dependency-hierarchy :dependencies project)
                           (partial verify project))
-               (main/abort "Could not verify - gpg not available"))
+               (main/abort
+                "Could not verify - gpg not available.\nSee `lein help gpg` for how to setup gpg."))
              :else (classpath/resolve-dependencies :dependencies project))
        (catch DependencyResolutionException e
          (main/abort (.getMessage e))))))

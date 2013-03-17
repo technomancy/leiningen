@@ -95,7 +95,8 @@
        (if (pos? exit)
          (binding [*out* *err*]
            (println "Could not decrypt credentials from" (str file))
-           (println err))
+           (println err)
+           (println "See `lein help gpg` for how to install gpg."))
          (read-string out)))))
 
 (def credentials (memoize credentials-fn))
