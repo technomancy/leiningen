@@ -37,10 +37,6 @@ See the
 and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
 structured.
 
-While there is a test suite, it's not terribly thorough, so don't put
-too much trust in it. Patches which add test coverage for the
-functionality they change are especially welcome.
-
 ## Bootstrapping
 
 You don't need to "build" Leiningen per se, but when you're developing on a
@@ -64,3 +60,15 @@ Using `bin/lein` alone from the master branch without a full checkout
 is not supported. If you want to just grab a shell script to work
 with, use the `stable` branch.
 
+## Tests
+
+Before you're asking for a pull request, we would be very happy if you ensure
+that the changes you've done doesn't break any of the existing test cases. While
+there is a test suite, it's not terribly thorough, so don't put too much trust
+in it. Patches which add test coverage for the functionality they change are
+especially welcome.
+
+To run the test cases, run `bin/lein test` in the root directory: This will test
+both `leiningen-core` and `leiningen` itself. Do not attempt to run the tests
+with a stable version of Leiningen, as the namespaces conflict and you may end
+up with errors during the test run.
