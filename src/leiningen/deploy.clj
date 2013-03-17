@@ -30,18 +30,28 @@
       [id settings])))
 
 (defn add-auth-interactively [[id settings]]
-  (if (or (and (:username settings) (some settings [:password :passphrase
-                                                    :private-key-file]))
-          (.startsWith (:url settings) "file://"))
-    [id settings]
-    (do
-      (println "No credentials found for" id)
-      (println "See `lein help deploying` for how to configure credentials.")
-      (print "Username: ") (flush)
-      (let [username (read-line)
-            password (.readPassword (System/console) "%s"
-                                    (into-array ["Password: "]))]
-        [id (assoc settings :username username :password password)]))))
+  (cond
+   (or (and (:username settings) (some settings [:password :passphrase
+                                                 :private-key-file]))
+       (.startsWith (:url settings) "file://"))
+   [id settings]
+
+   @utils/rebound-io?
+   (main/abort "No credentials found for" id
+               "\nPassword prompts are not supported when ran after other"
+               "(potentially)\ninteractive tasks. Maybe setting up credentials"
+               "may be an idea?\n\nSee `lein help gpg` for an explanation of"
+               "how to specify credentials.")
+
+   :else
+   (do
+     (println "No credentials found for" id)
+     (println "See `lein help gpg` for how to configure credentials.")
+     (print "Username: ") (flush)
+     (let [username (read-line)
+           password (.readPassword (System/console) "%s"
+                                   (into-array ["Password: "]))]
+       [id (assoc settings :username username :password password)]))))
 
 (defn repo-for [project name]
   (let [[settings] (for [[id settings] (concat (:deploy-repositories project)
@@ -54,7 +64,10 @@
         (add-auth-interactively))))
 
 (defn sign [file]
-  (let [{:keys [err exit]} (user/gpg "--yes" "-ab" "--" file)]
+  (let [{:keys [err exit]} (binding [*out* (java.io.StringWriter.)
+                                     ;; gpg handles reading by itself
+                                     eval/*pump-in* false]
+                             (user/gpg "--yes" "-ab" "--" file))]
     (when-not (zero? exit)
       (main/abort "Could not sign" (str file "\n" err)))
     (str file ".asc")))
@@ -105,7 +118,7 @@ If you don't provide a repository name to deploy to, either \"snapshots\" or
 \"releases\" will be used depending on your project's current version. See
 `lein help deploying` under \"Authentication\" for instructions on how to
 configure your credentials so you are not prompted on each deploy."
-  ([project repository-name] 
+  ([project repository-name]
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))
