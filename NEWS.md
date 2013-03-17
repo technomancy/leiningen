@@ -18,6 +18,7 @@
 * Don't follow symlinks in clean task. (Jean Niklas L'orange)
 * Add support for ~/.lein/profiles.d. (Jean Niklas L'orange)
 * Allow ctrl-c to interrupt repl input (Colin Jones)
+* Allow `lein test` to take files as arguments (Gabriel Horner)
 
 ## 2.0.0 / 2013-01-19
 
