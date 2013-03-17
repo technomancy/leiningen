@@ -30,17 +30,17 @@
       [id settings])))
 
 (defn add-auth-interactively [[id settings]]
-  (when @utils/rebound-io?
-    (main/abort "No credentials found for" id
-                "\nPassword prompts are not supported when ran after other"
-                "(potentially)\ninteractive tasks. Maybe setting up credentials"
-                "may be an idea?\n\nSee `lein help gpg` for an explanation of"
-                "how to specify credentials."))
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
           (.startsWith (:url settings) "file://"))
     [id settings]
     (do
+      (when @utils/rebound-io?
+        (main/abort "No credentials found for" id
+                    "\nPassword prompts are not supported when ran after other"
+                    "(potentially)\ninteractive tasks. Maybe setting up "
+                    "credentials may be an idea?\n\nSee `lein help gpg` for an "
+                    "explanation of how to specify credentials."))
       (println "No credentials found for" id)
       (println "See `lein help gpg` for how to configure credentials.")
       (print "Username: ") (flush)
