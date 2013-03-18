@@ -1,4 +1,5 @@
 (ns leiningen.update-in
+  (:refer-clojure :exclude [update-in])
   (:require [leiningen.core.main :as main]))
 
 (defn ^:higher-order update-in
