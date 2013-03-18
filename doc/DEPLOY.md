@@ -52,7 +52,9 @@ you'll usually need to provide a `:username` and `:password` or
 `:passphrase`. Leiningen will prompt you for a password if you haven't
 set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
-[gpg](http://www.gnupg.org/) installed and a key pair configured.
+[gpg](http://www.gnupg.org/) installed and a key pair configured.  If
+you need help with either of those, see the
+[GPG guide](https://github.com/technomancy/leiningen/blob/stable/doc/GPG.md).
 
 ### GPG
 
@@ -74,12 +76,6 @@ First write your credentials map to `~/.lein/credentials.clj` like so:
  "s3p://s3-repo-bucket/releases"
  {:username "AKIAIN..." :passphrase "1TChrGK4s..."}}
 ```
-
-If you don't have a key pair yet, it's easy to generate one. The
-defaults should serve you well, but be sure to pick a strong passphrase.
-
-    $ gpg --gen-key
-
 Then encrypt it with `gpg`:
 
     $ gpg --default-recipient-self -e \
@@ -90,15 +86,6 @@ encrypted it. Due to a bug in `gpg` you currently need to use
 `gpg-agent` and have already unlocked your key before Leiningen
 launches, but with `gpg-agent` you only have to enter your passphrase
 once per login.
-
-On some systems you will be prompted for your GPG passphrase if you
-haven't entered it. If yours does not, you can install
-[Keychain](https://github.com/funtoo/keychain), which provides this
-functionality portably. Your key will also be used for signing
-artifacts if the version is not a snapshot, so you may be asked for
-the passphrase multiple times if the agent is not configured. To
-disable signing of releases, set `:sign-releases` to false in the
-`:repositories` entry you are targeting.
 
 ### Full-disk Encryption
 

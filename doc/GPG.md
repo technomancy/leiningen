@@ -1,9 +1,9 @@
 # Using GPG
 
-This document aims to be "just enough" for setting up and using
-[GPG](http://www.gnupg.org/) keys for signing artifacts with
-[Leiningen](http://leiningen.org) for publication to
-[Clojars](http://clojars.org/).  
+This document aims to be just enough for setting up and using
+[GPG](http://www.gnupg.org/) keys with
+[Leiningen](http://leiningen.org) to sign artifacts for publication to
+[Clojars](http://clojars.org/) and to encrypt repository credentials.
 
 There are two versions of GPG available: v1.x and v2.x. For our
 purposes, they are functionally equivalent. Package managers generally
@@ -97,10 +97,15 @@ keypair, you should just see your own key).
 
 ## How Leiningen uses GPG
 
-Leiningen uses gpg for two things: decrypting credential files, and
+Leiningen uses gpg for two things: decrypting credential files and
 signing release artifacts. We'll focus on artifact singing here; for
-information on credentials encryption/decryption, see
-[the Leiningen deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
+information on credentials encryption/decryption, see the
+[deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
+
+On some systems you will be prompted for your GPG passphrase when it
+is needed if you haven't entered it. If yours does not, you can
+install [Keychain](https://github.com/funtoo/keychain), which provides
+this functionality portably. 
 
 ### Signing a file
 
@@ -113,6 +118,9 @@ for each artifact named by appending `.asc` to the artifact name.
 Both signatures are then uploaded to Clojars along with the
 artifacts. In order for Clojars to verify the signatures, you'll need
 to provide it with your *public* key (see below).
+
+To disable signing of releases, set `:sign-releases` to false in the
+`:repositories` entry you are targeting.
 
 ### Overriding the gpg defaults
 
