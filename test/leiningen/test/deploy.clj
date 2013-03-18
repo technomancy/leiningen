@@ -42,3 +42,21 @@
                         {"snapshots" {:url (-> "deploy-only-repo"
                                                repo-path repo-url)}})
                       "deploy-only-repo")))
+
+(deftest signing
+  (testing "GPG invocation"
+    (is (= (signing-args "foo.jar" nil)
+           ["--yes" "-ab" "--" "foo.jar"]))
+    (is (= (signing-args "foo.jar" {:gpg-key "123456"})
+           ["--yes" "-ab" "--default-key" "123456" "--" "foo.jar"])))
+  (testing "Key selection"
+    (is (= (:gpg-key (signing-opts {:signing {:gpg-key "key-project"}}
+                                   ["repo" {:signing {:gpg-key "key-repo"}}]))
+           "key-repo"))
+    (is (= (:gpg-key (signing-opts {:signing {:gpg-key "key-project"}}
+                                   ["repo" {}]))
+           "key-project")))
+  (testing "Whether to sign"
+    (is (= (sign-for-repo? ["foo" {:sign-releases true}]) true))
+    (is (= (sign-for-repo? ["foo" {:sign-releases false}]) false))
+    (is (= (sign-for-repo? ["foo" {}]) true))))
