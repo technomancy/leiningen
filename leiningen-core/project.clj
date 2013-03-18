@@ -21,5 +21,5 @@
   ;; profile since it must be installed using lein1
   ;;:aot :all
   :dev-resources-path "dev-resources"
-  :aliases {"bootstrap" ["do" "install," "classpath" ".lein-bootstrap"]}
-  :profiles {:dev {:resource-paths ["dev-resources"]}})
+  :aliases {"bootstrap" ["with-profile" "base"
+                         "do" "install," "classpath" ".lein-bootstrap"]})
