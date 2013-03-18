@@ -36,11 +36,10 @@ has instructions on migrating to version 2.
 
 On Windows most users can get
 [the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
-If you have PowerShell, wget.exe or curl.exe already installed and in PATH, you
-can just run `lein self-install`, otherwise get the standalone jar from the
-[downloads page](https://github.com/technomancy/leiningen/downloads).
-If you have [Cygwin](http://www.cygwin.com/) you should be able to use
-the shell script above rather than the batch file.
+If you have PowerShell, wget.exe or curl.exe already installed and in
+PATH, you can just run `lein self-install`. If you have
+[Cygwin](http://www.cygwin.com/) you should be able to use the shell
+script above rather than the batch file.
 
 ## Basic Usage
 
