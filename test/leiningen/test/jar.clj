@@ -27,7 +27,7 @@
   (with-out-str
     (is (jar sample-no-aot-project))))
 
-(deftest test-no-deps-jar
+(deftest ^:online test-no-deps-jar
   (let [[coord jar-file] (first
                           (jar (dissoc sample-project :dependencies :main)))]
     (is (not (number? jar-file)))
