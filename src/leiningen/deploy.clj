@@ -59,32 +59,47 @@
         (add-auth-from-url)
         (add-auth-interactively))))
 
-(defn sign [file]
-  (let [{:keys [err exit]} (user/gpg "--yes" "-ab" "--" file)]
+(defn signing-args
+  "Produce GPG arguments for signing a file."
+  [file opts]
+  (let [key-spec (when-let [key (:gpg-key opts)]
+                   ["--default-key" key])]
+    `["--yes" "-ab" ~@key-spec "--" ~file]))
+
+(defn sign [file opts]
+  "Create a detached signature and return the signature file name."
+  (let [{:keys [err exit]} (apply user/gpg (signing-args file opts))]
     (when-not (zero? exit)
       (main/abort "Could not sign"
                   (str file "\n" err
                        "\nSee `lein help gpg` for how to setup gpg." )))
     (str file ".asc")))
 
-(defn signature-for [extension file]
-  {[:extension extension] (sign file)})
-
-(defn signature-for-artifact [[coords artifact-file]]
+(defn signature-for-artifact [[coords artifact-file] opts]
   {(apply concat
           (update-in
            (apply hash-map coords) [:extension]
            #(str (or % "jar") ".asc")))
-   (sign artifact-file)})
+   (sign artifact-file opts)})
 
-(defn sign-for-repo? [repo]
+(defn sign-for-repo?
+  "Generally sign artifacts for this repo?"
+  [repo]
   (:sign-releases (second repo) true))
 
-(defn files-for [project signed?]
-  (let [artifacts (merge {[:extension "pom"] (pom/pom project)}
-                         (jar/jar project))]
+(defn signing-opts
+  "Extract signing options map from a project."
+  [project repo]
+  (merge (:signing project) (:signing (second repo))))
+
+(defn files-for [project repo]
+  (let [signed? (sign-for-repo? repo)
+        artifacts (merge {[:extension "pom"] (pom/pom project)}
+                         (jar/jar project))
+        sig-opts (signing-opts project repo)]
     (if (and signed? (not (.endsWith (:version project) "-SNAPSHOT")))
-      (reduce merge artifacts (map signature-for-artifact artifacts))
+      (reduce merge artifacts (map #(signature-for-artifact % sig-opts)
+                                   artifacts))
       artifacts)))
 
 (defn warn-missing-metadata [project]
@@ -120,7 +135,7 @@ configure your credentials so you are not prompted on each deploy."
          (apply main/abort "Can only deploy from branches listed in :deploy-branches:" branches)))
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
-           files (files-for project (sign-for-repo? repo))]
+           files (files-for project repo)]
        (try
          (main/debug "Deploying" files "to" repo)
          (aether/deploy
