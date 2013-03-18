@@ -6,10 +6,15 @@
             [leiningen.core.utils :as utils])
   (:import (java.util.regex Pattern)))
 
+(defn getenv
+  "Wrap System/getenv for testing purposes."
+  [name]
+  (System/getenv name))
+
 (defn leiningen-home
   "Return full path to the user's Leiningen home directory."
   []
-  (let [lein-home (System/getenv "LEIN_HOME")
+  (let [lein-home (getenv "LEIN_HOME")
         lein-home (or (and lein-home (io/file lein-home))
                       (io/file (System/getProperty "user.home") ".lein"))]
     (.getAbsolutePath (doto lein-home .mkdirs))))
@@ -68,7 +73,7 @@
 (defn gpg-program
   "Lookup the gpg program to use, defaulting to 'gpg'"
   []
-  (or (System/getenv "LEIN_GPG") "gpg"))
+  (or (getenv "LEIN_GPG") "gpg"))
 
 (defn gpg
   "Shells out to (gpg-program) with the given arguments"
@@ -109,23 +114,27 @@
                 cred))))
 
 (defn- resolve-credential
+  "Resolve key-value pair from result into a credential, updating result."
   [source-settings result [k v]]
   (letfn [(resolve [v]
             (cond (= :env v)
-                  (System/getenv (str "LEIN_" (str/upper-case (name k))))
+                  (getenv (str "LEIN_" (str/upper-case (name k))))
 
                   (and (keyword? v) (= "env" (namespace v)))
-                  (System/getenv (str/upper-case (name v)))
+                  (getenv (str/upper-case (name v)))
 
                   (= :gpg v)
                   (get (match-credentials source-settings (credentials)) k)
 
-                  (coll? v)
+                  (coll? v) ;; collection of places to look
                   (->> (map resolve v)
                        (remove nil?)
                        first)
+
                   :else v))]
-    (assoc result k (resolve v))))
+    (if (#{:username :password :passphrase :private-key-file} k)
+      (assoc result k (resolve v))
+      (assoc result k v))))
 
 (defn resolve-credentials
   "Applies credentials from the environment or ~/.lein/credentials.clj.gpg
