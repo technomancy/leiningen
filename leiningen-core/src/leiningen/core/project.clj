@@ -401,7 +401,10 @@
 (alter-var-root #'warn-user-profile memoize)
 
 (defn- system-profiles []
-  (user/load-profiles (io/file "/etc" "leiningen")))
+  (let [sys-profile-dir (if (= :windows (utils/get-os))
+                          (io/file (System/getenv "AllUsersProfile") "Leiningen")
+                          (io/file "/etc" "leiningen"))]
+    (user/load-profiles sys-profile-dir)))
 
 (defn- project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
