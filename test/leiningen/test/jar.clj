@@ -6,7 +6,7 @@
         [leiningen.test.helper :only [tricky-name-project sample-failing-project
                                       sample-no-aot-project sample-project
                                       overlapped-sourcepaths-project]])
-  (:import [java.util.jar JarFile]))
+  (:import (java.util.jar JarFile)))
 
 (def mock-project {:name "mock-project" :version "1.0"
                    :main 'foo.one-two.three-four.bar
