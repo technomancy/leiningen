@@ -430,23 +430,24 @@
     (when-not (pomegranate/modifiable-classloader? cl)
       (.setContextClassLoader thread (DynamicClassLoader. cl)))))
 
-(let [registered-wagon-files (atom #{})]
-  (defn load-plugins
-    ([project key]
-      (when (seq (get project key))
-        (ensure-dynamic-classloader)
-        (classpath/resolve-dependencies
-          key project
-          :add-classpath? true))
-      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
-                           (.getResources "leiningen/wagons.clj")
-                           (enumeration-seq))
-              :when (not (@registered-wagon-files wagon-file))
-              [hint factory] (read-string (slurp wagon-file))]
-        (aether/register-wagon-factory! hint (eval factory))
-        (swap! registered-wagon-files conj wagon-file))
-      project)
-  ([project] (load-plugins project :plugins))))
+(def ^:private registered-wagon-files (atom #{}))
+
+(defn load-plugins
+  ([project key]
+     (when (seq (get project key))
+       (ensure-dynamic-classloader)
+       (classpath/resolve-dependencies
+        key project
+        :add-classpath? true))
+     (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
+                            (.getResources "leiningen/wagons.clj")
+                            (enumeration-seq))
+             :when (not (@registered-wagon-files wagon-file))
+             [hint factory] (read-string (slurp wagon-file))]
+       (aether/register-wagon-factory! hint (eval factory))
+       (swap! registered-wagon-files conj wagon-file))
+     project)
+  ([project] (load-plugins project :plugins)))
 
 (defn plugin-vars [project type]
   (for [[plugin _ & {:as opts}] (:plugins project)
