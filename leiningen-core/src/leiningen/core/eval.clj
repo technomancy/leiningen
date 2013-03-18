@@ -9,7 +9,7 @@
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils])
-  (:import [com.hypirion.io Pipe ClosingPipe]))
+  (:import (com.hypirion.io Pipe ClosingPipe)))
 
 ;; # OS detection
 

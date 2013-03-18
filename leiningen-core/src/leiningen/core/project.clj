@@ -321,8 +321,6 @@
          :offline {:offline? true}
          :debug {:debug true}}))
 
-
-
 (defn- meta-merge
   "Recursively merge values based on the information in their metadata."
   [left right]
@@ -477,8 +475,8 @@
   (doseq [hook-name (concat (plugin-hooks project) (:hooks project))]
     ;; if hook-name is just a namespace assume hook fn is called activate
     (let [hook-name (if (namespace hook-name)
-                       hook-name
-                       (symbol (name hook-name) "activate"))]
+                      hook-name
+                      (symbol (name hook-name) "activate"))]
       (load-hook hook-name)))
   project)
 
@@ -557,8 +555,8 @@
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
     (set-profiles project
-      (concat included-profiles profiles)
-      (remove (set profiles) excluded-profiles))))
+                  (concat included-profiles profiles)
+                  (remove (set profiles) excluded-profiles))))
 
 (defn unmerge-profiles
   "Compute a fresh version of the project map with the given profiles unmerged
@@ -566,8 +564,8 @@
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
     (set-profiles project
-      (remove (set profiles) included-profiles)
-      (concat excluded-profiles profiles))))
+                  (remove (set profiles) included-profiles)
+                  (concat excluded-profiles profiles))))
 
 (defn- init-lein-classpath
   "Adds dependencies to Leiningen's classpath if required."
@@ -579,8 +577,7 @@
 (defn init-project
   "Initializes a project. This is called at startup with the default profiles."
   [project]
-  (-> project
-      (doto
+  (-> (doto project
         (load-certificates)
         (init-lein-classpath)
         (load-plugins))
