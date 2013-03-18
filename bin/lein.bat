@@ -69,9 +69,9 @@ if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
 if "x!JAVA_CMD!" == "x" set JAVA_CMD=java
 if "x!LEIN_JAVA_CMD!" == "x" set LEIN_JAVA_CMD=%JAVA_CMD%
 
-rem ensure a single set of quotes around java commands
-for /f "usebackq delims=" %%i in ('!JAVA_CMD!') do set JAVA_CMD="%%~i"
-for /f "usebackq delims=" %%i in ('!LEIN_JAVA_CMD!') do set LEIN_JAVA_CMD="%%~i"
+rem remove quotes from around java commands
+for /f "usebackq delims=" %%i in ('!JAVA_CMD!') do set JAVA_CMD=%%~i
+for /f "usebackq delims=" %%i in ('!LEIN_JAVA_CMD!') do set LEIN_JAVA_CMD=%%~i
 
 if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
@@ -223,26 +223,18 @@ goto EOF
 :: characters inside the TRAMPOLINE_FILE.
 setLocal DisableDelayedExpansion
 
-if "%1" == "trampoline" (goto RUN_TRAMPOLINE) else (goto RUN_NORMAL)
-
-:RUN_TRAMPOLINE
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
-%LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
+del "%TRAMPOLINE_FILE%" 2>nul
+
+"%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -Dleiningen.trampoline-file="%TRAMPOLINE_FILE%" ^
- -cp "%CLASSPATH%" clojure.main -e "(use 'leiningen.core.main)(apply -main (map str '(%*)))"
+ -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
 del "%TRAMPOLINE_FILE%"
 goto EOF
-
-:RUN_NORMAL
-%LEIN_JAVA_CMD% -client %LEIN_JVM_OPTS% ^
- -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
- -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
 :EOF
 
