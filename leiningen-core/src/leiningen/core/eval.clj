@@ -11,38 +11,23 @@
             [leiningen.core.utils :as utils])
   (:import [com.hypirion.io Pipe ClosingPipe]))
 
-;; # OS detection
-
-(defn- get-by-pattern
-  "Gets a value from map m, but uses the keys as regex patterns, trying
-  to match against k instead of doing an exact match."
-  [m k]
-  (m (first (drop-while #(nil? (re-find (re-pattern %) k))
-                        (keys m)))))
-
-(def ^:private native-names
-  {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
-   "FreeBSD" :freebsd "OpenBSD" :openbsd
-   "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
-   "arm" :arm "SunOS" :solaris "sparc" :sparc "Darwin" :macosx})
-
 (def ^:private arch-options
   {:x86 ["-d32"] :x86_64 ["-d64"]})
 
-(defn get-os
-  "Returns a keyword naming the host OS."
-  []
-  (get-by-pattern native-names (System/getProperty "os.name")))
+(def ^:deprecated get-os
+  "Returns a keyword naming the host OS. Deprecated, use
+  leiningen.core.utils/get-os instead."
+  utils/get-os)
 
-(defn get-arch
-  "Returns a keyword naming the host architecture"
-  []
-  (get-by-pattern native-names (System/getProperty "os.arch")))
+(def ^:deprecated get-arch
+  "Returns a keyword naming the host architecture. Deprecated, use
+leiningen.core.utils/get-arch instead."
+  utils/get-arch)
 
-(defn platform-nullsink []
-  (io/file (if (= :windows (get-os))
-             "NUL"
-             "/dev/null")))
+(def ^:deprecated platform-nullsink
+  "Returns a file destination that will discard output.  Deprecated, use
+leiningen.core.utils/platform-nullsink instead."
+  utils/platform-nullsink)
 
 ;; # Preparing for eval-in-project
 
