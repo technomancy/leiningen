@@ -86,7 +86,7 @@
 (defn gpg-available?
   "Verifies (gpg-program) exists"
   []
-  (= 0 (:exit (gpg "--version"))))
+  (zero? (:exit (gpg "--version"))))
 
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."
@@ -94,9 +94,8 @@
         (if (.exists cred-file)
           (credentials-fn cred-file))))
   ([file]
-     (let [{:keys [out err exit]} (gpg 
-                                   "--quiet" "--batch"
-                                   "--decrypt" "--" (str file))]
+     (let [{:keys [out err exit]} (gpg "--quiet" "--batch"
+                                       "--decrypt" "--" (str file))]
        (if (pos? exit)
          (binding [*out* *err*]
            (println "Could not decrypt credentials from" (str file))
@@ -140,7 +139,7 @@
   "Applies credentials from the environment or ~/.lein/credentials.clj.gpg
    as they are specified and available."
   [settings]
-  (let [gpg-creds (when (= :gpg (:creds settings))
+  (let [gpg-creds (if (= :gpg (:creds settings))
                     (match-credentials settings (credentials)))
         resolved (reduce (partial resolve-credential settings)
                          (empty settings)

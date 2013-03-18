@@ -1,4 +1,5 @@
-(ns leiningen.bluuugh)
+(ns leiningen.bluuugh
+  "Dummy task for tests.")
 
 (defn ^:no-project-needed bluuugh
   [project]
