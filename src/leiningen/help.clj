@@ -16,17 +16,17 @@
 
 (defn- formatted-docstring [command docstring padding]
   (apply str
-    (replace
-      {\newline
-       (apply str
-         (cons \newline (repeat (+ padding (count command)) \space)))}
-      docstring)))
+         (replace
+          {\newline
+           (apply str
+                  (cons \newline (repeat (+ padding (count command)) \space)))}
+          docstring)))
 
 (defn- formatted-help [command docstring longest-key-length]
   (let [padding (+ longest-key-length help-padding (- (count command)))]
     (format (str "%1s" (apply str (repeat padding \space)) "%2s")
-      command
-      (formatted-docstring command docstring padding))))
+            command
+            (formatted-docstring command docstring padding))))
 
 (defn- get-subtasks-and-docstrings-for [task]
   (into {}

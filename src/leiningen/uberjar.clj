@@ -83,16 +83,16 @@ as well as defining a -main function."
               (main/abort "Uberjar aborting because jar/compilation failed:"
                           (.getMessage e)))))
      (let [standalone-filename (jar/get-jar-filename project :standalone)]
-         (with-open [out (-> standalone-filename
-                             (FileOutputStream.)
-                             (ZipOutputStream.))]
-           (let [whitelisted (select-keys project jar/whitelist-keys)
-                 project (merge (project/unmerge-profiles project [:default])
-                                whitelisted)
-                 deps (->> (classpath/resolve-dependencies :dependencies project)
-                           (filter #(.endsWith (.getName %) ".jar")))
-                 jars (cons (io/file (jar/get-jar-filename project)) deps)]
-             (write-components project jars out)))
-         (main/info "Created" standalone-filename)
-         standalone-filename))
+       (with-open [out (-> standalone-filename
+                           (FileOutputStream.)
+                           (ZipOutputStream.))]
+         (let [whitelisted (select-keys project jar/whitelist-keys)
+               project (merge (project/unmerge-profiles project [:default])
+                              whitelisted)
+               deps (->> (classpath/resolve-dependencies :dependencies project)
+                         (filter #(.endsWith (.getName %) ".jar")))
+               jars (cons (io/file (jar/get-jar-filename project)) deps)]
+           (write-components project jars out)))
+       (main/info "Created" standalone-filename)
+       standalone-filename))
   ([project] (uberjar project nil)))
