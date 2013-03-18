@@ -174,7 +174,7 @@ specified test. A default :all test-selector is available to run all tests."
           form (form-for-testing-namespaces nses nil (vec selectors))]
       (try (when-let [n (eval/eval-in-project project form
                                               '(require 'clojure.test))]
-             (when (pos? n)
+             (when (and (number? n) (pos? n))
                (throw (ex-info "Tests Failed" {:exit-code n}))))
            (catch clojure.lang.ExceptionInfo e
              (main/abort "Tests failed."))))))
