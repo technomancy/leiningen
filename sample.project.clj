@@ -160,6 +160,9 @@
                               ;; If a repository contains releases only setting
                               ;; :snapshots to false will speed up dependencies.
                               :snapshots false
+                              ;; Disable signing releases for this repo.
+                              ;; (Not recommended.)
+                              :sign-releases false
                               ;; You can also set the policies for how to handle
                               ;; :checksum failures to :fail, :warn, or :ignore.
                               :checksum :fail
@@ -191,7 +194,15 @@
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
   ;; dependency resolution.
-  :deploy-repositories [["releases" "http://blueant.com/archiva/internal/releases"]
+  :deploy-repositories [["releases" {:url "http://blueant.com/archiva/internal/releases"
+                                     ;; Select a GPG private key to use for
+                                     ;; signing. (See "How to specify a user
+                                     ;; ID" in GPG's manual.) GPG will
+                                     ;; otherwise pick the first private key
+                                     ;; it finds in your keyring.
+                                     ;; Currently only works in :deploy-repositories
+                                     ;; or as a top-level (global) setting.
+                                     :signing {:gpg-key "0xAB123456"}}]
                         ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
   ;; Fetch dependencies from mirrors. Mirrors override repositories when the key
   ;; in the :mirrors map matches either the name or URL of a specified
@@ -201,6 +212,8 @@
             #"clojars" {:name "Internal nexus"
                         :url "http://mvn.local/nexus/releases"
                         :repo-manager true}}
+  ;; Defaults for signing options. Defers to per-repository settings.
+  :signing {:gpg-key "root@eruditorum.org"}
   ;; Prevent Leiningen from checking the network for dependencies.
   ;; This wouldn't normally be set in project.clj; it would come from a profile.
   :offline? true
