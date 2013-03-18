@@ -17,9 +17,9 @@
 
 (defn- find-namespaces-by-regex [project nses]
   (let [avail-nses (->> (:source-paths project)
-                     (map io/file)
-                     (b/namespaces-on-classpath :classpath))]
-   (mapcat #(matching-nses % avail-nses) nses)))
+                        (map io/file)
+                        (b/namespaces-on-classpath :classpath))]
+    (mapcat #(matching-nses % avail-nses) nses)))
 
 (defn compilable-namespaces
   "Returns a seq of the namespaces that are compilable, regardless of whether

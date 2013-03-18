@@ -186,7 +186,7 @@
   (reply/launch-nrepl (options-for-reply project :attach attach)))
 
 (defn ^:no-project-needed repl
-"Start a repl session either with the current project or standalone.
+  "Start a repl session either with the current project or standalone.
 
 Subcommands:
 
@@ -211,7 +211,7 @@ Subcommands:
          ":start" (if trampoline/*trampoline?*
                     (trampoline-repl project port)
                     (let [port (server project host port false)]
-                        (client project host port)))
+                      (client project host port)))
          ":headless" (server project host port true)
          ":connect" (client project host (or (first opts) port))
          (main/abort "Unknown subcommand")))))
