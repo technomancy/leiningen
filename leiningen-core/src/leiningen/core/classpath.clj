@@ -181,7 +181,8 @@
           (when (= (subvec dep 0 2) (subvec v 0 2 )) v))
         dependencies))
 
-(defn- get-native-prefix
+(defn get-native-prefix
+  "Return the :native-prefix of a dependency vector, or nil."
   [[id version & {:as opts}]]
   (get opts :native-prefix))
 
