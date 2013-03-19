@@ -59,13 +59,19 @@ leiningen.core.utils/platform-nullsink instead."
 
 ;; # Subprocess stuff
 
-(defn native-arch-path
-  "Path to the os/arch-specific directory containing native libs."
+(defn- native-arch-paths
+  "Paths to the os/arch-specific directory containing native libs."
   [project]
   (let [os (:os project (get-os))
-        arch (:arch project (get-arch))]
+        arch (:arch project (get-arch))
+        native-path (:native-path project)]
     (if (and os arch)
-      (io/file (:native-path project) (name os) (name arch)))))
+      (conj
+       (->> (:dependencies project)
+            (map classpath/get-native-prefix)
+            (remove nil?)
+            (map #(io/file native-path %))) 
+       (io/file native-path (name os) (name arch))))))
 
 (defn- as-str [x]
   (if (instance? clojure.lang.Named x)
@@ -91,7 +97,7 @@ leiningen.core.utils/platform-nullsink instead."
 (defn- get-jvm-args
   "Calculate command-line arguments for launching java subprocess."
   [project]
-  (let [native-arch-path (native-arch-path project)]
+  (let [native-arch-paths (native-arch-paths project)]
     `(~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
       ~@(:jvm-opts project)
       ~@(get arch-options (:arch project))
@@ -101,8 +107,12 @@ leiningen.core.utils/platform-nullsink instead."
                          :file.encoding (or (System/getProperty "file.encoding") "UTF-8")
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
                                                      (:debug project)))})
-      ~@(if (and native-arch-path (.exists native-arch-path))
-          [(d-property [:java.library.path native-arch-path])])
+      ~@(if native-arch-paths
+          (let [extant-paths (filter #(.exists %) native-arch-paths)]
+            (if (seq extant-paths)
+              [(d-property [:java.library.path
+                            (string/join java.io.File/pathSeparatorChar
+                                         extant-paths)])])))
       ~@(when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
           [(d-property [:http.proxyHost host])
            (d-property [:http.proxyPort port])
