@@ -109,6 +109,6 @@
   (deps native-project)
   (is (= (conj (get-in native-lib-files-map [(eval/get-os) (eval/get-arch)])
                ".gitkeep")
-         (set (for [f (rest (file-seq (io/file (eval/native-arch-path
-                                                native-project))))]
+         (set (for [f (rest (file-seq (io/file (first (eval/native-arch-paths
+                                                       native-project)))))]
                 (.getName f))))))

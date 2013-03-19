@@ -59,7 +59,7 @@ leiningen.core.utils/platform-nullsink instead."
 
 ;; # Subprocess stuff
 
-(defn- native-arch-paths
+(defn native-arch-paths
   "Paths to the os/arch-specific directory containing native libs."
   [project]
   (let [os (:os project (get-os))
