@@ -8,9 +8,7 @@
                  [classlojure "0.6.6"]
                  [useful "0.8.6"]
                  [robert/hooke "1.3.0"]
-                 [com.cemerick/pomegranate "0.0.14-SNAPSHOT" :exclusions [org.tcrawley/dynapath]]
-                 ;; depend on this directly until pomegranate upgrades
-                 [org.tcrawley/dynapath "0.2.3"]
+                 [com.cemerick/pomegranate "0.2.0"]
                  [org.apache.maven.wagon/wagon-http "2.4"]
                  [com.hypirion/io "0.2.0-RC1"]]
   ;; until the pomegratate snapshot is released:
