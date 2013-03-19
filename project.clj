@@ -16,8 +16,10 @@
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus]]
                  [reply "0.1.10" :exclusions [ring/ring-core]]
-                 ;; drawbridge specifies an ancient version here, so bump it
-                 [clj-http "0.6.5" :exclusions [crouton cheshire]]]
+                 ;; bump versions of various common transitive deps
+                 [slingshot "0.10.3"]
+                 [cheshire "5.0.2"]
+                 [clj-http "0.6.5" :exclusions [crouton]]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
