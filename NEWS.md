@@ -1,7 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.1.0 / ???
+## 2.1.0 / 2012-03-19
 
+* Compile task accepts regexes as command-line args. (Joshua P. Tilles)
+* Allow key to be specified to use when signing artifacts. (Tim McCormack)
 * Added GPG introductory guide. (Toby Crawley)
 * Allow stdin of project processes to be closed. (Jean Niklas L'orange)
 * Better behaviour when GPG or keys are missing. (Toby Crawley)
