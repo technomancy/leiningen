@@ -147,7 +147,7 @@
      {:prompt :custom-prompt})))
 
 (defn- trampoline-repl [project port]
-  (let [options (options-for-reply project :port port)]
+  (let [options (dissoc (options-for-reply project :port port) :input-stream)]
     (eval/eval-in-project
      (project/merge-profiles project (profiles-for project :trampoline true))
      (if (:standalone options)
