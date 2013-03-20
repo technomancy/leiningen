@@ -19,6 +19,7 @@
                       (io/file (System/getProperty "user.home") ".lein"))]
     (.getAbsolutePath (doto lein-home .mkdirs))))
 
+;; TODO: move all these memoized fns into delays
 (def init
   "Load the user's ~/.lein/init.clj file, if present."
   (memoize (fn []
@@ -34,16 +35,19 @@
   (memoize
    (fn []
      (let [profile-dir (io/file (leiningen-home) "profiles.d")]
-       (when (and (.exists profile-dir) (.isDirectory profile-dir))
-         (doall
-          (for [file (.listFiles profile-dir)
-                :when (.. file getName (endsWith ".clj"))]
-            (try (utils/read-file file)
-                 (catch Exception e
-                   (binding [*out* *err*]
-                     (println "Error reading" (.getName file)
-                              "from" (str (leiningen-home) "/profiles.d:"))
-                     (println (.getMessage e))))))))))))
+       (if (and (.exists profile-dir) (.isDirectory profile-dir))
+         (for [file (.listFiles profile-dir)
+               :when (-> file .getName (.endsWith ".clj"))]
+           (if (= "user.clj" (.getName file))
+             (throw (ex-info ":user profile detected in profiles.d"
+                             {:exit-code 1}))
+             (try [(keyword (second (re-find #"(.*)\.clj" (.getName file))))
+                   (utils/read-file file)]
+                  (catch Exception e
+                    (binding [*out* *err*]
+                      (println "Error reading" (.getName file)
+                               "from" (str (leiningen-home) "/profiles.d:"))
+                      (println (.getMessage e))))))))))))
 
 (def ^:internal load-profiles
   "Load profiles.clj from dir if present."
@@ -65,10 +69,11 @@
                (println "Error: A profile is defined multiple times!")
                (println "Please check your profiles.clj and your profiles"
                         "in the profiles.d directory."))
-             (throw (Exception. "Multiple profiles defined in ~/.lein")))]
-       (try (apply merge-with error-fn
-                   (load-profiles (leiningen-home)) (profiles-d-profiles))
-            (catch Exception e))))))
+             (throw (ex-info "Multiple profiles defined in ~/.lein"
+                             {:exit-code 1})))]
+       (merge-with error-fn
+                   (load-profiles (leiningen-home))
+                   (into {} (profiles-d-profiles)))))))
 
 (defn gpg-program
   "Lookup the gpg program to use, defaulting to 'gpg'"
