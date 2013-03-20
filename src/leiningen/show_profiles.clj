@@ -1,13 +1,10 @@
 (ns leiningen.show-profiles
   (:require [clojure.string]
             [clojure.pprint :as pprint]
-            [leiningen.core.project :as project]
-            [leiningen.core.user :as user]))
+            [leiningen.core.project :as project]))
 
 (defn- all-profiles [project]
-  (merge @project/default-profiles
-         (user/profiles)
-         (:profiles project)))
+  (project/read-profiles project))
 
 (defn ^:no-project-needed show-profiles
   "List all available profiles or display one if given an argument."

@@ -411,7 +411,7 @@
     (warn-user-profile profiles)
     profiles))
 
-(defn- read-profiles
+(defn read-profiles
   "Read profiles from a variety of sources.
 
   We check Leiningen's defaults, system-level profiles (usually in
