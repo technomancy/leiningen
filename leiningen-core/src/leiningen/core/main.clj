@@ -56,9 +56,11 @@
               "tutorial" ["help" "tutorial"]
               "sample" ["help" "sample"]})
 
+;; without a delay this loads profiles at the top-level which can
+;; result in exceptions thrown outside of a nice catching context.
 (def ^:private profile-aliases
   "User profile aliases, used only when Lein is not within a project."
-  (atom (-> (user/profiles) :user :aliases)))
+  (delay (atom (-> (user/profiles) :user :aliases))))
 
 (defn- get-and-dissoc!
   "Returns a value associated with a key in a hash map contained in an atom,
@@ -72,7 +74,7 @@
   (or (aliases task-name)
       (get (:aliases project) task-name)
       (when-not project
-        (get-and-dissoc! profile-aliases task-name))
+        (get-and-dissoc! @profile-aliases task-name))
       task-name
       (or not-found "help")))
 
