@@ -314,6 +314,7 @@
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 :checkout-deps-shares [:source-paths
+                                       :test-paths
                                        :resource-paths
                                        :compile-path]}
          :leiningen/test {:injections [hooke-injection]}
