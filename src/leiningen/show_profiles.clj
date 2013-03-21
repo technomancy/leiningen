@@ -13,7 +13,7 @@
           (clojure.string/join "\n")
           (println)))
   ([project profile]
-     (-> (all-profiles project)
+     (-> (project/read-profiles project)
          (get (keyword profile))
          (pprint/pprint))
      (flush)))
