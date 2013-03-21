@@ -238,6 +238,7 @@
             (> seg1 seg2) true
             (< seg1 seg2) false))))
 
+;; packagers should replace this string!
 (def ^:private min-version-warning
   "*** Warning: This project requires Leiningen %s, but you have %s ***
 

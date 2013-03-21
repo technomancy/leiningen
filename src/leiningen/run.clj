@@ -31,7 +31,7 @@
        (catch clojure.lang.ExceptionInfo e
          (main/abort))))
 
-(defn ^{:help-arglists '([])} run
+(defn ^{:help-arglists '([]) :no-project-needed true} run
   "Run the project's -main function.
 
 USAGE: lein run [--] [ARGS...]
