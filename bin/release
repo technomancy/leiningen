@@ -44,9 +44,7 @@ echo "Also deploy this release of leiningen-core to Clojars."
 # git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 # cd leiningen-core; lein do clean, deploy clojars, marg
 # deploy leiningen itself
-# scp docs/uberdoc.html leiningen.org:leiningen.org/reference.html
+# scp docs/uberdoc.html philhag@leiningen.org:leiningen.org/reference.html
 # git push && git push --tags
 # git checkout preview && git merge master && git push
 # Drop version back to SNAPSHOT
-
-# TODO: update windows install instructions on leiningen.org for 2.1

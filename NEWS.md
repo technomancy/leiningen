@@ -1,5 +1,14 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.1.1 / 2013-03-21
+
+* Add `:test-paths` to directories shared by checkout deps. (Phil Hagelberg)
+* Allow `run` task to function outside projects. (Phil Hagelberg)
+* Fix a bug preventing `with-profiles` working outside projects. (Colin Jones)
+* Fix a bug in trampolined `repl`. (Colin Jones)
+* Fix a bug in `update-in` task causing stack overflow. (David Powell)
+* Fix a bug in `lein upgrade`. (Phil Hagelberg)
+
 ## 2.1.0 / 2013-03-19
 
 * Compile task accepts regexes as command-line args. (Joshua P. Tilles)
