@@ -24,7 +24,7 @@ upon the first run on unix, so the first run will take longer.
 
 1. Make sure you have JDK 6 or later.
 2. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
-3. Place it on your `$PATH`. (I like to use `~/bin`)
+3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
 4. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
 There is still a lot of extant material on the Web concerning the
