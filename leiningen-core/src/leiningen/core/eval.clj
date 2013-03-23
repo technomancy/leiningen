@@ -174,13 +174,12 @@ leiningen.core.utils/platform-nullsink instead."
             (.resurrect System/in))
           exit-value)))))
 
-;; work around java's command line handling on windows
-;; http://bit.ly/9c6biv This isn't perfect, but works for what's
-;; currently being passed; see http://www.perlmonks.org/?node_id=300286
-;; for some of the landmines involved in doing it properly
 (defn- form-string [form eval-in]
   (if (and (= (get-os) :windows) (not= :trampoline eval-in))
-    (let [s (pr-str (pr-str form))] (subs s 1 (dec (.length s))))
+    ;; On windows if a parameter is in double quotes, then all we need
+    ;; to worry about are double quotes, which we must escape by
+    ;; doubling them.
+    (string/replace (pr-str form) "\"" "\"\"")
     (pr-str form)))
 
 (defn- classpath-arg [project]
