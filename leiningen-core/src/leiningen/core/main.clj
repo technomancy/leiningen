@@ -7,43 +7,6 @@
             [clojure.string :as string]
             [bultitude.core :as b]))
 
-(def ^:dynamic *debug* (System/getenv "DEBUG"))
-
-(defn debug
-  "Print if *debug* (from DEBUG environment variable) is truthy."
-  [& args]
-  (when *debug* (apply println args)))
-
-(def ^:dynamic *info* true)
-
-(defn info
-  "Print unless *info* has been rebound to false."
-  [& args]
-  (when *info* (apply println args)))
-
-(def ^:dynamic *exit-process?*
-  "Bind to false to suppress process termination." true)
-
-(defn exit
-  "Exit the process. Rebind *exit-process?* in order to suppress actual process
-  exits for tools which may want to continue operating. Never call
-  System/exit directly in Leiningen's own process."
-  ([exit-code]
-     (if *exit-process?*
-       (do (shutdown-agents)
-           (System/exit exit-code))
-       (throw (ex-info "Suppressed exit" {:exit-code exit-code}))))
-  ([] (exit 0)))
-
-(defn abort
-  "Print msg to standard err and exit with a value of 1.
-  Will not directly exit under some circumstances; see *exit-process?*."
-  [& msg]
-  (binding [*out* *err*]
-    (when (seq msg)
-      (apply println msg))
-    (exit 1)))
-
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
               "überjar" "uberjar",
