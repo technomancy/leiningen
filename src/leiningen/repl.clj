@@ -100,7 +100,8 @@
           ~server-starting-form)
      ;; TODO: remove in favour of :injections in the :repl profile
      `(do ~(when-let [init-ns (init-ns project)]
-             `(try (require '~init-ns) (catch Exception _#)))
+             `(try (require '~init-ns)
+                (catch Exception e# (println e#) (ns ~init-ns))))
           ~@(for [n (init-requires project)]
               `(try (require ~n)
                     (catch Throwable t#
