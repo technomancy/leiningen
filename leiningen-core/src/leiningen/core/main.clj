@@ -250,13 +250,6 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
   (when-not (version-satisfies? (leiningen-version) min-lein-version)
     (info (format min-version-warning min-lein-version (leiningen-version)))))
 
-(defn- warn-chaining [task-name args]
-  (when (and (some #(.endsWith (str %) ",") (cons task-name args))
-             (not-any? #(= % "do") (cons task-name args)))
-    (println "WARNING: task chaining has been moved to the \"do\" task. For example,")
-    (println "\"lein javac, test\" should now be called as \"lein do javac, test\" ")
-    (println "See `lein help do` for details.")))
-
 (defn user-agent []
   (format "Leiningen/%s (Java %s; %s %s; %s)"
           (leiningen-version) (System/getProperty "java.vm.name")
@@ -288,7 +281,6 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
           [task-name args] (task-args raw-args project)]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
-      (warn-chaining task-name args)
       (apply-task task-name project args))
     (catch Exception e
       (if (or *debug* (not (:exit-code (ex-data e))))
