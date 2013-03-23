@@ -102,8 +102,8 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
     if [ ! -r "$LEIN_DIR/leiningen-core/.lein-bootstrap" ]; then
         echo "Leiningen is missing its dependencies."
-        echo "Please run \"lein do install, classpath .lein-bootstrap\" in the leiningen-core/"
-        echo "directory with a stable release of Leiningen. See CONTRIBUTING.md for details."
+        echo "Please run \"lein bootstrap\" in the leiningen-core/ directory"
+        echo "with a stable release of Leiningen. See CONTRIBUTING.md for details."
         exit 1
     fi
 
