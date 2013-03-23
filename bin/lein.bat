@@ -107,7 +107,8 @@ goto EOF
 :NO_DEPENDENCIES
 echo.
 echo Leiningen is missing its dependencies.
-echo Please see "Bootstrapping" in CONTRIBUTING.md.
+echo Please run "lein bootstrap" in the leiningen-core/ directory
+echo with a stable release of Leiningen. See CONTRIBUTING.md for details.
 echo.
 goto EOF
 
