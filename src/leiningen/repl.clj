@@ -165,7 +165,7 @@
                           (catch Exception _))))]
     (Integer. port)))
 
-(defn server [project host port headless?]
+(defn server [project headless?]
   (let [prep-blocker @eval/prep-blocker]
     (nrepl.ack/reset-ack-port!)
     (-> (bound-fn []
@@ -211,7 +211,7 @@ Subcommands:
        (case subcommand
          ":start" (if trampoline/*trampoline?*
                     (trampoline-repl project port)
-                    (let [port (server project host port false)]
+                    (let [port (server project false)]
                       (client project host port)))
          ":headless" (server project host port true)
          ":connect" (client project host (or (first opts) port))
