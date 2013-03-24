@@ -81,6 +81,17 @@
     (for [n (concat defaults nrepl-syms nses)]
       (list 'quote n))))
 
+(defn- repl-port [project]
+  (Integer. (or (System/getenv "LEIN_REPL_PORT")
+                (-> project :repl-options :port)
+                (-> (user/profiles) :user :repl-options :port)
+                0)))
+
+(defn- repl-host [project]
+  (or (System/getenv "LEIN_REPL_HOST")
+      (-> project :repl-options :host)
+      "127.0.0.1"))
+
 (defn- start-server [project ack-port headless?]
   (let [server-starting-form
         `(let [server# (clojure.tools.nrepl.server/start-server
@@ -108,17 +119,6 @@
                     (catch Throwable t#
                       (println "Error loading" (str ~n ":")
                                (or (.getMessage t#) (type t#))))))))))
-
-(defn- repl-port [project]
-  (Integer. (or (System/getenv "LEIN_REPL_PORT")
-                (-> project :repl-options :port)
-                (-> (user/profiles) :user :repl-options :port)
-                0)))
-
-(defn- repl-host [project]
-  (or (System/getenv "LEIN_REPL_HOST")
-      (-> project :repl-options :host)
-      "127.0.0.1"))
 
 (def lein-repl-server
   (delay (nrepl.server/start-server
