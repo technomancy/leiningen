@@ -13,28 +13,6 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]))
 
-(def reply-profile {:dependencies '[^:displace
-                                    [org.thnetos/cd-client "0.3.6"
-                                     :exclusions [org.clojure/clojure]]]})
-
-(def trampoline-profile {:dependencies '[^:displace
-                                         [reply "0.1.10"
-                                          :exclusions [org.clojure/clojure]]]})
-
-(def base-profile {:dependencies '[^:displace
-                                   [org.clojure/tools.nrepl "0.2.1"
-                                    :exclusions [org.clojure/clojure]]
-                                   ^:displace
-                                   [clojure-complete "0.2.2"
-                                    :exclusions [org.clojure/clojure]]]})
-
-(defn profiles-for [project trampoline? reply?]
-  [(if reply? (:leiningen/reply (:profiles project) reply-profile))
-   (if trampoline? (:leiningen/trampoline-repl (:profiles project)
-                                               trampoline-profile))
-   (:leiningen/repl (:profiles project) base-profile)
-   (:repl (:profiles project)) (:repl (user/profiles))])
-
 (defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns main))
 
@@ -92,33 +70,26 @@
       (-> project :repl-options :host)
       "127.0.0.1"))
 
-(defn- start-server [project ack-port headless?]
-  (let [server-starting-form
-        `(let [server# (clojure.tools.nrepl.server/start-server
-                        :bind ~(repl-host project) :port ~(repl-port project)
-                        :ack-port ~ack-port
-                        :handler ~(handler-for project))
-               port# (-> server# deref :ss .getLocalPort)]
-           (when ~headless? (println "nREPL server started on port" port#))
-           (spit ~(str (io/file (:target-path project) "repl-port")) port#)
-           (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
-           @(promise))]
-    (eval/eval-in-project
-     (if (= :leiningen (:eval-in project))
-       project
-       (project/merge-profiles project (profiles-for project false
-                                                     (not headless?))))
-     `(do ~(-> project :repl-options :init)
-          ~server-starting-form)
-     ;; TODO: remove in favour of :injections in the :repl profile
-     `(do ~(when-let [init-ns (init-ns project)]
-             `(try (require '~init-ns)
-                (catch Exception e# (println e#) (ns ~init-ns))))
-          ~@(for [n (init-requires project)]
-              `(try (require ~n)
-                    (catch Throwable t#
-                      (println "Error loading" (str ~n ":")
-                               (or (.getMessage t#) (type t#))))))))))
+(defn- server-forms [project ack-port start-msg?]
+  [`(let [server# (clojure.tools.nrepl.server/start-server
+                   :bind ~(repl-host project) :port ~(repl-port project)
+                   :ack-port ~ack-port
+                   :handler ~(handler-for project))
+          port# (-> server# deref :ss .getLocalPort)]
+      (when ~start-msg? (println "nREPL server started on port" port#))
+      (spit ~(str (io/file (:target-path project) "repl-port")) port#)
+      (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
+      @(promise))
+   ;; TODO: remove in favour of :injections in the :repl profile
+   `(do ~(when-let [init-ns (init-ns project)]
+           `(try (require '~init-ns)
+                 (catch Exception e# (println e#) (ns ~init-ns))))
+        ~@(for [n (init-requires project)]
+            `(try (require ~n)
+                  (catch Throwable t#
+                    (println "Error loading" (str ~n ":")
+                             (or (.getMessage t#) (type t#))))))
+        ~(-> project :repl-options :init))])
 
 (def lein-repl-server
   (delay (nrepl.server/start-server
@@ -148,10 +119,17 @@
                   :else {}))
      {:prompt :custom-prompt})))
 
+(def trampoline-profile {:dependencies '[^:displace
+                                         [reply "0.1.10"
+                                          :exclusions [org.clojure/clojure
+                                                       ring/ring-core]]]})
+
 (defn- trampoline-repl [project port]
-  (let [options (dissoc (options-for-reply project :port port) :input-stream)]
+  (let [options (dissoc (options-for-reply project :port port) :input-stream)
+        profile (:leiningen/trampoline-repl (:profiles project)
+                                            trampoline-profile)]
     (eval/eval-in-project
-     (project/merge-profiles project (profiles-for project :trampoline true))
+     (project/merge-profiles project [profile])
      (if (:standalone options)
        `(reply.main/launch-standalone ~options)
        `(reply.main/launch-nrepl ~options))
@@ -166,12 +144,13 @@
     (Integer. port)))
 
 (defn server [project headless?]
-  (let [prep-blocker @eval/prep-blocker]
-    (nrepl.ack/reset-ack-port!)
+  (nrepl.ack/reset-ack-port!)
+  (let [prep-blocker @eval/prep-blocker
+        ack-port (-> @lein-repl-server deref :ss .getLocalPort)
+        [start-form init-form] (server-forms project ack-port headless?)]
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
-            (start-server project (-> @lein-repl-server deref :ss .getLocalPort)
-                          headless?)))
+            (eval/eval-in-project project start-form init-form)))
         (Thread.) (.start))
     (when project @prep-blocker)
     (when headless? @(promise))
@@ -206,13 +185,17 @@ Subcommands:
   localhost) and port."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-     (let [host (repl-host project)
+     (let [profiles [(:repl (:profiles project)) (:repl (user/profiles))]
+           project (project/merge-profiles project profiles)
+           ;; TODO: most paths here don't honor host and port
+           host (repl-host project)
            port (or (opt-port opts) (repl-port project))]
        (case subcommand
          ":start" (if trampoline/*trampoline?*
                     (trampoline-repl project port)
                     (let [port (server project false)]
                       (client project host port)))
-         ":headless" (start-server project nil true)
+         ":headless" (let [[start init] (server-forms project nil true)]
+                       (eval/eval-in-project project start init))
          ":connect" (client project host (or (first opts) port))
          (main/abort "Unknown subcommand")))))
