@@ -24,17 +24,3 @@
             :custom-prompt prompt-fn :history-file history-file
             :input-stream System/in}
            (options-for-reply project :attach 9876)))))
-
-(deftest repl-profile-in-project
-  (let [p (promise)
-        version-number {:url "0.2.2"}
-        project {:dependencies leiningen.core.project/empty-dependencies
-                 :root "/tmp"
-                 :profiles {:repl {:dependencies
-                                   [['org.clojure/tools.nrepl version-number]]}}}]
-    (with-redefs [leiningen.core.eval/eval-in-project #(deliver p %&)]
-      (#'leiningen.repl/start-server project "localhost" false))
-    (is (= version-number
-           (first (for [dep (:dependencies (first @p))
-                        :when (= 'org.clojure/tools.nrepl (first dep))]
-                    (second dep)))))))
