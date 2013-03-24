@@ -33,7 +33,7 @@
                  :profiles {:repl {:dependencies
                                    [['org.clojure/tools.nrepl version-number]]}}}]
     (with-redefs [leiningen.core.eval/eval-in-project #(deliver p %&)]
-      (#'leiningen.repl/start-server project "localhost" 9999 9998 false))
+      (#'leiningen.repl/start-server project "localhost" false))
     (is (= version-number
            (first (for [dep (:dependencies (first @p))
                         :when (= 'org.clojure/tools.nrepl (first dep))]
