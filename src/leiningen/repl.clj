@@ -81,10 +81,11 @@
     (for [n (concat defaults nrepl-syms nses)]
       (list 'quote n))))
 
-(defn- start-server [project host port ack-port headless?]
+(defn- start-server [project ack-port headless?]
   (let [server-starting-form
         `(let [server# (clojure.tools.nrepl.server/start-server
-                        :bind ~host :port ~port :ack-port ~ack-port
+                        :bind ~(repl-host project) :port ~(repl-port project)
+                        :ack-port ~ack-port
                         :handler ~(handler-for project))
                port# (-> server# deref :ss .getLocalPort)]
            (when ~headless? (println "nREPL server started on port" port#))
@@ -169,8 +170,7 @@
     (nrepl.ack/reset-ack-port!)
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
-            (start-server project (repl-host project) (repl-port project)
-                          (-> @lein-repl-server deref :ss .getLocalPort)
+            (start-server project (-> @lein-repl-server deref :ss .getLocalPort)
                           headless?)))
         (Thread.) (.start))
     (when project @prep-blocker)
