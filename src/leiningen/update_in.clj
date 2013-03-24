@@ -15,8 +15,10 @@ task name and arguments to the task:
     $ lein update-in :dependencies conj \"[slamhound \\\"1.1.3\\\"]\" -- repl"
   [project keys f & args]
   (let [keys-vec (map keyword (rest (.split keys ":")))
-        update-args (map read-string (take-while (partial not= "--") args))
-        [task-name & task-args] (drop (inc (count update-args)) args)
+        [update-args [_ task-name & task-args]] (split-with (partial not= "--")
+                                                            args)
         f (resolve (read-string f))
-        project (apply clojure.core/update-in project keys-vec f update-args)]
+        project (apply clojure.core/update-in project keys-vec f
+                       (map read-string update-args))]
+    (println "Project map" project)
     (main/apply-task task-name project task-args)))
