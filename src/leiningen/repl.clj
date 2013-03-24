@@ -213,6 +213,6 @@ Subcommands:
                     (trampoline-repl project port)
                     (let [port (server project false)]
                       (client project host port)))
-         ":headless" (server project host port true)
+         ":headless" (start-server project nil true)
          ":connect" (client project host (or (first opts) port))
          (main/abort "Unknown subcommand")))))
