@@ -18,7 +18,9 @@ task name and arguments to the task:
         [update-args [_ task-name & task-args]] (split-with (partial not= "--")
                                                             args)
         f (resolve (read-string f))
-        project (apply clojure.core/update-in project keys-vec f
-                       (map read-string update-args))]
+        project (-> (apply partial (if (seq keys-vec)
+                                     [clojure.core/update-in project keys-vec f]
+                                     [f project]))
+                    (apply (map read-string update-args)))]
     (println "Project map" project)
     (main/apply-task task-name project task-args)))
