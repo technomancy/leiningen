@@ -70,9 +70,9 @@
       (-> project :repl-options :host)
       "127.0.0.1"))
 
-(defn- server-forms [project ack-port start-msg?]
+(defn- server-forms [project port ack-port start-msg?]
   [`(let [server# (clojure.tools.nrepl.server/start-server
-                   :bind ~(repl-host project) :port ~(repl-port project)
+                   :bind ~(repl-host project) :port ~port
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
           port# (-> server# deref :ss .getLocalPort)]
@@ -143,11 +143,11 @@
                           (catch Exception _))))]
     (Integer. port)))
 
-(defn server [project headless?]
+(defn server [project port headless?]
   (nrepl.ack/reset-ack-port!)
   (let [prep-blocker @eval/prep-blocker
         ack-port (-> @lein-repl-server deref :ss .getLocalPort)
-        [start-form init-form] (server-forms project ack-port headless?)]
+        [start-form init-form] (server-forms project port ack-port headless?)]
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
             (eval/eval-in-project project start-form init-form)))
@@ -160,7 +160,7 @@
       (do (println "nREPL server started on port" repl-port) repl-port)
       (main/abort "REPL server launch timed out."))))
 
-(defn client [project host attach]
+(defn client [project attach]
   (when (and (string? attach) (.startsWith attach "http"))
     (require 'cemerick.drawbridge.client))
   (reply/launch-nrepl (options-for-reply project :attach attach)))
@@ -170,11 +170,11 @@
 
 Subcommands:
 
-:start (default)
-  This will launch an nREPL server and connect a client to it. If
-  a :port key is present in the :repl-options map in project.clj, that
-  port will be used for the server, otherwise it is chosen randomly.
-  When run outside of a project, it will run internally to Leiningen.
+:start [:port port] (default) This will launch an nREPL server and
+  connect a client to it. If a :port key is specified on the command
+  line or present in the :repl-options map in project.clj, that port
+  will be used for the server, otherwise it is chosen randomly.  When
+  run outside of a project, it will run internally to Leiningen.
 
 :headless [:port port]
   This will launch an nREPL server and wait, rather than connecting
@@ -186,16 +186,15 @@ Subcommands:
   ([project] (repl project ":start"))
   ([project subcommand & opts]
      (let [profiles [(:repl (:profiles project)) (:repl (user/profiles))]
-           project (project/merge-profiles project profiles)
-           ;; TODO: most paths here don't honor host and port
-           host (repl-host project)
+           project (-> (project/merge-profiles project profiles)
+                       (update-in [:eval-in] #(or % :leiningen)))
            port (or (opt-port opts) (repl-port project))]
        (case subcommand
          ":start" (if trampoline/*trampoline?*
                     (trampoline-repl project port)
-                    (let [port (server project false)]
-                      (client project host port)))
-         ":headless" (let [[start init] (server-forms project nil true)]
+                    (let [port (server project port false)]
+                      (client project port)))
+         ":headless" (let [[start init] (server-forms project port nil true)]
                        (eval/eval-in-project project start init))
-         ":connect" (client project host (or (first opts) port))
+         ":connect" (client project (or (first opts) port))
          (main/abort "Unknown subcommand")))))
