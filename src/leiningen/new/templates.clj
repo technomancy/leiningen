@@ -1,9 +1,9 @@
 ;; You can write a 'new' task yourself without any extra plugins like
-;; lein-newnew. What makes newnew so useful is the `templates` task for
+;; lein-newnew. What makes lein-new so useful is the `templates` task for
 ;; listing templates and this file. The primary problem with writing your
-;; own project scaffolding tools that are domain-specific is tht you
+;; own project scaffolding tools that are domain-specific is you
 ;; generally have to reimplement the same things every single time. With
-;; lein-newnew, you have this little library that your templates can use.
+;; lein-new, you have this little library that your templates can use.
 ;; It has all the things a template is likely to need:
 ;; * an easy way to generate files and namespaces
 ;; * a way to render files written with a flexible template language
