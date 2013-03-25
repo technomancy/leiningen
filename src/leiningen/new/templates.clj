@@ -26,7 +26,9 @@
 (defn slurp-resource
   "Reads the contents of a resource."
   [resource]
-  (-> resource io/reader slurp))
+  (if (string? resource) ; for 2.0.0 compatibility, can break in 3.0.0
+    (-> resource io/resource io/reader slurp)
+    (-> resource io/reader slurp)))
 
 (defn sanitize
   "Replace hyphens with underscores."
