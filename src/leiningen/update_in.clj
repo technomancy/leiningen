@@ -22,5 +22,4 @@ task name and arguments to the task:
                                      [clojure.core/update-in project keys-vec f]
                                      [f project]))
                     (apply (map read-string update-args)))]
-    (println "Project map" project)
     (main/apply-task task-name project task-args)))
