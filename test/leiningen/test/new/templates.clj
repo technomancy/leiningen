@@ -1,7 +1,8 @@
 (ns leiningen.test.new.templates
   (:use clojure.test
         leiningen.new.templates)
-  (:require [leiningen.test.helper :refer [abort-msg]]))
+  (:require [leiningen.test.helper :refer [abort-msg]]
+            [clojure.java.io :as io]))
 
 (deftest project-names
   (is (= (project-name "org.example/foo.bar") "foo.bar"))
@@ -23,3 +24,8 @@
                  "Template resource 'leiningen/new/my_template/boom' not found.\n"))
   (is (.contains (abort-msg (renderer "my-template") "boom")
                  "Template resource 'leiningen/new/my_template/boom' not found.\n")))
+
+(deftest slurp-resource-compatibility ; can be removed in 3.0.0
+  (is (= (slurp-resource "leiningen/new/template/temp.clj")
+         (slurp-resource (io/resource "leiningen/new/template/temp.clj")))))
+
