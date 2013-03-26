@@ -137,11 +137,8 @@
           (require ~@(init-requires project 'reply.main))))))
 
 (defn- opt-port [opts]
-  (when-let [port (first
-                   (for [[i o] (map-indexed vector opts) :when (= o ":port")]
-                     (try (nth opts (inc i))
-                          (catch Exception _))))]
-    (Integer. port)))
+  (when-let [port (second (drop-while #(not= % ":port") opts))]
+    (Integer/valueOf port)))
 
 (defn server [project port headless?]
   (nrepl.ack/reset-ack-port!)
