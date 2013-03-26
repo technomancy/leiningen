@@ -160,8 +160,14 @@
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
   :injections [(require 'clojure.pprint)]
-  ;; Emit warnings on all reflection calls.
+  ;; Emit warnings on all reflection calls. - DEPRECATED (see below)
   :warn-on-reflection true
+  ;; Sets the values of global variables within Clojure
+  ;;  This example disables all pre- and post-conditions and emits warnings
+  ;;  on reflexive calls. See the Clojure documentation for the list of valid
+  ;;  global variables to set (and their meaningful values).
+  :global-vars {*warn-on-reflection* true
+                *assert* false}
   ;; These repositories will be searched for :dependencies and
   ;; :plugins and will also be available to deploy to.
   ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you list below.
