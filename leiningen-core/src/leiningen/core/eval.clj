@@ -273,6 +273,7 @@ leiningen.core.utils/platform-nullsink instead."
     (System/setProperty k v))
   (eval form))
 
+; TODO: deprecate then remove warn-on-reflection special case
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
   for the project. If the form depends on any requires, put them in the init arg
@@ -280,9 +281,10 @@ leiningen.core.utils/platform-nullsink instead."
   ([project form init]
      (prep project)
      (eval-in project
-              `(do ~init
-                   ~@(:injections project)
-                   (set! ~'*warn-on-reflection*
+              `(do (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))
+                   ~@(map (fn [[k v]] `(set! ~k ~v)) (:global-vars project))
+                   ~init
+                   ~@(:injections project)
                    ~form)))
   ([project form] (eval-in-project project form nil)))
