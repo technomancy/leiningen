@@ -2,7 +2,7 @@
   "Start a repl session either with the current project or standalone."
   (:require (clojure set
                      main
-                     string)
+                     [string :as s])
             [clojure.java.io :as io]
             (clojure.tools.nrepl [ack :as nrepl.ack]
                                  [server :as nrepl.server])
@@ -71,9 +71,9 @@
       (-> project :repl-options :host)
       "127.0.0.1"))
 
-(defn- server-forms [project port ack-port start-msg?]
+(defn- server-forms [project cfg ack-port start-msg?]
   [`(let [server# (clojure.tools.nrepl.server/start-server
-                   :bind ~(repl-host project) :port ~port
+                   :bind ~(:host cfg) :port ~(:port cfg)
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
           port# (-> server# deref :ss .getLocalPort)]
@@ -113,8 +113,7 @@
                             (:repl-options project))]
     (clojure.set/rename-keys
      (merge (dissoc repl-options :init)
-            (cond attach {:attach (if-let [host (repl-host project)]
-                                    (str host ":" attach) (str attach))}
+            (cond attach {:attach (str attach)}
                   port {:port (str port)}
                   :else {}))
      {:prompt :custom-prompt})))
@@ -141,14 +140,14 @@
   (when-let [port (second (drop-while #(not= % ":port") opts))]
     (Integer/valueOf port)))
 
-(defn server [project port headless?]
+(defn server [project cfg headless?]
   (nrepl.ack/reset-ack-port!)
   (let [prep-blocker @eval/prep-blocker
-        ack-port (-> @lein-repl-server deref :ss .getLocalPort)
-        [start-form init-form] (server-forms project port ack-port headless?)]
+        ack-port (-> @lein-repl-server deref :ss .getLocalPort)]
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
-            (eval/eval-in-project project start-form init-form)))
+            (apply eval/eval-in-project project
+                   (server-forms project cfg ack-port headless?))))
         (Thread.) (.start))
     (when project @prep-blocker)
     (when headless? @(promise))
@@ -158,7 +157,7 @@
       (main/abort "REPL server launch timed out."))))
 
 (defn client [project attach]
-  (when (and (string? attach) (.startsWith attach "http"))
+  (when (and (string? attach) (.startsWith attach "http:"))
     (require 'cemerick.drawbridge.client))
   (reply/launch-nrepl (options-for-reply project :attach attach)))
 
@@ -167,31 +166,47 @@
 
 Subcommands:
 
-:start [:port port] (default) This will launch an nREPL server and
-  connect a client to it. If a :port key is specified on the command
-  line or present in the :repl-options map in project.clj, that port
-  will be used for the server, otherwise it is chosen randomly.  When
-  run outside of a project, it will run internally to Leiningen.
+<none> -> :start
+
+:start [:port port] This will launch an nREPL server and connect a
+  client to it. If the :port key is specified, or present in the
+  :repl-options map in project.clj, that port will be used for the
+  server, otherwise it is chosen randomly.  When starting outside of a
+  project, the nREPL server will run internally to Leiningen.
 
 :headless [:port port]
   This will launch an nREPL server and wait, rather than connecting
   a client to it.
 
-:connect [host:]port
-  Connects to the nREPL server running at the given host (defaults to
-  localhost) and port."
+:connect [dest]
+  Connects to an already running nREPL server. Dest can be:
+  - an HTTP URL -- connects to an HTTP nREPL endpoint;
+  - host:port -- connects to the specified host and port;
+  - port -- resolves host from the LEIN_REPL_HOST environment
+      variable or :repl-options, in that order, and defaults to
+      localhost.
+  If no dest is given, resolves the port from :repl-options and the host
+  as described above."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
      (let [profiles [(:repl (:profiles project)) (:repl (user/profiles))]
            project (-> (project/merge-profiles project profiles)
                        (update-in [:eval-in] #(or % :leiningen)))
-           port (or (opt-port opts) (repl-port project))]
-       (case subcommand
-         ":start" (if trampoline/*trampoline?*
-                    (trampoline-repl project port)
-                    (let [port (server project port false)]
-                      (client project port)))
-         ":headless" (let [[start init] (server-forms project port nil true)]
-                       (eval/eval-in-project project start init))
-         ":connect" (client project (or (first opts) port))
-         (main/abort "Unknown subcommand")))))
+           host (repl-host project)
+           port (repl-port project)]
+       (if (= subcommand ":connect")
+         (client project (as-> (str (first opts)) x
+                               (s/split x #":")
+                               (remove s/blank? x)
+                               (-> (drop-last (count x) [host port])
+                                   (concat x))
+                               (s/join ":" x)
+                               (do (println "Connecting to nREPL at" x) x)))
+         (let [cfg {:host host, :port (or (opt-port opts) port)}]
+           (case subcommand
+             ":start" (if trampoline/*trampoline?*
+                        (trampoline-repl project (:port cfg))
+                        (->> (server project cfg false) (client project)))
+             ":headless" (apply eval/eval-in-project project
+                                (server-forms project cfg nil true))
+             (main/abort "Unknown subcommand")))))))
