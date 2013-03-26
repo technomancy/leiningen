@@ -189,7 +189,13 @@
     (apply task project args)))
 
 (defn leiningen-version []
-  (or (System/getenv "LEIN_VERSION") "2.2.0-SNAPSHOT"))
+  (with-open [reader (-> "META-INF/maven/leiningen/leiningen/pom.properties"
+                         io/resource
+                         io/reader)]
+    (or (System/getenv "LEIN_VERSION")
+        (-> (doto (java.util.Properties.)
+              (.load reader))
+            (.getProperty "version")))))
 
 (defn ^:internal version-satisfies? [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d+" (first (string/split v1 #"-" 2))))
