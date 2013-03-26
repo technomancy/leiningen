@@ -12,6 +12,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.eval :as eval]
+            [leiningen.core.user :as user]
             [leiningen.core.main :as main]
             [stencil.core :as stencil]))
 
@@ -23,12 +24,19 @@
   [s]
   (last (string/split s #"/")))
 
+(defn fix-line-separators
+  "Replace all \\n with system specific line separators."
+  [s]
+  (let [line-sep (if (user/getenv "LEIN_NEW_UNIX_NEWLINES") "\n"
+                     (user/getprop "line.separator"))]
+    (string/replace s "\n" line-sep)))
+
 (defn slurp-resource
   "Reads the contents of a resource."
   [resource]
   (if (string? resource) ; for 2.0.0 compatibility, can break in 3.0.0
-    (-> resource io/resource io/reader slurp)
-    (-> resource io/reader slurp)))
+    (-> resource io/resource io/reader slurp fix-line-separators)
+    (-> resource io/reader slurp fix-line-separators)))
 
 (defn sanitize
   "Replace hyphens with underscores."

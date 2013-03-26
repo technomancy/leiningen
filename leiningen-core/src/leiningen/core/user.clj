@@ -6,6 +6,11 @@
             [leiningen.core.utils :as utils])
   (:import (java.util.regex Pattern)))
 
+(defn getprop
+  "Wrap System/getProperty for testing purposes."
+  [prop-name]
+  (System/getProperty prop-name))
+
 (defn getenv
   "Wrap System/getenv for testing purposes."
   [name]
