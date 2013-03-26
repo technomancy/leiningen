@@ -61,10 +61,10 @@
       (list 'quote n))))
 
 (defn- repl-port [project]
-  (Integer. (or (System/getenv "LEIN_REPL_PORT")
-                (-> project :repl-options :port)
-                (-> (user/profiles) :user :repl-options :port)
-                0)))
+  (Integer/valueOf (or (System/getenv "LEIN_REPL_PORT")
+                       (-> project :repl-options :port)
+                       (-> (user/profiles) :user :repl-options :port)
+                       0)))
 
 (defn- repl-host [project]
   (or (System/getenv "LEIN_REPL_HOST")
@@ -98,17 +98,16 @@
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
 (defn- ack-port [project]
-  (if-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
+  (when-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
                  (-> project :repl-options :ack-port))]
-    (Integer. p)))
+    (Integer/valueOf p)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
   (let [history-file (if (:root project)
                        ;; we are in project
                        "./.lein-repl-history"
                        ;; outside of project
-                       (str (io/file (user/leiningen-home)
-                                     "repl-history")))
+                       (str (io/file (user/leiningen-home) "repl-history")))
         repl-options (merge {:history-file history-file,
                              :input-stream System/in}
                             (:repl-options project))]
@@ -126,7 +125,8 @@
                                                        ring/ring-core]]]})
 
 (defn- trampoline-repl [project port]
-  (let [options (dissoc (options-for-reply project :port port) :input-stream)
+  (let [options (-> (options-for-reply project :port port)
+                    (dissoc :input-stream))
         profile (:leiningen/trampoline-repl (:profiles project)
                                             trampoline-profile)]
     (eval/eval-in-project
@@ -152,9 +152,8 @@
         (Thread.) (.start))
     (when project @prep-blocker)
     (when headless? @(promise))
-    (if-let [repl-port (nrepl.ack/wait-for-ack (-> project
-                                                   :repl-options
-                                                   (:timeout 60000)))]
+    (if-let [repl-port (nrepl.ack/wait-for-ack
+                        (-> project :repl-options (:timeout 60000)))]
       (do (println "nREPL server started on port" repl-port) repl-port)
       (main/abort "REPL server launch timed out."))))
 
