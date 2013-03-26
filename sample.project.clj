@@ -327,5 +327,6 @@
 ;; LEIN_REPL_PORT - port on which to start or connect to nREPL server
 ;; LEIN_OFFLINE - equivalent of :offline? true but works for plugins
 ;; LEIN_GPG - gpg executable to use for encryption/signing
+;; LEIN_NEW_UNIX_NEWLINES - ensure that `lein new` emits '\n' as newlines
 ;; http_proxy - host and port to proxy HTTP connections through
 ;; http_no_proxy - pipe-separated list of hosts which may be accessed directly
