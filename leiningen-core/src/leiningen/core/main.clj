@@ -189,7 +189,7 @@
     (apply task project args)))
 
 (defn leiningen-version []
-  (System/getenv "LEIN_VERSION"))
+  (or (System/getenv "LEIN_VERSION") "2.2.0-SNAPSHOT"))
 
 (defn ^:internal version-satisfies? [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d+" (first (string/split v1 #"-" 2))))
