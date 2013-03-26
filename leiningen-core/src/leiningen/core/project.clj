@@ -138,7 +138,8 @@
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
-   :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]})
+   :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
+   :global-vars {}})
 
 (defn- dep-key
   "The unique key used to dedupe dependencies."
