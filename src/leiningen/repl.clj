@@ -14,31 +14,47 @@
             [leiningen.trampoline :as trampoline]
             [reply.main :as reply]))
 
-(defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
-  (or init-ns main))
-
-(defn- opt-port [opts]
+(defn opt-port [opts]
   (when-let [port (second (drop-while #(not= % ":port") opts))]
     (Integer/valueOf port)))
 
-(defn- repl-port [project]
+(defn repl-port [project]
   (Integer/valueOf (or (System/getenv "LEIN_REPL_PORT")
                        (-> project :repl-options :port)
                        (-> (user/profiles) :user :repl-options :port)
                        0)))
 
-(defn- repl-host [project]
+(defn repl-host [project]
   (or (System/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)
       "127.0.0.1"))
 
-(defn- connect-string [project opts]
+(defn connect-string [project opts]
   (as-> (str (first opts)) x
         (s/split x #":")
         (remove s/blank? x)
         (-> (drop-last (count x) [(repl-host) (repl-port)])
             (concat x))
         (s/join ":" x)))
+
+(defn options-for-reply [project & {:keys [attach port]}]
+  (let [history-file (if (:root project)
+                       ;; we are in project
+                       "./.lein-repl-history"
+                       ;; outside of project
+                       (str (io/file (user/leiningen-home) "repl-history")))
+        repl-options (merge {:history-file history-file,
+                             :input-stream System/in}
+                            (:repl-options project))]
+    (clojure.set/rename-keys
+     (merge (dissoc repl-options :init)
+            (cond attach {:attach (str attach)}
+                  port {:port (str port)}
+                  :else {}))
+     {:prompt :custom-prompt})))
+
+(defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
+  (or init-ns main))
 
 (defn- wrap-init-ns [project]
   (when-let [init-ns (init-ns project)]
@@ -104,26 +120,10 @@
                              (or (.getMessage t#) (type t#))))))
         ~(-> project :repl-options :init))])
 
-(defn options-for-reply [project & {:keys [attach port]}]
-  (let [history-file (if (:root project)
-                       ;; we are in project
-                       "./.lein-repl-history"
-                       ;; outside of project
-                       (str (io/file (user/leiningen-home) "repl-history")))
-        repl-options (merge {:history-file history-file,
-                             :input-stream System/in}
-                            (:repl-options project))]
-    (clojure.set/rename-keys
-     (merge (dissoc repl-options :init)
-            (cond attach {:attach (str attach)}
-                  port {:port (str port)}
-                  :else {}))
-     {:prompt :custom-prompt})))
-
-(def trampoline-profile {:dependencies '[^:displace
-                                         [reply "0.1.10"
-                                          :exclusions [org.clojure/clojure
-                                                       ring/ring-core]]]})
+(def trampoline-profile
+  {:dependencies
+   '[^:displace [reply "0.1.10"
+                 :exclusions [org.clojure/clojure ring/ring-core]]]})
 
 (defn- trampoline-repl [project port]
   (let [options (-> (options-for-reply project :port port)
