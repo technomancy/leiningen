@@ -17,6 +17,20 @@
 (defn- init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns main))
 
+(defn- opt-port [opts]
+  (when-let [port (second (drop-while #(not= % ":port") opts))]
+    (Integer/valueOf port)))
+
+(defn- repl-port [project]
+  (Integer/valueOf (or (System/getenv "LEIN_REPL_PORT")
+                       (-> project :repl-options :port)
+                       (-> (user/profiles) :user :repl-options :port)
+                       0)))
+
+(defn- repl-host [project]
+  (or (System/getenv "LEIN_REPL_HOST")
+      (-> project :repl-options :host)
+      "127.0.0.1"))
 (defn- wrap-init-ns [project]
   (when-let [init-ns (init-ns project)]
     ;; set-descriptor! currently nREPL only accepts a var
@@ -60,17 +74,6 @@
     (for [n (concat defaults nrepl-syms nses)]
       (list 'quote n))))
 
-(defn- repl-port [project]
-  (Integer/valueOf (or (System/getenv "LEIN_REPL_PORT")
-                       (-> project :repl-options :port)
-                       (-> (user/profiles) :user :repl-options :port)
-                       0)))
-
-(defn- repl-host [project]
-  (or (System/getenv "LEIN_REPL_HOST")
-      (-> project :repl-options :host)
-      "127.0.0.1"))
-
 (defn- server-forms [project cfg ack-port start-msg?]
   [`(let [server# (clojure.tools.nrepl.server/start-server
                    :bind ~(:host cfg) :port ~(:port cfg)
@@ -91,16 +94,6 @@
                     (println "Error loading" (str ~n ":")
                              (or (.getMessage t#) (type t#))))))
         ~(-> project :repl-options :init))])
-
-(def lein-repl-server
-  (delay (nrepl.server/start-server
-          :host (repl-host nil)
-          :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
-
-(defn- ack-port [project]
-  (when-let [p (or (System/getenv "LEIN_REPL_ACK_PORT")
-                 (-> project :repl-options :ack-port))]
-    (Integer/valueOf p)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
   (let [history-file (if (:root project)
@@ -136,9 +129,10 @@
      `(do (try (require '~(init-ns project)) (catch Throwable t#))
           (require ~@(init-requires project 'reply.main))))))
 
-(defn- opt-port [opts]
-  (when-let [port (second (drop-while #(not= % ":port") opts))]
-    (Integer/valueOf port)))
+(def lein-repl-server
+  (delay (nrepl.server/start-server
+          :host (repl-host nil)
+          :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
 (defn server [project cfg headless?]
   (nrepl.ack/reset-ack-port!)
