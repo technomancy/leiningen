@@ -33,7 +33,7 @@
   (as-> (str (first opts)) x
         (s/split x #":")
         (remove s/blank? x)
-        (-> (drop-last (count x) [(repl-host) (repl-port)])
+        (-> (drop-last (count x) [(repl-host project) (repl-port project)])
             (concat x))
         (s/join ":" x)))
 
