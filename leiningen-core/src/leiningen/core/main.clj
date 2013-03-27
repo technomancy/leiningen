@@ -189,10 +189,10 @@
     (apply task project args)))
 
 (defn leiningen-version []
-  (with-open [reader (-> "META-INF/maven/leiningen/leiningen/pom.properties"
-                         io/resource
-                         io/reader)]
-    (or (System/getenv "LEIN_VERSION")
+  (or (System/getenv "LEIN_VERSION")
+      (with-open [reader (-> "META-INF/maven/leiningen/leiningen/pom.properties"
+                             io/resource
+                             io/reader)]
         (-> (doto (java.util.Properties.)
               (.load reader))
             (.getProperty "version")))))
