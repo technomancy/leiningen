@@ -31,6 +31,15 @@
   (or (System/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)
       "127.0.0.1"))
+
+(defn- connect-string [project opts]
+  (as-> (str (first opts)) x
+        (s/split x #":")
+        (remove s/blank? x)
+        (-> (drop-last (count x) [(repl-host) (repl-port)])
+            (concat x))
+        (s/join ":" x)))
+
 (defn- wrap-init-ns [project]
   (when-let [init-ns (init-ns project)]
     ;; set-descriptor! currently nREPL only accepts a var
@@ -185,18 +194,12 @@ Subcommands:
   ([project subcommand & opts]
      (let [profiles [(:repl (:profiles project)) (:repl (user/profiles))]
            project (-> (project/merge-profiles project profiles)
-                       (update-in [:eval-in] #(or % :leiningen)))
-           host (repl-host project)
-           port (repl-port project)]
+                       (update-in [:eval-in] #(or % :leiningen)))]
        (if (= subcommand ":connect")
-         (client project (as-> (str (first opts)) x
-                               (s/split x #":")
-                               (remove s/blank? x)
-                               (-> (drop-last (count x) [host port])
-                                   (concat x))
-                               (s/join ":" x)
-                               (do (println "Connecting to nREPL at" x) x)))
-         (let [cfg {:host host, :port (or (opt-port opts) port)}]
+         (client project (doto (connect-string project opts)
+                           (->> (println "Connecting to nREPL at"))))
+         (let [cfg {:host (repl-host project)
+                    :port (or (opt-port opts) (repl-port project))}]
            (case subcommand
              ":start" (if trampoline/*trampoline?*
                         (trampoline-repl project (:port cfg))
