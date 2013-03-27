@@ -207,7 +207,48 @@
       (is (= '(constantly false)
              (-> (make {:test-selectors {:default '(constantly false)}})
                  (merge-profiles [:base])
-                 :test-selectors :default))))))
+                 :test-selectors :default))))
+    (testing "that IObjs can be compared with non-IObjs without crashing"
+      (is (= :keyword
+             (-> (make {:test-selectors {:default :keyword}})
+                 (merge-profiles [:base])
+                 :test-selectors :default)))
+      (is (= [1 2]
+             (-> (make (test-project
+                        {:foo ^:replace [1 2]
+                         :profiles
+                         {:bar {:foo 100}}}))
+                 (merge-profiles [:bar])
+                 :foo)))
+      (is (= [1 2]
+             (-> (make (test-project
+                        {:foo 100
+                         :profiles
+                         {:bar {:foo ^:replace [1 2]}}}))
+                 (merge-profiles [:bar])
+                 :foo)))
+      (is (= "string"
+             (-> (make (test-project
+                        {:foo "string"
+                         :profiles
+                         {:bar {:foo ^:displace [1 2]}}}))
+                 (merge-profiles [:bar])
+                 :foo)))
+      (is (= "string"
+             (-> (make (test-project
+                        {:foo ^:displace [1 2]
+                         :profiles
+                         {:bar {:foo "string"}}}))
+                 (merge-profiles [:bar])
+                 :foo))))
+    (testing "that IObjs keep their metadata when compared to non-IObjs"
+      (is (= {:frob true}
+             (-> (make (test-project
+                        {:foo 100
+                         :profiles
+                         {:bar {:foo ^{:replace true, :frob true} [1 2]}}}))
+                 (merge-profiles [:bar])
+                 :foo meta))))))
 
 (def test-profiles (atom {:qa {:resource-paths ["/etc/myapp"]}
                           :test {:resource-paths ["test/hi"]}
