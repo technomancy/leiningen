@@ -63,15 +63,31 @@
              (into [(symbol group-id artifact-id) version]))
         (with-meta (meta dep)))))
 
+(defn- meta*
+  "Returns the metadata of an object, or nil if the object cannot hold
+  metadata."
+  [obj]
+  (if (instance? clojure.lang.IObj obj)
+    (meta obj)
+    nil))
+
+(defn- with-meta*
+  "Returns an object of the same type and value as obj, with map m as its
+  metadata if the object can hold metadata."
+  [obj m]
+  (if (instance? clojure.lang.IObj obj)
+    (with-meta obj m)
+    obj))
+
 (defn- displace?
   "Returns true if the object is marked as displaceable"
   [obj]
-  (-> obj meta :displace))
+  (-> obj meta* :displace))
 
 (defn- replace?
   "Returns true if the object is marked as replaceable"
   [obj]
-  (-> obj meta :replace))
+  (-> obj meta* :replace))
 
 (defn- different-priority?
   "Returns true if either left has a higher priority than right or vice versa."
@@ -88,25 +104,25 @@
 
         (and (displace? left)   ;; Pick the rightmost
              (displace? right)) ;; if both are marked as displaceable
-        (with-meta right
-          (merge (meta left) (meta right)))
+        (with-meta* right
+          (merge (meta* left) (meta* right)))
 
         (and (replace? left)    ;; Pick the rightmost
              (replace? right))  ;; if both are marked as replaceable
-        (with-meta right
-          (merge (meta left) (meta right)))
+        (with-meta* right
+          (merge (meta* left) (meta* right)))
 
         (or (displace? left)
             (replace? right))
-        (with-meta right
-          (merge (-> left meta (dissoc :displace))
-                 (-> right meta (dissoc :replace))))
+        (with-meta* right
+          (merge (-> left meta* (dissoc :displace))
+                 (-> right meta* (dissoc :replace))))
 
         (or (replace? left)
             (displace? right))
-        (with-meta left
-          (merge (-> right meta (dissoc :displace))
-                 (-> left meta (dissoc :replace))))))
+        (with-meta* left
+          (merge (-> right meta* (dissoc :displace))
+                 (-> left meta* (dissoc :replace))))))
 
 (declare meta-merge)
 
