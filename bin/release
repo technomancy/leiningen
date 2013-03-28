@@ -46,5 +46,5 @@ echo "Also deploy this release of leiningen-core to Clojars."
 # deploy leiningen itself
 # scp docs/uberdoc.html philhag@leiningen.org:leiningen.org/reference.html
 # git push && git push --tags
-# git checkout preview && git merge master && git push
+# git checkout stable && git merge master && git push
 # Drop version back to SNAPSHOT
