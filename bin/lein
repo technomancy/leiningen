@@ -91,9 +91,11 @@ done
 
 BIN_DIR="$(dirname "$SCRIPT")"
 
-# Try to make the default more sane for :eval-in :classloader.lein
-grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null &&
-LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-"-Xms64m -Xmx512m"}"
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+
+# When :eval-in :classloader we need more memory
+grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
+    export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Xms64m -Xmx512m"
 
 if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
@@ -129,7 +131,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     fi
 
     mkdir -p "$LEIN_DIR/target/classes"
-    export LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-"-Xms64m -Xmx256m"} -Dclojure.compile.path=$LEIN_DIR/target/classes"
+    export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Dclojure.compile.path=$LEIN_DIR/target/classes"
     add_path CLASSPATH "$LEIN_DIR/leiningen-core/src/" "$LEIN_DIR/leiningen-core/resources/" \
         "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
 
@@ -285,8 +287,7 @@ else
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
         export TRAMPOLINE_FILE
-        "$LEIN_JAVA_CMD" \
-            -client -XX:+TieredCompilation -XX:TieredStopAtLevel=1 \
+        "$LEIN_JAVA_CMD" -client \
             "${BOOTCLASSPATH[@]}" \
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
