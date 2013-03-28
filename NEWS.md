@@ -1,5 +1,15 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.1.2 / 2013-02-28
+
+* Allow TieredCompilation to be disabled for old JVMs. (Phil Hagelberg)
+* Fix a bug merging keywords in profiles. (Jean Niklas L'orange)
+* Fix a bug where tests wouldn't run under with-profiles. (Phil Hagelberg)
+* Support for calling set! on arbitrary vars on startup. (Gary Verhaegen)
+* Allow update-in to work on top-level keys. (Marko Topolnik)
+* Fix a bug breaking certain templates. (Colin Jones)
+* Fix a bug where trampolined repl would hang. (Marko Topolnik)
+
 ## 2.1.1 / 2013-03-21
 
 * Add `:test-paths` to directories shared by checkout deps. (Phil Hagelberg)
