@@ -216,3 +216,20 @@ Subcommands:
          ":headless" (start-server project nil true)
          ":connect" (client project host (or (first opts) port))
          (main/abort "Unknown subcommand")))))
+
+;; A note on testing the repl task: it has a number of modes of operation
+;; which need to be tested individually:
+;; * :start (normal operation)
+;; * :headless (server-only)
+;; * :connect (client-only)
+
+;; These three modes should really each be tested in each of these contexts:
+;; * :eval-in :subprocess (default)
+;; * :eval-in :trampoline
+;; * :eval-in :leiningen (:connect prolly doesn't need separate testing here)
+
+;; Visualizing a 3x3 graph with checkboxes is an exercise left to the reader.
+
+;; Possibly worth testing in TERM=dumb (no completion) as well as a regular
+;; terminal, but that doesn't need to happen separately for each
+;; subcommand. This is more about testing reply than the repl task itself.
