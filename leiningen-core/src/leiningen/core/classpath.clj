@@ -86,6 +86,15 @@
   [[id repo]]
   [id (-> repo user/profile-auth user/resolve-credentials)])
 
+(defn get-non-proxy-hosts []
+  (let [system-no-proxy (System/getenv "no_proxy")
+        lein-no-proxy (System/getenv "http_no_proxy")]
+    (if (and (empty? lein-no-proxy) (not-empty system-no-proxy))
+      (->> (str/split system-no-proxy #",")
+           (map #(str "*" %))
+           (str/join "|"))
+      (System/getenv "http_no_proxy"))))
+
 (defn get-proxy-settings
   "Returns a map of the JVM proxy settings"
   ([] (get-proxy-settings "http_proxy"))
@@ -98,7 +107,7 @@
           :port (.getPort url)
           :username username
           :password password
-          :non-proxy-hosts (System/getenv "http_no_proxy")}))))
+          :non-proxy-hosts (get-non-proxy-hosts)}))))
 
 (defn- update-policies [update checksum [repo-name opts]]
   [repo-name (merge {:update (or update :daily)
