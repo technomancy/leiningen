@@ -188,7 +188,10 @@ export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
 if [ "$1" = "self-install" ]; then
-    if [ -r "$LEIN_JAR" ]; then
+    if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
+        echo "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
+        exit 1
+    elif [ -r "$LEIN_JAR" ]; then
       echo "The self-install jar already exists at $LEIN_JAR."
       echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
       exit 1
@@ -203,9 +206,6 @@ if [ "$1" = "self-install" ]; then
     else
         rm "$LEIN_JAR.pending" 2> /dev/null
         download_failed_message "$LEIN_URL"
-        if [ $SNAPSHOT = "YES" ]; then
-            echo "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
-        fi
         exit 1
     fi
 elif [ "$1" = "upgrade" ]; then
