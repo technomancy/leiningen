@@ -1,6 +1,6 @@
 # Using GPG
 
-This document aims to be just enough for setting up and using
+This is an introduction to setting up and using
 [GPG](http://www.gnupg.org/) keys with
 [Leiningen](http://leiningen.org) to sign artifacts for publication to
 [Clojars](http://clojars.org/) and to encrypt repository credentials.
@@ -14,7 +14,7 @@ only been tested under v1.x.
 
 ## What is it?
 
-GPG(http://www.gnupg.org/) (or Gnu Privacy Guard) is a set of tools
+[GPG](http://www.gnupg.org/) (or Gnu Privacy Guard) is a set of tools
 for cryptographic key creation/management and encryption/signing of
 data. If you are unfamiliar with the concepts of public key
 cryptography, this
@@ -29,7 +29,7 @@ holder of the private key, can decrypt. It can also be used to verify
 the signature of a file, confirming that the file was signed by the
 holder of the private key, and the contents of the file have not been
 altered since it was signed. **You should guard your private key
-closely, and share it with no one.**
+and passphrase closely, and share them with no one.**
 
 ## Installing GPG
 
@@ -55,7 +55,8 @@ have installed (if any):
 
 1. via [homebrew](http://mxcl.github.com/homebrew/): `brew install gnupg`
 2. via [macports](http://www.macports.org/): `port install gnupg`
-3. via a [binary installer](https://www.gpgtools.org/installer/index.html)
+3. via a [binary installer](https://www.gpgtools.org/installer/index.html) 
+   (this installs gpg2 as gpg)
 
 ### Windows
 
@@ -82,22 +83,74 @@ important to use a strong one to help protect the integrity of your key.
 
 GPG stores keys in a keystore located in `~/.gnupg/`. This keystore
 holds your keypair(s), along with any other public keys you have used.
-
-To list your private keys:
-
-    gpg --list-secret-keys
     
-To list all of the public keys:
+To list all of the public keys in your keystore:
 
     gpg --list-keys
     
-This will produce similar output, but will include any public keys you
-have used (if you've never used GPG before and just created your first
+This will include any public keys you have used, including keys from
+others (if you've never used GPG before and just created your first
 keypair, you should just see your own key).
+
+The output of the `--list-keys` option will include the id of your
+public key in the 'pub' line in the key listing (you'll need that id 
+for other commands described here):
+
+    $ gpg --list-keys
+
+                ↓↓↓↓↓↓↓↓
+    pub   2048R/2ADFB13E 2013-03-16 [expires: 2014-03-16]
+    uid                  Bob Bobson <bob@bobsons.net>
+    sub   2048R/8D2344D0 2013-03-16 [expires: 2014-03-16]
+
+The `--fingerprint` option will act just like `--list-keys`, but will
+include the fingerprint of each certificate in the output. You can
+filter the output of the `--fingerprint` option by providing a key id
+or any substring from the uid (this trick also works for the
+`--list-keys` option):
+
+    $ gpg --fingerprint 2ADFB13E
+
+    pub   2048R/2ADFB13E 2013-03-16 [expires: 2014-03-16]
+          Key fingerprint = 3367 5FD0 D67B 3218 5815  51A3 97D4 06D0 2ADF B13E
+    uid                  Bob Bobson <bob@bobsons.net>
+    sub   2048R/8D2344D0 2013-03-16 [expires: 2014-03-16]
+
+## Publishing your public key
+
+To make it easier for others that need your public key to find it,
+you can publish it to a key server with:
+
+    gpg --send-keys 2ADFB13E # use your id instead
+
+This pushes a copy of your public key to one of a cluster of free key
+servers, and the key is propogated to all of the other servers in the
+cluster in short order.
+
+If your keypair is compromised, you can publish a revocation
+certificate to the key server to let others know that your key can no
+longer be trusted for any future signing or encryption. It's a good
+idea to generate a revocation certificate whenever you create a new
+keypair, and store it in a safe place. As long as you have that
+revocation certificate, you can revoke a keypair even if you no longer
+have the private key. You can generate a revocation certificate with:
+
+    $ gpg --output 2ADFB13E-revoke.asc --gen-revoke 2ADFB13E
+
+Be sure to protect your revocation certificate carefully - anyone who
+gains access to it can use it to revoke your keypair. The GPG
+maintainers recommend printing it out and storing the hardcopy in a
+safe place.
+
+To revoke your certificate **when the time comes (not now!)**, do the
+following:
+
+    $ gpg --import 2ADFB13E-revoke.asc  # ONLY WHEN YOU NEED TO REVOKE
+    $ gpg --send-keys 2ADFB13E          # ONLY WHEN YOU NEED TO REVOKE
 
 ## How Leiningen uses GPG
 
-Leiningen uses gpg for two things: decrypting credential files and
+Leiningen uses GPG for two things: decrypting credential files and
 signing release artifacts. We'll focus on artifact singing here; for
 information on credentials encryption/decryption, see the
 [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
@@ -129,41 +182,57 @@ that `gpg` is in your path, and your GPG binary is actually called
 `gpg`. If either of those are false, you can override the command
 Leiningen uses for GPG by setting the `LEIN_GPG` environment variable.
 
-Leiningen currently makes no effort to select a private key to use for
-signing, and leaves that up to GPG. GPG by default will select the
-first private key it finds (which will be the first key listed by `gpg
---list-secret-keys`). If you have multiple keys and want to sign with
-one other than first, you'll need to set a default key for GPG. To do
-so, edit `~/.gnupg/gpg.conf` and set the `default-key` option to the
-id of the key you want to use. You can get the key id from the 'pub'
-line in the key listing:
+GPG by default will select the first private key it finds (which will
+be the first key listed by `gpg --list-secret-keys`). If you have
+multiple keys and want to sign with one other than first, or want to
+use specific keys for a particular release repository, you can specify
+which key to use either globally, per-project, or
+per-deploy-repository. All three places use the same configuration
+syntax, it's all about where you put it. You can specify the key by id
+or by the uid.
 
-    $ gpg --list-keys
+To set a key globally, add it to your user profile in
+`~/.lein/profiles.clj`:
 
-                ↓↓↓↓↓↓↓↓
-    pub   2048R/2ADFB13E 2013-03-16 [expires: 2014-03-16]
-    uid                  Bob Bobson <bob@bobsons.net>
-    sub   2048R/8D2344D0 2013-03-16 [expires: 2014-03-16]
+    {:user 
+      ...
+      {:signing {:gpg-key "2ADFB13E"}}} ;; using the key id
+    
+To set a key for a particular project, add it to the project
+definition:
 
-## Clojars 
+    (defproject ham-biscuit "0.1.0"
+       ...
+       {:signing {:gpg-key "bob@bobsons.net"}} ;; using the key uid
+       ...)
+    
+To set a key for a particular deploy repository, add it to the
+repository specification in your project definition:
+    (defproject ham-biscuit "0.1.0"
+       ...
+       :deploy-repositories 
+         [["releases" {:url "http://blueant.com/archiva/internal/releases"
+                       :signing {:gpg-key "2ADFB13E"}}]
+         ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
+       ...)
+       
+## Clojars
 
 Clojars requires that artifacts be signed and verified before being
 promoted to the
 [releases](https://github.com/ato/clojars-web/wiki/Releases)
 repository. In order to verify the signature, it needs a copy of your
 *public* key. To view your public key, use `gpg --export -a` giving it
-either the key id. Example:
+the key id. Example:
 
-```
-$ gpg --export -a 2ADFB13E
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-mQENBFE/a/UBCAChmZrZWFFgzzYrhOVx0EiUa3S+0kV6UryqkxPASbHZLml3RlJI
-<snipped>
-=EaPb
------END PGP PUBLIC KEY BLOCK-----
-```
+    $ gpg --export -a 2ADFB13E
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Version: GnuPG v1.4.11 (GNU/Linux)
+    
+    mQENBFE/a/UBCAChmZrZWFFgzzYrhOVx0EiUa3S+0kV6UryqkxPASbHZLml3RlJI
+    <snipped>
+    =EaPb
+    -----END PGP PUBLIC KEY BLOCK-----
 
 Copy the entire output (including the BEGIN and END lines), and paste
 it into the 'PGP public key' field of your Clojars profile.
