@@ -334,13 +334,14 @@
   (atom {:default [:base :system :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts tiered-jvm-opts
-                :test-selectors {:default (with-meta '(constantly true)
-                                            {:displace true})}
                 :checkout-deps-shares [:source-paths
                                        :test-paths
                                        :resource-paths
                                        :compile-path]}
-         :leiningen/test {:injections [hooke-injection]}
+         :leiningen/test {:injections [hooke-injection]
+                          :test-selectors {:default (with-meta
+                                                      '(constantly true)
+                                                      {:displace true})}}
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
