@@ -7,7 +7,7 @@
             [clojure.data.xml :as xml]))
 
 (defn- relativize [project]
-  (let [root (str (:root project) "/")]
+  (let [root (str (:root project) (System/getProperty "file.separator"))]
     (reduce #(update-in %1 [%2]
                         (fn [xs]
                           (if (seq? xs)
