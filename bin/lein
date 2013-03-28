@@ -189,6 +189,7 @@ export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
 if [ "$1" = "self-install" ]; then
     if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
+        echo "Running self-install from a checkout is not supported."
         echo "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
         exit 1
     elif [ -r "$LEIN_JAR" ]; then
