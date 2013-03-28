@@ -106,3 +106,9 @@
   around the problem would be to load a bare repl by invoking `lein
   trampoline run -m clojure.main/repl`, though you may want to use
   `rlwrap` on that to get proper key bindings and history.
+
+**Q:** What does "Unrecognized VM option 'TieredStopAtLevel=1'" mean?  
+**A:** Old versions of the JVM do not support the directives Leiningen
+  uses for tiered compilation which allow the JVM to boot more
+  quickly. You can disable this behaviour with `export LEIN_JVM_OPTS=`
+  or upgrade your JVM to something more recent. (newer than b25 of Java 6)

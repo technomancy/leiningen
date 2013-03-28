@@ -218,7 +218,7 @@
 
 (def deploy-repositories
   (with-meta
-    [["clojars" {:url "https://clojars.org/repo/", :password :gpg, :username :gpg}]]
+    [["clojars" {:url "https://clojars.org/repo/" :password :gpg :username :gpg}]]
     {:reduce add-repo}))
 
 (defn update-if-in-map
@@ -227,8 +227,8 @@
   (apply update-each m (filter (partial contains? m) ks) f args))
 
 (defn normalize-values
-  "Transform values within a project or profile map to normalized values, such that
-  internal functions can assume that the values are already normalized."
+  "Transform values within a project or profile map to normalized values, such
+  that internal functions can assume that the values are already normalized."
   [map]
   (-> map
       (update-if-in-map [:repositories :deploy-repositories
@@ -322,12 +322,18 @@
                                                   rdr false ::eof)))))
          (ns ~'user))))
 
+;; users of old JVMs will have to set LEIN_JVM_OPTS to turn off tiered
+;; compilation, so if they've done that we should do the same for project JVMs
+(def tiered-jvm-opts
+  (if (.contains (or (System/getenv "LEIN_JVM_OPTS") "") "Tiered")
+    ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"] []))
+
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
   (atom {:default [:base :system :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
-                :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]
+                :jvm-opts tiered-jvm-opts
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 :checkout-deps-shares [:source-paths
