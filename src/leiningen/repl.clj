@@ -19,13 +19,13 @@
     (Integer/valueOf port)))
 
 (defn repl-port [project]
-  (Integer/valueOf (or (System/getenv "LEIN_REPL_PORT")
+  (Integer/valueOf (or (user/getenv "LEIN_REPL_PORT")
                        (-> project :repl-options :port)
                        (-> (user/profiles) :user :repl-options :port)
                        0)))
 
 (defn repl-host [project]
-  (or (System/getenv "LEIN_REPL_HOST")
+  (or (user/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)
       "127.0.0.1"))
 
