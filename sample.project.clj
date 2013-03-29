@@ -164,7 +164,7 @@
   :warn-on-reflection true
   ;; Sets the values of global variables within Clojure
   ;;  This example disables all pre- and post-conditions and emits warnings
-  ;;  on reflexive calls. See the Clojure documentation for the list of valid
+  ;;  on reflective calls. See the Clojure documentation for the list of valid
   ;;  global variables to set (and their meaningful values).
   :global-vars {*warn-on-reflection* true
                 *assert* false}
