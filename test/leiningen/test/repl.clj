@@ -41,9 +41,9 @@
        (= exp (with-redefs [repl-host (constantly "repl-host")
                             repl-port (constantly 5)]
                 (connect-string {} [in])))
-       ""  "repl-host:5"
-       "7" "repl-host:7"
-       "myhost:9" "myhost:9"
+       ""                    "repl-host:5"
+       "7"                   "repl-host:7"
+       "myhost:9"            "myhost:9"
        "http://localhost:20" "http://localhost:20"))
 
 (deftest test-options-for-reply
@@ -60,15 +60,15 @@
           (apply options-for-reply
                  {:repl-options (into {} (and prj-k {prj-k prj-v}))}
                  (into [] (and arg-k [arg-k arg-v])))))
-     [:standalone true] {:standalone true}
-     [:prompt prompt-fn] {:custom-prompt prompt-fn}
-     [:host "prj-host"] {:host "prj-host"}
-     [:host "prj-host" :port 1] {:host "prj-host" :port "1"}
-     [nil nil :port 1] {:port "1"}
-     [:port 2] {:port "2"}
-     [:port 2 :port 1] {:port "1"}
+     [:standalone true]              {:standalone true}
+     [:prompt prompt-fn]             {:custom-prompt prompt-fn}
+     [:host "prj-host"]              {:host "prj-host"}
+     [:host "prj-host" :port 1]      {:host "prj-host" :port "1"}
+     [nil nil :port 1]               {:port "1"}
+     [:port 2]                       {:port "2"}
+     [:port 2 :port 1]               {:port "1"}
      [:host "prj-host" :attach "xy"] {:attach "xy"}
-     [:port 3 :attach "xy"] {:attach "xy"})))
+     [:port 3 :attach "xy"]          {:attach "xy"})))
 
 (deftest test-init-ns
   (let [main {:main 'main}
