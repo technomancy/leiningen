@@ -173,8 +173,8 @@ Subcommands:
 <none> -> :start
 
 :start [:port port] This will launch an nREPL server and connect a
-  client to it. If the :port key is specified, or present in the
-  :repl-options map in project.clj, that port will be used for the
+  client to it. If the :port key is specified, or present under
+  :repl-options in the project map, that port will be used for the
   server, otherwise it is chosen randomly.  When starting outside of a
   project, the nREPL server will run internally to Leiningen.
 
