@@ -193,7 +193,7 @@ Subcommands:
   as described above."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-     (let [profiles [(:repl (:profiles project)) (:repl (user/profiles))]
+     (let [profiles (map :repl [(:profiles project) (user/profiles)])
            project (-> (project/merge-profiles project profiles)
                        (update-in [:eval-in] #(or % :leiningen)))]
        (if (= subcommand ":connect")
@@ -207,4 +207,4 @@ Subcommands:
                         (->> (server project cfg false) (client project)))
              ":headless" (apply eval/eval-in-project project
                                 (server-forms project cfg nil true))
-             (main/abort "Unknown subcommand")))))))
+             (main/abort (str "Unknown subcommand " subcommand))))))))
