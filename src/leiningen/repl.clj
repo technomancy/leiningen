@@ -39,20 +39,20 @@
         (s/join ":" x)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
-  (let [history-file (if (:root project)
-                       ;; we are in project
-                       "./.lein-repl-history"
-                       ;; outside of project
-                       (str (io/file (user/leiningen-home) "repl-history")))
-        repl-options (merge {:history-file history-file,
-                             :input-stream System/in}
-                            (:repl-options project))]
-    (clojure.set/rename-keys
-     (merge (dissoc repl-options :init)
-            (cond attach {:attach (str attach)}
-                  port {:port (str port)}
-                  :else {}))
-     {:prompt :custom-prompt})))
+  (as-> (:repl-options project) x
+        (merge {:history-file (->> (if-let [root (:root project)]
+                                     [root ".lein-repl-history"]
+                                     [(user/leiningen-home) "repl-history"])
+                                   (apply io/file)
+                                   str)
+                :input-stream System/in}
+               x)
+        (apply dissoc x (concat [:init] (when attach [:host :port])))
+        (merge x (cond attach {:attach (str attach)}
+                       port {:port port}
+                       :else {}))
+        (clojure.set/rename-keys x {:prompt :custom-prompt})
+        (if (:port x) (update-in x [:port] str) x)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns main))
