@@ -46,8 +46,30 @@
        "myhost:9" "myhost:9"
        "http://localhost:20" "http://localhost:20"))
 
-            :input-stream System/in}
-           (options-for-reply project :attach 9876)))))
+(deftest test-options-for-reply
+  (is (= "/home/user/.lein-repl-history"
+         (:history-file (options-for-reply {:root "/home/user"}))))
+  (let [prompt-fn (fn [ns] "hi ")]
+    (are
+     [in exp]
+     (= (merge
+         {:history-file (str (user/leiningen-home) "/repl-history")
+          :input-stream System/in}
+         exp)
+        (let [[prj-k prj-v arg-k arg-v] in]
+          (apply options-for-reply
+                 {:repl-options (into {} (and prj-k {prj-k prj-v}))}
+                 (into [] (and arg-k [arg-k arg-v])))))
+     [:standalone true] {:standalone true}
+     [:prompt prompt-fn] {:custom-prompt prompt-fn}
+     [:host "prj-host"] {:host "prj-host"}
+     [:host "prj-host" :port 1] {:host "prj-host" :port "1"}
+     [nil nil :port 1] {:port "1"}
+     [:port 2] {:port "2"}
+     [:port 2 :port 1] {:port "1"}
+     [:host "prj-host" :attach "xy"] {:attach "xy"}
+     [:port 3 :attach "xy"] {:attach "xy"})))
+
 (deftest test-init-ns
   (let [main {:main 'main}
         repl-opts (merge main {:repl-options {:init-ns 'init-ns}})]
