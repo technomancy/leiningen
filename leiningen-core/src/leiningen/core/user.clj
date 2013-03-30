@@ -3,6 +3,7 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.java.shell :as shell]
+            [useful.map :refer [map-vals]]
             [leiningen.core.utils :as utils])
   (:import (java.util.regex Pattern)))
 
@@ -34,46 +35,58 @@
                       (catch Exception e
                         (.printStackTrace e))))))))
 
+(defn- load-profiles-d-file
+  "Returns a map entry containing the filename (without `.clj`) associated
+  with its contents. The content will be tagged with its origin."
+  [file]
+  (try
+    (let [kw (->> file .getName (re-find #".+(?=\.clj)") keyword)
+          contents (with-meta (utils/read-file file) ;; assumes the file exist
+                     {:origin (.getAbsolutePath file)})]
+      [kw contents])
+    (catch Exception e
+      (binding [*out* *err*]
+        (println "Error reading" (.getName file)
+                 "from" (-> file .getParentFile .getAbsolutePath (str ":")))
+        (println (.getMessage e))))))
+
 (def profiles-d-profiles
   "Load all Clojure files from the profiles.d folder in your Leiningen home if
-  present. Returns a realized seq with the different profiles."
+  present. Returns a seq with map entries of the different profiles."
   (memoize
    (fn []
      (let [profile-dir (io/file (leiningen-home) "profiles.d")]
-       (if (and (.exists profile-dir) (.isDirectory profile-dir))
+       (when (and (.exists profile-dir) (.isDirectory profile-dir))
          (for [file (.listFiles profile-dir)
                :when (-> file .getName (.endsWith ".clj"))]
            (if (= "user.clj" (.getName file))
-             (throw (ex-info ":user profile detected in profiles.d"
+             (throw (ex-info (str "Error: :user profile detected in profiles.d,"
+                                  " which is not allowed.")
                              {:exit-code 1}))
-             (try [(keyword (second (re-find #"(.*)\.clj" (.getName file))))
-                   (utils/read-file file)]
-                  (catch Exception e
-                    (binding [*out* *err*]
-                      (println "Error reading" (.getName file)
-                               "from" (str (leiningen-home) "/profiles.d:"))
-                      (println (.getMessage e))))))))))))
+             (load-profiles-d-file file))))))))
 
 (def ^:internal load-profiles
-  "Load profiles.clj from dir if present."
+  "Load profiles.clj from dir if present. Tags all profiles with its origin."
   (memoize
    (fn [dir]
-     (try (utils/read-file (io/file dir "profiles.clj"))
-          (catch Exception e
-            (binding [*out* *err*]
-              (println "Error reading profiles.clj from" dir)
-              (println (.getMessage e))))))))
+     (try
+       (if-let [contents (utils/read-file (io/file dir "profiles.clj"))]
+         (map-vals contents with-meta
+                   {:origin (.getAbsolutePath (io/file dir "profiles.clj"))}))
+       (catch Exception e
+         (binding [*out* *err*]
+           (println "Error reading profiles.clj from" dir)
+           (println (.getMessage e))))))))
 
 (def profiles
   "Load profiles.clj from your Leiningen home and profiles.d if present."
   (memoize
    (fn []
-     (let [error-fn ;; TODO: More descriptive error messages.
+     (let [error-fn
            (fn [a b]
              (binding [*out* *err*]
-               (println "Error: A profile is defined multiple times!")
-               (println "Please check your profiles.clj and your profiles"
-                        "in the profiles.d directory."))
+               (println "Error: A profile is defined in both"
+                        (-> a meta :origin) "and in" (-> b meta :origin)))
              (throw (ex-info "Multiple profiles defined in ~/.lein"
                              {:exit-code 1})))]
        (merge-with error-fn
