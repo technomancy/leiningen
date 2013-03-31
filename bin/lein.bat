@@ -80,7 +80,7 @@ goto RUN
 rem parameters: TargetFileName Address
 powershell -? >nul 2>&1
 if NOT ERRORLEVEL 9009 (
-    powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" %~2 %~1
+    powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" ""%2"" ""%1""
 ) else (
     wget >nul 2>&1
     if NOT ERRORLEVEL 9009 (
@@ -123,7 +123,7 @@ if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 echo Downloading Leiningen now...
 
 set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
-call :DownloadFile "%LEIN_JAR%.pending" %LEIN_JAR_URL%
+call :DownloadFile "%LEIN_JAR%.pending" "%LEIN_JAR_URL%"
 if ERRORLEVEL 1 (
     del "%LEIN_JAR%.pending" >nul 2>&1
     goto DOWNLOAD_FAILED
@@ -154,7 +154,7 @@ echo Downloading latest Leiningen batch script...
 
 set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
-call :DownloadFile "%LEIN_BAT%.pending" %LEIN_BAT_URL%
+call :DownloadFile "%LEIN_BAT%.pending" "%LEIN_BAT_URL%"
 if ERRORLEVEL 1 (
     del "%LEIN_BAT%.pending" >nul 2>&1
     echo Failed to download %LEIN_BAT_URL%
