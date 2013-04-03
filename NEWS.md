@@ -2,6 +2,7 @@
 
 ## 2.1.2 / 2013-02-28
 
+* Add new way to specify no-proxy hosts. (Joe Littlejohn)
 * Allow TieredCompilation to be disabled for old JVMs. (Phil Hagelberg)
 * Fix a bug merging keywords in profiles. (Jean Niklas L'orange)
 * Fix a bug where tests wouldn't run under with-profiles. (Phil Hagelberg)
