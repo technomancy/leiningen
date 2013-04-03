@@ -142,7 +142,9 @@
                         (map add-repo-auth)
                         (map (partial update-policies update checksum)))
      :coordinates (get project dependencies-key)
-     :mirrors mirrors
+     :mirrors (->> mirrors
+                   (map add-repo-auth)
+                   (map (partial update-policies update checksum)))
      :transfer-listener
      (bound-fn [e]
        (let [{:keys [type resource error]} e]
