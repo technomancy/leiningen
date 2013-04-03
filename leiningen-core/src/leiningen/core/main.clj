@@ -188,6 +188,10 @@
     (debug "Applying task" task-name "to" args)
     (apply task project args)))
 
+(defn resolve-and-apply [project args]
+  (let [[task-name args] (task-args args project)]
+    (apply-task task-name project args)))
+
 (defn leiningen-version []
   (or (System/getenv "LEIN_VERSION")
       (with-open [reader (-> "META-INF/maven/leiningen/leiningen/pom.properties"
@@ -246,11 +250,10 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
                    (if (.exists (io/file "project.clj"))
                      (project/read)
                      (assoc (project/make (:user (user/profiles)))
-                       :eval-in :leiningen :prep-tasks [])))
-          [task-name args] (task-args raw-args project)]
+                       :eval-in :leiningen :prep-tasks [])))]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
-      (apply-task task-name project args))
+      (resolve-and-apply project raw-args))
     (catch Exception e
       (if (or *debug* (not (:exit-code (ex-data e))))
         (.printStackTrace e)
