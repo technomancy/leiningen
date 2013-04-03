@@ -3,12 +3,11 @@
   (:require [leiningen.core.main :as main] [clojure.core :as clj]))
 
 (defn ^:internal parse-args [key-path f args]
-  (let [[f-args [_ task-name & task-args]] (split-with #(not= "--" %) args)]
+  (let [[f-args [_ & task+args]] (split-with #(not= "--" %) args)]
     [(mapv keyword (rest (.split key-path ":")))
      (resolve (read-string f))
      (mapv read-string f-args)
-     task-name
-     task-args]))
+     task+args]))
 
 (defn ^:internal update-project [project keys-vec f args]
   (let [f #(apply apply (concat (if (seq keys-vec)
@@ -30,7 +29,6 @@ followed by \"--\", and then the task name and arguments to the task:
 
     $ lein update-in :dependencies conj \"[slamhound \\\"1.1.3\\\"]\" -- repl"
   [project key-path f & args]
-  (let [[keys-vec f f-args task-name task-args] (parse-args key-path f args)]
-    (main/apply-task task-name
-                     (update-project project keys-vec f f-args)
-                     task-args)))
+  (let [[keys-vec f f-args task+args] (parse-args key-path f args)]
+    (main/resolve-and-apply (update-project project keys-vec f f-args)
+                            task+args)))

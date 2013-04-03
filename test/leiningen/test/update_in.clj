@@ -21,7 +21,7 @@
                                              ['slamhound "1.1.3"]]})]]
             (partition 2))]
     (let [[in-prj key-path f & args] in-args
-          [keys-vec f f-args task-name task-args]
+          [keys-vec f f-args [task-name & task-args]]
           (parse-args key-path f args)
           out-prj (update-project in-prj keys-vec f f-args)]
       (is (= task-form (concat [task-name out-prj] task-args)))
