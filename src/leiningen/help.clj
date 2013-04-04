@@ -131,8 +131,10 @@ deploying, mixed-source, templates, and copying info."
      (println "  -h, --help     Print this help.")
      (println "  -v, --version  Print Leiningen's version.")
      (when-let [aliases (:aliases project)]
-       (println "\nAliases:")
+       (println "\nThese aliases are available:")
        (doseq [[k v] aliases]
-         (println (str k  " " v))))
+         (if-let [explanation (-> v meta :doc)]
+           (println (str k ": " explanation))
+           (println (str k  ", expands to " v)))))
      (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
               "deploying, gpg, mixed-source, templates, and copying.")))
