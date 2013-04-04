@@ -83,9 +83,12 @@
   ;; "lein assoc :magic true run -m hi.core". Remember, commas are not
   ;; considered to be special by argument parsers, they're just part
   ;; of the preceding argument.
+  ;; For complex aliases, a docstring may be attached. The docstring will be
+  ;; printed instead of the expansion when running `lein help`.
   :aliases {"launch" "run"
             "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]
-            "test!" ["do" "clean," "deps," "test"]}
+            "test!" ^{:doc "Recompile sources and fetch deps before testing."}
+            ["do" "clean," "deps," "test"]}
   ;; Normally Leiningen runs the javac and compile tasks before
   ;; calling any eval-in-project code, but you can override this with
   ;; the :prep-tasks key to do other things like compile protocol buffers.
