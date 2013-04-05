@@ -18,6 +18,12 @@
   (when-let [port (second (drop-while #(not= % ":port") opts))]
     (Integer/valueOf port)))
 
+(defn ack-port [project]
+  (when-let [p (or (user/getenv "LEIN_REPL_ACK_PORT")
+                   (-> project :repl-options :ack-port)
+                   (-> (user/profiles) :user :repl-options :ack-port))]
+    (Integer/valueOf p)))
+
 (defn repl-port [project]
   (Integer/valueOf (or (user/getenv "LEIN_REPL_PORT")
                        (-> project :repl-options :port)
@@ -206,5 +212,6 @@ Subcommands:
                         (trampoline-repl project (:port cfg))
                         (->> (server project cfg false) (client project)))
              ":headless" (apply eval/eval-in-project project
-                                (server-forms project cfg nil true))
+                                (server-forms project cfg (ack-port project)
+                                              true))
              (main/abort (str "Unknown subcommand " subcommand))))))))

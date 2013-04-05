@@ -10,6 +10,19 @@
        [":port" "1" ":foo"] 1
        ["1"]                nil))
 
+(deftest test-ack-port
+  (let [env "3"
+        prj {:repl-options {:ack-port 2}}
+        prf {:user {:repl-options {:ack-port 1}}}]
+    (are [env proj prof exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_ACK_PORT" env}
+                              user/profiles (constantly prof)]
+                  (ack-port proj)))
+         env prj prf 3
+         nil prj prf 2
+         nil nil prf 1
+         nil nil nil nil)))
+
 (deftest test-repl-port
   (let [env "3"
         prj {:repl-options {:port 2}}
