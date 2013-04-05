@@ -30,11 +30,14 @@
 (def ranges (atom []))
 
 (defn- check-for-range [node parents]
-  (if-let [vc (.getVersionConstraint node)]
-    (if-not (empty? (.getRanges vc))
-      (swap! ranges conj (conj parents node))))
-  (every? #(check-for-range % (conj parents node))
-          (.getChildren node)))
+  ;;check for recursive dependencies
+  (if-not (some #{node} parents)
+    (do (if-let [vc (.getVersionConstraint node)]
+          (if-not (empty? (.getRanges vc))
+            (swap! ranges conj (conj parents node))))
+        (every? #(check-for-range % (conj parents node))
+                (.getChildren node)))
+    true))
 
 (defn add-no-ranges-transformer [session]
   (.setDependencyGraphTransformer
