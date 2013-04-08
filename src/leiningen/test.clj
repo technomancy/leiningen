@@ -66,13 +66,15 @@
                       (when (#{:error :fail} (:type m#))
                         (let [first-var# (-> clojure.test/*testing-vars* first meta)]
                           (swap! failures# conj (ns-name (:ns first-var#)))
-                          (println "\nlein test :only"
+                          (newline)
+                          (println "lein test :only"
                                    (str (ns-name (:ns first-var#))
                                         "/"
                                         (:name first-var#)))))
                       (if (= :begin-test-ns (:type m#))
                         (clojure.test/with-test-out
-                          (println "\nlein test" (ns-name (:ns m#))))
+                          (newline)
+                          (println "lein test" (ns-name (:ns m#))))
                         (apply report# m# args#))))
                 summary# (binding [clojure.test/*test-out* *out*]
                            (apply ~'clojure.test/run-tests selected-namespaces#))]
