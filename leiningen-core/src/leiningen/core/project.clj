@@ -380,8 +380,8 @@
 (defn- apply-profiles [project profiles]
   (reduce (fn [project profile]
             (with-meta
-              (meta-merge project profile)
-              (meta-merge (meta project) (meta profile))))
+              (meta-merge profile project)
+              (meta-merge (meta profile) (meta project))))
           project
           profiles))
 
