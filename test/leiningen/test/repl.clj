@@ -1,7 +1,7 @@
 (ns leiningen.test.repl
   (:require [clojure.test :refer :all]
             [leiningen.repl :refer :all]
-            [leiningen.core.user :as user]))
+            (leiningen.core [user :as user] [project :as project])))
 
 (deftest test-opt-port
   (are [in exp] (= exp (opt-port in))
@@ -11,30 +11,30 @@
        ["1"]                nil))
 
 (deftest test-ack-port
-  (let [env "3"
-        prj {:repl-options {:ack-port 2}}
-        prf {:user {:repl-options {:ack-port 1}}}]
-    (are [env proj prof exp]
-         (= exp (with-redefs [user/getenv {"LEIN_REPL_ACK_PORT" env}
-                              user/profiles (constantly prof)]
+  (let [env "5"
+        prj (project/merge-profiles
+             (with-meta {:repl-options {:ack-port 4}}
+               {:without-profiles {:repl-options {:ack-port 3}}
+                :profiles {:repl {:repl-options {:ack-port 2}}
+                           :user {:repl-options {:ack-port 1}}}
+                :active-profiles [:default]})
+             [:repl])]
+    (are [env proj exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_ACK_PORT" env}]
                   (ack-port proj)))
-         env prj prf 3
-         nil prj prf 2
-         nil nil prf 1
-         nil nil nil nil)))
+         env prj 5
+         nil prj 2
+         nil nil nil)))
 
 (deftest test-repl-port
   (let [env "3"
-        prj {:repl-options {:port 2}}
-        prf {:user {:repl-options {:port 1}}}]
-    (are [env proj prof exp]
-         (= exp (with-redefs [user/getenv {"LEIN_REPL_PORT" env}
-                              user/profiles (constantly prof)]
+        prj {:repl-options {:port 2}}]
+    (are [env proj exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_PORT" env}]
                   (repl-port proj)))
-         env prj prf 3
-         nil prj prf 2
-         nil nil prf 1
-         nil nil nil 0)))
+         env prj 3
+         nil prj 2
+         nil nil 0)))
 
 (deftest test-repl-host
   (let [env "env-host"
