@@ -20,14 +20,12 @@
 
 (defn ack-port [project]
   (when-let [p (or (user/getenv "LEIN_REPL_ACK_PORT")
-                   (-> project :repl-options :ack-port)
-                   (-> (user/profiles) :user :repl-options :ack-port))]
+                   (-> project :repl-options :ack-port))]
     (Integer/valueOf p)))
 
 (defn repl-port [project]
   (Integer/valueOf (or (user/getenv "LEIN_REPL_PORT")
                        (-> project :repl-options :port)
-                       (-> (user/profiles) :user :repl-options :port)
                        0)))
 
 (defn repl-host [project]
@@ -199,8 +197,7 @@ Subcommands:
   as described above."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-     (let [project (-> (project/merge-profiles project [:repl])
-                       (update-in [:eval-in] #(or % :leiningen)))]
+     (let [project (project/merge-profiles project [:repl])]
        (if (= subcommand ":connect")
          (client project (doto (connect-string project opts)
                            (->> (println "Connecting to nREPL at"))))
