@@ -239,8 +239,9 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (let [project (project/init-project
                    (if (.exists (io/file "project.clj"))
                      (project/read)
-                     (assoc (project/make (:user (user/profiles)))
-                       :eval-in :leiningen :prep-tasks [])))
+                     (-> (project/make {:eval-in :leiningen :prep-tasks []})
+                         project/project-with-profiles
+                         (project/init-profiles [:default]))))
           [task-name args] (task-args raw-args project)]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
