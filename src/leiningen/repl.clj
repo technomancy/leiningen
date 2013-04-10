@@ -199,8 +199,7 @@ Subcommands:
   as described above."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-     (let [profiles (map :repl [(:profiles project) (user/profiles)])
-           project (-> (project/merge-profiles project profiles)
+     (let [project (-> (project/merge-profiles project [:repl])
                        (update-in [:eval-in] #(or % :leiningen)))]
        (if (= subcommand ":connect")
          (client project (doto (connect-string project opts)
