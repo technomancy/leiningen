@@ -3,6 +3,17 @@
             [leiningen.repl :refer :all]
             (leiningen.core [user :as user] [project :as project])))
 
+(deftest test-merge-repl-profile
+  (is (= (-> {:repl-options {:ack-port 4}}
+             (with-meta
+               {:without-profiles {:repl-options {:ack-port 3}}
+                :profiles {:repl {:repl-options {:ack-port 2}}
+                           :user {:repl-options {:ack-port 1}}}
+                :active-profiles [:default]})
+             (project/merge-profiles [:repl])
+             :repl-options :ack-port)
+         2)))
+
 (deftest test-opt-port
   (are [in exp] (= exp (opt-port in))
        [":port" "1"]        1
@@ -12,18 +23,12 @@
 
 (deftest test-ack-port
   (let [env "5"
-        prj (project/merge-profiles
-             (with-meta {:repl-options {:ack-port 4}}
-               {:without-profiles {:repl-options {:ack-port 3}}
-                :profiles {:repl {:repl-options {:ack-port 2}}
-                           :user {:repl-options {:ack-port 1}}}
-                :active-profiles [:default]})
-             [:repl])]
+        prj {:repl-options {:ack-port 4}}]
     (are [env proj exp]
          (= exp (with-redefs [user/getenv {"LEIN_REPL_ACK_PORT" env}]
                   (ack-port proj)))
          env prj 5
-         nil prj 2
+         nil prj 4
          nil nil nil)))
 
 (deftest test-repl-port
@@ -38,16 +43,12 @@
 
 (deftest test-repl-host
   (let [env "env-host"
-        prj {:repl-options {:host "proj-host"}}
-        prf {:user {:repl-options {:host "prof-host"}}}]
-    (are [env proj prof exp]
-         (= exp (with-redefs [user/getenv {"LEIN_REPL_HOST" env}
-                              user/profiles (constantly prof)]
-                  (repl-host proj)))
-         env prj prf "env-host"
-         nil prj prf "proj-host"
-         nil nil prf "prof-host"
-         nil nil nil "127.0.0.1")))
+        prj {:repl-options {:host "proj-host"}}]
+    (are [env proj exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_HOST" env}] (repl-host proj)))
+         env prj "env-host"
+         nil prj "proj-host"
+         nil nil "127.0.0.1")))
 
 (deftest test-connect-string
   (are [in exp]
