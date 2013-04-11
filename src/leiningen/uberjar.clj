@@ -23,6 +23,7 @@
   (fn [filename]
     (some #(re-find % filename) (:uberjar-exclusions project))))
 
+;; TODO: unify with copy-to-jar functionality in jar.clj (for 3.0?)
 (defn- copy-entries
   "Copies the entries of ZipFile in to the ZipOutputStream out, skipping
   the entries which satisfy skip-pred. Returns the names of the

@@ -65,17 +65,20 @@
     (str file "/")))
 
 (defmethod copy-to-jar :path [project jar-os acc spec]
-  (when-not (acc (:path spec))
-    (let [root-file (io/file (:path spec))
-          root-dir-path (unix-path (dir-string root-file))]
-      (doseq [child (file-seq root-file)
-              :let [path (trim-leading (unix-path (str child))
-                                       root-dir-path)]]
-        (when-not (skip-file? child path (:jar-exclusions project))
-          (.putNextEntry jar-os (doto (JarEntry. path)
-                                  (.setTime (.lastModified child))))
-          (io/copy child jar-os)))))
-  (conj acc (:path spec)))
+  (let [root-file (io/file (:path spec))
+        root-dir-path (unix-path (dir-string root-file))
+        paths (for [child (file-seq root-file)
+                    :let [path (trim-leading (unix-path (str child))
+                                             root-dir-path)]]
+                (when-not (skip-file? child path (:jar-exclusions project))
+                  (if (acc path)
+                    (main/info "Warning: skipped duplicate file:" path)
+                    (do
+                      (.putNextEntry jar-os (doto (JarEntry. path)
+                                              (.setTime (.lastModified child))))
+                      (io/copy child jar-os)
+                      path))))]
+    (into acc paths)))
 
 (defmethod copy-to-jar :paths [project jar-os acc spec]
   (reduce (partial copy-to-jar project jar-os) acc
