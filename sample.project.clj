@@ -105,6 +105,10 @@
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
   ;; Load these namespaces from within Leiningen to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
+  ;; Apply these middleware functions from plugins to your project when it
+  ;; loads. Both hooks and middleware can be loaded implicitly by giving them a
+  ;; name matching a specific pattern as well as by listing them here.
+  :middleware [lein-xml.plugin/middleware]
   ;; Predicates to determine whether to run a test or not, take test metadata
   ;; as argument. See Leiningen tutorial for more information.
   :test-selectors {:default (fn [m] (not (or (:integration m) (:regression m))))
