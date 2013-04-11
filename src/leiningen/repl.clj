@@ -31,7 +31,6 @@
 (defn repl-host [project]
   (or (user/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)
-      (-> (user/profiles) :user :repl-options :host)
       "127.0.0.1"))
 
 (defn connect-string [project opts]
