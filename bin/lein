@@ -190,6 +190,19 @@ fi
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
+# Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
+cygterm=false
+if [ $cygwin ]; then
+  case "$TERM" in
+    rxvt* | xterm* | vt*) cygterm=true ;;
+  esac
+fi
+
+if $cygterm; then
+  JVM_OPTS="$JVM_OPTS -Djline.terminal=jline.UnixTerminal"
+  stty -icanon min 1 -echo > /dev/null 2>&1
+fi
+
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
@@ -306,6 +319,10 @@ else
 
         EXIT_CODE=$?
 
+        if $cygterm ; then
+          stty icanon echo > /dev/null 2>&1
+        fi
+
         if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
             TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
             if [ "$INPUT_CHECKSUM" = "" ]; then
@@ -317,3 +334,4 @@ else
         fi
     fi
 fi
+
