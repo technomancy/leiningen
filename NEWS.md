@@ -1,5 +1,14 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.1.3 / 2013-04-12
+
+* Fix fast trampoline to work without user profiles. (Malcolm Sparks)
+* Fix a bug where duplicate files in jars would blow up. (Phil Hagelberg)
+* Fix a bug where cyclical dependencies could cause a crash. (Nelson Morris)
+* Allow aliases to have docstrings. (Jean Niklas L'orange)
+* Read credentials from GPG for mirrors. (bdollard)
+* Fix bugs in `update-in` around profiles and more. (Marko Topolnik)
+
 ## 2.1.2 / 2013-02-28
 
 * Add new way to specify no-proxy hosts. (Joe Littlejohn)
