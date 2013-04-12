@@ -17,9 +17,15 @@ else
     delimiter=":"
 fi
 
+if [[ "$OSTYPE" == "cygwin" ]]; then
+  cygwin=true
+else
+  cygwin=false
+fi
+
 function make_native_path {
     # ensure we have native paths
-    if [[ "$OSTYPE" == "cygwin" && "$1"  == /* ]]; then
+    if [[ $cygwin && "$1"  == /* ]]; then
     echo -n "$(cygpath -wp "$1")"
     elif [[ "$OSTYPE" == "msys" && "$1"  == /* ]]; then
     echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
@@ -65,7 +71,7 @@ for f in "$LEIN_HOME/leinrc" ".leinrc"; do
   fi
 done
 
-if [ "$OSTYPE" = "cygwin" ]; then
+if [ $cygwin ]; then
     export LEIN_HOME=`cygpath -w "$LEIN_HOME"`
 fi
 
@@ -232,7 +238,7 @@ elif [ "$1" = "upgrade" ]; then
                 echo
                 echo "Upgrading..."
                 TARGET="/tmp/lein-$$-upgrade"
-                if [ "$OSTYPE" = "cygwin" ]; then
+                if [ $cygwin ]; then
                     TARGET=`cygpath -w $TARGET`
                 fi
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
@@ -252,7 +258,7 @@ elif [ "$1" = "upgrade" ]; then
         esac
     fi
 else
-    if [ "$OSTYPE" = "cygwin" ]; then
+    if [ $cygwin ]; then
         # When running on Cygwin, use Windows-style paths for java
         ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
     fi
@@ -277,7 +283,7 @@ else
         trap "rm -f $TRAMPOLINE_FILE" EXIT
     fi
 
-    if [ "$OSTYPE" = "cygwin" ]; then
+    if [ $cygwin ]; then
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
 
