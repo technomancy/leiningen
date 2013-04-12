@@ -25,7 +25,7 @@ fi
 
 function make_native_path {
     # ensure we have native paths
-    if [[ $cygwin && "$1"  == /* ]]; then
+    if $cygwin && [[ "$1"  == /* ]]; then
     echo -n "$(cygpath -wp "$1")"
     elif [[ "$OSTYPE" == "msys" && "$1"  == /* ]]; then
     echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
@@ -71,7 +71,7 @@ for f in "$LEIN_HOME/leinrc" ".leinrc"; do
   fi
 done
 
-if [ $cygwin ]; then
+if $cygwin; then
     export LEIN_HOME=`cygpath -w "$LEIN_HOME"`
 fi
 
@@ -192,7 +192,7 @@ export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
 # Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
 cygterm=false
-if [ $cygwin ]; then
+if $cygwin; then
   case "$TERM" in
     rxvt* | xterm* | vt*) cygterm=true ;;
   esac
@@ -251,7 +251,7 @@ elif [ "$1" = "upgrade" ]; then
                 echo
                 echo "Upgrading..."
                 TARGET="/tmp/lein-$$-upgrade"
-                if [ $cygwin ]; then
+                if $cygwin; then
                     TARGET=`cygpath -w $TARGET`
                 fi
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
@@ -271,7 +271,7 @@ elif [ "$1" = "upgrade" ]; then
         esac
     fi
 else
-    if [ $cygwin ]; then
+    if $cygwin; then
         # When running on Cygwin, use Windows-style paths for java
         ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
     fi
@@ -296,7 +296,7 @@ else
         trap "rm -f $TRAMPOLINE_FILE" EXIT
     fi
 
-    if [ $cygwin ]; then
+    if $cygwin; then
         TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
     fi
 
