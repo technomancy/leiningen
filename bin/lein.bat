@@ -34,12 +34,12 @@ if exist "%~dp0..\src\leiningen\version.clj" (
     call :SET_LEIN_ROOT "%~dp0.."
 
     set LEIN_LIBS=
-    for %%j in ("!LEIN_ROOT!\leiningen-core\lib\*") do set LEIN_LIBS=!LEIN_LIBS!%%~fj;
+    for /f %%j in (!LEIN_ROOT!\leiningen-core\.lein-boostrap) do set LEIN_LIBS=!LEIN_LIBS!;%%~fj;
     set LEIN_LIBS=!LEIN_LIBS!
 
     if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
 
-    set CLASSPATH=!LEIN_LIBS!!LEIN_ROOT!\leiningen-core\src;!LEIN_ROOT!\leiningen-core\resources;!LEIN_ROOT!\leiningen-core\test;!LEIN_ROOT!\src;!LEIN_ROOT!\resources
+    set CLASSPATH=!LEIN_LIBS!;!LEIN_ROOT!\src;!LEIN_ROOT!\resources
 
     :: Apply context specific CLASSPATH entries
     if exist "%~dp0..\.lein-classpath" (
