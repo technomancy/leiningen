@@ -163,7 +163,7 @@ meant to apply to and a function to perform the wrapping:
 
 ;; Place the body of the activate function at the top-level for
 ;; compatibility with Leiningen 1.x
-(defn hooks []
+(defn activate []
   (robert.hooke/add-hook #'leiningen.test/form-for-testing-namespaces
                          add-test-var-println))
 ```
