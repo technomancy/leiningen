@@ -70,7 +70,7 @@ leiningen.core.utils/platform-nullsink instead."
        (->> (:dependencies project)
             (map classpath/get-native-prefix)
             (remove nil?)
-            (map #(io/file native-path %))) 
+            (map #(io/file native-path %)))
        (io/file native-path (name os) (name arch))))))
 
 (defn- as-str [x]
@@ -177,9 +177,8 @@ leiningen.core.utils/platform-nullsink instead."
 (defn- form-string [form eval-in]
   (if (and (= (get-os) :windows) (not= :trampoline eval-in))
     ;; On windows if a parameter is in double quotes, then all we need
-    ;; to worry about are double quotes, which we must escape by
-    ;; doubling them.
-    (string/replace (pr-str form) "\"" "\"\"")
+    ;; to worry about are double quotes, which we must escape
+    (string/replace (pr-str form) "\"" "\\\"")
     (pr-str form)))
 
 (defn- classpath-arg [project]
