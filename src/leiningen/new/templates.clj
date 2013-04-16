@@ -141,8 +141,11 @@ The additional segment defaults to \"core\"."
       (doseq [path paths]
         (if (string? path)
           (.mkdirs (template-path dir path data))
-          (let [[path content] path
-                path (template-path dir path data)]
+          (let [[path content & options] path
+                path (template-path dir path data)
+                options (apply hash-map options)]
             (.mkdirs (.getParentFile path))
-            (io/copy content (io/file path)))))
+            (io/copy content (io/file path))
+            (when (:executable options)
+              (.setExecutable path true)))))
       (println "Could not create directory " dir ". Maybe it already exists?"))))
