@@ -3,7 +3,8 @@
         leiningen.new.templates)
   (:require [leiningen.test.helper :refer [abort-msg]]
             [leiningen.core.user :as user]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import [java.io File]))
 
 (defn- getenv [s]
   (System/getenv s))
@@ -63,3 +64,12 @@
   (is (= (slurp-resource "leiningen/new/template/temp.clj")
          (slurp-resource (io/resource "leiningen/new/template/temp.clj")))))
 
+
+(deftest files
+  (testing "that files marked as executable are set executable"
+    (let [file (File/createTempFile "lein" "template")
+          path [(.getName file) (.getAbsolutePath file) :executable true]]
+      (binding [*dir* (.getParentFile file)]
+        (.deleteOnExit file)
+        (->files {} path)
+        (is (.canExecute file))))))
