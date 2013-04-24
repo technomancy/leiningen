@@ -5,51 +5,34 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.user :as user]
             [cemerick.pomegranate.aether :as aether]
+            [pedantic.core :as pedantic]
             [clojure.pprint :as pp]
             [clojure.java.io :as io])
-  (:import (org.sonatype.aether.resolution DependencyResolutionException)
-           (org.sonatype.aether.collection DependencyGraphTransformer)
-           (org.sonatype.aether.util.graph.transformer
-            ChainedDependencyGraphTransformer)))
+  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
 
-(defn message-for-version-range [path]
+(defn message-for [get-version path]
   (str (->> path
             (map #(if-let [dependency (.getDependency %)]
                     (if-let [artifact (.getArtifact dependency)]
                       (str "["
-                           (.getGroupId artifact)
-                           "/"
-                           (.getArtifactId artifact)
+                           (if (= (.getGroupId artifact)
+                                  (.getArtifactId artifact))
+                             (.getGroupId artifact)
+                             (str (.getGroupId artifact)
+                                  "/"
+                                  (.getArtifactId artifact)))
                            " \""
-                           (.getVersionConstraint %)
+                           (get-version %)
                            "\"]"))))
             (remove nil?)
             (interpose " -> ")
             (apply str))))
 
-(def ranges (atom []))
+(defn message-for-version [{:keys [node parents]}]
+  (message-for #(.getVersion %) (conj parents node)))
 
-(defn- check-for-range [node parents]
-  ;;check for recursive dependencies
-  (if-not (some #{node} parents)
-    (do (if-let [vc (.getVersionConstraint node)]
-          (if-not (empty? (.getRanges vc))
-            (swap! ranges conj (conj parents node))))
-        (every? #(check-for-range % (conj parents node))
-                (.getChildren node)))
-    true))
-
-(defn add-no-ranges-transformer [session]
-  (.setDependencyGraphTransformer
-   session
-   (ChainedDependencyGraphTransformer.
-    (into-array DependencyGraphTransformer
-                [(reify DependencyGraphTransformer
-                   (transformGraph [self node context]
-                     (reset! ranges [])
-                     (check-for-range node [])
-                     node))
-                 (.getDependencyGraphTransformer session)]))))
+(defn message-for-version-range [{:keys [node parents]}]
+  (message-for #(.getVersionConstraint %) (conj parents node)))
 
 (defn- walk-deps
   ([deps f level]
@@ -122,18 +105,40 @@ force them to be updated, use `lein -U $TASK`."
   ([project command]
      (try
        (cond (= command ":tree")
-             (let [hierarchy (classpath/dependency-hierarchy
+             (let [ranges (atom [])
+                   overrides (atom [])
+                   hierarchy (classpath/dependency-hierarchy
                               :dependencies project
                               :repository-session-fn
-                              (comp add-no-ranges-transformer
-                                    aether/repository-session))
-                   ranges (distinct (map message-for-version-range
-                                         @ranges))]
-               (when (not (empty? ranges))
+                              #(-> %
+                                   aether/repository-session
+                                   (pedantic/use-transformer ranges
+                                                             overrides)))
+                   range-messages (distinct
+                                   (map message-for-version-range
+                                        @ranges))
+                   overrides @overrides]
+               (when (not (empty? range-messages))
                  (println "WARNING!!! version ranges found for:")
-                 (doseq [dep-string ranges]
+                 (doseq [dep-string range-messages]
                    (println dep-string))
                  (println))
+               (when (not (empty? overrides))
+                 (println "WARNING!!! possible confusing dependencies found:")
+                 (doseq [{:keys [accepted
+                                 ignoreds
+                                 ranges]}  overrides]
+                   (println (message-for-version accepted))
+                   (println " overrides")
+                   (doseq [ignored (->> ignoreds
+                                        (map message-for-version)
+                                        (interpose " and"))]
+                     (println ignored))
+                   (when (not (empty? ranges))
+                     (println " possibly due to a version range in")
+                     (doseq [n ranges]
+                       (println (message-for-version-range n))))
+                   (println)))
                (walk-deps hierarchy
                           print-dep))
              (= command ":verify")
