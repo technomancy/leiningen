@@ -1,5 +1,6 @@
 (ns leiningen.test.jar
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [leiningen.core.main :as main])
   (:use [clojure.test]
         [leiningen.jar]
         [leiningen.core.eval :only [platform-nullsink]]
@@ -35,4 +36,8 @@
     (is (= coord [:extension "jar"]))))
 
 (deftest overlapped-paths
-  (is (jar overlapped-sourcepaths-project)))
+  (let [info-logs (atom [])]
+    (with-redefs [main/info (fn [& args] (swap! info-logs conj args))]
+      (let [result (jar overlapped-sourcepaths-project)]
+        (is result)
+        (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))))))
