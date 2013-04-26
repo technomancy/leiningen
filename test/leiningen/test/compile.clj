@@ -18,13 +18,13 @@
                        (file "test_projects" "sample_failing" "target") true)
                       (f)))
 
-(deftest test-compile
+(deftest ^:online test-compile
   (compile sample-project "nom.nom.nom")
   (is (.exists (file "test_projects" "sample" "target"
                      "classes" "nom" "nom" "nom.class")))
   (is (thrown? Exception (compile sample-failing-project))))
 
-(deftest test-compile-all
+(deftest ^:online test-compile-all
   (compile sample-project ":all")
   (is (.exists (file "test_projects" "sample" "target"
                      "classes" "nom" "nom" "nom.class"))))
@@ -40,7 +40,7 @@
 
 (def eip-check (atom false))
 
-(deftest test-plugin
+(deftest ^:online test-plugin
   (reset! eip-check false)
   (eval/eval-in-project (assoc sample-project
                           :eval-in :leiningen
@@ -49,7 +49,7 @@
                         `(reset! eip-check true))
   (is @eip-check))
 
-(deftest test-cleared-transitive-aot
+(deftest ^:online test-cleared-transitive-aot
   (compile (assoc sample-project :clean-non-project-classes true) "nom.nom.nom")
   (eval/eval-in-project sample-project '(require 'nom.nom.nom))
   (let [classes (seq (.list (file "test_projects" "sample" "target"
@@ -62,7 +62,7 @@
   (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "alt.class")))))
 
-(deftest test-cleared-transitive-aot-by-regexes
+(deftest ^:online test-cleared-transitive-aot-by-regexes
   (compile (assoc sample-project :clean-non-project-classes [#"core"])
            "nom.nom.nom")
   (let [classes (seq (.list (file "test_projects" "sample" "target"
@@ -75,7 +75,7 @@
   (is (.exists (file "test_projects" "sample" "target" "classes"
                      "sample2" "alt__init.class"))))
 
-(deftest test-injection
+(deftest ^:online test-injection
   (eval/eval-in-project (assoc sample-project
                           :injections ['(do (ns inject.stuff)
                                             (def beef :hot))])
