@@ -27,15 +27,15 @@
       ;; TODO: this is vulnerable to the y3k bug!
       (is (seq (filter #(re-find #"nomnomnom-0.5.0-2\d{7}\." %) files))))))
 
-(deftest test-deploy
+(deftest ^:online test-deploy
   (testing "simple deployment to `snapshots` already defined in project.clj"
     (deploy-snapshots sample-project "lein-repo")))
 
-(deftest test-deploy-custom-url
+(deftest ^:online test-deploy-custom-url
   (testing "deployment to a repo specified as a URL argument to `deploy`"
     (deploy-snapshots sample-project "lein-custom-repo" true)))
 
-(deftest test-deploy-repositories-key
+(deftest ^:online test-deploy-repositories-key
   (testing "preferring repository in :deploy-repositories over :repositories"
     (deploy-snapshots (assoc sample-project
                         :deploy-repositories
