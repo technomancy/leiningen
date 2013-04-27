@@ -631,10 +631,10 @@
        (binding [*ns* (find-ns 'leiningen.core.project)]
          (try (load-file file)
               (catch Exception e
-                (throw (Exception. "Error loading project.clj" e)))))
+                (throw (Exception. (format "Error loading %s" file) e)))))
        (let [project (resolve 'leiningen.core.project/project)]
          (when-not project
-           (throw (Exception. "project.clj must define project map.")))
+           (throw (Exception. (format "%s must define project map" file))))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
          (init-profiles (project-with-profiles @project) profiles))))
