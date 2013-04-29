@@ -34,8 +34,9 @@ if exist "%~dp0..\src\leiningen\version.clj" (
     call :SET_LEIN_ROOT "%~dp0.."
 
     set LEIN_LIBS=
-    for /f %%j in (!LEIN_ROOT!\leiningen-core\.lein-bootstrap) do set LEIN_LIBS=!LEIN_LIBS!;%%~fj;
-    set LEIN_LIBS=!LEIN_LIBS!
+	rem there's one line where each path is concatenated to each other via a semicolon, there's no semicolon at the end
+	rem (untested when there are spaces in file/folder names)
+    for /f %%j in (!LEIN_ROOT!\leiningen-core\.lein-bootstrap) do set LEIN_LIBS=%%j
 
     if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
 
