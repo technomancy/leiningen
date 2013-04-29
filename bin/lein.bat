@@ -34,7 +34,7 @@ if exist "%~dp0..\src\leiningen\version.clj" (
     call :SET_LEIN_ROOT "%~dp0.."
 
     set LEIN_LIBS=
-    for /f %%j in (!LEIN_ROOT!\leiningen-core\.lein-boostrap) do set LEIN_LIBS=!LEIN_LIBS!;%%~fj;
+    for /f %%j in (!LEIN_ROOT!\leiningen-core\.lein-bootstrap) do set LEIN_LIBS=!LEIN_LIBS!;%%~fj;
     set LEIN_LIBS=!LEIN_LIBS!
 
     if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
