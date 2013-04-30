@@ -28,19 +28,75 @@ if "x%LEIN_JAR%" == "x" set LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_V
 
 if "%1" == "self-install" goto SELF_INSTALL
 if "%1" == "upgrade"      goto UPGRADE
-
+	
 if exist "%~dp0..\src\leiningen\version.clj" (
     :: Running from source checkout.
     call :SET_LEIN_ROOT "%~dp0.."
 
-    set LEIN_LIBS=
-	rem there's one line where each path is concatenated to each other via a semicolon, there's no semicolon at the end
-	rem (untested when there are spaces in file/folder names)
-    for /f %%j in (!LEIN_ROOT!\leiningen-core\.lein-bootstrap) do set LEIN_LIBS=%%j
+
+	set bootstrapfile="!LEIN_ROOT!\leiningen-core\.lein-bootstrap"
+	rem in .lein-bootstrap there is only one line where each path is concatenated to each other via a semicolon, there's no semicolon at the end
+	rem each path is NOT inside double quotes and may contain spaces (even semicolons but this is not supported here) in their names, 
+	rem  but they won't/cannot contain double quotes " or colons :  in their names (at least on windows it's not allowed/won't work)
+	
+	rem tested when folders contain spaces and when LEIN_ROOT contains semicolon
+	
+	
+	if not "x%DEBUG%" == "x" echo LEIN_ROOT=!LEIN_ROOT!
+	
+	rem if not "%LEIN_ROOT:;=%" == "%LEIN_ROOT%" (
+
+	
+	rem oddly enough /G:/ should've worked but doesn't where / they say it's console
+	rem findstr is C:\Windows\System32\findstr.exe
+	echo !LEIN_ROOT! | findstr /C:";" /G:con >nul
+	if not errorlevel 1 ( rem aka errorlevel is 0 aka the string ";" was found
+		echo Your folder structure !LEIN_ROOT! contains at least one semicolon in its name
+		echo This is not allowed and would break things with the generated bootstrap file
+		echo Please correct this by renaming the folders to not contain semicolons in their name
+		del !bootstrapfile! >nul 2>&1
+		echo You'll also have to recreate the bootstrap file just to be sure it has semicolon-free names inside
+		echo the bootstrap file^(which was just deleted^) is: !bootstrapfile!
+		echo  and the info on how to do that is:
+		goto :RUN_BOOTSTRAP
+	)
+
+	if not exist !bootstrapfile! goto NO_DEPENDENCIES
+	
+	findstr /C:^"\^"^" !bootstrapfile! >nul
+	if not errorlevel 1 (
+		set hasAtLeastOneDoubleQuote=1
+	) ELSE (
+		set hasAtLeastOneDoubleQuote=0
+	)
+	
+	if !hasAtLeastOneDoubleQuote! == 1 (
+		echo double quotes detected inside file: !bootstrapfile!
+		echo this should not be happening
+		goto :RUN_BOOTSTRAP
+	)
+
+rem will proceed to set LEIN_LIBS and surround each path from bootstrap file in double quotes and separate it from others with a semicolon
+rem the paths inside the bootstrap file do not already contain double quotes but may contain spaces
+	rem note worthy: the following won't work due to a hard 1022bytes limit truncation in the variable that was set
+	rem set /p LEIN_LIBS=<!bootstrapfile!
+	rem so this will work instead:
+	rem for /f "usebackq delims=" %%j in (!bootstrapfile!) do set LEIN_LIBS=%%j
+	rem just  set LEIN_LIBS="%%j"  is uglier/hacky but would also work here instead of the below:
+	for /f "usebackq delims=" %%j in (!bootstrapfile!) do (
+		set tmpline=%%j
+		call :processPath
+	)
+	
+	
+	if not "x%DEBUG%" == "x" echo LEIN_LIBS=!LEIN_LIBS!
 
     if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
 
-    set CLASSPATH=!LEIN_LIBS!;!LEIN_ROOT!\src;!LEIN_ROOT!\resources
+
+	rem CLASSPATH must contain each path element double quoted and separated by semicolons ie. "c:\some folder";"c:\some other folder";"c:\semicolons;;;;in;name;work okay"
+	rem (no end semicolon required)
+    set CLASSPATH=!LEIN_LIBS!;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources"
 
     :: Apply context specific CLASSPATH entries
     if exist "%~dp0..\.lein-classpath" (
@@ -50,6 +106,7 @@ if exist "%~dp0..\src\leiningen\version.clj" (
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
         )
     )
+
 ) else (
     :: Not running from a checkout.
     if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
@@ -108,6 +165,7 @@ goto EOF
 :NO_DEPENDENCIES
 echo.
 echo Leiningen is missing its dependencies.
+:RUN_BOOTSTRAP
 echo Please run "lein bootstrap" in the leiningen-core/ directory
 echo with a stable release of Leiningen. See CONTRIBUTING.md for details.
 echo.
@@ -231,12 +289,22 @@ del "%TRAMPOLINE_FILE%" 2>nul
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
+ -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
 del "%TRAMPOLINE_FILE%"
 goto EOF
+
+rem this label must reside here outside of ( ) from the if block, otherwise the ELSE ( ) block is also executed
+:processPath
+rem will surround each path with double quotes before appending it to LEIN_LIBS
+	for /f "tokens=1* delims=;" %%a in ("%tmpline%") do (
+		set LEIN_LIBS=!LEIN_LIBS!"%%a";
+		set tmpline=%%b
+	)
+	if not "%tmpline%" == "" goto :processPath
+	goto :eof
 
 :EOF
 
