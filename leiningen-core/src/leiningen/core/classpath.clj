@@ -125,62 +125,65 @@
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
 
-(defn- get-dependencies
-  [dependencies-key {:keys [repositories local-repo offline? update
-                            checksum mirrors]
-                     :as project}
-   & {:keys [add-classpath? repository-session-fn]}]
-  {:pre [(every? vector? (get project dependencies-key))]}
-  (try
-    ((if add-classpath?
-       pomegranate/add-dependencies
-       aether/resolve-dependencies)
-     :repository-session-fn repository-session-fn
-     :local-repo local-repo
-     :offline? offline?
-     :repositories (->> repositories
-                        (map add-repo-auth)
-                        (map (partial update-policies update checksum)))
-     :coordinates (get project dependencies-key)
-     :mirrors (->> mirrors
-                   (map add-repo-auth)
-                   (map (partial update-policies update checksum)))
-     :transfer-listener
-     (bound-fn [e]
-       (let [{:keys [type resource error]} e]
-         (let [{:keys [repository name size trace]} resource]
-           (let [aether-repos (if trace (.getRepositories (.getData trace)))]
-             (case type
-               :started
-               (if-let [repo (first (filter
-                                     #(or (= (.getUrl %) repository)
-                                          ;; sometimes the "base" url
-                                          ;; doesn't have a slash on it
-                                          (= (str (.getUrl %) "/") repository))
-                                     aether-repos))]
-                 (println "Retrieving"
-                          name
-                          "from"
-                          (.getId repo))
-                 ;;else case happens for metadata files
-                 )
-               nil)))))
-     :proxy (get-proxy-settings))
-    (catch DependencyResolutionException e
-      (binding [*out* *err*]
-        ;; Cannot recur from catch/finally so have to put this in its own defn
-        (print-failures e)
-        (println "This could be due to a typo in :dependencies or network issues.")
-        #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
-            (println "It's possible the specified jar is in the old Clojars Classic repo.")
-            (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
-      (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
-                                                        :exit-code 1} e)))
-    (catch Exception e
-      (if (and (instance? java.net.UnknownHostException (root-cause e))
-               (not offline?))
-        (get-dependencies dependencies-key (assoc project :offline? true))
-        (throw e)))))
+(def ^:private get-dependencies
+  (memoize
+   (fn [dependencies-key {:keys [repositories local-repo offline? update
+                                 checksum mirrors]
+                          :as project}
+        & {:keys [add-classpath? repository-session-fn]}]
+     {:pre [(every? vector? (get project dependencies-key))]}
+     (try
+       ((if add-classpath?
+          pomegranate/add-dependencies
+          aether/resolve-dependencies)
+        :repository-session-fn repository-session-fn
+        :local-repo local-repo
+        :offline? offline?
+        :repositories (->> repositories
+                           (map add-repo-auth)
+                           (map (partial update-policies update checksum)))
+        :coordinates (get project dependencies-key)
+        :mirrors (->> mirrors
+                      (map add-repo-auth)
+                      (map (partial update-policies update checksum)))
+        :transfer-listener
+        (bound-fn [e]
+          (let [{:keys [type resource error]} e]
+            (let [{:keys [repository name size trace]} resource]
+              (let [aether-repos (if trace (.getRepositories (.getData trace)))]
+                (case type
+                  :started
+                  (if-let [repo (first (filter
+                                        #(or (= (.getUrl %) repository)
+                                             ;; sometimes the "base" url
+                                             ;; doesn't have a slash on it
+                                             (= (str (.getUrl %) "/") repository))
+                                        aether-repos))]
+                    (println "Retrieving"
+                             name
+                             "from"
+                             (.getId repo))
+                    ;;else case happens for metadata files
+                    )
+                  nil)))))
+        :proxy (get-proxy-settings))
+       (catch DependencyResolutionException e
+         (binding [*out* *err*]
+           ;; Cannot recur from catch/finally so have to put this in its own defn
+           (print-failures e)
+           (println "This could be due to a typo in :dependencies or network issues.")
+           #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
+               (println "It's possible the specified jar is in the old Clojars Classic repo.")
+               (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
+         (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
+                                                           :exit-code 1} e)))
+       (catch Exception e
+         (if (and (instance? java.net.UnknownHostException (root-cause e))
+                  (not offline?))
+           (get-dependencies dependencies-key (assoc project :offline? true))
+           (throw e)))))))
+
+
 
 (defn- get-original-dependency
   "Return a match to dep (a single dependency vector) in
