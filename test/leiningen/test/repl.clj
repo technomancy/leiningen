@@ -1,40 +1,92 @@
 (ns leiningen.test.repl
   (:require [clojure.test :refer :all]
             [leiningen.repl :refer :all]
-            [leiningen.core.user :as user]))
+            (leiningen.core [user :as user] [project :as project])))
 
-(def history-file (str (user/leiningen-home) "/repl-history"))
+(deftest test-merge-repl-profile
+  (is (= (-> {:repl-options {:ack-port 4}}
+             (with-meta
+               {:without-profiles {:repl-options {:ack-port 3}}
+                :profiles {:repl {:repl-options {:ack-port 2}}
+                           :user {:repl-options {:ack-port 1}}}
+                :active-profiles [:default]})
+             (project/merge-profiles [:repl])
+             :repl-options :ack-port)
+         2)))
 
-(deftest test-options-for-reply-empty
-  (let [project {}]
-    (is (= {:attach "127.0.0.1:9876" :history-file history-file
-            :input-stream System/in}
-           (options-for-reply project :attach 9876)))))
+(deftest test-opt-port
+  (are [in exp] (= exp (opt-port in))
+       [":port" "1"]        1
+       [":foo" ":port" "1"] 1
+       [":port" "1" ":foo"] 1
+       ["1"]                nil))
 
-(deftest test-options-for-reply-host
-  (let [project {:repl-options {:host "192.168.0.10"}}]
-    (is (= {:attach "192.168.0.10:9876" :host "192.168.0.10"
-            :history-file history-file :input-stream System/in}
-           (options-for-reply project :attach 9876)))))
+(deftest test-ack-port
+  (let [env "5"
+        prj {:repl-options {:ack-port 4}}]
+    (are [env proj exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_ACK_PORT" env}]
+                  (ack-port proj)))
+         env prj 5
+         nil prj 4
+         nil nil nil)))
 
-(deftest test-options-for-reply-prompt
-  (let [prompt-fn (fn [ns] "hi ")
-        project   {:repl-options {:prompt prompt-fn}}]
-    (is (= {:attach "127.0.0.1:9876"
-            :custom-prompt prompt-fn :history-file history-file
-            :input-stream System/in}
-           (options-for-reply project :attach 9876)))))
+(deftest test-repl-port
+  (let [env "3"
+        prj {:repl-options {:port 2}}]
+    (are [env proj exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_PORT" env}]
+                  (repl-port proj)))
+         env prj 3
+         nil prj 2
+         nil nil 0)))
 
-(deftest repl-profile-in-project
-  (let [p (promise)
-        version-number {:url "0.2.2"}
-        project {:dependencies leiningen.core.project/empty-dependencies
-                 :root "/tmp"
-                 :profiles {:repl {:dependencies
-                                   [['org.clojure/tools.nrepl version-number]]}}}]
-    (with-redefs [leiningen.core.eval/eval-in-project #(deliver p %&)]
-      (#'leiningen.repl/start-server project "localhost" false))
-    (is (= version-number
-           (first (for [dep (:dependencies (first @p))
-                        :when (= 'org.clojure/tools.nrepl (first dep))]
-                    (second dep)))))))
+(deftest test-repl-host
+  (let [env "env-host"
+        prj {:repl-options {:host "proj-host"}}]
+    (are [env proj exp]
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_HOST" env}] (repl-host proj)))
+         env prj "env-host"
+         nil prj "proj-host"
+         nil nil "127.0.0.1")))
+
+(deftest test-connect-string
+  (are [in exp]
+       (= exp (with-redefs [repl-host (constantly "repl-host")
+                            repl-port (constantly 5)]
+                (connect-string {} [in])))
+       ""                    "repl-host:5"
+       "7"                   "repl-host:7"
+       "myhost:9"            "myhost:9"
+       "http://localhost:20" "http://localhost:20"))
+
+(deftest test-options-for-reply
+  (is (= "/home/user/.lein-repl-history"
+         (:history-file (options-for-reply {:root "/home/user"}))))
+  (let [prompt-fn (fn [ns] "hi ")]
+    (are
+     [in exp]
+     (= (merge
+         {:history-file (str (user/leiningen-home) "/repl-history")
+          :input-stream System/in}
+         exp)
+        (let [[prj-k prj-v arg-k arg-v] in]
+          (apply options-for-reply
+                 {:repl-options (into {} (and prj-k {prj-k prj-v}))}
+                 (into [] (and arg-k [arg-k arg-v])))))
+     [:standalone true]              {:standalone true}
+     [:prompt prompt-fn]             {:custom-prompt prompt-fn}
+     [:host "prj-host"]              {:host "prj-host"}
+     [:host "prj-host" :port 1]      {:host "prj-host" :port "1"}
+     [nil nil :port 1]               {:port "1"}
+     [:port 2]                       {:port "2"}
+     [:port 2 :port 1]               {:port "1"}
+     [:host "prj-host" :attach "xy"] {:attach "xy"}
+     [:port 3 :attach "xy"]          {:attach "xy"})))
+
+(deftest test-init-ns
+  (let [main {:main 'main}
+        repl-opts (merge main {:repl-options {:init-ns 'init-ns}})]
+    (are [in exp] (= exp (init-ns in))
+         main 'main
+         repl-opts 'init-ns)))

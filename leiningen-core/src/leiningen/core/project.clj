@@ -334,6 +334,10 @@
   (atom {:default [:base :system :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts tiered-jvm-opts
+                :test-selectors {:default (with-meta '(constantly true)
+                                            {:displace true})}
+                :dependencies '[[org.clojure/tools.nrepl "0.2.2"]
+                                [clojure-complete "0.2.2"]]
                 :checkout-deps-shares [:source-paths
                                        :test-paths
                                        :resource-paths
