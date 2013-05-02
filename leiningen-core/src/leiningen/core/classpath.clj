@@ -125,12 +125,14 @@
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
 
-(def ^:private get-dependencies
+(def ^:private get-dependencies-memoized
   (memoize
-   (fn [dependencies-key {:keys [repositories local-repo offline? update
-                                 checksum mirrors]
-                          :as project}
+   (fn [dependencies-key
+        {:keys [repositories local-repo offline? update
+                checksum mirrors]
+         :as project}
         & {:keys [add-classpath? repository-session-fn]}]
+     (println project add-classpath? repository-session-fn)
      {:pre [(every? vector? (get project dependencies-key))]}
      (try
        ((if add-classpath?
@@ -180,10 +182,15 @@
        (catch Exception e
          (if (and (instance? java.net.UnknownHostException (root-cause e))
                   (not offline?))
-           (get-dependencies dependencies-key (assoc project :offline? true))
+           (get-dependencies-memoized dependencies-key (assoc project :offline? true))
            (throw e)))))))
 
-
+(defn- get-dependencies [dependencies-key project & rest]
+  (apply get-dependencies-memoized
+   dependencies-key
+   (select-keys project [dependencies-key :repositories :local-repo :offline? :update
+                         :checksum :mirrors ])
+   rest))
 
 (defn- get-original-dependency
   "Return a match to dep (a single dependency vector) in
