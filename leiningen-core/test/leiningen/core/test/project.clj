@@ -39,7 +39,9 @@
                                [clucy/clucy "0.2.2" :exclusions [[org.clojure/clojure]]]
                                [lancet/lancet "1.0.1"]
                                [robert/hooke "1.1.2"]
-                               [stencil/stencil "0.2.0"]],
+                               [stencil/stencil "0.2.0"]
+                               [org.clojure/tools.nrepl "0.2.2"]
+                               [clojure-complete/clojure-complete "0.2.2"]],
                :twelve 12 ; testing unquote
 
                :repositories [["central" {:url "http://repo1.maven.org/maven2/"
