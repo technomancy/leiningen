@@ -396,7 +396,8 @@
   [profiles profile]
   (cond (keyword? profile)
         (let [result (get profiles profile)]
-          (when-not (or result (#{:provided :dev :user :test :production :system}
+          (when-not (or result (#{:provided :dev :user :test
+                                  :production :system :repl}
                                 profile))
             (println "Warning: profile" profile "not found."))
           (vary-meta (lookup-profile profiles result)
