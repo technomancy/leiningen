@@ -14,10 +14,11 @@
   "Construct a form to run the given main defn or class with arguments."
   [given args]
   `(let [v# (resolve '~(normalize-main given))]
-     (if (ifn? v#)
-       (v# ~@args)
-       (Reflector/invokeStaticMethod
-        ~(name given) "main" (into-array [(into-array String '~args)])))))
+     (binding [*command-line-args* '~args]
+       (if (ifn? v#)
+         (v# ~@args)
+         (Reflector/invokeStaticMethod
+           ~(name given) "main" (into-array [(into-array String '~args)]))))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
