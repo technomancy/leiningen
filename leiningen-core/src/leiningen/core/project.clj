@@ -396,7 +396,7 @@
   [profiles profile]
   (cond (keyword? profile)
         (let [result (get profiles profile)]
-          (when-not (or result (#{:provided :dev :user :test
+          (when-not (or result (#{:provided :dev :user :test :base :default
                                   :production :system :repl}
                                 profile))
             (println "Warning: profile" profile "not found."))
