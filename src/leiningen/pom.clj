@@ -188,7 +188,15 @@
                           (seq (for [key [:name :url :distribution :comments]
                                      :let [val (opts key)] :when val]
                                  [key (name val)])))]
-            [:licenses [:license tags]]))))
+            [:license tags]))))
+
+(defn- license-tags [project]
+  (seq (concat (for [k [:license :licence]
+                     :let [l (xml-tags :license (get project k))]
+                     :when l]
+                 l)
+               (keep (partial xml-tags :license) (:licenses project))
+               (keep (partial xml-tags :license) (:licences project)))))
 
 (defn- resource-tags [project type]
   (if-let [resources (seq (:resource-paths project))]
@@ -298,7 +306,8 @@
          [:name (:name project)]
          [:description (:description project)]
          (xml-tags :url (:url project))
-         (xml-tags :license (:license project))
+         (if-let [licenses (license-tags project)]
+           [:licenses licenses])
          (xml-tags :mailing-list (:mailing-list project))
          (write-scm-tag (guess-scm project) project)
          (xml-tags :build [project test-project])
