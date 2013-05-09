@@ -50,10 +50,10 @@ leiningen.core.utils/platform-nullsink instead."
   javac, compile, and any other tasks the project specifies."
   [project]
   ;; This must exist before the project is launched.
-  (.mkdirs (io/file (:compile-path project "/tmp")))
+  (when (:root project)
+    (.mkdirs (io/file (:compile-path project "/tmp"))))
   (classpath/resolve-dependencies :dependencies project)
   (run-prep-tasks project)
-  (.mkdirs (io/file (:compile-path project "/tmp")))
   (deliver @prep-blocker true)
   (reset! prep-blocker (promise)))
 
