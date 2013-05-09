@@ -231,7 +231,7 @@
                 [:configuration
                  (vec (concat [:sources]
                               (map (fn [x] [:source x]) extra-src)))]])
-             (if (seq extra-src)
+             (if (seq extra-test)
                [:execution
                 [:id "add-test-source"]
                 [:phase "generate-test-sources"]
