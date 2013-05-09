@@ -127,12 +127,9 @@
 
 (def ^:private get-dependencies-memoized
   (memoize
-   (fn [dependencies-key
-        {:keys [repositories local-repo offline? update
-                checksum mirrors]
-         :as project}
+   (fn [dependencies-key {:keys [repositories local-repo offline? update
+                                 checksum mirrors] :as project}
         & {:keys [add-classpath? repository-session-fn]}]
-     (println project add-classpath? repository-session-fn)
      {:pre [(every? vector? (get project dependencies-key))]}
      (try
        ((if add-classpath?
