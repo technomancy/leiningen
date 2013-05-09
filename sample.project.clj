@@ -1,8 +1,7 @@
-;; This is an annotated example of the options that may be set in a
-;; project.clj file. It is a fairly contrived example in order to
-;; cover all options exhaustively; it shouldn't be considered a
-;; representative configuration. For a more detailed explanation of
-;; some of the terms run "lein help tutorial".
+;; This is an annotated example of the options that may be set in a project.clj
+;; file. It is a fairly contrived example in order to cover lots of different
+;; options; it shouldn't be considered a representative configuration. For a
+;; more detailed explanation of some of the terms run ;; "lein help tutorial".
 
 ;; These options apply to Leiningen 2.x. See the 1.x branch for older versions:
 ;; https://github.com/technomancy/leiningen/blob/1.x/sample.project.clj
