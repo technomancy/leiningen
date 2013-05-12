@@ -100,7 +100,7 @@
                       "libtokyocabinet.a" "libtokyocabinet.dylib"}}
    :windows {:x86 #{"jri.dll" "rJava.dll" "jinput-dx8.dll" "jinput-raw.dll"
                     "lwjgl.dll" "OpenAL32.dll" "rxtxSerial.dll"}
-             :x86_64 #{"jri.dll rJava.dll" "jinput-dx8_64.dll"
+             :x86_64 #{"jri.dll" "rJava.dll" "jinput-dx8_64.dll"
                        "jinput-raw_64.dll" "lwjgl64.dll" "OpenAL64.dll"
                        "rxtxSerial.dll"}}
    :solaris {:x86 #{"liblwjgl.so" "libopenal.so"}
