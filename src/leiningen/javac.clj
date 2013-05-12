@@ -61,6 +61,7 @@
   Result is a String java array of options."
   [project files args]
   (let [options-file (File/createTempFile ".leiningen-cmdline" nil)]
+    (.deleteOnExit options-file)
     (with-open [options-file (io/writer options-file)]
       (doto options-file
         (.write (format "-cp %s\n" (classpath/get-classpath-string project)))
