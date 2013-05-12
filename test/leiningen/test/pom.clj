@@ -104,7 +104,7 @@
     (is (= ["clojure" "rome" "ring" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))))
 
@@ -121,7 +121,7 @@
     (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "test" "test" "test"]
@@ -141,7 +141,7 @@
     (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "test" "test" "test"]
@@ -161,7 +161,7 @@
     (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "provided" "test" "test"]
@@ -189,7 +189,7 @@
             "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "provided" "test" "test"]
@@ -230,7 +230,7 @@
     (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "provided" "test" "test"]
@@ -257,7 +257,7 @@
     (is (= ["clojure" "rome" "ring" "rome" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.8" "0.2.2" "0.2.2"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.8" "0.2.3" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "test" "test" "test"]
