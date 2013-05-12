@@ -40,8 +40,8 @@
                                [lancet/lancet "1.0.1"]
                                [robert/hooke "1.1.2"]
                                [stencil/stencil "0.2.0"]
-                               [org.clojure/tools.nrepl "0.2.2"]
-                               [clojure-complete/clojure-complete "0.2.2"]],
+                               [org.clojure/tools.nrepl "0.2.3"]
+                               [clojure-complete/clojure-complete "0.2.3"]],
                :twelve 12 ; testing unquote
 
                :repositories [["central" {:url "http://repo1.maven.org/maven2/"
