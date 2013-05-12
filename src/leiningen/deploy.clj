@@ -66,6 +66,7 @@
                    ["--default-key" key])]
     `["--yes" "-ab" ~@key-spec "--" ~file]))
 
+;; TODO: be clearer about the fact that signing is going on
 (defn sign [file opts]
   "Create a detached signature and return the signature file name."
   (let [{:keys [err exit]} (apply user/gpg (signing-args file opts))]
@@ -115,8 +116,8 @@
       branches
       not))
 
-(defn deploy
-  "Build jar and deploy to remote repository.
+(defn ^:no-project-needed deploy
+  "Deploy jar and pom to remote repository.
 
 The target repository will be looked up in :repositories in project.clj:
 
@@ -125,16 +126,30 @@ The target repository will be looked up in :repositories in project.clj:
                  [\"alternate\" \"https://other.server/repo\"]]
 
 If you don't provide a repository name to deploy to, either \"snapshots\" or
-\"releases\" will be used depending on your project's current version. See
-`lein help deploying` under \"Authentication\" for instructions on how to
-configure your credentials so you are not prompted on each deploy."
-  ([project repository-name]
+\"releases\" will be used depending on your project's current version. You may
+provide a repository URL instead of a name.
+
+See `lein help deploying` under \"Authentication\" for instructions on
+how to configure your credentials so you are not prompted on each
+deploy.
+
+You can also deploy arbitrary artifacts from disk:
+
+    $ lein deploy myrepo com.blueant/fancypants 1.0.1 fancypants.jar pom.xml
+
+While this works with any arbitrary files on disk, downstream projects will not
+be able to depend on jars that are deployed without a pom."
+  ([project]
+     (deploy project (if (pom/snapshot? project)
+                       "snapshots"
+                       "releases")))
+  ([project repository]
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))
          (apply main/abort "Can only deploy from branches listed in :deploy-branches:" branches)))
      (warn-missing-metadata project)
-     (let [repo (repo-for project repository-name)
+     (let [repo (repo-for project repository)
            files (files-for project repo)]
        (try
          (main/debug "Deploying" files "to" repo)
@@ -147,7 +162,18 @@ configure your credentials so you are not prompted on each deploy."
          (catch org.sonatype.aether.deployment.DeploymentException e
            (when main/*debug* (.printStackTrace e))
            (main/abort (abort-message (.getMessage e)))))))
-  ([project]
-     (deploy project (if (pom/snapshot? project)
-                       "snapshots"
-                       "releases"))))
+  ([project repository identifier version & files]
+     (let [identifier (symbol identifier)
+           artifact-id (name identifier)
+           group-id (or (namespace identifier))
+           repo (repo-for project repository)
+           artifacts (for [f files]
+                       [[:extension (if (= "pom.xml" (.getName (io/file f)))
+                                      "pom" (last (.split f "\\.")))] f])]
+       (main/debug "Deploying" files "to" repo)
+       (aether/deploy
+        :coordinates [(symbol group-id artifact-id) version]
+        :artifact-map (into {} artifacts)
+        :transfer-listener :stdout
+        :repository [repo]
+        :local-repo (:local-repo project)))))

@@ -18,9 +18,9 @@ If your preferred
 has a relatively recent version of Leiningen, try that first.
 Otherwise you can install by hand:
 
-Leiningen bootstraps itself using the `lein` shell script;
-there is no separate install script. It installs its dependencies
-upon the first run on unix, so the first run will take longer.
+Leiningen bootstraps itself using the `lein` shell script; there is no
+separate install script. It handles installing its own dependencies,
+which means the first run will take longer.
 
 1. Make sure you have JDK 6 or later.
 2. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).

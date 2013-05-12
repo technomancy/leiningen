@@ -12,15 +12,17 @@
 **A:** Use [semantic versioning](http://semver.org).
 
 **Q:** What if my project depends on jars that aren't in any repository?  
-**A:** The best thing to do is to get them in a repository. The
+**A:** You will need to get them in a repository. The
   [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
   explains how to set up a private repository. In general it's easiest
-  to deploy them to a static HTTP server or a private S3
-  bucket with the
+  to deploy them to a static HTTP server or a private S3 bucket with the
   [s3-wagon-private](https://github.com/technomancy/s3-wagon-private)
-  plugin. If you are just doing exploratory coding and not
-  collaborating with a team you could
-  [install locally](https://github.com/kumarshantanu/lein-localrepo).
+  plugin. Once the repo is set up, `lein deploy private-repo com.mycorp/somejar
+  1.0.0 somejar.jar pom.xml` will push the artifacts out. If you don't
+  have a pom, you can create a dummy project with `lein new` and
+  generate a pom from that. If you are just doing exploratory coding
+  you can deploy to `file:///$HOME/.m2/repository` and the jars will
+  be available locally.
 
 **Q:** I want to hack two projects in parallel, but it's annoying to switch between them.  
 **A:** Leiningen provides a feature called *checkout dependencies*.
