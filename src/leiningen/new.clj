@@ -1,9 +1,9 @@
 (ns leiningen.new
   "Generate project scaffolding based on a template."
   (:refer-clojure :exclude [new list])
-  (:use [leiningen.new.templates :only [*dir*]])
   (:require [bultitude.core :as bultitude]
-            [leiningen.core.main :refer [abort]])
+            [leiningen.core.main :refer [abort]]
+            [leiningen.new.templates :refer [*dir*]])
   (:import java.io.FileNotFoundException))
 
 (defn- fake-project [name]
