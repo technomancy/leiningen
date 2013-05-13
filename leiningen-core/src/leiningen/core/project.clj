@@ -232,7 +232,7 @@
   [map]
   (-> map
       (update-if-in-map [:repositories :deploy-repositories
-                         :plugin-repositories] normalize-repos)
+                         :mirrors :plugin-repositories] normalize-repos)
       (update-if-in-map [:profiles] map-vals normalize-values)))
 
 (defn make
