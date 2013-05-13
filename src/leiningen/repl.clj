@@ -1,16 +1,16 @@
 (ns leiningen.repl
   "Start a repl session either with the current project or standalone."
-  (:require (clojure set
-                     main
-                     [string :as s])
+  (:require [clojure.set]
+            [clojure.main]
+            [clojure.string :as s]
             [clojure.java.io :as io]
-            (clojure.tools.nrepl [ack :as nrepl.ack]
-                                 [server :as nrepl.server])
-            (leiningen.core [eval :as eval]
-                            [main :as main]
-                            [user :as user]
-                            [project :as project]
-                            [classpath :as classpath])
+            [clojure.tools.nrepl.ack :as nrepl.ack]
+            [clojure.tools.nrepl.server :as nrepl.server]
+            [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
+            [leiningen.core.user :as user]
+            [leiningen.core.project :as project]
+            [leiningen.core.classpath :as classpath]
             [leiningen.trampoline :as trampoline]
             [reply.main :as reply]))
 

@@ -1,6 +1,7 @@
 (ns leiningen.update-in
   (:refer-clojure :exclude [update-in])
-  (:require [leiningen.core.main :as main] [clojure.core :as clj]))
+  (:require [leiningen.core.main :as main]
+            [clojure.core :as clj]))
 
 (defn ^:internal parse-args [key-path f args]
   (let [[f-args [_ & task+args]] (split-with #(not= "--" %) args)]
