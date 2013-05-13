@@ -54,11 +54,11 @@
       (is (= v (k actual))))
     (doseq [[k path] paths
             :when (string? path)]
-      (is (= (str (:root actual) "/" path)
+      (is (= (utils/pathify (str (:root actual) "/" path))
              (k actual))))
     (doseq [[k path] paths
             :when (coll? path)]
-      (is (= (for [p path] (str (:root actual) "/" p))
+      (is (= (for [p path] (utils/pathify (str (:root actual) "/" p)))
              (k actual))))))
 
 ;; TODO: test omit-default
@@ -267,14 +267,14 @@
                        (project-with-profiles-meta
                          p
                          (merge @test-profiles (:profiles p))))]
-    (is (= ["/etc/myapp" "test/hi" "blue-resources" "resources"]
+    (is (= (vec (map utils/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources" "resources"]))
            (-> (make
                 (test-project
                  {:resource-paths ["resources"]
                   :profiles {:blue {:resource-paths ["blue-resources"]}}}))
                (merge-profiles [:blue :tes :qa])
                :resource-paths)))
-    (is (= ["/etc/myapp" "test/hi" "blue-resources"]
+    (is (= (vec (map utils/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources"]))
            (-> (make
                 (test-project
                  {:resource-paths ^:displace ["resources"]

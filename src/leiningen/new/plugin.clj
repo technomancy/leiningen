@@ -3,7 +3,7 @@
 
 (defn plugin
   "A leiningen plugin project template."
-  [name]
+  [^String name]
   (let [render (renderer "plugin")
         unprefixed (if (.startsWith name "lein-")
                      (subs name 5)
