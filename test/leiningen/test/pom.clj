@@ -6,6 +6,7 @@
         [leiningen.test.helper :only [sample-project]])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
+            [leiningen.core.utils :as utils]
             [leiningen.core.main :as main]))
 
 (use-fixtures :once (fn [f]
@@ -96,7 +97,7 @@
         "target directory is included")
     (is (= nil (first-in xml [:project :build :extensions]))
         "no extensions")
-    (is (= "target/classes" (first-in xml [:project :build :outputDirectory]))
+    (is (= (utils/fix-path-delimiters "target/classes") (first-in xml [:project :build :outputDirectory]))
         "classes directory is included")
     (is (= ["org.clojure" "rome" "ring" "org.clojure" "clojure-complete"]
            (map #(first-in % [:dependency :groupId])
@@ -275,7 +276,7 @@
               (first-in [:project :classifier])))))
 
 (deftest test-pom-adds-java-source-paths
-  (is (= ["java/src" "java/another"]
+  (is (= (vec (map utils/fix-path-delimiters ["java/src" "java/another"]))
          (-> (make-pom (with-profile sample-project
                          {:java-source-paths ["java/src" "java/another"]}))
              xml/parse-str

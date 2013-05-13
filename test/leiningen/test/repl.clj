@@ -1,7 +1,7 @@
 (ns leiningen.test.repl
   (:require [clojure.test :refer :all]
             [leiningen.repl :refer :all]
-            (leiningen.core [user :as user] [project :as project])))
+            (leiningen.core [user :as user] [project :as project] [utils :as utils])))
 
 (deftest test-merge-repl-profile
   (is (= (-> {:repl-options {:ack-port 4}}
@@ -61,13 +61,13 @@
        "http://localhost:20" "http://localhost:20"))
 
 (deftest test-options-for-reply
-  (is (= "/home/user/.lein-repl-history"
+  (is (= (utils/fix-path-delimiters "/home/user/.lein-repl-history")
          (:history-file (options-for-reply {:root "/home/user"}))))
   (let [prompt-fn (fn [ns] "hi ")]
     (are
      [in exp]
      (= (merge
-         {:history-file (str (user/leiningen-home) "/repl-history")
+         {:history-file (utils/pathify (str (user/leiningen-home) "/repl-history"))
           :input-stream System/in}
          exp)
         (let [[prj-k prj-v arg-k arg-v] in]

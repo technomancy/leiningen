@@ -92,3 +92,30 @@
   (io/file (if (= :windows (get-os))
              "NUL"
              "/dev/null")))
+
+(defn fix-path-delimiters [input-str]
+  (clojure.string/replace input-str "/" java.io.File/separator))
+
+;so paths would work under windows too which adds a drive letter and changes path separator
+(defn pathify 
+  "
+pass only absolute paths, will throw if not
+because if not absolute then .getAbsolutePath will resolve them relative to current directory
+  "
+  [in-str-or-file]
+  (cond (or 
+          (nil? in-str-or-file)
+          (not (or
+                 (.startsWith in-str-or-file "/")
+                 (and 
+                   (>= (.length in-str-or-file) 3)
+                   (= ":\\" (.substring in-str-or-file 1 3))
+                   )
+                 )
+            )
+          )
+    (throw (new RuntimeException (str "bad usage, passed: `" in-str-or-file "`")))
+    :else
+    (.getAbsolutePath (io/as-file in-str-or-file))))
+
+
