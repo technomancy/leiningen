@@ -19,3 +19,9 @@ TAGS
 /leiningen-core/dev-resources/target
 *asc
 *~
+*.bak
+/bin
+/.classpath
+/.project
+/.settings
+/hs_err_pid*.log
