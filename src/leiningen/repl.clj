@@ -108,10 +108,14 @@
                    :bind ~(:host cfg) :port ~(:port cfg)
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
-          port# (-> server# deref :ss .getLocalPort)]
+          port# (-> server# deref :ss .getLocalPort)
+          repl-port-file# (io/file ~(if (.exists (io/file
+                                                  (:target-path project)))
+                                      (:target-path project)
+                                      (user/leiningen-home)) "repl-port")]
       (when ~start-msg? (println "nREPL server started on port" port#))
-      (spit ~(str (io/file (:target-path project) "repl-port")) port#)
-      (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
+      (spit repl-port-file# port#)
+      (.deleteOnExit repl-port-file#)
       @(promise))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
