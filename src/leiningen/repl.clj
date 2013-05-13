@@ -1,16 +1,16 @@
 (ns leiningen.repl
   "Start a repl session either with the current project or standalone."
-  (:require (clojure set
-                     main
-                     [string :as s])
+  (:require [clojure.set]
+            [clojure.main]
+            [clojure.string :as s]
             [clojure.java.io :as io]
-            (clojure.tools.nrepl [ack :as nrepl.ack]
-                                 [server :as nrepl.server])
-            (leiningen.core [eval :as eval]
-                            [main :as main]
-                            [user :as user]
-                            [project :as project]
-                            [classpath :as classpath])
+            [clojure.tools.nrepl.ack :as nrepl.ack]
+            [clojure.tools.nrepl.server :as nrepl.server]
+            [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
+            [leiningen.core.user :as user]
+            [leiningen.core.project :as project]
+            [leiningen.core.classpath :as classpath]
             [leiningen.trampoline :as trampoline]
             [reply.main :as reply]))
 
@@ -108,10 +108,14 @@
                    :bind ~(:host cfg) :port ~(:port cfg)
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
-          port# (-> server# deref :ss .getLocalPort)]
+          port# (-> server# deref :ss .getLocalPort)
+          repl-port-file# (io/file ~(if (.exists (io/file
+                                                  (:target-path project)))
+                                      (:target-path project)
+                                      (user/leiningen-home)) "repl-port")]
       (when ~start-msg? (println "nREPL server started on port" port#))
-      (spit ~(str (io/file (:target-path project) "repl-port")) port#)
-      (.deleteOnExit (io/file ~(:target-path project) "repl-port"))
+      (spit repl-port-file# port#)
+      (.deleteOnExit repl-port-file#)
       @(promise))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
