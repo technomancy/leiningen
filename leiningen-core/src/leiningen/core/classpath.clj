@@ -16,7 +16,7 @@
       (let [project (.getAbsolutePath project-file)]
         ;; TODO: core.project and core.classpath currently rely upon each other *uk*
         (require 'leiningen.core.project)
-        (try ((resolve 'leiningen.core.project/read) project [])
+        (try ((resolve 'leiningen.core.project/read) project [:default])
              (catch Exception e
                (throw (Exception. (format "Problem loading %s" project) e)))))
       (println
