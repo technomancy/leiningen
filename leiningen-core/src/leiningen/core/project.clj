@@ -4,6 +4,7 @@
   (:require [clojure.walk :as walk]
             [clojure.java.io :as io]
             [clojure.set :as set]
+            [clojure.string :as s]
             [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.utils :as utils]
@@ -149,7 +150,7 @@
    :test-paths ["test"]
    :native-path "target/native"
    :compile-path "target/classes"
-   :target-path "target"
+   :target-path "target/%s"
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
@@ -312,6 +313,16 @@
 (defn absolutize-paths [project]
   (reduce absolutize-path project (keys project)))
 
+(defn- sha1 [content]
+  (.toString (BigInteger. 1 (-> (java.security.MessageDigest/getInstance "SHA1")
+                                (.digest (.getBytes content)))) 16))
+
+(defn profile-scope-target-path [project profiles]
+  (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
+    (if (:target-path project)
+      (update-in project [:target-path] format (s/join "+" (map n profiles)))
+      project)))
+
 ;; # Profiles: basic merge logic
 
 (def ^:private hooke-injection
@@ -336,6 +347,7 @@
                 :jvm-opts tiered-jvm-opts
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
+                :target-path "target"
                 :dependencies '[[org.clojure/tools.nrepl "0.2.3"]
                                 [clojure-complete "0.2.3"]]
                 :checkout-deps-shares [:source-paths
@@ -346,6 +358,7 @@
                           :test-selectors {:default (with-meta
                                                       '(constantly true)
                                                       {:displace true})}}
+         :uberjar {:aot :all}
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
@@ -543,7 +556,6 @@
     (load-hooks)))
 
 (defn project-with-profiles-meta [project profiles]
-
   ;;; should this dissoc :default?
   ;; (vary-meta project assoc :profiles (dissoc profiles :default))
   (vary-meta project assoc
@@ -566,6 +578,7 @@
     (-> project
         (apply-profiles normalized-profiles)
         (absolutize-paths)
+        (profile-scope-target-path include-profiles)
         (add-global-exclusions)
         (vary-meta merge {:without-profiles project
                           :included-profiles include-profiles
