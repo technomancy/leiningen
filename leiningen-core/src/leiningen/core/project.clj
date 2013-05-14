@@ -358,6 +358,7 @@
                           :test-selectors {:default (with-meta
                                                       '(constantly true)
                                                       {:displace true})}}
+         :uberjar {:aot :all}
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
