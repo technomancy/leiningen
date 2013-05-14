@@ -77,7 +77,8 @@ With an argument, the uberjar will be built with an alternate main.
 The namespace you choose as main should have :gen-class in its ns form
 as well as defining a -main function."
   ([project main]
-     (let [project (update-in project [:jar-inclusions]
+     (let [project (project/merge-profiles project [:uberjar])
+           project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))]
        (try (jar/jar project main)
             (catch Exception e
@@ -88,8 +89,8 @@ as well as defining a -main function."
                            (FileOutputStream.)
                            (ZipOutputStream.))]
          (let [whitelisted (select-keys project jar/whitelist-keys)
-               project (merge (project/unmerge-profiles project [:default])
-                              whitelisted)
+               project (-> (project/unmerge-profiles project [:default])
+                           (merge whitelisted))
                deps (->> (classpath/resolve-dependencies :dependencies project)
                          (filter #(.endsWith (.getName %) ".jar")))
                jars (cons (io/file (jar/get-jar-filename project)) deps)]
