@@ -5,6 +5,7 @@
   (:require [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.test.helper :refer [abort-msg]]
+            [leiningen.test.helper :as lthelper]
             [leiningen.core.utils :as utils]
             [clojure.java.io :as io]))
 
@@ -54,11 +55,11 @@
       (is (= v (k actual))))
     (doseq [[k path] paths
             :when (string? path)]
-      (is (= (utils/pathify (str (:root actual) "/" path))
+      (is (= (lthelper/pathify (str (:root actual) "/" path))
              (k actual))))
     (doseq [[k path] paths
             :when (coll? path)]
-      (is (= (for [p path] (utils/pathify (str (:root actual) "/" p)))
+      (is (= (for [p path] (lthelper/pathify (str (:root actual) "/" p)))
              (k actual))))))
 
 ;; TODO: test omit-default
@@ -267,14 +268,14 @@
                        (project-with-profiles-meta
                          p
                          (merge @test-profiles (:profiles p))))]
-    (is (= (vec (map utils/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources" "resources"]))
+    (is (= (vec (map lthelper/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources" "resources"]))
            (-> (make
                 (test-project
                  {:resource-paths ["resources"]
                   :profiles {:blue {:resource-paths ["blue-resources"]}}}))
                (merge-profiles [:blue :tes :qa])
                :resource-paths)))
-    (is (= (vec (map utils/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources"]))
+    (is (= (vec (map lthelper/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources"]))
            (-> (make
                 (test-project
                  {:resource-paths ^:displace ["resources"]

@@ -4,8 +4,8 @@
   (:require [clojure.java.io :as io]
             [clojure.set :as set]
             [leiningen.core.user :as user]
-            [leiningen.core.project :as project]
-            [leiningen.core.utils :as utils]))
+            [leiningen.test.helper :as lthelper]
+            [leiningen.core.project :as project]))
 
 (use-fixtures :once
               (fn [f]
@@ -21,7 +21,7 @@
                               [ring/ring-core "1.0.0"
                                :exclusions [commons-codec]]]
               :checkout-deps-shares [:source-paths :resource-paths
-                                     :compile-path #(utils/pathify (str (:root %) "/foo"))]
+                                     :compile-path #(lthelper/pathify (str (:root %) "/foo"))]
               :repositories project/default-repositories
               :root "/tmp/lein-sample-project"
               :target-path "/tmp/lein-sample-project/target"
@@ -52,7 +52,7 @@
          (dependency-hierarchy :dependencies project))))
 
 (def directories
-  (vec (map utils/pathify 
+  (vec (map lthelper/pathify 
   ["/tmp/lein-sample-project/test"
    "/tmp/lein-sample-project/src"
    "/tmp/lein-sample-project/resources"])))
@@ -76,8 +76,8 @@
       (.mkdirs d1)
       (spit (io/file d1 "project.clj")
             (pr-str '(defproject hello "1.0")))
-      (is (= (for [path ["src" "resources" "target/classes" "foo"]]
-               (utils/pathify (format "/tmp/lein-sample-project/checkouts/d1/%s" path)))
+      (is (= (for [path ["src" "dev-resources" "resources" "target/classes" "foo"]]
+               (lthelper/pathify (format "/tmp/lein-sample-project/checkouts/d1/%s" path)))
              (#'leiningen.core.classpath/checkout-deps-paths project)))
       (finally
        ;; can't recur from finally
