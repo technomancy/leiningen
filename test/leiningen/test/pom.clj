@@ -92,7 +92,7 @@
            (map #(first-in % [:testResource :directory])
                 (deep-content xml [:project :build :testResources])))
         "test resource directories use :dev :default and :test profiles")
-    (is (= "target" (first-in xml [:project :build :directory]))
+    (is (= "target/" (first-in xml [:project :build :directory]))
         "target directory is included")
     (is (= nil (first-in xml [:project :build :extensions]))
         "no extensions")
