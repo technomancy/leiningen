@@ -256,7 +256,6 @@
 (defn- normalize-path [root path]
   (let [f (io/file path)]
     (.getAbsolutePath (cond
-                        ;(.isAbsolute f) f
                         (or (.isAbsolute f) (.startsWith (.getPath f) "\\")) f
                         :else
                         (io/file root path)))))

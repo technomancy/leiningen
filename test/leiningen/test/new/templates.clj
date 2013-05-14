@@ -1,9 +1,8 @@
 (ns leiningen.test.new.templates
   (:use clojure.test
         leiningen.new.templates)
-  (:require [leiningen.test.helper :refer [abort-msg]]
+  (:require [leiningen.test.helper :refer [abort-msg] :as lthelper]
             [leiningen.core.user :as user]
-            [leiningen.core.utils :as utils]
             [clojure.java.io :as io])
   (:import [java.io File]))
 
@@ -53,7 +52,7 @@
   (is (= (multi-segment "multi.segment" "last") "multi.segment")))
 
 (deftest paths
-  (is (= (name-to-path "foo-bar.baz") (utils/fix-path-delimiters "foo_bar/baz"))))
+  (is (= (name-to-path "foo-bar.baz") (lthelper/fix-path-delimiters "foo_bar/baz"))))
 
 (deftest renderers
   (is (.contains (abort-msg (renderer "my-template") "boom" {})
