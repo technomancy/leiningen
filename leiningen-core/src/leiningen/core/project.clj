@@ -313,8 +313,15 @@
 (defn absolutize-paths [project]
   (reduce absolutize-path project (keys project)))
 
+(defn- sha1 [content]
+  (.toString (BigInteger. 1 (-> (java.security.MessageDigest/getInstance "SHA1")
+                                (.digest (.getBytes content)))) 16))
+
 (defn profile-scope-target-path [project profiles]
-  (update-in project [:target-path] format (s/join "+" (map name profiles))))
+  (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
+    (if (:target-path project)
+      (update-in project [:target-path] format (s/join "+" (map n profiles)))
+      project)))
 
 ;; # Profiles: basic merge logic
 
