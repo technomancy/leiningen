@@ -50,11 +50,9 @@
         [id (assoc settings :username username :password password)]))))
 
 (defn repo-for [project name]
-  (let [[settings] (for [[id settings] (concat (:deploy-repositories project)
-                                               (:repositories project)
-                                               [[name {:url name}]])
-                         :when (= id name)] settings)]
-    (-> [name settings]
+  (let [settings (merge (get (into {} (:repositories project)) name)
+                        (get (into {} (:deploy-repositories project)) name))]
+    (-> [name (or settings {:url name})]
         (classpath/add-repo-auth)
         (add-auth-from-url)
         (add-auth-interactively))))
