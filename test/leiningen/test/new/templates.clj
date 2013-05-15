@@ -56,9 +56,9 @@
 
 (deftest renderers
   (is (.contains (abort-msg (renderer "my-template") "boom" {})
-                 "Template resource 'leiningen/new/my_template/boom' not found.\n"))
+                 "Template resource 'leiningen/new/my_template/boom' not found."))
   (is (.contains (abort-msg (renderer "my-template") "boom")
-                 "Template resource 'leiningen/new/my_template/boom' not found.\n")))
+                 "Template resource 'leiningen/new/my_template/boom' not found.")))
 
 (deftest slurp-resource-compatibility ; can be removed in 3.0.0
   (is (= (slurp-resource "leiningen/new/template/temp.clj")
