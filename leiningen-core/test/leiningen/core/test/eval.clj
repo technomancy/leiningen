@@ -1,7 +1,7 @@
 (ns leiningen.core.test.eval
-  (:use [clojure.test]
-        [leiningen.core.eval])
-  (:require [clojure.java.io :as io]
+  (:require [clojure.test :refer :all]
+            [leiningen.core.eval :refer :all]
+            [clojure.java.io :as io]
             [clojure.set :as set]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project])
@@ -45,3 +45,13 @@
                (contains? args "-Dhttp.proxyPort=8080")
                (contains? args "-Dhttps.proxyHost=secure-foo.com")
                (contains? args "-Dhttps.proxyPort=443"))))))
+
+(deftest test-java-agent
+  (let [p {:java-agents '[[com.newrelic.agent.java/newrelic-agent "2.18.0"]
+                          [nodisassemble "0.1.1" :options "hello"]]
+           :dependencies '[[slamhound "1.3.0"]]
+           :repositories project/default-repositories}
+        [newrelic nodisassemble] (classpath-arg p)]
+    (is (.endsWith newrelic (str "/com/newrelic/agent/java/newrelic-agent"
+                                 "/2.18.0/newrelic-agent-2.18.0.jar")))
+    (is (re-find #"-javaagent:.*nodisassemble-0.1.1.jar=hello" nodisassemble))))
