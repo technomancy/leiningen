@@ -79,12 +79,14 @@ as well as defining a -main function."
   ([project main]
      (let [project (project/merge-profiles project [:uberjar])
            project (update-in project [:jar-inclusions]
-                              concat (:uberjar-inclusions project))]
-       (try (jar/jar project main)
-            (catch Exception e
-              (main/abort "Uberjar aborting because jar/compilation failed:"
-                          (.getMessage e)))))
-     (let [standalone-filename (jar/get-jar-filename project :standalone)]
+                              concat (:uberjar-inclusions project))
+           [_ jar] (try (first (jar/jar project main))
+                        (catch Exception e
+                          (when main/*debug*
+                            (.printStackTrace e))
+                          (main/abort "Uberjar aborting because jar failed:"
+                                      (.getMessage e))))
+           standalone-filename (jar/get-jar-filename project :standalone)]
        (with-open [out (-> standalone-filename
                            (FileOutputStream.)
                            (ZipOutputStream.))]
@@ -93,7 +95,7 @@ as well as defining a -main function."
                            (merge whitelisted))
                deps (->> (classpath/resolve-dependencies :dependencies project)
                          (filter #(.endsWith (.getName %) ".jar")))
-               jars (cons (io/file (jar/get-jar-filename project)) deps)]
+               jars (cons (io/file jar) deps)]
            (write-components project jars out)))
        (main/info "Created" standalone-filename)
        standalone-filename))
