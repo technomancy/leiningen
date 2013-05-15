@@ -56,14 +56,10 @@
   (memoize
    (fn []
      (let [profile-dir (io/file (leiningen-home) "profiles.d")]
-       (when (and (.exists profile-dir) (.isDirectory profile-dir))
+       (if (.isDirectory profile-dir)
          (for [file (.listFiles profile-dir)
                :when (-> file .getName (.endsWith ".clj"))]
-           (if (= "user.clj" (.getName file))
-             (throw (ex-info (str "Error: :user profile detected in profiles.d,"
-                                  " which is not allowed.")
-                             {:exit-code 1}))
-             (load-profiles-d-file file))))))))
+           (load-profiles-d-file file)))))))
 
 (def ^:internal load-profiles
   "Load profiles.clj from dir if present. Tags all profiles with its origin."

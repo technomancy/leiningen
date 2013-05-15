@@ -104,7 +104,7 @@ force them to be updated, use `lein -U $TASK`."
      (deps project nil))
   ([project command]
      (try
-       (cond (= command ":tree")
+       (cond (= command ":tree") ; TODO: break into multiple defns
              (let [ranges (atom [])
                    overrides (atom [])
                    hierarchy (classpath/dependency-hierarchy
@@ -145,8 +145,8 @@ force them to be updated, use `lein -U $TASK`."
              (if (user/gpg-available?)
                (walk-deps (classpath/dependency-hierarchy :dependencies project)
                           (partial verify project))
-               (main/abort
-                "Could not verify - gpg not available.\nSee `lein help gpg` for how to setup gpg."))
+               (main/abort (str "Could not verify - gpg not available.\n"
+                                "See `lein help gpg` for how to setup gpg.")))
              :else (classpath/resolve-dependencies :dependencies project))
        (catch DependencyResolutionException e
          (main/abort (.getMessage e))))))
