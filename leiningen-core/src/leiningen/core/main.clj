@@ -10,9 +10,8 @@
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
               "überjar" "uberjar",
-              ;; TODO: these should use add-profile instead
-              "-o" ["with-profile" "offline,dev,user,default"]
-              "-U" ["with-profile" "update,dev,user,default"]
+              "-o" ["with-profile" "+offline"]
+              "-U" ["with-profile" "+update"]
               "cp" "classpath" "halp" "help"
               "with-profiles" "with-profile"
               "readme" ["help" "readme"]
