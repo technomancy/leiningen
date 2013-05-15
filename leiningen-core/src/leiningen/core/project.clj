@@ -359,7 +359,7 @@
                           :test-selectors {:default (with-meta
                                                       '(constantly true)
                                                       {:displace true})}}
-         :uberjar {:aot :all}
+         :uberjar {} ; TODO: use :aot :all here in 3.0
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
