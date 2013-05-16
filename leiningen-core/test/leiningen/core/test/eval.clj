@@ -4,6 +4,7 @@
             [clojure.java.io :as io]
             [clojure.set :as set]
             [leiningen.core.classpath :as classpath]
+            [leiningen.test.helper :as lthelper]
             [leiningen.core.project :as project])
   (:import (java.io File)))
 
@@ -52,6 +53,7 @@
            :dependencies '[[slamhound "1.3.0"]]
            :repositories project/default-repositories}
         [newrelic nodisassemble] (classpath-arg p)]
-    (is (.endsWith newrelic (str "/com/newrelic/agent/java/newrelic-agent"
-                                 "/2.18.0/newrelic-agent-2.18.0.jar")))
+    (is (.endsWith newrelic (lthelper/fix-path-delimiters 
+                              (str "/com/newrelic/agent/java/newrelic-agent"
+                                   "/2.18.0/newrelic-agent-2.18.0.jar"))))
     (is (re-find #"-javaagent:.*nodisassemble-0.1.1.jar=hello" nodisassemble))))
