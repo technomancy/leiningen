@@ -251,13 +251,10 @@
                                  (apply get-dependencies dependencies-key
                                         project options))))
 
-;http://stackoverflow.com/questions/5154754/why-is-file-isabsolute-platform-dependent-when-the-file-class-is-platform-inde
 (defn- normalize-path [root path]
-  (let [f (io/file path)]
-    (.getAbsolutePath (cond
-                        (or (.isAbsolute f) (.startsWith (.getPath f) "\\")) f
-                        :else
-                        (io/file root path)))))
+  (let [f (io/file path)] ; http://tinyurl.com/ab5vtqf
+    (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
+                        f (io/file root path)))))
 
 (defn ext-dependency?
   "Should the given dependency be loaded in the extensions classloader?"
