@@ -183,8 +183,9 @@ leiningen.core.utils/platform-nullsink instead."
     (pr-str form)))
 
 (defn- agent-arg [coords file]
-  (format "-javaagent:%s%s" file (if-let [o (:options (apply hash-map coords))]
-                                   (str "=" o) "")))
+  (let [{:keys [options bootclasspath]} (apply hash-map coords)]
+    (concat [(str "-javaagent:" file (and options (str "=" options)))]
+            (if bootclasspath [(str "-Xbootclasspath/a:" file)]))))
 
 (defn ^:internal classpath-arg [project]
   (let [classpath-string (string/join java.io.File/pathSeparatorChar
@@ -194,7 +195,7 @@ leiningen.core.utils/platform-nullsink instead."
         ;; here, but it doesn't, which is what we want. but maybe a bug?
         agent-jars (aether/dependency-files (aether/dependency-hierarchy
                                              (:java-agents project) agent-tree))]
-    `(~@(map agent-arg (:java-agents project) agent-jars)
+    `(~@(mapcat agent-arg (:java-agents project) agent-jars)
       ~@(if (:bootclasspath project)
           [(str "-Xbootclasspath/a:" classpath-string)]
           ["-classpath" classpath-string]))))

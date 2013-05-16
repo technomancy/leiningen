@@ -234,7 +234,8 @@
             #"clojars" {:name "Internal nexus"
                         :url "http://mvn.local/nexus/releases"
                         :repo-manager true}}
-  ;; Java agents can instrument and intercept certain VM features.
+  ;; Java agents can instrument and intercept certain VM features. Include
+  ;; :bootclasspath true to place the agent jar on the bootstrap classpath.
   :java-agents [[nodisassemble "0.1.1" :options "extra"]]
   ;; Defaults for signing options. Defers to per-repository settings.
   :signing {:gpg-key "root@eruditorum.org"}
