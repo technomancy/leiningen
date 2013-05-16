@@ -14,7 +14,8 @@
   [project]
   (when (not (or (:install-releases? project true)
                  (pom/snapshot? project)))
-    (main/abort "Can't install release artifacts when :install-releases? is set to false."))
+    (main/abort "Can't install release artifacts when :install-releases?"
+                "is set to false."))
   (let [jarfiles (jar/jar project)
         pomfile (pom/pom project)
         local-repo (:local-repo project)]
