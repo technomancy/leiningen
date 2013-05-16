@@ -150,7 +150,8 @@ be able to depend on jars that are deployed without a pom."
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))
-         (apply main/abort "Can only deploy from branches listed in :deploy-branches:" branches)))
+         (apply main/abort "Can only deploy from branches listed in"
+                ":deploy-branches:" branches)))
      (warn-missing-metadata project)
      (let [repo (repo-for project repository)
            files (files-for project repo)]
