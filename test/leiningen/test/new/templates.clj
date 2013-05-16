@@ -1,7 +1,7 @@
 (ns leiningen.test.new.templates
   (:use clojure.test
         leiningen.new.templates)
-  (:require [leiningen.test.helper :refer [abort-msg]]
+  (:require [leiningen.test.helper :refer [abort-msg] :as lthelper]
             [leiningen.core.user :as user]
             [clojure.java.io :as io])
   (:import [java.io File]))
@@ -52,13 +52,13 @@
   (is (= (multi-segment "multi.segment" "last") "multi.segment")))
 
 (deftest paths
-  (is (= (name-to-path "foo-bar.baz") "foo_bar/baz")))
+  (is (= (name-to-path "foo-bar.baz") (lthelper/fix-path-delimiters "foo_bar/baz"))))
 
 (deftest renderers
   (is (.contains (abort-msg (renderer "my-template") "boom" {})
-                 "Template resource 'leiningen/new/my_template/boom' not found.\n"))
+                 "Template resource 'leiningen/new/my_template/boom' not found."))
   (is (.contains (abort-msg (renderer "my-template") "boom")
-                 "Template resource 'leiningen/new/my_template/boom' not found.\n")))
+                 "Template resource 'leiningen/new/my_template/boom' not found.")))
 
 (deftest slurp-resource-compatibility ; can be removed in 3.0.0
   (is (= (slurp-resource "leiningen/new/template/temp.clj")

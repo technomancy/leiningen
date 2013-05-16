@@ -3,7 +3,7 @@
         [clojure.java.io :only [file delete-file]]
         [leiningen.pom :only [make-pom pom]]
         [leiningen.core.user :as user]
-        [leiningen.test.helper :only [sample-project]])
+        [leiningen.test.helper :only [sample-project] :as lthelper])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]))
@@ -92,11 +92,11 @@
            (map #(first-in % [:testResource :directory])
                 (deep-content xml [:project :build :testResources])))
         "test resource directories use :dev :default and :test profiles")
-    (is (= "target/" (first-in xml [:project :build :directory]))
+    (is (= (lthelper/fix-path-delimiters "target/") (first-in xml [:project :build :directory]))
         "target directory is included")
     (is (= nil (first-in xml [:project :build :extensions]))
         "no extensions")
-    (is (= "target/classes" (first-in xml [:project :build :outputDirectory]))
+    (is (= (lthelper/fix-path-delimiters "target/classes") (first-in xml [:project :build :outputDirectory]))
         "classes directory is included")
     (is (= ["org.clojure" "rome" "ring" "org.clojure" "clojure-complete"]
            (map #(first-in % [:dependency :groupId])
@@ -275,7 +275,7 @@
               (first-in [:project :classifier])))))
 
 (deftest test-pom-adds-java-source-paths
-  (is (= ["java/src" "java/another"]
+  (is (= (vec (map lthelper/fix-path-delimiters ["java/src" "java/another"]))
          (-> (make-pom (with-profile sample-project
                          {:java-source-paths ["java/src" "java/another"]}))
              xml/parse-str

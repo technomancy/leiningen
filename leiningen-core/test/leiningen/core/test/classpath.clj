@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [clojure.set :as set]
             [leiningen.core.user :as user]
+            [leiningen.test.helper :as lthelper]
             [leiningen.core.project :as project]))
 
 (use-fixtures :once
@@ -20,7 +21,7 @@
                               [ring/ring-core "1.0.0"
                                :exclusions [commons-codec]]]
               :checkout-deps-shares [:source-paths :resource-paths
-                                     :compile-path #(str (:root %) "/foo")]
+                                     :compile-path #(lthelper/pathify (str (:root %) "/foo"))]
               :repositories project/default-repositories
               :root "/tmp/lein-sample-project"
               :target-path "/tmp/lein-sample-project/target"
@@ -51,9 +52,10 @@
          (dependency-hierarchy :dependencies project))))
 
 (def directories
+  (vec (map lthelper/pathify 
   ["/tmp/lein-sample-project/test"
    "/tmp/lein-sample-project/src"
-   "/tmp/lein-sample-project/resources"])
+   "/tmp/lein-sample-project/resources"])))
 
 (def libs
   #{(str (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar"))
@@ -76,7 +78,7 @@
             (pr-str '(defproject hello "1.0")))
       (is (= (for [path ["src" "dev-resources" "resources"
                          "target/classes" "foo"]]
-               (format "/tmp/lein-sample-project/checkouts/d1/%s" path))
+               (lthelper/pathify (format "/tmp/lein-sample-project/checkouts/d1/%s" path)))
              (#'leiningen.core.classpath/checkout-deps-paths project)))
       (finally
        ;; can't recur from finally
