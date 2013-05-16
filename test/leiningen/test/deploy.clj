@@ -7,7 +7,9 @@
 
 (defn- repo-path
   [relative-repo-path]
-  (format "%s/%s" tmp-dir relative-repo-path))
+  (clojure.string/replace 
+    (format "%s/%s" tmp-dir relative-repo-path)
+    "\\" "/")) ;make path delimiters look the same / even under Windows
 
 (defn- repo-url
   [absolute-repo-path]
