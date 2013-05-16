@@ -144,7 +144,7 @@
              args))
 
 (def defaults
-  ;; TODO: why isn't :repositories in here?
+  ;; TODO: move :repositories here in 3.0
   {:source-paths ["src"]
    :resource-paths ["resources"]
    :test-paths ["test"]
@@ -219,7 +219,8 @@
 
 (def deploy-repositories
   (with-meta
-    [["clojars" {:url "https://clojars.org/repo/" :password :gpg :username :gpg}]]
+    [["clojars" {:url "https://clojars.org/repo/"
+                 :password :gpg :username :gpg}]]
     {:reduce add-repo}))
 
 (defn update-if-in-map
@@ -358,7 +359,7 @@
                           :test-selectors {:default (with-meta
                                                       '(constantly true)
                                                       {:displace true})}}
-         :uberjar {:aot :all}
+         :uberjar {} ; TODO: use :aot :all here in 3.0
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))

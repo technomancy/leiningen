@@ -4,6 +4,7 @@
             [clojure.java.io :as io]
             [clojure.string :as string]
             [cemerick.pomegranate :as pomegranate]
+            [cemerick.pomegranate.aether :as aether]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
@@ -181,13 +182,22 @@ leiningen.core.utils/platform-nullsink instead."
     (string/replace (pr-str form) "\"" "\\\"")
     (pr-str form)))
 
-(defn- classpath-arg [project]
-  (if (:bootclasspath project)
-    [(apply str "-Xbootclasspath/a:"
-            (interpose java.io.File/pathSeparatorChar
-                       (classpath/get-classpath project)))]
-    ["-classpath" (string/join java.io.File/pathSeparatorChar
-                               (classpath/get-classpath project))]))
+(defn- agent-arg [coords file]
+  (format "-javaagent:%s%s" file (if-let [o (:options (apply hash-map coords))]
+                                   (str "=" o) "")))
+
+(defn ^:internal classpath-arg [project]
+  (let [classpath-string (string/join java.io.File/pathSeparatorChar
+                                      (classpath/get-classpath project))
+        agent-tree (classpath/get-dependencies :java-agents project)
+        ;; Seems like you'd expect dependency-files to walk the whole tree
+        ;; here, but it doesn't, which is what we want. but maybe a bug?
+        agent-jars (aether/dependency-files (aether/dependency-hierarchy
+                                             (:java-agents project) agent-tree))]
+    `(~@(map agent-arg (:java-agents project) agent-jars)
+      ~@(if (:bootclasspath project)
+          [(str "-Xbootclasspath/a:" classpath-string)]
+          ["-classpath" classpath-string]))))
 
 (defn shell-command
   "Calculate vector of strings needed to evaluate form in a project subprocess."
@@ -272,13 +282,14 @@ leiningen.core.utils/platform-nullsink instead."
     (System/setProperty k v))
   (eval form))
 
-; TODO: deprecate then remove warn-on-reflection special case
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
   for the project. If the form depends on any requires, put them in the init arg
   to avoid the Gilardi Scenario: http://technomancy.us/143"
   ([project form init]
      (prep project)
+     (when (:warn-on-reflection project)
+       (println "WARNING: :warn-on-reflection is deprecated; use :global-vars."))
      (eval-in project
               `(do (set! ~'*warn-on-reflection*
                          ~(:warn-on-reflection project))

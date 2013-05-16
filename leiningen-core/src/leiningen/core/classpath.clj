@@ -182,12 +182,11 @@
            (get-dependencies-memoized dependencies-key (assoc project :offline? true))
            (throw e)))))))
 
-(defn- get-dependencies [dependencies-key project & rest]
+(defn ^:internal get-dependencies [dependencies-key project & args]
   (apply get-dependencies-memoized
-   dependencies-key
-   (select-keys project [dependencies-key :repositories :local-repo :offline? :update
-                         :checksum :mirrors ])
-   rest))
+         dependencies-key (select-keys project [dependencies-key :repositories
+                                                :local-repo :offline? :update
+                                                :checksum :mirrors]) args))
 
 (defn- get-original-dependency
   "Return a match to dep (a single dependency vector) in
@@ -229,8 +228,7 @@
 
   Returns a seq of the dependencies' files."
   [dependencies-key {:keys [repositories native-path] :as project} & rest]
-  (let [dependencies-tree
-        (apply get-dependencies dependencies-key project rest)
+  (let [dependencies-tree (apply get-dependencies dependencies-key project rest)
         jars (->> dependencies-tree
                   (aether/dependency-files)
                   (filter #(re-find #"\.(jar|zip)$" (.getName %))))
@@ -248,9 +246,10 @@
 (defn dependency-hierarchy
   "Returns a graph of the project's dependencies."
   [dependencies-key project & options]
-  (aether/dependency-hierarchy
-   (get project dependencies-key)
-   (apply get-dependencies dependencies-key project options)))
+  (if-let [deps-list (get project dependencies-key)]
+    (aether/dependency-hierarchy deps-list
+                                 (apply get-dependencies dependencies-key
+                                        project options))))
 
 ;http://stackoverflow.com/questions/5154754/why-is-file-isabsolute-platform-dependent-when-the-file-class-is-platform-inde
 (defn- normalize-path [root path]
