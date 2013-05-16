@@ -48,12 +48,14 @@
                (contains? args "-Dhttps.proxyPort=443"))))))
 
 (deftest test-java-agent
-  (let [p {:java-agents '[[com.newrelic.agent.java/newrelic-agent "2.18.0"]
+  (let [p {:java-agents '[[com.newrelic.agent.java/newrelic-agent "2.18.0"
+                           :bootclasspath true]
                           [nodisassemble "0.1.1" :options "hello"]]
            :dependencies '[[slamhound "1.3.0"]]
            :repositories project/default-repositories}
-        [newrelic nodisassemble] (classpath-arg p)]
-    (is (.endsWith newrelic (lthelper/fix-path-delimiters 
+        [newrelic newrelic-bootcp nodisassemble] (classpath-arg p)]
+    (is (.endsWith newrelic (lthelper/fix-path-delimiters
                               (str "/com/newrelic/agent/java/newrelic-agent"
                                    "/2.18.0/newrelic-agent-2.18.0.jar"))))
+    (is (re-find #"bootclasspath.*newrelic.*jar" newrelic-bootcp))
     (is (re-find #"-javaagent:.*nodisassemble-0.1.1.jar=hello" nodisassemble))))
