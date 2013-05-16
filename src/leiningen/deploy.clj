@@ -49,28 +49,10 @@
                                     (into-array ["Password: "]))]
         [id (assoc settings :username username :password password)]))))
 
-(defn- sanitize-repo-name
-"
-returns only the last part of the path
-ie. 
-returns: \"lein-custom-repo\"
-from input: \"file://C:/Users/user/AppData/Local/Temp//lein-custom-repo\"
-reason: the name of the repo must not contain path delimiters ie. \\ or / 
- because it's used by aether for form filenames like 
- maven-metadata-lein-custom-repo.xml from the filename maven-metadata.xml
-(this is normally seen only under Windows)
-"
-  [name]
-  (let [idx (.lastIndexOf name "/");java.io.File/separator)
-        endr (cond (>= idx 0) (subs name (inc idx) (count name))
-               :else name)]
-    (when main/*debug*
-      (println (str "Sanitizing repo name `" name "` into `" endr "`")))
-    (assert (< (.indexOf endr "\\") 0) "`defn- repo-path` function should've used only / as path delimiters")
-    (assert (< (.indexOf endr "/") 0) endr)
-    endr
-    )
-  )
+;; repo names must not contain path delimiters because they're used by
+;; aether for form filenames
+(defn- sanitize-repo-name [name]
+  (last (.split name java.io.File/separator)))
 
 (defn repo-for [project name]
   (let [settings (merge (get (into {} (:repositories project)) name)
