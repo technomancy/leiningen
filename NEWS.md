@@ -1,5 +1,15 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.2.0 / ???
+
+* Support `:java-agents` for tooling and instrumenting. (Phil Hagelberg)
+* Allow checkout dependencies to operate recursively. (Phil Hagelberg)
+* Introduce `:uberjar` profile. (Phil Hagelberg)
+* Isolate target paths by profiles. (Phil Hagelberg)
+* Set `\*command-line-args\*` in run task. (Anthony Grimes)
+* Allow templates to specify executable files. (Joe Littlejohn)
+* Remove clojuredocs repl support to reduce dependency conflicts. (Phil Hagelberg)
+
 ## 2.1.3 / 2013-04-12
 
 * Fix fast trampoline to work without user profiles. (Malcolm Sparks)
