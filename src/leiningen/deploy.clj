@@ -52,7 +52,7 @@
 ;; repo names must not contain path delimiters because they're used by
 ;; aether for form filenames
 (defn- sanitize-repo-name [name]
-  (last (.split name java.io.File/separator)))
+  (last (.split name "/")))
 
 (defn repo-for [project name]
   (let [settings (merge (get (into {} (:repositories project)) name)
