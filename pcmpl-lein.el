@@ -8,7 +8,7 @@
 ;; Keywords: eshell completion
 ;; Created: 2011-01-15
 
-;; This file is not part of GNU Emacs.
+;; This file is not part of GNU Emacs or Leiningen.
 
 ;;; Commentary:
 
