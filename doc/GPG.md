@@ -124,7 +124,7 @@ you can publish it to a key server with:
     gpg --send-keys 2ADFB13E # use your id instead
 
 This pushes a copy of your public key to one of a cluster of free key
-servers, and the key is propogated to all of the other servers in the
+servers, and the key is propagated to all of the other servers in the
 cluster in short order.
 
 If your keypair is compromised, you can publish a revocation
