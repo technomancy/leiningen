@@ -2,6 +2,7 @@
 
 ## 2.2.0 / ???
 
+* Fix a bug where old template versions were always fetched. (Nelson Morris)
 * Support `:java-agents` for tooling and instrumenting. (Phil Hagelberg)
 * Allow checkout dependencies to operate recursively. (Phil Hagelberg)
 * Introduce `:uberjar` profile. (Phil Hagelberg)
