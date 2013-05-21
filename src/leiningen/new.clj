@@ -7,7 +7,7 @@
   (:import java.io.FileNotFoundException))
 
 (defn- fake-project [name]
-  {:templates [[(symbol name "lein-template") "(0.0.0,)"]]
+  {:templates [[(symbol name "lein-template") "RELEASE"]]
    :repositories {"clojars" {:url "http://clojars.org/repo/"}
                   "central" {:url "http://repo1.maven.org/maven2"}}})
 
