@@ -145,7 +145,7 @@
                                             trampoline-profile)]
     (eval/eval-in-project
      (project/merge-profiles project [profile])
-     `(reply.main/launch '~options)
+     `(do (reply.main/launch '~options) nil)
      `(do (try (require '~(init-ns project)) (catch Throwable t#))
           (require ~@(init-requires project 'reply.main))))))
 
