@@ -134,7 +134,12 @@
                  :exclusions [org.clojure/clojure ring/ring-core]]]})
 
 (defn- trampoline-repl [project port]
-  (let [options (-> (options-for-reply project :port port)
+  (let [init-option (get-in project [:repl-options :init])
+        init-code `(do
+                     (in-ns '~(init-ns project))
+                     ~init-option)
+        options (-> (options-for-reply project :port port)
+                    (assoc :custom-eval init-code)
                     (dissoc :input-stream))
         profile (:leiningen/trampoline-repl (:profiles project)
                                             trampoline-profile)]
