@@ -11,20 +11,71 @@
     (symbol (name given) "-main")))
 
 (defn run-form
-  "Construct a form to run the given main defn with arguments."
+  "Construct a form to run the given main defn or class with arguments."
   [given args]
-  `(let [v# (resolve '~(normalize-main given))]
-     (binding [*command-line-args* '~args]
-       (v# ~@args))))
+  `(binding [*command-line-args* '~args]
+     ;;
+     ;; Some complicated error-handling logic here to support main
+     ;; being either a namespace or a class.
+     ;;
+     ;; The use case that prompted this complexity is that if we
+     ;; have a namespace such as:
+     ;;
+     ;;   (ns foo.main
+     ;;     (:require does.not.exist))
+     ;;
+     ;; and we do a `lein run -m foo.main`, we will get a
+     ;; FileNotFoundException, but NOT because foo.main doesn't
+     ;; exist. So we want to make sure that error propogates
+     ;; up in the event that the class doesn't exist as well.
+     ;; But we still have to try the class first because it's
+     ;; not easy to distinguish the above case from the case
+     ;; when foo.main is a class and not a namespace at all.
+     ;;
+     ;; This would be a lot simpler if we weren't trying to
+     ;; transparently support both namespaces and classes specified in
+     ;; the same way.
+     ;;
+
+     ;; Try to require the namespace and run the appropriate var,
+     ;; noting what happened.
+     (let [[ns-flag# data#]
+           (try (require '~(symbol (namespace
+                                    (normalize-main given))))
+                (let [v# (resolve '~(normalize-main given))]
+                  (if (ifn? v#)
+                    [:done (v# ~@args)]
+                    [:not-found]))
+                (catch FileNotFoundException e#
+                  [:threw e#]))
+
+           ;; If we didn't succeed above, check if a class exists for
+           ;; the given name
+           class#
+           (when-not (= :done ns-flag#)
+             (try (Class/forName ~(name given))
+                  (catch ClassNotFoundException _#)))]
+       (cond
+        (= :done ns-flag#) data#
+
+        ;; If the class exists, run its main method.
+        class#
+        (Reflector/invokeStaticMethod
+         ~(name given) "main" (into-array [(into-array String '~args)]))
+
+        ;; If the symbol didn't resolve, give a reasonable message
+        (= :not-found ns-flag#)
+        (throw (Exception. ~(str "Cannot find anything to run for: " (name given))))
+
+        ;; If we got an exception earlier and nothing else worked,
+        ;; rethrow that.
+        (= :threw ns-flag#) (throw data#)))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
   [project given & args]
-  (try (eval/eval-in-project project (run-form given args)
-                             ;; TODO: why are we using both init and resolve?
-                             ` (require '~(symbol (namespace
-                                                   (normalize-main given)))))
+  (try (eval/eval-in-project project (run-form given args))
        (catch clojure.lang.ExceptionInfo e
          (main/abort))))
 
