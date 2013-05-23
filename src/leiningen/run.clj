@@ -11,14 +11,11 @@
     (symbol (name given) "-main")))
 
 (defn run-form
-  "Construct a form to run the given main defn or class with arguments."
+  "Construct a form to run the given main defn with arguments."
   [given args]
   `(let [v# (resolve '~(normalize-main given))]
      (binding [*command-line-args* '~args]
-       (if (ifn? v#)
-         (v# ~@args)
-         (Reflector/invokeStaticMethod
-           ~(name given) "main" (into-array [(into-array String '~args)]))))))
+       (v# ~@args))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
@@ -26,9 +23,8 @@
   [project given & args]
   (try (eval/eval-in-project project (run-form given args)
                              ;; TODO: why are we using both init and resolve?
-                             `(try (require '~(symbol (namespace
-                                                       (normalize-main given))))
-                                   (catch FileNotFoundException _#)))
+                             ` (require '~(symbol (namespace
+                                                   (normalize-main given)))))
        (catch clojure.lang.ExceptionInfo e
          (main/abort))))
 
