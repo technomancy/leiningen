@@ -208,6 +208,7 @@ definition:
     
 To set a key for a particular deploy repository, add it to the
 repository specification in your project definition:
+
     (defproject ham-biscuit "0.1.0"
        ...
        :deploy-repositories 
