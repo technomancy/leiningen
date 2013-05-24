@@ -15,7 +15,7 @@
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus]]
-                 [reply "0.1.10" :exclusions [ring/ring-core]]
+                 [reply "0.2.0" :exclusions [ring/ring-core]]
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
                  [cheshire "5.0.2"]
