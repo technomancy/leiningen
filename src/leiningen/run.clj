@@ -10,6 +10,7 @@
     (symbol given)
     (symbol (name given) "-main")))
 
+;; TODO: get rid of this in 3.0
 (defn run-form
   "Construct a form to run the given main defn or class with arguments."
   [given args]
