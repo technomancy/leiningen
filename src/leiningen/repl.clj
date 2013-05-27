@@ -48,13 +48,17 @@
                                      [(user/leiningen-home) "repl-history"])
                                    (apply io/file)
                                    str)
-                :input-stream System/in}
+                :input-stream System/in
+                ;; TODO: once reply/#114 is fixed; add (user/help) back in and
+                ;; move other source/javadoc/etc references into longer help.
+                :welcome (list 'println (slurp (io/resource "repl-welcome")))}
                x)
         (apply dissoc x (concat [:init] (when attach [:host :port])))
         (merge x (cond attach {:attach (str attach)}
                        port {:port port}
                        :else {}))
-        (clojure.set/rename-keys x {:prompt :custom-prompt})
+        (clojure.set/rename-keys x {:prompt :custom-prompt
+                                    :welcome :custom-help})
         (if (:port x) (update-in x [:port] str) x)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]

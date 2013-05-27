@@ -132,6 +132,8 @@
   :repl-options {;; Specify the string to print when prompting for input.
                  ;; defaults to something like (fn [ns] (str *ns* "=> "))
                  :prompt (fn [ns] (str "your command for <" ns ">, master? " ))
+                 ;; What to print when the repl session starts.
+                 :welcome (println "Welcome to the magical world of the repl!")
                  ;; Specify the ns to start the REPL in (overrides :main in
                  ;; this case only)
                  :init-ns foo.bar

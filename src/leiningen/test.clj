@@ -10,6 +10,7 @@
 
 (def ^:dynamic *exit-after-tests* true)
 
+;; TODO: spin this off into a library for 3.0
 (defn- form-for-hook-selectors [selectors]
   `(when (seq ~selectors)
      (leiningen.core.injected/add-hook
