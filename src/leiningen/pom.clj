@@ -275,7 +275,7 @@
 (defn- distinct-key [k xs]
   ((fn step [seen xs]
      (lazy-seq
-      (when (seq xs)
+      (if (seq xs)
         (let [x (first xs), key (k x)]
           (if (seen key)
             (step seen (rest xs))

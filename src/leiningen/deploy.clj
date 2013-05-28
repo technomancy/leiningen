@@ -65,7 +65,7 @@
 (defn signing-args
   "Produce GPG arguments for signing a file."
   [file opts]
-  (let [key-spec (when-let [key (:gpg-key opts)]
+  (let [key-spec (if-let [key (:gpg-key opts)]
                    ["--default-key" key])]
     `["--yes" "-ab" ~@key-spec "--" ~file]))
 

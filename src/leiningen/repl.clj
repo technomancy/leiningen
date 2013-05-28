@@ -15,12 +15,12 @@
             [reply.main :as reply]))
 
 (defn opt-port [opts]
-  (when-let [port (second (drop-while #(not= % ":port") opts))]
+  (if-let [port (second (drop-while #(not= % ":port") opts))]
     (Integer/valueOf port)))
 
 (defn ack-port [project]
-  (when-let [p (or (user/getenv "LEIN_REPL_ACK_PORT")
-                   (-> project :repl-options :ack-port))]
+  (if-let [p (or (user/getenv "LEIN_REPL_ACK_PORT")
+                 (-> project :repl-options :ack-port))]
     (Integer/valueOf p)))
 
 (defn repl-port [project]
@@ -53,7 +53,7 @@
                 ;; move other source/javadoc/etc references into longer help.
                 :welcome (list 'println (slurp (io/resource "repl-welcome")))}
                x)
-        (apply dissoc x (concat [:init] (when attach [:host :port])))
+        (apply dissoc x (concat [:init] (if attach [:host :port])))
         (merge x (cond attach {:attach (str attach)}
                        port {:port port}
                        :else {}))
@@ -65,7 +65,7 @@
   (or init-ns main))
 
 (defn- wrap-init-ns [project]
-  (when-let [init-ns (init-ns project)]
+  (if-let [init-ns (init-ns project)]
     ;; set-descriptor! currently nREPL only accepts a var
     `(with-local-vars
          [wrap-init-ns#
@@ -140,7 +140,7 @@
 (defn- trampoline-repl [project port]
   (let [init-option (get-in project [:repl-options :init])
         init-code `(do
-                     ~(when-let [ns# (init-ns project)] `(in-ns '~ns#))
+                     ~(if-let [ns# (init-ns project)] `(in-ns '~ns#))
                      ~init-option)
         options (-> (options-for-reply project :port port)
                     (assoc :custom-eval init-code)
