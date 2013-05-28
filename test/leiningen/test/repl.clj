@@ -46,7 +46,8 @@
   (let [env "env-host"
         prj {:repl-options {:host "proj-host"}}]
     (are [env proj exp]
-         (= exp (with-redefs [user/getenv {"LEIN_REPL_HOST" env}] (repl-host proj)))
+         (= exp (with-redefs [user/getenv {"LEIN_REPL_HOST" env}]
+                  (repl-host proj)))
          env prj "env-host"
          nil prj "proj-host"
          nil nil "127.0.0.1")))
@@ -68,7 +69,10 @@
     (are
      [in exp]
      (= (merge
-         {:history-file (lthelper/pathify (str (user/leiningen-home) "/repl-history"))
+         {:history-file (lthelper/pathify
+                          (str (user/leiningen-home) "/repl-history"))
+          :custom-help (list 'println (slurp (clojure.java.io/resource
+                                               "repl-welcome")))
           :input-stream System/in}
          exp)
         (let [[prj-k prj-v arg-k arg-v] in]
