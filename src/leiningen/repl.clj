@@ -140,7 +140,7 @@
 (defn- trampoline-repl [project port]
   (let [init-option (get-in project [:repl-options :init])
         init-code `(do
-                     (in-ns '~(init-ns project))
+                     ~(when-let [ns# (init-ns project)] `(in-ns '~ns#))
                      ~init-option)
         options (-> (options-for-reply project :port port)
                     (assoc :custom-eval init-code)
