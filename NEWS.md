@@ -2,6 +2,7 @@
 
 ## 2.2.0 / ???
 
+* Support setting custom welcome message when repl connects. (Colin Jones)
 * Fix a bug where old template versions were always fetched. (Nelson Morris)
 * Support `:java-agents` for tooling and instrumenting. (Phil Hagelberg)
 * Allow checkout dependencies to operate recursively. (Phil Hagelberg)
