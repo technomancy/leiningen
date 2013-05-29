@@ -19,7 +19,7 @@ sed -i s/:aot/\;\;:aot/ project.clj
 cd ..
 
 bin/lein with-profile release uberjar
-cp target/leiningen-$RELEASE_VERSION-standalone.jar $HOME/.lein/self-installs
+cp target/release+uberjar/leiningen-$RELEASE_VERSION-standalone.jar $HOME/.lein/self-installs
 
 cp bin/lein /tmp/lein-$RELEASE_VERSION
 cd /tmp
@@ -36,7 +36,7 @@ time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 
 echo "If these are under 3 seconds then you should be set to upload"
 echo "target/leiningen-$RELEASE_VERSION-standalone.jar to S3."
-echo "s3c me put -P target/leiningen-$RELEASE_VERSION-standalone.jar s3://leiningen/downloads/"
+echo "s3c me put -P target/release+uberjar/leiningen-$RELEASE_VERSION-standalone.jar s3://leiningen/downloads/"
 echo "Also deploy this release of leiningen-core to Clojars."
 
 cd -
