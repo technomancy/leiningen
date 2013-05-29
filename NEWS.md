@@ -9,7 +9,7 @@
 * Introduce `:uberjar` profile. (Phil Hagelberg)
 * Isolate target paths by profiles. (Phil Hagelberg)
 * Support deploying ad-hoc files. (Phil Hagelberg)
-* Set `\*command-line-args\*` in run task. (Anthony Grimes)
+* Set `*command-line-args*` in run task. (Anthony Grimes)
 * Allow templates to specify executable files. (Joe Littlejohn)
 * Remove clojuredocs repl support to reduce dependency conflicts. (Phil Hagelberg)
 
