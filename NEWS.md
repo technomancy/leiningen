@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.2.0 / ???
+## 2.2.0 / 2013-05-28
 
 * Support setting custom welcome message when repl connects. (Colin Jones)
 * Fix a bug where old template versions were always fetched. (Nelson Morris)
