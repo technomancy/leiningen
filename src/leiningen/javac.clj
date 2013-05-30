@@ -54,6 +54,9 @@
       (vec (map (comp name str) (flatten (concat specials others)))))
     opts))
 
+(defn- safe-quote [s]
+  (str "\"" (string/replace s "\\" "\\\\") "\""))
+
 ;; Tool's .run method expects the last argument to be an array of
 ;; strings, so that's what we'll return here.
 (defn- javac-options
@@ -64,9 +67,9 @@
     (.deleteOnExit options-file)
     (with-open [options-file (io/writer options-file)]
       (doto options-file
-        (.write (format "-cp %s\n" (classpath/get-classpath-string project)))
-        (.write (format "-d %s\n" (:compile-path project)))
-        (.write (string/join "\n" files))))
+        (.write (format "-cp %s\n" (safe-quote (classpath/get-classpath-string project))))
+        (.write (format "-d %s\n" (safe-quote (:compile-path project))))
+        (.write (string/join "\n" (map safe-quote files)))))
     (into-array String
                 (concat (normalize-javac-options (:javac-options project))
                         args
