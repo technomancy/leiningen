@@ -61,14 +61,13 @@
 **Q:** I specified a dependency on version X but am getting version Y; what's up?  
 **A:** One of your dependencies' dependencies has declared a
   dependency on a hard version range, which overrides your "soft"
-  declaration. If you change yours to a hard version range, it will
-  refuse to function due to conflicts, so it's best to find the
-  dependency that's at fault via the
-  [lein-pedantic plugin](https://github.com/xeqi/lein-pedantic) and
-  add an `:exclusions` clause to it. See `lein help sample` for how
-  exclusions work. You may also want to report a bug with the
-  dependency that uses hard version ranges as they cause all kinds of
-  problems and exhibit unintuitive behaviour.
+  declaration. Running `lein deps :tree` will identify which of your
+  dependencies are responsible for the version range. You can add an
+  `:exclusions` clause to prevent that from affecting the rest of your
+  dependencies. See `lein help sample` for how exclusions work. You
+  may also want to report a bug with the dependency that uses hard
+  version ranges as they cause all kinds of problems and exhibit
+  unintuitive behaviour.
 
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
 **A:** Set the `$http_proxy` environment variable in Leiningen 2.x. You can also
@@ -93,24 +92,15 @@
 **A:** The wiki has a page covering
   [ways to improve startup time](https://github.com/technomancy/leiningen/wiki/Faster).
 
-**Q:** It looks like a different set of dependencies are being used in
-  the repl vs other tasks.  
-**A:** The repl needs to add a few extra implicit dependencies in
-  order to function. For instance, it needs to load an
-  [nREPL server](https://github.com/clojure/tools.nrepl), and it loads
-  a client for fetching
-  [ClojureDocs examples](http://clojuredocs.org), both which have
-  dependencies that could interfere with the dependencies declared in
-  your own project. You can declare a `:leiningen/reply` profile to
-  override the clojuredocs client dependencies. While you can't run
-  the repl task without nREPL in the dependencies, specifying your own
-  version of it will override the version Leiningen adds. Another way
-  around the problem would be to load a bare repl by invoking `lein
-  trampoline run -m clojure.main/repl`, though you may want to use
-  `rlwrap` on that to get proper key bindings and history.
-
 **Q:** What does "Unrecognized VM option 'TieredStopAtLevel=1'" mean?  
 **A:** Old versions of the JVM do not support the directives Leiningen
   uses for tiered compilation which allow the JVM to boot more
   quickly. You can disable this behaviour with `export LEIN_JVM_OPTS=`
   or upgrade your JVM to something more recent. (newer than b25 of Java 6)
+
+**Q:** What are the downsides of Tiered Compilation?  
+**A:** Tiered Compilation sacrifices long-term JIT performance for
+  improved boot time. Most uses of Leiningen are in a context where
+  fast boot is more important, but in cases where this isn't the case
+  you can switch profiles (`lein with-profiles production run ...`) to
+  prevent the Tiered Compilation `:jvm-opts` setting from being used.
