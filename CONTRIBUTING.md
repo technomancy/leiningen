@@ -37,6 +37,13 @@ See the
 and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
 structured.
 
+Try to be aware of the conventions in the existing code, except the
+one where we don't write tests. Make a reasonable attempt to avoid
+lines longer than 80 columns or function bodies longer than 20
+lines. Don't use `when` unless it's for side-effects. Don't introduce
+new protocols. Use `^:internal` metadata to mark vars which can't be
+private but shouldn't be considered part of the public API.
+
 ## Bootstrapping
 
 You don't need to "build" Leiningen per se, but when you're developing on a
