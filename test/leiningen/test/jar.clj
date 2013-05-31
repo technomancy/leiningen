@@ -14,11 +14,13 @@
                    :manifest {"hello" "world"}})
 
 (deftest test-manifest
-  (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
-         (-> mock-project
-             make-manifest
-             manifest-map
-             (select-keys ["hello" "Main-Class"])))))
+  (let [mm (-> mock-project
+               make-manifest
+               manifest-map)]
+    (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
+           (select-keys mm ["hello" "Main-Class"])))
+    (is (= #{"Manifest-Version" "Main-Class" "hello" "Created-By" "Built-By" "Build-Jdk"}
+           (-> mm keys set)))))
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
