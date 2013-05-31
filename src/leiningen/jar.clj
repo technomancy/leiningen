@@ -28,14 +28,15 @@
         :else (str manifest "\n" (name k) ": " v)))
 
 (defn ^:internal make-manifest [project]
-  (Manifest.
-   (ByteArrayInputStream.
-    (.getBytes
-     (reduce (partial manifest-entry project)
-             "Manifest-Version: 1.0"
-             (merge default-manifest (:manifest project)
-                    (if-let [main (:main project)]
-                      {"Main-Class" (.replaceAll (str main) "-" "_")})))))))
+  (-> (reduce (partial manifest-entry project)
+              "Manifest-Version: 1.0"
+              (merge default-manifest (:manifest project)
+                     (if-let [main (:main project)]
+                       {"Main-Class" (.replaceAll (str main) "-" "_")})))
+      (str "\n")  ;; Add an endline character to make Manifest happy.
+      .getBytes
+      ByteArrayInputStream.
+      Manifest.))
 
 (defn ^:internal manifest-map [manifest]
   (let [attrs (.getMainAttributes manifest)]
