@@ -199,7 +199,7 @@ if $cygwin; then
 fi
 
 if $cygterm; then
-  JVM_OPTS="$JVM_OPTS -Djline.terminal=jline.UnixTerminal"
+  LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
   stty -icanon min 1 -echo > /dev/null 2>&1
 fi
 
