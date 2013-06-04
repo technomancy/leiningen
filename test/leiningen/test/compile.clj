@@ -83,3 +83,13 @@
 
 ;; (deftest test-compile-java-main
 ;;   (compile dev-deps-project))
+
+
+(deftest bad-aot-test
+  (is (re-find #"does\.not\.exist|does\/not\/exist"
+               (with-out-str
+                 (binding [*err* *out*]
+                   (try
+                     (compile (assoc sample-project
+                                :aot '[does.not.exist]))
+                     (catch clojure.lang.ExceptionInfo _)))))))
