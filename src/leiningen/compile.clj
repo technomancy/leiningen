@@ -36,8 +36,7 @@
   (for [namespace (compilable-namespaces project)
         :let [rel-source (b/path-for namespace)
               source (first (for [source-path (:source-paths project)
-                                  :let [file (io/file source-path rel-source)]
-                                  :when (.exists file)]
+                                  :let [file (io/file source-path rel-source)]]
                               file))]
         :when source
         :let [rel-compiled (.replaceFirst rel-source "\\.clj$" "__init.class")
