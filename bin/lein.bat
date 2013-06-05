@@ -289,7 +289,7 @@ del "%TRAMPOLINE_FILE%" 2>nul
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
+ -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
