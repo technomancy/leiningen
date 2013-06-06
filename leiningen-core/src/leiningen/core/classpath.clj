@@ -170,7 +170,8 @@
          (binding [*out* *err*]
            ;; Cannot recur from catch/finally so have to put this in its own defn
            (print-failures e)
-           (println "This could be due to a typo in :dependencies or network issues. If behind a proxy, you have to set the 'http_proxy' environment variable.")
+           (println "This could be due to a typo in :dependencies or network issues.")
+           (println "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
            #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
                (println "It's possible the specified jar is in the old Clojars Classic repo.")
                (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
