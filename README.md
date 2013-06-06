@@ -35,6 +35,20 @@ projects that aren't compatible with 2.x yet. The
 [upgrade guide](https://github.com/technomancy/leiningen/wiki/Upgrading)
 has instructions on migrating to version 2.
 
+#### Windows
+
+##### Through Chocolatey
+
+The simplest installation method for Windows is with the Windows package manager
+[Chocolatey][] via `cinst lein`.  The [Leiningen package][] will ensure the JDK
+and Curl are installed, will make `lein.bat` available in `PATH` and will execute
+`lein self-install`
+
+[Chocolatey]: http://chocolatey.org/
+[Leiningen package]: http://chocolatey.org/packages/Lein
+
+##### Manual
+
 On Windows most users can get
 [the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
 If you have PowerShell, wget.exe or curl.exe already installed and in
