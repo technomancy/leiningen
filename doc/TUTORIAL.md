@@ -260,6 +260,28 @@ Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
 work without checkouts before you push or merge.
 
+### Search
+
+Leiningen supports searching remote Maven repositories for matching
+jars with the command `lein search $TERM`. The first time `lein search`
+is run, a set of indices are downloaded. Once this is finished, the query
+is evaluated as a Lucene search. This allows for simple string matching
+or strings prefixed with one of the following operators:
+
+  * `artifact-id`, `artifact\_id`, `id`, `a`
+  * `group-id`, `group\_id`, `group`, `g`
+  * `description`, `desc`, `d`
+
+These prefixes allow you to execute more advanced queries such as:
+
+    $ lein search clojure
+    $ lein search description:crawl
+    $ lein search group:clojurewerkz
+    $ lein search \"Riak client\"
+
+`lein search` also accepts a second, optional parameter for fetching
+successive pages, e.g. `lein search clojure 2`.
+
 ## Running Code
 
 Enough setup; let's see some code running. Start with a REPL
