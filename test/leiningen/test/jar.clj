@@ -9,9 +9,13 @@
                                       overlapped-sourcepaths-project]])
   (:import (java.util.jar JarFile)))
 
+(def long-line
+  (apply str (repeat 10000 "a")))
+
 (def mock-project {:name "mock-project" :version "1.0"
                    :main 'foo.one-two.three-four.bar
-                   :manifest {"hello" "world"}})
+                   :manifest {"hello" "world"
+                              "long-line" long-line}})
 
 (deftest test-manifest
   (let [mm (-> mock-project
@@ -19,8 +23,10 @@
                manifest-map)]
     (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
            (select-keys mm ["hello" "Main-Class"])))
-    (is (= #{"Manifest-Version" "Main-Class" "hello" "Created-By" "Built-By" "Build-Jdk"}
-           (-> mm keys set)))))
+    (is (= #{"Manifest-Version" "Main-Class" "hello" "Created-By" "Built-By"
+             "Build-Jdk" "long-line"}
+           (-> mm keys set)))
+    (is (= (get mm "long-line") long-line))))
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]

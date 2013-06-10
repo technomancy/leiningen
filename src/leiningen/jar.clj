@@ -22,21 +22,25 @@
    "Built-By" (System/getProperty "user.name")
    "Build-Jdk" (System/getProperty "java.version")})
 
-(defn- manifest-entry [project manifest [k v]]
-  (cond (symbol? v) (manifest-entry project manifest [k (resolve v)])
-        (fn? v) (manifest-entry project manifest [k (v project)])
-        :else (str manifest "\n" (name k) ": " v)))
+(defn- manifest-entry [project [k v]]
+  (cond (symbol? v) (manifest-entry project [k (resolve v)])
+        (fn? v) (manifest-entry project [k (v project)])
+        :else (->> (str (name k) ": " v)
+                   (partition-all 70)  ;; Manifest spec says lines <= 72 chars
+                   (map (partial apply str))
+                   (string/join "\n ")  ;; Manifest spec says join with "\n "
+                   (format "%s\n"))))
 
 (defn ^:internal make-manifest [project]
-  (-> (reduce (partial manifest-entry project)
-              "Manifest-Version: 1.0"
-              (merge default-manifest (:manifest project)
-                     (if-let [main (:main project)]
-                       {"Main-Class" (.replaceAll (str main) "-" "_")})))
-      (str "\n")  ;; Add an endline character to make Manifest happy.
-      .getBytes
-      ByteArrayInputStream.
-      Manifest.))
+  (->> (merge default-manifest (:manifest project)
+              (if-let [main (:main project)]
+                {"Main-Class" (.replaceAll (str main) "-" "_")}))
+       (map (partial manifest-entry project))
+       (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
+       (string/join "")
+       .getBytes
+       ByteArrayInputStream.
+       Manifest.))
 
 (defn ^:internal manifest-map [manifest]
   (let [attrs (.getMainAttributes manifest)]
