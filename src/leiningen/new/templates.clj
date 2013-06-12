@@ -31,12 +31,24 @@
                      (user/getprop "line.separator"))]
     (string/replace s "\n" line-sep)))
 
+(defn slurp-to-lf
+  "Returns the entire contents of the given reader as a single string.  Converts all line endings to \\n."
+  [r]
+  (let [sb (StringBuilder.)]
+    (loop [s (.readLine r)]
+      (if (nil? s)
+        (str sb)
+        (do
+          (.append sb s)
+          (.append sb "\n")
+          (recur (.readLine r)))))))
+
 (defn slurp-resource
-  "Reads the contents of a resource."
+  "Reads the contents of a resource.  Temporarily converts line endings in the rsource to \\n before converting them into system specific line separators using fix-line-separators."
   [resource]
   (if (string? resource) ; for 2.0.0 compatibility, can break in 3.0.0
-    (-> resource io/resource io/reader slurp fix-line-separators)
-    (-> resource io/reader slurp fix-line-separators)))
+    (-> resource io/resource io/reader slurp-to-lf fix-line-separators)
+    (-> resource io/reader slurp-to-lf fix-line-separators)))
 
 (defn sanitize
   "Replace hyphens with underscores."
