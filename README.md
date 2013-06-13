@@ -22,18 +22,10 @@ Leiningen bootstraps itself using the `lein` shell script; there is no
 separate install script. It handles installing its own dependencies,
 which means the first run will take longer.
 
-1. Make sure you have JDK 6 or later.
+1. Make sure you have a Java JDK version 6 or later.
 2. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
 4. Set it to be executable. (`chmod 755 ~/bin/lein`)
-
-There is still a lot of extant material on the Web concerning the
-older
-[Leiningen 1.x](https://raw.github.com/technomancy/leiningen/1.7.1/bin/lein)
-version, which is still available if you need to work on older
-projects that aren't compatible with 2.x yet. The
-[upgrade guide](https://github.com/technomancy/leiningen/wiki/Upgrading)
-has instructions on migrating to version 2.
 
 ### Windows
 
