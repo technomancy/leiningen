@@ -85,7 +85,7 @@ Remember to delete the plaintext `credentials.clj` once you've
 encrypted it. Due to a bug in `gpg` you currently need to use
 `gpg-agent` and have already unlocked your key before Leiningen
 launches, but with `gpg-agent` you only have to enter your passphrase
-once per login.
+periodically; it will keep it cached for a given period.
 
 ### Full-disk Encryption
 
