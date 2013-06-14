@@ -123,7 +123,8 @@
                                                   (:target-path project)))
                                       (:target-path project)
                                       (user/leiningen-home)) "repl-port")]
-      (when ~start-msg? (println "nREPL server started on port" port#))
+      (when ~start-msg? 
+        (println "nREPL server started on port" port# "on host" ~(:host cfg)))
       (spit repl-port-file# port#)
       (.deleteOnExit repl-port-file#)
       @(promise))
@@ -177,7 +178,8 @@
     (when headless? @(promise))
     (if-let [repl-port (nrepl.ack/wait-for-ack
                         (-> project :repl-options (:timeout 60000)))]
-      (do (println "nREPL server started on port" repl-port) repl-port)
+      (do (println "nREPL server started on port" repl-port "on host" (:host cfg))
+          repl-port)
       (main/abort "REPL server launch timed out."))))
 
 (defn client [project attach]
