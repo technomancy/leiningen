@@ -15,12 +15,25 @@
              :repl-options :ack-port)
          2)))
 
+(deftest test-opt-host
+  (are [in exp] (= exp (opt-host in))
+       [":host" "0.0.0.0"]        "0.0.0.0"
+       [":host" "1.1.1.1"]        "1.1.1.1"
+       [":foo" ":host" "0.0.0.0"] "0.0.0.0"
+       [":host" "0.0.0.0" ":foo"] "0.0.0.0"
+       ["0.0.0.0"]                nil
+       [":host"]                  nil
+       [":port" "0.0.0.0"]        nil
+       []                         nil
+       nil                        nil))
+
 (deftest test-opt-port
   (are [in exp] (= exp (opt-port in))
        [":port" "1"]        1
        [":foo" ":port" "1"] 1
        [":port" "1" ":foo"] 1
-       ["1"]                nil))
+       ["1"]                nil
+       []                   nil))
 
 (deftest test-ack-port
   (let [env "5"
