@@ -91,13 +91,14 @@
             {:type :path :path path})))
 
 (defmethod copy-to-jar :bytes [project jar-os acc spec]
-  (when-not (some #(re-find % (:path spec)) (:jar-exclusions project))
-    (.putNextEntry jar-os (JarEntry. (:path spec)))
-    (let [bytes (if (string? (:bytes spec))
-                  (.getBytes (:bytes spec))
-                  (:bytes spec))]
-      (io/copy (ByteArrayInputStream. bytes) jar-os)))
-  (conj acc (:path spec)))
+  (let [path (unix-path (:path spec))]
+    (when-not (some #(re-find % path) (:jar-exclusions project))
+      (.putNextEntry jar-os (JarEntry. path))
+      (let [bytes (if (string? (:bytes spec))
+                    (.getBytes (:bytes spec))
+                    (:bytes spec))]
+        (io/copy (ByteArrayInputStream. bytes) jar-os)))
+    (conj acc path)))
 
 (defmethod copy-to-jar :fn [project jar-os acc spec]
   (let [f (eval (:fn spec))
