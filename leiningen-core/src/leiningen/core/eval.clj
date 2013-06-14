@@ -10,7 +10,8 @@
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils])
-  (:import (com.hypirion.io Pipe ClosingPipe)))
+  (:import (com.hypirion.io Pipe ClosingPipe)
+           (java.io File)))
 
 (def ^:private arch-options
   {:x86 ["-d32"] :x86_64 ["-d64"]})
@@ -175,13 +176,6 @@ leiningen.core.utils/platform-nullsink instead."
             (.resurrect System/in))
           exit-value)))))
 
-(defn- form-string [form eval-in]
-  (if (and (= (get-os) :windows) (not= :trampoline eval-in))
-    ;; On windows if a parameter is in double quotes, then all we need
-    ;; to worry about are double quotes, which we must escape
-    (string/replace (pr-str form) "\"" "\\\"")
-    (pr-str form)))
-
 (defn- agent-arg [coords file]
   (let [{:keys [options bootclasspath]} (apply hash-map coords)]
     (concat [(str "-javaagent:" file (and options (str "=" options)))]
@@ -203,10 +197,13 @@ leiningen.core.utils/platform-nullsink instead."
 (defn shell-command
   "Calculate vector of strings needed to evaluate form in a project subprocess."
   [project form]
-  `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
-    ~@(classpath-arg project)
-    ~@(get-jvm-args project)
-    "clojure.main" "-e" ~(form-string form (:eval-in project))))
+  (let [init-file (File/createTempFile "form-init" ".clj")]
+    (.deleteOnExit init-file)
+    (spit init-file form)
+    `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
+      ~@(classpath-arg project)
+      ~@(get-jvm-args project)
+      "clojure.main" "-i" ~(.getCanonicalPath init-file))))
 
 ;; # eval-in multimethod
 
