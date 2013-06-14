@@ -14,8 +14,14 @@
             [leiningen.trampoline :as trampoline]
             [reply.main :as reply]))
 
+(defn lookup-opt [opt-key opts]
+  (second (drop-while #(not= % opt-key) opts)))
+
+(defn opt-host [opts]
+  (lookup-opt ":host" opts))
+
 (defn opt-port [opts]
-  (if-let [port (second (drop-while #(not= % ":port") opts))]
+  (if-let [port (lookup-opt ":port" opts)]
     (Integer/valueOf port)))
 
 (defn ack-port [project]
@@ -117,7 +123,8 @@
                                                   (:target-path project)))
                                       (:target-path project)
                                       (user/leiningen-home)) "repl-port")]
-      (when ~start-msg? (println "nREPL server started on port" port#))
+      (when ~start-msg? 
+        (println "nREPL server started on port" port# "on host" ~(:host cfg)))
       (spit repl-port-file# port#)
       (.deleteOnExit repl-port-file#)
       @(promise))
@@ -171,7 +178,8 @@
     (when headless? @(promise))
     (if-let [repl-port (nrepl.ack/wait-for-ack
                         (-> project :repl-options (:timeout 60000)))]
-      (do (println "nREPL server started on port" repl-port) repl-port)
+      (do (println "nREPL server started on port" repl-port "on host" (:host cfg))
+          repl-port)
       (main/abort "REPL server launch timed out."))))
 
 (defn client [project attach]
@@ -186,13 +194,16 @@ Subcommands:
 
 <none> -> :start
 
-:start [:port port] This will launch an nREPL server and connect a
-  client to it. If the :port key is specified, or present under
-  :repl-options in the project map, that port will be used for the
-  server, otherwise it is chosen randomly.  When starting outside of a
-  project, the nREPL server will run internally to Leiningen.
+:start [:host host] [:port port] This will launch an nREPL server 
+  and connect a client to it. If the :host key is given, or present
+  under :repl-options, that host will be attached to, defaulting
+  to localhost otherwise, which will block remote connections. 
+  If the :port key is given, or present under :repl-options in 
+  the project map, that port will be used for the server, otherwise
+  it is chosen randomly. When starting outside of a project, 
+  the nREPL server will run internally to Leiningen.
 
-:headless [:port port]
+:headless [:host host] [:port port]
   This will launch an nREPL server and wait, rather than connecting
   a client to it.
 
@@ -211,7 +222,7 @@ Subcommands:
        (if (= subcommand ":connect")
          (client project (doto (connect-string project opts)
                            (->> (println "Connecting to nREPL at"))))
-         (let [cfg {:host (repl-host project)
+         (let [cfg {:host (or (opt-host opts) (repl-host project)) 
                     :port (or (opt-port opts) (repl-port project))}]
            (case subcommand
              ":start" (if trampoline/*trampoline?*
