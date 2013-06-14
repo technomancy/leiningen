@@ -10,7 +10,8 @@
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils])
-  (:import (com.hypirion.io Pipe ClosingPipe)))
+  (:import (com.hypirion.io Pipe ClosingPipe)
+           (java.io File)))
 
 (def ^:private arch-options
   {:x86 ["-d32"] :x86_64 ["-d64"]})
@@ -175,13 +176,6 @@ leiningen.core.utils/platform-nullsink instead."
             (.resurrect System/in))
           exit-value)))))
 
-(defn- form-string [form eval-in]
-  (if (and (= (get-os) :windows) (not= :trampoline eval-in))
-    ;; On windows if a parameter is in double quotes, then all we need
-    ;; to worry about are double quotes, which we must escape
-    (string/replace (pr-str form) "\"" "\\\"")
-    (pr-str form)))
-
 (defn- agent-arg [coords file]
   (let [{:keys [options bootclasspath]} (apply hash-map coords)]
     (concat [(str "-javaagent:" file (and options (str "=" options)))]
@@ -201,12 +195,12 @@ leiningen.core.utils/platform-nullsink instead."
           ["-classpath" classpath-string]))))
 
 (defn shell-command
-  "Calculate vector of strings needed to evaluate form in a project subprocess."
-  [project form]
+  "Calculate vector of strings needed to evaluate init-file in a project subprocess."
+  [project init-file-name]
   `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
     ~@(classpath-arg project)
     ~@(get-jvm-args project)
-    "clojure.main" "-e" ~(form-string form (:eval-in project))))
+    "clojure.main" "-i" ~init-file-name))
 
 ;; # eval-in multimethod
 
@@ -218,9 +212,12 @@ leiningen.core.utils/platform-nullsink instead."
 
 (defmethod eval-in :subprocess [project form]
   (binding [*dir* (:root project)]
-    (let [exit-code (apply sh (shell-command project form))]
-      (when (pos? exit-code)
-        (throw (ex-info "Subprocess failed" {:exit-code exit-code}))))))
+    (let [init-file (File/createTempFile "form-init" ".clj")]
+      (.deleteOnExit init-file)
+      (spit init-file form)
+      (let [exit-code (apply sh (shell-command project (.getCanonicalPath init-file)))]
+        (when (pos? exit-code)
+          (throw (ex-info "Subprocess failed" {:exit-code exit-code})))))))
 
 (defonce trampoline-forms (atom []))
 (defonce trampoline-profiles (atom []))
