@@ -22,8 +22,8 @@
     (let [file (File/createTempFile "lein-eval-test" nil)]
       (eval-in-project (assoc project :eval-in where
                               :prep-tasks [])
-                       `(spit ~(.getPath file) "foo"))
-      (is (= "foo" (slurp file)))
+                       `(spit ~(.getPath file) (eval "{:foo \"bar\"}")))
+      (is (= "{:foo \"bar\"}" (slurp file)))
       (.delete file))))
 
 (deftest test-jvm-opts
