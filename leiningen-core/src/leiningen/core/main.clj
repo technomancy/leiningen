@@ -45,6 +45,9 @@
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
 
+;; TODO for 3.0.0: debug, info and exit should be in a separate namespace
+;; (io.clj?) to avoid cyclic deps.
+
 (def ^:dynamic *debug* (System/getenv "DEBUG"))
 
 (defn debug
