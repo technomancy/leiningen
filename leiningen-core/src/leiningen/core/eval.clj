@@ -5,7 +5,6 @@
             [clojure.string :as string]
             [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
-            [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
@@ -151,7 +150,7 @@ leiningen.core.utils/platform-nullsink instead."
        (map #(str (name (key %)) "=" (val %)))
        (into-array String)))
 
-(defn sh
+(defn sh ;; TODO 3.0.0 - move to independent namespace. e.g. io.clj
   "A version of clojure.java.shell/sh that streams in/out/err."
   [& cmd]
   (when *pump-in*
