@@ -38,8 +38,8 @@
       (when @utils/rebound-io?
         (main/abort "No credentials found for" id
                     "\nPassword prompts are not supported when ran after other"
-                    "(potentially)\ninteractive tasks. Maybe setting up "
-                    "credentials may be an idea?\n\nSee `lein help deploy` for an "
+                    "(potentially)\ninteractive tasks. Maybe setting up"
+                    "credentials may be an idea?\n\nSee `lein help deploy` for an"
                     "explanation of how to specify credentials."))
       (println "No credentials found for" id)
       (println "See `lein help deploy` for how to configure credentials.")
@@ -70,8 +70,9 @@
     `["--yes" "-ab" ~@key-spec "--" ~file]))
 
 ;; TODO: be clearer about the fact that signing is going on
-(defn sign [file opts]
+(defn sign
   "Create a detached signature and return the signature file name."
+  [file opts]
   (let [{:keys [err exit]} (apply user/gpg (signing-args file opts))]
     (when-not (zero? exit)
       (main/abort "Could not sign"
