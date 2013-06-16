@@ -197,8 +197,9 @@ leiningen.core.utils/platform-nullsink instead."
   "Calculate vector of strings needed to evaluate form in a project subprocess."
   [project form]
   (let [init-file (File/createTempFile "form-init" ".clj")]
-    (.deleteOnExit init-file)
-    (spit init-file (pr-str form))
+    (spit init-file (pr-str `(-> (java.io.File. ~(.getCanonicalPath init-file))
+                                 (.deleteOnExit))))
+    (spit init-file (pr-str form) :append true)
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
