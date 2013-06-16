@@ -198,7 +198,7 @@ leiningen.core.utils/platform-nullsink instead."
   [project form]
   (let [init-file (File/createTempFile "form-init" ".clj")]
     (.deleteOnExit init-file)
-    (spit init-file form)
+    (spit init-file (pr-str form))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
