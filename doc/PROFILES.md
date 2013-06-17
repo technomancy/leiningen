@@ -109,6 +109,46 @@ Multiple profiles may be executed in series with colons:
 
     $ lein with-profile 1.3:1.4 test :database
 
+You may also add/remove profiles from the active profile list by prefixing their
+names with `+` and `-` respectively. Refer to `lein help with-profile` for more
+details.
+
+
+## Activating Profiles Automatically
+
+You might want to activate some profiles implicitly based on certain
+conditions. In order to activate a profile implicitly, set the `:active?` key to a
+boolean expression.
+
+In the following example, profile `:sticky` gets always activated:
+
+```clj
+...
+    :profiles {:sticky {:active? true
+                        ... }
+```
+
+In the following example, lein activates the `:linux` profile only when it is running on Linux:
+
+```clj
+...
+    :profiles {:linux {:active? (= (System/getProperty "os.name") "Linux")
+                       :dependencies [[org.blah/linux-specific-dep "1.1.0"]] }
+```
+
+
+The value of keyword `:active?` may also be a predicate function receiving the
+lein project as its only argument:
+
+```clj
+...
+    :profiles {:non-gpl {:active? (fn [project]
+                                    (not (= (-> project :license :name) "GPL" )))
+                         :dependencies [[org.blah/impure-lib "2.0.0"]] }
+```
+
+You can override the implicit activation of a profile using `lein with-profile -profilename`. Refer to `lein help with-profile` for more details.
+
 ## Composite Profiles
 
 Sometimes it is useful to define a profile as a combination of other

@@ -396,12 +396,15 @@
             right)))
 
 (defn- apply-profiles [project profiles]
-  (reduce (fn [project profile]
-            (with-meta
-              (meta-merge project profile)
-              (meta-merge (meta project) (meta profile))))
-          project
-          profiles))
+
+  (let [transient-keys [:active?]]
+
+    (reduce (fn [project profile]
+              (with-meta
+                (meta-merge project (apply dissoc profile transient-keys))
+                (meta-merge (meta project) (meta profile))))
+            project
+            profiles)))
 
 (defn- lookup-profile
   "Lookup a profile in the given profiles map, warning when the profile doesn't
@@ -643,6 +646,22 @@
                                            [:profiles] merge
                                            profiles-map)}))
 
+
+(defn- auto-active-profiles
+  "Given a project with :profiles metadata, return the keys of those profiles
+for which the `:active?` expression or function `(fn [project])` evaluates to
+true"
+  [project]
+
+  (map key (filter (fn [[k profile]]
+                     (let [activation (eval (:active? profile))]
+                       (if (fn? activation)
+                         (activation project)
+                         activation)))
+
+                   (-> project meta :profiles))))
+
+
 (defn read
   "Read project map out of file, which defaults to project.clj."
   ([file profiles]
@@ -656,6 +675,9 @@
            (throw (Exception. (format "%s must define project map" file))))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (init-profiles (project-with-profiles @project) profiles))))
+
+         (let [project (project-with-profiles @project)]
+           (init-profiles project (concat profiles (auto-active-profiles project)))))))
+
   ([file] (read file [:default]))
   ([] (read "project.clj")))
