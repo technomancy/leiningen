@@ -17,7 +17,9 @@
     (.endsWith t ".bat")))
 
 (defn- quote-arg [arg]
-  (format "\"%s\"" arg))
+  (if (win-batch?)
+    (format "\"%s\"" arg)
+    (format "'%s'" arg)))
 
 (defn trampoline-command-string [project forms profiles]
   ;; each form is (do init & body)
@@ -28,11 +30,7 @@
         ;; at least gets us :dependencies.
         project (project/set-profiles project profiles)
         command (eval/shell-command project (concat '(do) inits rests))]
-    (string/join " " (if (win-batch?)
-                       (map quote-arg command)
-                       (conj (vec (map quote-arg (butlast command)))
-                             (with-out-str
-                               (prn (last command))))))))
+    (string/join " " (map quote-arg command))))
 
 (defn write-trampoline [project forms profiles]
   (let [command (trampoline-command-string project forms profiles)
