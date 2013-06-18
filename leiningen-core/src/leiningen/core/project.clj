@@ -345,7 +345,8 @@
   profiles are active by default."
   (atom {:default [:base :system :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
-                :jvm-opts tiered-jvm-opts
+                :jvm-opts (with-meta tiered-jvm-opts
+                            {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 :target-path "target"
