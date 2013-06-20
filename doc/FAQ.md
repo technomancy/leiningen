@@ -92,6 +92,14 @@
 **A:** The wiki has a page covering
   [ways to improve startup time](https://github.com/technomancy/leiningen/wiki/Faster).
 
+**Q:** What if I care more about long-term performance than startup time?
+**A:** Leiningen 2.1.0 onward get a speed boost by disabling optimized
+  compilation (which only benefits long-running processes).  This can
+  negatively affect performance in the long run, or lead to inaccurate
+  benchmarking results.  If want the JVM to fully optimize, you can follow
+  the instructions on the Wiki page covering
+  [performance](https://github.com/technomancy/leiningen/wiki/Faster).
+
 **Q:** What does "Unrecognized VM option 'TieredStopAtLevel=1'" mean?  
 **A:** Old versions of the JVM do not support the directives Leiningen
   uses for tiered compilation which allow the JVM to boot more
