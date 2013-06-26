@@ -115,7 +115,7 @@
 
 **Q:** I'm attempting to run a project as a background process (`lein run &`),
   but the process suspends until it is in the foreground. How do I run a program
-  in the background?
+  in the background?  
 **A:** For long-lasting processes, use `lein trampoline run &` or consider to
-  (uber)jar the program. For short-lived ones, `lein run <&- &` and
-  `bash -c "lein run &"`.
+  (uber)jar the program. For short-lived ones, both `lein run <&- &` and
+  `bash -c "lein run &"` will work fine.
