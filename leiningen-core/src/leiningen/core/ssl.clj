@@ -68,7 +68,7 @@
 
 ;; TODO: honor settings from project.clj, not just user profile
 (defn make-sslcontext
-  "Construct an SSLContext that trusts a collection of certificatess."
+  "Construct an SSLContext that trusts a collection of certificates."
   [trusted-certs]
   (let [ks (make-keystore trusted-certs)
         kmf (key-manager-factory (key-manager-props))
