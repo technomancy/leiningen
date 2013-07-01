@@ -4,6 +4,7 @@
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as s]
+            [clojure.java.shell :as sh]
             [clojure.data.xml :as xml]))
 
 (defn- relativize [project]
@@ -39,10 +40,7 @@
   "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
   exist."
   [git-dir]
-  (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
-    (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
-      (read-git-ref git-dir ref-path)
-      head)))
+  (:out (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD" :dir git-dir))
 
 (defn- read-git-origin
   "Reads the URL for the remote origin repository."
