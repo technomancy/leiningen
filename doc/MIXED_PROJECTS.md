@@ -76,18 +76,18 @@ version in mixed Clojure/Java projects.
 ## Interleaving Compilation Steps
 
 In some cases it may be necessary to alternate between compiling
-different languagess. For instance, systems that generate and
+different languages. For instance, systems that generate and
 reference Java sources may also provide Clojure code for the generated
 sources to use.
 
 Any Clojure code referenced by Java sources must be
 [AOT compiled](http://clojure.org/compilation) to make it available to
 the Java compiler. Similarly, the Java classes produced by `javac`
-must be available for Clojure code that dependends on it. This results
+must be available for Clojure code that depends on it. This results
 in steps of `compile` `javac` `compile`, whereas the default task
 order is simply `javac` `compile`.
 
-This sequence can be accompished by executing lein with different
+This sequence can be accomplished by executing lein with different
 profiles. A profile can be built to perform the initial steps, while
 another profile continues to the final compilation stage. For
 instance, the following is an example of a profile called `:precomp`
