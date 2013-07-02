@@ -1,6 +1,6 @@
 # Leiningen
 
-<img src="http://leiningen.org/img/leiningen-banner.png"
+<img src="http://leiningen.org/img/leiningen.jpg"
  alt="Leiningen logo" title="The man himself" align="right" />
 
 > "Leiningen!" he shouted. "You're insane! They're not creatures you can
