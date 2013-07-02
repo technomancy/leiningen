@@ -43,7 +43,7 @@
 ;; skip duplicates.  We also collect together all the plexus components so
 ;; that we can merge them.
 (defn- include-dep [out skip-pred [skip-set components] dep]
-  (main/info "Including" (.getName dep))
+  (main/debug "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
     [(into skip-set (copy-entries zipfile out skip-set skip-pred))
      (concat components (read-components zipfile))]))
