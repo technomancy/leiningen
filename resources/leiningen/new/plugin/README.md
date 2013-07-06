@@ -22,4 +22,5 @@ FIXME: and add an example usage that actually makes sense:
 
 Copyright © {{year}} FIXME
 
-Distributed under the Eclipse Public License, the same as Clojure.
+Distributed under the Eclipse Public License either version 1.0 or (at
+your option) any later version.
