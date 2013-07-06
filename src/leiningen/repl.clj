@@ -123,7 +123,7 @@
                                                   (:target-path project)))
                                       (:target-path project)
                                       (user/leiningen-home)) "repl-port")]
-      (when ~start-msg? 
+      (when ~start-msg?
         (println "nREPL server started on port" port# "on host" ~(:host cfg)))
       (spit repl-port-file# port#)
       (.deleteOnExit repl-port-file#)
@@ -178,7 +178,8 @@
     (when headless? @(promise))
     (if-let [repl-port (nrepl.ack/wait-for-ack
                         (-> project :repl-options (:timeout 60000)))]
-      (do (println "nREPL server started on port" repl-port "on host" (:host cfg))
+      (do (main/info "nREPL server started on port"
+                     repl-port "on host" (:host cfg))
           repl-port)
       (main/abort "REPL server launch timed out."))))
 
@@ -194,13 +195,13 @@ Subcommands:
 
 <none> -> :start
 
-:start [:host host] [:port port] This will launch an nREPL server 
+:start [:host host] [:port port] This will launch an nREPL server
   and connect a client to it. If the :host key is given, or present
   under :repl-options, that host will be attached to, defaulting
-  to localhost otherwise, which will block remote connections. 
-  If the :port key is given, or present under :repl-options in 
+  to localhost otherwise, which will block remote connections.
+  If the :port key is given, or present under :repl-options in
   the project map, that port will be used for the server, otherwise
-  it is chosen randomly. When starting outside of a project, 
+  it is chosen randomly. When starting outside of a project,
   the nREPL server will run internally to Leiningen.
 
 :headless [:host host] [:port port]
@@ -221,8 +222,8 @@ Subcommands:
      (let [project (project/merge-profiles project [:repl])]
        (if (= subcommand ":connect")
          (client project (doto (connect-string project opts)
-                           (->> (println "Connecting to nREPL at"))))
-         (let [cfg {:host (or (opt-host opts) (repl-host project)) 
+                           (->> (main/info "Connecting to nREPL at"))))
+         (let [cfg {:host (or (opt-host opts) (repl-host project))
                     :port (or (opt-port opts) (repl-port project))}]
            (case subcommand
              ":start" (if trampoline/*trampoline?*
