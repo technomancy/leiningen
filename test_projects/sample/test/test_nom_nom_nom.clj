@@ -2,6 +2,10 @@
   (:use [nom.nom.nom]
         [clojure.test]))
 
+(defn test-ns-hook
+  []
+  (is false))
+
 (defn f [x]
   (.list x))
 
