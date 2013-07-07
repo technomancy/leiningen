@@ -145,11 +145,6 @@
                      (str (:name project) "-" (:version project) suffix))]
     (str (io/file target jar-name))))
 
-(defn get-jar-filename
-  ([project uberjar?]
-     (get-classified-jar-filename project (if uberjar? :standalone)))
-  ([project] (get-jar-filename project nil)))
-
 (def whitelist-keys
   "Project keys which don't affect the production of the jar should be
 propagated to the compilation phase and not stripped out."
@@ -167,6 +162,20 @@ propagated to the compilation phase and not stripped out."
     (if (and (compile-main? project) (not= :all (:aot project)))
       (update-in project [:aot] conj (:main project))
       project)))
+
+(defn preprocess-project [project & [main]]
+  (-> project
+    (project/unmerge-profiles [:default])
+    (project/merge-profiles [:provided])
+    (merge (select-keys project whitelist-keys))
+    (add-main main)))
+
+(defn- get-jar-filename*
+  [project uberjar?]
+  (get-classified-jar-filename project (when uberjar? :standalone)))
+
+(defn get-jar-filename [project & [uberjar?]]
+  (get-jar-filename* (preprocess-project project) uberjar?))
 
 (defn classifier-jar
   "Package up all the project's classified files into a jar file.
@@ -212,12 +221,9 @@ function in that namespace will be used as the main-class for executable jar.
 
 With an argument, the jar will be built with an alternate main."
   ([project main]
-     (let [project (-> (project/unmerge-profiles project [:default])
-                       (project/merge-profiles [:provided])
-                       (merge (select-keys project whitelist-keys))
-                       (add-main main))]
+     (let [project (preprocess-project project main)]
        (eval/prep project)
-       (let [jar-file (get-jar-filename project)]
+       (let [jar-file (get-jar-filename* project nil)]
          (write-jar project jar-file (filespecs project []))
          (main/info "Created" (str jar-file))
          (merge {[:extension "jar"] jar-file}
