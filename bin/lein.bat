@@ -21,7 +21,7 @@ if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 :: LEIN_JAR and LEIN_HOME variables can be set manually.
 
 if "x%LEIN_HOME%" == "x" (
-    set LEIN_HOME=%USERPROFILE%\.lein
+    set LEIN_HOME=!USERPROFILE!\.lein
 )
 
 if "x%LEIN_JAR%" == "x" set LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar
