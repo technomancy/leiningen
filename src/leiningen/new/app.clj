@@ -22,4 +22,5 @@
              ["doc/intro.md" (render "intro.md" data)]
              [".gitignore" (render "gitignore" data)]
              ["src/{{nested-dirs}}.clj" (render "core.clj" data)]
-             ["test/{{nested-dirs}}_test.clj" (render "test.clj" data)])))
+             ["test/{{nested-dirs}}_test.clj" (render "test.clj" data)]
+             "resources")))
