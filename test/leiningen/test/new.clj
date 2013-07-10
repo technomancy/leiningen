@@ -28,7 +28,7 @@
 
 (deftest test-new-with-app-template
   (leiningen.new/new nil "app" "test-new-app")
-  (is (= #{"README.md" "project.clj" "src" "core.clj" "test"
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
            "doc" "intro.md" "test_new_app" "core_test.clj" ".gitignore"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-app")))))))
   (delete-file-recursively (file "test-new-app") :silently))
