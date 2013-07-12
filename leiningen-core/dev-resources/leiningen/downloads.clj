@@ -10,24 +10,26 @@
   (:require [aws.sdk.s3 :as s3]
             [clojure.java.io :as io]
             [tentacles.repos :as repo]
-            [clojure.pprint :refer [pprint]])
-  (:import [java.io File]))
+            [clojure.pprint :refer [pprint]]
+            [leiningen.core.main :as main])
+  (:import (java.io File)))
 
-(def ^:internal aws-cred
+(defn ^:internal aws-cred []
 
   ;; in order to run, you need to define a map with the appropriate AWS
   ;; credentials in ~/.secrets/leiningen_downloads_aws_cred.clj:
 
   ;; {:access-key "AWS_ACCESS_KEY"
   ;;  :secret-key "AWS_SECRET_KEY"}
-
-  (read-string
-   (slurp (File. (System/getenv "HOME")
-                 "/.secrets/leiningen_downloads_aws_cred.clj"))))
+  (let [f (File. (System/getenv "HOME")
+                 "/.secrets/leiningen_downloads_aws_cred.clj")]
+    (if (.exists f)
+      (read-string (slurp f))
+      (main/abort "Missing credentials file:" f))))
 
 (defn- list-all-objects
   [bucket & [objects next-marker]]
-  (let [response (s3/list-objects aws-cred bucket {:marker next-marker})
+  (let [response (s3/list-objects (aws-cred) bucket {:marker next-marker})
         truncated? (:truncated? response)
         next-marker (:next-marker response)
         objects (concat objects (:objects response))]
@@ -40,7 +42,7 @@
   (for [object (list-all-objects bucket)]
     (do
       (println (str "Processing: " (:key object)))
-      (s3/get-object aws-cred bucket (:key object)))))
+      (s3/get-object (aws-cred) bucket (:key object)))))
 
 (defn- file-for-line
   [line]
@@ -84,8 +86,7 @@
                           (:name download)
                           (:download_count download))))))))
 
-(defn print-report
-  []
+(defn ^:no-project-needed downloads [project]
   (let [s3-downloads (s3-downloads)
         s3-download-count (count s3-downloads)
         github-downloads (github-downloads)
@@ -107,7 +108,3 @@
     (pprint (frequencies (map :file s3-downloads)))
     (println ""))) ;; need this last println for some reason or else
                    ;; the above doesn't print out using lein run...
-
-(defn -main
-  []
-  (print-report))
