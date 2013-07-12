@@ -349,7 +349,6 @@
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
-                :target-path "target"
                 :dependencies '[[org.clojure/tools.nrepl "0.2.3"]
                                 [clojure-complete "0.2.3"]]
                 :checkout-deps-shares [:source-paths
