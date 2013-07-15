@@ -251,7 +251,10 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (let [project (project/init-project
                    (if (.exists (io/file "project.clj"))
                      (project/read)
-                     (-> (project/make {:eval-in :leiningen :prep-tasks []})
+                     (-> (project/make {:eval-in :leiningen :prep-tasks []
+                                        :source-paths ^:replace []
+                                        :resource-paths ^:replace []
+                                        :test-paths ^:replace []})
                          project/project-with-profiles
                          (project/init-profiles [:default]))))]
       (when (:min-lein-version project) (verify-min-version project))
