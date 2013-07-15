@@ -42,7 +42,7 @@
   exist."
   [git-dir]
   (try
-    (:out (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD" :dir git-dir))
+    (:out (sh/sh "git" "rev-parse" "HEAD" :dir git-dir))
     (catch IOException e (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
                            (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
                              (read-git-ref git-dir ref-path))))))
