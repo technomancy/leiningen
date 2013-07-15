@@ -65,8 +65,8 @@
   "Returns the file's directory as a string, or the string representation of the
   file itself if it is a directory."
   [file]
-  (if-not (. file isDirectory)
-    (str (. file getParent) "/")
+  (if-not (.isDirectory file)
+    (str (.getParent file) "/")
     (str file "/")))
 
 (defmethod copy-to-jar :path [project jar-os acc spec]
@@ -113,7 +113,7 @@
     (reduce (partial copy-to-jar project jar-os) #{} filespecs)))
 
 ;; TODO: change in 3.0; this is hideous
-(defn- filespecs [project deps-fileset]
+(defn- filespecs [project]
   (concat [{:type :bytes
             :path (format "META-INF/maven/%s/%s/pom.xml"
                           (:group project) (:name project))
@@ -194,7 +194,7 @@ keyword, it's looked up in :profiles before being merged."
                     (merge (select-keys project whitelist-keys)))]
     (eval/prep project)
     (let [jar-file (get-classified-jar-filename project classifier)]
-      (write-jar project jar-file (filespecs project []))
+      (write-jar project jar-file (filespecs project))
       (main/info "Created" (str jar-file))
       jar-file)))
 
@@ -224,7 +224,7 @@ With an argument, the jar will be built with an alternate main."
      (let [project (preprocess-project project main)]
        (eval/prep project)
        (let [jar-file (get-jar-filename* project nil)]
-         (write-jar project jar-file (filespecs project []))
+         (write-jar project jar-file (filespecs project))
          (main/info "Created" (str jar-file))
          (merge {[:extension "jar"] jar-file}
                 (classifier-jars project)))))
