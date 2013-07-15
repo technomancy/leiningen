@@ -1,5 +1,6 @@
 (ns leiningen.pom
   "Write a pom.xml file to disk for Maven interoperability."
+  (:import java.io.IOException)
   (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
@@ -40,7 +41,11 @@
   "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
   exist."
   [git-dir]
-  (:out (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD" :dir git-dir))
+  (try
+    (:out (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD" :dir git-dir))
+    (catch IOException e (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
+                           (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
+                             (read-git-ref git-dir ref-path))))))
 
 (defn- read-git-origin
   "Reads the URL for the remote origin repository."
