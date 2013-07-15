@@ -46,12 +46,19 @@
   (let [attrs (.getMainAttributes manifest)]
     (zipmap (map str (keys attrs)) (vals attrs))))
 
-(defn- skip-file? [file relative-path patterns]
+(defn- skip-file?
+  "Skips the file if it doesn't exists or is a directory. If the file is not the
+  root-file (specified by :path), will also skip it if it is a dotfile, emacs
+  backup file or matches an exclusion pattern."
+  [file relative-path root-file patterns]
   (or (not (.exists file))
       (.isDirectory file)
-      (re-find #"^\.?#" (.getName file))
-      (re-find #"~$" (.getName file))
-      (some #(re-find % relative-path) patterns)))
+      (and
+       (not= file root-file)
+       (or
+        (re-find #"^\.?#" (.getName file))
+        (re-find #"~$" (.getName file))
+        (some #(re-find % relative-path) patterns)))))
 
 (defmulti ^:private copy-to-jar (fn [project jar-os acc spec] (:type spec)))
 
@@ -75,7 +82,8 @@
         paths (for [child (file-seq root-file)
                     :let [path (trim-leading (unix-path (str child))
                                              root-dir-path)]]
-                (when-not (skip-file? child path (:jar-exclusions project))
+                (when-not (skip-file? child path root-file
+                                      (:jar-exclusions project))
                   (if (acc path)
                     (main/info "Warning: skipped duplicate file:" path)
                     (do
