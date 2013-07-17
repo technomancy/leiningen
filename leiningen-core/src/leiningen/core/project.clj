@@ -19,6 +19,11 @@
 
 ;; # Project definition and normalization
 
+(defn composite-profile?
+  "Returns true if the profile is composite, false otherwise."
+  [profile]
+  (vector? profile))
+
 (defn artifact-map
   [id]
   {:artifact-id (name id)
@@ -417,8 +422,7 @@
           (vary-meta (lookup-profile profiles result)
                      update-in [:active-profiles] (fnil conj []) profile))
 
-        ;; composite profile
-        (vector? profile)
+        (composite-profile? profile)
         (apply-profiles {} (map (partial lookup-profile profiles) profile))
 
         :else (or profile {})))
@@ -562,6 +566,17 @@
   (vary-meta project assoc
              :profiles profiles))
 
+(defn expand-profile
+  "Expands composite profiles, and returns a list of all named profiles it will
+  activate. If the profile is not a composite profile name, it will return a
+  list containing itself."
+  [project profile-name]
+  (let [profile (get-in (meta project) [:profiles profile-name])]
+    (if (composite-profile? profile)
+      (->> (filter keyword? profile);; do we have to take keyword profiles only?
+           (mapcat (partial expand-profile project))
+           (cons profile-name))
+      (list profile-name))))
 
 (defn project-with-profiles [project]
   (project-with-profiles-meta project (read-profiles project)))
@@ -573,7 +588,10 @@
   (let [project (with-meta
                   (:without-profiles (meta project) project)
                   (meta project))
-        profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
+        all-exclude-profiles (mapcat (partial expand-profile project)
+                                     exclude-profiles)
+        profile-map (apply dissoc (:profiles (meta project))
+                           all-exclude-profiles)
         profiles (map (partial lookup-profile profile-map) include-profiles)
         normalized-profiles (map normalize-values profiles)]
     (-> project
