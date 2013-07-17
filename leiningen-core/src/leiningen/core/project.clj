@@ -354,7 +354,8 @@
                 :checkout-deps-shares [:source-paths
                                        :test-paths
                                        :resource-paths
-                                       :compile-path]}
+                                       :compile-path
+                                       classpath/checkout-deps-paths]}
          :leiningen/test {:injections [hooke-injection]
                           :test-selectors {:default (with-meta
                                                       '(constantly true)
