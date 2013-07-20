@@ -408,7 +408,7 @@
           project
           profiles))
 
-(defn- lookup-profile
+(defn- lookup-profile*
   "Lookup a profile in the given profiles map, warning when the profile doesn't
   exist. Recurse whenever a keyword or vector is found, combining all profiles
   in the vector."
@@ -419,13 +419,20 @@
                                   :production :system :repl}
                                 profile))
             (println "Warning: profile" profile "not found."))
-          (vary-meta (lookup-profile profiles result)
-                     update-in [:active-profiles] (fnil conj []) profile))
+          (lookup-profile* profiles result))
 
         (composite-profile? profile)
-        (apply-profiles {} (map (partial lookup-profile profiles) profile))
+        (apply-profiles {} (map (partial lookup-profile* profiles) profile))
 
         :else (or profile {})))
+
+(defn- lookup-profile
+  "Equivalent with lookup-profile*, except that it will attach the profile name
+  as an active profile in the profile metadata if the profile is a keyword."
+  [profiles profile]
+  (cond-> (lookup-profile* profiles profile)
+          (keyword? profile)
+          (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
 
 (defn- warn-user-repos [profiles]
   (let [has-url? (fn [entry] (or (string? entry) (:url entry)))
@@ -566,18 +573,6 @@
   (vary-meta project assoc
              :profiles profiles))
 
-(defn expand-profile
-  "Expands composite profiles, and returns a list of all named profiles it will
-  activate. If the profile is not a composite profile name, it will return a
-  list containing itself."
-  [project profile-name]
-  (let [profile (get-in (meta project) [:profiles profile-name])]
-    (if (composite-profile? profile)
-      (->> (filter keyword? profile);; do we have to take keyword profiles only?
-           (mapcat (partial expand-profile project))
-           (cons profile-name))
-      (list profile-name))))
-
 (defn project-with-profiles [project]
   (project-with-profiles-meta project (read-profiles project)))
 
@@ -588,10 +583,7 @@
   (let [project (with-meta
                   (:without-profiles (meta project) project)
                   (meta project))
-        all-exclude-profiles (mapcat (partial expand-profile project)
-                                     exclude-profiles)
-        profile-map (apply dissoc (:profiles (meta project))
-                           all-exclude-profiles)
+        profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
         profiles (map (partial lookup-profile profile-map) include-profiles)
         normalized-profiles (map normalize-values profiles)]
     (-> project
