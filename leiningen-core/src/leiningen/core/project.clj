@@ -19,6 +19,11 @@
 
 ;; # Project definition and normalization
 
+(defn composite-profile?
+  "Returns true if the profile is composite, false otherwise."
+  [profile]
+  (vector? profile))
+
 (defn artifact-map
   [id]
   {:artifact-id (name id)
@@ -404,7 +409,7 @@
           project
           profiles))
 
-(defn- lookup-profile
+(defn- lookup-profile*
   "Lookup a profile in the given profiles map, warning when the profile doesn't
   exist. Recurse whenever a keyword or vector is found, combining all profiles
   in the vector."
@@ -415,14 +420,20 @@
                                   :production :system :repl}
                                 profile))
             (println "Warning: profile" profile "not found."))
-          (vary-meta (lookup-profile profiles result)
-                     update-in [:active-profiles] (fnil conj []) profile))
+          (lookup-profile* profiles result))
 
-        ;; composite profile
-        (vector? profile)
-        (apply-profiles {} (map (partial lookup-profile profiles) profile))
+        (composite-profile? profile)
+        (apply-profiles {} (map (partial lookup-profile* profiles) profile))
 
         :else (or profile {})))
+
+(defn- lookup-profile
+  "Equivalent with lookup-profile*, except that it will attach the profile name
+  as an active profile in the profile metadata if the profile is a keyword."
+  [profiles profile]
+  (cond-> (lookup-profile* profiles profile)
+          (keyword? profile)
+          (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
 
 (defn- warn-user-repos [profiles]
   (let [has-url? (fn [entry] (or (string? entry) (:url entry)))
@@ -562,7 +573,6 @@
   ;; (vary-meta project assoc :profiles (dissoc profiles :default))
   (vary-meta project assoc
              :profiles profiles))
-
 
 (defn project-with-profiles [project]
   (project-with-profiles-meta project (read-profiles project)))
