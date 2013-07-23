@@ -19,8 +19,8 @@
 (defn project-name
   "Returns project name from (possibly group-qualified) name:
 
-   mygroup/myproj => myproj
-   myproj         => myproj"
+  mygroup/myproj => myproj
+  myproj         => myproj"
   [s]
   (last (string/split s #"/")))
 
@@ -32,7 +32,8 @@
     (string/replace s "\n" line-sep)))
 
 (defn slurp-to-lf
-  "Returns the entire contents of the given reader as a single string.  Converts all line endings to \\n."
+  "Returns the entire contents of the given reader as a single string. Converts
+  all line endings to \\n."
   [r]
   (let [sb (StringBuilder.)]
     (loop [s (.readLine r)]
@@ -44,7 +45,9 @@
           (recur (.readLine r)))))))
 
 (defn slurp-resource
-  "Reads the contents of a resource.  Temporarily converts line endings in the rsource to \\n before converting them into system specific line separators using fix-line-separators."
+  "Reads the contents of a resource. Temporarily converts line endings in the
+  resource to \\n before converting them into system specific line separators
+  using fix-line-separators."
   [resource]
   (if (string? resource) ; for 2.0.0 compatibility, can break in 3.0.0
     (-> resource io/resource io/reader slurp-to-lf fix-line-separators)
@@ -57,7 +60,7 @@
 
 (defn multi-segment
   "Make a namespace multi-segmented by adding another segment if necessary.
-The additional segment defaults to \"core\"."
+  The additional segment defaults to \"core\"."
   ([s] (multi-segment s "core"))
   ([s final-segment]
      (if (.contains s ".")
@@ -67,18 +70,18 @@ The additional segment defaults to \"core\"."
 (defn name-to-path
   "Constructs directory structure from fully qualified artifact name:
 
-   \"foo-bar.baz\" becomes \"foo_bar/baz\"
+  \"foo-bar.baz\" becomes \"foo_bar/baz\"
 
-   and so on. Uses platform-specific file separators."
+  and so on. Uses platform-specific file separators."
   [s]
   (-> s sanitize (string/replace "." java.io.File/separator)))
 
 (defn sanitize-ns
   "Returns project namespace name from (possibly group-qualified) project name:
 
-   mygroup/myproj  => mygroup.myproj
-   myproj          => myproj
-   mygroup/my_proj => mygroup.my-proj"
+  mygroup/myproj  => mygroup.myproj
+  myproj          => myproj
+  mygroup/my_proj => mygroup.my-proj"
   [s]
   (-> s
       (string/replace "/" ".")
@@ -108,8 +111,8 @@ The additional segment defaults to \"core\"."
 ;; render function will always know.
 (defn renderer
   "Create a renderer function that looks for mustache templates in the
-   right place given the name of your template. If no data is passed, the
-   file is simply slurped and the content returned unchanged."
+  right place given the name of your template. If no data is passed, the
+  file is simply slurped and the content returned unchanged."
   [name]
   (fn [template & [data]]
     (let [path (string/join "/" ["leiningen" "new" (sanitize name) template])]
@@ -143,12 +146,13 @@ The additional segment defaults to \"core\"."
 ;; in them, so it is all transparent unless you need it.
 (defn ->files
   "Generate a file with content. path can be a java.io.File or string.
-   It will be turned into a File regardless. Any parent directories will
-   be created automatically. Data should include a key for :name so that
-   the project is created in the correct directory"
+  It will be turned into a File regardless. Any parent directories will
+  be created automatically. Data should include a key for :name so that
+  the project is created in the correct directory"
   [{:keys [name] :as data} & paths]
   (let [dir (or *dir*
-                (.getPath (io/file (System/getProperty "leiningen.original.pwd") name)))]
+                (-> (System/getProperty "leiningen.original.pwd")
+                    (io/file name) (.getPath)))]
     (if (or *dir* (.mkdir (io/file dir)))
       (doseq [path paths]
         (if (string? path)
