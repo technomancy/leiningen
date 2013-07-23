@@ -48,6 +48,9 @@
                   ;; LWJGL stores natives in the root of the jar; this
                   ;; :native-prefix will extract them.
                   :native-prefix ""]]
+  ;; Abort when version ranges or version overlaps are detected in
+  ;; dependencies. Also supports :warn to simply emit warnings.
+  :pedantic? :abort
   ;; Global exclusions are applied across the board, as an alternative
   ;; to duplication for multiple dependencies with the same excluded libraries.
   :exclusions [org.apache.poi/poi

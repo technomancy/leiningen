@@ -5,7 +5,8 @@
             [clojure.java.io :as io]
             [clojure.string :as str]
             [leiningen.core.user :as user]
-            [leiningen.core.utils :as utils])
+            [leiningen.core.utils :as utils]
+            [pedantic.core :as pedantic])
   (:import (java.util.jar JarFile)
            (org.sonatype.aether.resolution DependencyResolutionException)))
 
@@ -129,7 +130,7 @@
   (memoize
    (fn [dependencies-key {:keys [repositories local-repo offline? update
                                  checksum mirrors] :as project}
-        & {:keys [add-classpath? repository-session-fn]}]
+        {:keys [add-classpath? repository-session-fn] :as args}]
      {:pre [(every? vector? (get project dependencies-key))]}
      (try
        ((if add-classpath?
@@ -183,11 +184,76 @@
            (get-dependencies-memoized dependencies-key (assoc project :offline? true))
            (throw e)))))))
 
+(defn- message-for [get-version path]
+  (str (->> path
+            (map #(if-let [dependency (.getDependency %)]
+                    (if-let [artifact (.getArtifact dependency)]
+                      (str "["
+                           (if (= (.getGroupId artifact)
+                                  (.getArtifactId artifact))
+                             (.getGroupId artifact)
+                             (str (.getGroupId artifact)
+                                  "/"
+                                  (.getArtifactId artifact)))
+                           " \""
+                           (get-version %)
+                           "\"]"))))
+            (remove nil?)
+            (interpose " -> ")
+            (apply str))))
+
+(defn- message-for-version [{:keys [node parents]}]
+  (message-for #(.getVersion %) (conj parents node)))
+
+(defn- message-for-range [{:keys [node parents]}]
+  (message-for #(.getVersionConstraint %) (conj parents node)))
+
+(defn- pedantic-session [project ranges overrides]
+  (if (:pedantic? project)
+    #(-> % aether/repository-session
+         (pedantic/use-transformer ranges overrides))))
+
+;; TODO: can't memoize this since ranges/overrides don't have proper
+;; equality semantics (GraphEdge objects)
+(defn- pedantic-print [ranges overrides]
+  (when-let [range-messages (seq (distinct (map message-for-range ranges)))]
+    (println "WARNING!!! version ranges found for:")
+    (doseq [dep-string range-messages]
+      (println dep-string))
+    (println))
+  (when-not (empty? overrides)
+    (println "WARNING!!! possible confusing dependencies found:")
+    (doseq [{:keys [accepted ignoreds ranges]} overrides]
+      (println (message-for-version accepted))
+      (println " overrides")
+      (doseq [ignored (->> ignoreds
+                           (map message-for-version)
+                           (interpose " and"))]
+        (println ignored))
+      (when-not (empty? ranges)
+        (println " possibly due to a version range in")
+        (doseq [n ranges]
+          (println (message-for-range n))))
+      (println))))
+
+(defn- pedantic-do [pedantic-setting ranges overrides]
+  (when pedantic-setting
+    (pedantic-print ranges overrides)
+    (when (and (= :abort pedantic-setting)
+               (not (empty? (concat ranges overrides))))
+      (require 'leiningen.core.main)
+      ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
+       "Aborting due to version ranges."))))
+
 (defn ^:internal get-dependencies [dependencies-key project & args]
-  (apply get-dependencies-memoized
-         dependencies-key (select-keys project [dependencies-key :repositories
-                                                :local-repo :offline? :update
-                                                :checksum :mirrors]) args))
+  (let [ranges (atom []), overrides (atom [])
+        session (pedantic-session project ranges overrides)
+        args (assoc (apply hash-map args) :repository-session-fn session)
+        trimmed (select-keys project [dependencies-key :repositories :checksum
+                                      :local-repo :offline? :update :mirrors])
+        deps-result (get-dependencies-memoized dependencies-key trimmed args)]
+    (pedantic-do (:pedantic? project) @ranges @overrides)
+    deps-result))
 
 (defn- get-original-dependency
   "Return a match to dep (a single dependency vector) in
