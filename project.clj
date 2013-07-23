@@ -19,8 +19,7 @@
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
                  [cheshire "5.0.2"]
-                 [clj-http "0.6.5" :exclusions [crouton]]
-                 [pedantic "0.1.0"]]
+                 [clj-http "0.6.5" :exclusions [crouton]]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}

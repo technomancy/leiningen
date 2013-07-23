@@ -5,34 +5,9 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.user :as user]
             [cemerick.pomegranate.aether :as aether]
-            [pedantic.core :as pedantic]
             [clojure.pprint :as pp]
             [clojure.java.io :as io])
   (:import (org.sonatype.aether.resolution DependencyResolutionException)))
-
-(defn message-for [get-version path]
-  (str (->> path
-            (map #(if-let [dependency (.getDependency %)]
-                    (if-let [artifact (.getArtifact dependency)]
-                      (str "["
-                           (if (= (.getGroupId artifact)
-                                  (.getArtifactId artifact))
-                             (.getGroupId artifact)
-                             (str (.getGroupId artifact)
-                                  "/"
-                                  (.getArtifactId artifact)))
-                           " \""
-                           (get-version %)
-                           "\"]"))))
-            (remove nil?)
-            (interpose " -> ")
-            (apply str))))
-
-(defn message-for-version [{:keys [node parents]}]
-  (message-for #(.getVersion %) (conj parents node)))
-
-(defn message-for-version-range [{:keys [node parents]}]
-  (message-for #(.getVersionConstraint %) (conj parents node)))
 
 (defn- walk-deps
   ([deps f level]
@@ -104,43 +79,11 @@ force them to be updated, use `lein -U $TASK`."
      (deps project nil))
   ([project command]
      (try
-       (cond (= command ":tree") ; TODO: break into multiple defns
-             (let [ranges (atom [])
-                   overrides (atom [])
-                   hierarchy (classpath/dependency-hierarchy
-                              :dependencies project
-                              :repository-session-fn
-                              #(-> %
-                                   aether/repository-session
-                                   (pedantic/use-transformer ranges
-                                                             overrides)))
-                   range-messages (distinct
-                                   (map message-for-version-range
-                                        @ranges))
-                   overrides @overrides]
-               (when (not (empty? range-messages))
-                 (println "WARNING!!! version ranges found for:")
-                 (doseq [dep-string range-messages]
-                   (println dep-string))
-                 (println))
-               (when (not (empty? overrides))
-                 (println "WARNING!!! possible confusing dependencies found:")
-                 (doseq [{:keys [accepted
-                                 ignoreds
-                                 ranges]}  overrides]
-                   (println (message-for-version accepted))
-                   (println " overrides")
-                   (doseq [ignored (->> ignoreds
-                                        (map message-for-version)
-                                        (interpose " and"))]
-                     (println ignored))
-                   (when (not (empty? ranges))
-                     (println " possibly due to a version range in")
-                     (doseq [n ranges]
-                       (println (message-for-version-range n))))
-                   (println)))
-               (walk-deps hierarchy
-                          print-dep))
+       (cond (= command ":tree")
+             (let [hierarchy (classpath/dependency-hierarchy
+                              :dependencies (update-in project [:pedantic?]
+                                                       #(or % :warn)))]
+               (walk-deps hierarchy print-dep))
              (= command ":verify")
              (if (user/gpg-available?)
                (walk-deps (classpath/dependency-hierarchy :dependencies project)
