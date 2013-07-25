@@ -13,9 +13,9 @@ first message to that address will subscribe you without being posted.
 
 Please report issues on the
 [GitHub issue tracker](https://github.com/technomancy/leiningen/issues)
-or the mailing list. Personal email addresses are inappropriate for
-bug reports. Simpler issues appropriate for first-time contributors
-looking to help out are tagged "newbie".
+or the mailing list. Sending bug reports to personal email addresses
+is inappropriate. Simpler issues appropriate for first-time
+contributors looking to help out are tagged "newbie".
 
 Patches are preferred as patches from `git format-patch` on the
 mailing list or as GitHub pull requests. Please use topic branches
