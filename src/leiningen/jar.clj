@@ -171,7 +171,7 @@ propagated to the compilation phase and not stripped out."
       (update-in project [:aot] conj (:main project))
       project)))
 
-(defn preprocess-project [project & [main]]
+(defn- preprocess-project [project & [main]]
   (-> project
     (project/unmerge-profiles [:default])
     (project/merge-profiles [:provided])

@@ -4,20 +4,26 @@
             [clojure.java.shell :refer [sh]]
             [leiningen.test.helper :refer [sample-no-aot-project
                                            provided-project]])
-  (:import (java.util.zip ZipFile)))
+  (:import (java.io File)
+           (java.util.zip ZipFile)))
 
 (deftest test-uberjar
-  (let [filename (str "test_projects/sample_no_aot/target/"
+  (uberjar sample-no-aot-project)
+  ;; /uberjar+provided/ is there as a placeholder until #1260 is fixed?
+  (let [filename (str "test_projects/sample_no_aot/target/uberjar+provided/"
                       "nomnomnom-0.5.0-SNAPSHOT-standalone.jar")
-        _ (uberjar sample-no-aot-project)
-        entries (->> (ZipFile. filename)
-                    .entries
-                    enumeration-seq
-                    (map (memfn getName))
-                    set)]
-    (is (entries "nom/nom/nom.clj"))
-    (is (entries "org/codehaus/janino/Compiler$1.class"))
-    (is (not (some #(re-find #"dummy" %) entries)))))
+        uberjar-file (File. filename)]
+    (is (= true (.exists uberjar-file)))
+    (when (.exists uberjar-file)
+      (let [entries (->> (ZipFile. uberjar-file)
+                         .entries
+                         enumeration-seq
+                         (map (memfn getName))
+                         set)]
+        (.deleteOnExit uberjar-file)
+        (is (entries "nom/nom/nom.clj"))
+        (is (entries "org/codehaus/janino/Compiler$1.class"))
+        (is (not (some #(re-find #"dummy" %) entries)))))))
 
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided
