@@ -174,7 +174,6 @@ propagated to the compilation phase and not stripped out."
 (defn- preprocess-project [project & [main]]
   (-> project
     (project/unmerge-profiles [:default])
-    (project/merge-profiles [:provided])
     (merge (select-keys project whitelist-keys))
     (add-main main)))
 
@@ -230,7 +229,7 @@ function in that namespace will be used as the main-class for executable jar.
 With an argument, the jar will be built with an alternate main."
   ([project main]
      (let [project (preprocess-project project main)]
-       (eval/prep project)
+       (eval/prep (project/merge-profiles project [:provided]))
        (let [jar-file (get-jar-filename* project nil)]
          (write-jar project jar-file (filespecs project))
          (main/info "Created" (str jar-file))
