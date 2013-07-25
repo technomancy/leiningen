@@ -326,7 +326,9 @@
 (defn profile-scope-target-path [project profiles]
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
     (if (:target-path project)
-      (update-in project [:target-path] format (s/join "+" (map n profiles)))
+      (update-in project [:target-path] format
+                 (s/join "+" (if (not= [:default] profiles)
+                               (map n profiles))))
       project)))
 
 (defn target-path-subdirs [{:keys [target-path] :as project} key]
