@@ -355,6 +355,7 @@
 ;; DEBUG - increased verbosity
 ;; LEIN_HOME - directory in which to look for user settings
 ;; LEIN_SNAPSHOTS_IN_RELEASE - allow releases to depend on snapshots
+;; LEIN_JVM_OPTS - tweak speed of plugins or fix compatibility with old Java versions
 ;; LEIN_REPL_HOST - interface on which to connect to nREPL server
 ;; LEIN_REPL_PORT - port on which to start or connect to nREPL server
 ;; LEIN_OFFLINE - equivalent of :offline? true but works for plugins
