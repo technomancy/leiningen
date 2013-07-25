@@ -149,8 +149,8 @@
         suffix (if classifier (str "-" (name classifier) ".jar") ".jar")
         ;; TODO: splice in version to :jar-name
         name-kw (if (= classifier :standalone) :uberjar-name :jar-name)
-        jar-name (or (project name-kw)
-                     (str (:name project) "-" (:version project) suffix))]
+        jar-name (or (project name-kw) (str (:name project) "-%s" suffix))
+        jar-name (format jar-name (:version project))]
     (str (io/file target jar-name))))
 
 (def whitelist-keys
