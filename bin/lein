@@ -45,6 +45,26 @@ function add_path {
     done
 }
 
+function self_install {
+  if [ -r "$LEIN_JAR" ]; then
+    echo "The self-install jar already exists at $LEIN_JAR."
+    echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
+    exit 1
+  fi
+  echo "Downloading Leiningen to $LEIN_JAR now..."
+  mkdir -p "$(dirname "$LEIN_JAR")"
+  LEIN_URL="https://leiningen.s3.amazonaws.com/downloads/leiningen-$LEIN_VERSION-standalone.jar"
+  $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
+  if [ $? == 0 ]; then
+      # TODO: checksum
+      mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+  else
+      rm "$LEIN_JAR.pending" 2> /dev/null
+      download_failed_message "$LEIN_URL"
+      exit 1
+  fi
+}
+
 if [ `id -u` -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
@@ -152,7 +172,7 @@ else # Not running from a checkout
     BOOTCLASSPATH="-Xbootclasspath/a:$LEIN_JAR"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        "$0" self-install
+        self_install
     fi
 fi
 
@@ -211,23 +231,9 @@ if [ "$1" = "self-install" ]; then
         echo "Running self-install from a checkout is not supported."
         echo "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
         exit 1
-    elif [ -r "$LEIN_JAR" ]; then
-      echo "The self-install jar already exists at $LEIN_JAR."
-      echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
-      exit 1
     fi
-    echo "Downloading Leiningen to $LEIN_JAR now..."
-    mkdir -p "$(dirname "$LEIN_JAR")"
-    LEIN_URL="https://leiningen.s3.amazonaws.com/downloads/leiningen-$LEIN_VERSION-standalone.jar"
-    $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
-    if [ $? == 0 ]; then
-        # TODO: checksum
-        mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
-    else
-        rm "$LEIN_JAR.pending" 2> /dev/null
-        download_failed_message "$LEIN_URL"
-        exit 1
-    fi
+    echo "Manual self-install is deprecated; it will run automatically when necessary."
+    self_install
 elif [ "$1" = "upgrade" ]; then
     if [ "$LEIN_DIR" != "" ]; then
         echo "The upgrade task is not meant to be run from a checkout."
@@ -257,11 +263,8 @@ elif [ "$1" = "upgrade" ]; then
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
                 if [ $? == 0 ]; then
-                    mv "$TARGET" "$SCRIPT" \
-                        && chmod +x "$SCRIPT" \
-                        && echo && "$SCRIPT" self-install \
-                        && echo && echo "Now running" `$SCRIPT version`
-                    exit $?
+                    mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
+                    exec "$SCRIPT" version
                 else
                     download_failed_message "$LEIN_SCRIPT_URL"
                 fi;;
