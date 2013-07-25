@@ -77,7 +77,8 @@ With an argument, the uberjar will be built with an alternate main.
 The namespace you choose as main should have :gen-class in its ns form
 as well as defining a -main function."
   ([project main]
-     (let [project (project/merge-profiles project [:uberjar])
+     (let [standalone-filename (jar/get-jar-filename project :standalone)
+           project (project/merge-profiles project [:uberjar])
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))
            [_ jar] (try (first (jar/jar project main))
@@ -85,8 +86,7 @@ as well as defining a -main function."
                           (when main/*debug*
                             (.printStackTrace e))
                           (main/abort "Uberjar aborting because jar failed:"
-                                      (.getMessage e))))
-           standalone-filename (jar/get-jar-filename project :standalone)]
+                                      (.getMessage e))))]
        (with-open [out (-> standalone-filename
                            (FileOutputStream.)
                            (ZipOutputStream.))]
