@@ -64,11 +64,11 @@
 
 (deftest ^:online test-cleared-transitive-aot-by-regexes
   (compile (assoc sample-project :clean-non-project-classes [#"core"])
-           "nom.nom.nom")
+           "nom.nom.check")
   (let [classes (seq (.list (file "test_projects" "sample" "target"
                                   "classes" "nom" "nom")))]
-    (doseq [r [#"nom\$fn__\d+.class" #"nom\$loading__\d+__auto__.class"
-               #"nom\$_main.class" #"nom.class" #"nom__init.class"]]
+    (doseq [r [#"check\$loading__\d+__auto__.class"
+               #"check\$_main.class" #"check.class" #"check__init.class"]]
       (is (some (partial re-find r) classes) (format "missing %s" r))))
   (is (not (.exists (file "test_projects" "sample" "target"
                           "classes" "sample2" "core.class"))))

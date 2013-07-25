@@ -255,11 +255,23 @@
   :java-source-paths ["src/main/java"] ; Java source is stored separately.
   :test-paths ["test" "src/test/clojure"]
   :resource-paths ["src/main/resource"] ; Non-code files included in classpath/jar.
-  :compile-path "target/classes"   ; For .class files.
-  :native-path "src/native"        ; Where to extract native dependencies.
-  :target-path "target/"           ; Where to place the project's jar file.
-  :jar-name "sample.jar"           ; Name of the jar produced by 'lein jar'.
-  :uberjar-name "sample-standalone.jar" ; As above for uberjar.
+  ;; All generated files will be placed here. In order to avoid cross-profile
+  ;; contamination, by default this includes the names of all active profiles.
+  ;; Putting %s in your custom :target-path will splice in the profile names.
+  :target-path "target/"
+  ;; Directory in which to place AOT-compiled files. Including %s will
+  ;; splice the :target-path into this value.
+  :compile-path "%s/classy-files"
+  ;; Directory in which to extract native components from inside dependencies.
+  ;; Including %s will splice the :target-path into this value. Note that this
+  ;; is not where to *look* for existing native libraries; use :jvm-opts with
+  ;; -Djava.library.path=... instead for that.
+  :native-path "%s/bits-n-stuff"
+  ;; Name of the jar file produced. Will be placed inside :target-path.
+  ;; Including %s will splice the project version into the filename.
+  :jar-name "sample.jar"
+  ;; As above, but for uberjar.
+  :uberjar-name "sample-standalone.jar"
   ;; Options to pass to java compiler for java source,
   ;; exactly the same as command line arguments to javac.
   :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
