@@ -153,8 +153,8 @@
   {:source-paths ["src"]
    :resource-paths ["resources"]
    :test-paths ["test"]
-   :native-path "target/native"
-   :compile-path "target/classes"
+   :native-path "%s/native"
+   :compile-path "%s/classes"
    :target-path "target/%s"
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
@@ -328,6 +328,11 @@
     (if (:target-path project)
       (update-in project [:target-path] format (s/join "+" (map n profiles)))
       project)))
+
+(defn target-path-subdirs [{:keys [target-path] :as project} key]
+  (if (project key)
+    (update-in project [key] format target-path)
+    project))
 
 ;; # Profiles: basic merge logic
 
@@ -589,8 +594,10 @@
         normalized-profiles (map normalize-values profiles)]
     (-> project
         (apply-profiles normalized-profiles)
-        (absolutize-paths)
         (profile-scope-target-path include-profiles)
+        (target-path-subdirs :compile-path)
+        (target-path-subdirs :native-path)
+        (absolutize-paths)
         (add-global-exclusions)
         (vary-meta merge {:without-profiles project
                           :included-profiles include-profiles

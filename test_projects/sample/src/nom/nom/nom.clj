@@ -1,6 +1,5 @@
 (ns nom.nom.nom
   (:import [org.jdom.adapters CrimsonDOMAdapter])
-  (:require [sample2.core])
   (:gen-class))
 
 (when-not (= "1.3.0" (clojure-version))

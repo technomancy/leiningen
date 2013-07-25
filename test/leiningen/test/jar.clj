@@ -39,7 +39,6 @@
 (deftest ^:online test-no-deps-jar
   (let [[coord jar-file] (first
                           (jar (dissoc sample-project :dependencies :main)))]
-    (is (not (number? jar-file)))
     (is (.exists (io/file jar-file)))
     (is (= coord [:extension "jar"]))))
 
