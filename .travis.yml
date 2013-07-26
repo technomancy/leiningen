@@ -6,5 +6,4 @@ notifications:
 jdk:
   - openjdk6
   - openjdk7
-  # currently needs some work to pass. MK.
-  # - oraclejdk7
+  - oraclejdk7
