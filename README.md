@@ -29,15 +29,15 @@ which means the first run will take longer.
 
 ### Windows
 
-There is a
-[custom installer](http://leiningen-win-installer.djpowell.net/) which
+There is
+[an installer](http://leiningen-win-installer.djpowell.net/) which
 will handle downloading and placing Leiningen and its dependencies.
 
-You can also put
+The manual method of putting
 [the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
-on your `PATH` and run `lein self-install`. If you have
-[Cygwin](http://www.cygwin.com/) you should be able to use the shell
-script above rather than the batch file.
+on your `PATH` and running `lein self-install` should still work for
+most users. If you have [Cygwin](http://www.cygwin.com/) you should be
+able to use the shell script above rather than the batch file.
 
 ## Basic Usage
 
