@@ -9,8 +9,7 @@
 
 (deftest test-uberjar
   (uberjar sample-no-aot-project)
-  ;; /uberjar+provided/ is there as a placeholder until #1260 is fixed?
-  (let [filename (str "test_projects/sample_no_aot/target/uberjar+provided/"
+  (let [filename (str "test_projects/sample_no_aot/target/"
                       "nomnomnom-0.5.0-SNAPSHOT-standalone.jar")
         uberjar-file (File. filename)]
     (is (= true (.exists uberjar-file)))
