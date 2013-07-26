@@ -1,4 +1,3 @@
-<!-- TODO update for with-profile +/- syntax -->
 # Profiles
 
 In Leiningen 2.x you can change the configuration of your project by
@@ -9,9 +8,9 @@ available in every project you hack on without modifying every single
 project.clj you use.
 
 By default the `:dev`, `:provided`, `:user`, and `:base` profiles are
-activated for each task, but the settings they provide are not
-propagated downstream to projects that depend upon yours. Each profile
-is defined as a map which gets merged into your project map.
+activated for each task, but their settings are not propagated
+downstream to projects that depend upon yours. Each profile is defined
+as a map which gets merged into your project map.
 
 You can place any arbitrary `defproject` entries into a given profile
 and they will be merged into the project map when that profile is
@@ -25,7 +24,7 @@ development and a dependency upon "midje" that's only used for tests.
   :description "A project for doing things."
   :dependencies [[org.clojure/clojure "1.4.0"]]
   :profiles {:dev {:resource-paths ["dummy-data"]
-                   :dependencies [[midje "1.4.0"]]}})
+                   :dependencies [[expectations "1.4.41"]]}})
 ```
 
 
@@ -36,21 +35,22 @@ within the project root. Profiles specified in `profiles.clj` will override
 profiles in `project.clj`, so this can be used for project-specific overrides
 that you don't want committed in version control.
 
-Global profiles can also be specified in `~/.lein/profiles.clj`. These will be
+User-wide profiles can also be specified in `~/.lein/profiles.clj`. These will be
 available in all projects managed by Leiningen, though those profiles will be
 overridden by profiles of the same name specified in the project.
 
-You can also define global profiles within `clj`-files inside
-`~/.lein/profiles.d`. The semantics within such files differ slightly from other
-profile files: The profile map is defined within the file, and the name of the
-profile is named after the file itself (without the `.clj` part). Defining the
-same global profile in both `~/.lein/profiles.clj` and in `~/.lein/profiles.d`
-is considered an error.
+You can also define user-wide profiles within `clj`-files inside
+`~/.lein/profiles.d`. The semantics within such files differ slightly
+from other profile files: rather than a map of maps, the profile map
+is the top-level within the file, and the name of the profile comes
+from the file itself (without the `.clj` part). Defining the same
+user-wide profile in both `~/.lein/profiles.clj` and in
+`~/.lein/profiles.d` is considered an error.
 
-The `:user` profile is separate from `:dev`; the latter is intended to be
-specified in the project itself. In order to avoid collisions, the project
-should never define a `:user` profile, nor should a global `:dev` profile be
-defined. Use the `show-profiles` task to see what's available.
+The `:user` profile is separate from `:dev`; the latter is intended to
+be specified in the project itself. In order to avoid collisions, the
+project should never define a `:user` profile, nor should a user-wide
+`:dev` profile be defined. Use the `show-profiles` task to list them.
 
 If you want to access dependencies during development time for any
 project place them in your `:user` profile. Your
@@ -61,28 +61,28 @@ project place them in your `:user` profile. Your
         :dependencies [[slamhound "1.3.1"]]}}
 ```
 
+## Merging
+
 Profiles are merged by taking each key in the project map or profile
 map, combining the value if it's a collection and replacing it if it's
-not. Profiles specified earlier take precedence when replacing. The
-dev profile takes precedence over user by default. Maps are merged
-recursively, sets are combined with `clojure.set/union`, and
-lists/vectors are concatenated. You can add hints via metadata that a
-given value should take precedence (`:replace`) or defer to values
-from a different profile (`:displace`) if you want to override this
-logic:
+not. Profiles specified later take precedence when replacing, just
+like the `clojure.core/merge` function. The dev profile takes
+precedence over user by default. Maps are merged recursively, sets are
+combined with `clojure.set/union`, and lists/vectors are
+concatenated. You can add hints via metadata that a given value should
+take precedence (`:replace`) or defer to values from a different
+profile (`:displace`) if you want to override this logic:
 
 ```clj
 {:profiles {:dev {:prep-tasks ^:replace ["clean" "compile"]
                   :aliases ^:displace {"launch" "run"}}}}
 ```
 
-The exception to this merge logic is that plugins and dependencies
+The exception to this merge logic is that `:plugins` and `:dependencies`
 have custom de-duplication logic since they must be specified as
 vectors even though they behave like maps (because it only makes sense
 to have a single version of a given dependency present at once). The
 replace/displace metadata hints still apply though.
-
-## Activating Profiles
 
 Another use of profiles is to test against various sets of dependencies:
 
@@ -96,8 +96,10 @@ Another use of profiles is to test against various sets of dependencies:
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0-beta1"]]}})
 ```
 
-To activate other profiles for a given run, use the `with-profile`
-higher-order task:
+## Activating Profiles
+
+To activate a different set of profiles for a given task, use the
+`with-profile` higher-order task:
 
     $ lein with-profile 1.3 test :database
 
@@ -108,6 +110,18 @@ Multiple profiles may be combined with commas:
 Multiple profiles may be executed in series with colons:
 
     $ lein with-profile 1.3:1.4 test :database
+
+The above invocations activate the given profiles in place of the
+defaults. To activate a profile in addition to the defaults, prepend
+it with a `+`:
+
+    $ lein with-profile +server run
+
+You can also use `-` to deactivate a profile.
+
+Activating different profiles will change your `:target-path` so that
+elements which come from profiles don't spill over and contaminate
+other profiles.
 
 ## Composite Profiles
 
@@ -125,7 +139,7 @@ This can be used to avoid duplication:
 Composite profiles are used by Leiningen internally for the `:default`
 profile, which is the profile used if you don't change it using
 `with-profile`. The `:default` profile is defined to be a composite of
-`[:dev :provided :user :base]`, but you can change this in your
+`[:base :system :user :provided :dev]`, but you can change this in your
 `project.clj` just like any other profile.
 
 ## Debugging
@@ -148,8 +162,10 @@ plugin:
      :description "Pretty-print a representation of the project map."}
 
 In order to prevent profile settings from being propagated to other
-projects that depend upon yours, the `:default` profiles are removed from
-your project when generating the pom, jar, and uberjar. Profiles
-activated through an explicit `with-profile` invocation will be
-preserved. The `repl` and `test` tasks use their own profile in order
-to inject needed functionality.
+projects that depend upon yours, the `:default` profiles are removed
+from your project when generating the pom, jar, and uberjar, and an
+`:uberjar` profile, if present, is included when creating
+uberjars. (This can be useful if you want to specify a `:main`
+namespace for uberjar use without triggering AOT during regular
+development.) Profiles activated through an explicit `with-profile`
+invocation will be preserved.
