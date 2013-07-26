@@ -130,7 +130,7 @@
       @(promise))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
-           `(try (require '~init-ns)
+           `(try (doto '~init-ns require in-ns)
                  (catch Exception e# (println e#) (ns ~init-ns))))
         ~@(for [n (init-requires project)]
             `(try (require ~n)
