@@ -7,3 +7,6 @@ jdk:
   - openjdk6
   - openjdk7
   - oraclejdk7
+matrix:
+  allow_failures:
+    - oraclejdk7
