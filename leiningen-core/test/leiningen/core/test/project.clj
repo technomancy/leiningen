@@ -516,3 +516,22 @@
                 [["central" {:url "http://repo1.maven.org/maven2/"
                              :snapshots false}]
                  ["clojars" {:url "https://clojars.org/repo/"}]]}})))))))
+
+
+
+(deftest test-read-auto-profiles
+  (let [actual (read (.getFile (io/resource "autoprofiles.clj")))]
+
+    (testing "Profiles with truthy `:active?` expressions/functions must be active"
+      (is (:literal_true actual))
+      (is (:expression_true actual))
+      (is (:fn_true actual)))
+
+    (testing "Profiles with falsy or missing `:active?` expressions must not be active"
+      (is (not (:no_activation actual)))
+      (is (not (:literal_false actual)))
+      (is (not (:expression_false actual)))
+      (is (not (:fn_false actual))))
+
+    (testing "The `:active?` entry must NOT leak out of the profiles and into the project"
+      (is (nil? (:active? actual))))))
