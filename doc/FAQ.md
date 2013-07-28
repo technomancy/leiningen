@@ -46,18 +46,6 @@
   a listing of all the dependencies that will be used and their
   versions, use `lein deps :tree`. To get the classpath use `lein classpath`.
 
-**Q:** What does `java.lang.NoSuchMethodError: clojure.lang.RestFn.<init>(I)V` mean?  
-**A:** It means you have some code that was AOT (ahead-of-time)
-  compiled with a different version of Clojure than the one you're
-  currently using. If it persists after running `lein clean` then it
-  is a problem with your dependencies. Note that for
-  your own project that AOT compilation in Clojure is much less
-  important than it is in other languages. There are a few
-  language-level features that must be AOT-compiled to work, generally
-  for Java interop. If you are not using any of these features, you
-  should not AOT-compile your project if other projects may depend
-  upon it.
-
 **Q:** I specified a dependency on version X but am getting version Y; what's up?  
 **A:** One of your dependencies' dependencies has declared a
   dependency on a hard version range, which overrides your "soft"
@@ -92,7 +80,7 @@
 **A:** The wiki has a page covering
   [ways to improve startup time](https://github.com/technomancy/leiningen/wiki/Faster).
 
-**Q:** What if I care more about long-term performance than startup time?
+**Q:** What if I care more about long-term performance than startup time?  
 **A:** Leiningen 2.1.0 onward get a speed boost by disabling optimized
   compilation (which only benefits long-running processes).  This can
   negatively affect performance in the long run, or lead to inaccurate
