@@ -1,5 +1,15 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.3.0 / ???
+
+* Allow aborting on ambiguous version resolution with `:pedantic`. (Nelson Morris, Phil Hagelberg)
+* Scope `:compile-path` and `:native-path` under profile-specific target dir. (Phil Hagelberg)
+* Fix bug where uberjar filename would include provided profile. (Phil Hagelberg)
+* Deprecate explicit `self-install` command. (Phil Hagelberg)
+* Fix bugs around long lines in jar manifests. (Leon Barrett)
+* Support nested checkout dependencies. (Phil Hagelberg)
+* Fix bugs around `:filespecs`. (Jean Niklas L'orange)
+
 ## 2.2.0 / 2013-05-28
 
 * Support setting custom welcome message when repl connects. (Colin Jones)
