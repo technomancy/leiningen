@@ -164,4 +164,5 @@
             (io/copy content (io/file path))
             (when (:executable options)
               (.setExecutable path true)))))
-      (println "Could not create directory " dir ". Maybe it already exists?"))))
+      (main/info (str "Could not create directory " dir
+                      ". Maybe it already exists?")))))
