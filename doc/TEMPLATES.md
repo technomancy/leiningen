@@ -30,7 +30,7 @@ one, named "foo.clj". You can see it referenced in
 `src/leiningen/new/liquid_cool.clj`, right underneath the
 `->files data` line.
 
-You can delete `foo.clj` if you like (and it's corresponding line in
+You can delete `foo.clj` if you like (and its corresponding line in
 `liquid_cool.clj`), and start populating that
 `src/leiningen/new/liquid_cool` directory with the files you wish to be
 part of your template. For everything you add, make sure the
@@ -44,7 +44,43 @@ lein-newnew will pick it up and you'll be able to test it. However, if
 you want to use it on your system without putting it on clojars, just
 `lein install` your template.
 
-## Distributing your template
+## Templating System
+
+lein-newnew uses [stencil][] for templating, which implements the
+language-agnostic templating system [Mustache][]. All the available tag types
+can be found in the [Mustache manual][mustache-manual]; we will only go through
+the most common tag type here.
+
+Suppose we want to add in a standard markdown readme file where the input name
+is the main header of the file. To be able to do so, we must do two things:
+Ensure that the input name is contained within the `data` mapped to the key X,
+and that we have a template file which looks up the key X by wrapping it in
+double mustaches like so: `{{X}}`. As for our input name, `data` already
+contains the line `:name name`, which means we can lookup the input name by
+writing `{{name}}` in the template file. To try it out, save the following
+contents in the file `src/leiningen/new/liquid_cool/README.md`:
+
+```markdown
+# {{name}}
+
+This is our readme!
+```
+
+And add the following line right underneath the `->files data` line:
+
+```clj
+["README.md" (render "README.md" data)]
+```
+
+Now, if we for instance say `lein new liquid-cool liquid-cool-app`, the newly
+generated project will contain a file named `README.md` where the header is
+`liquid-cool-app`.
+
+[stencil]: https://github.com/davidsantiago/stencil
+[Mustache]: http://mustache.github.io/
+[mustache-manual]: http://mustache.github.io/mustache.5.html
+
+## Distributing your Template
 
 Templates are just maven artifacts. Particularly, they need only be on
 the classpath when `lein new` is called. So, as a side-effect, you

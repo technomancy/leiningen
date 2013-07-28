@@ -393,13 +393,6 @@ plugin projects; using `.lein-classpath` is mainly appropriate for
 experimentation or cases when there isn't enough time to create a
 proper plugin.
 
-## Templates
-
-You can also publish templates for generating project skeletons that
-work with `lein new`. See
-[the documentation for the new task](https://github.com/Raynes/lein-newnew/)
-for details on how to build templates.
-
 ## Have Fun
 
 Please add your plugin to [the list on the

@@ -100,6 +100,7 @@ Leiningen documentation is organized as a number of guides:
  * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
  * [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+ * [Writing Templates](https://github.com/technomancy/leiningen/blob/stable/doc/TEMPLATES.md)
  * [FAQ](https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md)
  * [Contributing](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md)
 
