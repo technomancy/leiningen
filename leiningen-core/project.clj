@@ -10,7 +10,7 @@
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.2.0"]
                  [org.apache.maven.wagon/wagon-http "2.4"]
-                 [com.hypirion/io "0.2.0-RC1"]
+                 [com.hypirion/io "0.3.0"]
                  [pedantic "0.1.0"]]
   ;; until the pomegratate snapshot is released:
   :repositories [["sonatype"
