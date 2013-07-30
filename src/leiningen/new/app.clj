@@ -23,4 +23,5 @@
              [".gitignore" (render "gitignore" data)]
              ["src/{{nested-dirs}}.clj" (render "core.clj" data)]
              ["test/{{nested-dirs}}_test.clj" (render "test.clj" data)]
+             ["LICENSE" (render "LICENSE" data)]
              "resources")))
