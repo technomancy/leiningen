@@ -6,7 +6,6 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [bultitude "0.2.2"]
                  [classlojure "0.6.6"]
-                 [useful "0.8.6"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.2.0"]
                  [org.apache.maven.wagon/wagon-http "2.4"]

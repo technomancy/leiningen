@@ -10,12 +10,19 @@
             [leiningen.core.utils :as utils]
             [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
-            [leiningen.core.classpath :as classpath]
-            [useful.fn :refer [fix]]
-            [useful.seq :refer [update-first find-first]]
-            [useful.map :refer [update update-each map-vals]])
+            [leiningen.core.classpath :as classpath])
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader)))
+
+(defn- update-each-contained [m keys f & args]
+  (reduce (fn [m k]
+            (if (contains? m k)
+              (apply update-in m [k] f args)
+              m)) m keys))
+
+(defn- update-first [coll pred f]
+  (let [[pre [existing & post]] (split-with (complement pred) coll)]
+    (concat pre [(f existing)] post)))
 
 ;; # Project definition and normalization
 
@@ -33,7 +40,7 @@
   "Transform an exclusion vector into a map that is easier to combine with
   meta-merge. This allows a profile to override specific exclusion options."
   [spec]
-  (if-let [[id & {:as opts}] (fix spec symbol? vector)]
+  (if-let [[id & {:as opts}] (if (symbol? spec) [spec] spec)]
     (-> opts
         (merge (artifact-map id))
         (with-meta (meta spec)))))
@@ -54,7 +61,7 @@
     (-> opts
         (merge (artifact-map id))
         (assoc :version version)
-        (update :exclusions #(if % (map exclusion-map %)))
+        (update-each-contained [:exclusions] (partial map exclusion-map))
         (with-meta (meta dep)))))
 
 (defn dependency-vec
@@ -63,7 +70,7 @@
   [dep]
   (if-let [{:keys [artifact-id group-id version]} dep]
     (-> dep
-        (update :exclusions #(if % (map exclusion-vec %)))
+        (update-each-contained [:exclusions] (partial map exclusion-vec))
         (dissoc :artifact-id :group-id :version)
         (->> (apply concat)
              (into [(symbol group-id artifact-id) version]))
@@ -182,7 +189,7 @@
   "Normalizes a repository to the canonical repository form."
   [[id opts :as repo]]
   (with-meta
-    [id (fix opts string? (partial hash-map :url))]
+    [id (if (string? opts) {:url opts} opts)]
     (meta repo)))
 
 (defn- normalize-repos
@@ -192,14 +199,12 @@
     (mapv normalize-repo repos)
     (meta repos)))
 
-(defn- add-repo [repos [id opts :as repo]]
+(defn- reduce-repo-step [repos [id opts :as repo]]
   (update-first repos #(= id (first %))
                 (fn [[_ existing :as original]]
                   (let [opts (if (keyword? opts)
-                               (-> (find-first #(= (first %)
-                                                   (name opts))
-                                               repos)
-                                   second)
+                               (-> (filter #(= (first %) (name opts)) repos)
+                                   first second)
                                opts)
                         repo (with-meta [id opts] (meta repo))]
                     (if (different-priority? repo original)
@@ -208,10 +213,10 @@
                         (merge (meta original) (meta repo))))))))
 
 (def empty-dependencies
-  (with-meta [] {:reduce add-dep}))
+  (with-meta [] {:reduce reduce-dep-step}))
 
 (def empty-repositories
-  (with-meta [] {:reduce add-repo}))
+  (with-meta [] {:reduce reduce-repo-step}))
 
 (def empty-paths
   (with-meta [] {:prepend true}))
@@ -220,27 +225,22 @@
   (with-meta
     [["central" {:url "http://repo1.maven.org/maven2/" :snapshots false}]
      ["clojars" {:url "https://clojars.org/repo/"}]]
-    {:reduce add-repo}))
+    {:reduce reduce-repo-step}))
 
 (def deploy-repositories
   (with-meta
     [["clojars" {:url "https://clojars.org/repo/"
                  :password :gpg :username :gpg}]]
-    {:reduce add-repo}))
-
-(defn update-if-in-map
-  "Like update-each, but will only update if the key is within the map."
-  [m ks f & args]
-  (apply update-each m (filter (partial contains? m) ks) f args))
+    {:reduce reduce-repo-step}))
 
 (defn normalize-values
   "Transform values within a project or profile map to normalized values, such
   that internal functions can assume that the values are already normalized."
   [map]
   (-> map
-      (update-if-in-map [:repositories :deploy-repositories
-                         :mirrors :plugin-repositories] normalize-repos)
-      (update-if-in-map [:profiles] map-vals normalize-values)))
+      (update-each-contained [:repositories :deploy-repositories
+                              :mirrors :plugin-repositories] normalize-repos)
+      (update-each-contained [:profiles] utils/map-vals normalize-values)))
 
 (defn make
   ([project project-name version root]
@@ -289,8 +289,8 @@
 
 (defn- add-exclusions [exclusions dep]
   (dependency-vec
-   (update (dependency-map dep) :exclusions
-           into (map exclusion-map exclusions))))
+   (update-in (dependency-map dep) [:exclusions]
+              into (map exclusion-map exclusions))))
 
 (defn- add-global-exclusions [project]
   (let [{:keys [dependencies exclusions]} project]
