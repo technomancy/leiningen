@@ -177,7 +177,7 @@
       (select-keys [:classifier :extension])
       (assoc :id id)))
 
-(defn- add-dep [deps dep]
+(defn- reduce-dep-step [deps dep]
   (let [k (dep-key dep)]
     (update-first deps #(= k (dep-key %))
                   (fn [existing]
