@@ -93,3 +93,5 @@
              "NUL"
              "/dev/null")))
 
+(defn map-vals [m f & args]
+  (zipmap (keys m) (map #(apply f % args) (vals m))))

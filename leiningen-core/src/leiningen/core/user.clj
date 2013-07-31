@@ -3,7 +3,6 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.java.shell :as shell]
-            [useful.map :refer [map-vals]]
             [leiningen.core.utils :as utils])
   (:import (java.util.regex Pattern)))
 
@@ -67,8 +66,8 @@
    (fn [dir]
      (try
        (if-let [contents (utils/read-file (io/file dir "profiles.clj"))]
-         (map-vals contents with-meta
-                   {:origin (.getAbsolutePath (io/file dir "profiles.clj"))}))
+         (utils/map-vals contents with-meta
+                         {:origin (str (io/file dir "profiles.clj"))}))
        (catch Exception e
          (binding [*out* *err*]
            (println "Error reading profiles.clj from" dir)
