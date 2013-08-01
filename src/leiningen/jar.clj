@@ -122,26 +122,33 @@
 
 ;; TODO: change in 3.0; this is hideous
 (defn- filespecs [project]
-  (concat [{:type :bytes
-            :path (format "META-INF/maven/%s/%s/pom.xml"
-                          (:group project) (:name project))
-            :bytes (.getBytes (pom/make-pom project))}
-           {:type :bytes
-            :path (format "META-INF/maven/%s/%s/pom.properties"
-                          (:group project) (:name project))
-            :bytes (.getBytes (pom/make-pom-properties project))}
-           {:type :bytes :path (format "META-INF/leiningen/%s/%s/project.clj"
-                                       (:group project) (:name project))
-            :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}
-           {:type :bytes :path "project.clj"
-            :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
-          [{:type :path :path (:compile-path project)}
-           {:type :paths :paths (:resource-paths project)}]
-          (if-not (:omit-source project)
-            [{:type :paths
-              :paths (set (concat (:source-paths project)
-                                  (:java-source-paths project)))}])
-          (:filespecs project)))
+  (let [root-files (.list (io/file (:root project)))
+        readmes (filter (partial re-find #"^(?i)readme") root-files)
+        licenses (filter (partial re-find #"^(?i)license") root-files)
+        scope (partial format "META-INF/leiningen/%s/%s/%s"
+                       (:group project) (:name project))]
+    (concat [{:type :bytes
+              :path (format "META-INF/maven/%s/%s/pom.xml"
+                            (:group project) (:name project))
+              :bytes (.getBytes (pom/make-pom project))}
+             {:type :bytes
+              :path (format "META-INF/maven/%s/%s/pom.properties"
+                            (:group project) (:name project))
+              :bytes (.getBytes (pom/make-pom-properties project))}
+             {:type :bytes :path (scope "project.clj")
+              :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}
+             {:type :bytes :path "project.clj"
+              :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
+            (for [doc (concat readmes licenses)]
+              {:type :bytes :path (scope doc)
+               :bytes (.getBytes (slurp (io/file (:root project) doc)))})
+            [{:type :path :path (:compile-path project)}
+             {:type :paths :paths (:resource-paths project)}]
+            (if-not (:omit-source project)
+              [{:type :paths
+                :paths (set (concat (:source-paths project)
+                                    (:java-source-paths project)))}])
+            (:filespecs project))))
 
 ;; Split out backwards-compatibility. Collapse into get-jar-filename for 3.0
 (defn get-classified-jar-filename [project classifier]

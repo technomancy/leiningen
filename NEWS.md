@@ -2,6 +2,8 @@
 
 ## 2.3.0 / ???
 
+* Place licenses and readmes into jars. (Phil Hagelberg)
+* Include LICENSE as separate file in templates. (Wolodja Wentland)
 * Allow aborting on ambiguous version resolution with `:pedantic`. (Nelson Morris, Phil Hagelberg)
 * Scope `:compile-path` and `:native-path` under profile-specific target dir. (Phil Hagelberg)
 * Fix bug where uberjar filename would include provided profile. (Phil Hagelberg)
