@@ -20,7 +20,7 @@
      (let [copy-meta# (fn [var# from-key# to-key#]
                         (if-let [x# (get (meta var#) from-key#)]
                           (alter-meta! var# #(-> % (assoc to-key# x#) (dissoc from-key#)))))
-           vars# (when (seq selectors#)
+           vars# (if (seq selectors#)
                    (->> namespaces#
                         (mapcat (comp vals ns-interns))
                         (remove (fn [var#]
@@ -32,8 +32,7 @@
                                                    (merge (-> var# meta :ns meta)
                                                           (assoc (meta var#) ::var var#))
                                                    args#)))
-                                        selectors#)))
-                        (doall)))
+                                        selectors#)))))
            copy# #(doseq [v# vars#] (copy-meta# v# %1 %2))]
        (copy# :test :leiningen/skipped-test)
        (try (func#)
@@ -88,7 +87,6 @@
                           (newline)
                           (println "lein test" (ns-name (:ns m#))))
                         (apply report# m# args#))))
-
                 summary# (binding [clojure.test/*test-out* *out*]
                            (~form-for-suppressing-unselected-tests selected-namespaces# ~selectors
                              #(apply ~'clojure.test/run-tests selected-namespaces#)))]
