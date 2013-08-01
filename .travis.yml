@@ -1,14 +1,12 @@
 language: clojure
 install: cd leiningen-core; lein install; lein classpath | tail -n 1 > .lein-bootstrap; cd ..
 script: bin/lein test
-branches:
-  only:
-    - 1.x
-    - master
 notifications:
   irc: "irc.freenode.org#leiningen"
 jdk:
   - openjdk6
   - openjdk7
-  # currently needs some work to pass. MK.
-  # - oraclejdk7
+  - oraclejdk7
+matrix:
+  allow_failures:
+    - oraclejdk7
