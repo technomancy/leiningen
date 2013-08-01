@@ -10,11 +10,16 @@
                 (f)
                 (.delete (java.io.File. tmp-dir "lein-test-ran"))))
 
-(defn ran? []
+(defn runs []
   (let [ran-file (io/file tmp-dir "lein-test-ran")]
     (and (.exists ran-file)
-         (set (for [ran (.split (slurp ran-file) "\n")]
-                (read-string ran))))))
+         (-> ran-file
+             (slurp)
+             (.split "\n")
+             (->> (map read-string)
+                  (frequencies))))))
+
+(defn ran? [] (-> (runs) keys set))
 
 (deftest test-project-selectors
   (is (= [:default :integration :int2 :no-custom]
@@ -23,35 +28,41 @@
 
 (deftest test-default-selector
   (test sample-no-aot-project ":default")
-  (is (= (ran?) #{:regular :int2 :not-custom})))
+  (is (= (ran?) #{:regular :int2 :not-custom :fixture})))
+
+(deftest fixture-runs-appropriate-number-of-times
+  ;; Issue #1269
+  (test sample-no-aot-project)
+  ;; Because three tests ran
+  (is (= 3 ((runs) :fixture))))
 
 (deftest test-no-args-defaults-to-default-selector
   (test sample-no-aot-project)
-  (is (= (ran?) #{:regular :int2 :not-custom})))
+  (is (= (ran?) #{:regular :int2 :not-custom :fixture})))
 
 (deftest test-basic-selector
   (test sample-no-aot-project ":integration")
-  (is (= (ran?) #{:integration :integration-ns})))
+  (is (= (ran?) #{:integration :integration-ns :fixture})))
 
 (deftest test-complex-selector
   (test sample-no-aot-project ":no-custom")
-  (is (= (ran?) #{:integration :integration-ns :regular :int2})))
+  (is (= (ran?) #{:integration :integration-ns :regular :int2 :fixture})))
 
 (deftest test-two-selectors
   (test sample-no-aot-project ":integration" ":int2")
-  (is (= (ran?) #{:integration :integration-ns :int2})))
+  (is (= (ran?) #{:integration :integration-ns :int2 :fixture})))
 
 (deftest test-override-namespace-selector
   (test sample-no-aot-project ":int2")
-  (is (= (ran?) #{:integration-ns :int2})))
+  (is (= (ran?) #{:integration-ns :int2 :fixture})))
 
 (deftest test-only-selector
   (test sample-no-aot-project ":only" "selectors/regular")
-  (is (= (ran?) #{:regular})))
+  (is (= (ran?) #{:regular :fixture})))
 
 (deftest test-namespace-argument
   (test sample-no-aot-project "selectors")
-  (is (= (ran?) #{:regular :not-custom :int2})))
+  (is (= (ran?) #{:regular :not-custom :int2 :fixture})))
 
 (deftest test-invalid-namespace-argument
   (is (.contains
@@ -62,4 +73,4 @@
 (deftest test-file-argument
   (let [file (io/file (first (:test-paths sample-no-aot-project)) "selectors.clj")]
     (test sample-no-aot-project (.getPath file)))
-  (is (= (ran?) #{:regular :not-custom :int2})))
+  (is (= (ran?) #{:regular :not-custom :int2 :fixture})))
