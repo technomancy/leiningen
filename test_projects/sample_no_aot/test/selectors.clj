@@ -8,6 +8,8 @@
     (with-open [w (writer file-name :append true)]
       (.write w (str t "\n")))))
 
+(use-fixtures :each (fn [t] (record-ran :fixture) (t)))
+
 (deftest ^{:integration true} integration-test
   (record-ran :integration)
   (is true))
