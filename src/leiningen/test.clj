@@ -16,16 +16,15 @@
      (leiningen.core.injected/add-hook
       (resolve 'clojure.test/test-var)
       (fn test-var-with-selector [test-var# var#]
-        (when (reduce (fn [acc# [selector# args#]]
-                        (let [sfn# (if (vector? selector#)
-                                     (second selector#)
-                                     selector#)]
-                          (or acc#
-                              (apply sfn#
-                                     (merge (-> var# meta :ns meta)
-                                            (assoc (meta var#) ::var var#))
-                                     args#))))
-                      false ~selectors)
+        (when (some (fn [[selector# args#]]
+                      (let [sfn# (if (vector? selector#)
+                                   (second selector#)
+                                   selector#)]
+                        (apply sfn#
+                               (merge (-> var# meta :ns meta)
+                                      (assoc (meta var#) ::var var#))
+                               args#)))
+                    ~selectors)
           (test-var# var#))))))
 
 (defn- form-for-select-namespaces [namespaces selectors]
@@ -39,15 +38,15 @@
   `(distinct
     (for [ns# ~ns-sym
           [_# var#] (ns-publics ns#)
-          :when (reduce (fn [acc# [selector# args#]]
-                          (or acc#
-                              (apply (if (vector? selector#)
-                                       (second selector#)
-                                       selector#)
-                                     (merge (-> var# meta :ns meta)
-                                            (assoc (meta var#) ::var var#))
-                                     args#)))
-                        false ~selectors)]
+          :when (some (fn [[selector# args#]]
+
+                        (apply (if (vector? selector#)
+                                 (second selector#)
+                                 selector#)
+                               (merge (-> var# meta :ns meta)
+                                      (assoc (meta var#) ::var var#))
+                               args#))
+                      ~selectors)]
       ns#)))
 
 (defn form-for-testing-namespaces
