@@ -60,8 +60,9 @@ accept a project as its first argument, but it will be allowed to be
 nil if it's run outside a project directory. If you are inside a
 project, Leiningen should change to the root of that project before
 launching the JVM, but some other tools using the `leiningen-core`
-library may not behave the same way, so for greatest portability check
-the `:root` key of the project map and work from there.
+library (IDE integration, etc) may not behave the same way, so for
+greatest portability check the `:root` key of the project map and work
+from there.
 
 ### Documentation
 
@@ -107,23 +108,29 @@ used to require a namespace earlier in order to avoid the
 
 Inside the `eval-in-project` call the project's own classpath will be
 active and Leiningen's own internals and plugins will not be
-available. However, it's easy to update the project map
-that's passed to `eval-in-project` to add in the dependencies you
-need. For example, this is done in the `lein-swank` plugin like so:
+available.
+
+You can modify the project map before you pass it into `eval-in-project`.
+However, it's recommended that you make your modifications by merging a
+profile in so users can override your changes if necessary. Use
+`leiningen.core.project/merge-profiles` to make your changes:
 
 ```clj
+(def swank-profile {:dependencies [['swank-clojure "1.4.3"]]})
+
 (defn swank
   "Launch swank server for Emacs to connect. Optionally takes PORT and HOST."
-  ([project port host & opts]
-     (eval-in-project (update-in project [:dependencies]
-                                 conj ['swank-clojure "1.4.0"])
-                      (swank-form project port host opts))))
+  [project port host & opts]
+    (let [profile (or (:swank (:profiles project)) swank-profile)
+          project (project/merge-profiles project [profile])]
+      (eval-in-project project 
+                       `(swank.core/-main ~@opts)
+                       '(require 'swank.core))))
 ```
 
-TODO: switch to profiles for this
-
 The code in the `swank-clojure` dependency is needed inside the
-project, so it's `conj`ed into the `:dependencies`.
+project, so it's declared in its own profile map and merged in. However,
+we defer to the `:swank` profile in the project map if it's present.
 
 Before `eval-in-project` is invoked, Leiningen must "prep" a project,
 usually by ensuring that all Java code and all necessary Clojure code
@@ -138,10 +145,9 @@ quickly if nothing has changed since the last run.
 ## Hooks
 
 You can modify the behaviour of built-in tasks to a degree using
-hooks. Hook functionality is provided by the [Robert
-Hooke](https://github.com/technomancy/robert-hooke) library. This is an
-implied dependency; as long as Leiningen 1.2 or higher is used it will
-be available.
+hooks. Hook functionality is provided by the
+[Robert Hooke](https://github.com/technomancy/robert-hooke) library,
+which is included with Leiningen.
 
 Inspired by clojure.test's fixtures functionality, hooks are functions
 which wrap other functions (often tasks) and may alter their behaviour
@@ -173,11 +179,12 @@ hook. See [the documentation for
 Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
 for more details.
 
-If you want your hooks to be loaded automatically with your plugin,
-activate them in a function called `plugin-name.plugin/hooks`. So in the
-example above the plugin is called `lein-integration`, and the function
-`lein-integration.plugin/hooks` is automatically called to activate hooks
-when the `lein-integration` plugin is loaded.
+If you want your hooks to be loaded automatically when other projects
+include your plugin, activate them in a function called
+`plugin-name.plugin/hooks`. So in the example above the plugin is
+called `lein-integration`, and the function
+`lein-integration.plugin/hooks` is automatically called to activate
+hooks when the `lein-integration` plugin is loaded.
 
 Hooks can also be loaded manually by setting the `:hooks` key in project.clj to
 a seq of vars to call to activate your hooks. For backward compatibility, you
