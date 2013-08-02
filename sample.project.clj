@@ -266,9 +266,19 @@
   ;; Including %s will splice the :target-path into this value. Note that this
   ;; is not where to *look* for existing native libraries; use :jvm-opts with
   ;; -Djava.library.path=... instead for that.
+  :clean-compile-path? true
+  ;; Let `lein clean` remove files under :compile-path even if it isn't
+  ;; under :target-path.
+  ;; If :compile-path is under :target-path, `lein clean` removes all files
+  ;; under :tareget-path including :compile-path regardless of this option.
   :native-path "%s/bits-n-stuff"
   ;; Name of the jar file produced. Will be placed inside :target-path.
   ;; Including %s will splice the project version into the filename.
+  :clean-native-path? true
+  ;; Let `lein clean` remove files under :native-path even if it isn't
+  ;; under :target-path.
+  ;; If :native-path is under :target-path, `lein clean` removes all files
+  ;; under :tareget-path including :native-path regardless of this option.
   :jar-name "sample.jar"
   ;; As above, but for uberjar.
   :uberjar-name "sample-standalone.jar"

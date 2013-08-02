@@ -25,6 +25,17 @@ Raise an exception if any deletion fails unless silently is true."
     (io/delete-file f silently)))
 
 (defn clean
-  "Remove all files from project's target-path."
+  "Remove all files from project's target-path.
+  When compile-path isn't under target-path, files under it are not removed
+  unless clean-compile-path? is set to true.
+  When native-path isn't under target-path, files under it are not removed
+  unless clean-native-path? is set to true."
   [project]
-  (delete-file-recursively (:target-path project) :silently))
+  (let [{:keys [target-path
+                compile-path clean-compile-path?
+                native-path clean-native-path?]} project]
+    (if clean-compile-path?
+        (delete-file-recursively compile-path :silently))
+    (if clean-native-path?
+        (delete-file-recursively native-path :silently))
+    (delete-file-recursively target-path :silently)))
