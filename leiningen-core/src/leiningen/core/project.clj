@@ -163,6 +163,7 @@
    :native-path "%s/native"
    :compile-path "%s/classes"
    :target-path "target/%s"
+   :clean-targets [:target-path]
    :prep-tasks ["javac" "compile"]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
