@@ -276,9 +276,9 @@
   ;;   :foobar-paths ["foo" "bar"]
   ;;   :baz-config {:qux-path "qux"}
   ;; :clean-targets below lets `lein clean` remove files under "target",
-  ;; "classes", "foo", "bar" and "qux".
+  ;; "classes", "foo", "bar", "qux", and "out".
   :clean-targets [:target-path :compile-path :foobar-paths
-                  [:baz-config :qux-path]]
+                  [:baz-config :qux-path] "out"]
   ;; Name of the jar file produced. Will be placed inside :target-path.
   ;; Including %s will splice the project version into the filename.
   :jar-name "sample.jar"
