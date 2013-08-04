@@ -28,10 +28,8 @@ Raise an exception if any deletion fails unless silently is true."
   "Remove all files from paths in project's clean-targets."
   [project]
   (doseq [target-key (:clean-targets project)]
-    (if-let [target (cond (vector? target-key) (get-in project target-key)
-                          (keyword? target-key) (target-key project))]
-      ((fn recurse [target]
-         (if (coll? target)
-             (doseq [t target] (recurse t))
-             (delete-file-recursively target :silently)))
-       target))))
+    (when-let [target (cond (vector? target-key) (get-in project target-key)
+                            (keyword? target-key) (target-key project)
+                            (string? target-key) target-key)]
+      (doseq [f (flatten [target])]
+        (delete-file-recursively target :silently)))))
