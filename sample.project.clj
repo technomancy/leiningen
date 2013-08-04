@@ -267,6 +267,18 @@
   ;; is not where to *look* for existing native libraries; use :jvm-opts with
   ;; -Djava.library.path=... instead for that.
   :native-path "%s/bits-n-stuff"
+  ;; Directories under which `lein clean` removes files.
+  ;; Specified by keyword or keyword-chain to get-in path in this defproject.
+  ;; Both a single path and a collection of paths are accepted as each.
+  ;; For example, if the other parts of project are like:
+  ;;   :target-path "target"
+  ;;   :compile-path "classes"
+  ;;   :foobar-paths ["foo" "bar"]
+  ;;   :baz-config {:qux-path "qux"}
+  ;; :clean-targets below lets `lein clean` remove files under "target",
+  ;; "classes", "foo", "bar" and "qux".
+  :clean-targets [:target-path :compile-path :foobar-paths
+                  [:baz-config :qux-path]]
   ;; Name of the jar file produced. Will be placed inside :target-path.
   ;; Including %s will splice the project version into the filename.
   :jar-name "sample.jar"
