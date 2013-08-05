@@ -32,4 +32,7 @@ Raise an exception if any deletion fails unless silently is true."
                             (keyword? target-key) (target-key project)
                             (string? target-key) target-key)]
       (doseq [f (flatten [target])]
-        (delete-file-recursively target :silently)))))
+        (delete-file-recursively f :silently)))))
+
+
+
