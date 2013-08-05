@@ -19,3 +19,28 @@
   (is (version-satisfies? "1.2.0" "1.2"))
   (is (version-satisfies? "1.2" "1"))
   (is (not (version-satisfies? "1.67" "16.7"))))
+
+(defmacro with-err-str
+  [& body]
+  `(let [s# (new java.io.StringWriter)]
+     (binding [*err* s#]
+       ~@body
+       (str s#))))
+
+(deftest arg-error-msg-test
+  (are [args err-regex]
+       (let [s (with-err-str
+                 ;; :root true convinces resolve-and-apply that
+                 ;; there's a project.clj so it doesn't throw
+                 ;; that error instead
+                 (try (resolve-and-apply {:root true} args)
+                      (catch clojure.lang.ExceptionInfo e
+                        (when-not (= {:exit-code 1} (ex-data e))
+                          (throw e)))))]
+         (re-find err-regex s))
+
+       ["zero" "too" "many" "args"]
+       #"(?s)Wrong number of arguments to zero task.*Expected \[\]"
+
+       ["one-or-two"]
+       #"(?s)Wrong number of arguments to one-or-two task.*Expected \[one\] or \[one two\]"))
