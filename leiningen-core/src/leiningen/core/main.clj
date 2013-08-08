@@ -244,13 +244,15 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (System/setProperty "https.proxyHost" host)
     (System/setProperty "https.proxyPort" (str port))))
 
+(def ^:dynamic *cwd* (System/getProperty "user.dir"))
+
 (defn -main
   "Command-line entry point."
   [& raw-args]
   (try
     (user/init)
     (let [project (project/init-project
-                   (if (.exists (io/file "project.clj"))
+                   (if (.exists (io/file *cwd* "project.clj"))
                      (project/read)
                      (-> (project/make {:eval-in :leiningen :prep-tasks []
                                         :source-paths ^:replace []
