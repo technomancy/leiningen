@@ -220,10 +220,12 @@ leiningen.core.utils/platform-nullsink instead."
       (when (pos? exit-code)
         (throw (ex-info "Subprocess failed" {:exit-code exit-code}))))))
 
+(defonce trampoline-project (atom nil))
 (defonce trampoline-forms (atom []))
 (defonce trampoline-profiles (atom []))
 
 (defmethod eval-in :trampoline [project form]
+  (reset! trampoline-project project)
   (swap! trampoline-forms conj form)
   (swap! trampoline-profiles conj (select-keys project
                                                [:dependencies :source-paths

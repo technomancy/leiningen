@@ -26,9 +26,6 @@
   (let [forms (map rest forms) ;; strip off do
         inits (map first forms)
         rests (mapcat rest forms)
-        ;; This won't pick up :jvm-args that come from profiles, but it
-        ;; at least gets us :dependencies.
-        project (project/set-profiles project profiles)
         command (eval/shell-command project (concat '(do) inits rests))]
     (string/join " " (map quote-arg command))))
 
@@ -46,7 +43,12 @@ Calculates the Clojure code to run in the project's process for the
 given task and allows Leiningen's own JVM process to exit before
 running it rather than launching a subprocess of Leiningen's JVM.
 
-Use this to save memory or to work around stdin issues."
+Use this to save memory or to work around stdin issues.
+
+Note that this can be unpredictable on account of collapsing all
+eval-in-project calls into one run. For example, tasks chained
+together under different profiles end up all running together."
+
   [project task-name & args]
   (when (= :leiningen (:eval-in project))
     (main/info "Warning: trampoline has no effect with :eval-in-leiningen."))
@@ -57,5 +59,7 @@ Use this to save memory or to work around stdin issues."
                                     :eval-in :trampoline))
                      args))
   (if (seq @eval/trampoline-forms)
-    (write-trampoline project @eval/trampoline-forms @eval/trampoline-profiles)
+    (write-trampoline @eval/trampoline-project
+                      @eval/trampoline-forms
+                      @eval/trampoline-profiles)
     (main/abort task-name "did not run any project code for trampolining.")))
