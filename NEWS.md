@@ -2,6 +2,9 @@
 
 ## 2.3.0 / ???
 
+* Add `:eval-in :pprint` for debugging. (Phil Hagelberg)
+* Support cleaning extra dirs with `:clean-targets`. (Yoshinori Kohyama)
+* Test-selectors skip fixtures too, not just running tests. (Gary Fredericks)
 * Place licenses and readmes into jars. (Phil Hagelberg)
 * Include LICENSE as separate file in templates. (Wolodja Wentland)
 * Allow aborting on ambiguous version resolution with `:pedantic`. (Nelson Morris, Phil Hagelberg)
