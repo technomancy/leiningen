@@ -283,6 +283,18 @@ leiningen.core.utils/platform-nullsink instead."
     (System/setProperty k v))
   (eval form))
 
+(defmethod eval-in :pprint [project form]
+  (require 'clojure.pprint)
+  (println "Java:" (or (:java-cmd project) (System/getenv "JAVA_CMD") "java"))
+  (apply println "Classpath:" (classpath-arg project))
+  (apply println "JVM args:" (get-jvm-args project))
+  ;; Can't use binding with dynamic require
+  (let [dispatch-var (resolve 'clojure.pprint/*print-pprint-dispatch*)
+        code-dispatch @(resolve 'clojure.pprint/code-dispatch)]
+    (try (push-thread-bindings {dispatch-var code-dispatch})
+         ((resolve 'clojure.pprint/pprint) form)
+         (finally (pop-thread-bindings)))))
+
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
   for the project. If the form depends on any requires, put them in the init arg
