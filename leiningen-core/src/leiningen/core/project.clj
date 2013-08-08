@@ -592,6 +592,8 @@
   (let [project (with-meta
                   (:without-profiles (meta project) project)
                   (meta project))
+        normalize #(if (coll? %) (lookup-profile (:profiles project) %) [%])
+        exclude-profiles (mapcat normalize exclude-profiles)
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
         profiles (map (partial lookup-profile profile-map) include-profiles)
         normalized-profiles (map normalize-values profiles)]

@@ -301,7 +301,7 @@
   ([_ project]
      (let [reprofile #(-> project (project/merge-profiles %) (relativize))
            provided-project (reprofile [:provided])
-           test-project (reprofile [:provided :dev :test :default])]
+           test-project (reprofile [:base :provided :dev :test])]
        (list
         [:project {:xsi:schemaLocation
                    (str "http://maven.apache.org/POM/4.0.0"
@@ -347,8 +347,7 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [special-profiles [:user :provided :dev :test :default]
-           project (project/unmerge-profiles project special-profiles)]
+     (let [project (project/unmerge-profiles project [:default])]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str
