@@ -21,7 +21,8 @@ sed -i s/:aot/\;\;:aot/ project.clj
 cd ..
 
 bin/lein uberjar
-cp target/leiningen-$RELEASE_VERSION-standalone.jar $HOME/.lein/self-installs
+RELEASE_JAR=$PWD/target/leiningen-$RELEASE_VERSION-standalone.jar
+cp $RELEASE_JAR $HOME/.lein/self-installs
 
 cp bin/lein /tmp/lein-$RELEASE_VERSION
 cd /tmp
@@ -36,18 +37,29 @@ time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 
-echo "If these are under 3 seconds then you should be set to upload"
-echo "target/leiningen-$RELEASE_VERSION-standalone.jar to S3."
-echo "s3c me put -P target/leiningen-$RELEASE_VERSION-standalone.jar s3://leiningen/downloads/"
-echo "Also deploy this release to Clojars."
+echo "Are these acceptable times? (~3s) [Y\n]"
+read CONTINUE
+case "$CONTINUE" in
+    y|Y|"")
+        J
+        gpg -ab $RELEASE_JAR
+        # s3c is an s3cmd wrapper for people who don't hate security:
+        # https://github.com/technomancy/dotfiles/blob/master/bin/s3c
+        s3c me put -P $RELEASE_JAR s3://leiningen/downloads/
+        s3c me put -P $RELEASE_JAR.asc s3://leiningen/downloads/
+        echo "Uploaded";;
+    *)
+        echo "Aborted."
+        exit 1;;
+esac
 
 cd $LEIN_ROOT
 
 git commit -a -m "Release $RELEASE_VERSION"
-git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 
-# Still manual for now:
-# lein deploy clojars; cd leiningen-core; lein deploy clojars
-# git push && git push --tags
-# git checkout stable && git merge master && git push
-# Drop version back to SNAPSHOT
+echo "Test self-install."
+echo "If things are good, run this:"
+echo "$ git tag -s $RELEASE_VERSION -m \"Release $RELEASE_VERSION\""
+echo "$ git push && git push --tags && git push origin master:stable"
+echo "$ lein deploy clojars"
+echo "$ cd leiningen-core && lein deploy clojars"
