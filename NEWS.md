@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.3.0 / ???
+## 2.3.0 / 2013-08-08
 
 * Add `:eval-in :pprint` for debugging. (Phil Hagelberg)
 * Support cleaning extra dirs with `:clean-targets`. (Yoshinori Kohyama)
