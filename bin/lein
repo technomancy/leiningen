@@ -45,6 +45,18 @@ function add_path {
     done
 }
 
+function download_failed_message {
+    echo "Failed to download $1"
+    echo "It's possible your HTTP client's certificate store does not have the"
+    echo "correct certificate authority needed. This is often caused by an"
+    echo "out-of-date version of libssl. Either upgrade it or set HTTP_CLIENT"
+    echo "to turn off certificate checks:"
+    echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
+    echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o\""
+    echo "It's also possible that you're behind a firewall haven't yet"
+    echo "set HTTP_PROXY and HTTPS_PROXY."
+}
+
 function self_install {
   if [ -r "$LEIN_JAR" ]; then
     echo "The self-install jar already exists at $LEIN_JAR."
@@ -186,18 +198,6 @@ if [ "$HTTP_CLIENT" = "" ]; then
         HTTP_CLIENT="wget -O"
     fi
 fi
-
-function download_failed_message {
-    echo "Failed to download $1"
-    echo "It's possible your HTTP client's certificate store does not have the"
-    echo "correct certificate authority needed. This is often caused by an"
-    echo "out-of-date version of libssl. Either upgrade it or set HTTP_CLIENT"
-    echo "to turn off certificate checks:"
-    echo "  export HTTP_CLIENT=\"wget --no-check-certificate -O\" # or"
-    echo "  export HTTP_CLIENT=\"curl --insecure -f -L -o\""
-    echo "It's also possible that you're behind a firewall haven't yet"
-    echo "set HTTP_PROXY and HTTPS_PROXY."
-}
 
 # TODO: explain what to do when Java is missing
 export JAVA_CMD="${JAVA_CMD:-"java"}"
