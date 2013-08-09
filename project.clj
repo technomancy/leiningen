@@ -1,12 +1,12 @@
 ;; This is Leiningen's own project configuration. See doc/TUTORIAL.md
 ;; file as well as sample.project.clj for help writing your own.
 
-(defproject leiningen "2.2.1-SNAPSHOT"
+(defproject leiningen "2.3.0"
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[leiningen-core "2.2.1-SNAPSHOT"]
+  :dependencies [[leiningen-core "2.3.0"]
                  [org.clojure/data.xml "0.0.3"]
                  [bultitude "0.2.2"]
                  [stencil "0.3.2"]
@@ -23,13 +23,11 @@
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
-             :release {:aot [#"leiningen"
+             :uberjar {:aot [#"leiningen"
                              cemerick.pomegranate
-                             cemerick.drawbridge
                              classlojure.core
                              clojure.tools.nrepl
-                             clj-http.core
-                             ordered.map]}}
+                             clj-http.core]}}
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
