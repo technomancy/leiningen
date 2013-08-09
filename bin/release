@@ -47,7 +47,7 @@ git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 
 # Still manual for now:
-# deploy leiningen itself
+# lein deploy clojars; cd leiningen-core; lein deploy clojars
 # git push && git push --tags
 # git checkout stable && git merge master && git push
 # Drop version back to SNAPSHOT
