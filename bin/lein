@@ -131,6 +131,19 @@ BIN_DIR="$(dirname "$SCRIPT")"
 
 export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
 
+# This needs to be defined before we call HTTP_CLIENT below
+if [ "$HTTP_CLIENT" = "" ]; then
+    if type -p curl >/dev/null 2>&1; then
+        if [ "$https_proxy" != "" ]; then
+            CURL_PROXY="-x $https_proxy"
+        fi
+        HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
+    else
+        HTTP_CLIENT="wget -O"
+    fi
+fi
+
+
 # When :eval-in :classloader we need more memory
 grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
     export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Xms64m -Xmx512m"
@@ -185,17 +198,6 @@ else # Not running from a checkout
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         self_install
-    fi
-fi
-
-if [ "$HTTP_CLIENT" = "" ]; then
-    if type -p curl >/dev/null 2>&1; then
-        if [ "$https_proxy" != "" ]; then
-            CURL_PROXY="-x $https_proxy"
-        fi
-        HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
-    else
-        HTTP_CLIENT="wget -O"
     fi
 fi
 
