@@ -236,7 +236,7 @@ if [ "$1" = "self-install" ]; then
     fi
     echo "Manual self-install is deprecated; it will run automatically when necessary."
     self_install
-elif [ "$1" = "upgrade" ]; then
+elif [ "$1" = "upgrade" || "$1" = "downgrade" ]; then
     if [ "$LEIN_DIR" != "" ]; then
         echo "The upgrade task is not meant to be run from a checkout."
         exit 1
