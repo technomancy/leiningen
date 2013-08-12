@@ -61,6 +61,9 @@
                       ~selectors)]
       ns#)))
 
+;; TODO: make this an arg to form-for-testing-namespaces in 3.0.
+(def ^:private ^:dynamic *monkeypatch?* true)
+
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test
   each namespace and print an overall summary."
@@ -70,27 +73,30 @@
           (when (seq ~ns-sym)
             (apply require :reload ~ns-sym))
           (let [failures# (atom #{})
-                selected-namespaces#  ~(form-for-nses-selectors-match selectors ns-sym)
-                _# (leiningen.core.injected/add-hook
-                    #'clojure.test/report
-                    (fn [report# m# & args#]
-                      (when (#{:error :fail} (:type m#))
-                        (when-let [first-var# (-> clojure.test/*testing-vars* first meta)]
-                          (swap! failures# conj (ns-name (:ns first-var#)))
-                          (newline)
-                          (println "lein test :only"
-                                   (str (ns-name (:ns first-var#))
-                                        "/"
-                                        (:name first-var#)))))
-                      (if (= :begin-test-ns (:type m#))
-                        (clojure.test/with-test-out
-                          (newline)
-                          (println "lein test" (ns-name (:ns m#))))
-                        (apply report# m# args#))))
+                selected-namespaces# ~(form-for-nses-selectors-match selectors ns-sym)
+                _# (when ~*monkeypatch?*
+                     (leiningen.core.injected/add-hook
+                      #'clojure.test/report
+                      (fn [report# m# & args#]
+                        (when (#{:error :fail} (:type m#))
+                          (when-let [first-var# (-> clojure.test/*testing-vars* first meta)]
+                            (swap! failures# conj (ns-name (:ns first-var#)))
+                            (newline)
+                            (println "lein test :only"
+                                     (str (ns-name (:ns first-var#)) "/"
+                                          (:name first-var#)))))
+                        (if (= :begin-test-ns (:type m#))
+                          (clojure.test/with-test-out
+                            (newline)
+                            (println "lein test" (ns-name (:ns m#))))
+                          (apply report# m# args#)))))
                 summary# (binding [clojure.test/*test-out* *out*]
-                           (~form-for-suppressing-unselected-tests selected-namespaces# ~selectors
-                             #(apply ~'clojure.test/run-tests selected-namespaces#)))]
-            (spit ".lein-failures" (pr-str @failures#))
+                           (~form-for-suppressing-unselected-tests
+                            selected-namespaces# ~selectors
+                            #(apply ~'clojure.test/run-tests selected-namespaces#)))]
+            (spit ".lein-failures" (if ~*monkeypatch?*
+                                     (pr-str @failures#)
+                                     "#<disabled :monkeypatch-clojure-test>"))
             (if ~*exit-after-tests*
               (System/exit (+ (:error summary#) (:fail summary#)))
               (+ (:error summary#) (:fail summary#))))))))
@@ -182,7 +188,8 @@ specified test. A default :all test-selector is available to run all tests."
                                    main/*exit-process?*)
             *exit-after-tests* (if (= :leiningen (:eval-in project))
                                  false
-                                 *exit-after-tests*)]
+                                 *exit-after-tests*)
+            *monkeypatch?* (:monkeypatch-clojure-test project true)]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
           form (form-for-testing-namespaces nses nil (vec selectors))]

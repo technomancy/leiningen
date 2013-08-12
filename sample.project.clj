@@ -116,6 +116,9 @@
   :test-selectors {:default (fn [m] (not (or (:integration m) (:regression m))))
                    :integration :integration
                    :regression :regression}
+  ;; In order to support the `retest` task, Leiningen must monkeypatch the
+  ;; clojure.test library. This disables that feature and breaks `lein retest`.
+  :monkeypatch-clojure-test false
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. Put a regex here to compile all
   ;; namespaces whose names match.
