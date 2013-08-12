@@ -328,8 +328,7 @@
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
     (if (:target-path project)
       (update-in project [:target-path] format
-                 (s/join "+" (if-not (#{[:default] [:provided]} profiles)
-                               (map n profiles))))
+                 (s/join "+" (map n (remove #{:default :provided} profiles))))
       project)))
 
 (defn target-path-subdirs [{:keys [target-path] :as project} key]
