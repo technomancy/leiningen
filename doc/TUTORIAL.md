@@ -429,6 +429,24 @@ from missing functions (often referred to as "getting
 slimed"). Because of this it's advised to do a `lein test` run with a
 fresh instance periodically in any case, perhaps before you commit.
 
+## Profiles
+
+Profiles are used to add various things into your project map in
+different contexts. For instance, during `lein test` runs, the
+contents of the `:test` profile, if present, will be merged into your
+project map. You can use this to enable configuration that should only
+be applied during test runs, either by adding directories containing
+config files to your classpath via `:resource-paths` or by other
+means. See `lein help profiles` for more details.
+
+Unless you tell it otherwise, Leiningen will merge the default set of
+profiles into the project map. This includes user-wide settings from
+your `:user` profile, the `:dev` profile from `project.clj` if
+present, and the built-in `:base` profile which contains dev tools
+like nREPL and optimizations which help startup time at the expense of
+runtime performance. Never benchmark with the default profiles. (See
+the FAQ entry for "tiered compilation")
+
 ## What to do with it
 
 Generally speaking, there are three different goals that are typical
@@ -582,9 +600,9 @@ project's full test suite, and if it passes, upload a tarball to S3.
 Then deployment is just a matter of pulling down and extracting the
 known-good tarball on your production servers.
 
-Also remember that the `user`, `dev`, and `default` profiles are
-included by default, which is not suitable for production. Using
-`lein trampoline with-profile production run -m myapp.main` is
+Also remember that the default profiles are included unless you
+specify otherwise, which is not suitable for production. Using `lein
+trampoline with-profile production run -m myapp.main` is
 recommended. By default the production profile is empty, but if your
 deployment includes the `~/.m2/repository` directory from the CI run
 that generated the tarball, then you should add its path as
