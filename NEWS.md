@@ -1,5 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.3.1 / 2013-08-13
+
+* Fix self-install bug. (Sam Aaron, Steven Harms)
+* Fix bug with AOT classes not being included in jars. (Phil Hagelberg)
+* Support disabling test task's monkeypatch of `clojure.test`. (Phil Hagelberg)
+* Allow project map to be readable. (Phil Hagelberg)
+
 ## 2.3.0 / 2013-08-08
 
 * Add `:eval-in :pprint` for debugging. (Phil Hagelberg)
