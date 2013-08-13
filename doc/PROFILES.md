@@ -7,10 +7,10 @@ without including them in the jar, or you may want to have Slamhound
 available in every project you hack on without modifying every single
 project.clj you use.
 
-By default the `:dev`, `:provided`, `:user`, and `:base` profiles are
-activated for each task, but their settings are not propagated
-downstream to projects that depend upon yours. Each profile is defined
-as a map which gets merged into your project map.
+By default the `:dev`, `:provided`, `:user`, `:system`, and `:base`
+profiles are activated for each task, but their settings are not
+propagated downstream to projects that depend upon yours. Each profile
+is defined as a map which gets merged into your project map.
 
 You can place any arbitrary `defproject` entries into a given profile
 and they will be merged into the project map when that profile is
@@ -38,6 +38,8 @@ that you don't want committed in version control.
 User-wide profiles can also be specified in `~/.lein/profiles.clj`. These will be
 available in all projects managed by Leiningen, though those profiles will be
 overridden by profiles of the same name specified in the project.
+System-wide profiles can be placed in `/etc/leiningen`. They are treated
+the same as user profiles, but with lower precedence.
 
 You can also define user-wide profiles within `clj`-files inside
 `~/.lein/profiles.d`. The semantics within such files differ slightly
