@@ -168,8 +168,22 @@ propagated to the compilation phase and not stripped out."
   (and main (not (:skip-aot (meta main)))
        (some #(.exists (io/file % (b/path-for main))) source-paths)))
 
-;; TODO: remove or move this to uberjar for 3.0
+(def ^:private implicit-aot-warning
+  (delay
+   (main/info "Warning: specified :main without including it in :aot."
+              "\nImplicit AOT of :main will be removed in Leiningen 3.0.0."
+              "\nIf you only need AOT for your uberjar, consider adding"
+              ":aot :all into your\n:uberjar profile instead.")))
+
+(defn warn-implicit-aot [project]
+  (when (and (:main project) (not (:skip-aot (meta (:main project))))
+             (not= :all (:aot project))
+             (not (some #{(:main project)} (:aot project))))
+    (force implicit-aot-warning)))
+
+;; TODO: remove for 3.0
 (defn- add-main [project given-main]
+  (warn-implicit-aot project)
   (let [project (if given-main
                   (assoc project :main (symbol given-main))
                   project)]
