@@ -71,6 +71,7 @@
   (if-let [{:keys [artifact-id group-id version]} dep]
     (-> dep
         (update-each-contained [:exclusions] (partial map exclusion-vec))
+        (update-each-contained [:exclusions] distinct)
         (dissoc :artifact-id :group-id :version)
         (->> (apply concat)
              (into [(symbol group-id artifact-id) version]))
@@ -361,8 +362,10 @@
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
-                :dependencies '[[org.clojure/tools.nrepl "0.2.3"]
-                                [clojure-complete "0.2.3"]]
+                :dependencies '[[org.clojure/tools.nrepl "0.2.3"
+                                 :exclusions [org.clojure/clojure]]
+                                [clojure-complete "0.2.3"
+                                 :exclusions [org.clojure/clojure]]]
                 :checkout-deps-shares [:source-paths
                                        :test-paths
                                        :resource-paths

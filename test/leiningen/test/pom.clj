@@ -203,10 +203,10 @@
     (is (= [nil nil nil "pom" nil nil]
            (map #(first-in % [:dependency :type])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "ring-mock" nil nil]
+    (is (= [nil nil nil "ring-mock" "clojure" "clojure"]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "ring-mock" nil nil]
+    (is (= [nil nil nil "ring-mock" "org.clojure" "org.clojure"]
            (map #(first-in % [:dependency :exclusions :exclusion :groupId])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "cla" nil nil]
@@ -235,7 +235,7 @@
     (is (= [nil nil nil "provided" "test" "test"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "ring-mock" nil nil]
+    (is (= [nil nil nil "ring-mock" "clojure" "clojure"]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil nil nil nil]
