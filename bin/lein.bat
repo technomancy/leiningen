@@ -110,7 +110,7 @@ rem the paths inside the bootstrap file do not already contain double quotes but
 ) else (
     :: Not running from a checkout.
     if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
-    set CLASSPATH="%LEIN_JAR%"
+    set CLASSPATH=%LEIN_JAR%
   
     if exist ".lein-classpath" (
         for /f %%i in (.lein-classpath) do set CONTEXT_CP=%%i 
