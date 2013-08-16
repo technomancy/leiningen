@@ -208,42 +208,52 @@
 (defn- message-for-range [{:keys [node parents]}]
   (message-for #(.getVersionConstraint %) (conj parents node)))
 
-(defn- pedantic-session [project ranges overrides]
-  (if (:pedantic? project)
-    #(-> % aether/repository-session
-         (pedantic/use-transformer ranges overrides))))
+(defn- message-for-override [{:keys [accepted ignoreds ranges]}]
+  {:accepted (message-for-version accepted)
+   :ignoreds (map message-for-version ignoreds)
+   :ranges (map message-for-range ranges)})
 
-;; TODO: can't memoize this since ranges/overrides don't have proper
-;; equality semantics (GraphEdge objects)
-(defn- pedantic-print [ranges overrides]
-  (when-let [range-messages (seq (distinct (map message-for-range ranges)))]
+(defn- pedantic-print-ranges [messages]
+  (when-not (empty? messages)
     (println "WARNING!!! version ranges found for:")
-    (doseq [dep-string range-messages]
+    (doseq [dep-string messages]
       (println dep-string))
-    (println))
-  (when-not (empty? overrides)
+    (println)))
+
+(defn- pedantic-print-overrides [messages]
+  (when-not (empty? messages)
     (println "WARNING!!! possible confusing dependencies found:")
-    (doseq [{:keys [accepted ignoreds ranges]} overrides]
-      (println (message-for-version accepted))
+    (doseq [{:keys [accepted ignoreds ranges]} messages]
+      (println accepted)
       (println " overrides")
-      (doseq [ignored (->> ignoreds
-                           (map message-for-version)
-                           (interpose " and"))]
+      (doseq [ignored (interpose " and" ignoreds)]
         (println ignored))
       (when-not (empty? ranges)
         (println " possibly due to a version range in")
-        (doseq [n ranges]
-          (println (message-for-range n))))
+        (doseq [r ranges]
+          (println r)))
       (println))))
+
+(alter-var-root #'pedantic-print-ranges memoize)
+(alter-var-root #'pedantic-print-overrides memoize)
 
 (defn- pedantic-do [pedantic-setting ranges overrides]
   (when pedantic-setting
-    (pedantic-print ranges overrides)
+    ;; Need to turn everything into a string before calling
+    ;; pedantic-print-*, otherwise we can't memoize due to bad equality
+    ;; semantics on aether GraphEdge objects.
+    (pedantic-print-ranges (distinct (map message-for-range ranges)))
+    (pedantic-print-overrides (map message-for-override overrides))
     (when (and (= :abort pedantic-setting)
                (not (empty? (concat ranges overrides))))
       (require 'leiningen.core.main)
       ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
        "Aborting due to version ranges."))))
+
+(defn- pedantic-session [project ranges overrides]
+  (if (:pedantic? project)
+    #(-> % aether/repository-session
+         (pedantic/use-transformer ranges overrides))))
 
 (defn ^:internal get-dependencies [dependencies-key project & args]
   (let [ranges (atom []), overrides (atom [])
