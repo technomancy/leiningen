@@ -28,6 +28,7 @@ if "x%LEIN_JAR%" == "x" set "LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_
 
 if "%1" == "self-install" goto SELF_INSTALL
 if "%1" == "upgrade"      goto UPGRADE
+if "%1" == "downgrade"    goto UPGRADE
 	
 if exist "%~dp0..\src\leiningen\version.clj" (
     :: Running from source checkout.
@@ -201,7 +202,9 @@ goto EOF
 
 :UPGRADE
 set LEIN_BAT=%~dp0%~nx0
-echo The script at %LEIN_BAT% will be upgraded to the latest version in series %LEIN_VERSION%.
+set TARGET_VERSION=%2
+if "x%2" == "x" set TARGET_VERSION=stable
+echo The script at %LEIN_BAT% will be upgraded to the latest %TARGET_VERSION% version.
 set /P ANSWER=Do you want to continue (Y/N)?
 if /i {%ANSWER%}=={y}   goto YES_UPGRADE
 if /i {%ANSWER%}=={yes} goto YES_UPGRADE
@@ -212,7 +215,7 @@ exit /B 1
 :YES_UPGRADE
 echo Downloading latest Leiningen batch script...
 
-set LEIN_BAT_URL=https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat
+set LEIN_BAT_URL=https://github.com/technomancy/leiningen/raw/%TARGET_VERSION%/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
 call :DownloadFile "%LEIN_BAT%.pending" "%LEIN_BAT_URL%"
 if ERRORLEVEL 1 (
