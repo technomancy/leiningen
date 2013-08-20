@@ -8,8 +8,10 @@
 
 (defn- fake-project [name]
   {:templates [[(symbol name "lein-template") "RELEASE"]]
-   :repositories {"clojars" {:url "http://clojars.org/repo/"}
-                  "central" {:url "http://repo1.maven.org/maven2"}}})
+   :repositories {"clojars" {:url "http://clojars.org/repo/"
+                             :update :always}
+                  "central" {:url "http://repo1.maven.org/maven2"
+                             :update :always}}})
 
 (defn resolve-remote-template [name sym]
   (if-let [get-dep (resolve 'leiningen.core.classpath/resolve-dependencies)]
