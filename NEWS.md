@@ -1,5 +1,13 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.3.2 / 2013-08-19
+
+* Write `.nrepl-port` file for better tool interoperability. (Phil Hagelberg)
+* Support targeted upgrades in `lein.bat`. (Shantanu Kumar)
+* Warn when projects rely on implicit AOT of `:main`. (Phil Hagelberg)
+* Fix a bug where implicit AOT of `:main` was disabled. (Phil Hagelberg)
+* Disable profile isolation by default. Will be back in 3.x. (Phil Hagelberg)
+
 ## 2.3.1 / 2013-08-13
 
 * Fix self-install bug. (Sam Aaron, Steven Harms)
