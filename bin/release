@@ -41,12 +41,11 @@ echo "Are these acceptable times? (~3s) [Y\n]"
 read CONTINUE
 case "$CONTINUE" in
     y|Y|"")
-        J
         gpg -ab $RELEASE_JAR
         # s3c is an s3cmd wrapper for people who don't hate security:
         # https://github.com/technomancy/dotfiles/blob/master/bin/s3c
-        s3c me put -P $RELEASE_JAR s3://leiningen/downloads/
-        s3c me put -P $RELEASE_JAR.asc s3://leiningen/downloads/
+        s3c lein put -P $RELEASE_JAR s3://leiningen/downloads/
+        s3c lein put -P $RELEASE_JAR.asc s3://leiningen/downloads/
         echo "Uploaded";;
     *)
         echo "Aborted."
