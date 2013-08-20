@@ -107,3 +107,13 @@
 **A:** For long-lasting processes, use `lein trampoline run &` or consider to
   (uber)jar the program. For short-lived ones, both `lein run <&- &` and
   `bash -c "lein run &"` will work fine.
+
+**Q:** I need to do AOT for an uberjar; can I avoid it during development?  
+**A:** A reasonable request. Leiningen supports isolating different
+  profiles by their target directory. Simply specify `:target-path
+  "target/%s"` in order to have each profile set use a different
+  directory for generated files. Then you can put your `:aot`
+  settings in the `:uberjar` profiles, and the .class files created
+  from the AOT process will not affect normal development use. You can
+  specify the profile-isolated `:target-path` in your `:user` profile if
+  you want it applied across all the projects you work on.
