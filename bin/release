@@ -16,7 +16,7 @@ LEIN_ROOT=$PWD
 
 cd leiningen-core
 sed -i s/\;\;:aot/:aot/ project.clj
-lein1 clean, install
+lein do clean, install
 sed -i s/:aot/\;\;:aot/ project.clj
 cd ..
 
