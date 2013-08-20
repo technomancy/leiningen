@@ -69,7 +69,6 @@
                    ["--default-key" key])]
     `["--yes" "-ab" ~@key-spec "--" ~file]))
 
-;; TODO: be clearer about the fact that signing is going on
 (defn sign
   "Create a detached signature and return the signature file name."
   [file opts]
@@ -77,7 +76,10 @@
     (when-not (zero? exit)
       (main/abort "Could not sign"
                   (str file "\n" err
-                       "\nSee `lein help gpg` for how to setup gpg." )))
+                       "\n\nSee `lein help gpg` for how to set up gpg.\n"
+                       "If you don't expect people to need to verify the "
+                       "authorship of your jar, you\ncan add `:sign-releases "
+                       "false` to the relevant `:deploy-repositories` entry.")))
     (str file ".asc")))
 
 (defn signature-for-artifact [[coords artifact-file] opts]

@@ -162,18 +162,20 @@ this functionality portably.
 
 ### Signing a file
 
-When you deploy a non-SNAPSHOT artifact to Clojars via the `deploy`
+When you deploy a non-SNAPSHOT artifact via the `deploy`
 task, Leiningen will attempt to create GPG signatures of the jar and
 pom files. It does so by shelling out to `gpg` and using your default
 private key to sign each artifact. This will create a signature file
 for each artifact named by appending `.asc` to the artifact name.
 
-Both signatures are then uploaded to Clojars along with the
-artifacts. In order for Clojars to verify the signatures, you'll need
-to provide it with your *public* key (see below).
+Both signatures are then uploaded along with the artifacts. If you're
+deploying to Clojars, you'll want to provide it with your *public* key
+(see below) in order that the signatures can be verified.
 
 To disable signing of releases, set `:sign-releases` to false in the
-`:repositories` entry you are targeting.
+`:repositories` entry you are targeting. If you do this, everyone who
+is depending on your library will not be able to confirm that the copy
+they get has not been tampered with, so this is not recommended.
 
 ### Overriding the gpg defaults
 
