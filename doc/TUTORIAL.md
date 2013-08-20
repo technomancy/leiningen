@@ -587,18 +587,28 @@ things beyond uberjars, server-side deployments are so varied that they
 are better-handled using plugins rather than tasks that are built-in
 to Leiningen itself.
 
-If you do end up involving Leiningen in production via something like
-`lein trampoline run`, it's very important to ensure you take steps to
-freeze all the dependencies before deploying, otherwise it could be
-easy to end up with
+It's possible to involve Leiningen during production, but there are
+many subtle gotchas to that approach; it's strongly recommended to use
+an uberjar if you can. If you need to launch with the `run` task, you
+should use `lein trampoline run` in order to save memory, otherwise
+Leiningen's own JVM will stay up and consume unnecessary memory.
+
+In addition it's very important to ensure you take steps to freeze all
+the dependencies before deploying, otherwise it could be easy to end
+up with
 [unrepeatable deployments](https://github.com/technomancy/leiningen/wiki/Repeatability).
-Consider including `~/.m2/repository` in your unit of deployment along
-with your project code. It's recommended to use Leiningen to create a
-deployable artifact in a continuous integration setting. For example,
-you could have a [Jenkins](http://jenkins-ci.org) CI server run your
-project's full test suite, and if it passes, upload a tarball to S3.
-Then deployment is just a matter of pulling down and extracting the
-known-good tarball on your production servers.
+Consider including `~/.m2/repository` in your unit of deployment
+(tarball, .deb file, etc) along with your project code. It's
+recommended to use Leiningen to create a deployable artifact in a
+continuous integration setting. For example, you could have a
+[Jenkins](http://jenkins-ci.org) CI server run your project's full
+test suite, and if it passes, upload a tarball to S3.  Then deployment
+is just a matter of pulling down and extracting the known-good tarball
+on your production servers. Simply launching Leiningen from a checkout
+on the server will work for the most basic deployments, but as soon as
+you get a number of servers you run the risk of running with a
+heterogeneous cluster since you're not guaranteed that each machine
+will be running with the exact same codebase.
 
 Also remember that the default profiles are included unless you
 specify otherwise, which is not suitable for production. Using `lein
@@ -609,6 +619,8 @@ that generated the tarball, then you should add its path as
 `:local-repo` along with `:offline? true` to the `:production`
 profile. Staying offline prevents the deployed project from diverging
 at all from the version that was tested in the CI environment.
+
+Given these pitfalls, it's best to use an uberjar if possible.
 
 ### Publishing Libraries
 
