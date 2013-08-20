@@ -171,13 +171,16 @@ meant to apply to and a function to perform the wrapping:
 ;; compatibility with Leiningen 1.x
 (defn activate []
   (robert.hooke/add-hook #'leiningen.test/form-for-testing-namespaces
-                         add-test-var-println))
+                         #'add-test-var-println))
 ```
 
-Hooks compose, so be aware that your hook may be running inside another
-hook. See [the documentation for
-Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
-for more details.
+Hooks compose, so be aware that your hook may be running inside
+another hook. See
+[the documentation for Hooke](https://github.com/technomancy/robert-hooke/blob/master/README.md)
+for more details. Note that calls to `add-hook` should use the var for
+both the first and second argument so that hooks can be loaded
+repeatedly without re-adding the hook. This is because in Clojure
+bare functions cannot be compared for equality, but vars can.
 
 If you want your hooks to be loaded automatically when other projects
 include your plugin, activate them in a function called
@@ -194,13 +197,13 @@ before manually specified hooks.
 
 ## Project Middleware
 
-Project middleware is just a function that is called on a project map returning
-a new project map. Middleware gives a plugin the power to do almost anything.
-For example, a plugin could use middleware to reimplement Leiningen's profiles
-functionality.
+Project middleware is just a function that is called on a project map
+returning a new project map. Middleware gives a plugin the power to do
+almost anything.  For example, a plugin could use middleware to
+reimplement Leiningen's profiles functionality.
 
-The following middleware injects the contents of project map into your project's
-resources folder so it can be read from the project code:
+The following middleware injects the contents of project map into your
+project's resources folder so it can be read from the project code:
 
 ```clj
 (ns lein-inject.plugin)
@@ -217,11 +220,13 @@ setting the `:middleware` key in project.clj to a seq of vars to call to
 transform your project map. Note that automatic middleware is applied before
 manually specified middleware.
 
-Also note that the currently active middleware depends on which profiles are
-active. This means we need to reapply the middleware functions to the project
-map whenever the active profiles change. We accomplish this by storing the fresh
-project map and starting from that whenever we call `merge-profiles`,
-`unmerge-profiles` or `set-profiles`.
+Also note that the currently active middleware depends on which
+profiles are active. This means we need to reapply the middleware
+functions to the project map whenever the active profiles change. We
+accomplish this by storing the fresh project map and starting from
+that whenever we call `merge-profiles`, `unmerge-profiles` or
+`set-profiles`. It also means your middleware functions shouldn't have
+any non-idempotent side-effects since they could be called repeatedly.
 
 ## Requiring Plugins
 
