@@ -20,6 +20,8 @@
        (project/project-with-profiles-meta
          project (merge @project/default-profiles (:profiles project)))))))
 
+(def with-resources-project (read-test-project "with-resources"))
+
 (def sample-project (read-test-project "sample"))
 
 (def sample-failing-project (read-test-project "sample_failing"))
@@ -77,3 +79,10 @@ because if not absolute then .getAbsolutePath will resolve them relative to curr
     (throw (new RuntimeException (str "bad usage, passed: `" in-str-or-file "`")))
     :else
     (.getAbsolutePath (io/as-file in-str-or-file))))
+
+(defn entries [zipfile]
+  (enumeration-seq (.entries zipfile)))
+
+(defn walkzip [fileName f]
+  (with-open [z (java.util.zip.ZipFile. fileName)]
+    (reduce #(conj %1 (f %2)) [] (entries z))))
