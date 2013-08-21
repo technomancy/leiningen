@@ -6,7 +6,8 @@
         [leiningen.core.eval :only [platform-nullsink]]
         [leiningen.test.helper :only [tricky-name-project sample-failing-project
                                       sample-no-aot-project sample-project
-                                      overlapped-sourcepaths-project]])
+                                      overlapped-sourcepaths-project
+                                      with-resources-project walkzip]])
   (:import (java.util.jar JarFile)))
 
 (def long-line
@@ -31,6 +32,13 @@
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
     (is (thrown? Exception (jar sample-failing-project)))))
+
+(deftest test-directory-entries-added-to-jar
+  (with-out-str
+    (let [jar (first (vals (jar with-resources-project)))
+          entry-names (set (walkzip jar #(.getName %)))]
+      (is (entry-names "nested/dir/"))
+      (is (not (some #(.startsWith % "/") entry-names))))))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str

@@ -47,12 +47,11 @@
     (zipmap (map str (keys attrs)) (vals attrs))))
 
 (defn- skip-file?
-  "Skips the file if it doesn't exists or is a directory. If the file is not the
+  "Skips the file if it doesn't exist. If the file is not the
   root-file (specified by :path), will also skip it if it is a dotfile, emacs
   backup file or matches an exclusion pattern."
   [file relative-path root-file patterns]
   (or (not (.exists file))
-      (.isDirectory file)
       (and
        (not= file root-file)
        (or
@@ -62,11 +61,15 @@
 
 (defmulti ^:private copy-to-jar (fn [project jar-os acc spec] (:type spec)))
 
-(defn- trim-leading [s to-trim]
-  (let [size (.length to-trim)]
-    (if (.startsWith s to-trim)
-      (.substring s size)
-      s)))
+(defn- relativize [path root-path]
+  (if (.startsWith path root-path)
+    (.substring path (.length root-path))
+    path))
+
+(defn- full-path [file path]
+  (if (.isDirectory file)
+    (str path "/")
+    path))
 
 (defn- dir-string
   "Returns the file's directory as a string, or the string representation of the
@@ -76,21 +79,34 @@
     (str (.getParent file) "/")
     (str file "/")))
 
+(defn- put-jar-entry [jar file path]
+  (.putNextEntry jar (doto (JarEntry. path)
+                          (.setTime (.lastModified file)))))
+
+(defn- path-goes-into-jar?
+  "Checks if the path has already been added to the jar and prints warning
+  if it has. Otherwise checks if path isn't excluded."
+  [relative-path file seen-paths root-file exclusion-patterns]
+  ; Path may be blank if it's the root path
+  (if (or (string/blank? relative-path) (seen-paths relative-path))
+    (when-not (.isDirectory file)
+      (main/info "Warning: skipped duplicate file:" relative-path)
+      false)
+    (not (skip-file? file relative-path root-file exclusion-patterns))))
+
 (defmethod copy-to-jar :path [project jar-os acc spec]
   (let [root-file (io/file (:path spec))
         root-dir-path (unix-path (dir-string root-file))
         paths (for [child (file-seq root-file)
-                    :let [path (trim-leading (unix-path (str child))
-                                             root-dir-path)]]
-                (when-not (skip-file? child path root-file
-                                      (:jar-exclusions project))
-                  (if (acc path)
-                    (main/info "Warning: skipped duplicate file:" path)
-                    (do
-                      (.putNextEntry jar-os (doto (JarEntry. path)
-                                              (.setTime (.lastModified child))))
-                      (io/copy child jar-os)
-                      path))))]
+                    :let [path (relativize
+                                 (full-path child (unix-path (str child)))
+                                 root-dir-path)]
+                    :when (path-goes-into-jar?
+                            path child acc root-file (:jar-exclusions project))]
+                (do (put-jar-entry jar-os child path)
+                    (when (not (.isDirectory child))
+                      (io/copy child jar-os))
+                    path))]
     (into acc paths)))
 
 (defmethod copy-to-jar :paths [project jar-os acc spec]
