@@ -46,6 +46,17 @@
   (let [attrs (.getMainAttributes manifest)]
     (zipmap (map str (keys attrs)) (vals attrs))))
 
+(defn- added-file?
+  "Returns true if the file is already added to the jar, false otherwise. Prints
+  a warning if the file is not a directory."
+  [file relative-path added-paths]
+  ;; Path may be blank if it is the root path
+  (if (or (string/blank? relative-path) (added-paths relative-path))
+    (do
+      (when-not (.isDirectory file)
+        (main/info "Warning: skipped duplicate file:" relative-path))
+      true)))
+
 (defn- skip-file?
   "Skips the file if it doesn't exist. If the file is not the
   root-file (specified by :path), will also skip it if it is a dotfile, emacs
@@ -61,12 +72,16 @@
 
 (defmulti ^:private copy-to-jar (fn [project jar-os acc spec] (:type spec)))
 
-(defn- relativize [path root-path]
+(defn- relativize-path
+  "Relativizes a path: Removes the root-path of a path if not already removed."
+  [path root-path]
   (if (.startsWith path root-path)
     (.substring path (.length root-path))
     path))
 
-(defn- full-path [file path]
+(defn- full-path ;; Q: is this a good name for this action?
+  "Appends the path string with a '/' if the file is a directory."
+  [file path]
   (if (.isDirectory file)
     (str path "/")
     path))
@@ -79,34 +94,26 @@
     (str (.getParent file) "/")
     (str file "/")))
 
-(defn- put-jar-entry [jar file path]
-  (.putNextEntry jar (doto (JarEntry. path)
-                          (.setTime (.lastModified file)))))
-
-(defn- path-goes-into-jar?
-  "Checks if the path has already been added to the jar and prints warning
-  if it has. Otherwise checks if path isn't excluded."
-  [relative-path file seen-paths root-file exclusion-patterns]
-  ; Path may be blank if it's the root path
-  (if (or (string/blank? relative-path) (seen-paths relative-path))
-    (when-not (.isDirectory file)
-      (main/info "Warning: skipped duplicate file:" relative-path)
-      false)
-    (not (skip-file? file relative-path root-file exclusion-patterns))))
+(defn- put-jar-entry!
+  "Adds a jar entry to the Jar output stream."
+  [jar-os file path]
+  (.putNextEntry jar-os (doto (JarEntry. path)
+                       (.setTime (.lastModified file))))
+  (when-not (.isDirectory file)
+    (io/copy file jar-os)))
 
 (defmethod copy-to-jar :path [project jar-os acc spec]
   (let [root-file (io/file (:path spec))
         root-dir-path (unix-path (dir-string root-file))
         paths (for [child (file-seq root-file)
-                    :let [path (relativize
+                    :let [path (relativize-path
                                  (full-path child (unix-path (str child)))
-                                 root-dir-path)]
-                    :when (path-goes-into-jar?
-                            path child acc root-file (:jar-exclusions project))]
-                (do (put-jar-entry jar-os child path)
-                    (when (not (.isDirectory child))
-                      (io/copy child jar-os))
-                    path))]
+                                 root-dir-path)]]
+                (when-not (or (skip-file? child path root-file
+                                          (:jar-exclusions project))
+                              (added-file? child path acc))
+                  (put-jar-entry! jar-os child path)
+                  path))]
     (into acc paths)))
 
 (defmethod copy-to-jar :paths [project jar-os acc spec]
