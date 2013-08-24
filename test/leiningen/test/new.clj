@@ -86,7 +86,7 @@
 
 (deftest test-new-generates-in-the-current-directory
   (let [original-pwd (System/getProperty "leiningen.original.pwd")
-        new-pwd (file original-pwd "subdir")
+        new-pwd (file original-pwd "subdir") ;; TODO: make rand temp dir instead
         _ (.mkdir new-pwd)
         new-pwd (str new-pwd)]
     ;; Simulate being in a directory other than the project's top-level dir
@@ -98,4 +98,4 @@
              "LICENSE"}
            (set (map (memfn getName) (rest (file-seq (file new-pwd "test-new-proj")))))))
     (System/setProperty "leiningen.original.pwd" original-pwd)
-    (delete-file-recursively (file new-pwd "test-new-proj") :silently)))
+    (delete-file-recursively (file new-pwd) :silently)))
