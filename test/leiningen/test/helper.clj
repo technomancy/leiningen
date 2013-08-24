@@ -40,6 +40,8 @@
 
 (def bad-require-project (read-test-project "bad-require"))
 
+(def java-main-project (read-test-project "java-main"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."
