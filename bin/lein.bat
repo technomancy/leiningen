@@ -137,21 +137,29 @@ goto RUN
 
 :DownloadFile
 rem parameters: TargetFileName Address
+if NOT "x%HTTP_CLIENT%" == "x" (
+    %HTTP_CLIENT% %1 %2
+    goto EOF
+)
+wget >nul 2>&1
+if NOT ERRORLEVEL 9009 (
+    wget --no-check-certificate -O %1 %2
+    goto EOF
+)
+curl >nul 2>&1
+if NOT ERRORLEVEL 9009 (
+    rem We set CURL_PROXY to a space character below to pose as a no-op argument
+    set CURL_PROXY= 
+    if NOT "x%HTTPS_PROXY%" == "x" set CURL_PROXY="-x %HTTPS_PROXY%"
+    curl %CURL_PROXY% --insecure -f -L -o  %1 %2
+    goto EOF
+)
 powershell -? >nul 2>&1
 if NOT ERRORLEVEL 9009 (
     powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" ""%2"" ""%1""
-) else (
-    wget >nul 2>&1
-    if NOT ERRORLEVEL 9009 (
-        wget --no-check-certificate -O %1 %2
-    ) else (
-        curl>nul 2>&1
-        if ERRORLEVEL 9009 goto NO_HTTP_CLIENT
-        curl --insecure -f -L -o  %1 %2
-    )
+    goto EOF
 )
-
-goto EOF
+goto NO_HTTP_CLIENT
 
 
 :NO_LEIN_JAR
