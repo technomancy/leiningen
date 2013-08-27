@@ -164,7 +164,7 @@
 
 (def lein-repl-server
   (delay (nrepl.server/start-server
-          :host (repl-host nil)
+          :bind (repl-host nil)
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
 (defn server [project cfg headless?]
