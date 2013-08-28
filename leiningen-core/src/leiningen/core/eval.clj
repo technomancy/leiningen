@@ -164,6 +164,8 @@ leiningen.core.utils/platform-nullsink instead."
                 in (.getOutputStream proc)]
       (let [pump-out (doto (Pipe. out *out*) .start)
             pump-err (doto (Pipe. err *err*) .start)
+            ;; TODO: this prevents nrepl need-input msgs from being propagated
+            ;; in the case of connecting to Leiningen over nREPL.
             pump-in (ClosingPipe. System/in in)]
         (when *pump-in* (.start pump-in))
         (.join pump-out)
@@ -253,6 +255,17 @@ leiningen.core.utils/platform-nullsink instead."
            (.printStackTrace e)
            (throw (ex-info "Classloader eval failed" {:exit-code 1}))))))
 
+(defn- send-input [message client session pending]
+  (let [id (str (java.util.UUID/randomUUID))]
+    (swap! pending conj id)
+    (message client {:id id :op "stdin" :stdin (str (read-line) "\n")
+                     :session session})))
+
+(defn- done? [{:keys [id status] :as msg} pending]
+  (let [pending? (@pending id)]
+    (swap! pending disj id)
+    (and (not pending?) (some #{"done" "interrupted" "error"} status))))
+
 (defmethod eval-in :nrepl [project form]
   (require 'clojure.tools.nrepl)
   (let [port-file (io/file (:target-path project) "repl-port")
@@ -264,12 +277,16 @@ leiningen.core.utils/platform-nullsink instead."
     (if (.exists port-file)
       (let [transport (connect :host "localhost"
                                :port (Integer. (slurp port-file)))
-            client (client-session (client transport Long/MAX_VALUE))]
+            client (client-session (client transport Long/MAX_VALUE))
+            pending (atom #{})]
         (message client {:op "eval" :code (pr-str form)})
-        (doseq [{:keys [out err status]} (repeatedly #(recv transport 100))
-                :while (not (some #{"done" "interrupted" "error"} status))]
-          (when out (println out))
-          (when err (binding [*out* *err*] (println err)))))
+        (doseq [{:keys [out err status session] :as msg} (repeatedly
+                                                          #(recv transport 100))
+                :while (not (done? msg pending))]
+          (when out (print out) (flush))
+          (when err (binding [*out* *err*] (print err) (flush)))
+          (when (some #{"need-input"} status)
+            (send-input message client session pending))))
       ;; TODO: warn that repl couldn't be used?
       (eval-in (assoc project :eval-in :subprocess) form))))
 
