@@ -254,8 +254,13 @@ simply supplements that for convenience. If you have a project in
 be visible but its dependencies will not be found. If you change the
 dependencies of a checkout project you will still have to run `lein
 install` and restart your repl; it's just that source changes will be
-picked up immediately. And of course you have to run `lein install` in
-a checkout dependency at least once before `lein repl` can use it.
+picked up immediately.
+
+After you've updated `:dependencies`, `lein` will still need to be able
+to find the library in some repository like clojars or your `~/.m2`
+directory.  If `lein` complains that it could not find the library
+artifact, you can install it locally by running `lein install` in the
+checkout dependency project directory.
 
 Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
