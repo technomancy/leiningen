@@ -212,7 +212,10 @@ leiningen.core.utils/platform-nullsink instead."
   "Evaluate the given form in various contexts."
   ;; Force it to be a keyword so that we can accept symbols too. That
   ;; way ^:replace and ^:displace metadata can be applied.
-  (fn [project _] (keyword (name (:eval-in project :subprocess)))))
+  (fn [project _] (keyword (name (:eval-in project :default)))))
+
+(defmethod eval-in :default [project form]
+  (eval-in (assoc project :eval-in :subprocess) form))
 
 (defmethod eval-in :subprocess [project form]
   (binding [*dir* (:root project)]
