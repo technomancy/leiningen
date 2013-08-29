@@ -60,11 +60,20 @@
     ;; TODO: support successful exit code only on fully-signed deps
     (println status (pr-str dep))))
 
+(def tree-command
+  "A mapping from the tree-command to the dependency key it should print a tree
+  for."
+  {":tree" :dependencies
+   ":plugin-tree" :plugins})
+
 (defn deps
   "Show details about dependencies.
 
 USAGE: lein deps :tree
 Show the full dependency tree for the current project.
+
+USAGE: lein deps :plugin-tree
+Show the full dependency tree for the plugins in the current project.
 
 USAGE: lein deps :verify
 Check signatures of each dependency. ALPHA: subject to change.
@@ -79,10 +88,11 @@ force them to be updated, use `lein -U $TASK`."
      (deps project nil))
   ([project command]
      (try
-       (cond (= command ":tree")
+       (cond (tree-command command)
              (let [hierarchy (classpath/dependency-hierarchy
-                              :dependencies (update-in project [:pedantic?]
-                                                       #(or % :warn)))]
+                              (tree-command command)
+                              (update-in project [:pedantic?]
+                                         #(or % :warn)))]
                (walk-deps hierarchy print-dep))
              (= command ":verify")
              (if (user/gpg-available?)
