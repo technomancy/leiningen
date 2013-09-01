@@ -173,8 +173,10 @@
   ;;   (comment Do app initialization here))
   ;;
   ;; This will be AOT compiled by default; to disable this, attach ^:skip-aot
-  ;; metadata to the namespace symbol. It's best to be explicit with the :aot
-  ;; key rather than relying on auto-compilation of :main.
+  ;; metadata to the namespace symbol. ^:skip-aot will not disable AOT
+  ;; compilation of :main when :aot is :all or contains the main class. It's
+  ;; best to be explicit with the :aot key rather than relying on
+  ;; auto-compilation of :main.
   :main my.service.runner
   ;; Support project-specific task aliases. These are interpreted in
   ;; the same way as command-line arguments to the lein command. If
@@ -281,7 +283,7 @@
 
   ;;; # Repl
   ;; Options to change the way the REPL behaves.
-  :repl-options { ;; Specify the string to print when prompting for input.
+  :repl-options {;; Specify the string to print when prompting for input.
                  ;; defaults to something like (fn [ns] (str *ns* "=> "))
                  :prompt (fn [ns] (str "your command for <" ns ">, master? " ))
                  ;; What to print when the repl session starts.

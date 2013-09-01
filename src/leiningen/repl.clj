@@ -118,7 +118,7 @@
                    :bind ~(:host cfg) :port ~(:port cfg)
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
-          port# (-> server# deref :ss .getLocalPort)
+          port# (:port server#)
           repl-port-file# (apply io/file ~(if (:root project)
                                             [(:root project) ".nrepl-port"]
                                             [(user/leiningen-home) "repl-port"]))
@@ -162,15 +162,18 @@
      `(do (try (require '~(init-ns project)) (catch Throwable t#))
           (require ~@(init-requires project 'reply.main))))))
 
-(def lein-repl-server
+(def ack-server
+  "The server which handles ack replies."
   (delay (nrepl.server/start-server
-          :host (repl-host nil)
+          :bind (repl-host nil)
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
+;; NB: This function cannot happen in parallel (or be recursive) because of race
+;; conditions in nrepl.ack.
 (defn server [project cfg headless?]
   (nrepl.ack/reset-ack-port!)
   (let [prep-blocker @eval/prep-blocker
-        ack-port (-> @lein-repl-server deref :ss .getLocalPort)]
+        ack-port (:port @ack-server)]
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
             (apply eval/eval-in-project project
@@ -179,7 +182,7 @@
     (when project @prep-blocker)
     (when headless? @(promise))
     (if-let [repl-port (nrepl.ack/wait-for-ack
-                        (-> project :repl-options (:timeout 60000)))]
+                        (get-in project [:repl-options :timeout] 60000))]
       (do (main/info "nREPL server started on port"
                      repl-port "on host" (:host cfg))
           repl-port)

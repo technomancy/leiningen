@@ -1,13 +1,10 @@
 (ns leiningen.test.jar
   (:require [clojure.java.io :as io]
-            [leiningen.core.main :as main])
+            [leiningen.core.main :as main]
+            [leiningen.core.eval :refer [platform-nullsink]]
+            [leiningen.test.helper :as helper])
   (:use [clojure.test]
-        [leiningen.jar]
-        [leiningen.core.eval :only [platform-nullsink]]
-        [leiningen.test.helper :only [tricky-name-project sample-failing-project
-                                      sample-no-aot-project sample-project
-                                      overlapped-sourcepaths-project
-                                      with-resources-project walkzip]])
+        [leiningen.jar])
   (:import (java.util.jar JarFile)))
 
 (def long-line
@@ -31,28 +28,29 @@
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
-    (is (thrown? Exception (jar sample-failing-project)))))
+    (is (thrown? Exception (jar helper/sample-failing-project)))))
 
 (deftest test-directory-entries-added-to-jar
   (with-out-str
-    (let [jar (first (vals (jar with-resources-project)))
-          entry-names (set (walkzip jar #(.getName %)))]
+    (let [jar (first (vals (jar helper/with-resources-project)))
+          entry-names (set (helper/walkzip jar #(.getName %)))]
       (is (entry-names "nested/dir/"))
       (is (not (some #(.startsWith % "/") entry-names))))))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
-    (is (jar sample-no-aot-project))))
+    (is (jar helper/sample-no-aot-project))))
 
 (deftest ^:online test-no-deps-jar
   (let [[coord jar-file] (first
-                          (jar (dissoc sample-project :dependencies :main)))]
+                          (jar (dissoc helper/sample-project
+                                       :dependencies :main)))]
     (is (.exists (io/file jar-file)))
     (is (= coord [:extension "jar"]))))
 
 (deftest overlapped-paths
   (let [info-logs (atom [])]
     (with-redefs [main/info (fn [& args] (swap! info-logs conj args))]
-      (let [result (jar overlapped-sourcepaths-project)]
+      (let [result (jar helper/overlapped-sourcepaths-project)]
         (is result)
         (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))))))

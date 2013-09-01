@@ -253,7 +253,7 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (user/init)
     (let [project (project/init-project
                    (if (.exists (io/file *cwd* "project.clj"))
-                     (project/read)
+                     (project/read (str (io/file *cwd* "project.clj")))
                      (-> (project/make {:eval-in :leiningen :prep-tasks []
                                         :source-paths ^:replace []
                                         :resource-paths ^:replace []

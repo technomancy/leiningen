@@ -1,18 +1,18 @@
 (ns leiningen.test.run
-  (:require [leiningen.core.project :as project])
+  (:require [leiningen.core.project :as project]
+            [leiningen.javac]
+            [clojure.java.io :as io]
+            [leiningen.test.helper :as helper
+             :refer [bad-require-project tmp-dir tricky-name-project
+                     java-main-project]])
   (:use [clojure.test]
-        [clojure.java.io :only [delete-file]]
-        ;; [leiningen.javac :only [javac]]
-        [leiningen.run]
-        [leiningen.test.helper :only [bad-require-project
-                                      tmp-dir
-                                      tricky-name-project]]))
+        [leiningen.run]))
 
 (def out-file (format "%s/lein-test" tmp-dir))
 
 (use-fixtures :each (fn [f]
                       (f)
-                      (delete-file out-file :silently)))
+                      (io/delete-file out-file :silently)))
 
 (deftest test-basic
   (run tricky-name-project "/unreadable")
@@ -40,7 +40,8 @@
       (is (re-find #"FileNotFoundException" e-msg))
       (is (re-find #"this/namespace/does/not/exist.clj" e-msg)))))
 
-;; TODO: re-enable
-;; (deftest test-run-java-main
-;;   (javac dev-deps-project)
-;;   (run dev-deps-project))
+(deftest test-run-java-main
+  (leiningen.javac/javac java-main-project)
+  (let [out-result (with-out-str (run java-main-project))]
+    (is (= (.trim out-result) ;; To avoid os-specific newline handling
+            "Hello from Java!"))))
