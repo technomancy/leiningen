@@ -62,10 +62,29 @@
   (if-let [resource (io/resource (format "leiningen/help/%s" name))]
     (slurp resource)))
 
+(declare help-for)
+
+(defn alias-help
+  "Returns a string containing help for an alias, or nil if the string is not an
+  alias."
+  [aliases task-name]
+  (if (aliases task-name)
+    (let [alias-expansion (aliases task-name)
+          explanation (-> alias-expansion meta :doc)]
+      (cond explanation (str task-name ": " explanation)
+            (string? alias-expansion) (str
+                                       (format
+                                        (str "'%s' is an alias for '%s',"
+                                             " which has following help doc:\n")
+                                        task-name alias-expansion)
+                                       (help-for alias-expansion))
+            :no-explanation-or-string (str task-name " is an alias, expands to "
+                                           alias-expansion)))))
+
 (defn help-for
   "Returns a string containing help for a task.
-Looks for a function named 'help' in the subtask's namespace,
-then a docstring on the task, then a docstring on the task ns."
+  Looks for a function named 'help' in the subtask's namespace, then a docstring
+  on the task, then a docstring on the task ns."
   ([task-name]
      (let [[task-ns task] (resolve-task task-name)]
        (if task
@@ -79,12 +98,13 @@ then a docstring on the task, then a docstring on the task ns."
          (format "Task: '%s' not found" task-name))))
   ([project task-name]
      (let [aliases (merge main/aliases (:aliases project))]
-       (help-for (aliases task-name task-name)))))
+       (or (alias-help aliases task-name)
+           (help-for task-name)))))
 
 (defn help-for-subtask
   "Returns a string containing help for a subtask.
-Looks for a function named 'help-<subtask>' in the subtask's namespace,
-using the subtask's docstring if the help function is not found."
+  Looks for a function named 'help-<subtask>' in the subtask's namespace,
+  using the subtask's docstring if the help function is not found."
   ([task-name subtask-name]
      (if-let [subtask (resolve-subtask task-name subtask-name)]
        (let [subtask-meta (meta subtask)
