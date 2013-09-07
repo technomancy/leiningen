@@ -43,3 +43,18 @@
   (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
     (is (= ["install" "uninstall"]
            (sort (keys m))))))
+
+(deftest test-alias-docstrings
+  (testing "default alias docstrings"
+    (is (re-find #"is an alias for" (help-for {} "--version")))
+    (is (re-find #"is an alias" (help-for {} "-o")))
+    (is (re-find #"not found" (help-for {} "not-a-task"))))
+  (testing "own alias docstrings"
+    (let [custom-aliases {:aliases {"foobar" ^{:doc "Foos the bar."}
+                                              ["foo" "bar"],
+                                    "vsn" "version"
+                                    "multipart" ["multi" "part"]}}]
+      (is (re-find #"is an alias for" (help-for custom-aliases "vsn")))
+      (is (re-find #"is an alias" (help-for custom-aliases "multipart")))
+      (is (re-find #"Foos the bar\." (help-for custom-aliases "foobar")))
+      (is (re-find #"not found" (help-for custom-aliases "not-a-task"))))))
