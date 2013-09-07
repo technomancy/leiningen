@@ -64,7 +64,7 @@
 
 (declare help-for)
 
-(defn alias-help
+(defn- alias-help
   "Returns a string containing help for an alias, or nil if the string is not an
   alias."
   [aliases task-name]
