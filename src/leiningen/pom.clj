@@ -237,13 +237,14 @@
         [:directory (:target-path project)]
         [:outputDirectory (:compile-path project)]
         [:plugins
-	        (if-let [plugins (seq (:plugins project))]
+	        (if-let [plugins (seq (:pom-plugins project))]
 	                       (for [[dep version configuration] plugins]
 	                         [:plugin
 	                          [:groupId (or (namespace dep) (name dep))]
 	                          [:artifactId (name dep)]
 	                          [:version version]                           
-                            ;place for maven configuration tag                            
+                            ;place for maven configuration tag    
+                            [:configuration configuration]
                            ]                            
                           ))
          
