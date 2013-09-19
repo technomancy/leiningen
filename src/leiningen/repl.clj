@@ -48,7 +48,7 @@
         (s/join ":" x)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
-  (as-> (:repl-options project) x
+  (as-> (:repl-options project) opts
         (merge {:history-file (->> (if-let [root (:root project)]
                                      [root ".lein-repl-history"]
                                      [(user/leiningen-home) "repl-history"])
@@ -58,14 +58,14 @@
                 ;; TODO: once reply/#114 is fixed; add (user/help) back in and
                 ;; move other source/javadoc/etc references into longer help.
                 :welcome (list 'println (slurp (io/resource "repl-welcome")))}
-               x)
-        (apply dissoc x (concat [:init] (if attach [:host :port])))
-        (merge x (cond attach {:attach (str attach)}
-                       port {:port port}
-                       :else {}))
-        (clojure.set/rename-keys x {:prompt :custom-prompt
-                                    :welcome :custom-help})
-        (if (:port x) (update-in x [:port] str) x)))
+               opts)
+        (apply dissoc opts (concat [:init] (if attach [:host :port])))
+        (merge opts (cond attach {:attach (str attach)}
+                          port {:port port}
+                          :else {}))
+        (clojure.set/rename-keys opts {:prompt :custom-prompt
+                                       :welcome :custom-help})
+        (if (:port opts) (update-in opts [:port] str) opts)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns main))
