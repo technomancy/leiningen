@@ -1,5 +1,11 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.3.3 / ???
+
+* Support stdin when using `:eval-in :nrepl`. (Phil Hagelberg)
+* Add directory entries to jar files. (Vadim Platonov)
+* Fix a bug where `-main` was hard-coded to initial directory. (Phil Hagelberg)
+
 ## 2.3.2 / 2013-08-19
 
 * Write `.nrepl-port` file for better tool interoperability. (Phil Hagelberg)

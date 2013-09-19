@@ -297,16 +297,11 @@ Enough setup; let's see some code running. Start with a REPL
     nREPL server started on port 40612
     Welcome to REPL-y!
     Clojure 1.4.0
-        Exit: Control+D or (exit) or (quit)
-    Commands: (user/help)
         Docs: (doc function-name-here)
               (find-doc "part-of-name-here")
       Source: (source function-name-here)
-              (user/sourcery function-name-here)
      Javadoc: (javadoc java-object-or-class-here)
-    Examples from clojuredocs.org: [clojuredocs or cdoc]
-              (user/clojuredocs name-here)
-              (user/clojuredocs "ns-here" "name-here")
+        Exit: Control+D or (exit) or (quit)
 
     user=>
 

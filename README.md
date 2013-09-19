@@ -96,7 +96,7 @@ Leiningen documentation is organized as a number of guides:
 
  * [Tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
  * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
- * Leiningen [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
+ * [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
  * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
  * [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
