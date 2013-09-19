@@ -460,8 +460,8 @@
 
 (alter-var-root #'warn-user-repos memoize)
 
-(defn- warn-user-profile [profiles]
-  (when (contains? profiles :user)
+(defn- warn-user-profile [root profiles]
+  (when (and root (contains? profiles :user))
     (println "WARNING: user-level profile defined in project files.")))
 
 (alter-var-root #'warn-user-profile memoize)
@@ -474,7 +474,7 @@
 
 (defn- project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
-    (warn-user-profile profiles)
+    (warn-user-profile (:root project) profiles)
     profiles))
 
 (defn read-profiles
@@ -485,7 +485,7 @@
   the project root, and the :profiles key from the project map."
   [project]
   (warn-user-repos (concat (user/profiles) (system-profiles)))
-  (warn-user-profile (:profiles project))
+  (warn-user-profile (:root project) (:profiles project))
   (merge @default-profiles (system-profiles) (user/profiles)
          (:profiles project) (project-profiles project)))
 
