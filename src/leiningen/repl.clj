@@ -168,10 +168,17 @@
           :bind (repl-host nil)
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
+(defn nrepl-dependency? [{:keys [dependencies]}]
+  (some (fn [[d]] (re-find #"tools.nrepl" (str d))) dependencies))
+
 ;; NB: This function cannot happen in parallel (or be recursive) because of race
 ;; conditions in nrepl.ack.
 (defn server [project cfg headless?]
   (nrepl.ack/reset-ack-port!)
+  (when-not (nrepl-dependency? project)
+    (main/info "Warning: no nREPL dependency detected.")
+    (main/info "Be sure to include org.clojure/tools.nrepl in :dependencies"
+               "of your profile."))
   (let [prep-blocker @eval/prep-blocker
         ack-port (:port @ack-server)]
     (-> (bound-fn []
