@@ -15,7 +15,7 @@ instead of directly in the `project.clj` file.
 ## Writing a Plugin
 
 Start by generating a new project with `lein new plugin
-lein-myplugin`, and edit the `myplugin` defn in the
+myplugin`, and edit the `myplugin` defn in the
 `leiningen.myplugin` namespace. You'll notice the `project.clj` file
 has `:eval-in-leiningen true`, which causes all tasks to operate
 inside the leiningen process rather than starting a subprocess to
