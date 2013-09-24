@@ -6,6 +6,8 @@
            (clojure.lang Reflector)))
 
 (defn- normalize-main [given]
+  (when-not (symbol? (read-string given))
+    (main/abort "Option -m requires a valid namespace argument."))
   (if (namespace (symbol given))
     (symbol given)
     (symbol (name given) "-main")))
@@ -48,7 +50,7 @@
                     [:done (v# ~@args)]
                     [:not-found]))
                 (catch FileNotFoundException e#
-                  [:threw e#]))
+                  ~(main/abort (format "Can't find '%s' as .class or .clj, please check the spelling" given))))
 
            ;; If we didn't succeed above, check if a class exists for
            ;; the given name
