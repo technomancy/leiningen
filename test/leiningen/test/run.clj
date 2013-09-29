@@ -23,7 +23,14 @@
 
 (deftest test-valid-namespace-argument
   (is (re-find #"Option -m requires a valid namespace argument, not -1\."
-       (helper/abort-msg run tricky-name-project "-m" "-1"))))
+               (helper/abort-msg run tricky-name-project "-m" "-1"))))
+
+(deftest test-nonexistant-ns-error-message
+  (is (re-find #"Can't find 'nonexistant.ns' as \.class or \.clj for lein run"
+               (with-out-str
+                 (binding [*err* *out*]
+                   (try (run tricky-name-project "-m" "nonexistant.ns")
+                        (catch Exception _)))))))
 
 (deftest test-escape-args
   (run tricky-name-project "--" ":bbb")

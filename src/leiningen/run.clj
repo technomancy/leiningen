@@ -52,7 +52,7 @@
                     [:done (v# ~@args)]
                     [:not-found]))
                 (catch FileNotFoundException e#
-                  ~(main/abort (format "Can't find '%s' as .class or .clj, please check the spelling" given))))
+                  [:threw e#]))
 
            ;; If we didn't succeed above, check if a class exists for
            ;; the given name
@@ -74,7 +74,11 @@
 
         ;; If we got an exception earlier and nothing else worked,
         ;; rethrow that.
-        (= :threw ns-flag#) (throw data#)))))
+        (= :threw ns-flag#)
+        (do (binding [*out* *err*]
+              (println (str "Can't find '" '~given "' as .class or .clj for "
+                            "lein run: please check the spelling.")))
+            (throw data#))))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
