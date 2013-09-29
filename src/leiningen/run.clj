@@ -6,8 +6,10 @@
            (clojure.lang Reflector)))
 
 (defn- normalize-main [given]
-  (when-not (symbol? (read-string given))
-    (main/abort "Option -m requires a valid namespace argument."))
+  (when-not (or (symbol? given)
+                (and (string? given) (symbol? (read-string given))))
+    (main/abort (str "Option -m requires a valid namespace argument, not "
+                     given ".")))
   (if (namespace (symbol given))
     (symbol given)
     (symbol (name given) "-main")))
