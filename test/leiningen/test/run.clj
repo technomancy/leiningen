@@ -1,12 +1,11 @@
 (ns leiningen.test.run
-  (:require [leiningen.core.project :as project])
+  (:require [leiningen.core.project :as project]
+                    [leiningen.test.helper :as helper
+                     :refer [bad-require-project tmp-dir tricky-name-project]])
   (:use [clojure.test]
         [clojure.java.io :only [delete-file]]
         ;; [leiningen.javac :only [javac]]
-        [leiningen.run]
-        [leiningen.test.helper :only [bad-require-project
-                                      tmp-dir
-                                      tricky-name-project]]))
+        [leiningen.run]))
 
 (def out-file (format "%s/lein-test" tmp-dir))
 
@@ -21,6 +20,10 @@
 (deftest test-alt-main
   (run tricky-name-project "-m" "org.domain.tricky-name.munch" "/unreadable")
   (is (= ":munched (\"/unreadable\")" (slurp out-file))))
+
+(deftest test-valid-namespace-argument
+  (is (re-find #"Option -m requires a valid namespace argument, not -1\."
+       (helper/abort-msg run tricky-name-project "-m" "-1"))))
 
 (deftest test-escape-args
   (run tricky-name-project "--" ":bbb")
