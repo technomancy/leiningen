@@ -73,7 +73,8 @@
        ""                    "repl-host:5"
        "7"                   "repl-host:7"
        "myhost:9"            "myhost:9"
-       "http://localhost:20" "http://localhost:20"))
+       "http://localhost:20" "http://localhost:20")
+  (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project []))))
 
 (deftest test-options-for-reply
   (is (= (lthelper/fix-path-delimiters "/home/user/.lein-repl-history")
