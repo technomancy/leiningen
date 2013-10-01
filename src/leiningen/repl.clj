@@ -39,11 +39,17 @@
       (-> project :repl-options :host)
       "127.0.0.1"))
 
+(defn client-repl-port [project]
+  (let [port (repl-port project)]
+    (if (= port 0)
+      (slurp (io/file (:root project) ".nrepl-port"))
+      port)))
+
 (defn connect-string [project opts]
   (as-> (str (first opts)) x
         (s/split x #":")
         (remove s/blank? x)
-        (-> (drop-last (count x) [(repl-host project) (repl-port project)])
+        (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
             (concat x))
         (s/join ":" x)))
 
