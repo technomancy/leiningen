@@ -74,7 +74,10 @@
        "7"                   "repl-host:7"
        "myhost:9"            "myhost:9"
        "http://localhost:20" "http://localhost:20")
-  (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project []))))
+  (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project [])))
+  (is (re-find
+       #"Port is required"
+       (lthelper/abort-msg connect-string lthelper/with-resources-project []))))
 
 (deftest test-options-for-reply
   (is (= (lthelper/fix-path-delimiters "/home/user/.lein-repl-history")
