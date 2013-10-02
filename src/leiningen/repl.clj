@@ -42,7 +42,9 @@
 (defn client-repl-port [project]
   (let [port (repl-port project)]
     (if (= port 0)
-      (slurp (io/file (:root project) ".nrepl-port"))
+      (try
+        (slurp (io/file (:root project) ".nrepl-port"))
+        (catch Exception _ (main/abort "Port is required")))
       port)))
 
 (defn connect-string [project opts]
