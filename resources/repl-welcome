@@ -3,3 +3,4 @@
   Source: (source function-name-here)
  Javadoc: (javadoc java-object-or-class-here)
     Exit: Control+D or (exit) or (quit)
+ Results: Stored in vars *1, *2, *3, an exception in *e
