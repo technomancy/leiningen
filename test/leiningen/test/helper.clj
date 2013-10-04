@@ -34,6 +34,8 @@
 
 (def provided-project (read-test-project "provided"))
 
+(def uberjar-merging-project (read-test-project "uberjar-merging"))
+
 (def overlapped-sourcepaths-project (read-test-project "overlapped-sourcepaths"))
 
 (def more-gen-classes-project (read-test-project "more-gen-classes"))

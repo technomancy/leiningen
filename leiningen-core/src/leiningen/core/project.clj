@@ -170,6 +170,10 @@
    :certificates ["clojars.pem"]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
+   :uberjar-merge-with {"META-INF/plexus/components.xml"
+                          'leiningen.uberjar/components-merger,
+                        "data_readers.clj"
+                          'leiningen.uberjar/clj-map-merger}
    :global-vars {}})
 
 (defn- dep-key

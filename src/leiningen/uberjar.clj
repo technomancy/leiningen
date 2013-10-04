@@ -6,65 +6,112 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [leiningen.jar :as jar])
-  (:import (java.util.zip ZipFile ZipOutputStream ZipEntry)
-           (java.io File FileOutputStream PrintWriter)))
+  (:import (java.io File FileOutputStream PrintWriter)
+           (java.util.regex Pattern)
+           (java.util.zip ZipFile ZipOutputStream ZipEntry)
+           (org.apache.commons.io.output CloseShieldOutputStream)))
 
-(defn read-components [zipfile]
-  (if-let [entry (.getEntry zipfile "META-INF/plexus/components.xml")]
-    (->> (zip/xml-zip (xml/parse (.getInputStream zipfile entry)))
-         zip/children
-         (filter #(= (:tag %) :components))
-         first
-         :content)))
+(defn- components-read [ins]
+  (->> ins xml/parse zip/xml-zip zip/children
+       (filter #(= (:tag %) :components))
+       first :content))
 
-;; We have to keep this separate from skip-set for performance reasons.
-(defn- make-skip-pred [project]
-  (fn [filename]
-    (some #(re-find % filename) (:uberjar-exclusions project))))
+(defn- components-write [out components]
+  (binding [*out* (PrintWriter. out)]
+    (xml/emit {:tag :component-set
+               :content
+               [{:tag :components
+                 :content components}]})
+    (.flush *out*)))
+
+(def components-merger
+  "Project `:uberjar-merge-with` merger for components.xml files."
+  [components-read into components-write])
+
+(def clj-map-merger
+  "Project `:uberjar-merge-with` for files containing a single map
+  read with `clojure.core/read`, such as data_readers.clj."
+  [(comp read-string slurp) merge #(spit %1 (pr-str %2))])
+
+(defn- merger-match? [[pattern] filename]
+  (boolean
+   (condp instance? pattern
+     String (= pattern filename)
+     Pattern (re-find pattern filename))))
+
+(def ^:private skip-merger
+  [(constantly ::skip)
+   (constantly nil)])
+
+(def ^:private default-merger
+  [(fn [in out file prev]
+     (when-not prev
+       (.setCompressedSize file -1)
+       (.putNextEntry out file)
+       (io/copy (.getInputStream in file) out)
+       (.closeEntry out))
+     ::skip)
+   (constantly nil)])
+
+(defn- make-merger [fns]
+  {:pre [(sequential? fns) (= 3 (count fns)) (every? ifn? fns)]}
+  (let [[read-fn merge-fn write-fn] fns]
+    [(fn [in out file prev]
+       (with-open [ins (.getInputStream in file)]
+         (let [new (read-fn ins)]
+           (if-not prev
+             new
+             (merge-fn new prev)))))
+     (fn [out filename result]
+       (.putNextEntry out (ZipEntry. filename))
+       (write-fn (CloseShieldOutputStream. out) result)
+       (.closeEntry out))]))
+
+(defn- make-mergers [project]
+  (into (utils/map-vals
+         (:uberjar-merge-with project)
+         (comp make-merger eval))
+        (map #(-> [% skip-merger])
+             (:uberjar-exclusions project))))
+
+(defn- select-merger [mergers filename]
+  (or (->> mergers (filter #(merger-match? % filename)) first second)
+      default-merger))
 
 ;; TODO: unify with copy-to-jar functionality in jar.clj (for 3.0?)
 (defn- copy-entries
-  "Copies the entries of ZipFile in to the ZipOutputStream out, skipping
-  the entries which satisfy skip-pred. Returns the names of the
-  entries copied."
-  [in out skip-set skip-pred]
-  (for [file (enumeration-seq (.entries in))
-        :let [filename (.getName file)]
-        :when (not (or (skip-set filename) (skip-pred filename)))]
-    (do
-      (.setCompressedSize file -1) ; some jars report size incorrectly
-      (.putNextEntry out file)
-      (io/copy (.getInputStream in file) out)
-      (.closeEntry out)
-      (.getName file))))
+  "Read entries of ZipFile `in` and apply the filename-determined
+  entry-merging logic captured in `mergers`.  The default merger
+  copies entry contents directly to the ZipOutputStream `out` and
+  skips subsequent same-named files.  Returns new `merged-map` merged
+  entry map."
+  [in out mergers merged-map]
+  (reduce (fn [merged-map file]
+            (let [filename (.getName file), prev (get merged-map filename)]
+              (if (identical? ::skip prev)
+                merged-map
+                (let [[read-merge] (select-merger mergers filename)]
+                  (assoc merged-map
+                    filename (read-merge in out file prev))))))
+          merged-map (enumeration-seq (.entries in))))
 
-;; we have to keep track of every entry we've copied so that we can
-;; skip duplicates.  We also collect together all the plexus components so
-;; that we can merge them.
-(defn- include-dep [out skip-pred [skip-set components] dep]
+(defn- include-dep [out mergers merged-map dep]
   (main/debug "Including" (.getName dep))
   (with-open [zipfile (ZipFile. dep)]
-    [(into skip-set (copy-entries zipfile out skip-set skip-pred))
-     (concat components (read-components zipfile))]))
+    (copy-entries zipfile out mergers merged-map)))
 
 (defn write-components
   "Given a list of jarfiles, writes contents to a stream"
   [project jars out]
-  (let [[_ components] (reduce (partial include-dep out
-                                        (make-skip-pred project))
-                               [#{"META-INF/plexus/components.xml"} nil]
-                               jars)]
-    (when-not (empty? components)
-      (.putNextEntry out (ZipEntry. "META-INF/plexus/components.xml"))
-      (binding [*out* (PrintWriter. out)]
-        (xml/emit {:tag :component-set
-                   :content
-                   [{:tag :components
-                     :content
-                     components}]})
-        (.flush *out*))
-      (.closeEntry out))))
+  (let [mergers (make-mergers project)
+        include-dep (partial include-dep out mergers)
+        merged-map (reduce include-dep {} jars)]
+    (doseq [[filename result] merged-map
+            :when (not (identical? ::skip result))
+            :let [[_ write] (select-merger mergers filename)]]
+      (write out filename result))))
 
 (defn uberjar
   "Package up the project files and all dependencies into a jar file.
