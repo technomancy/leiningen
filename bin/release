@@ -15,9 +15,7 @@ rm -rf $HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar
 LEIN_ROOT=$PWD
 
 cd leiningen-core
-sed -i s/\;\;:aot/:aot/ project.clj
 lein do clean, install
-sed -i s/:aot/\;\;:aot/ project.clj
 cd ..
 
 bin/lein uberjar
