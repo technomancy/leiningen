@@ -1,7 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.3.3 / ???
+## 2.3.3 / 2013-10-05
 
+* Add support for `:uberjar-merge-with`. (Marshall Bockrath-Vandegrift)
+* Better error message for `-m` arg in `run` task. (Aleksandar Simic)
 * Support stdin when using `:eval-in :nrepl`. (Phil Hagelberg)
 * Add directory entries to jar files. (Vadim Platonov)
 * Fix a bug where `-main` was hard-coded to initial directory. (Phil Hagelberg)
