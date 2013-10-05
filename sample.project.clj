@@ -332,6 +332,14 @@
   :jar-exclusions [#"(?:^|/).svn/"]
   ;; Same thing, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
+  ;; Files to merge programmatically in uberjars when multiple same-named files
+  ;; exist across project and dependencies.  Should be a map of filename strings
+  ;; or regular expressions to a sequence of three functions:
+  ;; 1. Takes an input stream; returns a parsed datum.
+  ;; 2. Takes a new datum and the current result datum; returns a merged datum.
+  ;; 3. Takes an output stream and a datum; writes the datum to the stream.
+  ;; Resolved in reverse dependency order, starting with project.
+  :uberjar-merge-with {#"\.properties$" [slurp str spit]}
   ;; Add arbitrary jar entries. Supports :path, :paths, :bytes, and :fn types.
   :filespecs [{:type :path :path "config/base.clj"}
               ;; Directory paths are included recursively.
