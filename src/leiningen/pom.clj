@@ -243,7 +243,10 @@
                               [:groupId (or (namespace dep) (name dep))]
                               [:artifactId (name dep)]
                               [:version version]
-                              (if (map? plugin-addition) (seq plugin-addition))
+                              (if (map? plugin-addition) 
+                              	(seq plugin-addition)
+                              	[:configuration plugin-addition]
+                              	)
                            ]                            
                           ))
          
