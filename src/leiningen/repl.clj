@@ -44,8 +44,13 @@
     (if (= port 0)
       (try
         (slurp (io/file (:root project) ".nrepl-port"))
-        (catch Exception _ (main/abort "Port is required")))
+        (catch Exception _))
       port)))
+
+(defn ensure-port [s]
+  (if (re-find #":\d+$" s)
+    s
+    (main/abort "Port is required. See `lein help repl`")))
 
 (defn connect-string [project opts]
   (as-> (str (first opts)) x
@@ -53,7 +58,8 @@
         (remove s/blank? x)
         (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
             (concat x))
-        (s/join ":" x)))
+        (s/join ":" x)
+        (ensure-port x)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
   (as-> (:repl-options project) opts
@@ -215,14 +221,15 @@ Subcommands:
 
 <none> -> :start
 
-:start [:host host] [:port port] This will launch an nREPL server
-  and connect a client to it. If the :host key is given, or present
-  under :repl-options, that host will be attached to, defaulting
-  to localhost otherwise, which will block remote connections.
-  If the :port key is given, or present under :repl-options in
-  the project map, that port will be used for the server, otherwise
-  it is chosen randomly. When starting outside of a project,
-  the nREPL server will run internally to Leiningen.
+:start [:host host] [:port port]
+  This will launch an nREPL server and connect a client to it.
+  If the :host key is given, LEIN_REPL_HOST is set, or :host is present
+  under :repl-options, that host will be attached to, defaulting to
+  localhost otherwise, which will block remote connections. If the :port
+  key is given, LEIN_REPL_PORT is set, or :port is present under
+  :repl-options in the project map, that port will be used for
+  the server, otherwise it is chosen randomly. When starting outside
+  of a project, the nREPL server will run internally to Leiningen.
 
 :headless [:host host] [:port port]
   This will launch an nREPL server and wait, rather than connecting
@@ -235,8 +242,9 @@ Subcommands:
   - port -- resolves host from the LEIN_REPL_HOST environment
       variable or :repl-options, in that order, and defaults to
       localhost.
-  If no dest is given, resolves the port from :repl-options and the host
-  as described above."
+  If no dest is given, resolves the host resolved as described above
+  and the port from LEIN_REPL_PORT, :repl-options, or .nrepl-port in
+  the project root, in that order."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
      (let [project (project/merge-profiles project [:repl])]
