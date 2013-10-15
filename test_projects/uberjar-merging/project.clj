@@ -8,6 +8,7 @@
                  [janino "2.5.15"]
                  [org.platypope/method-fn "0.1.0"]]
   :uberjar-exclusions [#"DUMMY"]
+  :uberjar-merge-with {#"\.properties$" [slurp str spit]}
   :test-selectors {:default (fn [m] (not (:integration m)))
                    :integration :integration
                    :int2 :int2
