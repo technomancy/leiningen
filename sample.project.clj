@@ -369,9 +369,15 @@
   ;; Extensions here will be propagated to the pom but not used by Leiningen.
   :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
                [foo/bar-baz "1.0"]]
-  ;; Plugins here will be propagated to the pom but not used by Leiningen.
+  ;; Plugins here will be propagated to the pom but not used by Leiningen.  
   :pom-plugins [[com.theoryinpractise/clojure-maven-plugin "1.3.13"
-                 [:configuration [:sourceDirectories [:sourceDirectory "src"]]]]
+               ;; this section is optional, values have the same syntax as pom-addition
+               {:configuration [:sourceDirectories [:sourceDirectory "src"]]
+                :extensions "true" 
+                :executions ([:execution [:id "echodir"] 
+                    [:goals ([:goal "run"])] 
+                    [:phase "verify"]])
+                }]
                 [org.apache.tomcat.maven/tomcat7-maven-plugin "2.1"]]
   ;; Include <scm> tag in generated pom.xml file. All key/value pairs
   ;; appear exactly as configured. If absent, Leiningen will try to

@@ -237,15 +237,15 @@
         [:directory (:target-path project)]
         [:outputDirectory (:compile-path project)]
         [:plugins
-	        (if-let [plugins (seq (:pom-plugins project))]
-	                       (for [[dep version configuration] plugins]
-	                         [:plugin
-	                          [:groupId (or (namespace dep) (name dep))]
-	                          [:artifactId (name dep)]
-	                          [:version version]                           
-                            ;place for maven configuration tag    
-                            [:configuration configuration]
-                           ]                            
+            (if-let [plugins (seq (:pom-plugins project))]
+                           (for [[dep version plugin-addition] plugins]
+                             [:plugin
+                              [:groupId (or (namespace dep) (name dep))]
+                              [:artifactId (name dep)]
+                              [:version version]
+                              (if (map? plugin-addition) (seq plugin-addition))
+                              (if (vector? plugin-addition) (seq (apply hash-map plugin-addition))) 
+                           ]
                           ))
          
         (if (or (seq extra-src) (seq extra-test))
