@@ -103,18 +103,31 @@
   [obj]
   (-> obj meta* :replace))
 
+(defn- top-displace?
+  "Returns true if the object is marked as top-displaceable"
+  [obj]
+  (-> obj meta* :top-displace))
+
 (defn- different-priority?
   "Returns true if either left has a higher priority than right or vice versa."
   [left right]
   (boolean
-   (some (some-fn nil? displace? replace?) [left right])))
+   (or (some (some-fn nil? displace? replace?) [left right])
+       (top-displace? left))))
+
+(defn- remove-top-displace [obj]
+  (if-not (top-displace? obj)
+    obj
+    (vary-meta obj dissoc :top-displace)))
 
 (defn- pick-prioritized
   "Picks the highest prioritized element of left and right and merge their
   metadata."
   [left right]
   (cond (nil? left) right
-        (nil? right) left
+        (nil? right) (remove-top-displace left)
+
+        (top-displace? left) right
 
         (and (displace? left)   ;; Pick the rightmost
              (displace? right)) ;; if both are marked as displaceable
@@ -158,14 +171,15 @@
 
 (def defaults
   ;; TODO: move :repositories here in 3.0
-  {:source-paths ["src"]
-   :resource-paths ["resources"]
-   :test-paths ["test"]
+  {:source-paths ^:top-displace ["src"]
+   :resource-paths ^:top-displace ["resources"]
+   :test-paths ^:top-displace ["test"]
    :native-path "%s/native"
    :compile-path "%s/classes"
    :target-path "target"
-   :clean-targets [:target-path]
-   :prep-tasks ["javac" "compile"]
+   :clean-targets ^:top-displace [:target-path]
+   ;; TODO: remove :top-displace for :prep-tasks in 3.0
+   :prep-tasks ^:top-displace ["javac" "compile"]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
@@ -274,7 +288,7 @@
            :source-paths empty-paths
            :resource-paths empty-paths
            :test-paths empty-paths}
-          (-> (merge defaults project)
+          (-> (meta-merge defaults project)
               (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
                                    (:jvm-opts defaults)))
               (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
