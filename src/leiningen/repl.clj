@@ -48,7 +48,7 @@
       port)))
 
 (defn ensure-port [s]
-  (if (re-find #":\d+$" s)
+  (if (re-find #":\d+($|/.*$)" s)
     s
     (main/abort "Port is required. See `lein help repl`")))
 
