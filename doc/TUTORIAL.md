@@ -159,7 +159,20 @@ stable version of the `clj-http` library, one in Leiningen format
 shown above and one in Maven format. We'll skip the Maven one for now,
 though you'll need to learn to read it for Java libraries from
 [Central](http://search.maven.org). You can copy the Leiningen version
-directly into the `:dependencies` vector in `project.clj`.
+directly into the `:dependencies` vector in `project.clj`.  So for
+instance, if you change replace the `:dependencies` line in the example
+`project.clj` above to 
+
+```clj
+:dependencies [[org.clojure/clojure "1.4.0"]
+	       [clj-http "0.5.5"]]
+```
+
+`lein` will automatically download the `clj-http` jar and make sure it
+is on your classpath when your project code is run under future `lein`
+invocations.  If you want to explicitly tell lein to download new
+dependencies, you can do so with `lein deps`, but it will happen
+automatically if you don't.
 
 Within the vector, "clj-http" is referred to as the "artifact id".
 "0.5.5" is the version. Some libraries will also have "group ids",
