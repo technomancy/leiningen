@@ -190,7 +190,8 @@
             ;; For complex aliases, a docstring may be attached. The docstring
             ;; will be printed instead of the expansion when running `lein help`.
             "test!" ^{:doc "Recompile sources and fetch deps before testing."}
-            ["do" "clean," "deps," "test"]}
+            ;; Nested vectors are supported for the "do" task
+            ["do" "clean" ["test" ":integration"] ["deploy" "clojars"]]}
 
   ;;; # Running Project Code
   ;; Normally Leiningen runs the javac and compile tasks before
