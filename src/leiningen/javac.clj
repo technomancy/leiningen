@@ -96,9 +96,8 @@
                     (.run compiler# nil nil nil
                           (into-array java.lang.String ~javac-opts)))
            (abort# "Compilation of Java sources(lein javac) failed.")))
-       (abort# "lein-javac: system java compiler not found; "
-               "Be sure to use java from a JDK\nrather than a JRE by"
-               " either modifying PATH or setting JAVA_CMD."))))
+       (abort# "Java compiler not found; Be sure to use java from a JDK\n"
+               "rather than a JRE by modifying PATH or setting JAVA_CMD."))))
 
 ;; We can't really control what is printed here. We're just going to
 ;; allow `.run` to attach in, out, and err to the standard streams. This
