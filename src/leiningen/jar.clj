@@ -199,10 +199,11 @@ propagated to the compilation phase and not stripped out."
               ":aot :all into your\n:uberjar profile instead.")))
 
 (defn warn-implicit-aot [project]
-  (when (and (:main project) (not (:skip-aot (meta (:main project))))
-             (not= :all (:aot project))
-             (not (some #{(:main project)} (:aot project))))
-    (force implicit-aot-warning)))
+  (let [project (project/merge-profiles project [:uberjar])]
+      (when (and (:main project) (not (:skip-aot (meta (:main project))))
+                 (not= :all (:aot project))
+                 (not (some #{(:main project)} (:aot project))))
+        (force implicit-aot-warning))))
 
 ;; TODO: remove for 3.0
 (defn- add-main [project given-main]
