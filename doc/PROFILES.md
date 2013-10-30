@@ -17,7 +17,7 @@ and they will be merged into the project map when that profile is
 active.
 
 The example below adds a "dummy-data" resources directory during
-development and a dependency upon "midje" that's only used for tests.
+development and a dependency upon "expectations" that's only used for tests.
 
 ```clj
 (defproject myproject "0.5.0-SNAPSHOT"
