@@ -58,7 +58,7 @@ For a detailed description of profiles, see `lein help profiles`."
   (let [profile-groups (seq (.split profiles ":"))
         failures (atom 0)]
     (doseq [profiles (map (partial profiles-in-group project) profile-groups)]
-      (when (> (count profile-groups 1))
+      (when (> (count profile-groups) 1)
         (main/info (format "Performing task '%s' with profile(s): '%s'"
                            task-name (string/join "," (map name profiles)))))
       (binding [main/*exit-process?* false]
