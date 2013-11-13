@@ -113,7 +113,7 @@
   profiles by their target directory. Simply specify `:target-path
   "target/%s"` in order to have each profile set use a different
   directory for generated files. Then you can put your `:aot`
-  settings in the `:uberjar` profiles, and the .class files created
+  settings in the `:uberjar` profile, and the .class files created
   from the AOT process will not affect normal development use. You can
   specify the profile-isolated `:target-path` in your `:user` profile if
   you want it applied across all the projects you work on.

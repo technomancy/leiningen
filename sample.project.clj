@@ -2,7 +2,7 @@
 ;; project.clj file. It is fairly contrived in order to cover lots of
 ;; different options; it shouldn't be considered a representative
 ;; configuration. For a more detailed explanation of some of the terms
-;; run "lein help tutorial".
+;; run `lein help tutorial`.
 
 ;; These options apply to Leiningen 2.x. See the 1.x branch for older versions:
 ;; https://github.com/technomancy/leiningen/blob/1.x/sample.project.clj
@@ -11,7 +11,7 @@
 (defproject org.example/sample "1.0.0-SNAPSHOT" ; version "1.0.0-SNAPSHOT"
   ;; Beyond this point you may prepend a form with unquote, or ~, to eval it.
 
-  ;;; # Project Metadata
+  ;;; Project Metadata
   ;; The description text is searchable from repositories like Clojars.
   :description "A sample project"
   :url "http://example.org/sample-clojure-project"
@@ -32,10 +32,11 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
-  ;; Warns users of earlier versions of Leiningen.
+  ;; Warns users of earlier versions of Leiningen. Set this if your project
+  ;; relies on features only found in newer Leiningen versions.
   :min-lein-version "2.0.0"
 
-  ;;; # Dependencies, Plugins, and Repositories
+  ;;; Dependencies, Plugins, and Repositories
   ;; Dependencies are listed as [group-id/name version]; in addition
   ;; to keywords supported by Pomegranate, you can use :native-prefix
   ;; to specify a prefix. This prefix is used to extract natives in
@@ -54,7 +55,7 @@
                   ;; LWJGL stores natives in the root of the jar; this
                   ;; :native-prefix will extract them.
                   :native-prefix ""]]
-  ;; Abort when version ranges or version overlaps are detected in
+  ;; Abort when version ranges or version conflicts are detected in
   ;; dependencies. Also supports :warn to simply emit warnings.
   :pedantic? :abort
   ;; Global exclusions are applied across the board, as an alternative
@@ -70,20 +71,21 @@
             [lein-bar "0.0.1" :middleware false]]
   ;; These repositories will be searched for :dependencies and
   ;; :plugins and will also be available to deploy to.
-  ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you list below.
+  ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you
+  ;; list below.
   :repositories [["java.net" "http://download.java.net/maven/2"]
                  ["sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
                               ;; If a repository contains releases only setting
                               ;; :snapshots to false will speed up dependencies.
                               :snapshots false
-                              ;; Disable signing releases for this repo.
+                              ;; Disable signing releases deployed to this repo.
                               ;; (Not recommended.)
                               :sign-releases false
                               ;; You can also set the policies for how to handle
                               ;; :checksum failures to :fail, :warn, or :ignore.
                               :checksum :fail
-                              ;; How often should this repository be checked
-                              ;; for updates? (:daily, :always, or :never)
+                              ;; How often should this repository be checked for
+                              ;; snapshot updates? (:daily, :always, or :never)
                               :update :always
                               ;; You can also apply them to releases only:
                               :releases {:checksum :fail :update :always}}]
@@ -140,7 +142,7 @@
   ;; be on Leiningen's classpath or relative to the project root.
   :certificates ["blueant.pem"]
 
-  ;;; # Profiles
+  ;;; Profiles
   ;; Each active profile gets merged into the project map. The :dev
   ;; and :user profiles are active by default, but the latter should be
   ;; looked up in ~/.lein/profiles.clj rather than set in project.clj.
@@ -160,7 +162,7 @@
   ;; name matching a specific pattern as well as by listing them here.
   :middleware [lein-xml.plugin/middleware]
 
-  ;;; # Entry Point
+  ;;; Entry Point
   ;; The -main function in this namespace will be run at launch
   ;; (either via `lein run` or from an uberjar). It should be variadic:
   ;;
@@ -193,14 +195,16 @@
             ;; Nested vectors are supported for the "do" task
             ["do" "clean" ["test" ":integration"] ["deploy" "clojars"]]}
 
-  ;;; # Running Project Code
+  ;;; Running Project Code
   ;; Normally Leiningen runs the javac and compile tasks before
   ;; calling any eval-in-project code, but you can override this with
   ;; the :prep-tasks key to do other things like compile protocol buffers.
   :prep-tasks [["protobuf" "compile"] "javac" "compile"]
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. Put a regex here to compile all
-  ;; namespaces whose names match.
+  ;; namespaces whose names match. If you only need AOT for an uberjar
+  ;; gen-class, put `:aot :all` in the :uberjar profile and see :target-path for
+  ;; how to enable profile-baset target isolation.
   :aot [org.example.sample]
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
@@ -213,36 +217,39 @@
   :javac-options ["-target" "1.6" "-source" "1.6" "-Xlint:-options"]
   ;; Emit warnings on all reflection calls. - DEPRECATED (see below)
   :warn-on-reflection true
-  ;; Sets the values of global variables within Clojure
-  ;;  This example disables all pre- and post-conditions and emits warnings
-  ;;  on reflective calls. See the Clojure documentation for the list of valid
-  ;;  global variables to set (and their meaningful values).
+  ;; Sets the values of global vars within Clojure. This example
+  ;; disables all pre- and post-conditions and emits warnings on
+  ;; reflective calls. See the Clojure documentation for the list of
+  ;; valid global variables to set (and their meaningful values).
   :global-vars {*warn-on-reflection* true
                 *assert* false}
-  ;; Use a different `java` executable for project JVMs.
+  ;; Use a different `java` executable for project JVMs. Leiningen's own JVM is
+  ;; set with the LEIN_JAVA_CMD environment variable.
   :java-cmd "/home/phil/bin/java1.7"
-  ;; You can set JVM-level options here.
-  ;; It is also possible to use :java-opts, which is an alias for :jvm-opts.
+  ;; You can set JVM-level options here. The :java-opts key is an alias for this.
   :jvm-opts ["-Xmx1g"]
-  ;; Control the context in which your project code is evaluated.
-  ;; Defaults to :subprocess, but can also be :leiningen (for plugins)
-  ;; or :classloader (experimental) to avoid starting a subprocess.
+  ;; Set the context in which your project code is evaluated. Defaults
+  ;; to :subprocess, but can also be :leiningen (for plugins) or :nrepl
+  ;; to connect to an existing project process over nREPL. A project nREPL
+  ;; server can be started simply by invoking `lein repl`. If no connection
+  ;; can be established, :nrepl falls back to :subprocess.
   :eval-in :leiningen
   ;; Enable bootclasspath optimization. This improves boot time but interferes
-  ;; with using things like pomegranate at runtime and using Clojure 1.2.
+  ;; with certain libraries like Jetty that make assumptions about classloaders.
   :bootclasspath true
 
-  ;;; # Filesystem Paths
+  ;;; Filesystem Paths
   ;; If you'd rather use a different directory structure, you can set these.
-  ;; Paths that contain "inputs" are vectors, "outputs" are strings.
+  ;; Paths that contain "inputs" are string vectors, "outputs" are strings.
   :source-paths ["src" "src/main/clojure"]
   :java-source-paths ["src/main/java"] ; Java source is stored separately.
   :test-paths ["test" "src/test/clojure"]
   :resource-paths ["src/main/resource"] ; Non-code files included in classpath/jar.
-  ;; All generated files will be placed here. In order to avoid cross-profile
-  ;; contamination, by default this includes the names of all active profiles.
-  ;; Putting %s in your custom :target-path will splice in the profile names.
-  :target-path "target/"
+  ;; All generated files will be placed in :target-path. In order to avoid
+  ;; cross-profile contamination, (for instance, uberjar classes ;; interfering
+  ;; with development) it's recommended to include %s in in your custom
+  ;; :target-path, which will splice in names of the currently active profiles.
+  :target-path "target/%s/"
   ;; Directory in which to place AOT-compiled files. Including %s will
   ;; splice the :target-path into this value.
   :compile-path "%s/classy-files"
@@ -272,9 +279,9 @@
   :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
 
-  ;;; # Testing
+  ;;; Testing
   ;; Predicates to determine whether to run a test or not, take test metadata
-  ;; as argument. See Leiningen tutorial for more information.
+  ;; as argument. See `lein help tutorial` for more information.
   :test-selectors {:default (fn [m] (not (or (:integration m) (:regression m))))
                    :integration :integration
                    :regression :regression}
@@ -282,7 +289,7 @@
   ;; clojure.test library. This disables that feature and breaks `lein retest`.
   :monkeypatch-clojure-test false
 
-  ;;; # Repl
+  ;;; Repl
   ;; Options to change the way the REPL behaves.
   :repl-options {;; Specify the string to print when prompting for input.
                  ;; defaults to something like (fn [ns] (str *ns* "=> "))
@@ -321,7 +328,7 @@
                                         (prn :middle args)
                                         (apply handler args)))]}
 
-  ;;; # Jar Output
+  ;;; Jar Output
   ;; Name of the jar file produced. Will be placed inside :target-path.
   ;; Including %s will splice the project version into the filename.
   :jar-name "sample.jar"
@@ -364,21 +371,20 @@
              ;; Symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
 
-  ;;; # Pom Output
-  ;; Set parent for working with in a multi-module maven project.
+  ;;; Pom Output
+  ;; Set parent for working within a multi-module maven project.
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
   ;; Extensions here will be propagated to the pom but not used by Leiningen.
   :extensions [[org.apache.maven.wagon/wagon-webdav "1.0-beta-2"]
                [foo/bar-baz "1.0"]]
-  ;; Plugins here will be propagated to the pom but not used by Leiningen.  
+  ;; Plugins here will be propagated to the pom but not used by Leiningen.
   :pom-plugins [[com.theoryinpractise/clojure-maven-plugin "1.3.13"
-               ;; this section is optional, values have the same syntax as pom-addition
-               {:configuration [:sourceDirectories [:sourceDirectory "src"]]
-                :extensions "true" 
-                :executions ([:execution [:id "echodir"] 
-                    [:goals ([:goal "run"])] 
-                    [:phase "verify"]])
-                }]
+                 ;; this section is optional, values have the same syntax as pom-addition
+                 {:configuration [:sourceDirectories [:sourceDirectory "src"]]
+                  :extensions "true"
+                  :executions ([:execution [:id "echodir"]
+                                [:goals ([:goal "run"])]
+                                [:phase "verify"]])}]
                 [org.apache.tomcat.maven/tomcat7-maven-plugin "2.1"]]
   ;; Include <scm> tag in generated pom.xml file. All key/value pairs
   ;; appear exactly as configured. If absent, Leiningen will try to
@@ -396,7 +402,7 @@
                               [:name "Ben Bitdiddle"]
                               [:url "http://www.example.com/benjamin"]]]
 
-  ;;; # Safety flags
+  ;;; Safety flags
   ;; Indicate whether or not `lein install` should abort when trying to install
   ;; releases. When false, trying to run `lein install` in a project with a version
   ;; that isn't a snapshot will cause leiningen to abort with a descriptive error
@@ -420,5 +426,7 @@
 ;; LEIN_OFFLINE - equivalent of :offline? true but works for plugins
 ;; LEIN_GPG - gpg executable to use for encryption/signing
 ;; LEIN_NEW_UNIX_NEWLINES - ensure that `lein new` emits '\n' as newlines
+;; LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS - suppress "repository in user profile" warnings
+;; LEIN_FAST_TRAMPOLINE - memoize `java` invocation command to speed up subsequent trampoline launches
 ;; http_proxy - host and port to proxy HTTP connections through
 ;; http_no_proxy - pipe-separated list of hosts which may be accessed directly
