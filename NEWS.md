@@ -1,5 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.3.4 / ???
+
+* Allow task chains to be declared without commas in project.clj. (Jean Niklas L'orange)
+* Support extra configurability in `:pom-plugins`. (Dominik Dziedzic)
+* Fix a bug where implicit :aot warning triggered incorrectly. (Jean Niklas L'orange)
+* Fix a bug where `lein repl connect` ignored port argument. (Toby Crawley)
+
 ## 2.3.3 / 2013-10-05
 
 * Add support for `:uberjar-merge-with`. (Marshall Bockrath-Vandegrift)
