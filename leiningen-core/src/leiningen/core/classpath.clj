@@ -329,9 +329,12 @@
                                         project options))))
 
 (defn- normalize-path [root path]
-  (let [f (io/file path)] ; http://tinyurl.com/ab5vtqf
-    (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
-                        f (io/file root path)))))
+  (let [f (io/file path) ; http://tinyurl.com/ab5vtqf
+        abs (.getAbsolutePath (if (or (.isAbsolute f)
+                                      (.startsWith (.getPath f) "\\"))
+                                f (io/file root path)))
+        sep (System/getProperty "path.separator")]
+    (str/replace abs sep (str "\\" sep))))
 
 (defn ext-dependency?
   "Should the given dependency be loaded in the extensions classloader?"
