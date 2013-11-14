@@ -60,22 +60,23 @@
 **Q:** I have two dependencies, X and Y, which depends on Z. How is the version
   of Z decided?  
 **A:** The decision depends on which depth and which order the dependencies come
-  in the `:dependency` vector: The dependency at the lowest depth will be
-  picked. If there are multiple dependencies on that depth, the first of those
-  will be picked. For instance, in the dependency graph
-```
- [Z "1.0.9"]
- [X "1.3.2"]
-   [Z "2.0.1"]
-```
-  the direct dependency (`[Z "1.0.9"]`) is picked, as it has the lowest depth.
+  in the `:dependencies` vector: The dependency at the lowest depth will be
+  picked. If there are multiple versions of a single group/artifact at that
+  depth, the first of those will be picked. For instance, in the dependency
+  graph
+
+    [Z "1.0.9"]
+    [X "1.3.2"]
+      [Z "2.0.1"]
+
+  the direct dependency (`[Z "1.0.9"]`) is picked, as it is closest to the root.
   For the dependency graph
-```
- [X "1.3.2"]
-   [Z "2.0.1"]
- [Y "1.0.5"]
-   [Z "2.1.3"]
-```
+
+    [X "1.3.2"]
+      [Z "2.0.1"]
+    [Y "1.0.5"]
+      [Z "2.1.3"]
+
   the dependency X comes first, and therefore `[Z "2.0.1"]` is picked. If we
   place Y before X however, `[Z "2.1.3"]` will be picked.
   
