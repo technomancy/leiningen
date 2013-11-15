@@ -41,27 +41,25 @@
 ;; also expect that a template generation function also be named the same as the
 ;; last segment of its namespace. This is what we call to generate the project.
 (defn create
-  ([name]
-     (create "default" name))
-  ([template name & args]
-     (cond
-      (and (re-find #"(?i)(?<!(clo|compo))jure" name)
-           (not (System/getenv "LEIN_IRONIC_JURE")))
-      (abort "Sorry, names such as clojure or *jure are not allowed."
-             "\nIf you intend to use this name ironically, please set the"
-             "\nLEIN_IRONIC_JURE environment variable and try again.")
-      (= name "clojure")
-      (abort "Sorry, clojure can't be used as a project name."
-             "\nIt will confuse Clojure compiler and cause obscure issues.")
-      (and (re-find #"[A-Z]" name)
-           (not (System/getenv "LEIN_BREAK_CONVENTION")))
-      (abort "Project names containing uppercase letters are not recommended"
-             "\nand will be rejected by repositories like Clojars and Central."
-             "\nIf you're truly unable to use a lowercase name, please set the"
-             "\nLEIN_BREAK_CONVENTION environment variable and try again.")
-      (not (symbol? (try (read-string name) (catch Exception _))))
-      (abort "Project names must be valid Clojure symbols.")
-      :else (apply (resolve-template template) name args))))
+  [template name & args]
+  (cond
+   (and (re-find #"(?i)(?<!(clo|compo))jure" name)
+        (not (System/getenv "LEIN_IRONIC_JURE")))
+   (abort "Sorry, names such as clojure or *jure are not allowed."
+          "\nIf you intend to use this name ironically, please set the"
+          "\nLEIN_IRONIC_JURE environment variable and try again.")
+   (= name "clojure")
+   (abort "Sorry, clojure can't be used as a project name."
+          "\nIt will confuse Clojure compiler and cause obscure issues.")
+   (and (re-find #"[A-Z]" name)
+        (not (System/getenv "LEIN_BREAK_CONVENTION")))
+   (abort "Project names containing uppercase letters are not recommended"
+          "\nand will be rejected by repositories like Clojars and Central."
+          "\nIf you're truly unable to use a lowercase name, please set the"
+          "\nLEIN_BREAK_CONVENTION environment variable and try again.")
+   (not (symbol? (try (read-string name) (catch Exception _))))
+   (abort "Project names must be valid Clojure symbols.")
+   :else (apply (resolve-template template) name args)))
 
 ;; Since we have our convention of templates always being at
 ;; `leiningen.new.<template>`, we can easily search the classpath
@@ -93,6 +91,59 @@
 
 (def ^{:dynamic true :doc "Bound to project map at runtime"} *project* nil)
 
+(defn is-option? [str]
+  (.startsWith str "-"))
+
+(defn parse-options
+  "Given a sequence of strings, return a map of command-line-esque
+  options with keyword-ized keys and a list of additional args:
+
+  (parse-options [\"--chicken\"])
+  => [{:--chicken true} []]
+
+  (parse-options [\"--beef\" \"rare\"])
+  => [{:--beef rare} []]
+
+  (parse-options [\"salmon\" \"trout\"])
+  => [{} [\"salmon\" \"trout\"]]
+
+  (parse-options [\"--to-dir\" \"test2\" \"--ham\" \"-bacon\"])
+  => [{:-bacon true, :--ham true, :--to-dir \"test2\"} []]
+
+  (parse-options [\"--to-dir\" \"test2\" \"--ham\" \"-bacon\" \"--\" \"pate\"])
+  => [{:-bacon true, :--ham true, :--to-dir \"test2\"} [\"pate\"]]
+"
+  [options]
+  (loop [m {}
+         [first-arg second-arg & rest :as args] options]
+    (if (and first-arg (is-option? first-arg) (not= "--" first-arg))
+      (if (or (not second-arg) (is-option? second-arg))
+        (recur (assoc m (keyword first-arg) true) (if second-arg (cons second-arg rest) rest))
+        (recur (assoc m (keyword first-arg) second-arg) rest))
+      [m (if (= "--" first-arg)
+           (if second-arg (cons second-arg rest) [])
+           (or args []))])))
+
+(defn- project-name-specified? [[first-arg & _]]
+  (and first-arg (not (is-option? first-arg))))
+
+(defn- template-specified? [[_ second-arg & _]]
+  (and second-arg (not (is-option? second-arg))))
+
+(defn- parse-args [[first-arg second-arg & opts :as args]]
+  (if (project-name-specified? args)
+    (let [template-name (if (template-specified? args) first-arg nil)
+          new-project-name (if (template-specified? args) second-arg first-arg)
+          options (parse-options (if (template-specified? args)
+                                   opts
+                                   (if second-arg (cons second-arg opts) opts)))]
+      [template-name new-project-name options])
+    [nil nil (parse-options args)]))
+
+(defn- print-help []
+  (require 'leiningen.help)
+  ((ns-resolve 'leiningen.help 'help) nil "new"))
+
 (defn ^{:no-project-needed true
         :help-arglists '[[project project-name]
                          [project template project-name & args]]
@@ -112,6 +163,10 @@ To generate to a directory different than your project's name use --to-dir:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR
 
+Arguments can be passed to templates by adding them after \"new\"'s options:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR template-arg-1 template-arg-2
+
 The list of built-in templates can be shown with `lein help new`. Third-party
 templates can be found at https://clojars.org/search?q=lein-template.
 When creating a new project from a third-party template, use its group-id
@@ -125,10 +180,10 @@ lein-new Leiningen plug-in."
 
   [project & args]
   (binding [*project* project]
-    (let [[top [_ dir & rest]] (split-with #(not= % "--to-dir") args)
-          args (concat top rest)]
-      (binding [*dir* dir]
-        (cond (empty? args) ((ns-resolve (doto 'leiningen.help require) 'help)
-                             nil "new")
-              (= ":show" (second args)) (show (first args))
-              :else (apply create args))))))
+    (let [[template-name new-project-name [options template-args]] (parse-args args)]
+      (if (or (not new-project-name) (:--help options))
+        (print-help)
+        (if (and template-name (= ":show" new-project-name))
+          (show template-name)
+          (binding [*dir* (:--to-dir options)]
+            (apply create (or template-name "default") new-project-name template-args)))))))
