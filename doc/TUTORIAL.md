@@ -58,7 +58,7 @@ Leiningen about things like
 and more.
 
 Most Leiningen tasks only make sense in the context of a project. Some
-(for example, `repl` or `help`) can also from any directory.
+(for example, `repl` or `help`) can also be called from any directory.
 
 Next let's take a look at how projects are created.
 
