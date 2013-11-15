@@ -18,7 +18,9 @@
     (try (get-dep :templates (fake-project name) :add-classpath? true)
          (require sym)
          true
-         (catch Exception _))))
+         (catch clojure.lang.Compiler$CompilerException e
+           (abort (str "Could not load template, failed with: " (.getMessage e))))
+         (catch Exception e nil))))
 
 (defn resolve-template [name]
   (let [sym (symbol (str "leiningen.new." name))]
