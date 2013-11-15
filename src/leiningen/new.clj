@@ -22,7 +22,8 @@
          true
          (catch clojure.lang.Compiler$CompilerException e
            (abort (str "Could not load template, failed with: " (.getMessage e))))
-         (catch Exception e nil))))
+         (catch Exception e
+           (abort (str "Could not find template in a maven repository." (when-not *use-snapshots?* " If you are trying use to a template with a SNAPSHOT version please use the --snapshot option")))))))
 
 (defn resolve-template [name]
   (let [sym (symbol (str "leiningen.new." name))]
