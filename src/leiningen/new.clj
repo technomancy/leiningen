@@ -6,8 +6,10 @@
             [leiningen.new.templates :refer [*dir*]])
   (:import java.io.FileNotFoundException))
 
+(def ^:dynamic *use-snapshots?* false)
+
 (defn- fake-project [name]
-  {:templates [[(symbol name "lein-template") "RELEASE"]]
+  {:templates [[(symbol name "lein-template") (if *use-snapshots?* "(0.0.0,)" "RELEASE")]]
    :repositories {"clojars" {:url "http://clojars.org/repo/"
                              :update :always}
                   "central" {:url "http://repo1.maven.org/maven2"
@@ -169,6 +171,15 @@ Arguments can be passed to templates by adding them after \"new\"'s options:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR template-arg-1 template-arg-2
 
+If you'd like to use an unreleased (ie, SNAPSHOT) template, use the --snapshot argument:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot
+
+If you use the `--snapshot` argument with template args you may need to use `--`
+to prevent template args from being interpreted as arguments to `lein new`:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot -- template-arg-1 template-arg-2
+
 The list of built-in templates can be shown with `lein help new`. Third-party
 templates can be found at https://clojars.org/search?q=lein-template.
 When creating a new project from a third-party template, use its group-id
@@ -187,5 +198,6 @@ lein-new Leiningen plug-in."
         (print-help)
         (if (and template-name (= ":show" new-project-name))
           (show template-name)
-          (binding [*dir* (:--to-dir options)]
+          (binding [*dir* (:--to-dir options)
+                    *use-snapshots?* (:--snapshot options)]
             (apply create (or template-name "default") new-project-name template-args)))))))
