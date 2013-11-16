@@ -8,6 +8,7 @@
             [leiningen.core.utils :as utils]
             [pedantic.core :as pedantic])
   (:import (java.util.jar JarFile)
+           (org.sonatype.aether.graph Exclusion)
            (org.sonatype.aether.resolution DependencyResolutionException)))
 
 ;; Basically just for re-throwing a more comprehensible error.
@@ -184,29 +185,59 @@
            (get-dependencies-memoized dependencies-key (assoc project :offline? true))
            (throw e)))))))
 
-(defn- message-for [get-version path]
-  (str (->> path
-            (map #(if-let [dependency (.getDependency %)]
-                    (if-let [artifact (.getArtifact dependency)]
-                      (str "["
-                           (if (= (.getGroupId artifact)
-                                  (.getArtifactId artifact))
-                             (.getGroupId artifact)
-                             (str (.getGroupId artifact)
-                                  "/"
-                                  (.getArtifactId artifact)))
-                           " \""
-                           (get-version %)
-                           "\"]"))))
-            (remove nil?)
-            (interpose " -> ")
-            (apply str))))
+(defn- group-artifact [artifact]
+  (if (= (.getGroupId artifact)
+         (.getArtifactId artifact))
+    (.getGroupId artifact)
+    (str (.getGroupId artifact)
+         "/"
+         (.getArtifactId artifact))))
+
+(defn- dependency-str [dependency & [edge]]
+  (if-let [artifact (and dependency (.getArtifact dependency))]
+    (str "["
+         (group-artifact artifact)
+         " \""
+         ;; TODO: this is bad; using an optional arg as a flag and a value
+         (if edge
+           (.getVersionConstraint edge)
+           (.getVersion artifact))
+         "\""
+         (if-let [classifier (.getClassifier artifact)]
+           (if (not (empty? classifier))
+             (str " :classifier \"" classifier "\"")))
+         (if-let [extension (.getExtension artifact)]
+           (if (not= extension "jar")
+             (str " :extension \"" extension "\"")))
+         (if-let [exclusions (seq (.getExclusions dependency))]
+           (str " :exclusions " (mapv (comp symbol group-artifact)
+                                      exclusions)))
+         "]")))
+
+(defn- message-for [path & [show-constraint?]]
+  (->> path
+       (map #(dependency-str (.getDependency %) %))
+       (remove nil?)
+       (interpose " -> ")
+       (apply str)))
 
 (defn- message-for-version [{:keys [node parents]}]
-  (message-for #(.getVersion %) (conj parents node)))
+  (message-for (conj parents node)))
+
+(defn- exclusion-for-range [node parents]
+  (let [top-level (second parents)
+        excluded-artifact (.getArtifact (.getDependency node))
+        exclusion (Exclusion. (.getGroupId excluded-artifact)
+                              (.getArtifactId excluded-artifact) "*" "*")
+        exclusion-set (into #{exclusion} (.getExclusions
+                                          (.getDependency top-level)))
+        with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
+    (dependency-str with-exclusion)))
 
 (defn- message-for-range [{:keys [node parents]}]
-  (message-for #(.getVersionConstraint %) (conj parents node)))
+  (str (message-for (conj parents node) :constraints) "\n"
+       "Consider using "
+       (exclusion-for-range node parents) "."))
 
 (defn- message-for-override [{:keys [accepted ignoreds ranges]}]
   {:accepted (message-for-version accepted)
@@ -254,6 +285,8 @@
   (if (:pedantic? project)
     #(-> % aether/repository-session
          (pedantic/use-transformer ranges overrides))))
+
+;; Exclusion(groupId, artifactId, classifier, extension)
 
 (defn ^:internal get-dependencies [dependencies-key project & args]
   (let [ranges (atom []), overrides (atom [])
