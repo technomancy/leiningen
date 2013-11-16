@@ -52,7 +52,7 @@
          (dependency-hierarchy :dependencies project))))
 
 (def directories
-  (vec (map lthelper/pathify 
+  (vec (map lthelper/pathify
   ["/tmp/lein-sample-project/test"
    "/tmp/lein-sample-project/src"
    "/tmp/lein-sample-project/resources"])))

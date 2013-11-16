@@ -2,6 +2,8 @@
 
 ## 2.3.4 / ???
 
+* Suggest `:exclusions` to possibly confusing `:pedantic?` dependencies. (Nelson Morris, Phil Hagelberg)
+* Optionally look for snapshot templates in `new` task. (Travis Vachon)
 * Allow task chains to be declared without commas in project.clj. (Jean Niklas L'orange)
 * Support extra configurability in `:pom-plugins`. (Dominik Dziedzic)
 * Fix a bug where implicit :aot warning triggered incorrectly. (Jean Niklas L'orange)
