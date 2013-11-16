@@ -45,6 +45,40 @@
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
 
+(defn is-option? [str]
+  (.startsWith str "--"))
+
+(defn parse-options
+  "Given a sequence of strings, return a map of command-line-esque
+  options with keyword-ized keys and a list of additional args:
+
+  (parse-options [\"--chicken\"])
+  => [{:--chicken true} []]
+
+  (parse-options [\"--beef\" \"rare\"])
+  => [{:--beef rare} []]
+
+  (parse-options [\"salmon\" \"trout\"])
+  => [{} [\"salmon\" \"trout\"]]
+
+  (parse-options [\"--to-dir\" \"test2\" \"--ham\"])
+  => [{:--ham true, :--to-dir \"test2\"} []]
+
+  (parse-options [\"--to-dir\" \"test2\" \"--ham\" \"--\" \"pate\"])
+  => [{:--ham true, :--to-dir \"test2\"} [\"pate\"]]"
+  [options]
+  (loop [m {}
+         [first-arg second-arg & rest :as args] options]
+    (if (and first-arg (is-option? first-arg) (not= "--" first-arg))
+      (if (or (not second-arg) (is-option? second-arg))
+        (recur (assoc m (keyword first-arg) true) (if second-arg
+                                                    (cons second-arg rest)
+                                                    rest))
+        (recur (assoc m (keyword first-arg) second-arg) rest))
+      [m (if (= "--" first-arg)
+           (if second-arg (cons second-arg rest) [])
+           (or args []))])))
+
 ;; TODO for 3.0.0: debug, info and exit should be in a separate namespace
 ;; (io.clj?) to avoid cyclic deps.
 

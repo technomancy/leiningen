@@ -2,14 +2,15 @@
   "Generate project scaffolding based on a template."
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
-            [leiningen.core.main :refer [abort]]
+            [leiningen.core.main :refer [abort parse-options is-option?]]
             [leiningen.new.templates :refer [*dir*]])
   (:import java.io.FileNotFoundException))
 
 (def ^:dynamic *use-snapshots?* false)
 
 (defn- fake-project [name]
-  {:templates [[(symbol name "lein-template") (if *use-snapshots?* "(0.0.0,)" "RELEASE")]]
+  {:templates [[(symbol name "lein-template") (if *use-snapshots?*
+                                                "(0.0.0,)" "RELEASE")]]
    :repositories {"clojars" {:url "http://clojars.org/repo/"
                              :update :always}
                   "central" {:url "http://repo1.maven.org/maven2"
@@ -95,39 +96,6 @@
 
 (def ^{:dynamic true :doc "Bound to project map at runtime"} *project* nil)
 
-(defn is-option? [str]
-  (.startsWith str "-"))
-
-(defn parse-options
-  "Given a sequence of strings, return a map of command-line-esque
-  options with keyword-ized keys and a list of additional args:
-
-  (parse-options [\"--chicken\"])
-  => [{:--chicken true} []]
-
-  (parse-options [\"--beef\" \"rare\"])
-  => [{:--beef rare} []]
-
-  (parse-options [\"salmon\" \"trout\"])
-  => [{} [\"salmon\" \"trout\"]]
-
-  (parse-options [\"--to-dir\" \"test2\" \"--ham\" \"-bacon\"])
-  => [{:-bacon true, :--ham true, :--to-dir \"test2\"} []]
-
-  (parse-options [\"--to-dir\" \"test2\" \"--ham\" \"-bacon\" \"--\" \"pate\"])
-  => [{:-bacon true, :--ham true, :--to-dir \"test2\"} [\"pate\"]]
-"
-  [options]
-  (loop [m {}
-         [first-arg second-arg & rest :as args] options]
-    (if (and first-arg (is-option? first-arg) (not= "--" first-arg))
-      (if (or (not second-arg) (is-option? second-arg))
-        (recur (assoc m (keyword first-arg) true) (if second-arg (cons second-arg rest) rest))
-        (recur (assoc m (keyword first-arg) second-arg) rest))
-      [m (if (= "--" first-arg)
-           (if second-arg (cons second-arg rest) [])
-           (or args []))])))
-
 (defn- project-name-specified? [[first-arg & _]]
   (and first-arg (not (is-option? first-arg))))
 
@@ -140,9 +108,10 @@
           new-project-name (if (template-specified? args) second-arg first-arg)
           options (parse-options (if (template-specified? args)
                                    opts
-                                   (if second-arg (cons second-arg opts) opts)))]
+                                   (if second-arg
+                                     (cons second-arg opts) opts)))]
       [template-name new-project-name options])
-    [nil nil (parse-options args)]))
+    [nil nil (parse-options args)]))b
 
 (defn- print-help []
   (require 'leiningen.help)
@@ -171,7 +140,7 @@ Arguments can be passed to templates by adding them after \"new\"'s options:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR template-arg-1 template-arg-2
 
-If you'd like to use an unreleased (ie, SNAPSHOT) template, use the --snapshot argument:
+If you'd like to use an unreleased (ie, SNAPSHOT) template, pass in --snapshot:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot
 
@@ -200,4 +169,5 @@ lein-new Leiningen plug-in."
           (show template-name)
           (binding [*dir* (:--to-dir options)
                     *use-snapshots?* (:--snapshot options)]
-            (apply create (or template-name "default") new-project-name template-args)))))))
+            (apply create (or template-name "default")
+                   new-project-name template-args)))))))

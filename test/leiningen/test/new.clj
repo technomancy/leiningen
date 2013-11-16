@@ -14,17 +14,17 @@
   (is (= (new/parse-options ["salmon" "trout"])
          [{} ["salmon" "trout"]]))
 
-  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "-bacon"])
-         [{:-bacon true, :--ham true, :--to-dir "test2"} []]))
+  (is (= (new/parse-options ["--to-dir" "test2" "--ham"])
+         [{:--ham true, :--to-dir "test2"} []]))
 
-  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "-bacon" "--" "pate"])
-         [{:-bacon true, :--ham true, :--to-dir "test2"} ["pate"]]))
+  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "--" "pate"])
+         [{:--ham true, :--to-dir "test2"} ["pate"]]))
 
-  (is (= (new/parse-options ["-bacon" "--ham" "--to-dir" "test2" "pate"])
-         [{:-bacon true, :--ham true, :--to-dir "test2"} ["pate"]]))
+  (is (= (new/parse-options ["--ham" "--to-dir" "test2" "pate"])
+         [{:--ham true, :--to-dir "test2"} ["pate"]]))
 
-  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "-bacon" "--"])
-         [{:-bacon true, :--ham true, :--to-dir "test2"} []])))
+  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "--"])
+         [{:--ham true, :--to-dir "test2"} []])))
 
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
