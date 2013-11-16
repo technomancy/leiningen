@@ -111,7 +111,7 @@
                                    (if second-arg
                                      (cons second-arg opts) opts)))]
       [template-name new-project-name options])
-    [nil nil (parse-options args)]))b
+    [nil nil (parse-options args)]))
 
 (defn- print-help []
   (require 'leiningen.help)

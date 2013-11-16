@@ -4,28 +4,6 @@
         [clojure.java.io :only [file]]
         [leiningen.test.helper :only [delete-file-recursively abort-msg]]))
 
-(deftest test-parse-options
-  (is (= (new/parse-options ["--chicken"])
-         [{:--chicken true} '()]))
-
-  (is (= (new/parse-options ["--beef" "rare"])
-         [{:--beef "rare"} []]))
-
-  (is (= (new/parse-options ["salmon" "trout"])
-         [{} ["salmon" "trout"]]))
-
-  (is (= (new/parse-options ["--to-dir" "test2" "--ham"])
-         [{:--ham true, :--to-dir "test2"} []]))
-
-  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "--" "pate"])
-         [{:--ham true, :--to-dir "test2"} ["pate"]]))
-
-  (is (= (new/parse-options ["--ham" "--to-dir" "test2" "pate"])
-         [{:--ham true, :--to-dir "test2"} ["pate"]]))
-
-  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "--"])
-         [{:--ham true, :--to-dir "test2"} []])))
-
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
   (is (= #{"README.md" "project.clj" "resources" "src" "core.clj" "test"
