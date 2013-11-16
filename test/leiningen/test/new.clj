@@ -1,8 +1,30 @@
 (ns leiningen.test.new
-  (:require [leiningen.new])
+  (:require [leiningen.new :as new])
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.test.helper :only [delete-file-recursively abort-msg]]))
+
+(deftest test-parse-options
+  (is (= (new/parse-options ["--chicken"])
+         [{:--chicken true} '()]))
+
+  (is (= (new/parse-options ["--beef" "rare"])
+         [{:--beef "rare"} []]))
+
+  (is (= (new/parse-options ["salmon" "trout"])
+         [{} ["salmon" "trout"]]))
+
+  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "-bacon"])
+         [{:-bacon true, :--ham true, :--to-dir "test2"} []]))
+
+  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "-bacon" "--" "pate"])
+         [{:-bacon true, :--ham true, :--to-dir "test2"} ["pate"]]))
+
+  (is (= (new/parse-options ["-bacon" "--ham" "--to-dir" "test2" "pate"])
+         [{:-bacon true, :--ham true, :--to-dir "test2"} ["pate"]]))
+
+  (is (= (new/parse-options ["--to-dir" "test2" "--ham" "-bacon" "--"])
+         [{:-bacon true, :--ham true, :--to-dir "test2"} []])))
 
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
