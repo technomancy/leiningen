@@ -44,3 +44,25 @@
 
        ["one-or-two"]
        #"(?s)Wrong number of arguments to one-or-two task.*Expected \[one\] or \[one two\]"))
+
+(deftest test-parse-options
+  (is (= (parse-options ["--chicken"])
+         [{:--chicken true} '()]))
+
+  (is (= (parse-options ["--beef" "rare"])
+         [{:--beef "rare"} []]))
+
+  (is (= (parse-options ["salmon" "trout"])
+         [{} ["salmon" "trout"]]))
+
+  (is (= (parse-options ["--to-dir" "test2" "--ham"])
+         [{:--ham true, :--to-dir "test2"} []]))
+
+  (is (= (parse-options ["--to-dir" "test2" "--ham" "--" "pate"])
+         [{:--ham true, :--to-dir "test2"} ["pate"]]))
+
+  (is (= (parse-options ["--ham" "--to-dir" "test2" "pate"])
+         [{:--ham true, :--to-dir "test2"} ["pate"]]))
+
+  (is (= (parse-options ["--to-dir" "test2" "--ham" "--"])
+         [{:--ham true, :--to-dir "test2"} []])))
