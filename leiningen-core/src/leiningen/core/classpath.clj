@@ -193,16 +193,11 @@
          "/"
          (.getArtifactId artifact))))
 
-(defn- dependency-str [dependency & [edge]]
+(defn- dependency-str [dependency & [version]]
   (if-let [artifact (and dependency (.getArtifact dependency))]
     (str "["
          (group-artifact artifact)
-         " \""
-         ;; TODO: this is bad; using an optional arg as a flag and a value
-         (if edge
-           (.getVersionConstraint edge)
-           (.getVersion artifact))
-         "\""
+         " \"" (or version (.getVersion artifact)) "\""
          (if-let [classifier (.getClassifier artifact)]
            (if (not (empty? classifier))
              (str " :classifier \"" classifier "\"")))
@@ -216,7 +211,7 @@
 
 (defn- message-for [path & [show-constraint?]]
   (->> path
-       (map #(dependency-str (.getDependency %) %))
+       (map #(dependency-str (.getDependency %) (.getVersionConstraint %)))
        (remove nil?)
        (interpose " -> ")
        (apply str)))
