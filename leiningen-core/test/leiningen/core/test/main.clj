@@ -52,6 +52,9 @@
   (is (= (parse-options ["--beef" "rare"])
          [{:--beef "rare"} []]))
 
+  (is (= (parse-options [":fish" "salmon"])
+         [{:fish "salmon"} []]))
+
   (is (= (parse-options ["salmon" "trout"])
          [{} ["salmon" "trout"]]))
 

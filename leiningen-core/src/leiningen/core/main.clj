@@ -45,8 +45,9 @@
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
 
-(defn is-option? [str]
-  (.startsWith str "--"))
+(defn option-arg [str]
+  (and str (cond (.startsWith str "--") (keyword str)
+                 (.startsWith str ":") (keyword (subs str 1)))))
 
 (defn parse-options
   "Given a sequence of strings, return a map of command-line-esque
@@ -56,7 +57,10 @@
   => [{:--chicken true} []]
 
   (parse-options [\"--beef\" \"rare\"])
-  => [{:--beef rare} []]
+  => [{:--beef \"rare\"} []]
+
+  (parse-options [\":fish\" \"salmon\"])
+  => [{:fish \"salmon\"} []]
 
   (parse-options [\"salmon\" \"trout\"])
   => [{} [\"salmon\" \"trout\"]]
@@ -69,12 +73,12 @@
   [options]
   (loop [m {}
          [first-arg second-arg & rest :as args] options]
-    (if (and first-arg (is-option? first-arg) (not= "--" first-arg))
-      (if (or (not second-arg) (is-option? second-arg))
-        (recur (assoc m (keyword first-arg) true) (if second-arg
-                                                    (cons second-arg rest)
-                                                    rest))
-        (recur (assoc m (keyword first-arg) second-arg) rest))
+    (if-let [option (and (not= "--" first-arg) (option-arg first-arg))]
+      (if (or (not second-arg) (option-arg second-arg))
+        (recur (assoc m option true) (if second-arg
+                                       (cons second-arg rest)
+                                       rest))
+        (recur (assoc m option second-arg) rest))
       [m (if (= "--" first-arg)
            (if second-arg (cons second-arg rest) [])
            (or args []))])))
