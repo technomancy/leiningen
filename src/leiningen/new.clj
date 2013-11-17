@@ -2,7 +2,7 @@
   "Generate project scaffolding based on a template."
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
-            [leiningen.core.main :refer [abort parse-options is-option?]]
+            [leiningen.core.main :refer [abort parse-options option-arg]]
             [leiningen.new.templates :refer [*dir*]])
   (:import java.io.FileNotFoundException))
 
@@ -97,10 +97,10 @@
 (def ^{:dynamic true :doc "Bound to project map at runtime"} *project* nil)
 
 (defn- project-name-specified? [[first-arg & _]]
-  (and first-arg (not (is-option? first-arg))))
+  (and first-arg (not (option-arg first-arg))))
 
 (defn- template-specified? [[_ second-arg & _]]
-  (and second-arg (not (is-option? second-arg))))
+  (and second-arg (not (option-arg second-arg))))
 
 (defn- parse-args [[first-arg second-arg & opts :as args]]
   (if (project-name-specified? args)
@@ -163,11 +163,12 @@ lein-new Leiningen plug-in."
   [project & args]
   (binding [*project* project]
     (let [[template-name new-project-name [options template-args]] (parse-args args)]
-      (if (or (not new-project-name) (:--help options))
+      (if (or (:--help options) (empty? args))
         (print-help)
-        (if (and template-name (= ":show" new-project-name))
-          (show template-name)
-          (binding [*dir* (:--to-dir options)
-                    *use-snapshots?* (:--snapshot options)]
+        (if-let [show-template (:show options)]
+          (show show-template)
+          (binding [*dir* (or (:to-dir options) (:--to-dir options))
+                    *use-snapshots?* (or (:snapshot options)
+                                         (:--snapshot options))]
             (apply create (or template-name "default")
                    new-project-name template-args)))))))
