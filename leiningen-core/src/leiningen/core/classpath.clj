@@ -234,10 +234,14 @@
        "Consider using "
        (exclusion-for-range node parents) "."))
 
+(defn- exclusion-for-override [{:keys [node parents]}]
+  (exclusion-for-range node parents))
+
 (defn- message-for-override [{:keys [accepted ignoreds ranges]}]
   {:accepted (message-for-version accepted)
    :ignoreds (map message-for-version ignoreds)
-   :ranges (map message-for-range ranges)})
+   :ranges (map message-for-range ranges)
+   :exclusions (map exclusion-for-override ignoreds)})
 
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
@@ -248,8 +252,8 @@
 
 (defn- pedantic-print-overrides [messages]
   (when-not (empty? messages)
-    (println "WARNING!!! possible confusing dependencies found:")
-    (doseq [{:keys [accepted ignoreds ranges]} messages]
+    (println "Possibly confusing dependencies found:")
+    (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
       (println accepted)
       (println " overrides")
       (doseq [ignored (interpose " and" ignoreds)]
@@ -258,6 +262,9 @@
         (println " possibly due to a version range in")
         (doseq [r ranges]
           (println r)))
+      (println "\nConsider using these exclusions:")
+      (doseq [ex exclusions]
+        (println ex))
       (println))))
 
 (alter-var-root #'pedantic-print-ranges memoize)
