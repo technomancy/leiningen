@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.3.4 / ???
+## 2.3.4 / 2013-11-18
 
 * Suggest `:exclusions` to possibly confusing `:pedantic?` dependencies. (Nelson Morris, Phil Hagelberg)
 * Optionally look for snapshot templates in `new` task. (Travis Vachon)
