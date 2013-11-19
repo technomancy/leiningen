@@ -54,6 +54,7 @@ cd $LEIN_ROOT
 
 git commit -a -m "Release $RELEASE_VERSION"
 
+rm -rf target leiningen-core/target
 echo "Test self-install."
 echo "If things are good, run this:"
 echo "$ git tag -s $RELEASE_VERSION -m \"Release $RELEASE_VERSION\""
