@@ -265,6 +265,10 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
                 if [ $? == 0 ]; then
+                    cmp -s "$TARGET" "$SCRIPT"
+                    if [ $? == 0 ]; then
+                        echo "Leiningen is already up-to-date."
+                    fi
                     mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
                     exec "$SCRIPT" version
                 else
@@ -345,4 +349,3 @@ else
         fi
     fi
 fi
-
