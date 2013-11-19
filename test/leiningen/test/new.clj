@@ -74,6 +74,10 @@
   (is (re-find
        #"^A general project template for libraries"
        (with-out-str
+         (leiningen.new/new nil ":show" "default"))))
+  (is (re-find
+       #"^A general project template for libraries"
+       (with-out-str
          (leiningen.new/new nil "default" ":show")))))
 
 (deftest test-new-with-to-dir-option
