@@ -246,8 +246,8 @@
   :test-paths ["test" "src/test/clojure"]
   :resource-paths ["src/main/resource"] ; Non-code files included in classpath/jar.
   ;; All generated files will be placed in :target-path. In order to avoid
-  ;; cross-profile contamination, (for instance, uberjar classes ;; interfering
-  ;; with development) it's recommended to include %s in in your custom
+  ;; cross-profile contamination (for instance, uberjar classes interfering
+  ;; with development), it's recommended to include %s in in your custom
   ;; :target-path, which will splice in names of the currently active profiles.
   :target-path "target/%s/"
   ;; Directory in which to place AOT-compiled files. Including %s will
