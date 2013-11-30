@@ -27,7 +27,7 @@ function make_native_path {
     # ensure we have native paths
     if $cygwin && [[ "$1"  == /* ]]; then
     echo -n "$(cygpath -wp "$1")"
-    elif [[ "$OSTYPE" == "msys" && "$1"  == /* ]]; then
+    elif [[ "$OSTYPE" == "msys" && "$1"  == /?/* ]]; then
     echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
     else
     echo -n "$1"
@@ -40,7 +40,11 @@ function add_path {
     shift
     while [ -n "$1" ];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
-    export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+        if [[ -z ${!path_var} ]]; then
+          export ${path_var}="$(make_native_path "$1")"
+        else
+          export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+        fi
     shift
     done
 }
