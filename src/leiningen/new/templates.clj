@@ -91,11 +91,10 @@
   "Get the current year. Useful for setting copyright years and such."
   [] (+ (.getYear (java.util.Date.)) 1900))
 
-;; It'd be silly to expect people to pull in stencil just to render
-;; a mustache string. We can just provide this function instead. In
-;; doing so, it is much less likely that a template author will have
-;; to pull in any external libraries. Though he is welcome to if he
-;; needs.
+;; It'd be silly to expect people to pull in stencil just to render a mustache
+;; string. We can just provide this function instead. In doing so, it is much
+;; less likely that template authors will have to pull in any external
+;; libraries. Though they are welcome to if they need.
 (def render-text stencil/render-string)
 
 ;; Templates are expected to store their mustache template files in

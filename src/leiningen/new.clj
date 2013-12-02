@@ -37,7 +37,7 @@
 ;; A lein-newnew template is actually just a function that generates files and
 ;; directories. We have a bit of convention: we expect that each template is on
 ;; the classpath and is based in a .clj file at `leiningen/new/`. Making this
-;; assumption, a user can simply give us the name of the template he wishes to
+;; assumption, users can simply give us the name of the template they wish to
 ;; use and we can `require` it without searching the classpath for it or doing
 ;; other time consuming things. If this namespace isn't found and we are
 ;; running Leiningen 2, we can resolve it via pomegranate first.
