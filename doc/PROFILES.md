@@ -38,7 +38,7 @@ that you don't want committed in version control.
 User-wide profiles can also be specified in `~/.lein/profiles.clj`. These will be
 available in all projects managed by Leiningen, though those profiles will be
 overridden by profiles of the same name specified in the project.
-System-wide profiles can be placed in `/etc/leiningen`. They are treated
+System-wide profiles can be placed in `/etc/leiningen/profiles.clj`. They are treated
 the same as user profiles, but with lower precedence.
 
 You can also define user-wide profiles within `clj`-files inside
