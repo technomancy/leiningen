@@ -93,10 +93,10 @@
   [& args]
   (when *debug* (apply println args)))
 
-(def ^:dynamic *info* true)
+(def ^:dynamic *info* (not (System/getenv "LEIN_SILENT")))
 
 (defn info
-  "Print unless *info* has been rebound to false."
+  "Print if *info* (from LEIN_SILENT environment variable) is truthy"
   [& args]
   (when *info* (apply println args)))
 
