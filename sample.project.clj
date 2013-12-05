@@ -241,6 +241,7 @@
   ;;; Filesystem Paths
   ;; If you'd rather use a different directory structure, you can set these.
   ;; Paths that contain "inputs" are string vectors, "outputs" are strings.
+  ;; No code in these paths is compiled when a repl is started.
   :source-paths ["src" "src/main/clojure"]
   :java-source-paths ["src/main/java"] ; Java source is stored separately.
   :test-paths ["test" "src/test/clojure"]
