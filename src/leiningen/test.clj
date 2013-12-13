@@ -145,7 +145,7 @@
         nses (or (seq nses)
                  (sort
                   (b/namespaces-on-classpath
-                   :classpath (map io/file (:test-paths project)))))
+                   :classpath (map io/file (distinct (:test-paths project))))))
         selectors (partial-selectors (merge {:all '(constantly true)}
                                             {:only only-form}
                                             (:test-selectors project))
