@@ -209,8 +209,9 @@ fi
 export JAVA_CMD="${JAVA_CMD:-"java"}"
 export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
 
-if [[ "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
+if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
     export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
+    export DRIP_INIT_CLASS="clojure.main"
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
