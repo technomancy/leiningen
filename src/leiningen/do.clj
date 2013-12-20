@@ -1,4 +1,5 @@
 (ns leiningen.do
+  "Higher-order task to perform other tasks in succession."
   (:refer-clojure :exclude [do])
   (:require [leiningen.core.main :as main]))
 
