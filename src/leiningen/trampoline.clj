@@ -1,4 +1,5 @@
 (ns leiningen.trampoline
+  "Run a task without nesting the project's JVM inside Leiningen's."
   (:refer-clojure :exclude [trampoline])
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]

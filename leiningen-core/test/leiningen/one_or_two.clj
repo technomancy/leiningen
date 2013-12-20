@@ -1,4 +1,4 @@
-(ns leiningen.one-or-two)
+(ns leiningen.one-or-two "Dummy task for tests")
 
 (defn one-or-two
   "Dummy task for tests"

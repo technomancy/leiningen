@@ -1,4 +1,5 @@
 (ns leiningen.plugin
+  "DEPRECATED. Please use the :user profile instead."
   (:require [leiningen.core.main :as main]))
 
 (defn ^:no-project-needed plugin
