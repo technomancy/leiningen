@@ -123,25 +123,39 @@
       (apply println msg))
     (exit 1)))
 
-(defn- distance [s t]
-  (letfn [(iters [n f start]
-            (take n (map second
-                         (iterate f start))))]
-    (let [m (inc (count s)), n (inc (count t))
-          first-row (vec (range m))
-          matrix (iters n (fn [[j row]]
-                            [(inc j)
-                             (vec (iters m (fn [[i col]]
-                                             [(inc i)
-                                              (if (= (nth s i)
-                                                     (nth t j))
-                                                (get row i)
-                                                (inc (min (get row i)
-                                                          (get row (inc i))
-                                                          col)))])
-                                         [0 (inc j)]))])
-                        [0 first-row])]
-      (last (last matrix)))))
+(defn- next-dist-row [s t x pprev prev]
+  (let [t-len (count t)
+        eq-chars (fn [x y] (= (nth s x) (nth t (dec y))))]
+    (reduce (fn [row y]
+              (let [min-step
+                    (cond->
+                     (min (inc (peek row)) ;; addition cost
+                          (inc (get prev y)) ;; deletion cost
+                          (cond-> (get prev (dec y)) ;; substitution cost
+                                  (not (eq-chars x y)) inc))
+                     (and (pos? x) (pos? (dec y)) ;; check for transposition
+                          (eq-chars x (dec y))
+                          (eq-chars (dec x) y)
+                          (not (eq-chars x y)))
+                     (min (inc (get pprev (- y 2)))))] ;; transposition cost
+                (conj row min-step)))
+            [(inc x)]
+            (range 1 (inc t-len)))))
+
+(defn- distance
+  "Returns the Damerau–Levenshtein distance between two strings."
+  [s t]
+  (let [s-len (count s)
+        t-len (count t)
+        first-row (vec (range (inc t-len)))
+        matrix (reduce (fn [matrix x]
+                         (conj matrix
+                               (next-dist-row s t x
+                                              (peek (pop matrix))
+                                              (peek matrix))))
+                       [[] first-row]
+                       (range s-len))]
+    (peek (peek matrix))))
 
 (defn tasks
   "Return a list of symbols naming all visible tasks."
@@ -159,7 +173,7 @@
                                                         "leiningen." "")]]
                                [n (distance n task)]))
         min (apply min (vals suggestions))]
-    (if (<= min 4)
+    (if (<= min 3)
       (map first (filter #(= min (second %)) suggestions)))))
 
 (defn ^:no-project-needed task-not-found [task & _]
