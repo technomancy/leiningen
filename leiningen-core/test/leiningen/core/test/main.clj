@@ -45,6 +45,27 @@
        ["one-or-two"]
        #"(?s)Wrong number of arguments to one-or-two task.*Expected \[one\] or \[one two\]"))
 
+(def ^:private distance @#'leiningen.core.main/distance)
+
+(deftest test-damerau-levensthein
+  (is (zero? (distance "run" "run")))
+  (is (zero? (distance "uberjar" "uberjar")))
+  (is (zero? (distance "classpath" "classpath")))
+  (is (zero? (distance "with-profile" "with-profile")))
+
+  (is (= 1 (distance "rep" "repl")))
+  (is (= 1 (distance "est" "test")))
+  (is (= 1 (distance "java" "javac")))
+  (is (= 1 (distance "halp" "help")))
+  (is (= 1 (distance "lien" "lein")))
+
+  (is (= 4 (distance "" "repl")))
+  (is (= 6 (distance "foobar" "")))
+
+  (is (= 2 (distance "erlp" "repl")))
+  (is (= 2 (distance "deploy" "epdloy")))
+  (is (= 3 (distance "pugared" "upgrade"))))
+
 (deftest test-parse-options
   (is (= (parse-options ["--chicken"])
          [{:--chicken true} '()]))
