@@ -419,8 +419,8 @@
         (if (or (-> left meta :prepend)
                 (-> right meta :prepend))
           (-> (concat right left)
-              (with-meta (merge (or (meta left) {})
-                                (select-keys (or (meta right) {}) [:displace]))))
+              (with-meta (merge (meta left)
+                                (select-keys (meta right) [:displace]))))
           (concat left right))
 
         (= (class left) (class right)) right
