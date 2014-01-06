@@ -1,6 +1,7 @@
 (ns leiningen.update-in
   (:refer-clojure :exclude [update-in])
   (:require [leiningen.core.main :as main]
+            [leiningen.core.project :as project]
             [clojure.core :as clj]))
 
 (defn ^:internal parse-args [key-path f args]
@@ -16,7 +17,9 @@
                                   [f %])
                                 args
                                 [nil]))]
-    (vary-meta (f project) clj/update-in [:without-profiles] f)))
+    (-> (vary-meta (f project) clj/update-in [:without-profiles] f)
+        (project/load-plugins)
+        (project/activate-middleware))))
 
 (defn ^:higher-order update-in
   "Perform arbitrary transformations on your project map.
