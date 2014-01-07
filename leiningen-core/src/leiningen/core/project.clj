@@ -262,6 +262,45 @@
                               :mirrors :plugin-repositories] normalize-repos)
       (update-each-contained [:profiles] utils/map-vals normalize-values)))
 
+(def ^:private empty-meta-merge-defaults
+  {:repositories empty-repositories
+   :plugin-repositories empty-repositories
+   :deploy-repositories deploy-repositories
+   :plugins empty-dependencies
+   :dependencies empty-dependencies
+   :source-paths empty-paths
+   :resource-paths empty-paths
+   :test-paths empty-paths})
+
+(defn- setup-map-defaults
+  "Transform a project or profile map by merging empty default values containing
+  reducing functions and other metadata properties, replacing aliases and
+  normalizing values inside the map."
+  [raw-map empty-defaults]
+  (with-meta
+    (meta-merge
+     empty-defaults
+     (-> raw-map
+         (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
+         (assoc :eval-in (or (:eval-in raw-map)
+                             (if (:eval-in-leiningen raw-map)
+                               :leiningen)))
+         (dissoc :eval-in-leiningen :java-opts)
+         (normalize-values)))
+    (meta raw-map)))
+
+(defn- setup-profile-with-empty
+  "Setup a profile map with empty defaults."
+  [raw-profile-map]
+  (let [empty-defaults (select-keys empty-meta-merge-defaults
+                                    (keys raw-profile-map))]
+    (setup-map-defaults raw-profile-map empty-defaults)))
+
+(defn- setup-map-of-profiles
+  "Setup a map of profile maps with empty defaults."
+  [map-of-profiles]
+  (utils/map-vals map-of-profiles setup-profile-with-empty))
+
 (defn make
   ([project project-name version root]
      (make (with-meta (assoc project
@@ -278,25 +317,17 @@
                                 "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
-       (with-meta
-         (meta-merge
-          {:repositories repos
-           :plugin-repositories repos
-           :deploy-repositories deploy-repositories
-           :plugins empty-dependencies
-           :dependencies empty-dependencies
-           :source-paths empty-paths
-           :resource-paths empty-paths
-           :test-paths empty-paths}
-          (-> (meta-merge defaults project)
-              (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
-                                   (:jvm-opts defaults)))
-              (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
-              (assoc :eval-in (or (:eval-in project)
-                                  (if (:eval-in-leiningen project)
-                                    :leiningen, :subprocess)))
-              (normalize-values)))
-         (meta project)))))
+       (setup-map-defaults
+        (-> (meta-merge defaults project)
+            (dissoc :eval-in-leiningen :omit-default-repositories)
+            (assoc :eval-in (or (:eval-in project)
+                                (if (:eval-in-leiningen project)
+                                  :leiningen, :subprocess)))
+            (update-each-contained [:profiles] setup-map-of-profiles)
+            (with-meta (meta project)))
+        (assoc empty-meta-merge-defaults
+          :repositories repos
+          :plugin-repositories repos)))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
@@ -502,10 +533,17 @@
   /etc), the profiles.clj file in ~/.lein, the profiles.clj file in
   the project root, and the :profiles key from the project map."
   [project]
-  (warn-user-repos (concat (user/profiles) (system-profiles)))
-  (warn-user-profile (:root project) (:profiles project))
-  (merge @default-profiles (system-profiles) (user/profiles)
-         (:profiles project) (project-profiles project)))
+  ;; TODO: All profile reads (load-profiles and profiles, notable) should wrap
+  ;;   setup-profiles instead of doing stuff here, but as it is a cyclic
+  ;;   dependency, defer it to 3.0. Although I guess we don't need this
+  ;;   functionality for 3.0 if we're smart.
+  (let [sys-profiles (setup-map-of-profiles (system-profiles))
+        user-profiles (setup-map-of-profiles (user/profiles))
+        proj-profiles (setup-map-of-profiles (project-profiles project))]
+    (warn-user-repos (concat user-profiles sys-profiles))
+    (warn-user-profile (:root project) (:profiles project))
+    (merge @default-profiles sys-profiles user-profiles
+           (:profiles project) proj-profiles)))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
 
