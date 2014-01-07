@@ -289,6 +289,18 @@
          (normalize-values)))
     (meta raw-map)))
 
+(defn- setup-profile-with-empty
+  "Setup a profile map with empty defaults."
+  [raw-profile-map]
+  (let [empty-defaults (select-keys empty-meta-merge-defaults
+                                    (keys raw-profile-map))]
+    (setup-map-defaults raw-profile-map empty-defaults)))
+
+(defn- setup-map-of-profiles
+  "Setup a map of profile maps with empty defaults."
+  [map-of-profiles]
+  (utils/map-vals map-of-profiles setup-profile-with-empty))
+
 (defn make
   ([project project-name version root]
      (make (with-meta (assoc project
@@ -311,6 +323,7 @@
             (assoc :eval-in (or (:eval-in project)
                                 (if (:eval-in-leiningen project)
                                   :leiningen, :subprocess)))
+            (update-each-contained [:profiles] setup-map-of-profiles)
             (with-meta (meta project)))
         (assoc empty-meta-merge-defaults
           :repositories repos
