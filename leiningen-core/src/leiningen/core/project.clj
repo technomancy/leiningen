@@ -272,6 +272,23 @@
    :resource-paths empty-paths
    :test-paths empty-paths})
 
+(defn- setup-map-defaults
+  "Transform a project or profile map by merging empty default values containing
+  reducing functions and other metadata properties, replacing aliases and
+  normalizing values inside the map."
+  [raw-map empty-defaults]
+  (with-meta
+    (meta-merge
+     empty-defaults
+     (-> raw-map
+         (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
+         (assoc :eval-in (or (:eval-in raw-map)
+                             (if (:eval-in-leiningen raw-map)
+                               :leiningen)))
+         (dissoc :eval-in-leiningen :java-opts)
+         (normalize-values)))
+    (meta raw-map)))
+
 (defn make
   ([project project-name version root]
      (make (with-meta (assoc project
@@ -288,19 +305,16 @@
                                 "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
-       (with-meta
-         (meta-merge
-          (assoc empty-meta-merge-defaults
-            :repositories repos
-            :plugin-repositories repos)
-          (-> (meta-merge defaults project)
-              (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)))
-              (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
-              (assoc :eval-in (or (:eval-in project)
-                                  (if (:eval-in-leiningen project)
-                                    :leiningen, :subprocess)))
-              (normalize-values)))
-         (meta project)))))
+       (setup-map-defaults
+        (-> (meta-merge defaults project)
+            (dissoc :eval-in-leiningen :omit-default-repositories)
+            (assoc :eval-in (or (:eval-in project)
+                                (if (:eval-in-leiningen project)
+                                  :leiningen, :subprocess)))
+            (with-meta (meta project)))
+        (assoc empty-meta-merge-defaults
+          :repositories repos
+          :plugin-repositories repos)))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
