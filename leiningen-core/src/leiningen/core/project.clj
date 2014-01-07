@@ -533,10 +533,17 @@
   /etc), the profiles.clj file in ~/.lein, the profiles.clj file in
   the project root, and the :profiles key from the project map."
   [project]
-  (warn-user-repos (concat (user/profiles) (system-profiles)))
-  (warn-user-profile (:root project) (:profiles project))
-  (merge @default-profiles (system-profiles) (user/profiles)
-         (:profiles project) (project-profiles project)))
+  ;; TODO: All profile reads (load-profiles and profiles, notable) should wrap
+  ;;   setup-profiles instead of doing stuff here, but as it is a cyclic
+  ;;   dependency, defer it to 3.0. Although I guess we don't need this
+  ;;   functionality for 3.0 if we're smart.
+  (let [sys-profiles (setup-map-of-profiles (system-profiles))
+        user-profiles (setup-map-of-profiles (user/profiles))
+        proj-profiles (setup-map-of-profiles (project-profiles project))]
+    (warn-user-repos (concat user-profiles sys-profiles))
+    (warn-user-profile (:root project) (:profiles project))
+    (merge @default-profiles sys-profiles user-profiles
+           (:profiles project) proj-profiles)))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
 
