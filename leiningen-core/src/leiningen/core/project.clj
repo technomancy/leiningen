@@ -262,6 +262,16 @@
                               :mirrors :plugin-repositories] normalize-repos)
       (update-each-contained [:profiles] utils/map-vals normalize-values)))
 
+(def ^:private empty-meta-merge-defaults
+  {:repositories empty-repositories
+   :plugin-repositories empty-repositories
+   :deploy-repositories deploy-repositories
+   :plugins empty-dependencies
+   :dependencies empty-dependencies
+   :source-paths empty-paths
+   :resource-paths empty-paths
+   :test-paths empty-paths})
+
 (defn make
   ([project project-name version root]
      (make (with-meta (assoc project
@@ -280,14 +290,9 @@
                    default-repositories)]
        (with-meta
          (meta-merge
-          {:repositories repos
-           :plugin-repositories repos
-           :deploy-repositories deploy-repositories
-           :plugins empty-dependencies
-           :dependencies empty-dependencies
-           :source-paths empty-paths
-           :resource-paths empty-paths
-           :test-paths empty-paths}
+          (assoc empty-meta-merge-defaults
+            :repositories repos
+            :plugin-repositories repos)
           (-> (meta-merge defaults project)
               (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
                                    (:jvm-opts defaults)))
