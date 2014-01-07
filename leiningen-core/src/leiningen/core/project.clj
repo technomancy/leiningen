@@ -294,8 +294,7 @@
             :repositories repos
             :plugin-repositories repos)
           (-> (meta-merge defaults project)
-              (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
-                                   (:jvm-opts defaults)))
+              (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)))
               (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
               (assoc :eval-in (or (:eval-in project)
                                   (if (:eval-in-leiningen project)
