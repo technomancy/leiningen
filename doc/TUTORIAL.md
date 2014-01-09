@@ -309,7 +309,7 @@ Enough setup; let's see some code running. Start with a REPL
 (read-eval-print loop):
 
     $ lein repl
-    nREPL server started on port 55568 on host 127.0.0.1
+    nREPL server started on port 55568 on host 127.0.0.1 - nrepl://127.0.0.1:55568
     REPL-y 0.3.0
     Clojure 1.5.1
         Docs: (doc function-name-here)
