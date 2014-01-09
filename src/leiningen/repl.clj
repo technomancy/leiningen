@@ -139,7 +139,7 @@
           legacy-repl-port# (if (.exists (io/file ~(:target-path project)))
                               (io/file ~(:target-path project) "repl-port"))]
       (when ~start-msg?
-        (println "nREPL server started on port" port# "on host" ~(:host cfg)))
+        (println "nREPL server started on port" port# "on host" ~(:host cfg) (str "- nrepl://" ~(:host cfg) ":" port#)))
       (spit (doto repl-port-file# .deleteOnExit) port#)
       (when legacy-repl-port#
         (spit (doto legacy-repl-port# .deleteOnExit) port#))
@@ -205,7 +205,8 @@
     (if-let [repl-port (nrepl.ack/wait-for-ack
                         (get-in project [:repl-options :timeout] 60000))]
       (do (main/info "nREPL server started on port"
-                     repl-port "on host" (:host cfg))
+                     repl-port "on host" (:host cfg)
+                     (str "- nrepl://" (:host cfg) ":" repl-port))
           repl-port)
       (main/abort "REPL server launch timed out."))))
 
