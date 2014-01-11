@@ -23,7 +23,8 @@
                            (catch ExceptionInInitializerError e#
                              (swap! failures# inc)
                              (.printStackTrace e#)))))
-                     (System/exit @failures#))]
+                     (let [exit-code# (if (= 0 @failures#) 0 1)]
+                       (System/exit exit-code#)))]
        (try
          (binding [eval/*pump-in* false]
            (eval/eval-in-project project action))
