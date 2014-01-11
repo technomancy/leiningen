@@ -166,11 +166,12 @@ See the plugin task's help for more information.
   allow you to hack on them in parallel. That means changes in the
   dependency will be visible in the main project without having to go
   through the whole install/switch-projects/deps/restart-repl cycle,
-  and the copy in `checkouts` will take precedence over the dependency
-  declared in project.clj. Note that this is not a replacement for
-  listing the project in `:dependencies`; it simply supplements that for
-  convenience. You can run `lein classpath` to see how the addition of
-  the checkouts affects the project's classpath.
+  and the copy in `checkouts` will take precedence over an existing
+  dependency declared in project.clj. You should still list the
+  project in `:dependencies` for release, but during development that is
+  not required and will in fact raise an error if leiningen can not 
+  retrieve the dependency in the usual way. You can run `lein classpath` 
+  to see how the addition of the checkouts affects the project's classpath.
 
 **Q:** Is it possible to exclude indirect dependencies?  
 **A:** Yes. Some libraries, such as log4j, depend on projects that are
