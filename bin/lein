@@ -11,7 +11,7 @@ case $LEIN_VERSION in
     *) SNAPSHOT="NO" ;;
 esac
 
-if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+if [[ "$OSTYPE" == "cygwin" ]]; then
     delimiter=";"
 else
     delimiter=":"
@@ -28,7 +28,7 @@ function make_native_path {
     if $cygwin && [[ "$1"  == /* ]]; then
     echo -n "$(cygpath -wp "$1")"
     elif [[ "$OSTYPE" == "msys" && "$1"  == /?/* ]]; then
-    echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
+    echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]+\)/\\1:/g'")"
     else
     echo -n "$1"
     fi
