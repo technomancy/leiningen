@@ -1,4 +1,5 @@
 (ns leiningen.with-profile
+  "Apply the given task with the profile(s) specified."
   (:require [clojure.string :as string]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
