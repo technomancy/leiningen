@@ -5,24 +5,12 @@
             [leiningen.core.main :as main]
             [bultitude.core :as b]))
 
-(defn- resolve-task [task-name]
-  (try (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
-             task (ns-resolve task-ns (symbol task-name))]
-         [task-ns task])
-       (catch java.io.FileNotFoundException e
-         [nil nil])))
-
-(defn- fallback-fn-docstring [task-sym]
-  (-> task-sym name resolve-task second meta :doc))
-
 (def docstrings
   (memoize
    (fn []
      (apply hash-map
             (mapcat
-             (fn [form] [(second form)
-                         (or (b/doc-from-ns-form form)
-                             (fallback-fn-docstring (second form)))])
+             (fn [form] [ (second form) (b/doc-from-ns-form form) ])
              (b/namespace-forms-on-classpath :prefix "leiningen"))))))
 
 (def ^{:private true
@@ -66,6 +54,13 @@
                                                   longest-key-length))
                                 [(str "\nRun `lein help " (:name (meta task))
                                       " $SUBTASK` for subtask details.")])))))
+
+(defn- resolve-task [task-name]
+  (try (let [task-ns (doto (symbol (str "leiningen." task-name)) require)
+             task (ns-resolve task-ns (symbol task-name))]
+         [task-ns task])
+       (catch java.io.FileNotFoundException e
+         [nil nil])))
 
 (defn- resolve-subtask [task-name subtask-name]
   (let [[_ task] (resolve-task task-name)]
