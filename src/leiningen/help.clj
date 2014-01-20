@@ -2,7 +2,16 @@
   "Display a list of tasks or help for a given task."
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
-            [leiningen.core.main :as main]))
+            [leiningen.core.main :as main]
+            [bultitude.core :as b]))
+
+(def docstrings
+  (memoize
+   (fn []
+     (apply hash-map
+            (mapcat
+             (fn [form] [ (second form) (b/doc-from-ns-form form) ])
+             (b/namespace-forms-on-classpath :prefix "leiningen"))))))
 
 (def ^{:private true
        :doc "Width of task name column in list of tasks produced by help task."}
@@ -120,13 +129,12 @@
        (help-for-subtask (aliases task-name task-name) subtask-name))))
 
 (defn help-summary-for [task-ns]
-  (try (let [task-name (last (.split (name task-ns) "\\."))
-             ns-summary (:doc (meta (find-ns (doto task-ns require))))
-             first-line (first (.split (help-for {} task-name) "\n"))]
+  (try (let [task-name (last (.split (name task-ns) "\\."))]
          ;; Use first line of task docstring if ns metadata isn't present
          (str task-name (apply str (repeat (- task-name-column-width
                                               (count task-name)) " "))
-              (or ns-summary first-line)))
+              (or (task-ns (docstrings))
+                  (first (.split (help-for {} task-name) "\n")))))
        (catch Throwable e
          (binding [*out* *err*]
            (str task-ns "  Problem loading: " (.getMessage e))))))

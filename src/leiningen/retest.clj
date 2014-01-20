@@ -1,4 +1,5 @@
 (ns leiningen.retest
+  "Run only the test namespaces which failed last time around."
   (:require [leiningen.test :as test]
             [leiningen.core.main :as main]))
 

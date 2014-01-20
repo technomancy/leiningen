@@ -1,4 +1,5 @@
 (ns leiningen.update-in
+  "Perform arbitrary transformations on your project map."
   (:refer-clojure :exclude [update-in])
   (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]
