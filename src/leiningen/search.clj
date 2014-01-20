@@ -1,4 +1,5 @@
 (ns leiningen.search
+  "Search remote maven repositories for matching jars."
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [leiningen.core.user :as user]
