@@ -191,7 +191,7 @@
             "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]
             ;; For complex aliases, a docstring may be attached. The docstring
             ;; will be printed instead of the expansion when running `lein help`.
-            "test!" ^{:doc "Recompile sources and fetch deps before testing."}
+            "deploy!" ^{:doc "Recompile sources, then deploy if tests succeed."}
             ;; Nested vectors are supported for the "do" task
             ["do" "clean" ["test" ":integration"] ["deploy" "clojars"]]}
 
