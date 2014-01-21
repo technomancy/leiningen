@@ -302,7 +302,7 @@ else
     if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
         [ -r project.clj ]; then
         INPUTS="$@ $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
-        INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
+        export INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
     else

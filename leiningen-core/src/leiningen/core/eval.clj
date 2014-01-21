@@ -198,7 +198,9 @@ leiningen.core.utils/platform-nullsink instead."
 (defn shell-command
   "Calculate vector of strings needed to evaluate form in a project subprocess."
   [project form]
-  (let [init-file (File/createTempFile "form-init" ".clj")]
+  (let [init-file (if-let [checksum (System/getenv "INPUT_CHECKSUM")]
+                    (io/file (:target-path project) (str checksum "-init.clj"))
+                    (File/createTempFile "form-init" ".clj"))]
     (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
       (spit init-file (pr-str `(-> (java.io.File. ~(.getCanonicalPath init-file))
                                    (.deleteOnExit)))))
