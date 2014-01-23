@@ -681,6 +681,9 @@
            (throw (Exception. (format "%s must define project map" file))))
          ;; return it to original state
          (ns-unmap 'leiningen.core.project 'project)
-         (init-profiles (project-with-profiles @project) profiles))))
+         (let [project-map (init-profiles (project-with-profiles @project) profiles)]
+           (when-not (:license project-map)
+             (throw (Exception. "Project map must have a :license field")))
+           project-map))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))

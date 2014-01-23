@@ -4,6 +4,8 @@
 ;; "lein new".
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [janino "2.5.15"]]
   :uberjar-exclusions [#"DUMMY"]

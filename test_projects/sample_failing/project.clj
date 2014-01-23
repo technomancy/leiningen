@@ -4,5 +4,7 @@
 ;; "lein new".
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[~(symbol "org.clojure" "clojure") ~"1.1.0"]]
   :aot [nom.nom.nom])

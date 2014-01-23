@@ -64,6 +64,10 @@
       (is (= (for [p path] (lthelper/pathify (str (:root actual) "/" p)))
              (k actual))))))
 
+(deftest test-read-project-without-license
+  (is (thrown-with-msg? Exception #"Project map must have a :license field"
+        (read (.getFile (io/resource "p4.clj"))))))
+
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
 
