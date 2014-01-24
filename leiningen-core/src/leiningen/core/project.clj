@@ -291,10 +291,13 @@
 
 (defn- setup-profile-with-empty
   "Setup a profile map with empty defaults."
-  [raw-profile-map]
-  (let [empty-defaults (select-keys empty-meta-merge-defaults
-                                    (keys raw-profile-map))]
-    (setup-map-defaults raw-profile-map empty-defaults)))
+  [raw-profile]
+  (if (composite-profile? raw-profile)
+    ;; TODO: drop support for partially-composite profiles in 3.0
+    (mapv #(cond-> % (map? %) setup-profile-with-empty) raw-profile)
+    (let [empty-defaults (select-keys empty-meta-merge-defaults
+                                      (keys raw-profile))]
+      (setup-map-defaults raw-profile empty-defaults))))
 
 (defn- setup-map-of-profiles
   "Setup a map of profile maps with empty defaults."
@@ -493,6 +496,18 @@
   (cond-> (lookup-profile* profiles profile)
           (keyword? profile)
           (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
+
+(defn- expand-profile* [profiles profile]
+  (let [content (get profiles profile)]
+    ;; TODO: drop "support" for partially-composite profiles in 3.0
+    (if (or (nil? content) (map? content) (some map? content))
+      [profile]
+      (mapcat (partial expand-profile* profiles) content))))
+
+(defn expand-profile
+  "Recursively expand the keyword `profile` in `project` to a sequence of
+atomic (non-composite) profile keywords."
+  [project profile] (expand-profile* (:profiles project) profile))
 
 (defn- warn-user-repos [profiles]
   (let [has-url? (fn [entry] (or (string? entry) (:url entry)))
