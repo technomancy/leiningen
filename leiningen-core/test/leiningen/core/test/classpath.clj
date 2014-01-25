@@ -20,6 +20,8 @@
 (def project {:dependencies '[[org.clojure/clojure "1.3.0"]
                               [ring/ring-core "1.0.0"
                                :exclusions [commons-codec]]]
+              :license {:name "Eclipse Public License"
+                        :url "http://www.eclipse.org/legal/epl-v10.html"}
               :checkout-deps-shares [:source-paths :resource-paths
                                      :compile-path #(lthelper/pathify (str (:root %) "/foo"))]
               :repositories project/default-repositories
@@ -75,7 +77,7 @@
     (try
       (.mkdirs d1)
       (spit (io/file d1 "project.clj")
-            (pr-str '(defproject hello "1.0")))
+            (pr-str '(defproject hello "1.0" :license {})))
       (is (= (for [path ["src" "dev-resources" "resources"
                          "target/classes" "foo"]]
                (lthelper/pathify (format "/tmp/lein-sample-project/checkouts/d1/%s" path)))

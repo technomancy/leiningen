@@ -1,4 +1,6 @@
 (defproject project-name "1.0.0-SNAPSHOT"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Test support for transitive native dependencies"
   :native-path "nnnative"
   :dependencies [[org.clojure/clojure "1.4.0"]
