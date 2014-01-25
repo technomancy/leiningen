@@ -683,7 +683,9 @@
          (ns-unmap 'leiningen.core.project 'project)
          (let [project-map (init-profiles (project-with-profiles @project) profiles)]
            (when-not (:license project-map)
-             (throw (Exception. "Project map must have a :license field")))
+             (require 'leiningen.core.main)
+             ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
+              format "%s must have a :license field" file))
            project-map))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
