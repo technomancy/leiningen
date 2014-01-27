@@ -65,7 +65,8 @@
              (k actual))))))
 
 (deftest test-read-project-without-license
-  (is (thrown? clojure.lang.ExceptionInfo (read (.getFile (io/resource "p4.clj"))))))
+  (is (re-find #"must have a :license field"
+               (abort-msg read (.getFile (io/resource "p4.clj"))))))
 
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project

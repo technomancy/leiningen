@@ -757,7 +757,7 @@ atomic (non-composite) profile keywords."
            (when-not (:license project-map)
              (require 'leiningen.core.main)
              ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
-              format "%s must have a :license field" file))
+              (format "%s must have a :license field" file)))
            project-map))))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
