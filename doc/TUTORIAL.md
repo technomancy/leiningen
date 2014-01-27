@@ -78,8 +78,10 @@ Generating a new project is easy:
     ./.gitignore
     ./doc
     ./doc/intro.md
+    ./LICENSE
     ./project.clj
     ./README.md
+    ./resources
     ./src
     ./src/my_stuff
     ./src/my_stuff/core.clj
@@ -163,7 +165,7 @@ though you'll need to learn to read it for Java libraries from
 [Central](http://search.maven.org). You can copy the Leiningen version
 directly into the `:dependencies` vector in `project.clj`.  So for
 instance, if you change replace the `:dependencies` line in the example
-`project.clj` above to 
+`project.clj` above to
 
 ```clj
 :dependencies [[org.clojure/clojure "1.5.1"]
