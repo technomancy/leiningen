@@ -33,7 +33,9 @@
               profiles))
 
      (not-any? #{\+ \-} prefixes)
-     (map keyword profiles)
+     (distinct
+      (mapcat (comp #(project/expand-profile project %) keyword)
+              profiles))
 
      :else
      (throw

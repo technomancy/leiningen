@@ -15,7 +15,20 @@
            [(prj-map {:default [:base :dev]}) "-default,+foo" [:foo]]
            [(prj-map {:default [:base :dev], :foo [:bar :baz]})
             "-default,+foo" [:bar :baz]]
+           [(prj-map {:default [:base :dev], :dev [:foo]
+                      :foo [:bar :baz], :baz [:zap]})
+            "-default,+foo" [:bar :zap]]
            ;; TODO: drop support for partially-composite profiles in 3.0
            [(prj-map {:default [:base :dev], :foo [:bar {:gross true}]})
             "-default,+foo" [:foo]]]]
-    (is (= expected (profiles-in-group project pgroup)))))
+    (is (= expected (profiles-in-group project pgroup))))
+  (testing "no +/- prefixes in arg"
+    (let [project (prj-map {:default [:base :dev] :foo [:bar :baz]
+                            :bar [:one :two] :baz [:three :four]})]
+      (doseq [[pgroup expected]
+              [["foo" [:one :two :three :four]]
+               ["bar" [:one :two]]
+               ["baz" [:three :four]]
+               ["bar,baz" [:one :two :three :four]]
+               ["baz,bar" [:three :four :one :two]]]]
+        (is (= expected (profiles-in-group project pgroup)))))))

@@ -294,7 +294,8 @@
   [raw-profile]
   (if (composite-profile? raw-profile)
     ;; TODO: drop support for partially-composite profiles in 3.0
-    (mapv #(cond-> % (map? %) setup-profile-with-empty) raw-profile)
+    (mapv #(cond-> % (composite-profile? %) setup-profile-with-empty)
+          raw-profile)
     (let [empty-defaults (select-keys empty-meta-merge-defaults
                                       (keys raw-profile))]
       (setup-map-defaults raw-profile empty-defaults))))
