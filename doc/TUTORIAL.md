@@ -58,7 +58,7 @@ Leiningen about things like
 and more.
 
 Most Leiningen tasks only make sense in the context of a project. Some
-(for example, `repl` or `help`) can also from any directory.
+(for example, `repl` or `help`) can also be called from any directory.
 
 Next let's take a look at how projects are created.
 
@@ -120,8 +120,10 @@ Your `project.clj` file will start off looking something like this:
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.4.0"]]
-  :main my-stuff.core)
+  :dependencies [[org.clojure/clojure "1.5.1"]]
+  :main ^:skip-aot my-stuff.core
+  :target-path "target/%s"
+  :profiles {:uberjar {:aot :all}})
 ```
 
 If you don't fill in the `:description` with a short sentence, your
@@ -159,7 +161,20 @@ stable version of the `clj-http` library, one in Leiningen format
 shown above and one in Maven format. We'll skip the Maven one for now,
 though you'll need to learn to read it for Java libraries from
 [Central](http://search.maven.org). You can copy the Leiningen version
-directly into the `:dependencies` vector in `project.clj`.
+directly into the `:dependencies` vector in `project.clj`.  So for
+instance, if you change replace the `:dependencies` line in the example
+`project.clj` above to 
+
+```clj
+:dependencies [[org.clojure/clojure "1.5.1"]
+	       [clj-http "0.5.5"]]
+```
+
+`lein` will automatically download the `clj-http` jar and make sure it
+is on your classpath when your project code is run under future `lein`
+invocations.  If you want to explicitly tell lein to download new
+dependencies, you can do so with `lein deps`, but it will happen
+automatically if you don't.
 
 Within the vector, "clj-http" is referred to as the "artifact id".
 "0.5.5" is the version. Some libraries will also have "group ids",
@@ -294,19 +309,15 @@ Enough setup; let's see some code running. Start with a REPL
 (read-eval-print loop):
 
     $ lein repl
-    nREPL server started on port 40612
-    Welcome to REPL-y!
-    Clojure 1.4.0
-        Exit: Control+D or (exit) or (quit)
-    Commands: (user/help)
+    nREPL server started on port 55568 on host 127.0.0.1 - nrepl://127.0.0.1:55568
+    REPL-y 0.3.0
+    Clojure 1.5.1
         Docs: (doc function-name-here)
               (find-doc "part-of-name-here")
       Source: (source function-name-here)
-              (user/sourcery function-name-here)
      Javadoc: (javadoc java-object-or-class-here)
-    Examples from clojuredocs.org: [clojuredocs or cdoc]
-              (user/clojuredocs name-here)
-              (user/clojuredocs "ns-here" "name-here")
+        Exit: Control+D or (exit) or (quit)
+     Results: Stored in vars *1, *2, *3, an exception in *e
 
     user=>
 
@@ -403,19 +414,22 @@ included from the project template:
 
     $ lein test
 
-    lein test my.test.stuff
+    lein test my-stuff.core-test
 
-    FAIL in (a-test) (stuff.clj:7)
+    lein test :only my-stuff.core-test/a-test
+
+    FAIL in (a-test) (core_test.clj:7)
     FIXME, I fail.
     expected: (= 0 1)
       actual: (not (= 0 1))
 
     Ran 1 tests containing 1 assertions.
     1 failures, 0 errors.
+    Tests failed.
 
 Once we fill it in the test suite will become more useful. Sometimes
 if you've got a large test suite you'll want to run just one or two
-namespaces at a time; `lein test my.test.stuff` will do that. You
+namespaces at a time; `lein test my-stuff.core-test` will do that. You
 also might want to break up your tests using test selectors; see `lein
 help test` for more details.
 

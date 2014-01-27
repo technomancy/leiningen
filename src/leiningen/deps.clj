@@ -70,7 +70,8 @@
   "Show details about dependencies.
 
 USAGE: lein deps :tree
-Show the full dependency tree for the current project.
+Show the full dependency tree for the current project. Each dependency is only
+shown once within a tree.
 
 USAGE: lein deps :plugin-tree
 Show the full dependency tree for the plugins in the current project.

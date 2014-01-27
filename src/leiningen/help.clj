@@ -2,7 +2,16 @@
   "Display a list of tasks or help for a given task."
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
-            [leiningen.core.main :as main]))
+            [leiningen.core.main :as main]
+            [bultitude.core :as b]))
+
+(def docstrings
+  (memoize
+   (fn []
+     (apply hash-map
+            (mapcat
+             (fn [form] [ (second form) (b/doc-from-ns-form form) ])
+             (b/namespace-forms-on-classpath :prefix "leiningen"))))))
 
 (def ^{:private true
        :doc "Width of task name column in list of tasks produced by help task."}
@@ -62,10 +71,29 @@
   (if-let [resource (io/resource (format "leiningen/help/%s" name))]
     (slurp resource)))
 
+(declare help-for)
+
+(defn- alias-help
+  "Returns a string containing help for an alias, or nil if the string is not an
+  alias."
+  [aliases task-name]
+  (if (aliases task-name)
+    (let [alias-expansion (aliases task-name)
+          explanation (-> alias-expansion meta :doc)]
+      (cond explanation (str task-name ": " explanation)
+            (string? alias-expansion) (str
+                                       (format
+                                        (str "'%s' is an alias for '%s',"
+                                             " which has following help doc:\n")
+                                        task-name alias-expansion)
+                                       (help-for alias-expansion))
+            :no-explanation-or-string (str task-name " is an alias, expands to "
+                                           alias-expansion)))))
+
 (defn help-for
   "Returns a string containing help for a task.
-Looks for a function named 'help' in the subtask's namespace,
-then a docstring on the task, then a docstring on the task ns."
+  Looks for a function named 'help' in the subtask's namespace, then a docstring
+  on the task, then a docstring on the task ns."
   ([task-name]
      (let [[task-ns task] (resolve-task task-name)]
        (if task
@@ -79,12 +107,13 @@ then a docstring on the task, then a docstring on the task ns."
          (format "Task: '%s' not found" task-name))))
   ([project task-name]
      (let [aliases (merge main/aliases (:aliases project))]
-       (help-for (aliases task-name task-name)))))
+       (or (alias-help aliases task-name)
+           (help-for task-name)))))
 
 (defn help-for-subtask
   "Returns a string containing help for a subtask.
-Looks for a function named 'help-<subtask>' in the subtask's namespace,
-using the subtask's docstring if the help function is not found."
+  Looks for a function named 'help-<subtask>' in the subtask's namespace,
+  using the subtask's docstring if the help function is not found."
   ([task-name subtask-name]
      (if-let [subtask (resolve-subtask task-name subtask-name)]
        (let [subtask-meta (meta subtask)
@@ -100,13 +129,12 @@ using the subtask's docstring if the help function is not found."
        (help-for-subtask (aliases task-name task-name) subtask-name))))
 
 (defn help-summary-for [task-ns]
-  (try (let [task-name (last (.split (name task-ns) "\\."))
-             ns-summary (:doc (meta (find-ns (doto task-ns require))))
-             first-line (first (.split (help-for {} task-name) "\n"))]
+  (try (let [task-name (last (.split (name task-ns) "\\."))]
          ;; Use first line of task docstring if ns metadata isn't present
          (str task-name (apply str (repeat (- task-name-column-width
                                               (count task-name)) " "))
-              (or ns-summary first-line)))
+              (or (task-ns (docstrings))
+                  (first (.split (help-for {} task-name) "\n")))))
        (catch Throwable e
          (binding [*out* *err*]
            (str task-ns "  Problem loading: " (.getMessage e))))))

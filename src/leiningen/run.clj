@@ -6,6 +6,10 @@
            (clojure.lang Reflector)))
 
 (defn- normalize-main [given]
+  (when-not (or (symbol? given)
+                (and (string? given) (symbol? (read-string given))))
+    (main/abort (str "Option -m requires a valid namespace argument, not "
+                     given ".")))
   (if (namespace (symbol given))
     (symbol given)
     (symbol (name given) "-main")))
@@ -70,7 +74,11 @@
 
         ;; If we got an exception earlier and nothing else worked,
         ;; rethrow that.
-        (= :threw ns-flag#) (throw data#)))))
+        (= :threw ns-flag#)
+        (do (binding [*out* *err*]
+              (println (str "Can't find '" '~given "' as .class or .clj for "
+                            "lein run: please check the spelling.")))
+            (throw data#))))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls

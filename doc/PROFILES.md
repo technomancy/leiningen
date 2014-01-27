@@ -17,7 +17,7 @@ and they will be merged into the project map when that profile is
 active.
 
 The example below adds a "dummy-data" resources directory during
-development and a dependency upon "midje" that's only used for tests.
+development and a dependency upon "expectations" that's only used for tests.
 
 ```clj
 (defproject myproject "0.5.0-SNAPSHOT"
@@ -38,7 +38,7 @@ that you don't want committed in version control.
 User-wide profiles can also be specified in `~/.lein/profiles.clj`. These will be
 available in all projects managed by Leiningen, though those profiles will be
 overridden by profiles of the same name specified in the project.
-System-wide profiles can be placed in `/etc/leiningen`. They are treated
+System-wide profiles can be placed in `/etc/leiningen/profiles.clj`. They are treated
 the same as user profiles, but with lower precedence.
 
 You can also define user-wide profiles within `clj`-files inside

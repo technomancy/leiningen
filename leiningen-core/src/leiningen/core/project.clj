@@ -103,18 +103,31 @@
   [obj]
   (-> obj meta* :replace))
 
+(defn- top-displace?
+  "Returns true if the object is marked as top-displaceable"
+  [obj]
+  (-> obj meta* :top-displace))
+
 (defn- different-priority?
   "Returns true if either left has a higher priority than right or vice versa."
   [left right]
   (boolean
-   (some (some-fn nil? displace? replace?) [left right])))
+   (or (some (some-fn nil? displace? replace?) [left right])
+       (top-displace? left))))
+
+(defn- remove-top-displace [obj]
+  (if-not (top-displace? obj)
+    obj
+    (vary-meta obj dissoc :top-displace)))
 
 (defn- pick-prioritized
   "Picks the highest prioritized element of left and right and merge their
   metadata."
   [left right]
   (cond (nil? left) right
-        (nil? right) left
+        (nil? right) (remove-top-displace left)
+
+        (top-displace? left) right
 
         (and (displace? left)   ;; Pick the rightmost
              (displace? right)) ;; if both are marked as displaceable
@@ -158,18 +171,23 @@
 
 (def defaults
   ;; TODO: move :repositories here in 3.0
-  {:source-paths ["src"]
-   :resource-paths ["resources"]
-   :test-paths ["test"]
+  {:source-paths ^:top-displace ["src"]
+   :resource-paths ^:top-displace ["resources"]
+   :test-paths ^:top-displace ["test"]
    :native-path "%s/native"
    :compile-path "%s/classes"
    :target-path "target"
-   :clean-targets [:target-path]
-   :prep-tasks ["javac" "compile"]
+   :clean-targets ^:top-displace [:target-path]
+   ;; TODO: remove :top-displace for :prep-tasks in 3.0
+   :prep-tasks ^:top-displace ["javac" "compile"]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
+   :uberjar-merge-with {"META-INF/plexus/components.xml"
+                          'leiningen.uberjar/components-merger,
+                        "data_readers.clj"
+                          'leiningen.uberjar/clj-map-merger}
    :global-vars {}})
 
 (defn- dep-key
@@ -244,6 +262,49 @@
                               :mirrors :plugin-repositories] normalize-repos)
       (update-each-contained [:profiles] utils/map-vals normalize-values)))
 
+(def ^:private empty-meta-merge-defaults
+  {:repositories empty-repositories
+   :plugin-repositories empty-repositories
+   :deploy-repositories deploy-repositories
+   :plugins empty-dependencies
+   :dependencies empty-dependencies
+   :source-paths empty-paths
+   :resource-paths empty-paths
+   :test-paths empty-paths})
+
+(defn- setup-map-defaults
+  "Transform a project or profile map by merging empty default values containing
+  reducing functions and other metadata properties, replacing aliases and
+  normalizing values inside the map."
+  [raw-map empty-defaults]
+  (with-meta
+    (meta-merge
+     empty-defaults
+     (-> raw-map
+         (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
+         (assoc :eval-in (or (:eval-in raw-map)
+                             (if (:eval-in-leiningen raw-map)
+                               :leiningen)))
+         (dissoc :eval-in-leiningen :java-opts)
+         (normalize-values)))
+    (meta raw-map)))
+
+(defn- setup-profile-with-empty
+  "Setup a profile map with empty defaults."
+  [raw-profile]
+  (if (composite-profile? raw-profile)
+    ;; TODO: drop support for partially-composite profiles in 3.0
+    (mapv #(cond-> % (composite-profile? %) setup-profile-with-empty)
+          raw-profile)
+    (let [empty-defaults (select-keys empty-meta-merge-defaults
+                                      (keys raw-profile))]
+      (setup-map-defaults raw-profile empty-defaults))))
+
+(defn- setup-map-of-profiles
+  "Setup a map of profile maps with empty defaults."
+  [map-of-profiles]
+  (utils/map-vals map-of-profiles setup-profile-with-empty))
+
 (defn make
   ([project project-name version root]
      (make (with-meta (assoc project
@@ -260,25 +321,17 @@
                                 "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
-       (with-meta
-         (meta-merge
-          {:repositories repos
-           :plugin-repositories repos
-           :deploy-repositories deploy-repositories
-           :plugins empty-dependencies
-           :dependencies empty-dependencies
-           :source-paths empty-paths
-           :resource-paths empty-paths
-           :test-paths empty-paths}
-          (-> (merge defaults project)
-              (assoc :jvm-opts (or (:jvm-opts project) (:java-opts project)
-                                   (:jvm-opts defaults)))
-              (dissoc :eval-in-leiningen :omit-default-repositories :java-opts)
-              (assoc :eval-in (or (:eval-in project)
-                                  (if (:eval-in-leiningen project)
-                                    :leiningen, :subprocess)))
-              (normalize-values)))
-         (meta project)))))
+       (setup-map-defaults
+        (-> (meta-merge defaults project)
+            (dissoc :eval-in-leiningen :omit-default-repositories)
+            (assoc :eval-in (or (:eval-in project)
+                                (if (:eval-in-leiningen project)
+                                  :leiningen, :subprocess)))
+            (update-each-contained [:profiles] setup-map-of-profiles)
+            (with-meta (meta project)))
+        (assoc empty-meta-merge-defaults
+          :repositories repos
+          :plugin-repositories repos)))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
@@ -445,6 +498,18 @@
           (keyword? profile)
           (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
 
+(defn- expand-profile* [profiles profile]
+  (let [content (get profiles profile)]
+    ;; TODO: drop "support" for partially-composite profiles in 3.0
+    (if (or (nil? content) (map? content) (some map? content))
+      [profile]
+      (mapcat (partial expand-profile* profiles) content))))
+
+(defn expand-profile
+  "Recursively expand the keyword `profile` in `project` to a sequence of
+atomic (non-composite) profile keywords."
+  [project profile] (expand-profile* (:profiles project) profile))
+
 (defn- warn-user-repos [profiles]
   (let [has-url? (fn [entry] (or (string? entry) (:url entry)))
         repo-profiles (filter #(->> (second %)
@@ -460,8 +525,8 @@
 
 (alter-var-root #'warn-user-repos memoize)
 
-(defn- warn-user-profile [profiles]
-  (when (contains? profiles :user)
+(defn- warn-user-profile [root profiles]
+  (when (and root (contains? profiles :user))
     (println "WARNING: user-level profile defined in project files.")))
 
 (alter-var-root #'warn-user-profile memoize)
@@ -474,7 +539,7 @@
 
 (defn- project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
-    (warn-user-profile profiles)
+    (warn-user-profile (:root project) profiles)
     profiles))
 
 (defn read-profiles
@@ -484,10 +549,17 @@
   /etc), the profiles.clj file in ~/.lein, the profiles.clj file in
   the project root, and the :profiles key from the project map."
   [project]
-  (warn-user-repos (concat (user/profiles) (system-profiles)))
-  (warn-user-profile (:profiles project))
-  (merge @default-profiles (system-profiles) (user/profiles)
-         (:profiles project) (project-profiles project)))
+  ;; TODO: All profile reads (load-profiles and profiles, notable) should wrap
+  ;;   setup-profiles instead of doing stuff here, but as it is a cyclic
+  ;;   dependency, defer it to 3.0. Although I guess we don't need this
+  ;;   functionality for 3.0 if we're smart.
+  (let [sys-profiles (setup-map-of-profiles (system-profiles))
+        user-profiles (setup-map-of-profiles (user/profiles))
+        proj-profiles (setup-map-of-profiles (project-profiles project))]
+    (warn-user-repos (concat user-profiles sys-profiles))
+    (warn-user-profile (:root project) (:profiles project))
+    (merge @default-profiles sys-profiles user-profiles
+           (:profiles project) proj-profiles)))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
 

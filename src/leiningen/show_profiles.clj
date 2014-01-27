@@ -1,4 +1,5 @@
 (ns leiningen.show-profiles
+  "List all available profiles or display one if given an argument."
   (:require [clojure.string]
             [clojure.pprint :as pprint]
             [leiningen.core.project :as project]))
@@ -8,7 +9,7 @@
   ([project]
      (->> (project/read-profiles project)
           (keys)
-          (map name)
+          (map (comp #(subs % 1) str))
           (sort)
           (clojure.string/join "\n")
           (println)))

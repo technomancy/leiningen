@@ -39,16 +39,30 @@
       (-> project :repl-options :host)
       "127.0.0.1"))
 
+(defn client-repl-port [project]
+  (let [port (repl-port project)]
+    (if (= port 0)
+      (try
+        (slurp (io/file (:root project) ".nrepl-port"))
+        (catch Exception _))
+      port)))
+
+(defn ensure-port [s]
+  (if (re-find #":\d+($|/.*$)" s)
+    s
+    (main/abort "Port is required. See `lein help repl`")))
+
 (defn connect-string [project opts]
   (as-> (str (first opts)) x
         (s/split x #":")
         (remove s/blank? x)
-        (-> (drop-last (count x) [(repl-host project) (repl-port project)])
+        (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
             (concat x))
-        (s/join ":" x)))
+        (s/join ":" x)
+        (ensure-port x)))
 
 (defn options-for-reply [project & {:keys [attach port]}]
-  (as-> (:repl-options project) x
+  (as-> (:repl-options project) opts
         (merge {:history-file (->> (if-let [root (:root project)]
                                      [root ".lein-repl-history"]
                                      [(user/leiningen-home) "repl-history"])
@@ -58,14 +72,14 @@
                 ;; TODO: once reply/#114 is fixed; add (user/help) back in and
                 ;; move other source/javadoc/etc references into longer help.
                 :welcome (list 'println (slurp (io/resource "repl-welcome")))}
-               x)
-        (apply dissoc x (concat [:init] (if attach [:host :port])))
-        (merge x (cond attach {:attach (str attach)}
-                       port {:port port}
-                       :else {}))
-        (clojure.set/rename-keys x {:prompt :custom-prompt
-                                    :welcome :custom-help})
-        (if (:port x) (update-in x [:port] str) x)))
+               opts)
+        (apply dissoc opts (concat [:init] (if attach [:host :port])))
+        (merge opts (cond attach {:attach (str attach)}
+                          port {:port port}
+                          :else {}))
+        (clojure.set/rename-keys opts {:prompt :custom-prompt
+                                       :welcome :custom-help})
+        (if (:port opts) (update-in opts [:port] str) opts)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns main))
@@ -125,7 +139,7 @@
           legacy-repl-port# (if (.exists (io/file ~(:target-path project)))
                               (io/file ~(:target-path project) "repl-port"))]
       (when ~start-msg?
-        (println "nREPL server started on port" port# "on host" ~(:host cfg)))
+        (println "nREPL server started on port" port# "on host" ~(:host cfg) (str "- nrepl://" ~(:host cfg) ":" port#)))
       (spit (doto repl-port-file# .deleteOnExit) port#)
       (when legacy-repl-port#
         (spit (doto legacy-repl-port# .deleteOnExit) port#))
@@ -143,7 +157,7 @@
 
 (def trampoline-profile
   {:dependencies
-   '[^:displace [reply "0.2.1"
+   '[^:displace [reply "0.3.0"
                  :exclusions [org.clojure/clojure ring/ring-core]]]})
 
 (defn- trampoline-repl [project port]
@@ -168,10 +182,17 @@
           :bind (repl-host nil)
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
+(defn nrepl-dependency? [{:keys [dependencies]}]
+  (some (fn [[d]] (re-find #"tools.nrepl" (str d))) dependencies))
+
 ;; NB: This function cannot happen in parallel (or be recursive) because of race
 ;; conditions in nrepl.ack.
 (defn server [project cfg headless?]
   (nrepl.ack/reset-ack-port!)
+  (when-not (nrepl-dependency? project)
+    (main/info "Warning: no nREPL dependency detected.")
+    (main/info "Be sure to include org.clojure/tools.nrepl in :dependencies"
+               "of your profile."))
   (let [prep-blocker @eval/prep-blocker
         ack-port (:port @ack-server)]
     (-> (bound-fn []
@@ -184,7 +205,8 @@
     (if-let [repl-port (nrepl.ack/wait-for-ack
                         (get-in project [:repl-options :timeout] 60000))]
       (do (main/info "nREPL server started on port"
-                     repl-port "on host" (:host cfg))
+                     repl-port "on host" (:host cfg)
+                     (str "- nrepl://" (:host cfg) ":" repl-port))
           repl-port)
       (main/abort "REPL server launch timed out."))))
 
@@ -200,14 +222,15 @@ Subcommands:
 
 <none> -> :start
 
-:start [:host host] [:port port] This will launch an nREPL server
-  and connect a client to it. If the :host key is given, or present
-  under :repl-options, that host will be attached to, defaulting
-  to localhost otherwise, which will block remote connections.
-  If the :port key is given, or present under :repl-options in
-  the project map, that port will be used for the server, otherwise
-  it is chosen randomly. When starting outside of a project,
-  the nREPL server will run internally to Leiningen.
+:start [:host host] [:port port]
+  This will launch an nREPL server and connect a client to it.
+  If the :host key is given, LEIN_REPL_HOST is set, or :host is present
+  under :repl-options, that host will be attached to, defaulting to
+  localhost otherwise, which will block remote connections. If the :port
+  key is given, LEIN_REPL_PORT is set, or :port is present under
+  :repl-options in the project map, that port will be used for
+  the server, otherwise it is chosen randomly. When starting outside
+  of a project, the nREPL server will run internally to Leiningen.
 
 :headless [:host host] [:port port]
   This will launch an nREPL server and wait, rather than connecting
@@ -220,8 +243,9 @@ Subcommands:
   - port -- resolves host from the LEIN_REPL_HOST environment
       variable or :repl-options, in that order, and defaults to
       localhost.
-  If no dest is given, resolves the port from :repl-options and the host
-  as described above."
+  If no dest is given, resolves the host resolved as described above
+  and the port from LEIN_REPL_PORT, :repl-options, or .nrepl-port in
+  the project root, in that order."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
      (let [project (project/merge-profiles project [:repl])]

@@ -1,4 +1,5 @@
 (ns leiningen.with-profile
+  "Apply the given task with the profile(s) specified."
   (:require [clojure.string :as string]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
@@ -20,16 +21,21 @@
         prefixes (map first profiles)]
     (cond
      (every? #{\+ \-} prefixes)
-     (distinct (reduce
-                (fn [result profile]
-                  (if (= \+ (first profile))
-                    (concat result [(keyword (subs profile 1))])
-                    (remove #(= (keyword (subs profile 1)) %) result)))
-                (:active-profiles (meta project))
-                profiles))
+     (distinct
+      (reduce (fn [result profile]
+                (let [pm (first profile), profile (keyword (subs profile 1))
+                      profiles (project/expand-profile project profile)]
+                  (if (= \+ pm)
+                    (concat result profiles)
+                    (remove (set profiles) result))))
+              (mapcat (partial project/expand-profile project)
+                      (:active-profiles (meta project)))
+              profiles))
 
      (not-any? #{\+ \-} prefixes)
-     (map keyword profiles)
+     (distinct
+      (mapcat (comp #(project/expand-profile project %) keyword)
+              profiles))
 
      :else
      (throw
@@ -58,8 +64,9 @@ For a detailed description of profiles, see `lein help profiles`."
   (let [profile-groups (seq (.split profiles ":"))
         failures (atom 0)]
     (doseq [profiles (map (partial profiles-in-group project) profile-groups)]
-      (main/info (format "Performing task '%s' with profile(s): '%s'"
-                         task-name (string/join "," (map name profiles))))
+      (when (> (count profile-groups) 1)
+        (main/info (format "Performing task '%s' with profile(s): '%s'"
+                           task-name (string/join "," (map name profiles)))))
       (binding [main/*exit-process?* false]
         (try
           (with-profiles* project profiles task-name args)

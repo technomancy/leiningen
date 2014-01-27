@@ -15,9 +15,7 @@ rm -rf $HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar
 LEIN_ROOT=$PWD
 
 cd leiningen-core
-sed -i s/\;\;:aot/:aot/ project.clj
 lein do clean, install
-sed -i s/:aot/\;\;:aot/ project.clj
 cd ..
 
 bin/lein uberjar
@@ -56,6 +54,7 @@ cd $LEIN_ROOT
 
 git commit -a -m "Release $RELEASE_VERSION"
 
+rm -rf target leiningen-core/target
 echo "Test self-install."
 echo "If things are good, run this:"
 echo "$ git tag -s $RELEASE_VERSION -m \"Release $RELEASE_VERSION\""

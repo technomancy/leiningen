@@ -57,6 +57,32 @@
   version ranges as they cause all kinds of problems and exhibit
   unintuitive behaviour.
 
+**Q:** I have two dependencies, X and Y, which depends on Z. How is the version
+  of Z decided?  
+**A:** The decision depends on which depth and which order the dependencies come
+  in the `:dependencies` vector: The dependency at the lowest depth will be
+  picked. If there are multiple versions of a single group/artifact at that
+  depth, the first of those will be picked. For instance, in the dependency
+  graph
+
+    [Z "1.0.9"]
+    [X "1.3.2"]
+      [Z "2.0.1"]
+
+  the direct dependency (`[Z "1.0.9"]`) is picked, as it is closest to the root.
+  For the dependency graph
+
+    [X "1.3.2"]
+      [Z "2.0.1"]
+    [Y "1.0.5"]
+      [Z "2.1.3"]
+
+  the dependency X comes first, and therefore `[Z "2.0.1"]` is picked. If we
+  place Y before X however, `[Z "2.1.3"]` will be picked.
+  
+  Note that this only applies to soft dependencies, and `lein deps :tree` will
+  only warn if the latest version is not chosen.
+
 **Q:** I'm behind an HTTP proxy; how can I fetch my dependencies?  
 **A:** Set the `$http_proxy` environment variable in Leiningen 2.x. You can also
   set `$http_no_proxy` for a list of hosts that should be reached directly, bypassing
@@ -113,7 +139,7 @@
   profiles by their target directory. Simply specify `:target-path
   "target/%s"` in order to have each profile set use a different
   directory for generated files. Then you can put your `:aot`
-  settings in the `:uberjar` profiles, and the .class files created
+  settings in the `:uberjar` profile, and the .class files created
   from the AOT process will not affect normal development use. You can
   specify the profile-isolated `:target-path` in your `:user` profile if
   you want it applied across all the projects you work on.

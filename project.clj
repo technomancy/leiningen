@@ -8,14 +8,15 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "3.0.0-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.3"]
-                 [bultitude "0.2.2"]
-                 [stencil "0.3.2"]
+                 [commons-io "2.4"]
+                 [bultitude "0.2.5"]
+                 [stencil "0.3.3" :exclusions [org.clojure/core.cache]]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus]]
-                 [reply "0.2.1" :exclusions [ring/ring-core]]
+                 [reply "0.3.0" :exclusions [ring/ring-core]]
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
                  [cheshire "5.0.2"]

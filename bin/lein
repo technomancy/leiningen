@@ -27,7 +27,7 @@ function make_native_path {
     # ensure we have native paths
     if $cygwin && [[ "$1"  == /* ]]; then
     echo -n "$(cygpath -wp "$1")"
-    elif [[ "$OSTYPE" == "msys" && "$1"  == /* ]]; then
+    elif [[ "$OSTYPE" == "msys" && "$1"  == /?/* ]]; then
     echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
     else
     echo -n "$1"
@@ -40,7 +40,11 @@ function add_path {
     shift
     while [ -n "$1" ];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
-    export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+        if [[ -z ${!path_var} ]]; then
+          export ${path_var}="$(make_native_path "$1")"
+        else
+          export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+        fi
     shift
     done
 }
@@ -205,8 +209,9 @@ fi
 export JAVA_CMD="${JAVA_CMD:-"java"}"
 export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
 
-if [[ "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
+if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
     export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
+    export DRIP_INIT_CLASS="clojure.main"
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
@@ -265,6 +270,10 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
                 if [ $? == 0 ]; then
+                    cmp -s "$TARGET" "$SCRIPT"
+                    if [ $? == 0 ]; then
+                        echo "Leiningen is already up-to-date."
+                    fi
                     mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
                     exec "$SCRIPT" version
                 else
@@ -293,7 +302,7 @@ else
     if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
         [ -r project.clj ]; then
         INPUTS="$@ $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
-        INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
+        export INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
     else
@@ -317,6 +326,7 @@ else
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
+            -Dmaven.wagon.rto=10000 \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.script="$SCRIPT" \
             -classpath "$CLASSPATH" \
@@ -345,4 +355,3 @@ else
         fi
     fi
 fi
-

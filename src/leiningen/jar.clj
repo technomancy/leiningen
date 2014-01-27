@@ -187,6 +187,11 @@
 propagated to the compilation phase and not stripped out."
   [:offline? :local-repo :certificates :warn-on-reflection :mirrors])
 
+(defn- retain-whitelisted-keys
+  "Retains the whitelisted keys from the original map in the new one."
+  [new original]
+  (merge new (select-keys original whitelist-keys)))
+
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
        (some #(.exists (io/file % (b/path-for main))) source-paths)))
@@ -199,10 +204,11 @@ propagated to the compilation phase and not stripped out."
               ":aot :all into your\n:uberjar profile instead.")))
 
 (defn warn-implicit-aot [project]
-  (when (and (:main project) (not (:skip-aot (meta (:main project))))
-             (not= :all (:aot project))
-             (not (some #{(:main project)} (:aot project))))
-    (force implicit-aot-warning)))
+  (let [project (project/merge-profiles project [:uberjar])]
+      (when (and (:main project) (not (:skip-aot (meta (:main project))))
+                 (not= :all (:aot project))
+                 (not (some #{(:main project)} (:aot project))))
+        (force implicit-aot-warning))))
 
 ;; TODO: remove for 3.0
 (defn- add-main [project given-main]
@@ -214,11 +220,18 @@ propagated to the compilation phase and not stripped out."
       (update-in project [:aot] conj (:main project))
       project)))
 
+(defn- process-project
+  "Like update-in, but for preparing projects for (uber)jaring. f is a function
+  that will take the old project and any supplied args and return the new
+  project, but with whitelisted keys retained and with the main argument
+  inserted if provided."
+  [project main f & args]
+  (-> (apply f project args)
+      (retain-whitelisted-keys project)
+      (add-main main)))
+
 (defn- preprocess-project [project & [main]]
-  (-> project
-    (project/unmerge-profiles [:default])
-    (merge (select-keys project whitelist-keys))
-    (add-main main)))
+  (process-project project main project/unmerge-profiles [:default]))
 
 (defn- get-jar-filename*
   [project uberjar?]
@@ -241,7 +254,7 @@ keyword, it's looked up in :profiles before being merged."
                :target-path (.getPath (io/file target-path (name classifier))))
         project (-> (project/unmerge-profiles project [:default])
                     (project/merge-profiles [spec])
-                    (merge (select-keys project whitelist-keys)))]
+                    (retain-whitelisted-keys project))]
     (eval/prep project)
     (let [jar-file (get-classified-jar-filename project classifier)]
       (write-jar project jar-file (filespecs project))
@@ -272,7 +285,8 @@ function in that namespace will be used as the main-class for executable jar.
 With an argument, the jar will be built with an alternate main."
   ([project main]
      (let [project (preprocess-project project main)]
-       (eval/prep (add-main (project/merge-profiles project [:provided]) main))
+       (eval/prep
+        (process-project project main project/merge-profiles [:provided]))
        (let [jar-file (get-jar-filename* project nil)]
          (write-jar project jar-file (filespecs project))
          (main/info "Created" (str jar-file))

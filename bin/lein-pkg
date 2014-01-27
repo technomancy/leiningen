@@ -85,6 +85,13 @@ else
     trap "rm -f $TRAMPOLINE_FILE" EXIT
 fi
 
+if [ "$1" = "upgrade" ]; then
+    echo "This version of Leiningen was installed with a package manager, but"
+    echo "the upgrade task is intended for manual installs. Please use your"
+    echo "package manager's built-in upgrade facilities instead."
+    exit 1
+fi
+
 if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
     if [ $DEBUG ]; then
         echo "Fast trampoline with $TRAMPOLINE_FILE."

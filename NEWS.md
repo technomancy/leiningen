@@ -1,5 +1,22 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.3.4 / 2013-11-18
+
+* Suggest `:exclusions` to possibly confusing `:pedantic?` dependencies. (Nelson Morris, Phil Hagelberg)
+* Optionally look for snapshot templates in `new` task. (Travis Vachon)
+* Allow task chains to be declared without commas in project.clj. (Jean Niklas L'orange)
+* Support extra configurability in `:pom-plugins`. (Dominik Dziedzic)
+* Fix a bug where implicit :aot warning triggered incorrectly. (Jean Niklas L'orange)
+* Fix a bug where `lein repl connect` ignored port argument. (Toby Crawley)
+
+## 2.3.3 / 2013-10-05
+
+* Add support for `:uberjar-merge-with`. (Marshall Bockrath-Vandegrift)
+* Better error message for `-m` arg in `run` task. (Aleksandar Simic)
+* Support stdin when using `:eval-in :nrepl`. (Phil Hagelberg)
+* Add directory entries to jar files. (Vadim Platonov)
+* Fix a bug where `-main` was hard-coded to initial directory. (Phil Hagelberg)
+
 ## 2.3.2 / 2013-08-19
 
 * Write `.nrepl-port` file for better tool interoperability. (Phil Hagelberg)

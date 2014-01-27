@@ -236,8 +236,19 @@
                           [:version version]]))))
         [:directory (:target-path project)]
         [:outputDirectory (:compile-path project)]
+        [:plugins
+            (if-let [plugins (seq (:pom-plugins project))]
+                           (for [[dep version plugin-addition] plugins]
+                             [:plugin
+                              [:groupId (or (namespace dep) (name dep))]
+                              [:artifactId (name dep)]
+                              [:version version]
+                              (if (map? plugin-addition) (seq plugin-addition))
+                              (if (vector? plugin-addition) (seq (apply hash-map plugin-addition))) 
+                           ]
+                          ))
+         
         (if (or (seq extra-src) (seq extra-test))
-          [:plugins
            [:plugin
             [:groupId "org.codehaus.mojo"]
             [:artifactId "build-helper-maven-plugin"]
@@ -258,7 +269,7 @@
                 [:goals [:goal "add-test-source"]]
                 [:configuration
                  (vec (concat [:sources]
-                              (map (fn [x] [:source x]) extra-test)))]])]]])])))
+                              (map (fn [x] [:source x]) extra-test)))]])]])]])))
 
 (defmethod xml-tags ::parent
   ([_ [dep version & opts]]

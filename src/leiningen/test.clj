@@ -138,7 +138,7 @@
 
 (defn- convert-to-ns [possible-file]
   (if (and (.endsWith possible-file ".clj") (.exists (io/file possible-file)))
-    (str (b/ns-form-for-file possible-file))
+    (str (second (b/ns-form-for-file possible-file)))
     possible-file))
 
 (defn- read-args [args project]
@@ -147,7 +147,7 @@
         nses (or (seq nses)
                  (sort
                   (b/namespaces-on-classpath
-                   :classpath (map io/file (:test-paths project)))))
+                   :classpath (map io/file (distinct (:test-paths project))))))
         selectors (partial-selectors (merge {:all '(constantly true)}
                                             {:only only-form}
                                             (:test-selectors project))

@@ -151,7 +151,7 @@ following:
 ## How Leiningen uses GPG
 
 Leiningen uses GPG for two things: decrypting credential files and
-signing release artifacts. We'll focus on artifact singing here; for
+signing release artifacts. We'll focus on artifact signing here; for
 information on credentials encryption/decryption, see the
 [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
 

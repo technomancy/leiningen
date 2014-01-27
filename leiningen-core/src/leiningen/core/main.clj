@@ -45,6 +45,44 @@
     ["help" [(first args)]]
     [(lookup-alias (first args) project) (rest args)]))
 
+(defn option-arg [str]
+  (and str (cond (.startsWith str "--") (keyword str)
+                 (.startsWith str ":") (keyword (subs str 1)))))
+
+(defn parse-options
+  "Given a sequence of strings, return a map of command-line-esque
+  options with keyword-ized keys and a list of additional args:
+
+  (parse-options [\"--chicken\"])
+  => [{:--chicken true} []]
+
+  (parse-options [\"--beef\" \"rare\"])
+  => [{:--beef \"rare\"} []]
+
+  (parse-options [\":fish\" \"salmon\"])
+  => [{:fish \"salmon\"} []]
+
+  (parse-options [\"salmon\" \"trout\"])
+  => [{} [\"salmon\" \"trout\"]]
+
+  (parse-options [\"--to-dir\" \"test2\" \"--ham\"])
+  => [{:--ham true, :--to-dir \"test2\"} []]
+
+  (parse-options [\"--to-dir\" \"test2\" \"--ham\" \"--\" \"pate\"])
+  => [{:--ham true, :--to-dir \"test2\"} [\"pate\"]]"
+  [options]
+  (loop [m {}
+         [first-arg second-arg & rest :as args] options]
+    (if-let [option (and (not= "--" first-arg) (option-arg first-arg))]
+      (if (or (not second-arg) (option-arg second-arg))
+        (recur (assoc m option true) (if second-arg
+                                       (cons second-arg rest)
+                                       rest))
+        (recur (assoc m option second-arg) rest))
+      [m (if (= "--" first-arg)
+           (if second-arg (cons second-arg rest) [])
+           (or args []))])))
+
 ;; TODO for 3.0.0: debug, info and exit should be in a separate namespace
 ;; (io.clj?) to avoid cyclic deps.
 
@@ -55,10 +93,10 @@
   [& args]
   (when *debug* (apply println args)))
 
-(def ^:dynamic *info* true)
+(def ^:dynamic *info* (not (System/getenv "LEIN_SILENT")))
 
 (defn info
-  "Print unless *info* has been rebound to false."
+  "Print if *info* (from LEIN_SILENT environment variable) is truthy"
   [& args]
   (when *info* (apply println args)))
 
@@ -85,25 +123,39 @@
       (apply println msg))
     (exit 1)))
 
-(defn- distance [s t]
-  (letfn [(iters [n f start]
-            (take n (map second
-                         (iterate f start))))]
-    (let [m (inc (count s)), n (inc (count t))
-          first-row (vec (range m))
-          matrix (iters n (fn [[j row]]
-                            [(inc j)
-                             (vec (iters m (fn [[i col]]
-                                             [(inc i)
-                                              (if (= (nth s i)
-                                                     (nth t j))
-                                                (get row i)
-                                                (inc (min (get row i)
-                                                          (get row (inc i))
-                                                          col)))])
-                                         [0 (inc j)]))])
-                        [0 first-row])]
-      (last (last matrix)))))
+(defn- next-dist-row [s t x pprev prev]
+  (let [t-len (count t)
+        eq-chars (fn [x y] (= (nth s x) (nth t (dec y))))]
+    (reduce (fn [row y]
+              (let [min-step
+                    (cond->
+                     (min (inc (peek row)) ;; addition cost
+                          (inc (get prev y)) ;; deletion cost
+                          (cond-> (get prev (dec y)) ;; substitution cost
+                                  (not (eq-chars x y)) inc))
+                     (and (pos? x) (pos? (dec y)) ;; check for transposition
+                          (eq-chars x (dec y))
+                          (eq-chars (dec x) y)
+                          (not (eq-chars x y)))
+                     (min (inc (get pprev (- y 2)))))] ;; transposition cost
+                (conj row min-step)))
+            [(inc x)]
+            (range 1 (inc t-len)))))
+
+(defn- distance
+  "Returns the Damerau–Levenshtein distance between two strings."
+  [s t]
+  (let [s-len (count s)
+        t-len (count t)
+        first-row (vec (range (inc t-len)))
+        matrix (reduce (fn [matrix x]
+                         (conj matrix
+                               (next-dist-row s t x
+                                              (peek (pop matrix))
+                                              (peek matrix))))
+                       [[] first-row]
+                       (range s-len))]
+    (peek (peek matrix))))
 
 (defn tasks
   "Return a list of symbols naming all visible tasks."
@@ -121,7 +173,7 @@
                                                         "leiningen." "")]]
                                [n (distance n task)]))
         min (apply min (vals suggestions))]
-    (if (<= min 4)
+    (if (<= min 3)
       (map first (filter #(= min (second %)) suggestions)))))
 
 (defn ^:no-project-needed task-not-found [task & _]

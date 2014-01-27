@@ -8,6 +8,7 @@
             [leiningen.core.utils :as utils]
             [pedantic.core :as pedantic])
   (:import (java.util.jar JarFile)
+           (org.sonatype.aether.graph Exclusion)
            (org.sonatype.aether.resolution DependencyResolutionException)))
 
 ;; Basically just for re-throwing a more comprehensible error.
@@ -184,34 +185,63 @@
            (get-dependencies-memoized dependencies-key (assoc project :offline? true))
            (throw e)))))))
 
-(defn- message-for [get-version path]
-  (str (->> path
-            (map #(if-let [dependency (.getDependency %)]
-                    (if-let [artifact (.getArtifact dependency)]
-                      (str "["
-                           (if (= (.getGroupId artifact)
-                                  (.getArtifactId artifact))
-                             (.getGroupId artifact)
-                             (str (.getGroupId artifact)
-                                  "/"
-                                  (.getArtifactId artifact)))
-                           " \""
-                           (get-version %)
-                           "\"]"))))
-            (remove nil?)
-            (interpose " -> ")
-            (apply str))))
+(defn- group-artifact [artifact]
+  (if (= (.getGroupId artifact)
+         (.getArtifactId artifact))
+    (.getGroupId artifact)
+    (str (.getGroupId artifact)
+         "/"
+         (.getArtifactId artifact))))
+
+(defn- dependency-str [dependency & [version]]
+  (if-let [artifact (and dependency (.getArtifact dependency))]
+    (str "["
+         (group-artifact artifact)
+         " \"" (or version (.getVersion artifact)) "\""
+         (if-let [classifier (.getClassifier artifact)]
+           (if (not (empty? classifier))
+             (str " :classifier \"" classifier "\"")))
+         (if-let [extension (.getExtension artifact)]
+           (if (not= extension "jar")
+             (str " :extension \"" extension "\"")))
+         (if-let [exclusions (seq (.getExclusions dependency))]
+           (str " :exclusions " (mapv (comp symbol group-artifact)
+                                      exclusions)))
+         "]")))
+
+(defn- message-for [path & [show-constraint?]]
+  (->> path
+       (map #(dependency-str (.getDependency %) (.getVersionConstraint %)))
+       (remove nil?)
+       (interpose " -> ")
+       (apply str)))
 
 (defn- message-for-version [{:keys [node parents]}]
-  (message-for #(.getVersion %) (conj parents node)))
+  (message-for (conj parents node)))
+
+(defn- exclusion-for-range [node parents]
+  (let [top-level (second parents)
+        excluded-artifact (.getArtifact (.getDependency node))
+        exclusion (Exclusion. (.getGroupId excluded-artifact)
+                              (.getArtifactId excluded-artifact) "*" "*")
+        exclusion-set (into #{exclusion} (.getExclusions
+                                          (.getDependency top-level)))
+        with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
+    (dependency-str with-exclusion)))
 
 (defn- message-for-range [{:keys [node parents]}]
-  (message-for #(.getVersionConstraint %) (conj parents node)))
+  (str (message-for (conj parents node) :constraints) "\n"
+       "Consider using "
+       (exclusion-for-range node parents) "."))
+
+(defn- exclusion-for-override [{:keys [node parents]}]
+  (exclusion-for-range node parents))
 
 (defn- message-for-override [{:keys [accepted ignoreds ranges]}]
   {:accepted (message-for-version accepted)
    :ignoreds (map message-for-version ignoreds)
-   :ranges (map message-for-range ranges)})
+   :ranges (map message-for-range ranges)
+   :exclusions (map exclusion-for-override ignoreds)})
 
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
@@ -222,8 +252,8 @@
 
 (defn- pedantic-print-overrides [messages]
   (when-not (empty? messages)
-    (println "WARNING!!! possible confusing dependencies found:")
-    (doseq [{:keys [accepted ignoreds ranges]} messages]
+    (println "Possibly confusing dependencies found:")
+    (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
       (println accepted)
       (println " overrides")
       (doseq [ignored (interpose " and" ignoreds)]
@@ -232,6 +262,9 @@
         (println " possibly due to a version range in")
         (doseq [r ranges]
           (println r)))
+      (println "\nConsider using these exclusions:")
+      (doseq [ex exclusions]
+        (println ex))
       (println))))
 
 (alter-var-root #'pedantic-print-ranges memoize)
@@ -254,6 +287,8 @@
   (if (:pedantic? project)
     #(-> % aether/repository-session
          (pedantic/use-transformer ranges overrides))))
+
+;; Exclusion(groupId, artifactId, classifier, extension)
 
 (defn ^:internal get-dependencies [dependencies-key project & args]
   (let [ranges (atom []), overrides (atom [])
@@ -329,9 +364,12 @@
                                         project options))))
 
 (defn- normalize-path [root path]
-  (let [f (io/file path)] ; http://tinyurl.com/ab5vtqf
-    (.getAbsolutePath (if (or (.isAbsolute f) (.startsWith (.getPath f) "\\"))
-                        f (io/file root path)))))
+  (let [f (io/file path) ; http://tinyurl.com/ab5vtqf
+        abs (.getAbsolutePath (if (or (.isAbsolute f)
+                                      (.startsWith (.getPath f) "\\"))
+                                f (io/file root path)))
+        sep (System/getProperty "path.separator")]
+    (str/replace abs sep (str "\\" sep))))
 
 (defn ext-dependency?
   "Should the given dependency be loaded in the extensions classloader?"

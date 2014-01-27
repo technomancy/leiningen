@@ -70,10 +70,27 @@
        (= exp (with-redefs [repl-host (constantly "repl-host")
                             repl-port (constantly 5)]
                 (connect-string {} [in])))
-       ""                    "repl-host:5"
-       "7"                   "repl-host:7"
-       "myhost:9"            "myhost:9"
-       "http://localhost:20" "http://localhost:20"))
+       ""                        "repl-host:5"
+       "7"                       "repl-host:7"
+       "myhost:9"                "myhost:9"
+       "http://localhost:20"     "http://localhost:20"
+       "http://localhost:20/ham" "http://localhost:20/ham")
+  (with-redefs [repl-host (constantly "repl-host")
+                repl-port (constantly 0)]
+    (is (= "repl-host:1" (connect-string {} ["1"])))
+    (is (= "repl-host:123" (connect-string {} ["123"])))
+    (are [in proj]
+         (is (re-find
+              #"Port is required"
+              (lthelper/abort-msg connect-string proj in)))
+         ["http://localhost/ham"] {}
+         ["foo1234"]              {}
+         []                       {}
+         []                       lthelper/with-resources-project))
+  
+  (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project [])))
+  (is (= "127.0.0.1:4343" (connect-string lthelper/sample-project ["4343"])))
+  (is (= "127.0.0.1:4242" (connect-string lthelper/with-resources-project ["4242"]))))
 
 (deftest test-options-for-reply
   (is (= (lthelper/fix-path-delimiters "/home/user/.lein-repl-history")

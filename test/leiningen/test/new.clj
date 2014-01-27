@@ -1,5 +1,5 @@
 (ns leiningen.test.new
-  (:require [leiningen.new])
+  (:require [leiningen.new :as new])
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.test.helper :only [delete-file-recursively abort-msg]]))
@@ -71,6 +71,10 @@
          (abort-msg leiningen.new/new nil "clojure")))))
 
 (deftest test-new-with-show-describes-a-template
+  (is (re-find
+       #"^A general project template for libraries"
+       (with-out-str
+         (leiningen.new/new nil ":show" "default"))))
   (is (re-find
        #"^A general project template for libraries"
        (with-out-str

@@ -96,7 +96,7 @@ Leiningen documentation is organized as a number of guides:
 
  * [Tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
  * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
- * Leiningen [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
+ * [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
  * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
  * [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
@@ -121,7 +121,7 @@ explains how to write plugins.
 
 ## License
 
-Source Copyright © 2009-2013 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+Source Copyright © 2009-2014 Phil Hagelberg, Alex Osborne, Dan Larkin, and
 [contributors](https://github.com/technomancy/leiningen/contributors). 
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.

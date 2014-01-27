@@ -15,7 +15,7 @@ instead of directly in the `project.clj` file.
 ## Writing a Plugin
 
 Start by generating a new project with `lein new plugin
-lein-myplugin`, and edit the `myplugin` defn in the
+myplugin`, and edit the `myplugin` defn in the
 `leiningen.myplugin` namespace. You'll notice the `project.clj` file
 has `:eval-in-leiningen true`, which causes all tasks to operate
 inside the leiningen process rather than starting a subprocess to
@@ -42,14 +42,14 @@ project. It will be a map which is based on the `project.clj` file,
 but it also has `:name`, `:group`, `:version`, and `:root` keys added
 in, among other things. Try using the `lein-pprint` plugin to see what
 project maps look like; you can invoke the `pprint` task to examine
-any project.
+any project or combination of profiles.
 
 If you want your task to take parameters from the command-line
 invocation, you can make the function take more than one argument. In
 order to underscore the fact that tasks are just Clojure functions,
 arguments which act as flags are usually accepted as `:keywords`
 rather than traditional `--dashed` syntax. Note that all arguments are
-passed in as strings; it's up to your function to call `read-string`
+still passed in as strings; it's up to your function to call `read-string`
 on the arguments if you want keywords, symbols, integers, etc. Keep
 this in mind when calling other tasks as functions too.
 
@@ -58,7 +58,7 @@ task can be run outside a project directory, add `^:no-project-needed`
 metadata to your task defn to indicate so. Your task should still
 accept a project as its first argument, but it will be allowed to be
 nil if it's run outside a project directory. If you are inside a
-project, Leiningen should change to the root of that project before
+project, Leiningen should `cd` to the root of that project before
 launching the JVM, but some other tools using the `leiningen-core`
 library (IDE integration, etc) may not behave the same way, so for
 greatest portability check the `:root` key of the project map and work
@@ -129,8 +129,17 @@ profile in so users can override your changes if necessary. Use
 ```
 
 The code in the `swank-clojure` dependency is needed inside the
-project, so it's declared in its own profile map and merged in. However,
-we defer to the `:swank` profile in the project map if it's present.
+project, so it's declared in its own profile map and merged
+in. However, we defer to the `:swank` profile in the project map if
+it's present so that the user can pick their own version of the
+dependency if they like rather than relying on the hard-coded profile
+in the plugin.
+
+Note that the snippet above is not a good example of a plugin since it
+simply wraps `eval-in-project` and `merge-profiles`. If that is all
+you want, you can do it without implementing a plugin; just define an
+alias that uses the `with-profiles` and `run` tasks to call the
+function you need.
 
 Before `eval-in-project` is invoked, Leiningen must "prep" a project,
 usually by ensuring that all Java code and all necessary Clojure code
@@ -244,17 +253,14 @@ middleware.
 
 ## Clojure Version
 
-Leiningen 2.0.0 uses Clojure 1.4.0. If you need to use a different
+Leiningen 2.3.4 uses Clojure 1.5.1. If you need to use a different
 version of Clojure from within a Leiningen plugin, you can use
 `eval-in-project` with a dummy project argument:
 
 ```clj
-(eval-in-project {:dependencies '[[org.clojure/clojure "1.5.0"]]}
+(eval-in-project {:dependencies '[[org.clojure/clojure "1.4.0"]]}
                  '(println "hello from" *clojure-version*))
 ```
-
-In Leiningen 1.x, plugins had access to monolithic Clojure Contrib.
-This is no longer true in 2.x.
 
 ## Upgrading Existing Plugins
 
