@@ -21,16 +21,21 @@
         prefixes (map first profiles)]
     (cond
      (every? #{\+ \-} prefixes)
-     (distinct (reduce
-                (fn [result profile]
-                  (if (= \+ (first profile))
-                    (concat result [(keyword (subs profile 1))])
-                    (remove #(= (keyword (subs profile 1)) %) result)))
-                (:active-profiles (meta project))
-                profiles))
+     (distinct
+      (reduce (fn [result profile]
+                (let [pm (first profile), profile (keyword (subs profile 1))
+                      profiles (project/expand-profile project profile)]
+                  (if (= \+ pm)
+                    (concat result profiles)
+                    (remove (set profiles) result))))
+              (mapcat (partial project/expand-profile project)
+                      (:active-profiles (meta project)))
+              profiles))
 
      (not-any? #{\+ \-} prefixes)
-     (map keyword profiles)
+     (distinct
+      (mapcat (comp #(project/expand-profile project %) keyword)
+              profiles))
 
      :else
      (throw
