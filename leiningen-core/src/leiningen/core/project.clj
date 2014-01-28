@@ -499,7 +499,7 @@
           (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
 
 (defn- expand-profile* [profiles profile]
-  (let [content (get profiles profile)]
+  (let [content (or (get profiles profile) (get @default-profiles profile))]
     ;; TODO: drop "support" for partially-composite profiles in 3.0
     (if (or (nil? content) (map? content) (some map? content))
       [profile]
