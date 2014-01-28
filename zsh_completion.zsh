@@ -18,7 +18,7 @@ _lein() {
      "clean[Remove all files from project's target-path.]" \
      "compile[Compile Clojure source into \.class files.]" \
      "deploy[Build jar and deploy to remote repository.]" \
-     "deps[Download :dependencies.]" \
+     "deps[Show details about dependencies.]" \
      "help[Display a list of tasks or help for a given task.]" \
      "install[Install current project to the local repository.]" \
      "jack-in[Jack in to a Clojure SLIME session from Emacs.]" \

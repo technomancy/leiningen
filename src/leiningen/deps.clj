@@ -80,8 +80,8 @@ USAGE: lein deps :verify
 Check signatures of each dependency. ALPHA: subject to change.
 
 USAGE: lein deps
-Force Leiningen to download the dependencies it needs. This usage is
-deprecated as it should happen automatically on demand.
+Force Leiningen to download the dependencies it needs. This happens
+automatically.
 
 Normally snapshot dependencies will be checked once every 24 hours; to
 force them to be updated, use `lein -U $TASK`."
