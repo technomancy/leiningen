@@ -484,7 +484,7 @@ for things like specific web technologies or other project types.
 The simplest thing to do is to distribute an uberjar. This is a single
 standalone executable jar file most suitable for giving to
 nontechnical users. For this to work you'll need to specify a
-namespace as your `:main` in `project.clj` and ensure it's also AOT
+namespace as your `:main` in `project.clj` and ensure it's also AOT (Ahead Of Time)
 compiled by adding it to `:aot`. By this point our `project.clj` file
 should look like this:
 
