@@ -137,7 +137,7 @@ as well as defining a -main function."
        (with-open [out (-> standalone-filename
                            (FileOutputStream.)
                            (ZipOutputStream.))]
-         (let [whitelisted (select-keys project jar/whitelist-keys)
+         (let [whitelisted (select-keys project (into jar/whitelist-keys (:whitelist project)))
                project (-> (project/unmerge-profiles project [:default])
                            (merge whitelisted))
                deps (->> (classpath/resolve-dependencies :dependencies project)
