@@ -162,9 +162,11 @@
               :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}
              {:type :bytes :path "project.clj"
               :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
-            (for [doc (concat readmes licenses)]
-              {:type :bytes :path (scope doc)
-               :bytes (.getBytes (slurp (io/file (:root project) doc)))})
+            (for [doc (map (partial io/file (:root project))
+                        (concat readmes licenses))
+                  :when (.isFile doc)]
+              {:type :bytes :path (scope (.getName doc))
+               :bytes (.getBytes (slurp doc))})
             [{:type :path :path (:compile-path project)}
              {:type :paths :paths (:resource-paths project)}]
             (if-not (:omit-source project)
