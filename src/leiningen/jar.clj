@@ -192,7 +192,7 @@ propagated to the compilation phase and not stripped out."
 (defn- retain-whitelisted-keys
   "Retains the whitelisted keys from the original map in the new one."
   [new original]
-  (merge new (select-keys original whitelist-keys)))
+  (merge new (select-keys original (into whitelist-keys (:jar-project-whitelist original)))))
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
