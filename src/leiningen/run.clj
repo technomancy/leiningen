@@ -86,7 +86,7 @@
   [project given & args]
   (try (eval/eval-in-project project (run-form given args))
        (catch clojure.lang.ExceptionInfo e
-         (main/abort))))
+         (main/exit (:exit-code (ex-data e) 1)))))
 
 (defn ^{:help-arglists '([]) :no-project-needed true} run
   "Run the project's -main function.
