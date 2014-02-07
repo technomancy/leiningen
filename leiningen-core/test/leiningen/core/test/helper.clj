@@ -9,5 +9,5 @@
       (try
         (apply f args)
         (catch clojure.lang.ExceptionInfo e
-          (when-not (= "Suppressed exit" (.getMessage e))
+          (when-not (:exit-code (ex-data e))
             (throw e)))))))
