@@ -112,7 +112,7 @@
      (if *exit-process?*
        (do (shutdown-agents)
            (System/exit exit-code))
-       (throw (ex-info "Suppressed exit" {:exit-code exit-code}))))
+       (throw (ex-info "Suppressed exit" {:exit-code exit-code :suppress-msg true}))))
   ([] (exit 0)))
 
 (defn abort
