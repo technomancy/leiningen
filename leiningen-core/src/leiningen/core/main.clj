@@ -5,7 +5,8 @@
             [leiningen.core.utils :as utils]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [bultitude.core :as b]))
+            [bultitude.core :as b]
+            [clojure.stacktrace :as stacktrace]))
 
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
@@ -317,7 +318,7 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
       (resolve-and-apply project raw-args))
     (catch Exception e
       (if (or *debug* (not (:exit-code (ex-data e))))
-        (.printStackTrace e)
+        (stacktrace/print-cause-trace e)
         (when-not (:suppress-msg (ex-data e))
           (println (.getMessage e))))
       (exit (:exit-code (ex-data e) 1))))
