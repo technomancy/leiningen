@@ -69,7 +69,7 @@ itself, there's no need to enforce this isolation.
 
 ## License
 
-Copyright © 2011-2012 Phil Hagelberg and 
+Copyright © 2011-2014 Phil Hagelberg and 
 [contributors](https://www.ohloh.net/p/leiningen/contributors). 
 
 Distributed under the Eclipse Public License, the same as Clojure.
