@@ -409,19 +409,30 @@
        {:plugins '[[lein-foo "1.2.3" :hooks false :middleware false]]}
        '() '()))
 
-;; (deftest test-add-profiles
-;;   (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
-;;                                                      :a2 {:src-paths ["a2/"]}}}]
-;;     (is (= expected-result
-;;            (-> {:dependencies []}
-;;                (add-profiles {:a1 {:src-paths ["a1/"]}
-;;                               :a2 {:src-paths ["a2/"]}}))))
-;;     (is (= expected-result
-;;            (-> {:dependencies []}
-;;                (add-profiles {:a1 {:src-paths ["a1/"]}
-;;                               :a2 {:src-paths ["a2/"]}})
-;;                meta
-;;                :without-profiles)))))
+(deftest test-add-profiles
+  (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
+                                                     :a2 {:src-paths ["a2/"]}}}]
+    (is (= expected-result
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}}))))
+    (is (= expected-result
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}})
+               meta
+               :without-profiles)))
+    (is (nil?
+         (-> {:dependencies []}
+             (add-profiles {:a1 {:src-paths ["a1/"]}
+                            :a2 {:src-paths ["a2/"]}})
+             :src-paths)))
+    (is (= ["a1"]
+           (-> {:dependencies []}
+               (add-profiles {:a1 {:src-paths ["a1/"]}
+                              :a2 {:src-paths ["a2/"]}})
+               (merge-profiles [:a1])
+               :src-paths)))))
 
 (deftest test-merge-anon-profiles
   (is (= {:A 1, :C 3}
