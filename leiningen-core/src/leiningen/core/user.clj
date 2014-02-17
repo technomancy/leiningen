@@ -64,14 +64,10 @@
   "Load profiles.clj from dir if present. Tags all profiles with its origin."
   (memoize
    (fn [dir]
-     (try
        (if-let [contents (utils/read-file (io/file dir "profiles.clj"))]
          (utils/map-vals contents with-meta
-                         {:origin (str (io/file dir "profiles.clj"))}))
-       (catch Exception e
-         (binding [*out* *err*]
-           (println "Error reading profiles.clj from" dir)
-           (println (.getMessage e))))))))
+                         {:origin (str (io/file dir "profiles.clj"))})))))
+
 
 (def profiles
   "Load profiles.clj from your Leiningen home and profiles.d if present."

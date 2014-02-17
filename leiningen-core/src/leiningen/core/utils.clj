@@ -26,7 +26,15 @@
   "Read the contents of file if it exists."
   [file]
   (if (.exists file)
-    (read-string (slurp file))))
+    (try (read-string (slurp file))
+        (catch Exception e
+         (binding [*out* *err*]
+           (println "Error reading" 
+                   (.getName file)
+                   "from"
+                   (.getParent file)))
+         (throw e)))))
+
 
 (defn symlink?
   "Checks if a File is a symbolic link or points to another file."
