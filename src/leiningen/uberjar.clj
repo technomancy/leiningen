@@ -122,7 +122,11 @@ distribution.
 With an argument, the uberjar will be built with an alternate main.
 
 The namespace you choose as main should have :gen-class in its ns form
-as well as defining a -main function."
+as well as defining a -main function.
+  
+Note: the default profiles (`:dev`, `:provided`, `:user`, `:system`, and `:base`) 
+profiles are activated for this task.  Type 'lein help profiles' for more information."
+
   ([project main]
      (let [standalone-filename (jar/get-jar-filename project :standalone)
            project (project/merge-profiles project [:uberjar])
