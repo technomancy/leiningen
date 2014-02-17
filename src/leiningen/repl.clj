@@ -245,7 +245,11 @@ Subcommands:
       localhost.
   If no dest is given, resolves the host resolved as described above
   and the port from LEIN_REPL_PORT, :repl-options, or .nrepl-port in
-  the project root, in that order."
+  the project root, in that order.
+  
+Note: the default profiles (`:dev`, `:provided`, `:user`, `:system`, and `:base`) 
+profiles are activated for this task.  Type 'lein help profiles' for more information."
+
   ([project] (repl project ":start"))
   ([project subcommand & opts]
      (let [project (project/merge-profiles project [:repl])]
