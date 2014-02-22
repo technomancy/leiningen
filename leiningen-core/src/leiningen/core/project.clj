@@ -187,7 +187,10 @@
    :uberjar-merge-with {"META-INF/plexus/components.xml"
                           'leiningen.uberjar/components-merger,
                         "data_readers.clj"
-                          'leiningen.uberjar/clj-map-merger}
+                          'leiningen.uberjar/clj-map-merger,
+                        ;; So we don't break Java's ServiceLoader mechanism
+                        ;; during uberjar construction
+                        #"META-INF/services/.*" `[slurp str spit]}
    :global-vars {}})
 
 (defn- dep-key
