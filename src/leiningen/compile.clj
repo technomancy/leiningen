@@ -44,7 +44,7 @@
         :when (>= (.lastModified source) (.lastModified compiled))]
     namespace))
 
- ;; .class file cleanup
+;; .class file cleanup
 
 (defn- package-in-project?
   "Tests if the package found in the compile path exists as a directory in the source path."
@@ -101,13 +101,12 @@
                        (blacklisted-class? project f))]
       (.delete f))))
 
-(defn- probably-cli-regex? [thing]
-  (.startsWith thing "#\""))
-
 (defn compilation-specs [cli-args]
-  (if (= cli-args [":all"])
+  (if (contains? #{[:all] [":all"]} cli-args)
     :all
-    (map read-string (sort-by (comp not probably-cli-regex?) cli-args))))
+    (->> cli-args
+         (map #(if (string? %) (read-string %) %))
+         (sort-by (comp not regex?)))))
 
 (defn compile
   "Compile Clojure source into .class files.
