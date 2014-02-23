@@ -75,6 +75,11 @@
     (is (true? (-> profiles :baz :dependencies meta :hello)))
     (is (true? (-> profiles :baz :repositories meta :displace)))))
 
+(deftest test-alias-in-profiles
+  (let [actual (read (.getFile (io/resource "profile-metadata.clj")))]
+    (is (= ["my" "java" "opts"]
+           (-> actual :profiles :baz :jvm-opts)))))
+
 (deftest test-merge-profile-displace-replace
   (let [test-profiles {:carmine {:foo [3 4]}
                        :carmined {:foo ^:displace [3 4]}
