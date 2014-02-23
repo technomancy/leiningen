@@ -10,4 +10,5 @@
                                                    [stencil "0.3.0"]]
                    :repositories ^:replace []}
              :baz {:dependencies ^:hello []
-                   :repositories ^:displace []}})
+                   :repositories ^:displace []
+                   :java-opts ["my" "java" "opts"]}})
