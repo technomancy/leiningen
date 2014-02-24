@@ -281,7 +281,15 @@
   normalizing values inside the map."
   [raw-map empty-defaults]
   (with-meta
-    (meta-merge
+    (merge-with
+     (fn [left right]
+       ;; Assumes that left always contains :reduce OR :prepend in its meta
+       (with-meta
+         (cond (-> left meta :reduce) (-> left meta :reduce
+                                          (reduce left right))
+               (-> left meta :prepend) (concat right left))
+         (merge (meta left)
+                (dissoc (meta right) :top-displace))))
      empty-defaults
      (-> raw-map
          (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
