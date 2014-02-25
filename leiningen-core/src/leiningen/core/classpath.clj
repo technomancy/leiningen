@@ -25,6 +25,8 @@
        "WARN ignoring checkouts directory" dep
        "as it does not contain a project.clj file."))))
 
+(alter-var-root #'read-dependency-project memoize)
+
 (defn- checkout-dep-paths [project dep-project]
   ;; can't mapcat here since :checkout-deps-shares points to vectors and strings
   (flatten (map #(% dep-project) (:checkout-deps-shares project))))
