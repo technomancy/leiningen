@@ -247,8 +247,7 @@ Subcommands:
   and the port from LEIN_REPL_PORT, :repl-options, or .nrepl-port in
   the project root, in that order.
   
-Note: the default profiles (`:dev`, `:provided`, `:user`, `:system`, and `:base`) 
-profiles are activated for this task.  Type 'lein help profiles' for more information."
+Note: the :repl profile is implicitly activated for this task, and cannot be deactivated."
 
   ([project] (repl project ":start"))
   ([project subcommand & opts]
