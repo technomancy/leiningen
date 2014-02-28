@@ -20,7 +20,7 @@
                         (.createNewFile (file target-dir "foo.tmp")))
                       (f)))
 
-;; TODO test explicit :clean-targets with ancestor string path "..","/"
+;; TODO test explicit :clean-targets with ancestor string path "../xyz","/"
 ;; TODO test explicit :clean-targets with src dir string paths.
 
 (deftest test-default-clean-target
@@ -54,21 +54,29 @@
     (is (not (.exists (file target-3))))))
 
 (comment
-  ;; this test is not yet safe to run
+  ;; this test may not safe to run
+  ;; screw this up and you may be deleting important files on your system
  (deftest test-explicit-clean-targets-with-invalid-string-paths
-   (testing "ancestor paths of the project root"
-     (doseq [ancestor ["../../xyz" "/xyz"]]
+   (testing "ancestor paths of the project root and project dirs"
+     (doseq [ancestor ["../../xyz" "/xyz"
+                       "src" "test" "doc" "resources"]]
        (let [modified-project
              (assoc sample-project
                :clean-targets [ancestor])]
          (is (thrown? java.io.IOException)
              (clean modified-project))
-         (is (.exists (file target-1))))))
+         (is (.exists (file ancestor))))))
 
-   (testing "standard lein project dir paths (non-target)"
-     )))
+   (sort (keys sample-project))
 
+
+   (->> [:source-paths :java-source-paths :test-paths :resource-paths]
+        (select-keys sample-project)
+        vals
+        flatten
+        (map file)
+        set)
+   ))
 
 
 #_(run-tests)
-
