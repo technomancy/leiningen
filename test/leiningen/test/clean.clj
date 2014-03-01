@@ -69,4 +69,3 @@
               :clean-targets [test-dir])]
         (is (thrown? java.io.IOException
                      (clean modified-project)))))))
-(run-tests)
