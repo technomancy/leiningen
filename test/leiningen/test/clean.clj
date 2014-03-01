@@ -1,4 +1,4 @@
-(ns leinginen.test.clean
+(ns leiningen.test.clean
   (:use [clojure.test]
         [clojure.java.io :only [file make-parents writer]]
         [leiningen.clean :only [clean]]
@@ -12,16 +12,17 @@
 
 (def target-dirs (map file [target-1 target-2 target-3]))
 
+(defn clean-test-dirs []
+  (doseq [target-dir target-dirs]
+    (delete-file-recursively
+     target-dir true)))
+
 (use-fixtures :each (fn [f]
                       (doseq [target-dir target-dirs]
-                        (delete-file-recursively
-                         target-dir true)
                         (make-parents (file target-dir "foo.tmp"))
                         (.createNewFile (file target-dir "foo.tmp")))
-                      (f)))
-
-;; TODO test explicit :clean-targets with ancestor string path "../xyz","/"
-;; TODO test explicit :clean-targets with src dir string paths.
+                      (f)
+                      (clean-test-dirs)))
 
 (deftest test-default-clean-target
   (clean sample-project)
@@ -53,30 +54,19 @@
     (is (not (.exists (file target-2))))
     (is (not (.exists (file target-3))))))
 
-(comment
-  ;; this test may not safe to run
-  ;; screw this up and you may be deleting important files on your system
- (deftest test-explicit-clean-targets-with-invalid-string-paths
-   (testing "ancestor paths of the project root and project dirs"
-     (doseq [ancestor ["../../xyz" "/xyz"
-                       "src" "test" "doc" "resources"]]
-       (let [modified-project
-             (assoc sample-project
-               :clean-targets [ancestor])]
-         (is (thrown? java.io.IOException)
-             (clean modified-project))
-         (is (.exists (file ancestor))))))
-
-   (sort (keys sample-project))
-
-
-   (->> [:source-paths :java-source-paths :test-paths :resource-paths]
-        (select-keys sample-project)
-        vals
-        flatten
-        (map file)
-        set)
-   ))
-
-
-#_(run-tests)
+(deftest test-explicit-clean-targets-with-invalid-string-paths
+  ;; This test could potentially be destructive, so I'm using
+  ;; directory paths which do not (should not) exist.
+  (testing "ancestor paths of the project root and project dirs"
+    (doseq [test-dir ["../../xyz" "/xyz"
+                      "xsrc" "xtest" "xresources"
+                      "doc/foo"]]
+      (let [modified-project
+            (assoc sample-project
+              :test-paths ["xtest"]
+              :resource-paths ["xresources"]
+              :source-paths ["xsrc"]
+              :clean-targets [test-dir])]
+        (is (thrown? java.io.IOException
+                     (clean modified-project)))))))
+(run-tests)

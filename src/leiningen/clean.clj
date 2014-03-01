@@ -26,7 +26,7 @@ Raise an exception if any deletion fails unless silently is true."
     (io/delete-file f silently)))
 
 (defn ancestor?
-  "Is a and ancestor of b?"
+  "Is a an ancestor of b?"
   [a b]
   (let [hypothetical-ancestor (.getCanonicalPath (io/file a))
         hypothetical-descendant (.getCanonicalPath (io/file b))]
@@ -43,19 +43,22 @@ Raise an exception if any deletion fails unless silently is true."
      (cons "doc")
      (cons "project.clj")
      (map io/file)
+     (map #(.getCanonicalPath %))
      set))
 
 (defn protected-path?
-  "Is dir one of the leiningen project directories (which we expect to be version controlled)?"
+  "Is dir one of the leiningen project files or directories (which we expect to be version controlled), or a descendant?"
   [project dir]
-  ((protected-paths project) (io/file dir)))
+  (let [protected-paths (protected-paths project)]
+    (or (protected-paths (.getCanonicalPath (io/file dir)))
+        (some #(ancestor? % dir) protected-paths))))
 
 (defn sanity-check
   "Ensure that a clean-target string refers to a directory that is sensible to delete."
   [project clean-target]
   (when (string? clean-target)
     (cond (not (ancestor? (:root project) clean-target))
-          (throw (IOException. "Deleting the project root directory or its ancestors is not allowed."))
+          (throw (IOException. "Deleting a directory outside of the project root is not allowed."))
           (protected-path? project clean-target)
           (throw (IOException. "Deleting non-target project directories is not allowed.")))))
 
