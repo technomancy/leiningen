@@ -25,7 +25,7 @@ Raise an exception if any deletion fails unless silently is true."
     (.setWritable f true)
     (io/delete-file f silently)))
 
-(defn ancestor?
+(defn- ancestor?
   "Is a an ancestor of b?"
   [a b]
   (let [hypothetical-ancestor (.getCanonicalPath (io/file a))
@@ -33,7 +33,7 @@ Raise an exception if any deletion fails unless silently is true."
     (and (.startsWith hypothetical-descendant hypothetical-ancestor)
          (not (= hypothetical-descendant hypothetical-ancestor)))))
 
-(defn protected-paths
+(defn- protected-paths
   "Returns a set of leiningen project source directories and important files."
   [project]
   (->> [:source-paths :java-source-paths :test-paths :resource-paths]
@@ -46,14 +46,14 @@ Raise an exception if any deletion fails unless silently is true."
      (map #(.getCanonicalPath %))
      set))
 
-(defn protected-path?
+(defn- protected-path?
   "Is dir one of the leiningen project files or directories (which we expect to be version controlled), or a descendant?"
   [project dir]
   (let [protected-paths (protected-paths project)]
     (or (protected-paths (.getCanonicalPath (io/file dir)))
         (some #(ancestor? % dir) protected-paths))))
 
-(defn sanity-check
+(defn- sanity-check
   "Ensure that a clean-target string refers to a directory that is sensible to delete."
   [project clean-target]
   (when (string? clean-target)
