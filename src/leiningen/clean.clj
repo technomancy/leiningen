@@ -2,7 +2,8 @@
   "Remove all files from project's target-path."
   (:require [clojure.java.io :as io]
             [leiningen.core.eval :as eval]
-            [leiningen.core.utils :as utils]))
+            [leiningen.core.utils :as utils])
+  (:import [java.io IOException]))
 
 (defn real-directory?
   "Returns true if this file is a real directory, false if it is a symlink or a
@@ -24,6 +25,59 @@ Raise an exception if any deletion fails unless silently is true."
     (.setWritable f true)
     (io/delete-file f silently)))
 
+(defn- ancestor?
+  "Is a an ancestor of b?"
+  [a b]
+  (let [hypothetical-ancestor (.getCanonicalPath (io/file a))
+        hypothetical-descendant (.getCanonicalPath (io/file b))]
+    (and (.startsWith hypothetical-descendant hypothetical-ancestor)
+         (not (= hypothetical-descendant hypothetical-ancestor)))))
+
+(defn- protected-paths
+  "Returns a set of leiningen project source directories and important files."
+  [project]
+  (let [root-dir (:root project)]
+    (->> [:source-paths :java-source-paths :test-paths :resource-paths]
+         (select-keys project)
+         vals
+         flatten
+         (cons (io/file root-dir "doc"))
+         (cons (io/file root-dir "project.clj"))
+         (map io/file)
+         (map #(.getCanonicalPath %))
+         set)))
+
+(defn- protected-path?
+  "Is path one of the leiningen project files or directories (which we expect to be version controlled), or a descendant?"
+  [project path]
+  (let [protected-paths (protected-paths project)]
+    (or (protected-paths (.getCanonicalPath (io/file path)))
+        (some #(ancestor? % path) protected-paths))))
+
+(defn- protect-clean-targets?
+  "Returns the value of :protect in the metadata map for the :clean-targets value"
+  [project]
+  (-> project :clean-targets meta (get :protect true)))
+
+(defn- error-msg [pre]
+  (str pre " "
+       "Check :clean-targets or override this behavior by adding metadata -> "
+       ":clean-targets ^{:protect false} [...targets...]"))
+
+(defn- sanity-check
+  "Ensure that a clean-target string refers to a directory that is sensible to delete."
+  [project clean-target]
+  (when (and (string? clean-target)
+             (protect-clean-targets? project))
+    (cond (not (ancestor? (:root project) clean-target))
+          (throw (IOException.
+                  (error-msg
+                   (format "Deleting a path outside of the project root [\"%s\"] is not allowed." clean-target))))
+          (protected-path? project clean-target)
+          (throw (IOException.
+                  (error-msg
+                   (format "Deleting non-target project paths [\"%s\"] is not allowed." clean-target)))))))
+
 (defn clean
   "Remove all files from paths in project's clean-targets."
   [project]
@@ -32,7 +86,5 @@ Raise an exception if any deletion fails unless silently is true."
                             (keyword? target-key) (target-key project)
                             (string? target-key) target-key)]
       (doseq [f (flatten [target])]
+        (sanity-check project f)
         (delete-file-recursively f :silently)))))
-
-
-

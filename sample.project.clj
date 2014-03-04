@@ -268,6 +268,10 @@
   ;;   :baz-config {:qux-path "qux"}
   ;; :clean-targets below lets `lein clean` remove files under "target",
   ;; "classes", "foo", "bar", "qux", and "out".
+  ;; By default, will protect paths outside the project root and within standard
+  ;; lein source directories ("src", "test", "resources", "doc", "project.clj").
+  ;; However, this protection can be overridden with metadata on the :clean-targets
+  ;; vector - ^{:protect false}
   :clean-targets [:target-path :compile-path :foobar-paths
                   [:baz-config :qux-path] "out"]
   ;; Paths to include on the classpath from each project in the
