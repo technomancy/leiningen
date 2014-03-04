@@ -36,31 +36,47 @@ Raise an exception if any deletion fails unless silently is true."
 (defn- protected-paths
   "Returns a set of leiningen project source directories and important files."
   [project]
-  (->> [:source-paths :java-source-paths :test-paths :resource-paths]
-     (select-keys project)
-     vals
-     flatten
-     (cons "doc")
-     (cons "project.clj")
-     (map io/file)
-     (map #(.getCanonicalPath %))
-     set))
+  (let [root-dir (:root project)]
+    (->> [:source-paths :java-source-paths :test-paths :resource-paths]
+         (select-keys project)
+         vals
+         flatten
+         (cons (io/file root-dir "doc"))
+         (cons (io/file root-dir "project.clj"))
+         (map io/file)
+         (map #(.getCanonicalPath %))
+         set)))
 
 (defn- protected-path?
-  "Is dir one of the leiningen project files or directories (which we expect to be version controlled), or a descendant?"
-  [project dir]
+  "Is path one of the leiningen project files or directories (which we expect to be version controlled), or a descendant?"
+  [project path]
   (let [protected-paths (protected-paths project)]
-    (or (protected-paths (.getCanonicalPath (io/file dir)))
-        (some #(ancestor? % dir) protected-paths))))
+    (or (protected-paths (.getCanonicalPath (io/file path)))
+        (some #(ancestor? % path) protected-paths))))
+
+(defn- protect-clean-targets?
+  "Returns the value of :protect in the metadata map for the :clean-targets value"
+  [project]
+  (-> project :clean-targets meta (get :protect true)))
+
+(defn- error-msg [pre]
+  (str pre " "
+       "Check :clean-targets or override this behavior by adding metadata -> "
+       ":clean-targets ^{:protect false} [...targets...]"))
 
 (defn- sanity-check
   "Ensure that a clean-target string refers to a directory that is sensible to delete."
   [project clean-target]
-  (when (string? clean-target)
+  (when (and (string? clean-target)
+             (protect-clean-targets? project))
     (cond (not (ancestor? (:root project) clean-target))
-          (throw (IOException. "Deleting a directory outside of the project root is not allowed."))
+          (throw (IOException.
+                  (error-msg
+                   (format "Deleting a path outside of the project root [\"%s\"] is not allowed." clean-target))))
           (protected-path? project clean-target)
-          (throw (IOException. "Deleting non-target project directories is not allowed.")))))
+          (throw (IOException.
+                  (error-msg
+                   (format "Deleting non-target project paths [\"%s\"] is not allowed." clean-target)))))))
 
 (defn clean
   "Remove all files from paths in project's clean-targets."
