@@ -108,11 +108,14 @@
   "Exit the process. Rebind *exit-process?* in order to suppress actual process
   exits for tools which may want to continue operating. Never call
   System/exit directly in Leiningen's own process."
-  ([exit-code]
+  ([exit-code & msg]
      (if *exit-process?*
        (do (shutdown-agents)
            (System/exit exit-code))
-       (throw (ex-info "Suppressed exit" {:exit-code exit-code :suppress-msg true}))))
+       (throw (ex-info (if (seq msg)
+                         (apply print-str msg)
+                         "Suppressed exit")
+                       {:exit-code exit-code :suppress-msg (empty? msg)}))))
   ([] (exit 0)))
 
 (defn abort
@@ -122,7 +125,7 @@
   (binding [*out* *err*]
     (when (seq msg)
       (apply println msg))
-    (exit 1)))
+    (apply exit 1 msg)))
 
 (defn- next-dist-row [s t x pprev prev]
   (let [t-len (count t)
