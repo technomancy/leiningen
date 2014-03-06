@@ -83,11 +83,11 @@
          (is (re-find
               #"Port is required"
               (lthelper/abort-msg connect-string proj in)))
-         ["http://localhost/ham"] {}
-         ["foo1234"]              {}
-         []                       {}
+         ["http://localhost/ham"] {:root "/tmp"}
+         ["foo1234"]              {:root "/tmp"}
+         []                       {:root "/tmp"}
          []                       lthelper/with-resources-project))
-  
+
   (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project [])))
   (is (= "127.0.0.1:4343" (connect-string lthelper/sample-project ["4343"])))
   (is (= "127.0.0.1:4242" (connect-string lthelper/with-resources-project ["4242"]))))
