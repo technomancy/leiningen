@@ -50,7 +50,7 @@
 (deftest test-java-agent
   (let [p {:java-agents '[[com.newrelic.agent.java/newrelic-agent "2.18.0"
                            :bootclasspath true]
-                          [nodisassemble "0.1.1" :options "hello"]]
+                          [nodisassemble "0.1.2" :options "hello"]]
            :dependencies '[[slamhound "1.3.0"]]
            :repositories project/default-repositories}
         [newrelic newrelic-bootcp nodisassemble] (classpath-arg p)]
@@ -58,4 +58,4 @@
                               (str "/com/newrelic/agent/java/newrelic-agent"
                                    "/2.18.0/newrelic-agent-2.18.0.jar"))))
     (is (re-find #"bootclasspath.*newrelic.*jar" newrelic-bootcp))
-    (is (re-find #"-javaagent:.*nodisassemble-0.1.1.jar=hello" nodisassemble))))
+    (is (re-find #"-javaagent:.*nodisassemble-0.1.2.jar=hello" nodisassemble))))
