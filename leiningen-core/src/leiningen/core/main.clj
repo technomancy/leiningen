@@ -46,18 +46,19 @@
   [task-name]
   (utils/require-resolve (str "leiningen." task-name) task-name))
 
-(defn- lookup-aliased-task-var [task-name project]
+(defn- pass-through-help? [task-name project]
   (let [de-aliased (lookup-alias task-name project)]
     (if (vector? de-aliased)
-      (lookup-aliased-task-var (first de-aliased) project)
-      (lookup-task-var de-aliased))))
+      (or (:pass-through-help (meta de-aliased))
+          (lookup-aliased-task-var (first de-aliased) project))
+      (:pass-through-help (meta (lookup-task-var de-aliased))))))
 
+;; TODO: rename to intercept-help for v3
 (defn task-args [[task-name & args] project]
-  (let [task-var (lookup-aliased-task-var task-name project)]
-    (if (and (= ["help"] (update-in (vec args) [0] aliases))
-             (not (:pass-through-help (meta task-var))))
-      ["help" [task-name]]
-      [(name (:name (meta task-var))) (vec args)])))
+  (let [pass-through? (pass-through-help? task-name project)]
+    (if (and (= "help" (aliases (first args))) (not pass-through?))
+      ["help" (cons task-name (rest args))]
+      [(lookup-alias task-name project) (vec args)])))
 
 (defn option-arg [str]
   (and str (cond (.startsWith str "--") (keyword str)
