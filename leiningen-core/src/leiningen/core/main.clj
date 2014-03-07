@@ -46,16 +46,18 @@
   [task-name]
   (utils/require-resolve (str "leiningen." task-name) task-name))
 
-(defn task-args [args project]
-  (let [task-name (first args)
-        task (lookup-alias task-name project)
-        task-obj (if (string? task)
-                   (lookup-task-var task)
-                   task)]
-    (if (and (= "help" (aliases (second args)))
-             (not (:pass-through-help (meta task-obj))))
+(defn- lookup-aliased-task-var [task-name project]
+  (let [de-aliased (lookup-alias task-name project)]
+    (if (vector? de-aliased)
+      (lookup-aliased-task-var (first de-aliased) project)
+      (lookup-task-var de-aliased))))
+
+(defn task-args [[task-name & args] project]
+  (let [task-var (lookup-aliased-task-var task-name project)]
+    (if (and (= ["help"] (update-in (vec args) [0] aliases))
+             (not (:pass-through-help (meta task-var))))
       ["help" [task-name]]
-      [task (rest args)])))
+      [(name (:name (meta task-var))) (vec args)])))
 
 (defn option-arg [str]
   (and str (cond (.startsWith str "--") (keyword str)

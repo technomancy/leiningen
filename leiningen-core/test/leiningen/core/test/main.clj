@@ -10,7 +10,6 @@
         alias-2 "uncle"
         project {:aliases {alias-1 alias
                            alias-2 task-name}}]
-
     (testing "with :pass-through-help meta"
       (testing "on a var"
         (are [res arg] (= res (task-args arg project))
@@ -24,9 +23,9 @@
              ["help" [alias-1]] ["help" alias-1]
              ["help" [alias-2]] ["help" alias-2]
              [task-name ["-h"]] [alias-2 "-h"]
-             [[task-name] ["-?"]] [alias-1 "-?"]
+             [task-name ["-?"]] [alias-1 "-?"]
              [task-name ["--help"]] [alias-2 "--help"]
-             [[task-name] []] [alias-1]
+             [task-name []] [alias-1]
              [task-name []] [alias-2])))))
 
 (deftest test-matching-arity
