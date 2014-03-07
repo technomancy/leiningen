@@ -50,7 +50,7 @@
   (let [de-aliased (lookup-alias task-name project)]
     (if (vector? de-aliased)
       (or (:pass-through-help (meta de-aliased))
-          (lookup-aliased-task-var (first de-aliased) project))
+          (pass-through-help? (first de-aliased) project))
       (:pass-through-help (meta (lookup-task-var de-aliased))))))
 
 ;; TODO: rename to intercept-help for v3
