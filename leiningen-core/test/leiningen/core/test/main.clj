@@ -3,30 +3,27 @@
         [leiningen.core.main]))
 
 (deftest test-task-args-help-pass-through
-  (let [task-name "sirius"
-        alias [task-name]
-        help-res ["help" alias]
-        alias-1 "dog"
-        alias-2 "uncle"
-        project {:aliases {alias-1 alias
-                           alias-2 task-name}}]
+  (let [project {:aliases {"sirius-p" ["sirius" "partial"]
+                           "s" "sirius"
+                           "ohai" ^:pass-through-help ["run" "-m" "o.hai"]}}]
     (testing "with :pass-through-help meta"
       (testing "on a var"
         (are [res arg] (= res (task-args arg project))
-             help-res ["help" task-name]
-             [task-name ["-h"]] [task-name "-h"]
-             [task-name ["-?"]] [task-name "-?"]
-             [task-name ["--help"]] [task-name "--help"]
-             [task-name []] [task-name]))
+             ["help" ["sirius"]] ["help" "sirius"]
+             ["sirius" ["-h"]] ["sirius" "-h"]
+             ["sirius" ["-?"]] ["sirius" "-?"]
+             ["sirius" ["--help"]] ["sirius" "--help"]
+             ["sirius" []] ["sirius"]))
       (testing "on an alias"
         (are [res arg] (= res (task-args arg project))
-             ["help" [alias-1]] ["help" alias-1]
-             ["help" [alias-2]] ["help" alias-2]
-             [task-name ["-h"]] [alias-2 "-h"]
-             [task-name ["-?"]] [alias-1 "-?"]
-             [task-name ["--help"]] [alias-2 "--help"]
-             [task-name []] [alias-1]
-             [task-name []] [alias-2])))))
+             ["help" ["sirius-p"]] ["help" "sirius-p"]
+             ["help" ["s"]] ["help" "s"]
+             ["sirius" ["-h"]] ["s" "-h"]
+             [["sirius" "partial"] ["-?"]] ["sirius-p" "-?"]
+             ["sirius" ["--help"]] ["s" "--help"]
+             [["sirius" "partial"] []] ["sirius-p"]
+             ["sirius" []] ["s"]
+             [["run" "-m" "o.hai"] ["help"]] ["ohai" "help"])))))
 
 (deftest test-matching-arity
   (is (not (matching-arity? (resolve-task "bluuugh") ["bogus" "arg" "s"])))
