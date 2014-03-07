@@ -86,6 +86,11 @@ This list of subtasks will show the first line of the docstring for each
 subtask. The full help for a subtask can be viewed via 
 `lein help $TASK_CONTAINING_SUBTASKS $SUBTASK`. 
 
+Leiningen will intercept calls to `lein $MYTASK help` by default and
+turn it into `lein help $MYTASK`. If your task provides its own help
+subtask you can add `^:pass-through-help` metadata to your task defn
+to opt-out of this behaviour.
+
 ## Code Evaluation
 
 Plugin functions run inside Leiningen's process, so they have access
