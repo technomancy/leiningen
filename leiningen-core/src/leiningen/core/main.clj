@@ -41,10 +41,23 @@
       task-name
       (or not-found "help")))
 
+(defn- lookup-task-var
+  "Require and resolve a leiningen task from its name."
+  [task-name]
+  (utils/require-resolve (str "leiningen." task-name) task-name))
+
+(def ^:private pass-through-help? (comp true? :pass-through-help meta))
+
 (defn task-args [args project]
-  (if (= "help" (aliases (second args)))
-    ["help" [(first args)]]
-    [(lookup-alias (first args) project) (rest args)]))
+  (let [task-name (first args)
+        task (lookup-alias task-name project)
+        task-obj (if (string? task)
+                   (lookup-task-var task)
+                   task)]
+    (if (and (= "help" (aliases (second args)))
+             (not (pass-through-help? task-obj)))
+      ["help" [task-name]]
+      [task (rest args)])))
 
 (defn option-arg [str]
   (and str (cond (.startsWith str "--") (keyword str)
@@ -202,7 +215,7 @@
   "Look up task function and perform partial application if applicable."
   ([task not-found]
      (let [[task & pargs] (if (coll? task) task [task])]
-       (if-let [task-var (utils/require-resolve (str "leiningen." task) task)]
+       (if-let [task-var (lookup-task-var task)]
          (with-meta
            (fn [project & args] (apply task-var project (concat pargs args)))
            (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))

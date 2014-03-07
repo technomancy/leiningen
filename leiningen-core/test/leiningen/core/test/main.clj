@@ -2,6 +2,67 @@
   (:use [clojure.test]
         [leiningen.core.main]))
 
+(defmacro with-test-meta [meta & body]
+  `(let [req-res# leiningen.core.utils/require-resolve
+         ~'project (assoc-in ~'project
+                             [:aliases ~'alias-1]
+                             (with-meta ~'alias ~meta))]
+     (with-local-vars [~'sirius (fn [])]
+       (alter-meta! ~'sirius merge ~meta)
+       (with-redefs [leiningen.core.utils/require-resolve
+                     (fn
+                       ([sym#] (req-res# sym#))
+                       ([name-spc# tname#]
+                        (if (= ~'task-name tname#)
+                          ~'sirius
+                          (req-res# name-spc# tname#))))]
+         ~@body))))
+
+(deftest test-task-args-help-pass-through
+  (let [task-name "sirius"
+        alias [task-name]
+        help-res ["help" alias]
+        alias-1 "dog"
+        alias-2 "uncle"
+        project {:aliases {alias-1 alias
+                           alias-2 task-name}}]
+
+    (testing "with metas that have non-true pass-through-help"
+      (doseq [a-meta (cons {}
+                          (for [val [1 false nil "truthy"]]
+                            {:pass-through-help val}))]
+        (with-test-meta a-meta
+          (are [res arg] (= res (task-args arg project))
+               help-res ["help" task-name]
+               help-res [task-name "-h"]
+               help-res [task-name "-?"]
+               help-res [task-name "--help"]
+               ["help" ["dog"]]   [alias-1 "--help"]
+               ["help" ["uncle"]] [alias-2 "--help"]
+               [alias []] [alias-1]
+               [task-name []] [alias-2]
+               [task-name []] [task-name]))))
+
+    (testing "with :pass-through-help meta"
+      (testing "pass-through-help is true"
+        (with-test-meta {:pass-through-help true}
+          (testing "on a var"
+            (are [res arg] (= res (task-args arg project))
+                 help-res ["help" task-name]
+                 [task-name ["-h"]] [task-name "-h"]
+                 [task-name ["-?"]] [task-name "-?"]
+                 [task-name ["--help"]] [task-name "--help"]
+                 [task-name []] [task-name]))
+          (testing "on an alias"
+            (are [res arg] (= res (task-args arg project))
+                 ["help" [alias-1]] ["help" alias-1]
+                 ["help" [alias-2]] ["help" alias-2]
+                 [task-name ["-h"]] [alias-2 "-h"]
+                 [[task-name] ["-?"]] [alias-1 "-?"]
+                 [task-name ["--help"]] [alias-2 "--help"]
+                 [[task-name] []] [alias-1]
+                 [task-name []] [alias-2])))))))
+
 (deftest test-matching-arity
   (is (not (matching-arity? (resolve-task "bluuugh") ["bogus" "arg" "s"])))
   (is (matching-arity? (resolve-task "bluuugh") []))
