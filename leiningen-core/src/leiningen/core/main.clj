@@ -46,8 +46,6 @@
   [task-name]
   (utils/require-resolve (str "leiningen." task-name) task-name))
 
-(def ^:private pass-through-help? (comp true? :pass-through-help meta))
-
 (defn task-args [args project]
   (let [task-name (first args)
         task (lookup-alias task-name project)
@@ -55,7 +53,7 @@
                    (lookup-task-var task)
                    task)]
     (if (and (= "help" (aliases (second args)))
-             (not (pass-through-help? task-obj)))
+             (not (:pass-through-help (meta task-obj))))
       ["help" [task-name]]
       [task (rest args)])))
 
