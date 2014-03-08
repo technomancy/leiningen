@@ -14,7 +14,8 @@
            (org.apache.maven.index.expr UserInputSearchExpression)
            (org.apache.maven.index.updater IndexUpdater IndexUpdateRequest
                                            ResourceFetcher)
-           (org.codehaus.plexus DefaultPlexusContainer PlexusContainer)))
+           (org.codehaus.plexus DefaultPlexusContainer PlexusContainer)
+           (leiningen ConsoleReportingInputStream)))
 
 (defonce container (DefaultPlexusContainer.))
 
@@ -34,7 +35,7 @@
 (defn- remove-context [context]
   (.removeIndexingContext indexer context false))
 
-;; TODO: add progress reporting back in
+
 (defn- http-resource-fetcher []
   (let [base-url (promise)
         stream (promise)]
@@ -45,9 +46,12 @@
       (disconnect []
         (.close @stream))
       (^java.io.InputStream retrieve [name]
-        (main/debug "Downloading" (str @base-url "/" name))
-        (let [s (:body (http/get (str @base-url "/" name)
-                                 {:throw-exceptions false :as :stream}))]
+        (println "Downloading" (str @base-url "/" name))
+        (let [r (http/get (str @base-url "/" name)
+                                 {:throw-exceptions false :as :stream})
+              s (ConsoleReportingInputStream.
+                 (:body r)
+                 (Long/parseLong (get (:headers r) "content-length")))]
           (deliver stream s)
           s)))))
 
