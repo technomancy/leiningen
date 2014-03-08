@@ -73,7 +73,7 @@
                 ;; move other source/javadoc/etc references into longer help.
                 :welcome (list 'println (slurp (io/resource "repl-welcome")))}
                opts)
-        (apply dissoc opts (concat [:init] (if attach [:host :port])))
+        (apply dissoc opts :init (if attach [:host :port]))
         (merge opts (cond attach {:attach (str attach)}
                           port {:port port}
                           :else {}))
