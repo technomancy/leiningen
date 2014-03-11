@@ -306,6 +306,8 @@
                  ;; This expression will run when first opening a REPL, in the
                  ;; namespace from :init-ns or :main if specified.
                  :init (println "here we are in" *ns*)
+                 ;; Skip's the default requires and printed help message.
+                 :skip-default-init false
                  ;; Customize the socket the repl task listens on and
                  ;; attaches to.
                  :host "0.0.0.0"
