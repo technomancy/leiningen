@@ -15,7 +15,7 @@
            (org.apache.maven.index.updater IndexUpdater IndexUpdateRequest
                                            ResourceFetcher)
            (org.codehaus.plexus DefaultPlexusContainer PlexusContainer)
-           (leiningen ConsoleReportingInputStream)))
+           (leiningen extstream)))
 
 (defonce container (DefaultPlexusContainer.))
 
@@ -49,7 +49,7 @@
         (println "Downloading" (str @base-url "/" name))
         (let [r (http/get (str @base-url "/" name)
                                  {:throw-exceptions false :as :stream})
-              s (ConsoleReportingInputStream.
+              s (extstream.
                  (:body r)
                  (Long/parseLong (get (:headers r) "content-length")))]
           (deliver stream s)
