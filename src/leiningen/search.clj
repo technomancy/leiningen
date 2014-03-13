@@ -34,7 +34,57 @@
 (defn- remove-context [context]
   (.removeIndexingContext indexer context false))
 
-;; TODO: add progress reporting back in
+(gen-class
+ :name leiningen.search.extstream
+ :extends java.io.InputStream
+ :state state
+ :init init
+ :constructors {[java.io.InputStream Long] []}
+ :methods [[saveTotalBytes [Long] void]
+           [printProgress [] void]]
+ :prefix "ext-"
+ :main false)
+
+(defn ext-init [stream content-length]
+  [ [] (atom (into {} {:stream stream
+                      :content-length content-length
+                      :total-bytes 0})) ])
+
+
+(defn- ext-saveTotalBytes [this total-bytes ]
+  (let [state-map (.state this)]
+    (reset! state-map (assoc @state-map
+                        :total-bytes total-bytes))))
+
+
+(defn- ext-printProgress [this]
+  (let [state @(.state this)
+        total-bytes (:total-bytes state)
+        content-length (:content-length state)
+        progress (/ (* total-bytes 100.0) content-length)
+        ending (if-not (== progress 100) "\r" "\n")]
+    (printf "%.1f%% complete%s" progress ending)
+    (flush)))
+
+
+(defn ext-read-byte<> [this bytebuf]
+  (let [state @(.state this)
+        stream (:stream state)
+        count (.read stream bytebuf)]
+    (ext-saveTotalBytes this (+ (:total-bytes state) count))
+    (ext-printProgress this)
+    count))
+
+
+(defn ext-read-byte<>-int-int [this bytebuf off len]
+  (let [state @(.state this)
+        stream (:stream state)
+        count (.read stream bytebuf off len)]
+    (ext-saveTotalBytes this (+ (:total-bytes state) count))
+    (ext-printProgress this)
+    count))
+
+
 (defn- http-resource-fetcher []
   (let [base-url (promise)
         stream (promise)]
@@ -45,9 +95,12 @@
       (disconnect []
         (.close @stream))
       (^java.io.InputStream retrieve [name]
-        (main/debug "Downloading" (str @base-url "/" name))
-        (let [s (:body (http/get (str @base-url "/" name)
-                                 {:throw-exceptions false :as :stream}))]
+        (println "Downloading" (str @base-url "/" name))
+        (let [r (http/get (str @base-url "/" name)
+                                 {:throw-exceptions false :as :stream})
+              s (leiningen.search.extstream.
+                 (:body r)
+                 (Long/parseLong (get (:headers r) "content-length")))]
           (deliver stream s)
           s)))))
 
@@ -157,3 +210,5 @@ Also accepts a second parameter for fetching successive pages."
          (finally
            (doall (map remove-context contexts))
            (System/setProperty "java.io.tmpdir" orig-tmp))))))
+
+
