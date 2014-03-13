@@ -34,7 +34,7 @@
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
   :source-paths ["leiningen-core/src" "src"]
-  :aot [leiningen.extstream]
+  :aot [leiningen.search]
   ;; work around Clojure bug http://dev.clojure.org/jira/browse/CLJ-1034
   :uberjar-exclusions [#"^data_readers.clj$"]
   :eval-in :leiningen)
