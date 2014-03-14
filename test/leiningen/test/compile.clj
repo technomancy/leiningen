@@ -15,7 +15,7 @@
                       (delete-file-recursively
                        (file "test_projects" "sample" "target") true)
                       (delete-file-recursively
-                       (file "test_projects" "sample_failing" "target") true)
+                       (file "test_projects" "sample-failing" "target") true)
                       (f)))
 
 (deftest ^:online test-compile

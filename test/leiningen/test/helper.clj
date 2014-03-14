@@ -24,9 +24,9 @@
 
 (def sample-project (read-test-project "sample"))
 
-(def sample-failing-project (read-test-project "sample_failing"))
+(def sample-failing-project (read-test-project "sample-failing"))
 
-(def sample-no-aot-project (read-test-project "sample_no_aot"))
+(def sample-no-aot-project (read-test-project "sample-no-aot"))
 
 (def tricky-name-project (read-test-project "tricky-name"))
 
