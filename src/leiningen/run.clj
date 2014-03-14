@@ -49,7 +49,7 @@
                                     (normalize-main given))))
                 (let [v# (resolve '~(normalize-main given))]
                   (if (ifn? v#)
-                    [:done (v# ~@args)]
+                    [:var v#]
                     [:not-found]))
                 (catch FileNotFoundException e#
                   [:threw e#]))
@@ -57,11 +57,11 @@
            ;; If we didn't succeed above, check if a class exists for
            ;; the given name
            class#
-           (when-not (= :done ns-flag#)
+           (when-not (= :var ns-flag#)
              (try (Class/forName ~(name given))
                   (catch ClassNotFoundException _#)))]
        (cond
-        (= :done ns-flag#) data#
+        (= :var ns-flag#) (data# ~@args)
 
         ;; If the class exists, run its main method.
         class#
