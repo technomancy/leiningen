@@ -4,7 +4,7 @@
             [clojure.java.io :as io]
             [leiningen.test.helper :as helper
              :refer [bad-require-project tmp-dir tricky-name-project
-                     java-main-project]])
+                     java-main-project file-not-found-thrower-project]])
   (:use [clojure.test]
         [leiningen.run]))
 
@@ -56,3 +56,15 @@
   (let [out-result (with-out-str (run java-main-project))]
     (is (= (.trim out-result) ;; To avoid os-specific newline handling
             "Hello from Java!"))))
+
+;; Regression test for https://github.com/technomancy/leiningen/issues/1469
+(deftest file-not-found-exception-test
+  (let [sw (java.io.StringWriter.)]
+    (binding [*err* sw]
+      (try (run file-not-found-thrower-project "-m" "file-not-found-thrower.core")
+           (catch clojure.lang.ExceptionInfo e nil))
+      ;; testing that the true exception is printed immediately and
+      ;; the inappropriate error message "Can't find
+      ;; 'file-not-found-thrower.core' as .class or .clj for lein run:
+      ;; please check the spelling." is not
+      (is (.startsWith (str sw) "Exception in thread \"main\" java.io.FileNotFoundException")))))
