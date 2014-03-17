@@ -41,8 +41,10 @@
                     "(potentially)\ninteractive tasks. Maybe setting up"
                     "credentials may be an idea?\n\nSee `lein help deploy` for an"
                     "explanation of how to specify credentials."))
-      (println "No credentials found for" id "(did you mean `lein deploy clojars`?)")
-      (println "See `lein help deploy` for how to configure credentials.")
+      (print "No credentials found for" id)
+      (when (not= "clojars" id)
+        (print " (did you mean `lein deploy clojars`?)"))
+      (println "\nSee `lein help deploying` for how to configure credentials to avoid prompts.")
       (print "Username: ") (flush)
       (let [username (read-line)
             password (.readPassword (System/console) "%s"
