@@ -46,7 +46,7 @@
 
 (deftest test-new-with-template-template
   (leiningen.new/new nil "template" "test-new-template")
-  (is (= #{"README.md" "project.clj" "src" "leiningen" "new"
+  (is (= #{"README.md" "project.clj" "src" "leiningen" "new" "resources"
            "test_new_template.clj" "test_new_template" "foo.clj" ".gitignore"
            "LICENSE"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-template")))))))
