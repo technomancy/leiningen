@@ -16,5 +16,5 @@
              ["project.clj" (render "project.clj" data)]
              [".gitignore" (render "gitignore" data)]
              ["src/leiningen/new/{{sanitized}}.clj" (render "temp.clj" data)]
-             ["src/leiningen/new/{{sanitized}}/foo.clj" (render "foo.clj")]
+             ["resources/leiningen/new/{{sanitized}}/foo.clj" (render "foo.clj")]
              ["LICENSE" (render "LICENSE" data)])))
