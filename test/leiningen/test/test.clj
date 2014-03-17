@@ -1,9 +1,12 @@
 (ns leiningen.test.test
   (:refer-clojure :exclude [test])
-  (:use [clojure.test]
-        [leiningen.test]
-        [leiningen.test.helper :only [tmp-dir sample-no-aot-project abort-msg]])
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.test :refer :all]
+            [leiningen.test :refer :all]
+            [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
+                                           sample-failing-project abort-msg]]
+            [clojure.java.io :as io]
+            [leiningen.core.main :as main]
+            [leiningen.core.project :as project]))
 
 (use-fixtures :each
               (fn [f]
@@ -74,3 +77,15 @@
   (let [file (io/file (first (:test-paths sample-no-aot-project)) "selectors.clj")]
     (test sample-no-aot-project (.getPath file)))
   (is (= (ran?) #{:regular :not-custom :int2 :fixture})))
+
+(deftest test-unreadable-test-fails
+  (let [project (project/merge-profiles sample-failing-project
+                                        [{:aot ^:replace []
+                                          :dependencies ^:replace
+                                          [['org.clojure/clojure "1.5.1"]]}])]
+    (binding [main/*exit-process?* false]
+      (is (= (read-args [""] project) ['sample.unreadable]))
+      (is (try (test project)
+               false
+               (catch Exception e
+                 (= "Tests failed." (.getMessage e))))))))
