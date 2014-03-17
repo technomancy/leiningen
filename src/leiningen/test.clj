@@ -139,13 +139,14 @@
     (str (second (b/ns-form-for-file possible-file)))
     possible-file))
 
-(defn- read-args [args project]
-  (let [args  (->> args (map convert-to-ns) (map read-string))
+(defn ^:internal read-args [args project]
+  (let [args (->> args (map convert-to-ns) (map read-string))
         [nses given-selectors] (split-selectors args)
         nses (or (seq nses)
                  (sort
                   (b/namespaces-on-classpath
-                   :classpath (map io/file (distinct (:test-paths project))))))
+                   :classpath (map io/file (distinct (:test-paths project)))
+                   :ignore-unreadable? true)))
         selectors (partial-selectors (merge {:all '(constantly true)}
                                             {:only only-form}
                                             (:test-selectors project))
