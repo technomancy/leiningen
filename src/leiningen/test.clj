@@ -143,10 +143,9 @@
   (let [args (->> args (map convert-to-ns) (map read-string))
         [nses given-selectors] (split-selectors args)
         nses (or (seq nses)
-                 (sort
-                  (b/namespaces-on-classpath
-                   :classpath (map io/file (distinct (:test-paths project)))
-                   :ignore-unreadable? true)))
+                 (sort (b/namespaces-on-classpath
+                        :classpath (map io/file (distinct (:test-paths project)))
+                        :ignore-unreadable? false)))
         selectors (partial-selectors (merge {:all '(constantly true)}
                                             {:only only-form}
                                             (:test-selectors project))

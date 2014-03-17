@@ -84,8 +84,6 @@
                                           :dependencies ^:replace
                                           [['org.clojure/clojure "1.5.1"]]}])]
     (binding [main/*exit-process?* false]
-      (is (= (read-args [""] project) ['sample.unreadable]))
-      (is (try (test project)
-               false
-               (catch Exception e
-                 (= "Tests failed." (.getMessage e))))))))
+      (is (= "EOF while reading" (try (test project) false
+                                      (catch Exception e
+                                        (.getMessage e))))))))
