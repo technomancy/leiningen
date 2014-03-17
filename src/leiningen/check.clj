@@ -9,7 +9,8 @@
   "Check syntax and warn on reflection."
   ([project]
      (let [source-files (map io/file (:source-paths project))
-           nses (b/namespaces-on-classpath :classpath source-files)
+           nses (b/namespaces-on-classpath :classpath source-files
+                                           :ignore-unreadable? false)
            action `(let [failures# (atom 0)]
                      (doseq [ns# '~nses]
                        ;; load will add the .clj, so can't use ns/path-for.

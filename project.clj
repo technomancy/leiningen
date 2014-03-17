@@ -9,7 +9,7 @@
   :dependencies [[leiningen-core "2.4.0-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.3"]
                  [commons-io "2.4"]
-                 [bultitude "0.2.5"]
+                 [bultitude "0.2.6"]
                  [stencil "0.3.3" :exclusions [org.clojure/core.cache]]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
