@@ -415,7 +415,8 @@
 ;; compilation, so if they've done that we should do the same for project JVMs
 (def tiered-jvm-opts
   (if (.contains (or (System/getenv "LEIN_JVM_OPTS") "") "Tiered")
-    ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"] []))
+    ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"
+     "-XX:-OmitStackTraceInFastThrow"] []))
 
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
