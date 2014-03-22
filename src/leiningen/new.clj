@@ -161,7 +161,8 @@ To create a new template of your own, see the documentation for the
 lein-new Leiningen plug-in."
   [project & args]
   (binding [*project* project]
-    (let [[template-name new-project-name [options template-args]] (parse-args args)]
+    (let [[template-name new-project-name
+           [options template-args]] (parse-args args)]
       (if (or (:--help options) (empty? args))
         (print-help)
         (if-let [show-template (or (and (true? (:show options))
