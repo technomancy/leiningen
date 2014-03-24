@@ -16,7 +16,7 @@
 
 (defn delete-file-recursively
   "Delete file f. If it's a directory, recursively delete all its contents.
-Raise an exception if any deletion fails unless silently is true."
+  Raise an exception if any deletion fails unless silently is true."
   [f & [silently]]
   (let [f (io/file f)]
     (when (real-directory? f)
@@ -48,14 +48,16 @@ Raise an exception if any deletion fails unless silently is true."
          set)))
 
 (defn- protected-path?
-  "Is path one of the leiningen project files or directories (which we expect to be version controlled), or a descendant?"
+  "Is path one of the leiningen project files or directories (which we expect to
+  be version controlled), or a descendant?"
   [project path]
   (let [protected-paths (protected-paths project)]
     (or (protected-paths (.getCanonicalPath (io/file path)))
         (some #(ancestor? % path) protected-paths))))
 
 (defn- protect-clean-targets?
-  "Returns the value of :protect in the metadata map for the :clean-targets value"
+  "Returns the value of :protect in the metadata map for the :clean-targets
+  value."
   [project]
   (-> project :clean-targets meta (get :protect true)))
 
@@ -65,7 +67,8 @@ Raise an exception if any deletion fails unless silently is true."
        ":clean-targets ^{:protect false} [...targets...]"))
 
 (defn- sanity-check
-  "Ensure that a clean-target string refers to a directory that is sensible to delete."
+  "Ensure that a clean-target string refers to a directory that is sensible to
+  delete."
   [project clean-target]
   (when (and (string? clean-target)
              (protect-clean-targets? project))

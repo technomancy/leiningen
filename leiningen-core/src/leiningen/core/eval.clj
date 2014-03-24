@@ -22,12 +22,12 @@
 
 (def ^:deprecated get-arch
   "Returns a keyword naming the host architecture. Deprecated, use
-leiningen.core.utils/get-arch instead."
+  leiningen.core.utils/get-arch instead."
   utils/get-arch)
 
 (def ^:deprecated platform-nullsink
   "Returns a file destination that will discard output.  Deprecated, use
-leiningen.core.utils/platform-nullsink instead."
+  leiningen.core.utils/platform-nullsink instead."
   utils/platform-nullsink)
 
 ;; # Preparing for eval-in-project

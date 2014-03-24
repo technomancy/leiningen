@@ -10,9 +10,8 @@
            javax.tools.ToolProvider))
 
 (defn- stale-java-sources
-  "Returns a lazy seq of file paths: every Java source file within
-  dirs modified since it was most recently compiled into
-  compile-path."
+  "Returns a lazy seq of file paths: every Java source file within dirs modified
+  since it was most recently compiled into compile-path."
   [dirs compile-path]
   (for [dir dirs
         ^File source (filter #(-> ^File % (.getName) (.endsWith ".java"))
@@ -23,15 +22,15 @@
         :when (>= (.lastModified source) (.lastModified compiled))]
     (.getPath source)))
 
-(def ^{:private true
-       :doc "Legacy (Lein1/Ant task) javac options that do not translate
-             to the new (JDK's javac) format as key-value pairs. For example,
-             :debug \"off\" needs to be translated to -g:none."}
-  special-ant-javac-keys [:destdir :debug :debugLevel])
+(def ^:private special-ant-javac-keys
+  "Legacy (Lein1/Ant task) javac options that do not translate to the new (JDK's
+  javac) format as key-value pairs. For example, :debug \"off\" needs to be
+  translated to -g:none."
+  [:destdir :debug :debugLevel])
 
 (defn- normalize-specials
-  "Handles legacy (Lein1/Ant task) javac options that do not translate
-   to the new (JDK's javac) format as key-value pairs"
+  "Handles legacy (Lein1/Ant task) javac options that do not translate to the
+  new (JDK's javac) format as key-value pairs."
   [{:keys [debug debugLevel]}]
   ;; debug "off"               => -g:none
   ;; debugLevel "source,lines" => -g:source-lines
@@ -42,9 +41,8 @@
       [])))
 
 (defn normalize-javac-options
-  "Converts :javac-opts in Leiningen 1 format (passed as a map) into
-   Leiningen 2 format (a vector).
-   Options in Leiningen 2 format are returned unmodified"
+  "Converts :javac-opts in Leiningen 1 format (passed as a map) into Leiningen 2
+  format (a vector). Options in Leiningen 2 format are returned unmodified."
   [opts]
   (if (map? opts)
     (let [special-opts (select-keys opts special-ant-javac-keys)

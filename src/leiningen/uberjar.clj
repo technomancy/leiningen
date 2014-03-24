@@ -82,11 +82,10 @@
 
 ;; TODO: unify with copy-to-jar functionality in jar.clj (for 3.0?)
 (defn- copy-entries
-  "Read entries of ZipFile `in` and apply the filename-determined
-  entry-merging logic captured in `mergers`.  The default merger
-  copies entry contents directly to the ZipOutputStream `out` and
-  skips subsequent same-named files.  Returns new `merged-map` merged
-  entry map."
+  "Read entries of ZipFile `in` and apply the filename-determined entry-merging
+  logic captured in `mergers`. The default merger copies entry contents directly
+  to the ZipOutputStream `out` and skips subsequent same-named files. Returns
+  new `merged-map` merged entry map."
   [in out mergers merged-map]
   (reduce (fn [merged-map file]
             (let [filename (.getName file), prev (get merged-map filename)]

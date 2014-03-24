@@ -159,7 +159,6 @@ Use `lein new :show $TEMPLATE` to see details about a given template.
 
 To create a new template of your own, see the documentation for the
 lein-new Leiningen plug-in."
-
   [project & args]
   (binding [*project* project]
     (let [[template-name new-project-name [options template-args]] (parse-args args)]

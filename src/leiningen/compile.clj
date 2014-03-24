@@ -47,7 +47,8 @@
 ;; .class file cleanup
 
 (defn- package-in-project?
-  "Tests if the package found in the compile path exists as a directory in the source path."
+  "Tests if the package found in the compile path exists as a directory in the
+  source path."
   [found-path compile-path source-path]
   (.isDirectory (io/file (.replace found-path compile-path source-path))))
 
