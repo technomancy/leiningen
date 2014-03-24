@@ -151,7 +151,7 @@
 
 (defn resolve-credentials
   "Applies credentials from the environment or ~/.lein/credentials.clj.gpg
-   as they are specified and available."
+  as they are specified and available."
   [settings]
   (let [gpg-creds (if (= :gpg (:creds settings))
                     (match-credentials settings (credentials)))

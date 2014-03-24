@@ -519,7 +519,7 @@
 
 (defn expand-profile
   "Recursively expand the keyword `profile` in `project` to a sequence of
-atomic (non-composite) profile keywords."
+  atomic (non-composite) profile keywords."
   [project profile] (expand-profile* (:profiles project) profile))
 
 (defn- warn-user-repos [profiles]
@@ -697,8 +697,8 @@ atomic (non-composite) profile keywords."
 ;; # High-level profile operations
 
 (defn set-profiles
-  "Compute a fresh version of the project map, with middleware applied, including
-   and excluding the specified profiles."
+  "Compute a fresh version of the project map, with middleware applied,
+  including and excluding the specified profiles."
   [project include-profiles & [exclude-profiles]]
   (-> project
       (init-profiles include-profiles exclude-profiles)
@@ -707,7 +707,7 @@ atomic (non-composite) profile keywords."
 
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
-   into list of active profiles and the appropriate middleware applied."
+  into list of active profiles and the appropriate middleware applied."
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
     (set-profiles project
@@ -716,7 +716,7 @@ atomic (non-composite) profile keywords."
 
 (defn unmerge-profiles
   "Compute a fresh version of the project map with the given profiles unmerged
-   from list of active profiles and the appropriate middleware applied."
+  from list of active profiles and the appropriate middleware applied."
   [project profiles]
   (let [{:keys [included-profiles excluded-profiles]} (meta project)]
     (set-profiles project
@@ -741,8 +741,8 @@ atomic (non-composite) profile keywords."
 
 (defn add-profiles
   "Add the profiles in the given profiles map to the project map, taking care
-   to preserve project map metadata. Note that these profiles are not merged,
-   merely made available to merge by name."
+  to preserve project map metadata. Note that these profiles are not merged,
+  merely made available to merge by name."
   [project profiles-map]
   (-> (update-in project [:profiles] merge profiles-map)
       (vary-meta merge

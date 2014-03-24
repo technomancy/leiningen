@@ -145,9 +145,9 @@
 ;; in them, so it is all transparent unless you need it.
 (defn ->files
   "Generate a file with content. path can be a java.io.File or string.
-  It will be turned into a File regardless. Any parent directories will
-  be created automatically. Data should include a key for :name so that
-  the project is created in the correct directory"
+  It will be turned into a File regardless. Any parent directories will be
+  created automatically. Data should include a key for :name so that the project
+  is created in the correct directory."
   [{:keys [name] :as data} & paths]
   (let [dir (or *dir*
                 (-> (System/getProperty "leiningen.original.pwd")

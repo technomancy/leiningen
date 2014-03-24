@@ -11,11 +11,10 @@
 (def ^:dynamic *exit-after-tests* true)
 
 (def form-for-suppressing-unselected-tests
-  "A function that figures out which vars need to be suppressed based
-   on the given selectors, moves their :test metadata
-   to :leiningen/skipped-test (so that clojure.test won't think they
-   are tests), runs the given function, and then sets the metadata
-   back."
+  "A function that figures out which vars need to be suppressed based on the
+  given selectors, moves their :test metadata to :leiningen/skipped-test (so
+  that clojure.test won't think they are tests), runs the given function, and
+  then sets the metadata back."
   `(fn [namespaces# selectors# func#]
      (let [copy-meta# (fn [var# from-key# to-key#]
                         (if-let [x# (get (meta var#) from-key#)]
@@ -65,8 +64,8 @@
 (def ^:private ^:dynamic *monkeypatch?* true)
 
 (defn form-for-testing-namespaces
-  "Return a form that when eval'd in the context of the project will test
-  each namespace and print an overall summary."
+  "Return a form that when eval'd in the context of the project will test each
+  namespace and print an overall summary."
   ([namespaces _ & [selectors]]
      (let [ns-sym (gensym "namespaces")]
        `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
