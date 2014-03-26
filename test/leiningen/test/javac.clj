@@ -17,9 +17,13 @@
          ;; overriden by :compile-path
          {:destdir "clazzez"}          []
          {:encoding "utf8"}            ["-encoding" "utf8"]
-         {:source "1.5" :target "1.5"} ["-target" "1.5" "-source" "1.5"]
-         {:source 1.5   "target" 1.5} ["-target" "1.5" "-source" "1.5"]
-         {:debugLevel "source,lines"}  ["-g:source,lines"])))
+         {:debugLevel "source,lines"}  ["-g:source,lines"]))
+  (testing "conversion of multiple Leiningen 1 style options"
+    ;; Cannot assume argument order from hash maps
+    (are [old new] (= new
+                      (apply hash-map (normalize-javac-options old)))
+         {:source "1.5" :target "1.5"} {"-target" "1.5" "-source" "1.5"}
+         {:source 1.5   "target" 1.5}  {"-target" "1.5" "-source" "1.5"})))
 
 (deftest ^:disabled ; not really; need to fix this
   test-javac
