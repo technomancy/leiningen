@@ -25,8 +25,8 @@
 (defn ran? [] (-> (runs) keys set))
 
 (deftest test-project-selectors
-  (is (= [:default :integration :int2 :no-custom]
-           (keys (:test-selectors sample-no-aot-project))))
+  (is (= #{:default :integration :int2 :no-custom}
+         (set (keys (:test-selectors sample-no-aot-project)))))
   (is (every? ifn? (map eval (vals (:test-selectors sample-no-aot-project))))))
 
 (deftest test-default-selector
