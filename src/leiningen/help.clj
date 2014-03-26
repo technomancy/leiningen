@@ -156,7 +156,7 @@ deploying, mixed-source, templates, and copying info."
      (println "\nGlobal Options:")
      (println "  -o             Run a task offline.")
      (println "  -U             Run a task after forcing update of snapshots.")
-     (println "  -h, --help     Print this help.")
+     (println "  -h, --help     Print this help or help for a specific task.")
      (println "  -v, --version  Print Leiningen's version.")
      (when-let [aliases (:aliases project)]
        (println "\nThese aliases are available:")
@@ -165,4 +165,4 @@ deploying, mixed-source, templates, and copying info."
            (println (str k ": " explanation))
            (println (str k  ", expands to " v)))))
      (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
-              "deploying, gpg, mixed-source, templates, and copying.")))
+              "deploying, gpg,\nmixed-source, templates, and copying.")))

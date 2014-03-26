@@ -274,6 +274,9 @@
   ;; vector - ^{:protect false}
   :clean-targets [:target-path :compile-path :foobar-paths
                   [:baz-config :qux-path] "out"]
+  ;; Workaround for http://dev.clojure.org/jira/browse/CLJ-322 by deleting
+  ;; compilation artifacts for namespaces that come from dependencies.
+  :clean-non-project-classes true
   ;; Paths to include on the classpath from each project in the
   ;; checkouts/ directory. (See the FAQ in the Readme for more details
   ;; about checkout dependencies.) Set this to be a vector of
