@@ -82,7 +82,7 @@
   (let [project (project/merge-profiles sample-failing-project
                                         [{:aot ^:replace []
                                           :dependencies ^:replace
-                                          [['org.clojure/clojure "1.5.1"]]}])]
+                                          [['org.clojure/clojure "1.6.0"]]}])]
     (binding [main/*exit-process?* false]
       (is (= "EOF while reading" (try (test project) false
                                       (catch Exception e
