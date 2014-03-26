@@ -4,7 +4,7 @@
 ;; "lein new".
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
                  [janino "2.5.15"]
                  [org.platypope/method-fn "0.1.0"]]
   :uberjar-exclusions [#"DUMMY"]

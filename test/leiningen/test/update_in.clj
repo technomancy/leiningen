@@ -15,9 +15,9 @@
               ":repl-options:port" "inc" "--" "repl" ":headless"]
              ["repl" (prj-map {:repl-options {:port 2}}) ":headless"]
 
-             [(prj-map {:dependencies [['clojure.core "1.5.1"]]})
+             [(prj-map {:dependencies [['clojure.core "1.6.0"]]})
               ":dependencies" "conj" "[slamhound \"1.1.3\"]" "--" "repl"]
-             ["repl" (prj-map {:dependencies [['clojure.core "1.5.1"]
+             ["repl" (prj-map {:dependencies [['clojure.core "1.6.0"]
                                              ['slamhound "1.1.3"]]})]]
             (partition 2))]
     (let [[in-prj key-path f & args] in-args
