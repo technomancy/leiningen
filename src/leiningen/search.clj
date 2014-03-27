@@ -6,7 +6,9 @@
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [clj-http.client :as http])
-  (:import (org.apache.maven.index IteratorSearchRequest MAVEN NexusIndexer)
+  (:import (org.apache.lucene.search BooleanClause$Occur)
+           (org.apache.lucene.search BooleanQuery)
+           (org.apache.maven.index IteratorSearchRequest MAVEN NexusIndexer)
            (org.apache.maven.index.context IndexingContext)
            (org.apache.maven.index.creator JarFileContentsIndexCreator
                                            MavenPluginArtifactInfoIndexCreator
@@ -138,7 +140,7 @@
     (println)))
 
 (def ^{:private true}
-  field-splitter-re #"^([a-z]+)(?:\:)(.+)")
+  multi-entry-splitter-re #"([a-z]+)(?:\:)('[^']+'|[^ ]+)")
 
 (defn- lookup-lucene-field-for
   [^String s]
@@ -155,25 +157,34 @@
     "d"           MAVEN/DESCRIPTION
     "desc"        MAVEN/DESCRIPTION
     "description" MAVEN/DESCRIPTION
-    (throw (IllegalArgumentException. (format "search over the field %s is not supported; known fields: id, description (aliased as d), group (aliased as g)" s)))))
+    "v"           MAVEN/VERSION
+    "version"     MAVEN/VERSION
+    (throw (IllegalArgumentException. (format "search over the field %s is not supported; known fields: id, description (aliased as d), group (aliased as g), version (aliased as v)" s)))))
 
-(defn- split-query
-  "Splits \"field:query\" into \"field\" and \"query\""
-  [^String s]
-  (let [[_ field query] (re-find field-splitter-re s)]
+(defn- query-parts [^String s]
+  (for [[full-text field query] (or (re-seq multi-entry-splitter-re s)
+                                    [[s ""]])]
     [(lookup-lucene-field-for field)
-     (or query s)]))
+     (or query full-text)]))
+
+(defn- construct-query [[field q]]
+  (let [search-expression (UserInputSearchExpression. q)]
+    (.constructQuery indexer field search-expression)))
 
 (defn search-repository [query contexts page]
-  (let [[field q]         (split-query query)
-        search-expression (UserInputSearchExpression. q)
-        constructed-query (.constructQuery indexer field
-                                           search-expression)
+  (let [query-parts (query-parts query)
+        queries (map construct-query query-parts)
+        constructed-query (BooleanQuery.)
+        _ (doseq [q queries]
+            (.add constructed-query q BooleanClause$Occur/MUST))
         request (doto (IteratorSearchRequest. constructed-query contexts)
                   (.setStart (* (dec page) page-size))
                   (.setCount page-size))]
     (with-open [response (.searchIterator indexer request)]
-      (println (format "Searching over %s..." (.getDescription field)))
+      (let [search-fields (map (comp #(.getDescription %) first)
+                               query-parts)]
+        (println (format "Searching over %s..."
+                         (string/join ", " search-fields))))
       (print-results response page))))
 
 (defn ^:no-project-needed search
@@ -187,6 +198,7 @@ matches or do more advanced queries such as this:
   $ lein search clojure
   $ lein search description:crawl
   $ lein search group:clojurewerkz
+  $ lein search \"id:clojure version:1.6\"
   $ lein search \"Riak client\"
 
 Also accepts a second parameter for fetching successive pages."
