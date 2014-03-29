@@ -490,6 +490,15 @@
                             :c {:C 3}}})
                (merge-profiles [:a :b :c {:D 4}])
                (unmerge-profiles [:b {:D 4}])
+               (dissoc :profiles))))
+    (is (= expected
+           (-> (make-project
+                {:profiles {:a {:A 1}
+                            :b {:B 2}
+                            :c {:C 3}
+                            :foo [:b]}})
+               (merge-profiles [:a :b :c])
+               (unmerge-profiles [:foo])
                (dissoc :profiles))))))
 
 (deftest test-dedupe-deps
