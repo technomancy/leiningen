@@ -92,8 +92,8 @@ force them to be updated, use `lein -U $TASK`."
        (cond (tree-command command)
              (let [hierarchy (classpath/dependency-hierarchy
                               (tree-command command)
-                              (update-in project [:pedantic?]
-                                         #(or % :warn)))]
+                              (assoc project :pedantic?
+                                     (get project :pedantic? :warn)))]
                (walk-deps hierarchy print-dep))
              (= command ":verify")
              (if (user/gpg-available?)
