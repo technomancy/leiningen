@@ -136,6 +136,12 @@ To generate to a directory different than your project's name use --to-dir:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR
 
+By default, the \"new\" task will not write to an existing directory.
+Supply the --force option to override this behavior:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --force
+    lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR --force
+
 Arguments can be passed to templates by adding them after \"new\"'s options:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR template-arg-1 template-arg-2
