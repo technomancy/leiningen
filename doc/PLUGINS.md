@@ -360,7 +360,7 @@ provides a compatibility shim supporting both 1.x and 2.x.
 
 Another key change is that `:source-path`, `:resources-path`,
 `:java-source-path`, and `:test-path` have changed to
-`:sources-paths`, `:resource-paths`, `:java-source-paths`, and
+`:source-paths`, `:resource-paths`, `:java-source-paths`, and
 `:test-paths`, and they should be vectors now instead of single
 strings. The old `:dev-resources` key is now just another entry to the
 `:resource-paths` vector that's only present when the `:dev` profile
