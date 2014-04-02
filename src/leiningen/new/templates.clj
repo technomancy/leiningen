@@ -131,6 +131,7 @@
   (io/file name (render-text path data)))
 
 (def ^{:dynamic true} *dir* nil)
+(def ^{:dynamic true} *force?* false)
 
 ;; A template, at its core, is meant to generate files and directories that
 ;; represent a project. This is our way of doing that. `->files` is basically
@@ -152,7 +153,7 @@
   (let [dir (or *dir*
                 (-> (System/getProperty "leiningen.original.pwd")
                     (io/file name) (.getPath)))]
-    (if (.mkdir (io/file dir))
+    (if (or (.mkdir (io/file dir)) *force?*)
       (doseq [path paths]
         (if (string? path)
           (.mkdirs (template-path dir path data))
@@ -164,4 +165,5 @@
             (when (:executable options)
               (.setExecutable path true)))))
       (main/info (str "Could not create directory " dir
-                      ". Maybe it already exists?")))))
+                      ". Maybe it already exists?"
+                      "  See also :force or --force")))))
