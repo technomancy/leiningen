@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
             [leiningen.core.main :refer [abort parse-options option-arg]]
-            [leiningen.new.templates :refer [*dir*]])
+            [leiningen.new.templates :refer [*dir* *force?*]])
   (:import java.io.FileNotFoundException))
 
 (def ^:dynamic *use-snapshots?* false)
@@ -171,6 +171,7 @@ lein-new Leiningen plug-in."
           (show show-template)
           (binding [*dir* (or (:to-dir options) (:--to-dir options))
                     *use-snapshots?* (or (:snapshot options)
-                                         (:--snapshot options))]
+                                         (:--snapshot options))
+                    *force?* (or (:force options) (:--force options))]
             (apply create (or template-name "default")
                    new-project-name template-args)))))))
