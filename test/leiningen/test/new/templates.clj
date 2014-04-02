@@ -69,7 +69,8 @@
   (testing "that files marked as executable are set executable"
     (let [file (File/createTempFile "lein" "template")
           path [(.getName file) (.getAbsolutePath file) :executable true]]
-      (binding [*dir* (.getParentFile file)]
+      (binding [*dir* (.getParentFile file)
+                *force?* true]
         (.deleteOnExit file)
         (->files {} path)
         (is (.canExecute file))))))
