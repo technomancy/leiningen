@@ -522,6 +522,11 @@
   atomic (non-composite) profile keywords."
   [project profile] (expand-profile* (:profiles project) profile))
 
+(defn expand-profiles
+  "Recursively expand a collection of profiles"
+  [project profiles]
+  (mapcat (partial expand-profile project) profiles))
+
 (defn- warn-user-repos [profiles]
   (let [has-url? (fn [entry] (or (string? entry) (:url entry)))
         repo-profiles (filter #(->> (second %)
@@ -678,6 +683,8 @@
   (let [project (with-meta
                   (:without-profiles (meta project) project)
                   (meta project))
+        include-profiles (expand-profiles project include-profiles)
+        exclude-profiles (expand-profiles project exclude-profiles)
         normalize #(if (coll? %) (lookup-profile (:profiles project) %) [%])
         exclude-profiles (mapcat normalize exclude-profiles)
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
@@ -709,7 +716,8 @@
   "Compute a fresh version of the project map with the given profiles merged
   into list of active profiles and the appropriate middleware applied."
   [project profiles]
-  (let [{:keys [included-profiles excluded-profiles]} (meta project)]
+  (let [{:keys [included-profiles excluded-profiles]} (meta project)
+        profiles (expand-profiles project profiles)]
     (set-profiles project
                   (concat included-profiles profiles)
                   (remove (set profiles) excluded-profiles))))
@@ -718,7 +726,8 @@
   "Compute a fresh version of the project map with the given profiles unmerged
   from list of active profiles and the appropriate middleware applied."
   [project profiles]
-  (let [{:keys [included-profiles excluded-profiles]} (meta project)]
+  (let [{:keys [included-profiles excluded-profiles]} (meta project)
+        profiles (expand-profiles project profiles)]
     (set-profiles project
                   (remove (set profiles) included-profiles)
                   (concat excluded-profiles profiles))))
