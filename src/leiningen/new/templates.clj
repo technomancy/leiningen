@@ -87,6 +87,17 @@
       (string/replace "/" ".")
       (string/replace "_" "-")))
 
+(defn group-name
+  "Returns group name from (a possibly unqualified) name:
+
+  my.long.group/myproj => my.long.group
+  mygroup/myproj       => mygroup
+  myproj               => nil"
+  [s]
+  (let [grpseq (butlast (string/split (sanitize-ns s) #"\."))]
+    (if (seq grpseq)
+      (->> grpseq (interpose ".") (apply str)))))
+
 (defn year
   "Get the current year. Useful for setting copyright years and such."
   [] (+ (.getYear (java.util.Date.)) 1900))
