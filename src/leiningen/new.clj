@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
             [leiningen.core.main :refer [abort parse-options option-arg]]
-            [leiningen.new.templates :refer [*dir*]])
+            [leiningen.new.templates :refer [*dir* *force?*]])
   (:import java.io.FileNotFoundException))
 
 (def ^:dynamic *use-snapshots?* false)
@@ -136,6 +136,12 @@ To generate to a directory different than your project's name use --to-dir:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR
 
+By default, the \"new\" task will not write to an existing directory.
+Supply the --force option to override this behavior:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --force
+    lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR --force
+
 Arguments can be passed to templates by adding them after \"new\"'s options:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR template-arg-1 template-arg-2
@@ -161,7 +167,8 @@ To create a new template of your own, see the documentation for the
 lein-new Leiningen plug-in."
   [project & args]
   (binding [*project* project]
-    (let [[template-name new-project-name [options template-args]] (parse-args args)]
+    (let [[template-name new-project-name
+           [options template-args]] (parse-args args)]
       (if (or (:--help options) (empty? args))
         (print-help)
         (if-let [show-template (or (and (true? (:show options))
@@ -170,6 +177,7 @@ lein-new Leiningen plug-in."
           (show show-template)
           (binding [*dir* (or (:to-dir options) (:--to-dir options))
                     *use-snapshots?* (or (:snapshot options)
-                                         (:--snapshot options))]
+                                         (:--snapshot options))
+                    *force?* (or (:force options) (:--force options))]
             (apply create (or template-name "default")
                    new-project-name template-args)))))))
