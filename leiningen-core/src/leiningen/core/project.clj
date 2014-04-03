@@ -472,6 +472,8 @@
 
         (= (class left) (class right)) right
 
+        (or (= :all left) (= :all right)) :all
+
         :else
         (do (println left "and" right "have a type mismatch merging profiles.")
             right)))
