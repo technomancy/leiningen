@@ -88,6 +88,24 @@
          (set (map (memfn getName) (rest (file-seq (file "my-proj")))))))
   (delete-file-recursively (file "my-proj") :silently))
 
+(deftest test-new-with-force-option
+  (.mkdir (file "test-new-proj"))
+  (leiningen.new/new nil "test-new-proj" "--force")
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
+           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"
+           "LICENSE"}
+         (set (map (memfn getName) (rest (file-seq (file "test-new-proj")))))))
+  (delete-file-recursively (file "test-new-proj") :silently))
+
+(deftest test-new-with-to-dir-and-force-option
+  (.mkdir (file "my-proj"))
+  (leiningen.new/new nil "test-new-proj" "--to-dir" "my-proj" "--force")
+  (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
+           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"
+           "LICENSE"}
+         (set (map (memfn getName) (rest (file-seq (file "my-proj")))))))
+  (delete-file-recursively (file "my-proj") :silently))
+
 (deftest test-new-generates-in-the-current-directory
   (let [original-pwd (System/getProperty "leiningen.original.pwd")
         new-pwd (file original-pwd "subdir") ;; TODO: make rand temp dir instead
