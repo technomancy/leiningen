@@ -162,11 +162,9 @@
                                              ;; doesn't have a slash on it
                                              (= (str (.getUrl %) "/") repository))
                                         aether-repos))]
-                    (println "Retrieving"
-                             name
-                             "from"
-                             (.getId repo))
-                    ;;else case happens for metadata files
+                    (locking *out*
+                      (println "Retrieving" name "from" (.getId repo)))
+                    ;; else case happens for metadata files
                     )
                   nil)))))
         :proxy (get-proxy-settings))
