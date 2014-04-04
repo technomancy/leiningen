@@ -6,6 +6,7 @@
   (:require [clojure.java.io :as io]
             [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
+            [leiningen.core.utils :as utils]
             [leiningen.core.eval :as eval]))
 
 (deftest ^:online test-deps
@@ -122,7 +123,7 @@
 (deftest test-native-deps
   (delete-file-recursively (:target-path native-project) true)
   (deps native-project)
-  (is (= (conj (get-in native-lib-files-map [(eval/get-os) (eval/get-arch)])
+  (is (= (conj (get-in native-lib-files-map [(utils/get-os) (utils/get-arch)])
                ".gitkeep")
          (set (for [f (rest (file-seq (io/file (first (eval/native-arch-paths
                                                        native-project)))))]

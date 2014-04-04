@@ -1,7 +1,7 @@
 (ns leiningen.test.jar
   (:require [clojure.java.io :as io]
             [leiningen.core.main :as main]
-            [leiningen.core.eval :refer [platform-nullsink]]
+            [leiningen.core.utils :refer [platform-nullsink]]
             [leiningen.test.helper :as helper])
   (:use [clojure.test]
         [leiningen.jar])

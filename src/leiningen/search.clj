@@ -220,7 +220,7 @@ Also accepts a second parameter for fetching successive pages."
          ;; TODO: improve error message when page isn't numeric
          (search-repository query contexts (Integer. page))
          (finally
-           (doall (map remove-context contexts))
+           (doseq [c contexts] (remove-context c))
            (System/setProperty "java.io.tmpdir" orig-tmp))))))
 
 

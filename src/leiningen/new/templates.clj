@@ -14,7 +14,8 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.user :as user]
             [leiningen.core.main :as main]
-            [stencil.core :as stencil]))
+            [stencil.core :as stencil])
+  (:import (java.util Calendar)))
 
 (defn project-name
   "Returns project name from (possibly group-qualified) name:
@@ -100,7 +101,7 @@
 
 (defn year
   "Get the current year. Useful for setting copyright years and such."
-  [] (+ (.getYear (java.util.Date.)) 1900))
+  [] (.get (Calendar/getInstance) Calendar/YEAR))
 
 ;; It'd be silly to expect people to pull in stencil just to render a mustache
 ;; string. We can just provide this function instead. In doing so, it is much

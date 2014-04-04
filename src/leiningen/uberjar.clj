@@ -70,10 +70,9 @@
        (.closeEntry out))]))
 
 (defn- make-mergers [project]
-  (into (utils/map-vals
-         (:uberjar-merge-with project)
-         (comp make-merger eval))
-        (map #(-> [% skip-merger])
+  (into (utils/map-vals (:uberjar-merge-with project)
+                        (comp make-merger eval))
+        (map #(vector % skip-merger)
              (:uberjar-exclusions project))))
 
 (defn- select-merger [mergers filename]

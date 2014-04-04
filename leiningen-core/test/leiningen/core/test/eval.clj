@@ -19,7 +19,7 @@
 
 (deftest test-eval-in-project
   (doseq [where [:subprocess :leiningen :classloader]]
-    (let [file (File/createTempFile "lein-eval-test" nil)]
+    (let [file (File/createTempFile "lein-eval-test" "")]
       (eval-in-project (assoc project :eval-in where
                               :prep-tasks [])
                        `(spit ~(.getPath file) (eval "{:foo \"bar\"}")))

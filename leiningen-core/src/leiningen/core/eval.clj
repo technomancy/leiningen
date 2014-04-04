@@ -63,8 +63,8 @@
 (defn native-arch-paths
   "Paths to the os/arch-specific directory containing native libs."
   [project]
-  (let [os (:os project (get-os))
-        arch (:arch project (get-arch))
+  (let [os (:os project (utils/get-os))
+        arch (:arch project (utils/get-arch))
         native-path (:native-path project)]
     (if (and os arch)
       (conj

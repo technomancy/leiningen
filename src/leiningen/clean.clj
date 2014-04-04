@@ -1,7 +1,6 @@
 (ns leiningen.clean
   "Remove all files from project's target-path."
   (:require [clojure.java.io :as io]
-            [leiningen.core.eval :as eval]
             [leiningen.core.utils :as utils])
   (:import [java.io IOException]))
 
@@ -9,7 +8,7 @@
   "Returns true if this file is a real directory, false if it is a symlink or a
   normal file."
   [f]
-  (if (= :windows (eval/get-os))
+  (if (= :windows (utils/get-os))
     (.isDirectory f)
     (and (.isDirectory f)
          (not (utils/symlink? f)))))

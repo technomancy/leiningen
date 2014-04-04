@@ -174,7 +174,7 @@ be able to depend on jars that are deployed without a pom."
   ([project repository identifier version & files]
      (let [identifier (symbol identifier)
            artifact-id (name identifier)
-           group-id (or (namespace identifier))
+           group-id (namespace identifier)
            repo (repo-for project repository)
            artifacts (for [f files]
                        [[:extension (if (= "pom.xml" (.getName (io/file f)))
