@@ -302,8 +302,9 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
           (System/getProperty "os.name") (System/getProperty "os.version")
           (System/getProperty "os.arch")))
 
-(defn- configure-http []
+(defn- configure-http
   "Set Java system properties controlling HTTP request behavior."
+  []
   (System/setProperty "aether.connector.userAgent" (user-agent))
   (when-let [{:keys [host port non-proxy-hosts]} (classpath/get-proxy-settings)]
     (System/setProperty "http.proxyHost" host)
