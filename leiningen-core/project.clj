@@ -7,7 +7,7 @@
                  [bultitude "0.2.6"]
                  [classlojure "0.6.6"]
                  [robert/hooke "1.3.0"]
-                 [com.cemerick/pomegranate "0.2.0"]
+                 [com.cemerick/pomegranate "0.3.0"]
                  [org.apache.maven.wagon/wagon-http "2.4"]
                  [com.hypirion/io "0.3.1"]
                  [pedantic "0.1.0"]]
