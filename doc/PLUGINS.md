@@ -242,6 +242,26 @@ that whenever we call `merge-profiles`, `unmerge-profiles` or
 `set-profiles`. It also means your middleware functions shouldn't have
 any non-idempotent side-effects since they could be called repeatedly.
 
+## Maven Wagons
+
+[Pomegranate](https://github.com/cemerick/pomegranate) (the library
+used by Leiningen to resolve dependencies) supports registering
+"wagon" factories. Wagons are used to handle non-standard transport
+protocols for repositories, and are looked up based on the protocol of
+the repository url. If your plugin needs to register a wagon factory,
+it can do so by providing a `leiningen/wagons.clj` file containing a
+map of protocols to functions that return wagon instances for the
+protocol. For example, the following `wagons.clj` will register a
+wagon factory function for `dav:` urls:
+
+```clj
+{"dav" #(org.apache.maven.wagon.providers.webdav.WebDavWagon.)}
+```
+
+See [S3 wagon private](https://github.com/technomancy/s3-wagon-private) or
+[lein-webdav](https://github.com/tobias/lein-webdav) for full examples of
+plugins using this technique.
+
 ## Requiring Plugins
 
 To use a plugin in your project, just add a `:plugins` key to your project.clj
