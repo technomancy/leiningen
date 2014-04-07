@@ -44,6 +44,31 @@ projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 {:user {:deploy-repositories [["internal" "http://blueant.com/archiva/internal"]]}}
 ```
 
+### Non-standard Repository Protocols
+
+If you are deploying to a repository that doesn't use one of the
+standard protocols (`file:`, `http:`, `https:`), you may need to
+provide a wagon factory for that protocol. You can do so by specifying
+the wagon provider as a plugin dependency:
+
+```clj
+:plugins [[org.apache.maven.wagon/wagon-webdav-jackrabbit "2.4"]]
+```
+
+then registering a wagon factory function at the bottom of your project.clj:
+
+```clj
+(cemerick.pomegranate.aether/register-wagon-factory! "dav"
+  #(eval '(org.apache.maven.wagon.providers.webdav.WebDavWagon.)))
+```
+
+Note that the two most common custom protocols (`s3:`/`s3p:` and
+`dav:`) are already supported by plugins
+([S3 wagon private](https://github.com/technomancy/s3-wagon-private)
+and [lein-webdav](https://github.com/tobias/lein-webdav),
+respectively), so you can just depend on those plugins instead of
+adding the above code to your project.clj.
+
 ## Authentication
 
 Deploying and reading from private repositories needs authentication
