@@ -339,5 +339,6 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
         (stacktrace/print-cause-trace e)
         (when-not (:suppress-msg (ex-data e))
           (println (.getMessage e))))
+      (flush)
       (exit (:exit-code (ex-data e) 1))))
   (exit 0))
