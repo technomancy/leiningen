@@ -510,6 +510,15 @@
                                [org.clojure/clojure "1.3.0"]]})
              (:dependencies)))))
 
+(deftest test-dedupe-non-group-deps
+  (is (= '[[foo/foo "1.1"]]
+        (-> (make-project
+              {:dependencies empty-dependencies
+               :profiles {:a {:dependencies '[[foo "1.0"]]}
+                          :b {:dependencies '[[foo "1.1"]]}}})
+          (merge-profiles [:a :b])
+          (:dependencies)))))
+
 (deftest test-warn-user-repos
   (if (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")
     (testing "no output with suppression"

@@ -195,10 +195,9 @@
 
 (defn- dep-key
   "The unique key used to dedupe dependencies."
-  [[id version & opts]]
-  (-> (apply hash-map opts)
-      (select-keys [:classifier :extension])
-      (assoc :id id)))
+  [dep]
+  (-> (dependency-map dep)
+    (select-keys [:group-id :artifact-id :classifier :extension])))
 
 (defn- reduce-dep-step [deps dep]
   (let [k (dep-key dep)]
