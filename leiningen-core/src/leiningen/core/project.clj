@@ -429,7 +429,7 @@
                                             {:displace true})}
                 :dependencies '[[org.clojure/tools.nrepl "0.2.3"
                                  :exclusions [org.clojure/clojure]]
-                                [clojure-complete "0.2.3"
+                                [clojure-complete/clojure-complete "0.2.3"
                                  :exclusions [org.clojure/clojure]]]
                 :checkout-deps-shares [:source-paths
                                        :test-paths
