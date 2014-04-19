@@ -6,7 +6,7 @@
 *~
 .lein*
 /.classpath
-/.nrepl-port
+.nrepl-port
 /.project
 /.settings
 /hs_err_pid*.log
