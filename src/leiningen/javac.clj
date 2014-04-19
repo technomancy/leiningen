@@ -88,7 +88,8 @@
                   (java.lang.System/exit 1))]
      (if-let [compiler# (javax.tools.ToolProvider/getSystemJavaCompiler)]
        (do
-         (println "Compiling" ~(count files) "source files to" ~compile-path)
+         (binding [*out* *err*]
+           (println "Compiling" ~(count files) "source files to" ~compile-path))
          (.mkdirs (clojure.java.io/file ~compile-path))
          (when-not (zero?
                     (.run compiler# nil nil nil

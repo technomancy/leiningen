@@ -2,6 +2,27 @@
   (:use [clojure.test]
         [leiningen.core.main]))
 
+;; Shamelessly stolen from
+;; https://github.com/clojure/clojure/blob/master/test/clojure/test_clojure/main.clj#L28
+(defmacro with-err-str
+  "Evaluates exprs in a context in which *err* is bound to a fresh
+  StringWriter.  Returns the string created by any nested printing
+  calls."
+  [& body]
+  `(let [s# (new java.io.StringWriter)
+         p# (new java.io.PrintWriter s#)]
+     (binding [*err* p#]
+       ~@body
+       (str s#))))
+
+(deftest test-logs-sent-to-*err*
+  (testing "debug, info sent to *err*"
+    (is (= "Informative message\n" (with-err-str
+                                     (info "Informative message"))))
+    (is (= "Debug message\n" (binding [*debug* true]
+                               (with-err-str
+                                 (debug "Debug message")))))))
+
 (deftest test-task-args-help-pass-through
   (let [project {:aliases {"sirius-p" ["sirius" "partial"]
                            "s" "sirius"

@@ -125,7 +125,8 @@ Code that should run on startup belongs in a -main defn."
   ([project]
      (if-let [namespaces (seq (stale-namespaces project))]
        (let [form `(doseq [namespace# '~namespaces]
-                     (println "Compiling" namespace#)
+                     (binding [*out* *err*]
+                       (println "Compiling" namespace#))
                      (clojure.core/compile namespace#))
              project (update-in project [:prep-tasks]
                                 (partial remove #{"compile"}))]
