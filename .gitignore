@@ -12,7 +12,9 @@
 /hs_err_pid*.log
 /lein.man
 /leiningen-core/.lein-plugins/checksum
+/leiningen-core/.nrepl-port
 /leiningen-core/dev-resources/target
+/lein-pprint/.nrepl-port
 /logs
 /scratch.clj
 /target
