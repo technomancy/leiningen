@@ -324,7 +324,7 @@
   ([project form init]
      (prep project)
      (when (:warn-on-reflection project)
-       (println "WARNING: :warn-on-reflection is deprecated in project.clj;"
+       (main/info "WARNING: :warn-on-reflection is deprecated in project.clj;"
                 "use :global-vars."))
      (eval-in project
               `(do (set! ~'*warn-on-reflection*

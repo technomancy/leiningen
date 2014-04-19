@@ -14,6 +14,11 @@
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader)))
 
+(defn- info [& args]
+  ;; TODO: remove me once #1227 is merged
+  (require 'leiningen.core.main)
+  ((resolve 'leiningen.core.main/info) args))
+
 (defn- update-each-contained [m keys f & args]
   (reduce (fn [m k]
             (if (contains? m k)
@@ -326,9 +331,9 @@
              (meta project))))
   ([project]
      (let [repos (if (:omit-default-repositories project)
-                   (do (println "WARNING:"
-                                ":omit-default-repositories is deprecated;"
-                                "use :repositories ^:replace [...] instead.")
+                   (do (info "WARNING:"
+                             ":omit-default-repositories is deprecated;"
+                             "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
        (setup-map-defaults
@@ -472,7 +477,7 @@
         (= (class left) (class right)) right
 
         :else
-        (do (println left "and" right "have a type mismatch merging profiles.")
+        (do (info left "and" right "have a type mismatch merging profiles.")
             right)))
 
 (defn- apply-profiles [project profiles]
@@ -493,7 +498,7 @@
           (when-not (or result (#{:provided :dev :user :test :base :default
                                   :production :system :repl}
                                 profile))
-            (println "Warning: profile" profile "not found."))
+            (info "Warning: profile" profile "not found."))
           (lookup-profile* profiles result))
 
         (composite-profile? profile)
@@ -535,15 +540,15 @@
                               profiles)]
     (when (and (seq repo-profiles)
                (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
-      (println ":repositories detected in user-level profiles!"
-               (vec (map first repo-profiles)) "\nSee"
-               "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
+      (info ":repositories detected in user-level profiles!"
+            (vec (map first repo-profiles)) "\nSee"
+            "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
 
 (alter-var-root #'warn-user-repos memoize)
 
 (defn- warn-user-profile [root profiles]
   (when (and root (contains? profiles :user))
-    (println "WARNING: user-level profile defined in project files.")))
+    (info "WARNING: user-level profile defined in project files.")))
 
 (alter-var-root #'warn-user-profile memoize)
 

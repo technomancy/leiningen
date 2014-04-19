@@ -106,14 +106,18 @@
 (defn debug
   "Print if *debug* (from DEBUG environment variable) is truthy."
   [& args]
-  (when *debug* (apply println args)))
+  (when *debug*
+    (binding [*out* *err*]
+      (apply println args))))
 
 (def ^:dynamic *info* (not (System/getenv "LEIN_SILENT")))
 
 (defn info
   "Print if *info* (from LEIN_SILENT environment variable) is truthy"
   [& args]
-  (when *info* (apply println args)))
+  (when *info*
+    (binding [*out* *err*]
+      (apply println args))))
 
 (def ^:dynamic *exit-process?*
   "Bind to false to suppress process termination." true)

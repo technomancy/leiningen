@@ -11,6 +11,11 @@
            (org.sonatype.aether.graph Exclusion)
            (org.sonatype.aether.resolution DependencyResolutionException)))
 
+(defn- info [& args]
+  ;; TODO: remove me once #1227 is merged
+  (require 'leiningen.core.main)
+  ((resolve 'leiningen.core.main/info) args))
+
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
   (let [project-file (io/file root "checkouts" dep "project.clj")]
@@ -21,7 +26,7 @@
         (try ((resolve 'leiningen.core.project/read) project [:default])
              (catch Exception e
                (throw (Exception. (format "Problem loading %s" project) e)))))
-      (println
+      (info
        "WARN ignoring checkouts directory" dep
        "as it does not contain a project.clj file."))))
 
@@ -121,10 +126,10 @@
   (doseq [result (.getArtifactResults (.getResult e))
           :when (not (.isResolved result))
           exception (.getExceptions result)]
-    (println (.getMessage exception)))
+    (info (.getMessage exception)))
   (doseq [ex (.getCollectExceptions (.getResult e))
           ex2 (.getExceptions (.getResult ex))]
-    (println (.getMessage ex2))))
+    (info (.getMessage ex2))))
 
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
@@ -162,8 +167,7 @@
                                              ;; doesn't have a slash on it
                                              (= (str (.getUrl %) "/") repository))
                                         aether-repos))]
-                    (locking *out*
-                      (println "Retrieving" name "from" (.getId repo)))
+                    (info "Retrieving" name "from" (.getId repo))
                     ;; else case happens for metadata files
                     )
                   nil)))))
@@ -245,27 +249,27 @@
 
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
-    (println "WARNING!!! version ranges found for:")
+    (info "WARNING!!! version ranges found for:")
     (doseq [dep-string messages]
-      (println dep-string))
-    (println)))
+      (info dep-string))
+    (info)))
 
 (defn- pedantic-print-overrides [messages]
   (when-not (empty? messages)
-    (println "Possibly confusing dependencies found:")
+    (info "Possibly confusing dependencies found:")
     (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
-      (println accepted)
-      (println " overrides")
+      (info accepted)
+      (info " overrides")
       (doseq [ignored (interpose " and" ignoreds)]
-        (println ignored))
+        (info ignored))
       (when-not (empty? ranges)
-        (println " possibly due to a version range in")
+        (info " possibly due to a version range in")
         (doseq [r ranges]
-          (println r)))
-      (println "\nConsider using these exclusions:")
+          (info r)))
+      (info "\nConsider using these exclusions:")
       (doseq [ex exclusions]
-        (println ex))
-      (println))))
+        (info ex))
+      (info))))
 
 (alter-var-root #'pedantic-print-ranges memoize)
 (alter-var-root #'pedantic-print-overrides memoize)

@@ -41,7 +41,7 @@
   [bucket]
   (for [object (list-all-objects bucket)]
     (do
-      (println (str "Processing: " (:key object)))
+      (main/info (str "Processing: " (:key object)))
       (s3/get-object (aws-cred) bucket (:key object)))))
 
 (defn- file-for-line
@@ -107,4 +107,4 @@
     (print "\n\n")
     (pprint (frequencies (map :file s3-downloads)))
     (println ""))) ;; need this last println for some reason or else
-                   ;; the above doesn't print out using lein run...
+;; the above doesn't print out using lein run...
