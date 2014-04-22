@@ -553,7 +553,7 @@
                           (io/file "/etc" "leiningen"))]
     (user/load-profiles sys-profile-dir)))
 
-(defn- project-profiles [project]
+(defn ^:internal project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
     (warn-user-profile (:root project) profiles)
     profiles))
