@@ -153,38 +153,37 @@ Published JVM libraries have *identifiers* (artifact group, artifact id) and
 ### Artifact IDs, Groups, and Versions
 
 You can [search Clojars](http://clojars.org/search?q=clj-http) using
-its web interface or via `lein search $TERM`. On the page for
-`clj-http` it shows this:
+its web interface or via `lein search $TERM`. On the Clojars page for
+`clj-http` at the time of this writing it shows this:
 
-    [clj-http "0.5.5"]
+    [clj-http "0.9.1"]
 
-There are two different ways of specifying a dependency on the latest
-stable version of the `clj-http` library, one in Leiningen format
-shown above and one in Maven format. We'll skip the Maven one for now,
-though you'll need to learn to read it for Java libraries from
-[Central](http://search.maven.org). You can copy the Leiningen version
-directly into the `:dependencies` vector in `project.clj`.  So for
-instance, if you change replace the `:dependencies` line in the example
-`project.clj` above to
+It also shows the Maven syntax for dependencies, which we'll skip for
+now, though you'll need to learn to read it when looking for Java
+libraries from [Central](http://search.maven.org). You can copy the
+Leiningen version directly into the `:dependencies` vector in
+`project.clj`.  So for instance, if you change the `:dependencies`
+line in the example `project.clj` above to
 
 ```clj
 :dependencies [[org.clojure/clojure "1.5.1"]
-	       [clj-http "0.5.5"]]
+               [clj-http "0.9.1"]]
 ```
 
-`lein` will automatically download the `clj-http` jar and make sure it
-is on your classpath when your project code is run under future `lein`
-invocations.  If you want to explicitly tell lein to download new
-dependencies, you can do so with `lein deps`, but it will happen
-automatically if you don't.
+Leiningen will automatically download the `clj-http` jar and make sure
+it is on your classpath. If you want to explicitly tell lein to
+download new dependencies, you can do so with `lein deps`, but it will
+happen on-demand if you don't.
 
 Within the vector, "clj-http" is referred to as the "artifact id".
-"0.5.5" is the version. Some libraries will also have "group ids",
+"0.9.1" is the version. Some libraries will also have "group ids",
 which are displayed like this:
 
-    [com.cedarsoft.utils.legacy/hibernate "1.3.4"]
+```clj
+[com.cedarsoft.utils.legacy/hibernate "1.3.4"]
+```
 
-The group-id is the part before the slash. Especially for Java
+The group id is the part before the slash. Especially for Java
 libraries, it's often a reversed domain name. Clojure libraries often
 use the same group-id and artifact-id (as with clj-http), in which case
 you can omit the group-id. If there is a library that's part of a
@@ -343,47 +342,8 @@ to run in the context of your project. Since we've added `clj-http` to
 The call to `-main` shows both println output ("Hello, World!") and
 the return value (nil) together.
 
-Built-in documentation is available via `doc`, while `clojuredocs`
-offers more thorough examples from the
-[ClojureDocs](http://clojuredocs.org) site:
-
-    user=> (doc reduce)
-    -------------------------
-    clojure.core/reduce
-    ([f coll] [f val coll])
-      f should be a function of 2 arguments. If val is not supplied,
-      returns the result of applying f to the first 2 items in coll, then
-      applying f to that result and the 3rd item, etc. If coll contains no
-      items, f must accept no arguments as well, and reduce returns the
-      result of calling f with no arguments.  If coll has only 1 item, it
-      is returned and f is not called.  If val is supplied, returns the
-      result of applying f to val and the first item in coll, then
-      applying f to that result and the 2nd item, etc. If coll contains no
-      items, returns val and f is not called.
-
-    user=> (user/clojuredocs pprint)
-    Loading clojuredocs-client...
-    ========== vvv Examples ================
-      user=> (def *map* (zipmap
-                          [:a :b :c :d :e]
-                          (repeat
-                            (zipmap [:a :b :c :d :e]
-                              (take 5 (range))))))
-      #'user/*map*
-      user=> *map*
-      {:e {:e 4, :d 3, :c 2, :b 1, :a 0}, :d {:e 4, :d 3, :c 2, :b 1, [...]}}
-
-      user=> (clojure.pprint/pprint *map*)
-      {:e {:e 4, :d 3, :c 2, :b 1, :a 0},
-       :d {:e 4, :d 3, :c 2, :b 1, :a 0},
-       :c {:e 4, :d 3, :c 2, :b 1, :a 0},
-       :b {:e 4, :d 3, :c 2, :b 1, :a 0},
-       :a {:e 4, :d 3, :c 2, :b 1, :a 0}}
-      nil
-    ========== ^^^ Examples ================
-    1 example found for clojure.pprint/pprint
-
-You can even examine the source of functions:
+Built-in documentation is available via `doc`, and you can examine the
+source of functions with `source`:
 
     user=> (source my-stuff.core/-main)
     (defn -main
@@ -408,6 +368,11 @@ with the higher-order trampoline task, which allows the Leiningen JVM
 process to exit before launching your project's JVM.
 
     $ lein trampoline run -m my-stuff.server 5000
+
+If you have any Java to be compiled in `:java-source-paths` or Clojure
+namespaces listed in `:aot`, they will always be compiled before
+Leiningen runs any other code, via any `run`, `repl`,
+etc. invocations.
 
 ## Tests
 
@@ -504,7 +469,7 @@ should look like this:
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.apache.lucene/lucene-core "3.0.2"]
-                 [clj-http "0.4.1"]]
+                 [clj-http "0.9.1"]]
   :profiles {:dev {:dependencies [[ring/ring-devel "1.2.0"]]}}
   :test-selectors {:default (complement :integration)
                   :integration :integration
@@ -534,7 +499,7 @@ Now we're ready to generate your uberjar:
     Compilation succeeded.
     Created /home/phil/src/leiningen/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
     Including my-stuff-0.1.0-SNAPSHOT.jar
-    Including clj-http-0.4.1.jar
+    Including clj-http-0.9.1.jar
     Including clojure-1.3.0.jar
     Including lucene-core-3.0.2.jar
     Created /home/phil/src/leiningen/my-stuff/target/my-stuff-0.1.0-SNAPSHOT-standalone.jar
