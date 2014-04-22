@@ -193,11 +193,11 @@
                         #"META-INF/services/.*" `[slurp str spit]}
    :global-vars {}})
 
-(defn- dep-key
+(defn dep-key
   "The unique key used to dedupe dependencies."
   [dep]
   (-> (dependency-map dep)
-    (select-keys [:group-id :artifact-id :classifier :extension])))
+      (select-keys [:group-id :artifact-id :classifier :extension])))
 
 (defn- reduce-dep-step [deps dep]
   (let [k (dep-key dep)]

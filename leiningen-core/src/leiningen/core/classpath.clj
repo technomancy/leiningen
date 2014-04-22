@@ -288,8 +288,6 @@
     #(-> % aether/repository-session
          (pedantic/use-transformer ranges overrides))))
 
-;; Exclusion(groupId, artifactId, classifier, extension)
-
 (defn ^:internal get-dependencies [dependencies-key project & args]
   (let [ranges (atom []), overrides (atom [])
         session (pedantic-session project ranges overrides)

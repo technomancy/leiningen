@@ -315,7 +315,12 @@
   ([_ project]
      (let [reprofile #(-> project (project/merge-profiles %) (relativize))
            provided-project (reprofile [:provided])
-           test-project (reprofile [:base :provided :dev :test])]
+           test-project (reprofile [:base :provided :dev :test])
+           deps (concat (->> project :dependencies)
+                        (->> provided-project :dependencies
+                             (map (partial make-scope "provided")))
+                        (->> test-project :dependencies
+                             (map (partial make-scope "test"))))]
        (list
         [:project {:xsi:schemaLocation
                    (str "http://maven.apache.org/POM/4.0.0"
@@ -338,13 +343,7 @@
          (write-scm-tag (guess-scm project) project)
          (xml-tags :build [project test-project])
          (xml-tags :repositories (:repositories project))
-         (xml-tags :dependencies
-                   (->> (concat (->> project :dependencies)
-                                (->> provided-project :dependencies
-                                     (map (partial make-scope "provided")))
-                                (->> test-project :dependencies
-                                     (map (partial make-scope "test"))))
-                        (distinct-key (partial take 2))))
+         (xml-tags :dependencies (distinct-key project/dep-key deps))
          (and (:pom-addition project) (:pom-addition project))]))))
 
 (defn snapshot? [project]

@@ -297,10 +297,17 @@
   (is (re-find #"(?m)^\s+<groupId>nomnomnom</groupId>$"
                (make-pom sample-project))))
 
-
 (deftest test-snapshot-checking
   (binding [main/*exit-process?* false]
     (let [project (vary-meta sample-project update-in [:without-profiles] assoc
                              :version "1.0"
                              :dependencies [['clojure "1.0.0-SNAPSHOT"]])]
       (is (thrown? Exception (pom project))))))
+
+(deftest test-classifier-kept
+  (let [xml (xml/parse-str (make-pom lthelper/native-project))]
+    (is (= [["gdx-platform" nil] ["gdx-platform" "natives-desktop"]]
+           (for [dep (deep-content xml [:project :dependencies])
+                 :let [artifact (first-in dep [:dependency :artifactId])]
+                 :when (= "gdx-platform" artifact)]
+             [artifact (first-in dep [:dependency :classifier])])))))
