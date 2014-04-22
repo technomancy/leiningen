@@ -96,7 +96,7 @@
 
 (deftest compilation-specs-tests
   (is (= '[foo bar] (compilation-specs ["foo" "bar"])))
-  (is (= :all (compilation-specs [":all"]) (compilation-specs [:all])))
+  (is (= [:all] (compilation-specs [":all"]) (compilation-specs [:all])))
   (is (every? #'leiningen.compile/regex?
               (compilation-specs ["#\"foo\"" #"bar" "#\"baz\""])))
   (testing "that regexes are compiled first"
