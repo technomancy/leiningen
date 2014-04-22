@@ -20,9 +20,9 @@ choice; you can deploy to S3 buckets using
 Alternatively you can run a private repository on your own server.
 Both [Archiva](http://archiva.apache.org/) and
 [Nexus](http://nexus.sonatype.org/) provide this as well as proxying
-to other repositories, so you can set `:omit-default-repositories` in
-project.clj, and dependency downloads will speed up by quite a bit
-with only one server to check.
+to other repositories, so you can set `^:replace` metadata on
+`:repositories` in project.clj, and dependency downloads will speed up
+by quite a bit since Clojars and Maven Central won't be checked.
 
 The private server will need to be added to the `:repositories`
 listing in project.clj. Archiva and Nexus offer separate repositories
