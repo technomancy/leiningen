@@ -311,16 +311,23 @@
 (defn- make-scope [scope [dep version & opts]]
   (list* dep version (apply concat (assoc (apply hash-map opts) :scope scope))))
 
+(defn- dep-key [dep]
+  (-> (project/dependency-map dep)
+      (select-keys [:group-id :artifact-id :classifier
+                    :extension :scope :version])))
+
 (defmethod xml-tags ::project
   ([_ project]
-     (let [reprofile #(-> project (project/merge-profiles %) (relativize))
-           provided-project (reprofile [:provided])
+     (let [reprofile #(relativize (project/merge-profiles project %))
            test-project (reprofile [:base :provided :dev :test])
-           deps (concat (->> project :dependencies)
-                        (->> provided-project :dependencies
-                             (map (partial make-scope "provided")))
-                        (->> test-project :dependencies
-                             (map (partial make-scope "test"))))]
+           profiles (merge @project/default-profiles (:profiles project)
+                           (project/project-profiles project))
+           deps (concat (:dependencies project)
+                        (for [dep (:dependencies (:provided profiles))]
+                          (make-scope "provided" dep))
+                        (for [profile [:dev :test :base]
+                              dep (:dependencies (profile profiles))]
+                          (make-scope "test" dep)))]
        (list
         [:project {:xsi:schemaLocation
                    (str "http://maven.apache.org/POM/4.0.0"
@@ -341,9 +348,10 @@
            [:licenses licenses])
          (xml-tags :mailing-list (:mailing-list project))
          (write-scm-tag (guess-scm project) project)
+         ;; TODO: this results in lots of duplicate entries
          (xml-tags :build [project test-project])
          (xml-tags :repositories (:repositories project))
-         (xml-tags :dependencies (distinct-key project/dep-key deps))
+         (xml-tags :dependencies (distinct-key dep-key deps))
          (and (:pom-addition project) (:pom-addition project))]))))
 
 (defn snapshot? [project]
