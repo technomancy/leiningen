@@ -121,7 +121,7 @@ With an argument, the uberjar will be built with an alternate main.
 
 The namespace you choose as main should have :gen-class in its ns form
 as well as defining a -main function.
-  
+
 Note: The :uberjar profile is implicitly activated for this task, and cannot be deactivated."
 
   ([project main]

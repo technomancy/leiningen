@@ -1,20 +1,21 @@
 # Profiles
 
-In Leiningen 2.x you can change the configuration of your project by
-applying various profiles. For instance, you may want to have a few
-extra test data directories on the classpath during development
-without including them in the jar, or you may want to have Slamhound
-available in every project you hack on without modifying every single
-project.clj you use.
+You can change the configuration of your project by applying various
+profiles. For instance, you may want to have a few extra test data
+directories on the classpath during development without including them
+in the jar, or you may want to have development tools like
+[Slamhound](https://github.com/technomancy/slamhound) available in
+every project you hack on without modifying every single `project.clj`
+you use.
 
 By default the `:dev`, `:provided`, `:user`, `:system`, and `:base`
 profiles are activated for each task, but their settings are not
 propagated downstream to projects that depend upon yours. Each profile
 is defined as a map which gets merged into your project map.
 
-You can place any arbitrary `defproject` entries into a given profile
-and they will be merged into the project map when that profile is
-active.
+You can place any arbitrary key/value pairs supported by `defproject`
+into a given profile and they will be merged into the project map when
+that profile is activated.
 
 The example below adds a "dummy-data" resources directory during
 development and a dependency upon "expectations" that's only used for tests.
@@ -35,11 +36,12 @@ within the project root. Profiles specified in `profiles.clj` will override
 profiles in `project.clj`, so this can be used for project-specific overrides
 that you don't want committed in version control.
 
-User-wide profiles can also be specified in `~/.lein/profiles.clj`. These will be
-available in all projects managed by Leiningen, though those profiles will be
-overridden by profiles of the same name specified in the project.
-System-wide profiles can be placed in `/etc/leiningen/profiles.clj`. They are treated
-the same as user profiles, but with lower precedence.
+User-wide profiles can also be specified in
+`~/.lein/profiles.clj`. These will be available in all projects
+managed by Leiningen, though those profiles will be overridden by
+profiles of the same name specified in the project.  System-wide
+profiles can be placed in `/etc/leiningen/profiles.clj`. They are
+treated the same as user profiles, but with lower precedence.
 
 You can also define user-wide profiles within `clj`-files inside
 `~/.lein/profiles.d`. The semantics within such files differ slightly
@@ -121,9 +123,10 @@ it with a `+`:
 
 You can also use `-` to deactivate a profile.
 
-Activating different profiles will change your `:target-path` so that
-elements which come from profiles don't spill over and contaminate
-other profiles.
+By default all profiles will share the same `:target-path`, which can
+cause problems if settings from one profile leak over into
+another. It's recommended to set `:target-path` to `"target/%s"`,
+which will isolate each profile set and prevent anything from bleeding over.
 
 ## Composite Profiles
 
