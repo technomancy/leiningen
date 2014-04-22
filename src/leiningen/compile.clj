@@ -25,7 +25,7 @@
   "Returns a seq of the namespaces that are compilable, regardless of whether
   their class files are present and up-to-date."
   [{:keys [aot source-paths] :as project}]
-  (if (= :all aot)
+  (if (or (= :all aot) (= [:all] aot))
     (b/namespaces-on-classpath :classpath (map io/file source-paths))
     (find-namespaces-by-regex project aot)))
 
@@ -104,7 +104,7 @@
 
 (defn compilation-specs [cli-args]
   (if (contains? #{[:all] [":all"]} cli-args)
-    :all
+    [:all]
     (->> cli-args
          (map #(if (string? %) (read-string %) %))
          (sort-by (comp not regex?)))))

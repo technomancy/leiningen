@@ -207,6 +207,11 @@
                      (meta-merge (dependency-map existing)
                                  (dependency-map dep)))))))
 
+(defn normalize-aot [project]
+  (if (= :all (:aot project))
+    (assoc project :aot [:all])
+    project))
+
 (defn- normalize-repo
   "Normalizes a repository to the canonical repository form."
   [[id opts :as repo]]
@@ -262,7 +267,8 @@
   (-> map
       (update-each-contained [:repositories :deploy-repositories
                               :mirrors :plugin-repositories] normalize-repos)
-      (update-each-contained [:profiles] utils/map-vals normalize-values)))
+      (update-each-contained [:profiles] utils/map-vals normalize-values)
+      (normalize-aot)))
 
 (def ^:private empty-meta-merge-defaults
   {:repositories empty-repositories
