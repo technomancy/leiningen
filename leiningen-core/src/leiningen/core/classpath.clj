@@ -21,9 +21,8 @@
         (try ((resolve 'leiningen.core.project/read) project [:default])
              (catch Exception e
                (throw (Exception. (format "Problem loading %s" project) e)))))
-      (println
-       "WARN ignoring checkouts directory" dep
-       "as it does not contain a project.clj file."))))
+      (println "WARN ignoring checkouts directory" dep
+               "as it does not contain a project.clj file."))))
 
 (alter-var-root #'read-dependency-project memoize)
 
