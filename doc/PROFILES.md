@@ -88,7 +88,7 @@ vectors even though they behave like maps (because it only makes sense
 to have a single version of a given dependency present at once). The
 replace/displace metadata hints still apply though.
 
-Remember that if a profile with the same name is specified at multiple places, 
+Remember that if a profile with the same name is specified in multiple files, 
 the last one will *replace* the previous ones, no merging. Only profiles of
 different names are merged onto the project map.
 
