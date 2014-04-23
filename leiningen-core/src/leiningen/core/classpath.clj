@@ -220,14 +220,15 @@
   (message-for (conj parents node)))
 
 (defn- exclusion-for-range [node parents]
-  (let [top-level (second parents)
-        excluded-artifact (.getArtifact (.getDependency node))
-        exclusion (Exclusion. (.getGroupId excluded-artifact)
-                              (.getArtifactId excluded-artifact) "*" "*")
-        exclusion-set (into #{exclusion} (.getExclusions
-                                          (.getDependency top-level)))
-        with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
-    (dependency-str with-exclusion)))
+  (if-let [top-level (second parents)]
+    (let [excluded-artifact (.getArtifact (.getDependency node))
+          exclusion (Exclusion. (.getGroupId excluded-artifact)
+                      (.getArtifactId excluded-artifact) "*" "*")
+          exclusion-set (into #{exclusion} (.getExclusions
+                                             (.getDependency top-level)))
+          with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
+      (dependency-str with-exclusion))
+    ""))
 
 (defn- message-for-range [{:keys [node parents]}]
   (str (message-for (conj parents node) :constraints) "\n"
