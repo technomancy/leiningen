@@ -209,7 +209,7 @@
 
 (defn normalize-aot [project]
   (if (= :all (:aot project))
-    (assoc project :aot [:all])
+    (assoc project :aot ^:replace [:all])
     project))
 
 (defn- normalize-repo
