@@ -2,6 +2,7 @@
   "Generate project scaffolding based on a template."
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
+            [leiningen.core.user :as user]
             [leiningen.core.main :refer [abort parse-options option-arg]]
             [leiningen.new.templates :refer [*dir* *force?*]])
   (:import java.io.FileNotFoundException))
@@ -11,10 +12,11 @@
 (defn- fake-project [name]
   {:templates [[(symbol name "lein-template") (if *use-snapshots?*
                                                 "(0.0.0,)" "RELEASE")]]
-   :repositories {"clojars" {:url "http://clojars.org/repo/"
-                             :update :always}
-                  "central" {:url "http://repo1.maven.org/maven2"
-                             :update :always}}})
+   :repositories (merge {"clojars" {:url "http://clojars.org/repo/"
+                                    :update :always}
+                         "central" {:url "http://repo1.maven.org/maven2"
+                                    :update :always}}
+                        (-> (user/profiles) :user :plugin-repositories))})
 
 (defn resolve-remote-template [name sym]
   (if-let [get-dep (resolve 'leiningen.core.classpath/resolve-dependencies)]
