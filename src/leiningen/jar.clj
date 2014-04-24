@@ -208,6 +208,7 @@ propagated to the compilation phase and not stripped out."
   (let [project (project/merge-profiles project [:uberjar])]
       (when (and (:main project) (not (:skip-aot (meta (:main project))))
                  (not= :all (:aot project))
+                 (not= [:all] (:aot project))
                  (not (some #{(:main project)} (:aot project))))
         (force implicit-aot-warning))))
 
@@ -217,7 +218,9 @@ propagated to the compilation phase and not stripped out."
   (let [project (if given-main
                   (assoc project :main (symbol given-main))
                   project)]
-    (if (and (compile-main? project) (not= :all (:aot project)))
+    (if (and (compile-main? project)
+             (not= :all (:aot project))
+             (not= [:all] (:aot project)))
       (update-in project [:aot] conj (:main project))
       project)))
 
