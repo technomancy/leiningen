@@ -169,13 +169,16 @@
 
 (defn- construct-query [[field q]]
   (let [search-expression (UserInputSearchExpression. q)]
-    (.constructQuery indexer field search-expression)))
+    (try (.constructQuery indexer field search-expression)
+         (catch Exception e
+           (binding [*out* *err*]
+             (println (.getMessage e)))))))
 
 (defn search-repository [query contexts page]
   (let [query-parts (query-parts query)
         queries (map construct-query query-parts)
         constructed-query (BooleanQuery.)
-        _ (doseq [q queries]
+        _ (doseq [q queries :when q]
             (.add constructed-query q BooleanClause$Occur/MUST))
         request (doto (IteratorSearchRequest. constructed-query contexts)
                   (.setStart (* (dec page) page-size))
