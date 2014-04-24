@@ -18,7 +18,8 @@ Accepts a group id in the project name: `lein new foo.bar/baz`"
               :nested-dirs (name-to-path main-ns)
               :year (year)}]
     (main/info "Generating a project called" name "based on the 'default' template.")
-    (main/info "To see other templates (app, lein plugin, etc), try `lein help new`.")
+    (main/info "The default template is intended for library projects, not applications.")
+    (main/info "To see other templates (app, plugin, etc), try `lein help new`.")
     (->files data
              ["project.clj" (render "project.clj" data)]
              ["README.md" (render "README.md" data)]
