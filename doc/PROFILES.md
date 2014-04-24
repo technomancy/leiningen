@@ -89,8 +89,11 @@ to have a single version of a given dependency present at once). The
 replace/displace metadata hints still apply though.
 
 Remember that if a profile with the same name is specified in multiple files, 
-the last one will *replace* the previous ones, no merging. Only profiles of
-different names are merged onto the project map.
+the last one will *replace* the previous ones, no merging. (If you need to enable 
+personal overrides of parts of a profile, you can use a composite profile with 
+common and personal parts - something like `:dev [:dev-common :dev-overrides]`; 
+you would then have just `:dev-overrides {}` in `project.clj` and override it in
+`profiles.clj`.)
 
 Another use of profiles is to test against various sets of dependencies:
 
