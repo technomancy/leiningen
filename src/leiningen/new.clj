@@ -121,7 +121,7 @@
 
 (defn ^{:no-project-needed true
         :help-arglists '[[project project-name]
-                         [project template project-name & args]]
+                         [project template project-name [-- & args]]]
         :subtasks (list)}
   new
   "Generate scaffolding for a new project based on a template.
@@ -144,9 +144,10 @@ Supply the --force option to override this behavior:
     lein new $TEMPLATE_NAME $PROJECT_NAME --force
     lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR --force
 
-Arguments can be passed to templates by adding them after \"new\"'s options:
+Arguments can be passed to templates by adding them after \"new\"'s options. Use
+`--` to separate arguments to lein new and the actual template you are using:
 
-    lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR template-arg-1 template-arg-2
+    lein new $TEMPLATE_NAME $PROJECT_NAME --to-dir $DIR -- template-arg-1 template-arg-2
 
 If you'd like to use an unreleased (ie, SNAPSHOT) template, pass in --snapshot:
 
