@@ -216,7 +216,12 @@ Also accepts a second parameter for fetching successive pages."
            (when (refresh? (.getRepositoryUrl context) project)
              (do
                (println "Updating the search index. This may take a few minutes...")
-               (update-index context))))
+               (try (update-index context)
+                    (catch Exception e
+                      (binding [*out* *err*]
+                        (main/info "Warning: could not read index for"
+                                   (.getRepositoryId context)
+                                   "\n" (.getMessage e))))))))
          ;; TODO: improve error message when page isn't numeric
          (search-repository query contexts (Integer. page))
          (finally
