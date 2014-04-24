@@ -14,6 +14,19 @@ a template for it like so:
     cd ~/dev
     lein new template liquid-cool --to-dir liquid-cool-template
 
+Your new template would look like:
+
+    liquid-cool-template
+    ├── LICENSE
+    ├── project.clj
+    ├── README.md
+    └── src
+        └── leiningen
+            └── new
+                ├── liquid_cool
+                │   └── foo.clj
+                └── liquid_cool.clj
+
 Note that you'll now have a new and separate project named
 "liquid-cool-template". It will have a group-id of "liquid-cool", and
 an artifact-id of "lein-template".
