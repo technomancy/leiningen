@@ -33,8 +33,7 @@
 
 (defn ^:internal make-manifest [project]
   (->> (merge default-manifest (:manifest project)
-              (if-let [main (:main project)]
-                {"Main-Class" (.replaceAll (str main) "-" "_")}))
+              {"Main-Class" (munge (str (:main project 'clojure.main)))})
        (map (partial manifest-entry project))
        (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
        (string/join "")
