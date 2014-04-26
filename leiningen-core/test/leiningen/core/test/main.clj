@@ -16,12 +16,9 @@
        (str s#))))
 
 (deftest test-logs-sent-to-*err*
-  (testing "debug, info sent to *err*"
-    (is (= "Informative message\n" (with-err-str
-                                     (info "Informative message"))))
-    (is (= "Debug message\n" (binding [*debug* true]
-                               (with-err-str
-                                 (debug "Debug message")))))))
+  (testing "main/warn sent to *err*"
+    (is (= "Warning message\n" (with-err-str
+                                     (warn "Warning message"))))))
 
 (deftest test-task-args-help-pass-through
   (let [project {:aliases {"sirius-p" ["sirius" "partial"]
