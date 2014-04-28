@@ -49,7 +49,9 @@ private but shouldn't be considered part of the public API.
 You don't need to "build" Leiningen per se, but when you're developing on a
 checkout you will need to get its dependencies in place. Just use a stable
 release of Leiningen to run `lein bootstrap` (an alias for `lein do install,
-classpath .lein-bootstrap`) in the `leiningen-core` directory.
+classpath .lein-bootstrap`) in the `leiningen-core` directory. If you want to
+use or develop the `search` functionality on master, you also have to run `lein
+compile` in the root (`leiningen`) directory.
 
 If you don't have a stable `lein` installed, simply check out the
 `stable` branch and copy `bin/lein` to somewhere on your `$PATH`, then
@@ -60,8 +62,10 @@ If you want to use your development copy for everyday usage, symlink
 stable installation to keep them from interfering; typically you can
 name that `lein2` or `lein-stable`.
 
-When the dependencies change you may have to do `rm .lein-classpath`
-in the project root, though in most cases this can be done automatically.
+When dependencies in Leiningen change, you may have to do `rm .lein-classpath`
+in the project root, though in most cases this can be done automatically. If
+dependencies in leiningen-core change, you have to redo the `lein bootstrap`
+step mentioned earlier.
 
 Using `bin/lein` alone from the master branch without a full checkout
 is not supported. If you want to just grab a shell script to work
