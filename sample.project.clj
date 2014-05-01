@@ -349,6 +349,10 @@
   :jar-exclusions [#"(?:^|/).svn/"]
   ;; Same thing, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
+  ;; By default Leiningen will run a clean before deploying to prevent
+  ;; undeclared AOT from leaking to downstream consumers; this disables
+  ;; that behaviour.
+  :auto-clean false
   ;; Files to merge programmatically in uberjars when multiple same-named files
   ;; exist across project and dependencies.  Should be a map of filename strings
   ;; or regular expressions to a sequence of three functions:
