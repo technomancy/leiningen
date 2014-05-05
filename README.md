@@ -23,7 +23,7 @@ separate install script. It handles installing its own dependencies,
 which means the first run will take longer.
 
 1. Make sure you have a Java JDK version 6 or later.
-2. [Download the script](https://raw.github.com/technomancy/leiningen/stable/bin/lein).
+2. [Download the script](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein).
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
 4. Set it to be executable. (`chmod 755 ~/bin/lein`)
 
@@ -34,7 +34,7 @@ There is
 will handle downloading and placing Leiningen and its dependencies.
 
 The manual method of putting
-[the batch file](https://raw.github.com/technomancy/leiningen/stable/bin/lein.bat).
+[the batch file](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat).
 on your `PATH` and running `lein self-install` should still work for
 most users. If you have [Cygwin](http://www.cygwin.com/) you should be
 able to use the shell script above rather than the batch file.
