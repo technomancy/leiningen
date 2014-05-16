@@ -127,6 +127,7 @@
   (cond (nil? left) right
         (nil? right) (remove-top-displace left)
 
+        ;; TODO: support :reverse?
         (top-displace? left) right
 
         (and (displace? left)   ;; Pick the rightmost
