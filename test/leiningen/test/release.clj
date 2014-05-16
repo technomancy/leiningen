@@ -71,5 +71,14 @@
     (is (= (parse-maven-version (first maven-test-data))
            (second maven-test-data)))))
 
+(deftest version-map->string-valid
+  (doseq [maven-test-data valid-maven-version-values]
+    (is (= (first maven-test-data)
+           (version-map->string (second maven-test-data))))))
+
+(deftest version-map->string-invalid
+  (doseq [maven-test-data invalid-maven-version-values]
+    (is (= (first maven-test-data)
+           (version-map->string (second maven-test-data))))))
+
 ;; TODO increment-version test
-;; TODO compute-next-version test
