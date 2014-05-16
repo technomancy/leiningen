@@ -48,50 +48,21 @@
     {:format :not-recognized
      :version version-string}))
 
-(defn stringify-version-map
+(defn version-map->string
   "Given a version-map, return a proper string of the :version array."
   [version-map]
   (string/join "." (:version version-map)))
 
-(defn inc-nth-zero-rest
-  "Increment nth integer in number-vector, zero all the rest."
-  [n number-vector]
-  (let [split-vector (split-at n number-vector)
-        version (first split-vector)
-        zeros (second split-vector)]
-    (concat (butlast version) (inc (last version)) (repeat (count zeros) 0))))
-
 (defn increment-version
-  "Given old-version as a string, return incremented version as a map. Version
-  level to be incremented is determined by version-level."
-  [old-version version-level]
-  (let [version-map (parse-maven-version old-version)]
-    (if (not (>= (count (:version version-map))
-                 (version-level maven-version-indices)))
-      (throw (Exception.
-               (format "%s does not have a %s version level."
-                       old-version
-                       (name version-level)))))
-    (if (= (:format version-map) :not-recognized)
-      (throw (Exception. "Unrecognized Maven version string."))
-      (assoc! version-map :version (inc-nth-zero-rest
-                                     (version-level maven-version-indices))))))
-
-(defn compute-next-version
-  "Computes the next leiningen version string based on what is given."
-  [old-version version-level release-type]
-  (let [new-version-map (increment-version old-version version-level)]
-    (when
-      (= release-type :snapshot)
-      (str (stringify-version-map new-version-map) "-SNAPSHOT")
-
-      (= release-type :release)
-      (stringify-version-map new-version-map)
-
-      :else
-      (throw (Exception.
-               (format ":%s is not a proper release type!"
-                       (name release-type)))))))
+  "Given version as a map of the sort returned by parse-maven-version, return
+  incremented version as a map. Always assume version level to be incremented is
+  the least significant position, ie incremental if it's available, minor if
+  not, major if neither incremental nor minor are available. Let user manually
+  adjust major/minor if necessary."
+  [version-map]
+  (if (= (:format version-map) :not-recognized)
+    (throw (Exception. "Unrecognized Maven version string."))
+    (assoc! version-map :version (conj (butlast (:version version-map)) 0))))
 
 (defn release
   "Bump release version, tag commit, and deploy to maven repository.
@@ -103,20 +74,20 @@ This task is intended to perform the following roughly-outlined tasks:
   * Bump version number to next snapshot.
   * Commit new version number to SCM.
 "
-  ([project]
-   (release :snapshot))
-  ([project version-level]
-   (let [current-version (:version project)
-         release-version (compute-next-version current-version version-level :release)
-         new-dev-version (compute-next-version release-version version-level :snapshot)]
-         ;;scm (->Git working-directory)]
-    ;; (leiningen.change/change :version release-version)
+  [project]
+  (let [current-version (parse-maven-version (:version project))
+        new-dev-version (increment-version current-version)
+        kelease-version-string (version-map->string current-version)
+        new-dev-version-string (str (version-map->string new-dev-version)
+                                    "-" (:qualifier new-dev-version))]
+        ;;scm (->Git working-directory)]
+    ;; (leiningen.change/change {:version (version-map->string release-version-string)})
     ;; (add scm "project.clj")
-    ;; (commit scm (format "lein-release: preparing %s release" release-version))
-    ;; (tag scm (format "%s-%s" (:name project) release-version))
+    ;; (commit scm (format "lein-release: preparing %s release" (release-version-string)))
+    ;; (tag scm (format "%s-%s" (:name project) release-version-string))
     ;; (leiningen.deploy/deploy)
-    ;; (leiningen.change/change :version new-dev-version)
+    ;; (leiningen.change/change :version new-dev-version-string)
     ;; (add scm "project.clj")
-    ;; (commit scm (format "lein-release: bump version %s to %s" release-version new-dev-version))
+    ;; (commit scm (format "lein-release: bump version %s to %s" release-version-string new-dev-version-string))
     ;; (push scm)
     println "Release task under construction.")))
