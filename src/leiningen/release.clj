@@ -3,21 +3,10 @@
             [clojure.edn :as edn]
             [clojure.string :as string]))
 
-(defprotocol SCM
-  (add    [this files] "Add changes to specified file to SCM index.")
-  (commit [this message] "Commit specified changes to SCM repository.")
-  (push   [this remote-repository remote-branch] "Push recent changes to upstream repository.")
-  (status [this] "Display working directory SCM status.")
-  (tag    [this commit commit-name] "Name commit with "))
-
-(defrecord Git [working-dir git-dir])
-
 (def maven-version-regexes
      {:major-only                               #"(\d+)(?:-(.+))?"
       :major-and-minor                          #"(\d+)\.(\d+)(?:-(.+))?"
       :major-minor-and-incremental              #"(\d+)\.(\d+)\.(\d+)(?:-(.+))?"})
-
-(def maven-version-indices {:major 1 :minor 2 :incremental 3})
 
 (defn parse-maven-version [version-string]
   "Create map representing the given version string."
