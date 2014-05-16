@@ -5,61 +5,73 @@
 (def invalid-maven-version-values
   [ ["-1"
     {:format :not-recognized,
-     :version "-1"}]
+     :version "-1"} 
+    "-1"]
     ["derpin"
     {:format :not-recognized
-     :version "derpin"}]])
+     :version "derpin"} 
+    "derpin"]])
 
 (def valid-maven-version-values
   [["1"
     {:format :major-only,
      :version [1]
-     :qualifier nil}]
+     :qualifier nil}
+    "1"]
 
    ["1-SNAPSHOT"
     {:format :major-only,
      :version [1]
-     :qualifier "SNAPSHOT"}]
+     :qualifier "SNAPSHOT"}
+    "1"]
 
    ["1-b123"
     {:format :major-only,
      :version [1]
-     :qualifier "b123"}]
+     :qualifier "b123"}
+    "1"]
 
    ["1.2"
     {:format :major-and-minor,
      :version [1 2]
-     :qualifier nil}]
+     :qualifier nil}
+    "1.2"]
 
    ["1.2-SNAPSHOT"
     {:format :major-and-minor,
      :version [1 2]
-     :qualifier "SNAPSHOT"}]
+     :qualifier "SNAPSHOT"}
+    "1.2"]
 
    ["1.2-b123"
     {:format :major-and-minor,
      :version [1 2]
-     :qualifier "b123"}]
+     :qualifier "b123"}
+    "1.2"]
 
    ["1.2.3"
     {:format :major-minor-and-incremental,
      :version [1 2 3]
-     :qualifier nil}]
+     :qualifier nil}
+    "1.2.3"]
 
    ["1.2.3-SNAPSHOT"
     {:format :major-minor-and-incremental,
      :version [1 2 3]
-     :qualifier "SNAPSHOT"}]
+     :qualifier "SNAPSHOT"}
+    "1.2.3"]
 
    ["1.2.3-b123"
     {:format :major-minor-and-incremental,
      :version [1 2 3]
-     :qualifier "b123"}]
+     :qualifier "b123"}
+    "1.2.3"]
 
    ["1.2.3-rc1"
     {:format :major-minor-and-incremental,
      :version [1 2 3]
-     :qualifier "rc1"}]])
+     :qualifier "rc1"}
+    "1.2.3"]])
 
 (deftest parse-valid-maven-version
   (doseq [maven-test-data valid-maven-version-values]
@@ -73,12 +85,12 @@
 
 (deftest version-map->string-valid
   (doseq [maven-test-data valid-maven-version-values]
-    (is (= (first maven-test-data)
+    (is (= (nth maven-test-data 2)
            (version-map->string (second maven-test-data))))))
 
 (deftest version-map->string-invalid
   (doseq [maven-test-data invalid-maven-version-values]
-    (is (= (first maven-test-data)
+    (is (= (nth maven-test-data 2)
            (version-map->string (second maven-test-data))))))
 
 ;; TODO increment-version test

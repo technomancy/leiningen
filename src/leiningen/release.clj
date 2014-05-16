@@ -51,7 +51,9 @@
 (defn version-map->string
   "Given a version-map, return a proper string of the :version array."
   [version-map]
-  (string/join "." (:version version-map)))
+  (if (= (:format version-map) :not-recognized)
+    (:version version-map)
+    (string/join "." (:version version-map))))
 
 (defn increment-version
   "Given version as a map of the sort returned by parse-maven-version, return
@@ -77,7 +79,7 @@ This task is intended to perform the following roughly-outlined tasks:
   [project]
   (let [current-version (parse-maven-version (:version project))
         new-dev-version (increment-version current-version)
-        kelease-version-string (version-map->string current-version)
+        release-version-string (version-map->string current-version)
         new-dev-version-string (str (version-map->string new-dev-version)
                                     "-" (:qualifier new-dev-version))]
         ;;scm (->Git working-directory)]
@@ -90,4 +92,4 @@ This task is intended to perform the following roughly-outlined tasks:
     ;; (add scm "project.clj")
     ;; (commit scm (format "lein-release: bump version %s to %s" release-version-string new-dev-version-string))
     ;; (push scm)
-    println "Release task under construction.")))
+    println "Release task under construction."))
