@@ -8,11 +8,12 @@
   string does not follow guidelines setforth by Semantic Versioning 2.0.0,
   http://semver.org/"
   ;; <MajorVersion>.<MinorVersion>.<PatchVersion>[-<BuildNumber | Qualifier >]
-  (let [version-map (zipmap [:major :minor :patch]
-                            (map #(Integer/parseInt %)
-                                 (drop 1 (re-matches #"(\d+).(\d+).(\d+).*"
-                                                     version-string))))
-        qualifier (last (re-matches #".*-(.+)?" version-string))]
+  (let [version-map (->> (re-matches #"(\d+).(\d+).(\d+).*" version-string)
+                         (drop 1)
+                         (map #(Integer/parseInt %))
+                         (zipmap [:major :minor :patch]))
+        qualifier (->> (re-matches #".*-(.+)?" version-string)
+                       (last))]
     (if-not (empty? version-map)
       (merge version-map {:qualifier qualifier})
       (throw (Exception. "Unrecognized version string.")))))
