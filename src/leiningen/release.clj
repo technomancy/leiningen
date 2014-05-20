@@ -3,57 +3,49 @@
             [clojure.edn :as edn]
             [clojure.string :as string]))
 
-(def maven-version-regexes
-     {:major-only                               #"(\d+)(?:-(.+))?"
-      :major-and-minor                          #"(\d+)\.(\d+)(?:-(.+))?"
-      :major-minor-and-incremental              #"(\d+)\.(\d+)\.(\d+)(?:-(.+))?"})
+(defn parse-semantic-version [version-string]
+  "Create map representing the given version string. Raise exception if the
+  string does not follow guidelines setforth by Semantic Versioning 2.0.0,
+  http://semver.org/"
+  ;; <MajorVersion>.<MinorVersion>.<PatchVersion>[-<BuildNumber | Qualifier >]
+  (let [version-map (zipmap [:major :minor :patch]
+                            (map #(Integer/parseInt %)
+                                 (drop 1 (re-matches #"(\d+).(\d+).(\d+).*"
+                                                     version-string))))
+        qualifier (last (re-matches #".*-(.+)?" version-string))]
+    (if-not (empty? version-map)
+      (merge version-map {:qualifier qualifier})
+      (throw (Exception. "Unrecognized version string.")))))
 
-(defn parse-maven-version [version-string]
-  "Create map representing the given version string."
-  ;; <MajorVersion [> . <MinorVersion [> . <IncrementalVersion ] ] [> - <BuildNumber | Qualifier ]>
-  (cond
-    (re-matches (:major-only maven-version-regexes) version-string)
-    (let [[[_ major qualifier]]
-          (re-seq (:major-only maven-version-regexes) version-string)]
-      {:format      :major-only
-       :version     (map edn/read-string [major])
-       :qualifier   qualifier})
-
-    (re-matches (:major-and-minor maven-version-regexes) version-string)
-    (let [[[_ major minor qualifier]]
-          (re-seq (:major-and-minor maven-version-regexes) version-string)]
-      {:format      :major-and-minor
-       :version     (map edn/read-string [major minor])
-       :qualifier   qualifier})
-
-    (re-matches (:major-minor-and-incremental maven-version-regexes) version-string)
-    (let [[[_ major minor incremental qualifier]]
-          (re-seq (:major-minor-and-incremental maven-version-regexes) version-string)]
-      {:format      :major-minor-and-incremental
-       :version     (map edn/read-string [major minor incremental])
-       :qualifier   qualifier})
-
-    :else
-    {:format :not-recognized
-     :version version-string}))
-
-(defn version-map->string
-  "Given a version-map, return a proper string of the :version array."
+ (defn version-map->string
+  "Given a version-map, return a string representing the version."
   [version-map]
-  (if (= (:format version-map) :not-recognized)
-    (:version version-map)
-    (string/join "." (:version version-map))))
+  (let [{:keys [major minor patch qualifier]} version-map]
+    (str major "." minor "." patch)))
 
 (defn increment-version
-  "Given version as a map of the sort returned by parse-maven-version, return
-  incremented version as a map. Always assume version level to be incremented is
-  the least significant position, ie incremental if it's available, minor if
-  not, major if neither incremental nor minor are available. Let user manually
-  adjust major/minor if necessary."
-  [version-map]
-  (if (= (:format version-map) :not-recognized)
-    (throw (Exception. "Unrecognized Maven version string."))
-    (assoc! version-map :version (conj (butlast (:version version-map)) 0))))
+  "Given version as a map of the sort returned by parse-semantic-version, return
+  incremented version as a map."
+  ([version-map]
+   (increment-version version-map (:format version-map)))
+  ([version-map version-level]
+   (let [{:keys [major minor patch qualifier]} version-map]
+     (cond
+       (= version-level :major)
+       {:major (inc major)
+        :minor 0
+        :patch 0
+        :qualifier qualifier}
+       (= version-level :minor)
+       {:major major
+        :minor (inc minor)
+        :patch 0
+        :qualifier qualifier}
+       (= version-level :patch)
+       {:major major
+        :minor minor
+        :patch (inc patch)
+        :qualifier qualifier}))))
 
 (defn release
   "Bump release version, tag commit, and deploy to maven repository.
@@ -66,7 +58,7 @@ This task is intended to perform the following roughly-outlined tasks:
   * Commit new version number to SCM.
 "
   [project]
-  (let [current-version (parse-maven-version (:version project))
+  (let [current-version (parse-semantic-version (:version project))
         new-dev-version (increment-version current-version)
         release-version-string (version-map->string current-version)
         new-dev-version-string (str (version-map->string new-dev-version)

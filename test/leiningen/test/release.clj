@@ -1,96 +1,81 @@
 (ns leiningen.test.release
   (:use [clojure.test]
+        [clojure.pprint :as pprint]
         [leiningen.release]))
 
-(def invalid-maven-version-values
-  [ ["-1"
-    {:format :not-recognized,
-     :version "-1"} 
-    "-1"]
+(def invalid-semver-version-values
+  [["1.0"
+    "1.0"]
     ["derpin"
-    {:format :not-recognized
-     :version "derpin"} 
     "derpin"]])
 
-(def valid-maven-version-values
-  [["1"
-    {:format :major-only,
-     :version [1]
-     :qualifier nil}
-    "1"]
-
-   ["1-SNAPSHOT"
-    {:format :major-only,
-     :version [1]
-     :qualifier "SNAPSHOT"}
-    "1"]
-
-   ["1-b123"
-    {:format :major-only,
-     :version [1]
-     :qualifier "b123"}
-    "1"]
-
-   ["1.2"
-    {:format :major-and-minor,
-     :version [1 2]
-     :qualifier nil}
-    "1.2"]
-
-   ["1.2-SNAPSHOT"
-    {:format :major-and-minor,
-     :version [1 2]
-     :qualifier "SNAPSHOT"}
-    "1.2"]
-
-   ["1.2-b123"
-    {:format :major-and-minor,
-     :version [1 2]
-     :qualifier "b123"}
-    "1.2"]
+(def valid-semver-version-values
+  [["1.0.0"
+   {:major 1
+    :minor 0
+    :patch 0
+    :qualifier nil}
+   "1.0.0"
+   {:major "2.0.0"
+    :minor "1.1.0"
+    :patch "1.0.1"}]
 
    ["1.2.3"
-    {:format :major-minor-and-incremental,
-     :version [1 2 3]
-     :qualifier nil}
-    "1.2.3"]
+   {:major 1
+    :minor 2
+    :patch 3
+    :qualifier nil}
+   "1.2.3"
+   {:major "2.0.0"
+    :minor "1.3.0"
+    :patch "1.2.4"}]
 
-   ["1.2.3-SNAPSHOT"
-    {:format :major-minor-and-incremental,
-     :version [1 2 3]
-     :qualifier "SNAPSHOT"}
-    "1.2.3"]
+   ["1.2.3-herp"
+   {:major 1
+    :minor 2
+    :patch 3
+    :qualifier "herp"}
+   "1.2.3"
+   {:major "2.0.0"
+    :minor "1.3.0"
+    :patch "1.2.4"}]
 
-   ["1.2.3-b123"
-    {:format :major-minor-and-incremental,
-     :version [1 2 3]
-     :qualifier "b123"}
-    "1.2.3"]
+   ["1.0.0-SNAPSHOT"
+   {:major 1
+    :minor 0
+    :patch 0
+    :qualifier "SNAPSHOT"}
+   "1.0.0"
+   {:major "2.0.0"
+    :minor "1.1.0"
+    :patch "1.0.1"}]])
 
-   ["1.2.3-rc1"
-    {:format :major-minor-and-incremental,
-     :version [1 2 3]
-     :qualifier "rc1"}
-    "1.2.3"]])
+(deftest test-parse-semver-version
+  (testing "Testing semantic version string parsing"
+    (doseq [semver-test-data valid-semver-version-values]
+      (testing (format "with valid version strings: %s"
+                       (first semver-test-data))
+        (is (= (parse-semantic-version (first semver-test-data))
+               (second semver-test-data)))))
 
-(deftest parse-valid-maven-version
-  (doseq [maven-test-data valid-maven-version-values]
-    (is (= (parse-maven-version (first maven-test-data))
-           (second maven-test-data)))))
-
-(deftest parse-invalid-maven-version
-  (doseq [maven-test-data invalid-maven-version-values]
-    (is (= (parse-maven-version (first maven-test-data))
-           (second maven-test-data)))))
+    (testing "with invalid version strings."
+      (doseq [semver-test-data invalid-semver-version-values]
+        (is (thrown-with-msg?
+              Exception #"Unrecognized version string"
+              (parse-semantic-version (first semver-test-data))))))))
 
 (deftest version-map->string-valid
-  (doseq [maven-test-data valid-maven-version-values]
-    (is (= (nth maven-test-data 2)
-           (version-map->string (second maven-test-data))))))
+  (doseq [semver-test-data valid-semver-version-values]
+    (is (= (nth semver-test-data 2)
+           (version-map->string (second semver-test-data))))))
 
-(deftest version-map->string-invalid
-  (doseq [maven-test-data invalid-maven-version-values]
-    (is (= (nth maven-test-data 2)
-           (version-map->string (second maven-test-data))))))
-
-;; TODO increment-version test
+(deftest test-increment-version
+  (testing "Testing semantic version increment"
+    (doseq [semver-test-data valid-semver-version-values]
+      (testing (format "with valid version: %s\n"
+                       semver-test-data)
+        (doseq [[k v] (map identity (nth semver-test-data 3))]
+          (testing (format "version-level %s" (name k))
+            (is (= v (version-map->string
+                       (increment-version
+                         (nth semver-test-data 1) k))))))))))
