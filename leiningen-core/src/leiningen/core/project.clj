@@ -352,11 +352,17 @@
 
 (defn- argument-list->argument-map
   [args]
-  (let [keys (filter keyword? args)
+  (let [keys (map first (partition 2 args))
         unique-keys (set keys)]
     (if (= (count keys) (count unique-keys))
       (apply hash-map args)
-      (throw (IllegalArgumentException. "Duplicate Key")))))
+      (let [duplicates (->> (frequencies keys)
+                            (remove #(> 2 (val %)))
+                            (map first))]
+        (throw
+         (IllegalArgumentException.
+          (format "Duplicate keys: %s"
+                  (clojure.string/join ", " duplicates))))))))
 
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
