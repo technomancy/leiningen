@@ -350,11 +350,25 @@
           :repositories repos
           :plugin-repositories repos)))))
 
+(defn- argument-list->argument-map
+  [args]
+  (let [keys (map first (partition 2 args))
+        unique-keys (set keys)]
+    (if (= (count keys) (count unique-keys))
+      (apply hash-map args)
+      (let [duplicates (->> (frequencies keys)
+                            (remove #(> 2 (val %)))
+                            (map first))]
+        (throw
+         (IllegalArgumentException.
+          (format "Duplicate keys: %s"
+                  (clojure.string/join ", " duplicates))))))))
+
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
   See `lein help sample` to see what arguments it accepts."
-  [project-name version & {:as args}]
-  `(let [args# ~(unquote-project args)
+  [project-name version & args]
+  `(let [args# ~(unquote-project (argument-list->argument-map args))
          root# ~(.getParent (io/file *file*))]
      (def ~'project
        (make args# '~project-name ~version root#))))
