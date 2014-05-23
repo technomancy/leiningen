@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Tutorial](#tutorial)
+	- [What This Tutorial Covers](#what-this-tutorial-covers)
+	- [Getting Help](#getting-help)
+	- [Leiningen Projects](#leiningen-projects)
+	- [Creating a Project](#creating-a-project)
+		- [Directory Layout](#directory-layout)
+		- [Filename-to-Namespace Mapping Convention](#filename-to-namespace-mapping-convention)
+	- [project.clj](#projectclj)
+	- [Dependencies](#dependencies)
+		- [Overview](#overview)
+		- [Artifact IDs, Groups, and Versions](#artifact-ids-groups-and-versions)
+		- [Snapshot Versions](#snapshot-versions)
+		- [Repositories](#repositories)
+		- [Checkout Dependencies](#checkout-dependencies)
+		- [Search](#search)
+	- [Running Code](#running-code)
+	- [Tests](#tests)
+	- [Profiles](#profiles)
+	- [What to do with it](#what-to-do-with-it)
+		- [Uberjar](#uberjar)
+		- [Framework (Uber)jars](#framework-uberjars)
+		- [Server-side Projects](#server-side-projects)
+		- [Publishing Libraries](#publishing-libraries)
+	- [That's It!](#thats-it!)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tutorial
 
 Leiningen is for automating Clojure projects without setting your hair on fire.
