@@ -26,9 +26,9 @@
     (map keyword (remove empty? (str/split value #":")))))
 
 (defn ^:internal collapse-fn [f args]
-  (let [f (if (ifn? f)
-            f
-            (resolve (symbol f)))]
+  (let [f (cond (ifn? f) f
+                (= "set" f) (constantly (first args))
+                (string? f) (resolve (symbol f)))]
     #(apply f % args)))
 
 ;;; Traversal
