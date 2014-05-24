@@ -22,7 +22,9 @@
   "Given a version-map, return a string representing the version."
   [version-map]
   (let [{:keys [major minor patch qualifier]} version-map]
-    (str major "." minor "." patch)))
+    (if qualifier
+      (str major "." minor "." patch "-" qualifier)
+      (str major "." minor "." patch))))
 
 (defn increment-version
   "Given version as a map of the sort returned by parse-semantic-version, return
