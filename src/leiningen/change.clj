@@ -6,9 +6,25 @@
 
 ;;-- Helpers
 
-(defn- wrap-string [str] ["\"" str "\""])
+(defn clj->sjacket [value]
+  (if (string? value)
+    (str "\"" value "\"")
+    (-> value print-str parser :content first)))
 
-(defn- unwrap-string [[_ str _]] str)
+(defn sjacket->clj [value]
+  (->> value str-pt read-string))
+
+(comment
+  (-> {:content ["\"" "abc" "\""] :tag :string}
+      sjacket->clj
+      clj->sjacket
+      sjacket->clj)
+  (-> '(1 2 3)
+      (clj->sjacket)
+      (sjacket->clj))
+  (-> [:a {:a 3}]
+      (clj->sjacket)
+      (sjacket->clj)))
 
 (defn- lookup-var [prefix task-name]
   (->> task-name
@@ -61,18 +77,18 @@
 
 ;; TODO: the nested case, eg [:license :name]
 
-(defn- run-reset-str [target value]
-  (assoc target :content (wrap-string value)))
+(defn- node-reset [target value]
+  (clj->sjacket value))
 
-(defn- run-swap-str [target fn & args]
-  (update-in target [:content] (comp wrap-string fn unwrap-string)))
+(defn- node-swap [target fn & args]
+  ((comp clj->sjacket fn sjacket->clj) target))
 
 ;;; Public API
 
 (defn change*
   [project-str key & [fn & args]]
   (if-let [swap-key (lookup-var "swap" key)]
-    (let [fn' (if (fn? fn) fn (lookup-var "run" fn))]
+    (let [fn' (if (fn? fn) fn (lookup-var "node" fn))]
       (apply swap-key project-str fn' args))
     (fail-argument! (str "Do not currently support changing :" (name key)))))
 
@@ -87,13 +103,10 @@
 ;;; SANDBOX
 ;;; useful for driving dev, too naive an implementation
 
-(defn- bump-version [version]
+(defn bump-version [version]
   (let [[major minor patch meta] (str/split version #"\.|\-")
         new-patch (inc (Long/parseLong patch))]
     (format "%s.%s.%d-%s" major minor new-patch meta)))
 
 ;; note the type awkwardness here.
 ;; we should probably just go in/out through sjacket's reader/parser, always
-
-(defn run-bump-version [target]
-  (run-swap-str target bump-version))
