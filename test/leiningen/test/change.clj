@@ -8,7 +8,7 @@
        (change* "(defproject com.someproject \"0.0.1\")"
                 :language "JAVA"))))
 
-(deftest test-changing-version
+(deftest test-set-version
 
   (testing "project definition not found"
     (is (thrown-with-msg?
@@ -27,6 +27,11 @@
            (change* "(defproject leingingen.change \"0.0.1\")"
                     :version "0.0.2-SNAPSHOT"))))
 
+  (testing "ignores extra arguments"
+    (is (= "(defproject leingingen.change \"0.0.2-SNAPSHOT\")"
+           (change* "(defproject leingingen.change \"0.0.1\")"
+                    :version "0.0.2-SNAPSHOT" "some" "more" "cli" "args"))))
+
   (testing "the largest project.clj in the repo"
     (let [before (slurp (clojure.java.io/resource "leiningen/help/project.clj"))
           after  (change* before :version "6.4.1")]
@@ -34,3 +39,10 @@
       (is (= "(defproject org.example/sample \"6.4.1\" " (.substring after 529 568)))
       ;; check a random dependency for changes
       (is (= "log4j \"1.2.15\"" (.substring after 2572 2586))))))
+
+(deftest test-bump-version
+
+  (testing "simplest possible case"
+    (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
+           (change* "(defproject leingingen.change \"1.9.52-SNAPSHOT\")"
+                    :bump-version)))))
