@@ -1,5 +1,6 @@
 (ns leiningen.vcs
   (:require [clojure.java.io :as io]
+            [bultitude.core :as b]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]))
 
@@ -46,9 +47,15 @@
 (defn- not-found [subtask]
   (partial #'main/task-not-found (str "vcs " subtask)))
 
+(defn- load-methods []
+  (doseq [n (b/namespaces-on-classpath :prefix "leiningen.vcs.")]
+    (swap! supported-systems conj (keyword (last (.split (name n) "\\."))))
+    (require n)))
+
 (defn ^{:subtasks [#'push #'tag]} vcs
   "Interact with the version control system."
   [project subtask & args]
+  (load-methods)
   (let [subtasks (:subtasks (meta #'vcs) {})
         [subtask-var] (filter #(= subtask (name (:name (meta %)))) subtasks)]
     (apply (or subtask-var (not-found subtask)) project args)))

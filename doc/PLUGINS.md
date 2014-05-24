@@ -262,6 +262,17 @@ See [S3 wagon private](https://github.com/technomancy/s3-wagon-private) or
 [lein-webdav](https://github.com/tobias/lein-webdav) for full examples of
 plugins using this technique.
 
+## VCS Methods
+
+Leiningen ships with a `vcs` task which performs a handful of
+release-related version control tasks via multimethods. Out of the box
+it contains implementations for Git, but plugins can add support for
+more systems by including a `leiningen.vcs.$SYSTEM` namespace. All
+namespaces under the `leiningen.vcs.` prefix will be loaded when the
+`vcs` task is invoked. These namespaces should simply define methods
+for the `defmulti`s in `leiningen.vcs` that invoke the specific
+version control system.
+
 ## Requiring Plugins
 
 To use a plugin in your project, just add a `:plugins` key to your project.clj
