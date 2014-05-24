@@ -18,7 +18,8 @@
 
 ;; NOTE: this destroy comments, formatting, etc.
 (defn- sjacket->clj [value]
-  (->> value sj/str-pt read-string))
+  (if-not (#{:comment :whitespace :newline} (:tag value))
+    (-> value sj/str-pt read-string)))
 
 (defn ^:internal normalize-path [value]
   (if (coll? value)
