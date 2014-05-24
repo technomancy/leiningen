@@ -75,7 +75,7 @@
 
 ;; TODO: the regular case, eg [:description]
 
-;; TODO: the nested case, eg [:license :name]
+;; TODO: the nested case, eg [:license :name] or :license:name
 
 (defn- node-reset [target value]
   (clj->sjacket value))
