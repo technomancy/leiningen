@@ -1,4 +1,5 @@
 (ns leiningen.vcs
+  "Interact with the version control system."
   (:require [clojure.java.io :as io]
             [bultitude.core :as b]
             [leiningen.core.eval :as eval]
@@ -38,9 +39,9 @@
 
 (defmethod assert-committed :git [project]
   (binding [eval/*dir* (:root project)]
-    (when-not (re-find #"working directory clean" (with-out-str
-                                                    (eval/sh "git" "status")))
-      (main/abort "Uncommitted changes in" (:root project) "directory."))))
+    (when (re-find #"Changes (not staged for commit|to be committed)"
+                   (with-out-str (eval/sh "git" "status")))
+       (main/abort "Uncommitted changes in" (:root project) "directory."))))
 
 
 
@@ -52,7 +53,7 @@
     (swap! supported-systems conj (keyword (last (.split (name n) "\\."))))
     (require n)))
 
-(defn ^{:subtasks [#'push #'tag]} vcs
+(defn ^{:subtasks [#'push #'tag #'assert-committed]} vcs
   "Interact with the version control system."
   [project subtask & args]
   (load-methods)
