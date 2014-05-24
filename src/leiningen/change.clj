@@ -4,39 +4,49 @@
             [net.cgrand.sjacket :refer [str-pt]]
             [net.cgrand.sjacket.parser :refer [parser]]))
 
-;;-- Helpers
-
-(defn clj->sjacket [value]
-  (if (string? value)
-    (str "\"" value "\"")
-    (-> value print-str parser :content first)))
-
-(defn sjacket->clj [value]
-  (->> value str-pt read-string))
-
-(comment
-  (-> {:content ["\"" "abc" "\""] :tag :string}
-      sjacket->clj
-      clj->sjacket
-      sjacket->clj)
-  (-> '(1 2 3)
-      (clj->sjacket)
-      (sjacket->clj))
-  (-> [:a {:a 3}]
-      (clj->sjacket)
-      (sjacket->clj)))
-
-(defn- lookup-var [prefix task-name]
-  (->> task-name
-       name
-       (str "leiningen.change/" prefix "-")
-       symbol
-       find-var))
+;;; Helpers
 
 (defn- fail-argument! [msg]
   (throw (IllegalArgumentException. msg)))
 
-;;-- Traversal
+(defn- clj->sjacket [value]
+  (if (string? value)
+    (str "\"" value "\"")
+    (-> value print-str parser :content first)))
+
+;; NOTE: this destroy comments, formatting, etc.
+;; NOTE: read-string may throw parse errors on badly formed config..
+;;       is this an issue or will files already have been sanity
+;;       checked before this task can run?
+(defn- sjacket->clj [value]
+  (->> value str-pt read-string))
+
+(defn- lookup-var [x]
+  ;; ensure it's a namespaced var reference to avoid error
+  (if (re-find #"^[a-zA-Z]+\..+\/.+$" x)
+    (-> x symbol find-var var-get)))
+
+(defn ^:internal normalize-path
+  "Coerce scalars, colls and cli-encoded lists of symbols/strings into keyword vector"
+  [value]
+  (mapv keyword
+        (if (coll? value)
+          (map name value)
+          (let [value (name value)]
+            (if (re-find #":" (name value))
+              (remove empty? (str/split (name value) #":"))
+              [(name value)])))))
+
+(defn ^:internal collapse-fn
+  "Partially apply args to right if fn, else return constant of first arg.
+   If string corresponds to a namespaced var, substite value for string"
+  [fn args]
+  (let [fn' (or (and (string? fn) (lookup-var fn)) fn)]
+    (if (fn? fn')
+      #(apply fn' % args)
+      (constantly fn'))))
+
+;;; Traversal
 
 (defn- defproject? [loc]
   (let [{:keys [tag content]} (zip/node loc)]
@@ -57,6 +67,23 @@
       (filter (comp #{:string} :tag zip/node))
       first))
 
+(defn- find-key [loc key]
+  (->> loc
+       (iterate zip/right)
+       (take-while (comp not nil?))
+       (partition 2)
+       (map first)
+       (filter (comp #{key} sjacket->clj zip/node))
+       first))
+
+(defn- next-value [loc]
+  (->> loc
+       (iterate zip/right)
+       (take-while (comp not nil?))
+       (drop 1)
+       (remove (comp #{:whitespace :comment} :tag zip/node))
+       first))
+
 (defn- get-project [project-str]
   (-> (parser project-str)
       zip/xml-zip
@@ -64,49 +91,52 @@
       (or (fail-argument! "Project definition not found"))
       zip/up))
 
-;;-- Modifiers
+;;; Modifiers
 
-(defn- swap-version [project-str fn & args]
-  (str-pt (-> (get-project project-str)
-              find-string
-              (or (fail-argument! "Project version not found"))
-              (#(apply zip/edit % fn args))
-              zip/root)))
+(defn- insert-entry [loc val]
+  (-> (if-not (= "{" (zip/node (zip/left loc)))
+        (zip/insert-left loc " ")
+        loc)
+      (zip/insert-left (clj->sjacket val))))
 
-;; TODO: the regular case, eg [:description]
+(defn insert-key-val [loc key val]
+  (-> loc
+      (insert-entry key)
+      (insert-entry val)))
 
-;; TODO: the nested case, eg [:license :name] or :license:name
+(defn- update-version [proj fn]
+  (-> proj
+      find-string
+      (or (fail-argument! "Project version not found"))
+      (zip/edit fn)
+      zip/root))
 
-(defn- node-reset [target value]
-  (clj->sjacket value))
-
-(defn- node-swap [target fn & args]
-  ((comp clj->sjacket fn sjacket->clj) target))
+(defn- update-setting [loc [p & ath] fn]
+  (let [loc'  (-> loc (find-key p) next-value)
+        loc'' (or loc' (-> loc
+                           zip/rightmost
+                           (insert-key-val p {})
+                           zip/left))]
+    (if (empty? ath)
+      (zip/root (zip/edit loc'' fn ))
+      (recur (-> loc'' zip/down zip/right) ath fn))))
 
 ;;; Public API
 
 (defn change*
-  [project-str key & [fn & args]]
-  (if-let [swap-key (lookup-var "swap" key)]
-    (let [fn' (if (fn? fn) fn (lookup-var "node" fn))]
-      (apply swap-key project-str fn' args))
-    (fail-argument! (str "Do not currently support changing :" (name key)))))
+  [project-str key-or-path fn & args]
+  (let [fn'  (collapse-fn fn args)
+        fn'' (comp clj->sjacket fn' sjacket->clj)
+        path (normalize-path key-or-path)
+        proj (get-project project-str)]
+    (str-pt
+     (if (= path [:version])
+       (update-version proj fn'')
+       (update-setting proj path fn'')))))
 
 (defn change
   "Rewrite project.clj with new settings"
-  [project key & args]
-  ;; cannot work with project, as want to preserve formatting, comments, etc
+  [project & args]
+  ;; cannot work with project, want to preserve formatting, comments, etc
   (let [source (slurp "project.clj")]
-    (spit "project.clj" (apply change* source key args))))
-
-
-;;; SANDBOX
-;;; useful for driving dev, too naive an implementation
-
-(defn bump-version [version]
-  (let [[major minor patch meta] (str/split version #"\.|\-")
-        new-patch (inc (Long/parseLong patch))]
-    (format "%s.%s.%d-%s" major minor new-patch meta)))
-
-;; note the type awkwardness here.
-;; we should probably just go in/out through sjacket's reader/parser, always
+    (spit "project.clj" (apply change* source args))))
