@@ -1,10 +1,26 @@
 (ns leiningen.change
-  (:require [clojure.zip :as zip]
+  (:require [clojure.string :as str]
+            [clojure.zip :as zip]
             [net.cgrand.sjacket :refer [str-pt]]
             [net.cgrand.sjacket.parser :refer [parser]]))
 
+;;-- helpers
+
+(defn- wrap-string [str] ["\"" str "\""])
+
+(defn- unwrap-string [[_ str _]] str)
+
+(defn- bump-version [version]
+  ;; NOTE: technically http://semver.org/ defines 'prelease' and 'meta' data
+  ;; TODO: better error handling here (wrong structure? not a number?)
+  (let [[major minor patch meta] (str/split version #"\.|\-")
+        new-patch (inc (Long/parseLong patch))]
+    (format "%s.%s.%d-%s" major minor new-patch meta)))
+
 (defn- fail-argument! [msg]
   (throw (IllegalArgumentException. msg)))
+
+;;-- traversal
 
 (defn- defproject? [loc]
   (let [{:keys [tag content]} (zip/node loc)]
@@ -25,31 +41,52 @@
       (filter (comp #{:string} :tag zip/node))
       first))
 
-(defn- change-version
-  "Given project.clj string, replace the version"
-  [project-str new-version]
-  (let [tree    (parser project-str)
-        zipper  (zip/xml-zip tree)
-        content ["\"" new-version "\""]]
-    (str-pt
-     (-> zipper
-         find-defproject
-         (or (fail-argument! "Project definition not found"))
-         zip/up
-         find-string
-         (or (fail-argument! "Project version not found"))
-         (zip/edit assoc :content content)
-         zip/root))))
+(defn- get-project [project-str]
+  (-> (parser project-str)
+      zip/xml-zip
+      find-defproject
+      (or (fail-argument! "Project definition not found"))
+      zip/up))
+
+;;-- mutation
+
+(defn- swap-version [project-str fn & args]
+  (str-pt (-> (get-project project-str)
+              find-string
+              (or (fail-argument! "Project version not found"))
+              (#(apply zip/edit % fn args))
+              zip/root)))
+
+;;-- tasks
+
+(defn- run-version
+  "Replace the project version"
+  [project-str & [version]]
+  (swap-version project-str assoc :content (wrap-string version)))
+
+(defn- run-bump-version
+  "Update the project version's patch number"
+  [project-str]
+  (swap-version project-str update-in [:content] (comp wrap-string
+                                                       bump-version
+                                                       unwrap-string)))
+
+(defn- lookup-task [task-name]
+  (->> task-name
+       name
+       (str "leiningen.change/run-")
+       symbol
+       find-var))
 
 (defn change*
-  [project-str key value]
-  (condp = (name key)
-    "version" (change-version project-str value)
+  [project-str task & args]
+  (if-let [task-fn (lookup-task task)]
+    (apply task-fn project-str args)
     (fail-argument! "Only support changing :version for now")))
 
 (defn change
   "Rewrite project.clj with new settings"
-  [project key value]
+  [project task & args]
   ;; cannot work with project, as want to preserve formatting, comments, etc
   (let [source (slurp "project.clj")]
-    (spit "project.clj" (change* source key value))))
+    (spit "project.clj" (apply change* source task args))))
