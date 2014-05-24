@@ -181,6 +181,17 @@
    :clean-targets ^:top-displace [:target-path]
    ;; TODO: remove :top-displace for :prep-tasks in 3.0
    :prep-tasks ^:top-displace ["javac" "compile"]
+   :prep-tasks ^:top-displace [["vcs" "assert-committed"]
+                               ["change" "version"
+                                "leiningen.release/bump-version" "release"]
+                               ["vcs" "commit"]
+                               ["vcs" "tag"]
+                               ["deploy"]
+                               ["change" "version"
+                                ;; TODO: level here should come from task arg
+                                "leiningen.release/bump-version" "minor"]
+                               ["vcs" "commit"]
+                               ["vcs" "push"]]
    :jar-exclusions [#"^\."]
    :certificates ["clojars.pem"]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
