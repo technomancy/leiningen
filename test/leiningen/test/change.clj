@@ -40,3 +40,27 @@
     (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
            (change* "(defproject leingingen.change \"1.9.52-SNAPSHOT\")"
                     :version :swap bump-version)))))
+
+#_(deftest test-set-regular-key
+
+  (testing "can set a key"
+    (is (= "(defproject leingingen.change \"0.0.1\" :description \"a dynamic description\")"
+           (change* "(defproject leingingen.change \"0.0.1\" :description \"a static description\")"
+                    :description :reset "a dynamic description"))))
+
+  (testing "can create a new key"
+    (is (= "(defproject leingingen.change \"0.0.1\" :description \"a dynamic description\")"
+           (change* "(defproject leingingen.change \"0.0.1\")"
+                    :description :reset "a dynamic description")))))
+
+#_(deftest test-nested-key
+
+  (testing "can set a nested key"
+    (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"http://example.com\"}"
+           (change* "(defproject leingingen.change \"0.0.1\""
+                    [:license :url] :reset "http://example.com"))))
+
+  (testing "can understand cli short form"
+    (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"http://example.com\"}"
+           (change* "(defproject leingingen.change \"0.0.1\")"
+                    :license:url :reset "a dynamic description")))))
