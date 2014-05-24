@@ -69,7 +69,7 @@
     (is (= (nth semver-test-data 2)
            (version-map->string (second semver-test-data))))))
 
-(deftest test-increment-version
+(deftest test-bump-version
   (testing "Testing semantic version increment"
     (doseq [semver-test-data valid-semver-version-values]
       (testing (format "with valid version: %s\n"
@@ -77,5 +77,5 @@
         (doseq [[k v] (map identity (nth semver-test-data 3))]
           (testing (format "version-level %s" (name k))
             (is (= v (version-map->string
-                       (increment-version
+                       (bump-version
                          (nth semver-test-data 1) k))))))))))

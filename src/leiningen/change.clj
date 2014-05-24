@@ -1,8 +1,10 @@
 (ns leiningen.change
+  "Rewrite project.clj by applying a function."
   (:require [clojure.string :as str]
             [clojure.zip :as zip]
-            [net.cgrand.sjacket :refer [str-pt]]
-            [net.cgrand.sjacket.parser :refer [parser]]))
+            [clojure.java.io :as io]
+            [net.cgrand.sjacket :as sj]
+            [net.cgrand.sjacket.parser :as parser]))
 
 ;;; Helpers
 
@@ -12,39 +14,22 @@
 (defn- clj->sjacket [value]
   (if (string? value)
     (str "\"" value "\"")
-    (-> value print-str parser :content first)))
+    (-> value print-str parser/parser :content first)))
 
 ;; NOTE: this destroy comments, formatting, etc.
-;; NOTE: read-string may throw parse errors on badly formed config..
-;;       is this an issue or will files already have been sanity
-;;       checked before this task can run?
 (defn- sjacket->clj [value]
-  (->> value str-pt read-string))
+  (->> value sj/str-pt read-string))
 
-(defn- lookup-var [x]
-  ;; ensure it's a namespaced var reference to avoid error
-  (if (re-find #"^[a-zA-Z]+\..+\/.+$" x)
-    (-> x symbol find-var var-get)))
+(defn ^:internal normalize-path [value]
+  (if (coll? value)
+    value
+    (map keyword (remove empty? (str/split value #":")))))
 
-(defn ^:internal normalize-path
-  "Coerce scalars, colls and cli-encoded lists of symbols/strings into keyword vector"
-  [value]
-  (mapv keyword
-        (if (coll? value)
-          (map name value)
-          (let [value (name value)]
-            (if (re-find #":" (name value))
-              (remove empty? (str/split (name value) #":"))
-              [(name value)])))))
-
-(defn ^:internal collapse-fn
-  "Partially apply args to right if fn, else return constant of first arg.
-   If string corresponds to a namespaced var, substite value for string"
-  [fn args]
-  (let [fn' (or (and (string? fn) (lookup-var fn)) fn)]
-    (if (fn? fn')
-      #(apply fn' % args)
-      (constantly fn'))))
+(defn ^:internal collapse-fn [f args]
+  (let [f (if (ifn? f)
+            f
+            (resolve (symbol f)))]
+    #(apply f % args)))
 
 ;;; Traversal
 
@@ -84,8 +69,8 @@
        (remove (comp #{:whitespace :comment} :tag zip/node))
        first))
 
-(defn- get-project [project-str]
-  (-> (parser project-str)
+(defn- parse-project [project-str]
+  (-> (parser/parser project-str)
       zip/xml-zip
       find-defproject
       (or (fail-argument! "Project definition not found"))
@@ -123,20 +108,23 @@
 
 ;;; Public API
 
-(defn change*
-  [project-str key-or-path fn & args]
-  (let [fn'  (collapse-fn fn args)
-        fn'' (comp clj->sjacket fn' sjacket->clj)
+(defn change-string
+  [project-str key-or-path f & args]
+  (let [f (collapse-fn f args)
+        wrapped-f (comp clj->sjacket f sjacket->clj)
         path (normalize-path key-or-path)
-        proj (get-project project-str)]
-    (str-pt
+        proj (parse-project project-str)]
+    (sj/str-pt
+     ;; TODO: support :artifact-id, :group-id
      (if (= path [:version])
-       (update-version proj fn'')
-       (update-setting proj path fn'')))))
+       (update-version proj wrapped-f)
+       (update-setting proj path wrapped-f)))))
 
 (defn change
-  "Rewrite project.clj with new settings"
-  [project & args]
-  ;; cannot work with project, want to preserve formatting, comments, etc
-  (let [source (slurp "project.clj")]
-    (spit "project.clj" (apply change* source args))))
+  "Rewrite project.clj with f applied to the value at key-or-path.
+
+TODO: document accepted args."
+  [project key-or-path f & args]
+  ;; cannot work with project map, want to preserve formatting, comments, etc
+  (let [source (slurp (io/file (:root project) "project.clj"))]
+    (spit "project.clj" (apply change-string source key-or-path f args))))
