@@ -28,7 +28,7 @@
   "Given version as a map of the sort returned by parse-semantic-version, return
   incremented version as a map."
   ([version-map]
-   (increment-version version-map (:format version-map)))
+   (increment-version version-map :patch))
   ([version-map version-level]
    (let [{:keys [major minor patch qualifier]} version-map]
      (cond
