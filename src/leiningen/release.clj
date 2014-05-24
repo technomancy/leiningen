@@ -1,8 +1,6 @@
 (ns leiningen.release
   "Perform :release-tasks."
-  (:require [cemerick.pomegranate.aether :as aether]
-            [clojure.edn :as edn]
-            [clojure.string :as string]))
+  (:require [leiningen.core.main :as main]))
 
 (defn parse-semantic-version [version-string]
   "Create map representing the given version string. Raise exception if the
@@ -27,39 +25,26 @@
       (str major "." minor "." patch "-" qualifier)
       (str major "." minor "." patch))))
 
-(defn increment-version
+(defn bump-version
   "Given version as a map of the sort returned by parse-semantic-version, return
-  incremented version as a map. Add qualifier unless releasing."
+  a map of the version incremented in the level argument. Add qualifier unless
+  releasing non-snapshot."
   [level {:keys [major minor patch qualifier]}]
-  (case level
+  (case (keyword level)
     :major {:major (inc major) :minor 0 :patch 0 :qualifier "SNAPSHOT"}
     :minor {:major major :minor (inc minor) :patch 0 :qualifier "SNAPSHOT"}
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
     :release {:major major :minor minor :patch patch}))
 
-(defn release
-  "Perform :release-tasks.
+
 
-This task is intended to perform the following roughly-outlined tasks:
-  * Bump version number to release.
-  * Tag SCM with new version number.
-  * Deploy to release repository (performs compile and jar tasks)
-  * Bump version number to next snapshot.
-  * Commit new version number to SCM. "
-  [project]
-  (let [current-version (parse-semantic-version (:version project))
-        new-dev-version (increment-version current-version)
-        release-version-string (version-map->string current-version)
-        new-dev-version-string (str (version-map->string new-dev-version)
-                                    "-" (:qualifier new-dev-version))]
-    ;;scm (->Git working-directory)]
-    ;; (leiningen.change/change {:version (version-map->string release-version-string)})
-    ;; (add scm "project.clj")
-    ;; (commit scm (format "lein-release: preparing %s release" (release-version-string)))
-    ;; (tag scm (format "%s-%s" (:name project) release-version-string))
-    ;; (leiningen.deploy/deploy)
-    ;; (leiningen.change/change :version new-dev-version-string)
-    ;; (add scm "project.clj")
-    ;; (commit scm (format "lein-release: bump version %s to %s" release-version-string new-dev-version-string))
-    ;; (push scm)
-    println "Release task under construction."))
+(defn ^{:subtasks []} release
+  "Perform release tasks.
+
+TODO: document default :release-tasks and how to change them."
+  [project level]
+  ;; TODO: how to propagate level arg to inc-version function? binding?
+  (doseq [task (:release-tasks project)]
+    (let [[task-name & task-args] (if (vector? task) task [task])
+          task-name (main/lookup-alias task-name project)]
+      (main/apply-task task-name project task-args))))
