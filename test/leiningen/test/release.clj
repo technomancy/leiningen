@@ -16,9 +16,9 @@
     :patch 0
     :qualifier nil}
    "1.0.0"
-   {:major "2.0.0"
-    :minor "1.1.0"
-    :patch "1.0.1"}]
+   {:major "2.0.0-SNAPSHOT"
+    :minor "1.1.0-SNAPSHOT"
+    :patch "1.0.1-SNAPSHOT"}]
 
    ["1.2.3"
    {:major 1
@@ -26,29 +26,29 @@
     :patch 3
     :qualifier nil}
    "1.2.3"
-   {:major "2.0.0"
-    :minor "1.3.0"
-    :patch "1.2.4"}]
+   {:major "2.0.0-SNAPSHOT"
+    :minor "1.3.0-SNAPSHOT"
+    :patch "1.2.4-SNAPSHOT"}]
 
    ["1.2.3-herp"
    {:major 1
     :minor 2
     :patch 3
     :qualifier "herp"}
-   "1.2.3"
-   {:major "2.0.0"
-    :minor "1.3.0"
-    :patch "1.2.4"}]
+   "1.2.3-herp"
+   {:major "2.0.0-SNAPSHOT"
+    :minor "1.3.0-SNAPSHOT"
+    :patch "1.2.4-SNAPSHOT"}]
 
    ["1.0.0-SNAPSHOT"
    {:major 1
     :minor 0
     :patch 0
     :qualifier "SNAPSHOT"}
-   "1.0.0"
-   {:major "2.0.0"
-    :minor "1.1.0"
-    :patch "1.0.1"}]])
+   "1.0.0-SNAPSHOT"
+   {:major "2.0.0-SNAPSHOT"
+    :minor "1.1.0-SNAPSHOT"
+    :patch "1.0.1-SNAPSHOT"}]])
 
 (deftest test-parse-semver-version
   (testing "Testing semantic version string parsing"
@@ -77,5 +77,5 @@
         (doseq [[k v] (map identity (nth semver-test-data 3))]
           (testing (format "version-level %s" (name k))
             (is (= v (version-map->string
-                       (bump-version
-                         (nth semver-test-data 1) k))))))))))
+                       (bump-version k
+                         (nth semver-test-data 1)))))))))))
