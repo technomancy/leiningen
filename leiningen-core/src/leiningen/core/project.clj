@@ -188,8 +188,7 @@
                                   ["vcs" "tag"]
                                   ["deploy"]
                                   ["change" "version"
-                                   "leiningen.release/bump-version"
-                                   "leiningen.release/*level*"]
+                                   "leiningen.release/bump-version"]
                                   ["vcs" "commit"]
                                   ["vcs" "push"]]
    :jar-exclusions [#"^\."]

@@ -28,16 +28,22 @@
       (str major "." minor "." patch "-" qualifier)
       (str major "." minor "." patch))))
 
-(defn bump-version
+(defn bump-version-map
   "Given version as a map of the sort returned by parse-semantic-version, return
   a map of the version incremented in the level argument. Add qualifier unless
   releasing non-snapshot."
-  [level {:keys [major minor patch qualifier]}]
+  [{:keys [major minor patch qualifier]} level]
   (case (keyword level)
     :major {:major (inc major) :minor 0 :patch 0 :qualifier "SNAPSHOT"}
     :minor {:major major :minor (inc minor) :patch 0 :qualifier "SNAPSHOT"}
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
     :release {:major major :minor minor :patch patch}))
+
+(defn bump-version [version-str & [level]]
+  (-> version-str
+      (parse-semantic-version)
+      (bump-version-map (or level *level*))
+      (version-map->string)))
 
 
 
