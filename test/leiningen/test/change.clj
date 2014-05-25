@@ -83,13 +83,13 @@
          (normalize-path ":a:b")
          (normalize-path [:a :b]))))
 
-(def dinc (comp inc inc *))
+(def div-dinc (comp inc inc /))
 
 (deftest test-collapse-fn
   ;; right-partial application
-  (is (= 10 ((collapse-fn + [2 3 4]) 1)))
+  (is (= 10 ((collapse-fn div-dinc [2 3 4]) 192)))
   ;; return leading constant
   (is (= 10 ((collapse-fn "set" [10]) :ignored)))
   (is (= 10 ((collapse-fn "set" [10 :ignored :stuff]) nil)))
   ;; right-partial application + method lookup
-  (is (= 10 ((collapse-fn #'leiningen.test.change/dinc [4]) 2))))
+  (is (= 10 ((collapse-fn #'leiningen.test.change/div-dinc [3]) 24))))
