@@ -41,7 +41,7 @@
   [version-string level]
   (->> version-string
        parse-semantic-version
-       (bump-version level)
+       (bump-version-map level)
        version-map->string))
 
 (defn ^{:subtasks []} release
