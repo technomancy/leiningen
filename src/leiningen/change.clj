@@ -21,6 +21,14 @@
   (if-not (#{:comment :whitespace :newline} (:tag value))
     (-> value sj/str-pt read-string)))
 
+(defn ^:internal resolve!
+  "Similar to clojure.core/resolve, but will potentially load the lib"
+  [sym]
+  (when-let [ns (namespace sym)]
+    (require (symbol ns)))
+  (or (resolve sym)
+      (fail-argument! (str "Unable to resolve " sym))))
+
 (defn ^:internal normalize-path [value]
   (if (coll? value)
     value
@@ -29,7 +37,7 @@
 (defn ^:internal collapse-fn [f args]
   (let [f (cond (ifn? f) f
                 (= "set" f) (constantly (first args))
-                (string? f) (resolve (symbol f)))]
+                (string? f) (resolve! (symbol f)))]
     #(apply f % args)))
 
 ;;; Maven convention helpers

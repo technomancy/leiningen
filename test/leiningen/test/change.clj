@@ -97,6 +97,21 @@
 
 (def div-dinc (comp inc inc /))
 
+(deftest test-resolve!
+  ;; resolves vars in current namespace
+  (is (= (var dinc) (resolve! 'dinc)))
+  ;; resolves loaded vars using explicit namespace
+  (is (= (var dinc) (resolve! 'leiningen.test.change/dinc)))
+  ;; resolves unloaded vars using explicit namesapce
+  (is (ifn? (resolve! 'leiningen.release/bump-version)))
+  ;; fails when trying to load something from unloadable namespace
+  (is (thrown? java.io.FileNotFoundException
+       (resolve! 'whacky/function)))
+  ;; fails when trying to load something not in a namespace
+  (is (thrown-with-msg?
+       IllegalArgumentException #"Unable to resolve leiningen.test.change/nonsense"
+       (resolve! 'leiningen.test.change/nonsense))))
+
 (deftest test-collapse-fn
   ;; right-partial application
   (is (= 10 ((collapse-fn div-dinc [2 3 4]) 192)))
