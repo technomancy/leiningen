@@ -11,8 +11,7 @@
                          (drop 1)
                          (map #(Integer/parseInt %))
                          (zipmap [:major :minor :patch]))
-        qualifier (->> (re-matches #".*-(.+)?" version-string)
-                       (last))]
+        qualifier (last (re-matches #".*-(.+)?" version-string))]
     (if-not (empty? version-map)
       (merge version-map {:qualifier qualifier})
       (throw (Exception. "Unrecognized version string.")))))
@@ -25,7 +24,7 @@
       (str major "." minor "." patch "-" qualifier)
       (str major "." minor "." patch))))
 
-(defn bump-version
+(defn bump-version-map
   "Given version as a map of the sort returned by parse-semantic-version, return
   a map of the version incremented in the level argument. Add qualifier unless
   releasing non-snapshot."
@@ -36,7 +35,14 @@
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
     :release {:major major :minor minor :patch patch}))
 
-
+(defn bump-version
+  "Given a version string, return the bumped version string - incremented at the
+   indicated level. Add qualifier unless releasing non-snapshot."
+  [version-string level]
+  (->> version-string
+       parse-semantic-version
+       (bump-version level)
+       version-map->string))
 
 (defn ^{:subtasks []} release
   "Perform release tasks.
