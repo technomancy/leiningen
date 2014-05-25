@@ -1,6 +1,7 @@
 (ns leiningen.release
   "Perform :release-tasks."
-  (:require [leiningen.core.main :as main]))
+  (:require [leiningen.core.main :as main]
+            [leiningen.core.project]))
 
 (def ^:dynamic *level* "patch")
 
@@ -49,5 +50,6 @@ TODO: document default :release-tasks and how to change them."
   (binding [*level* level]
     (doseq [task (:release-tasks project)]
       (let [[task-name & task-args] (if (vector? task) task [task])
-            task-name (main/lookup-alias task-name project)]
-        (main/apply-task task-name project task-args)))))
+            task-name (main/lookup-alias task-name project)
+            current-project (leiningen.core.project/read)]
+        (main/apply-task task-name current-project task-args)))))
