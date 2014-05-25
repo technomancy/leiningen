@@ -84,11 +84,6 @@
         loc)
       (zip/insert-left (clj->sjacket val))))
 
-(defn insert-key-val [loc key val]
-  (-> loc
-      (insert-entry key)
-      (insert-entry val)))
-
 (defn- update-version [proj fn]
   (-> proj
       find-string
@@ -100,7 +95,8 @@
   (let [loc'  (-> loc (find-key p) next-value)
         loc'' (or loc' (-> loc
                            zip/rightmost
-                           (insert-key-val p {})
+                           (insert-entry p)
+                           (insert-entry {})
                            zip/left))]
     (if (empty? ath)
       (zip/root (zip/edit loc'' fn ))
