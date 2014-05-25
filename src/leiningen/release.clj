@@ -2,6 +2,8 @@
   "Perform :release-tasks."
   (:require [leiningen.core.main :as main]))
 
+(def ^:dynamic *level* "patch")
+
 (defn parse-semantic-version [version-string]
   "Create map representing the given version string. Raise exception if the
   string does not follow guidelines setforth by Semantic Versioning 2.0.0,
@@ -44,7 +46,8 @@
 TODO: document default :release-tasks and how to change them."
   [project level]
   ;; TODO: how to propagate level arg to inc-version function? binding?
-  (doseq [task (:release-tasks project)]
-    (let [[task-name & task-args] (if (vector? task) task [task])
-          task-name (main/lookup-alias task-name project)]
-      (main/apply-task task-name project task-args))))
+  (binding [*level* level]
+    (doseq [task (:release-tasks project)]
+      (let [[task-name & task-args] (if (vector? task) task [task])
+            task-name (main/lookup-alias task-name project)]
+        (main/apply-task task-name project task-args)))))
