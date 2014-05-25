@@ -21,6 +21,8 @@
 
 (defmulti push "Push to your remote repository." which-vcs :default :none)
 
+(defmulti commit "Save indexed changes to current repository." which-vcs :default :none)
+
 (defmulti tag "Apply a version control tag." which-vcs)
 
 (defmulti assert-committed "Abort if uncommitted changes exist." which-vcs)
@@ -33,9 +35,15 @@
     (eval/sh "git" "push")
     (eval/sh "git" "push" "--tags")))
 
-(defmethod tag :git [project version]
+(defmethod commit :git [project]
   (binding [eval/*dir* (:root project)]
-    (eval/sh "git" "tag" "-s" version "-m" (str "Release " version))))
+    (eval/sh "git" "add" "-A")
+    (eval/sh "git" "commit" "-m" (str "Version " (:version project)))))
+
+(defmethod tag :git [project]
+  (binding [eval/*dir* (:root project)]
+    (let [version (:version project)]
+      (eval/sh "git" "tag" "-s" version "-m" (str "Release " version)))))
 
 (defmethod assert-committed :git [project]
   (binding [eval/*dir* (:root project)]
@@ -53,7 +61,7 @@
     (swap! supported-systems conj (keyword (last (.split (name n) "\\."))))
     (require n)))
 
-(defn ^{:subtasks [#'push #'tag #'assert-committed]} vcs
+(defn ^{:subtasks [#'push #'commit #'tag #'assert-committed]} vcs
   "Interact with the version control system."
   [project subtask & args]
   (load-methods)

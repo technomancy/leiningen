@@ -188,8 +188,8 @@
                                   ["vcs" "tag"]
                                   ["deploy"]
                                   ["change" "version"
-                                   ;; TODO: level here should come from task arg
-                                   "leiningen.release/bump-version" "minor"]
+                                   "leiningen.release/bump-version"
+                                   "leiningen.release/*level*"]
                                   ["vcs" "commit"]
                                   ["vcs" "push"]]
    :jar-exclusions [#"^\."]
