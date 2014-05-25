@@ -118,8 +118,7 @@
 
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
-
-TODO: document accepted args."
+  TODO: document accepted args."
   [project key-or-path f & args]
   ;; cannot work with project map, want to preserve formatting, comments, etc
   (let [source (slurp (io/file (:root project) "project.clj"))]

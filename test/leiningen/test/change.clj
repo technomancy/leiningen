@@ -9,7 +9,6 @@
     (format "%s.%s.%d-%s" major minor new-patch meta)))
 
 (deftest test-set-version
-
   (testing "project definition not found"
     (is (thrown-with-msg?
          IllegalArgumentException #"Project definition not found"
@@ -46,8 +45,7 @@
            (change-string "(defproject leingingen.change \"1.9.52-SNAPSHOT\")"
                           [:version] "leiningen.test.change/bump-version")))))
 
-(deftest test-set-regular-key
-
+(deftest test-set-map-value
   (testing "can set a key"
     (is (= "(defproject leingingen.change \"0.0.1\" :description \"a dynamic description\")"
            (change-string "(defproject leingingen.change \"0.0.1\" :description \"a static description\")"
@@ -56,9 +54,7 @@
   (testing "can create a new key"
     (is (= "(defproject leingingen.change \"0.0.1\" :description \"a dynamic description\")"
            (change-string "(defproject leingingen.change \"0.0.1\")"
-                          [:description] "set" "a dynamic description")))))
-
-(deftest test-nested-key
+                          [:description] "set" "a dynamic description"))))
 
   (testing "can set a nested key"
     (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"http://example.com\"})"
