@@ -37,11 +37,13 @@
 
 (defmethod commit :git [project]
   (binding [eval/*dir* (:root project)]
-    (eval/sh "git" "commit")))
+    (eval/sh "git" "add" "-A")
+    (eval/sh "git" "commit" "-m" (str "Version " (:version project)))))
 
-(defmethod tag :git [project version]
+(defmethod tag :git [project]
   (binding [eval/*dir* (:root project)]
-    (eval/sh "git" "tag" "-s" version "-m" (str "Release " version))))
+    (let [version (:version project)]
+      (eval/sh "git" "tag" "-s" version "-m" (str "Release " version)))))
 
 (defmethod assert-committed :git [project]
   (binding [eval/*dir* (:root project)]
@@ -59,7 +61,7 @@
     (swap! supported-systems conj (keyword (last (.split (name n) "\\."))))
     (require n)))
 
-(defn ^{:subtasks [#'push #'tag #'assert-committed]} vcs
+(defn ^{:subtasks [#'push #'commit #'tag #'assert-committed]} vcs
   "Interact with the version control system."
   [project subtask & args]
   (load-methods)
