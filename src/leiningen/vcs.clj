@@ -21,6 +21,8 @@
 
 (defmulti push "Push to your remote repository." which-vcs :default :none)
 
+(defmulti commit "Save indexed changes to current repository." which-vcs :default :none)
+
 (defmulti tag "Apply a version control tag." which-vcs)
 
 (defmulti assert-committed "Abort if uncommitted changes exist." which-vcs)
@@ -32,6 +34,10 @@
   (binding [eval/*dir* (:root project)]
     (eval/sh "git" "push")
     (eval/sh "git" "push" "--tags")))
+
+(defmethod commit :git [project]
+  (binding [eval/*dir* (:root project)]
+    (eval/sh "git" "commit")))
 
 (defmethod tag :git [project version]
   (binding [eval/*dir* (:root project)]
