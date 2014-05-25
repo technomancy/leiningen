@@ -34,6 +34,26 @@
       ;; check a random dependency for changes
       (is (= "log4j \"1.2.15\"" (.substring after 2572 2586))))))
 
+(deftest test-set-group-id
+  (testing "renaming an existing group-id"
+    (is (= "(defproject core/library \"0.0.1\" :license {})"
+           (change-string "(defproject contrib/library \"0.0.1\" :license {})"
+                          [:group-id] "set" "core"))))
+  (testing "where group-id was previously implicit"
+    (is (= "(defproject core/library \"0.0.1\" :license {})"
+           (change-string "(defproject library \"0.0.1\" :license {})"
+                          [:group-id] "set" "core")))))
+
+(deftest test-set-artifact-id
+  (testing "where group-id is implicit"
+    (is (= "(defproject reagent \"0.0.1\" :license {})"
+           (change-string "(defproject cloact \"0.0.1\" :license {})"
+                          [:artifact-id] "set" "reagent"))))
+  (testing "where group-id is explicit"
+    (is (= "(defproject tonsky/datascript \"0.0.1\" :license {})"
+           (change-string "(defproject tonsky/datalogscript \"0.0.1\" :license {})"
+                          [:artifact-id] "set" "datascript")))))
+
 (deftest test-external-function
   (testing "regular function by function reference"
     (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
