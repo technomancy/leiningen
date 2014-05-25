@@ -35,12 +35,12 @@
   (testing "regular function by function reference"
     (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
            (change-string "(defproject leingingen.change \"1.9.52\")"
-                          [:version] release/bump-version-string "patch"))))
+                          [:version] release/bump-version "patch"))))
 
   (testing "regular function by function reference"
     (is (= "(defproject leingingen.change \"1.9.52\")"
            (change-string "(defproject leingingen.change \"1.9.52-QUALIFIED\")"
-                          [:version] "leiningen.release/bump-version-string" "release")))))
+                          [:version] "leiningen.release/bump-version" "release")))))
 
 (deftest test-set-regular-key
 
