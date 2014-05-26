@@ -3,6 +3,7 @@
   (:require [clojure.string :as str]
             [clojure.zip :as zip]
             [clojure.java.io :as io]
+            [leiningen.core.utils :as utils]
             [net.cgrand.sjacket :as sj]
             [net.cgrand.sjacket.parser :as parser]))
 
@@ -29,7 +30,10 @@
 (defn ^:internal collapse-fn [f args]
   (let [f (cond (ifn? f) f
                 (= "set" f) (constantly (first args))
-                (string? f) (resolve (symbol f)))]
+                (string? f) (or (utils/require-resolve (symbol f))
+                                (fail-argument! (str "Unable to resolve " f)))
+                :else       (fail-argument!
+                             (str "Expected " f " to implement or reference an IFn")))]
     #(apply f % args)))
 
 ;;; Maven convention helpers
