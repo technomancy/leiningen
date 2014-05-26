@@ -237,3 +237,83 @@ will eventually be automated through the use of a plugin.) The release
 will show up in OSS' releases repository immediately, and sync to Maven
 Central on the next cycle (~ 1-4 hours usually). 
 
+## Releasing Simplified
+
+Once you have your repositories and user credentials configured for deploying,
+much of the work involved in actually deploying a release version can be tedious
+and difficult to perform in a consistent fashion from one release to the next.
+To simplify the release process, there is a `lein release <version-name>` task
+where <version-name> can be refer to any of the standard Semantic Version
+levels, `:major`, `:minor`, or `:patch`. The simplification lies in the list of
+`:release-tasks` that get run on each call to `lein release <version-name>`. For
+example, suppose that your `project.clj` starts off as follows:
+
+```clojure
+(defproject leiningen "2.4.0-SNAPSHOT"
+```
+Using the default `:release-tasks` and the following command line:
+
+    $ lein release :patch
+
+The following events will happen:
+
+1. First, `leiningen` will assert that the current version control system
+   repository does not have any unstaged changes.
+
+2. Then, the `change` task is run to remove whatever qualifier is currently on
+   the version in `project.clj`. In this case, the top of `project.clj` should
+   look something like:  
+        ```clojure    
+(defproject leiningen "2.4.0"
+        ```
+3. `vcs` tasks will be run to commit this change and then tag the repository
+   with the `release` version number.
+
+4. The `deploy` task will be the same as if `lein deploy` had ben run from the
+   command line. **NOTE** This will require a valid "releases" entry either in
+   `:deploy-repositories` or `:repositories`
+
+5. The `change` task is run once more to "bump" the version number in
+   `project.clj`. Which semantic version level bumped is decided by the argument
+   passed to `lein release`, in this case :patch. Afterword, `project.clj` will
+   look something like:  
+        ```clojure
+(defproject leiningen "2.4.1-SNAPSHOT"
+        ```
+6. Finally, `vcs` tasks will be run once more to commit the new change to
+   `project.clj` and then push these two new commites to the default remote
+   repository.
+
+### Overriding the default `:release-tasks`
+
+The default list of tasks for `:release-tasks` is as follows:
+```clojure
+   :release-tasks [["vcs" "assert-committed"]
+                   ["change" "version"
+                    "leiningen.release/bump-version" "release"]
+                   ["vcs" "commit"]
+                   ["vcs" "tag"]
+                   ["deploy"]
+                   ["change" "version"
+                    "leiningen.release/bump-version" "leiningen.release/*level*"]
+                   ["vcs" "commit"]
+                   ["vcs" "push"]]
+```
+This `:release-tasks` value can be overridden in `project.clj`. An example might
+be a case in which you want the default workflow up to `lein deploy` but don't
+want to automatically bump the version in `project.clj`:
+```clojure
+  :release-tasks [["vcs" "assert-committed"]
+                  ["change" "version"
+                   "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag"]
+                  ["deploy"]]
+```
+Of course, `:release-tasks` doesn't have to look anything like the default, the
+default is just an assumed convention among most clojure projects using
+leiningen.
+
+`:release-tasks` is a vector in which every element is either a task name or a
+collection in which the first element is a task name and the rest are arguments
+to that task.
