@@ -66,10 +66,6 @@
   (let [{:keys [tag]} (zip/node loc)]
     (#{:comment :whitespace :newline} tag)))
 
-(defn- newline? [loc]
-  (let [{:keys [tag]} (zip/node loc)]
-    (= :newline tag)))
-
 (defn- find-defproject [loc]
   (->> loc
        (iterate zip/next)
