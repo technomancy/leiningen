@@ -1,8 +1,7 @@
 (ns leiningen.test.change
   (:require [clojure.string :as str]
             [clojure.test :refer :all]
-            [leiningen.change :refer :all]
-            [leiningen.release :as release]))
+            [leiningen.change :refer :all]))
 
 (deftest test-set-version
   (testing "project definition not found"
@@ -51,15 +50,16 @@
                           [:artifact-id] "set" "datascript")))))
 
 (deftest test-external-function
-  (testing "regular function by function reference"
-    (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
-           (change-string "(defproject leingingen.change \"1.9.52\")"
-                          [:version] release/bump-version "patch"))))
-
-  (testing "regular function by function reference"
+  (testing "regular function by string identifier"
     (is (= "(defproject leingingen.change \"1.9.52\")"
            (change-string "(defproject leingingen.change \"1.9.52-QUALIFIED\")"
-                          [:version] "leiningen.release/bump-version" "release")))))
+                          [:version] "leiningen.release/bump-version" "release"))))
+
+  ;; NOTE: order is important here, previous test cases leiningen.relase to be loaded
+  (testing "regular function by actual reference"
+    (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
+           (change-string "(defproject leingingen.change \"1.9.52\")"
+                          [:version] (find-var 'leiningen.release/bump-version) "patch")))))
 
 (deftest test-set-map-value
   (testing "can set a key"
@@ -92,26 +92,11 @@
          (normalize-path "a")
          (normalize-path ":a")))
   (is (= [:a :b]
+         (normalize-path "a:b")
          (normalize-path ":a:b")
          (normalize-path [:a :b]))))
 
 (def div-dinc (comp inc inc /))
-
-(deftest test-resolve!
-  ;; resolves vars in current namespace
-  ;; NOTE: passes in clojure-test-mode, fails in `bin/lein test`
-  ;; (is (= (var dinc) (resolve! 'dinc)))
-  ;; resolves loaded vars using explicit namespace
-  (is (= (var dinc) (resolve! 'leiningen.test.change/dinc)))
-  ;; resolves unloaded vars using explicit namesapce
-  (is (ifn? (resolve! 'leiningen.release/bump-version)))
-  ;; fails when trying to load something from unloadable namespace
-  (is (thrown? java.io.FileNotFoundException
-       (resolve! 'whacky/function)))
-  ;; fails when trying to load something not in a namespace
-  (is (thrown-with-msg?
-       IllegalArgumentException #"Unable to resolve leiningen.test.change/nonsense"
-       (resolve! 'leiningen.test.change/nonsense))))
 
 (deftest test-collapse-fn
   ;; right-partial application
