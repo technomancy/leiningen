@@ -64,13 +64,11 @@
 
 (defn- insignificant? [loc]
   (let [{:keys [tag]} (zip/node loc)]
-    (#{:comment :whitespace} tag)))
+    (#{:comment :whitespace :newline} tag)))
 
 (defn- newline? [loc]
-  (if loc
-    (let [{:keys [tag]} (zip/node loc)]
-      (= :newline tag))
-    true))
+  (let [{:keys [tag]} (zip/node loc)]
+    (= :newline tag)))
 
 (defn- find-defproject [loc]
   (->> loc
@@ -86,29 +84,22 @@
       (filter (comp pred zip/node))
       first))
 
-(defn- line-contents [loc]
+(defn- find-key [loc key]
   (->> loc
        (iterate zip/right)
-       (drop-while #(or (newline? %) (insignificant? %)))
-       (take-while (comp not newline?))
-       (remove insignificant?)))
-
-(defn- find-key [line-start key]
-  (let [[potential-key & value] (line-contents line-start)
-        key-node (zip/node potential-key)
-        next-line (-> value last zip/right)]
-    (if (and (= :keyword (:tag key-node))
-             (= key (sjacket->clj key-node)))
-      potential-key
-      (when next-line
-        (recur next-line key)))))
+       (take-while (comp not nil?))
+       (remove insignificant?)
+       (partition 2)
+       (map first)
+       (filter (comp #{key} sjacket->clj zip/node))
+       first))
 
 (defn- next-value [loc]
   (->> loc
        (iterate zip/right)
        (take-while (comp not nil?))
        (drop 1)
-       (remove (comp #{:whitespace :comment} :tag zip/node))
+       (remove insignificant?)
        first))
 
 (defn- parse-project [project-str]
@@ -168,7 +159,9 @@
        [:group-id] (update-name proj #(set-group-id (f (get-group-id %)) %))
        [:artifact-id] (update-name proj #(set-artifact-id
                                           (f (get-artifact-id %)) %))
-       (update-setting proj path f)))))
+       ; moving to the right to move past defproject to get nice key-value pairs
+       ; whitespaces and project name and version are filtered out later
+       (update-setting (zip/right proj) path f)))))
 
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
