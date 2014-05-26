@@ -62,6 +62,16 @@
     (and (= :name tag)
          (= ["defproject"] content))))
 
+(defn- insignificant? [loc]
+  (let [{:keys [tag]} (zip/node loc)]
+    (#{:comment :whitespace} tag)))
+
+(defn- newline? [loc]
+  (if loc
+    (let [{:keys [tag]} (zip/node loc)]
+      (= :newline tag))
+    true))
+
 (defn- find-defproject [loc]
   (->> loc
        (iterate zip/next)
@@ -76,14 +86,22 @@
       (filter (comp pred zip/node))
       first))
 
-(defn- find-key [loc key]
+(defn- line-contents [loc]
   (->> loc
        (iterate zip/right)
-       (take-while (comp not nil?))
-       (partition 2)
-       (map first)
-       (filter (comp #{key} sjacket->clj zip/node))
-       first))
+       (drop-while #(or (newline? %) (insignificant? %)))
+       (take-while (comp not newline?))
+       (remove insignificant?)))
+
+(defn- find-key [line-start key]
+  (let [[potential-key & value] (line-contents line-start)
+        key-node (zip/node potential-key)
+        next-line (-> value last zip/right)]
+    (if (and (= :keyword (:tag key-node))
+             (= key (sjacket->clj key-node)))
+      potential-key
+      (when next-line
+        (recur next-line key)))))
 
 (defn- next-value [loc]
   (->> loc
