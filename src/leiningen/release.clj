@@ -10,12 +10,11 @@
   string does not follow guidelines setforth by Semantic Versioning 2.0.0,
   http://semver.org/"
   ;; <MajorVersion>.<MinorVersion>.<PatchVersion>[-<BuildNumber | Qualifier >]
-  (let [version-map (->> (re-matches #"(\d+).(\d+).(\d+).*" version-string)
+  (let [version-map (->> (re-matches #"(\d+)\.(\d+)\.(\d+).*" version-string)
                          (drop 1)
                          (map #(Integer/parseInt %))
                          (zipmap [:major :minor :patch]))
-        qualifier (->> (re-matches #".*-(.+)?" version-string)
-                       (last))]
+        qualifier (last (re-matches #".*-(.+)?" version-string))]
     (if-not (empty? version-map)
       (merge version-map {:qualifier qualifier})
       (throw (Exception. "Unrecognized version string.")))))
@@ -39,7 +38,11 @@
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
     :release {:major major :minor minor :patch patch}))
 
-(defn bump-version [version-str & [level]]
+(defn bump-version
+  "Given a version string, return the bumped version string -
+   incremented at the indicated level. Add qualifier unless releasing
+   non-snapshot. Level defaults to *level*."
+  [version-str & [level]]
   (-> version-str
       (parse-semantic-version)
       (bump-version-map (or level *level*))
