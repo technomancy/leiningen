@@ -1,12 +1,8 @@
 (ns leiningen.test.change
   (:require [clojure.string :as str]
             [clojure.test :refer :all]
-            [leiningen.change :refer :all]))
-
-(defn bump-version [version]
-  (let [[major minor patch meta] (str/split version #"\.|\-")
-        new-patch (inc (Long/parseLong patch))]
-    (format "%s.%s.%d-%s" major minor new-patch meta)))
+            [leiningen.change :refer :all]
+            [leiningen.release :as release]))
 
 (deftest test-set-version
 
@@ -38,13 +34,13 @@
 (deftest test-external-function
   (testing "regular function by function reference"
     (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
-           (change-string "(defproject leingingen.change \"1.9.52-SNAPSHOT\")"
-                          [:version] bump-version))))
+           (change-string "(defproject leingingen.change \"1.9.52\")"
+                          [:version] release/bump-version "patch"))))
 
   (testing "regular function by function reference"
-    (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
-           (change-string "(defproject leingingen.change \"1.9.52-SNAPSHOT\")"
-                          [:version] "leiningen.test.change/bump-version")))))
+    (is (= "(defproject leingingen.change \"1.9.52\")"
+           (change-string "(defproject leingingen.change \"1.9.52-QUALIFIED\")"
+                          [:version] "leiningen.release/bump-version" "release")))))
 
 (deftest test-set-regular-key
 
