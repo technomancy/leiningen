@@ -115,6 +115,11 @@
   [& args]
   (when *info* (apply println args)))
 
+(defn warn
+  [& args]
+  (binding [*out* *err*]
+    (apply println args)))
+
 (def ^:dynamic *exit-process?*
   "Bind to false to suppress process termination." true)
 

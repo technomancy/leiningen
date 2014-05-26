@@ -115,7 +115,7 @@
 (defn warn-missing-metadata [project]
   (doseq [key [:description :license :url]]
     (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
-      (main/info "WARNING: please set" key "in project.clj."))))
+      (main/warn "WARNING: please set" key "in project.clj."))))
 
 (defn- in-branches [branches]
   (-> (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD")
