@@ -32,7 +32,7 @@
   a map of the version incremented in the level argument. Add qualifier unless
   releasing non-snapshot."
   [{:keys [major minor patch qualifier]} level]
-  (case level
+  (case (keyword (name level))
     :major {:major (inc major) :minor 0 :patch 0 :qualifier "SNAPSHOT"}
     :minor {:major major :minor (inc minor) :patch 0 :qualifier "SNAPSHOT"}
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
@@ -57,7 +57,7 @@ The default list of release tasks is as follows:
 
   :release-tasks [[\"vcs\" \"assert-committed\"]
                   [\"change\" \"version\"
-                   \"leiningen.release/bump-version\" \"release\"]
+                   \"leiningen.release/bump-version\" \"\\\"release\\\"\"]
                   [\"vcs\" \"commit\"]
                   [\"vcs\" \"tag\"]
                   [\"deploy\"]
@@ -83,7 +83,7 @@ is a task name and the rest are arguments to that task.
 The release task takes a single argument which should be one of :major,
 :minor, or :patch to indicate which semantic versioning level to bump. If none
 is given, it defaults to :patch."
-  ([project] (release *level*))
+  ([project] (release project (str *level*)))
   ([project level]
      (binding [*level* (read-string level)]
        (doseq [task (:release-tasks project)]
