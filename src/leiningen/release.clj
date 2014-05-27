@@ -66,11 +66,10 @@ The default list of release tasks is as follows:
                   [\"vcs\" \"commit\"]
                   [\"vcs\" \"push\"]]
 
-So the basic workflow here is change the version stored in project.clj, commit
-that change, tag this commit to with the release version indicated, deploy to
-the Maven release repository, then change to the next snapshot version in
-project.clj, commit that change, and push to the default remote version control
-repository.
+First change the version stored in project.clj, then commit that change, tag
+this commit to with the release version indicated, deploy to the Maven release
+repository, then change to the next snapshot version in project.clj, commit
+that change, and push to the default remote version control repository.
 
 A key point to note is that this default set of :release-tasks requires a clean
 working directory as far as the current version control system is concerned.
