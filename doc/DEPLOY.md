@@ -44,6 +44,17 @@ projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 {:user {:deploy-repositories [["internal" "http://blueant.com/archiva/internal"]]}}
 ```
 
+Additionally, it is possible to alias repositories by specifiing a string value
+with the name of another repositoriy in `:deploy-repositories`:
+
+```clj
+{:user {:deploy-repositories [["internal" "http://blueant.com/archiva/internal"]
+                              ["releases" "internal"]]}}
+```
+
+In this example the command line `lein deploy releases` is a synonym for `lein
+deploy internal`.
+
 ### Non-standard Repository Protocols
 
 If you are deploying to a repository that doesn't use one of the
