@@ -7,7 +7,7 @@
 
 (defn- repo-path
   [relative-repo-path]
-  (clojure.string/replace 
+  (clojure.string/replace
     (format "%s/%s" tmp-dir relative-repo-path)
     "\\" "/")) ;make path delimiters look the same / even under Windows
 
@@ -65,10 +65,10 @@
 
 (deftest test-get-repo-aliased-repo
   (testing "Testing get-repo using aliased repo in :deploy-repositories"
-    (is (= (get-repo {:repositories
-                      [["derpjars" {:url "http://derp.jar/"}]
-                      ["releases" {:url "http://derp.jar/snapshots"}]]
-                      :deploy-repositories
-                      [["releases" "derpjars"]]}
-                     "releases")
+    (is (= (get-aliased-repo {:repositories
+                              [["derpjars" {:url "http://derp.jar/"}]
+                               ["releases" {:url "http://derp.jar/snapshots"}]]
+                              :deploy-repositories
+                              [["releases" "derpjars"]]}
+                             "releases")
            ["derpjars" {:url "http://derp.jar/"}]))))
