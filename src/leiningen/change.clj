@@ -183,5 +183,6 @@ honoring the project map, so profile merging or `update-in` invocations
 will not effect it."
   [project key-or-path f & args]
   ;; cannot work with project map, want to preserve formatting, comments, etc
-  (let [source (slurp (io/file (:root project) "project.clj"))]
-    (spit "project.clj" (apply change-string source key-or-path f args))))
+  (let [project-file (io/file (:root project) "project.clj")
+        source (slurp project-file)]
+    (spit project-file (apply change-string source key-or-path f args))))
