@@ -195,6 +195,20 @@
             ;; Nested vectors are supported for the "do" task
             ["do" "clean" ["test" ":integration"] ["deploy" "clojars"]]}
 
+  ;;; Custom Release Tasks
+  ;; By default `lein release` performs a series of tasks typical of the release
+  ;; process for many leiningen-managed projects. These tasks can be overridden
+  ;; using `:release-tasks` as follows:
+  :release-tasks [["vcs" "assert-committed"]
+                  ["change" "version"
+                   "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag"]
+                  ["deploy"]]
+  ;; This differs from the default `:release-tasks` behavior in that it doesn't
+  ;; go on to perform another `change version` or `vcs` task, instead leaving
+  ;; that up to the developer to do manually.
+
   ;;; Running Project Code
   ;; Normally Leiningen runs the javac and compile tasks before
   ;; calling any eval-in-project code, but you can override this with

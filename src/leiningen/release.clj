@@ -53,9 +53,37 @@
 (defn ^{:subtasks []} release
   "Perform release tasks.
 
-TODO: document default :release-tasks and how to change them."
+The default list of release tasks is as follows:
+
+  :release-tasks [[\"vcs\" \"assert-committed\"]
+                  [\"change\" \"version\"
+                   \"leiningen.release/bump-version\" \"release\"]
+                  [\"vcs\" \"commit\"]
+                  [\"vcs\" \"tag\"]
+                  [\"deploy\"]
+                  [\"change\" \"version\"
+                   \"leiningen.release/bump-version\" \"leiningen.release/*level*\"]
+                  [\"vcs\" \"commit\"]
+                  [\"vcs\" \"push\"]]
+
+So the basic workflow here is change the version stored in project.clj, commit
+that change, tag this commit to with the release version indicated, deploy to
+the Maven release repository, then change to the next snapshot version in
+project.clj, commit that change, and push to the default remote version control
+repository.
+
+A key point to note is that this default set of :release-tasks requires a clean
+working directory as far as the current version control system is concerned.
+This ensures that the `vcs commit` tasks will only save changes made to
+project.clj made by the `change version` tasks.
+
+This behavior can be overridden by setting :release-tasks a vector in which
+every element is either a task name or a collection in which the first element
+is a task name and the rest are arguments to that task.
+
+The release task takes a single argument which should be one of :major,
+:minor, or :patch to indicate which semantic versioning level to bump."
   [project level]
-  ;; TODO: how to propagate level arg to inc-version function? binding?
   (binding [*level* level]
     (doseq [task (:release-tasks project)]
       (let [[task-name & task-args] (if (vector? task) task [task])
