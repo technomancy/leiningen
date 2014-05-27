@@ -66,7 +66,8 @@
          (let [ns (symbol ns)]
            (when-not (find-ns ns)
              (require ns)))
-         (resolve sym))))
+         (resolve sym))
+       (resolve sym)))
   ([ns sym] (require-resolve (symbol ns sym))))
 
 ;; # OS detection
