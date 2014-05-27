@@ -231,7 +231,7 @@ You can use the `lein-pprint` plugin to see the default value of `:release-tasks
 ```
 $ lein pprint :release-tasks
 [["vcs" "assert-committed"]
- ["change" "version" "leiningen.release/bump-version" "\"release\""]
+ ["change" "version" "leiningen.release/bump-version" ":release"]
  ["vcs" "commit"]
  ["vcs" "tag"]
  ["deploy"]
@@ -247,7 +247,7 @@ want to automatically bump the version in `project.clj`:
 ```clojure
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"
-                   "leiningen.release/bump-version" "\"release\""]
+                   "leiningen.release/bump-version" ":release"]
                   ["vcs" "commit"]
                   ["vcs" "tag"]
                   ["deploy"]]
