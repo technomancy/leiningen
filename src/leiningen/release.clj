@@ -27,6 +27,11 @@
       (str major "." minor "." patch "-" qualifier)
       (str major "." minor "." patch))))
 
+(defn next-qualifier [sublevel qualifier]
+  (let [pattern (re-pattern (str sublevel "([0-9]+)"))
+        [_ n] (and qualifier (re-find pattern qualifier))]
+    (str sublevel (inc (Integer. (or n 0))))))
+
 (defn bump-version-map
   "Given version as a map of the sort returned by parse-semantic-version, return
   a map of the version incremented in the level argument. Add qualifier unless
@@ -36,6 +41,12 @@
     :major {:major (inc major) :minor 0 :patch 0 :qualifier "SNAPSHOT"}
     :minor {:major major :minor (inc minor) :patch 0 :qualifier "SNAPSHOT"}
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
+    :alpha {:major major :minor minor :patch (inc patch)
+            :qualifier (next-qualifier "alpha" qualifier)}
+    :beta {:major major :minor minor :patch (inc patch)
+           :qualifier (next-qualifier "beta" qualifier)}
+    :rc {:major major :minor minor :patch (inc patch)
+         :qualifier (next-qualifier "RC" qualifier)}
     :release {:major major :minor minor :patch patch}))
 
 (defn bump-version
@@ -81,8 +92,8 @@ every element is either a task name or a collection in which the first element
 is a task name and the rest are arguments to that task.
 
 The release task takes a single argument which should be one of :major,
-:minor, or :patch to indicate which semantic versioning level to bump. If none
-is given, it defaults to :patch."
+:minor, :patch, :alpha, :beta, or :rc to indicate which semantic versioning
+level to bump. If none is given, it defaults to :patch."
   ([project] (release project (str *level*)))
   ([project level]
      (binding [*level* (read-string level)]

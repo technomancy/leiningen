@@ -180,10 +180,10 @@ common use case.
 Once you have your repositories and user credentials configured for deploying,
 much of the work involved in actually deploying a release version can be tedious
 and difficult to perform in a consistent fashion from one release to the next.
-To simplify the release process, there is a `lein release [$LEVEL]` task
-where `$LEVEL` can be refer to any of the standard Semantic Version
-levels, `:major`, `:minor`, or `:patch`. The simplification lies in the list of
-`:release-tasks` that get run on each call to `lein release`. For
+To simplify the release process, there is a `lein release [$LEVEL]` task where
+`$LEVEL` can be refer to any of the standard Semantic Version levels, `:major`,
+`:minor`, `:patch`, `:alpha`, `:beta`, or `:rc`. The simplification lies in the
+list of `:release-tasks` that get run on each call to `lein release`. For
 example, suppose that your `project.clj` starts off as follows:
 
 ```clojure
