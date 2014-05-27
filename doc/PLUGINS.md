@@ -22,8 +22,7 @@ inside the leiningen process rather than starting a subprocess to
 isolate the project's code. Plugins need not declare a dependency on
 Clojure itself; in fact
 [all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/stable/project.clj)
-will be available. However, it doesn't hurt to be specific since
-Leiningen's other dependencies may change in future versions.
+will be available.
 
 See the `lein-pprint` directory
 [in the Leiningen source](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
@@ -34,6 +33,10 @@ plugin project and then switch to a test project can be very
 cumbersome. Once you've installed the plugin once, you can avoid this
 annoyance by creating a `.lein-classpath` file in your test project
 containing the path to the `src` directory of your plugin.
+
+When emitting output, please use `leiningen.core.main/info`,
+`leiningen.core.main/warn`, and `leiningen.core.main/debug` rather than
+`println` since these will respect the user's output settings.
 
 ### Task Arguments
 
@@ -48,7 +51,7 @@ If you want your task to take parameters from the command-line
 invocation, you can make the function take more than one argument. In
 order to underscore the fact that tasks are just Clojure functions,
 arguments which act as flags are usually accepted as `:keywords`
-rather than traditional `--dashed` syntax. Note that all arguments are
+rather than unixy traditional `--dashed` syntax. Note that all arguments are
 still passed in as strings; it's up to your function to call `read-string`
 on the arguments if you want keywords, symbols, integers, etc. Keep
 this in mind when calling other tasks as functions too.
