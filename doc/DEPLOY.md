@@ -198,10 +198,7 @@ The following events will happen:
 
 1. The `change` task is run to remove whatever qualifier is currently on
    the version in `project.clj`. In this case, `project.clj` should
-   look something like:  
-        ```clojure    
-(defproject leiningen "2.4.0" ...)
-        ```
+   look something like ```(defproject leiningen "2.4.0" ...)```.
 
 2. `vcs` tasks will be run to commit this change and then tag the repository
    with the `release` version number.
@@ -213,10 +210,7 @@ The following events will happen:
 4. The `change` task is run once more to "bump" the version number in
    `project.clj`. Which version level is decided by the argument
    passed to `lein release`, in this case `:patch`. Afterword, `project.clj` will
-   look something like:  
-        ```clojure
-(defproject leiningen "2.4.1-SNAPSHOT" ...)
-        ```
+   look something like ```(defproject leiningen "2.4.1-SNAPSHOT" ...)```.
 
 5. Finally, `vcs` tasks will be run once more to commit the new change to
    `project.clj` and then push these two new commits to the default remote
