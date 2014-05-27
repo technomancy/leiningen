@@ -57,9 +57,16 @@
 (defn- sanitize-repo-name [name]
   (last (.split name "/")))
 
+(defn get-repo [project name]
+  (let [repositories (into {} (:repositories project))
+        deploy-repositories (into {} (:deploy-repositories project))
+        maybe-name (get deploy-repositories name)
+        name (if (string? maybe-name) maybe-name name)]
+    [name (merge (get repositories name)
+                 (get deploy-repositories name))]))
+
 (defn repo-for [project name]
-  (let [settings (merge (get (into {} (:repositories project)) name)
-                        (get (into {} (:deploy-repositories project)) name))]
+  (let [[name settings] (get-repo project name)]
     (-> [(sanitize-repo-name name) (or settings {:url name})]
         (classpath/add-repo-auth)
         (add-auth-from-url)

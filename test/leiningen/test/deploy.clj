@@ -62,3 +62,13 @@
     (is (= (sign-for-repo? ["foo" {:sign-releases true}]) true))
     (is (= (sign-for-repo? ["foo" {:sign-releases false}]) false))
     (is (= (sign-for-repo? ["foo" {}]) true))))
+
+(deftest test-get-repo-aliased-repo
+  (testing "Testing get-repo using aliased repo in :deploy-repositories"
+    (is (= (get-repo {:repositories
+                      [["derpjars" {:url "http://derp.jar/"}]
+                      ["releases" {:url "http://derp.jar/snapshots"}]]
+                      :deploy-repositories
+                      [["releases" "derpjars"]]}
+                     "releases")
+           ["derpjars" {:url "http://derp.jar/"}]))))
