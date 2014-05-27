@@ -1,5 +1,24 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.4.0 / ???
+
+* Add `release` task for automating common release steps. (Wayne Warren, Chris Truter, Phil Hagelberg)
+* Add `change` task for programmatc `project.clj` manipulation. (Chris Truter, Max Barnash)
+* Abort when `defproject` contains duplicate keys. (Peter Garbers)
+* Add `vcs` task to automate version control. (Phil Hagelberg, Wayne Warren)
+* Automatically `clean` before `deploy` to avoid AOT in libraries. (Phil Hagelberg)
+* Emit warnings to stderr. (Andy Chambers)
+* Use `clojure.main` for uberjars that don't declare their own `:main`. (Phil Hagelberg)
+* Allow templates to load from `:plugin-repositories`. (Phil Hagelberg)
+* Fix a race condition on printing during dependency resolution. (Phil Hagelberg)
+* Allow `new` templates to operate on existing directories with `--force` option. (Matthew Blair)
+* Fix `search` task to allow queries on multiple fields. (Colin Jones)
+* Fix a bug where errors in `run` task were mis-reported. (Gary Fredericks)
+* Report download progress of search indices. (Matthew Blair)
+* Protection from harmful `:clean-targets` settings. (Craig McDaniel)
+* Faster loading of help text. (David Grayson, Ryan Mulligan)
+* Add `LEIN_SILENT` option to suppress *info* output. (Phil Hagelberg)
+
 ## 2.3.4 / 2013-11-18
 
 * Suggest `:exclusions` to possibly confusing `:pedantic?` dependencies. (Nelson Morris, Phil Hagelberg)
