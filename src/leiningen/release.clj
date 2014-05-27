@@ -68,7 +68,7 @@ The default list of release tasks is as follows:
 
   :release-tasks [[\"vcs\" \"assert-committed\"]
                   [\"change\" \"version\"
-                   \"leiningen.release/bump-version\" \":release\"]
+                   \"leiningen.release/bump-version\" \"release\"]
                   [\"vcs\" \"commit\"]
                   [\"vcs\" \"tag\"]
                   [\"deploy\"]
