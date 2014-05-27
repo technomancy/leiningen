@@ -64,7 +64,7 @@
 
 (defn- insignificant? [loc]
   (let [{:keys [tag]} (zip/node loc)]
-    (#{:comment :whitespace :newline} tag)))
+    (parser/space-nodes tag)))
 
 (defn- find-defproject [loc]
   (->> loc
