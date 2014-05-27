@@ -186,6 +186,7 @@
    :clean-targets ^:top-displace [:target-path]
    ;; TODO: remove :top-displace for :prep-tasks in 3.0
    :prep-tasks ^:top-displace ["javac" "compile"]
+   ;; If these change, be sure to update release docstring and DEPLOY.md
    :release-tasks ^:top-displace [["vcs" "assert-committed"]
                                   ["change" "version"
                                    "leiningen.release/bump-version" "release"]
