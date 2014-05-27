@@ -3,7 +3,7 @@
   (:require [leiningen.core.main :as main]
             [leiningen.core.project]))
 
-(def ^:dynamic *level* "patch")
+(def ^:dynamic *level* :patch)
 
 (defn parse-semantic-version [version-string]
   "Create map representing the given version string. Raise exception if the
@@ -17,7 +17,7 @@
         qualifier (last (re-matches #".*-(.+)?" version-string))]
     (if-not (empty? version-map)
       (merge version-map {:qualifier qualifier})
-      (throw (Exception. "Unrecognized version string.")))))
+      (main/abort "Unrecognized version string:" version-string))))
 
 (defn version-map->string
   "Given a version-map, return a string representing the version."
@@ -32,7 +32,7 @@
   a map of the version incremented in the level argument. Add qualifier unless
   releasing non-snapshot."
   [{:keys [major minor patch qualifier]} level]
-  (case (keyword level)
+  (case level
     :major {:major (inc major) :minor 0 :patch 0 :qualifier "SNAPSHOT"}
     :minor {:major major :minor (inc minor) :patch 0 :qualifier "SNAPSHOT"}
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
@@ -81,11 +81,13 @@ every element is either a task name or a collection in which the first element
 is a task name and the rest are arguments to that task.
 
 The release task takes a single argument which should be one of :major,
-:minor, or :patch to indicate which semantic versioning level to bump."
-  [project level]
-  (binding [*level* level]
-    (doseq [task (:release-tasks project)]
-      (let [[task-name & task-args] (if (vector? task) task [task])
-            task-name (main/lookup-alias task-name project)
-            current-project (leiningen.core.project/read)]
-        (main/apply-task task-name current-project task-args)))))
+:minor, or :patch to indicate which semantic versioning level to bump. If none
+is given, it defaults to :patch."
+  ([project] (release *level*))
+  ([project level]
+     (binding [*level* (read-string level)]
+       (doseq [task (:release-tasks project)]
+         (let [[task-name & task-args] (if (vector? task) task [task])
+               task-name (main/lookup-alias task-name project)
+               current-project (leiningen.core.project/read)]
+           (main/apply-task task-name current-project task-args))))))

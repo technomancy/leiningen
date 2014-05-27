@@ -1,13 +1,11 @@
 (ns leiningen.test.release
-  (:use [clojure.test]
-        [clojure.pprint :as pprint]
-        [leiningen.release]))
+  (:require [clojure.test :refer :all]
+            [clojure.pprint :as pprint]
+            [leiningen.release :refer :all]))
 
 (def invalid-semver-version-values
-  [["1.0"
-    "1.0"]
-    ["derpin"
-    "derpin"]])
+  [["1.0" "1.0"]
+    ["derpin" "derpin"]])
 
 (def valid-semver-version-values
   [["1.0.0"
@@ -50,17 +48,16 @@
 
 (deftest test-parse-semver-version
   (testing "Testing semantic version string parsing"
-    (doseq [semver-test-data valid-semver-version-values]
-      (testing (format "with valid version strings: %s"
-                       (first semver-test-data))
-        (is (= (parse-semantic-version (first semver-test-data))
-               (second semver-test-data)))))
+    (doseq [[args expected] valid-semver-version-values]
+      (testing (format "with valid version strings: %s" args)
+        (is (= (parse-semantic-version args) expected))))
 
     (testing "with invalid version strings."
-      (doseq [semver-test-data invalid-semver-version-values]
-        (is (thrown-with-msg?
-              Exception #"Unrecognized version string"
-              (parse-semantic-version (first semver-test-data))))))))
+      (doseq [[semver-test-data] invalid-semver-version-values]
+        (is (thrown-with-msg? Exception #"Unrecognized version string"
+                              (binding [leiningen.core.main/*exit-process?* false
+                                        *err* (java.io.StringWriter.)]
+                                (parse-semantic-version semver-test-data))))))))
 
 (deftest version-map->string-valid
   (doseq [[string parsed bumps] valid-semver-version-values]

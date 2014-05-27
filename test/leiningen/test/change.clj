@@ -53,13 +53,14 @@
   (testing "regular function by string identifier"
     (is (= "(defproject leingingen.change \"1.9.52\")"
            (change-string "(defproject leingingen.change \"1.9.52-QUALIFIED\")"
-                          [:version] "leiningen.release/bump-version" "release"))))
+                          [:version] "leiningen.release/bump-version" :release))))
 
   ;; NOTE: order is important here, previous test cases leiningen.relase to be loaded
   (testing "regular function by actual reference"
     (is (= "(defproject leingingen.change \"1.9.53-SNAPSHOT\")"
            (change-string "(defproject leingingen.change \"1.9.52\")"
-                          [:version] (find-var 'leiningen.release/bump-version) "patch")))))
+                          [:version] (find-var 'leiningen.release/bump-version)
+                          :patch)))))
 
 (deftest test-set-map-value
   (testing "can set a key"
