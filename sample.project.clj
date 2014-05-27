@@ -445,6 +445,7 @@
 ;; JAVA_CMD - executable to use for java(1)
 ;; JVM_OPTS - extra options to pass to the java command
 ;; DEBUG - increased verbosity
+;; LEIN_SILENT - suppress info-level output
 ;; LEIN_HOME - directory in which to look for user settings
 ;; LEIN_SNAPSHOTS_IN_RELEASE - allow releases to depend on snapshots
 ;; LEIN_JVM_OPTS - tweak speed of plugins or fix compatibility with old Java versions
