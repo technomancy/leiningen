@@ -4,6 +4,7 @@
             [clojure.zip :as zip]
             [clojure.java.io :as io]
             [leiningen.core.utils :as utils]
+            [leiningen.core.main :as main]
             [net.cgrand.sjacket :as sj]
             [net.cgrand.sjacket.parser :as parser]))
 
@@ -186,6 +187,10 @@ from disk rather than honoring the project map, so profile merging or
 `update-in` invocations will not effect it."
   [project key-or-path f & args]
   ;; cannot work with project map, want to preserve formatting, comments, etc
+  (when-not (and (every? string? args)
+                 (try (mapv read-string args) (catch Exception _)))
+    (main/abort "Each argument to change task must be a readable string:"
+                (pr-str args)))
   (let [project-file (io/file (:root project) "project.clj")
         source (slurp project-file)
         args (map read-string args)]
