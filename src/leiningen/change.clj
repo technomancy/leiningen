@@ -66,6 +66,10 @@
     (and (= :name tag)
          (= ["defproject"] content))))
 
+(defn- insignificant? [loc]
+  (let [{:keys [tag]} (zip/node loc)]
+    (parser/space-nodes tag)))
+
 (defn- find-defproject [loc]
   (->> loc
        (iterate zip/next)
@@ -84,6 +88,7 @@
   (->> loc
        (iterate zip/right)
        (take-while (comp not nil?))
+       (remove insignificant?)
        (partition 2)
        (map first)
        (filter (comp #{key} sjacket->clj zip/node))
@@ -94,7 +99,7 @@
        (iterate zip/right)
        (take-while (comp not nil?))
        (drop 1)
-       (remove (comp #{:whitespace :comment} :tag zip/node))
+       (remove insignificant?)
        first))
 
 (defn- parse-project [project-str]
@@ -154,7 +159,9 @@
        [:group-id] (update-name proj #(set-group-id (f (get-group-id %)) %))
        [:artifact-id] (update-name proj #(set-artifact-id
                                           (f (get-artifact-id %)) %))
-       (update-setting proj path f)))))
+       ;; moving to the right to move past defproject to get nice key-value
+       ;; pairs whitespaces and project name and version are filtered out later
+       (update-setting (zip/right proj) path f)))))
 
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
