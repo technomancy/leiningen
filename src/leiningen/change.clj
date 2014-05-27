@@ -32,8 +32,7 @@
                 (= "set" f) (constantly (first args))
                 (string? f) (or (utils/require-resolve (symbol f))
                                 (fail-argument! (str "Unable to resolve " f)))
-                :else       (fail-argument!
-                             (str "Expected " f " to implement or reference an IFn")))]
+                :else (fail-argument! (str f " is not a function.")))]
     #(apply f % args)))
 
 ;;; Maven convention helpers
@@ -147,12 +146,15 @@
 ;;; Public API
 
 (defn change-string
+  "Programmatic functional access to project.clj-rewriting.
+
+See the `change` task function which handles reading and writing from disk as
+well as turning string args into Clojure data; this function handles the rest."
   [project-str key-or-path f & args]
   (let [f (collapse-fn f args)
         path (normalize-path key-or-path)
         proj (parse-project project-str)]
     (sj/str-pt
-     ;; TODO: support 'magic' keys within nested scope also
      (condp = path
        [:version] (update-version proj f)
        [:name] (update-name proj f)
@@ -173,16 +175,18 @@ as its first argument and the remaining task aruments as the rest.
 
 This will append \"-SNAPSHOT\" to the current version:
 
-    $ lein change version str \"-SNAPSHOT\"
+    $ lein change version str '\"-SNAPSHOT\"'
 
 When called programmatically, you may pass a coll of keywords for the
 first arg or an actual function for the second.
 
-Note that this task reads the project.clj file from disk rather than
-honoring the project map, so profile merging or `update-in` invocations
-will not effect it."
+All the arguments to f are passed through the reader, so double quoting is
+necessory to use strings. Note that this task reads the project.clj file
+from disk rather than honoring the project map, so profile merging or
+`update-in` invocations will not effect it."
   [project key-or-path f & args]
   ;; cannot work with project map, want to preserve formatting, comments, etc
   (let [project-file (io/file (:root project) "project.clj")
-        source (slurp project-file)]
+        source (slurp project-file)
+        args (map read-string args)]
     (spit project-file (apply change-string source key-or-path f args))))

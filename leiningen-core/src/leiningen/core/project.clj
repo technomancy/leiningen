@@ -189,7 +189,7 @@
    ;; If these change, be sure to update release docstring and DEPLOY.md
    :release-tasks ^:top-displace [["vcs" "assert-committed"]
                                   ["change" "version"
-                                   "leiningen.release/bump-version" "release"]
+                                   "leiningen.release/bump-version" "\"release\""]
                                   ["vcs" "commit"]
                                   ["vcs" "tag"]
                                   ["deploy"]
