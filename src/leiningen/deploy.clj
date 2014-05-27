@@ -17,8 +17,8 @@
   (cond (re-find #"Return code is 405" message)
         (str message "\n" "Ensure you are deploying over SSL.")
         (re-find #"Return code is 401" message)
-        (str message "\n" "See `lein help deploy` for an explanation of how to"
-             " specify credentials.")
+        (str message "\n" "See `lein help deploying` for an explanation of how"
+             " to specify credentials.")
         :else message))
 
 (defn add-auth-from-url

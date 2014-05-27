@@ -17,7 +17,7 @@
 * Report download progress of search indices. (Matthew Blair)
 * Protection from harmful `:clean-targets` settings. (Craig McDaniel)
 * Faster loading of help text. (David Grayson, Ryan Mulligan)
-* Add `LEIN_SILENT` option to suppress *info* output. (Phil Hagelberg)
+* Add `LEIN_SILENT` option to suppress `*info*` output. (Phil Hagelberg)
 
 ## 2.3.4 / 2013-11-18
 
