@@ -92,8 +92,8 @@ every element is either a task name or a collection in which the first element
 is a task name and the rest are arguments to that task.
 
 The release task takes a single argument which should be one of :major,
-:minor, :patch, :alpha, :beta, or :rc to indicate which semantic versioning
-level to bump. If none is given, it defaults to :patch."
+:minor, :patch, :alpha, :beta, or :rc to indicate which version level to
+bump. If none is given, it defaults to :patch."
   ([project] (release project (str *level*)))
   ([project level]
      (binding [*level* (read-string level)]

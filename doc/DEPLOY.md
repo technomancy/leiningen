@@ -181,10 +181,10 @@ Once you have your repositories and user credentials configured for deploying,
 much of the work involved in actually deploying a release version can be tedious
 and difficult to perform in a consistent fashion from one release to the next.
 To simplify the release process, there is a `lein release [$LEVEL]` task where
-`$LEVEL` can be refer to any of the standard Semantic Version levels, `:major`,
-`:minor`, `:patch`, `:alpha`, `:beta`, or `:rc`. The simplification lies in the
-list of `:release-tasks` that get run on each call to `lein release`. For
-example, suppose that your `project.clj` starts off as follows:
+`$LEVEL` can be refer to any of `:major`, `:minor`, `:patch`, `:alpha`, `:beta`,
+or `:rc`. The simplification lies in the list of `:release-tasks` that get run
+on each call to `lein release`. For example, suppose that your `project.clj`
+starts off as follows:
 
 ```clojure
 (defproject leiningen "2.4.0-SNAPSHOT" ...)
@@ -211,7 +211,7 @@ The following events will happen:
    `:deploy-repositories` or `:repositories`
 
 4. The `change` task is run once more to "bump" the version number in
-   `project.clj`. Which semantic version level bumped is decided by the argument
+   `project.clj`. Which version level is decided by the argument
    passed to `lein release`, in this case `:patch`. Afterword, `project.clj` will
    look something like:  
         ```clojure
