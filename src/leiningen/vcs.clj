@@ -30,10 +30,10 @@
 
 ;;; Git
 
-(defmethod push :git [project]
+(defmethod push :git [project & [args]]
   (binding [eval/*dir* (:root project)]
-    (eval/sh "git" "push")
-    (eval/sh "git" "push" "--tags")))
+    (apply eval/sh "git" "push" args)
+    (apply eval/sh "git" "push" "--tags" args)))
 
 (defmethod commit :git [project]
   (binding [eval/*dir* (:root project)]
