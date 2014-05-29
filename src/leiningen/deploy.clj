@@ -33,7 +33,7 @@
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
-          (.startsWith (:url settings) "file://"))
+          (re-find #"(file|scp|scpexe)://" (:url settings)))
     [id settings]
     (do
       (when @utils/rebound-io?
