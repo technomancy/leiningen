@@ -399,6 +399,8 @@
              "Grunge-level" my.plugin/calculate-grunginess}
 
   ;;; Pom Output
+  ;; Where the pom.xml is written. If not set, the project root.
+  :pom-location "target/"
   ;; Set parent for working within a multi-module maven project.
   :parent [org.example/parent "0.0.1" :relative-path "../parent/pom.xml"]
   ;; Extensions here will be propagated to the pom but not used by Leiningen.
