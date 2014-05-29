@@ -38,11 +38,11 @@
 
 (defmethod push :none [project & [args]] (unknown-vcs "push"))
 
-(defmethod commit :none [project & [args]] (unknown-vcs "commit"))
+(defmethod commit :none [project] (unknown-vcs "commit"))
 
-(defmethod tag :none [project & [args]] (unknown-vcs "tag"))
+(defmethod tag :none [project] (unknown-vcs "tag"))
 
-(defmethod assert-committed :none [project & [args]] (unknown-vcs "assert-committed"))
+(defmethod assert-committed :none [project] (unknown-vcs "assert-committed"))
 
 ;;; Git
 
