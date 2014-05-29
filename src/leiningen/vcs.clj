@@ -23,11 +23,27 @@
 
 (defmulti commit "Save indexed changes to current repository." which-vcs :default :none)
 
-(defmulti tag "Apply a version control tag." which-vcs)
+(defmulti tag "Apply a version control tag." which-vcs :default :none)
 
-(defmulti assert-committed "Abort if uncommitted changes exist." which-vcs)
+(defmulti assert-committed "Abort if uncommitted changes exist." which-vcs :default :none)
 
 
+
+;;; VCS not found
+
+(defn- unknown-vcs [task]
+  (binding [*out* *err*]
+    (println (str "Unknown VCS detected for 'vcs " task "'")))
+  (System/exit 1))
+
+(defmethod push :none [project & [args]] (unknown-vcs "push"))
+
+(defmethod commit :none [project & [args]] (unknown-vcs "commit"))
+
+(defmethod tag :none [project & [args]] (unknown-vcs "tag"))
+
+(defmethod assert-committed :none [project & [args]] (unknown-vcs "assert-committed"))
+
 ;;; Git
 
 (defmethod push :git [project & [args]]
