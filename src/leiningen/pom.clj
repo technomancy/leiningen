@@ -399,4 +399,4 @@
          (.write pom-writer pom))
        (main/info "Wrote" (str pom-file))
        (.getAbsolutePath pom-file)))
-  ([project] (pom project "pom.xml")))
+  ([project] (pom project (io/file (:pom-location project) "pom.xml"))))
