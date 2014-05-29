@@ -9,20 +9,54 @@ However, deploying elsewhere is not always that straightforward.
 
 There may be times when you want to make a library available to your
 team without making it public. This is best done by setting up a
-private repository. The simplest kind of private repository is a web
-server pointed at a directory full of static files. You can use a
-`file:///` URL in your `:repositories` to deploy that way if the
-directory is local to the machine on which Leiningen is running.
-[Amazon S3](http://aws.amazon.com/s3/) buckets are another simple
-choice; you can deploy to S3 buckets using
-[S3 wagon private](https://github.com/technomancy/s3-wagon-private).
+private repository. There are several types of repositories.
 
-Alternatively you can run a private repository on your own server.
-Both [Archiva](http://archiva.apache.org/) and
-[Nexus](http://nexus.sonatype.org/) provide this as well as proxying
-to other repositories, so you can set `^:replace` metadata on
+### Static HTTP
+
+The simplest kind of private repository is a web server pointed at a
+directory full of static files. You can use a `file:///` URL in your
+`:repositories` to deploy that way if the directory is local to the
+machine on which Leiningen is running.
+
+### SCP
+
+If you already have a server set up with your SSH public keys, the
+`scp` transport is a simple way to publish and consume private
+dependencies. Place the following inside `defproject`:
+
+```clj
+:plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]]
+:repositories [["releases" "scp://somerepo.com/home/repo/"]]
+```
+
+Then place the following outside the `defproject`:
+
+```clj
+(cemerick.pomegranate.aether/register-wagon-factory!
+ "scp" #(let [c (resolve 'org.apache.maven.wagon.providers.ssh.external.ScpExternalWagon)]
+          (clojure.lang.Reflector/invokeConstructor c (into-array []))))
+```
+
+It's also possible to deploy to a repository using the `scp` transport
+and consume from it over `http` if you set up nginx or something
+similar to serve the repository directory over HTTP.
+
+### S3
+
+If you don't already have a server running,
+[Amazon S3](http://aws.amazon.com/s3/) is a low-maintenance choice;
+you can deploy to S3 buckets using the
+[S3 wagon private](https://github.com/technomancy/s3-wagon-private) plugin.
+
+### Nexus/Archiva
+
+The most full-featured and complex route is to run a full-fledged
+repository manager. Both [Archiva](http://archiva.apache.org/) and
+[Nexus](http://nexus.sonatype.org/) provide this. They also proxy to
+other repositories, so you can set `^:replace` metadata on
 `:repositories` in project.clj, and dependency downloads will speed up
-by quite a bit since Clojars and Maven Central won't be checked.
+by quite a bit since Clojars and Maven Central won't need to be
+checked.
 
 The private server will need to be added to the `:repositories`
 listing in project.clj. Archiva and Nexus offer separate repositories
@@ -44,7 +78,7 @@ projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 {:user {:deploy-repositories [["internal" "http://blueant.com/archiva/internal"]]}}
 ```
 
-### Non-standard Repository Protocols
+### Other Non-standard Repository Protocols
 
 If you are deploying to a repository that doesn't use one of the
 standard protocols (`file:`, `http:`, `https:`), you may need to
@@ -62,12 +96,11 @@ then registering a wagon factory function at the bottom of your project.clj:
   #(eval '(org.apache.maven.wagon.providers.webdav.WebDavWagon.)))
 ```
 
-Note that the two most common custom protocols (`s3:`/`s3p:` and
-`dav:`) are already supported by plugins
-([S3 wagon private](https://github.com/technomancy/s3-wagon-private)
-and [lein-webdav](https://github.com/tobias/lein-webdav),
-respectively), so you can just depend on those plugins instead of
-adding the above code to your project.clj.
+This step is unnecessary for plugins that include explicit Leiningen
+support like
+[S3 wagon private](https://github.com/technomancy/s3-wagon-private)
+and [lein-webdav](https://github.com/tobias/lein-webdav) as these declare
+their wagons in ways that can be inferred automatically.
 
 ## Authentication
 
