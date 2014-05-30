@@ -203,7 +203,7 @@ plain-text `credentials.clj` using GPG.
 
   OSS' typical deployment requirements include the publishing of `-sources`
   and `-javadoc` jars. Such artifacts are usually unnecessary for Clojure and
-  ClojureScript projects. _If you are using Leiningen to publish source-only
+  ClojureScript projects. _If you are using Leiningen to publish binary-only
   artifacts_, [you can ask that the `-sources` and `-javadoc` jar requirements
   be removed from your OSS groupId](https://issues.sonatype.org/browse/OSSRH-9931?focusedCommentId=257088&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-257088).
 
