@@ -17,7 +17,7 @@
                        (let [ns-file# (-> (str ns#)
                                           (.replace \- \_)
                                           (.replace \. \/))]
-                         (bind [*out* *err*]
+                         (binding [*out* *err*]
                            (println "Compiling namespace" ns#))
                          (try
                            (binding [*warn-on-reflection* true]
