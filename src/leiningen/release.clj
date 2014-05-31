@@ -99,5 +99,5 @@ bump. If none is given, it defaults to :patch."
        (doseq [task (:release-tasks project)]
          (let [[task-name & task-args] (if (vector? task) task [task])
                task-name (main/lookup-alias task-name project)
-               current-project (leiningen.core.project/read)]
+               current-project (leiningen.core.project/init-project (leiningen.core.project/read))]
            (main/apply-task task-name current-project task-args))))))
