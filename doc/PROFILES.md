@@ -142,10 +142,10 @@ profiles. To do this, just use a vector instead of a map as the profile value.
 This can be used to avoid duplication:
 
 ```clj
-{:shared {:port 9229, :protocol \"https\"}
- :qa [:shared {:servers [\"qa.mycorp.com\"]}]
- :stage [:shared {:servers [\"stage.mycorp.com\"]}]
- :production [:shared {:servers [\"prod1.mycorp.com\", \"prod1.mycorp.com\"]}]}
+{:shared {:port 9229, :protocol "https"}
+ :qa [:shared {:servers ["qa.mycorp.com"]}]
+ :stage [:shared {:servers ["stage.mycorp.com"]}]
+ :production [:shared {:servers ["prod1.mycorp.com", "prod1.mycorp.com"]}]}
 ```
 
 Composite profiles are used by Leiningen internally for the `:default`
