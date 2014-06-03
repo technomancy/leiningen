@@ -41,11 +41,11 @@
     :major {:major (inc major) :minor 0 :patch 0 :qualifier "SNAPSHOT"}
     :minor {:major major :minor (inc minor) :patch 0 :qualifier "SNAPSHOT"}
     :patch {:major major :minor minor :patch (inc patch) :qualifier "SNAPSHOT"}
-    :alpha {:major major :minor minor :patch (inc patch)
+    :alpha {:major major :minor minor :patch patch
             :qualifier (next-qualifier "alpha" qualifier)}
-    :beta {:major major :minor minor :patch (inc patch)
+    :beta {:major major :minor minor :patch patch
            :qualifier (next-qualifier "beta" qualifier)}
-    :rc {:major major :minor minor :patch (inc patch)
+    :rc {:major major :minor minor :patch patch
          :qualifier (next-qualifier "RC" qualifier)}
     :release {:major major :minor minor :patch patch}))
 
