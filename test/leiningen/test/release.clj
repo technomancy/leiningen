@@ -44,7 +44,23 @@
    {:major "2.0.0-SNAPSHOT"
     :minor "1.1.0-SNAPSHOT"
     :patch "1.0.1-SNAPSHOT"
-    :release "1.0.0"}]])
+    :release "1.0.0"
+    :alpha "1.0.0-alpha1"
+    :beta "1.0.0-beta1"
+    :rc "1.0.0-RC1"}]
+
+   ["1.0.0-alpha1"
+   {:major 1
+    :minor 0
+    :patch 0
+    :qualifier "alpha1"}
+   {:major "2.0.0-SNAPSHOT"
+    :minor "1.1.0-SNAPSHOT"
+    :patch "1.0.1-SNAPSHOT"
+    :release "1.0.0"
+    :alpha "1.0.0-alpha2"
+    :beta "1.0.0-beta1"
+    :rc "1.0.0-RC1"}]])
 
 (deftest test-parse-semver-version
   (testing "Testing semantic version string parsing"
