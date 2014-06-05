@@ -1,7 +1,8 @@
 (ns leiningen.release
   "Perform :release-tasks."
-  (:require [leiningen.core.main :as main]
-            [leiningen.core.project]))
+  (:require [clojure.java.io :as io]
+            [leiningen.core.main :as main]
+            [leiningen.core.project :as project]))
 
 (def ^:dynamic *level* :patch)
 
@@ -99,5 +100,13 @@ bump. If none is given, it defaults to :patch."
        (doseq [task (:release-tasks project)]
          (let [[task-name & task-args] (if (vector? task) task [task])
                task-name (main/lookup-alias task-name project)
-               current-project (leiningen.core.project/init-project (leiningen.core.project/read))]
+               current-project (project/init-project (project/read))]
            (main/apply-task task-name current-project task-args))))))
+
+;; support existing release plugin:
+;; https://github.com/technomancy/leiningen/issues/1544
+(when-let [[resource] (-> (.getContextClassLoader (Thread/currentThread))
+                          (.getResources "leiningen/release.clj")
+                          (enumeration-seq) (rest) (seq))]
+  (clojure.lang.Compiler/load (io/reader resource)
+                              "leiningen/release.clj" (str resource)))
