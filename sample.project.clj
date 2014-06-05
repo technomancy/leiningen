@@ -323,6 +323,9 @@
                  ;; This expression will run when first opening a REPL, in the
                  ;; namespace from :init-ns or :main if specified.
                  :init (println "here we are in" *ns*)
+                 ;; Print stack traces on exceptions (highly recommended, but
+                 ;; currently overwrites *1, *2, etc).
+                 :caught clojure.repl/pst
                  ;; Skip's the default requires and printed help message.
                  :skip-default-init false
                  ;; Customize the socket the repl task listens on and
