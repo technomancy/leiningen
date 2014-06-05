@@ -246,8 +246,9 @@ Subcommands:
   If no dest is given, resolves the host resolved as described above
   and the port from LEIN_REPL_PORT, :repl-options, or .nrepl-port in
   the project root, in that order.
-  
-Note: the :repl profile is implicitly activated for this task, and cannot be deactivated."
+
+Note: the :repl profile is implicitly activated for this task. It cannot be
+deactivated, but it can be overridden."
 
   ([project] (repl project ":start"))
   ([project subcommand & opts]
