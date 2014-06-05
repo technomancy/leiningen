@@ -116,15 +116,16 @@
         `(clojure.tools.nrepl.server/default-handler
            ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware)))))
 
-(defn- init-requires [{{:keys [nrepl-middleware nrepl-handler]} :repl-options
-                       :as project} & nses]
+(defn- init-requires [{{:keys [nrepl-middleware nrepl-handler caught]}
+                       :repl-options :as project} & nses]
   (let [defaults '[clojure.tools.nrepl.server complete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                         (filter symbol?)
                         (map namespace)
                         (remove nil?)
-                        (map symbol))]
-    (for [n (concat defaults nrepl-syms nses)]
+                        (map symbol))
+        caught (and caught (namespace caught) [(symbol (namespace caught))])]
+    (for [n (concat defaults nrepl-syms nses caught)]
       (list 'quote n))))
 
 (defn- server-forms [project cfg ack-port start-msg?]
@@ -139,7 +140,8 @@
           legacy-repl-port# (if (.exists (io/file ~(:target-path project)))
                               (io/file ~(:target-path project) "repl-port"))]
       (when ~start-msg?
-        (println "nREPL server started on port" port# "on host" ~(:host cfg) (str "- nrepl://" ~(:host cfg) ":" port#)))
+        (println "nREPL server started on port" port# "on host" ~(:host cfg)
+                 (str "- nrepl://" ~(:host cfg) ":" port#)))
       (spit (doto repl-port-file# .deleteOnExit) port#)
       (when legacy-repl-port#
         (spit (doto legacy-repl-port# .deleteOnExit) port#))
