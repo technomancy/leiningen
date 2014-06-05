@@ -44,7 +44,8 @@
 (defn- lookup-task-var
   "Require and resolve a leiningen task from its name."
   [task-name]
-  (utils/require-resolve (str "leiningen." task-name) task-name))
+  (or (utils/require-resolve (str "leiningen.plugin" task-name) task-name)
+      (utils/require-resolve (str "leiningen." task-name) task-name)))
 
 (defn- pass-through-help? [task-name project]
   (let [de-aliased (lookup-alias task-name project)]
