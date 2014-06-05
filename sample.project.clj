@@ -325,7 +325,7 @@
                  :init (println "here we are in" *ns*)
                  ;; Print stack traces on exceptions (highly recommended, but
                  ;; currently overwrites *1, *2, etc).
-                 :caught clojure.repl/pst
+                 :caught clj-stacktrace.repl/pst+
                  ;; Skip's the default requires and printed help message.
                  :skip-default-init false
                  ;; Customize the socket the repl task listens on and
