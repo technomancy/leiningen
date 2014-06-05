@@ -354,6 +354,14 @@ to true, then this will trigger an exit, but in some contexts (like
 `with-profiles`) it will simply trigger an exception and go on to the
 next task.
 
+## Overriding Built-in Tasks
+
+Normally if you create a plugin containing (say) a `leiningen.compile`
+namespace, it won't be used when `lein compile` is run; the built-in
+task will override it. If you'd like to shadow a built-in task, you
+can either create an alias or put it in the `leiningen.plugin.compile`
+namespace.
+
 ## 1.x Compatibility
 
 Once you've identified the changes necessary to achieve compatibility
