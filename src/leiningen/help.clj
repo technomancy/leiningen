@@ -9,9 +9,8 @@
   (memoize
    (fn []
      (apply hash-map
-            (mapcat
-             (fn [form] [ (second form) (b/doc-from-ns-form form) ])
-             (b/namespace-forms-on-classpath :prefix "leiningen"))))))
+            (mapcat (juxt second b/doc-from-ns-form)
+                    (b/namespace-forms-on-classpath :prefix "leiningen"))))))
 
 (def ^{:private true
        :doc "Width of task name column in list of tasks produced by help task."}
