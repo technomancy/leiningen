@@ -202,10 +202,10 @@ order to make `lein deploy` with no argument target Clojars, include this in
 your `project.clj`:
 
 ```clj
-{:deploy-repositories [["releases" "clojars"]]}
+{:deploy-repositories [["releases" :clojars]]}
 ```
 
-You can use this to alias any `:repositories` entries; Clojars is just the most
+You can use this to alias any `:repositories` entry; Clojars is just the most
 common use case.
 
 ## Releasing Simplified
@@ -296,7 +296,7 @@ Deploying your libraries and other artifacts to [Maven
 Central](http://search.maven.org/) is often desirable.  Most tools that
 use the Maven repository format (including Leiningen, Gradle, sbt, and
 Maven itself) include Maven Central or one of its mirrors as a default
-repository for resolving project dependencies.  So, deploying your
+repository for resolving project dependencies.  So deploying your
 libraries to Maven Central offers the widest distribution, especially if
 your users are likely to be in languages other than Clojure.
 
@@ -309,23 +309,26 @@ step-by-step recipe from start to finish:
 [this](https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide)
 for details on how to get registered (you can ignore most of the info on
 that page regarding configuring Maven and/or ant, since we'll not be
-touching those tools).  Note that all artifacts you deploy to OSS will
+touching those tools).  Note that all artifacts you deploy to Sonatype OSS will
 need to use the groupId(s) you choose, so your project coordinates
 should be set up to match; e.g.:
+
 ```clojure
 (defproject your.group.id/projectname "x.y.z" ...)
 ```
 
 2. Add your credentials for `oss.sonatype.org` to your
 `~/.lein/credentials.clj.gpg` file.  Something like this will do:
+
 ```clojure
 {#"https://oss.sonatype.org/.*"
  {:username "username" :password "password"}}
 ```
+
 Refer to the instructions earlier on this page for how to encrypt a
 plain-text `credentials.clj` using GPG.
 
-3. Add the OSS deployment repository endpoints to your project.clj, e.g.:
+3. Add the Sonatype OSS deployment repository endpoints to your project.clj, e.g.:
 ```clojure
 :deploy-repositories [["releases" {:url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
                                    :creds :gpg}
@@ -333,9 +336,10 @@ plain-text `credentials.clj` using GPG.
                                     :creds :gpg}]]
 ```
 
-4. Conform to OSS' requirements for uploaded artifacts' `pom.xml` files;
+4. Conform to Sonatype OSS' requirements for uploaded artifacts' `pom.xml` files;
 all you need to do is make sure the following slots are populated
 properly in your `project.clj`:
+
 ```clojure
   :description
   :url
@@ -343,6 +347,7 @@ properly in your `project.clj`:
   :scm
   :pom-addition
 ```
+
 Examples of OSS-acceptable values for these entries can be seen in this
 [`project.clj`
 file](https://github.com/cemerick/piggieback/blob/master/project.clj).
