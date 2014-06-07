@@ -58,19 +58,9 @@
 (defn- sanitize-repo-name [name]
   (last (.split name "/")))
 
-(defn ^:internal get-aliased-repo [project name]
-  (let [repositories (into {} (:repositories project))
-        deploy-repositories (into {} (:deploy-repositories project))
-        merged-repos (merge repositories deploy-repositories)
-        ;; To support stuff like :deploy-repositories {"releases" "clojars"}
-        aliased-name (if (merged-repos (merged-repos name))
-                       (merged-repos name)
-                       name)]
-    [aliased-name (merge (repositories aliased-name)
-                         (deploy-repositories aliased-name))]))
-
 (defn repo-for [project name]
-  (let [[name settings] (get-aliased-repo project name)]
+  (let [settings (merge (get (into {} (:repositories project)) name)
+                        (get (into {} (:deploy-repositories project)) name))]
     (-> [(sanitize-repo-name name) (or settings {:url name})]
         (classpath/add-repo-auth)
         (add-auth-from-url)

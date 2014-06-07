@@ -2,6 +2,7 @@
 
 ## 2.4.0 / ???
 
+* Allow plugins to override built-in tasks. (Phil Hagelberg)
 * Add `release` task for automating common release steps. (Wayne Warren, Chris Truter, Phil Hagelberg)
 * Add `change` task for programmatc `project.clj` manipulation. (Chris Truter, Max Barnash)
 * Abort when `defproject` contains duplicate keys. (Peter Garbers)
