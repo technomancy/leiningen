@@ -37,15 +37,16 @@
     [id settings]
     (do
       (when @utils/rebound-io?
-        (main/abort "No credentials found for" id "(did you mean `lein deploy clojars`?)"
-                    "\nPassword prompts are not supported when ran after other"
-                    "(potentially)\ninteractive tasks. Maybe setting up"
-                    "credentials may be an idea?\n\nSee `lein help deploy` for an"
-                    "explanation of how to specify credentials."))
+        (main/abort "No credentials found for" id "(did you mean `lein deploy"
+                    " clojars`?)\nPassword prompts are not supported when ran"
+                    " after other (potentially)\ninteractive tasks.\nSee `lein"
+                    " help deploy` for an explanation of how to specify"
+                    " credentials."))
       (print "No credentials found for" id)
       (when (not= "clojars" id)
         (print " (did you mean `lein deploy clojars`?)"))
-      (println "\nSee `lein help deploying` for how to configure credentials to avoid prompts.")
+      (println "\nSee `lein help deploying` for how to configure credentials"
+               "to avoid prompts.")
       (print "Username: ") (flush)
       (let [username (read-line)
             password (.readPassword (System/console) "%s"
