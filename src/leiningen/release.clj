@@ -98,11 +98,8 @@ bump. If none is given, it defaults to :patch."
   ([project level]
      (binding [*level* (read-string level)]
        (doseq [task (:release-tasks project)]
-         ;; TODO: use resolve-and-apply
-         (let [[task-name & task-args] (if (vector? task) task [task])
-               task-name (main/lookup-alias task-name project)
-               current-project (project/init-project (project/read))]
-           (main/apply-task task-name current-project task-args))))))
+         (let [current-project (project/init-project (project/read))]
+           (main/resolve-and-apply current-project task))))))
 
 ;; support existing release plugin:
 ;; https://github.com/technomancy/leiningen/issues/1544
