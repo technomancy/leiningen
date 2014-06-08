@@ -125,10 +125,10 @@ as well as defining a -main function.
 Note: The :uberjar profile is implicitly activated for this task, and cannot be deactivated."
 
   ([project main]
-     (let [standalone-filename (jar/get-jar-filename project :standalone)
-           project (project/merge-profiles project [:uberjar])
+     (let [project (project/merge-profiles project [:uberjar])
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))
+           standalone-filename (jar/get-jar-filename project :standalone)
            [_ jar] (try (first (jar/jar project main))
                         (catch Exception e
                           (when main/*debug*
