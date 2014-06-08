@@ -321,7 +321,7 @@ else
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
         export TRAMPOLINE_FILE
-        "$LEIN_JAVA_CMD" -client \
+        "$LEIN_JAVA_CMD" \
             "${BOOTCLASSPATH[@]}" \
             $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
