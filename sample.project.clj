@@ -187,7 +187,10 @@
   ;; "lein assoc :magic true run -m hi.core". Remember, commas are not
   ;; considered to be special by argument parsers, they're just part
   ;; of the preceding argument.
-  :aliases {"launch" "run"
+  :aliases {"launch" ["run" "-m" "myproject.main"]
+            ;; Values from the project map can be spliced into the arguments
+            ;; using :project/key keywords.
+            "launch-version" ["run" "-m" "myproject.main" :project/version]
             "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]
             ;; For complex aliases, a docstring may be attached. The docstring
             ;; will be printed instead of the expansion when running `lein help`.

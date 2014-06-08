@@ -2,6 +2,7 @@
 
 ## 2.4.0 / ???
 
+* Allow aliases to splice in values from the project map. (Phil Hagelberg)
 * Allow plugins to override built-in tasks. (Phil Hagelberg)
 * Add `release` task for automating common release steps. (Wayne Warren, Chris Truter, Phil Hagelberg)
 * Add `change` task for programmatc `project.clj` manipulation. (Chris Truter, Max Barnash)

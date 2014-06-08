@@ -422,18 +422,35 @@ separate branches of your codebase in this situation.
 Occasionally, the need arises for a task to be included in a project's
 codebase. However, this is much less common than people think. If you
 simply have some code that needs to be invoked from the command-line
-via `lein foo`, it's much simpler to have your code run inside your
-project and alias `foo` to `run -m myproject.foo`:
+it's much simpler to have your code run in a `-main` function inside your
+project and invoke it with an alias like `lein garble`:
 
 ```clj
-:aliases {"foo" ["run" "-m" "myproject.foo"]}
+:aliases {"garble" ["run" "-m" "myproject.garble" "supergarble"]}
 ```
+
+Note that aliases vectors result in partially applied task functions,
+so with the above config, `lein garble seventeen` would be equivalent
+to `lein run -m myproject.garble supergarble seventeen` (or
+`(myproject.garble/-main "supergarble" "seventeen")` from the
+repl). The arguments in the alias are concatenated to the arguments
+provided when it's invoked.
 
 You only need to write a Leiningen task if you need to operate outside
 the context of your project, for instance if you need to adjust the
 project map before calling `eval-in-project` or some other task where
-you need direct access to Leiningen internals. The vast majority of
-these cases are already covered by
+you need direct access to Leiningen internals. You can even read values
+from the project map with an alias:
+
+```clj
+:aliases {"garble" ["run" "-m" "myproject.garble" :project/version]}
+```
+
+This will splice the value of the project map's `:version` field into
+the argument list so that the `-main` function running inside the
+project code gets access to it.
+
+The vast majority of these cases are already covered by
 [existing plugins](http://wiki.github.com/technomancy/leiningen/plugins),
 but if you have a case that doesn't exist and for some reason can't
 spin it off into its own separate plugin, you can enable this behavior
