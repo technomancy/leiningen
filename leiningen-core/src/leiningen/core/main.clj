@@ -54,19 +54,11 @@
           (pass-through-help? (first de-aliased) project))
       (:pass-through-help (meta (lookup-task-var de-aliased))))))
 
-;; TODO: document
-(defn- project-splice-into-args [project args]
-  (into [] (for [arg args]
-             (if (and (keyword? arg) (= (namespace arg) "project"))
-               (project arg)
-               arg))))
-
 (defn task-args [[task-name & args] project]
   (let [pass-through? (pass-through-help? task-name project)]
     (if (and (= "help" (aliases (first args))) (not pass-through?))
       ["help" (cons task-name (rest args))]
-      [(lookup-alias task-name project)
-       (project-splice-into-args project args)])))
+      [(lookup-alias task-name project) (vec args)])))
 
 (defn option-arg [str]
   (and str (cond (.startsWith str "--") (keyword str)
@@ -227,14 +219,27 @@
                              (count pargs))]]
      (cons f (drop non-varargs r))))
 
+(defn- splice-into-args
+  "Alias vectors may include :project/key entries.
+These get replaced with the corresponding values from the project map."
+  [project args]
+  (into [] (for [arg args]
+             (if (and (keyword? arg) (= (namespace arg) "project"))
+               (project (keyword (name arg)))
+               arg))))
+
+(defn- partial-task [task-var pargs]
+  (with-meta
+    (fn [project & args]
+      (apply task-var project (splice-into-args project (concat pargs args))))
+    (update-in (meta task-var) [:arglists] (drop-partial-args pargs))))
+
 (defn resolve-task
   "Look up task function and perform partial application if applicable."
   ([task not-found]
      (let [[task & pargs] (if (coll? task) task [task])]
        (if-let [task-var (lookup-task-var task)]
-         (with-meta
-           (fn [project & args] (apply task-var project (concat pargs args)))
-           (update-in (meta task-var) [:arglists] (drop-partial-args pargs)))
+         (partial-task task-var pargs)
          (not-found task))))
   ([task] (resolve-task task #'task-not-found)))
 
@@ -263,8 +268,7 @@
   "Resolve task-name to a function and apply project and args if arity matches."
   [task-name project args]
   (let [[task-alias] (for [[k v] (:aliases project) :when (= v task-name)] k)
-        project (and project (remove-alias project
-                                           (or task-alias task-name)))
+        project (and project (remove-alias project (or task-alias task-name)))
         task (resolve-task task-name)]
     (when-not (or (:root project) (:no-project-needed (meta task)))
       (abort "Couldn't find project.clj, which is needed for" task-name))

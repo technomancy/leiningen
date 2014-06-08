@@ -120,3 +120,10 @@
 
   (is (= (parse-options ["--to-dir" "test2" "--ham" "--"])
          [{:--ham true, :--to-dir "test2"} []])))
+
+(deftest test-spliced-project-values
+  (let [p {:aliases {"go" ["echo" "write" :project/version]}
+           :version "seventeen"
+           :eval-in :leiningen}
+        out (with-out-str (resolve-and-apply p ["go"]))]
+    (is (= "write seventeen\n" out))))
