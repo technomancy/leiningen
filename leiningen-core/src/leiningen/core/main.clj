@@ -54,12 +54,19 @@
           (pass-through-help? (first de-aliased) project))
       (:pass-through-help (meta (lookup-task-var de-aliased))))))
 
-;; TODO: rename to intercept-help for v3
+;; TODO: document
+(defn- project-splice-into-args [project args]
+  (into [] (for [arg args]
+             (if (and (keyword? arg) (= (namespace arg) "project"))
+               (project arg)
+               arg))))
+
 (defn task-args [[task-name & args] project]
   (let [pass-through? (pass-through-help? task-name project)]
     (if (and (= "help" (aliases (first args))) (not pass-through?))
       ["help" (cons task-name (rest args))]
-      [(lookup-alias task-name project) (vec args)])))
+      [(lookup-alias task-name project)
+       (project-splice-into-args project args)])))
 
 (defn option-arg [str]
   (and str (cond (.startsWith str "--") (keyword str)

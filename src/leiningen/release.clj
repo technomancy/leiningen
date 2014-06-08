@@ -98,6 +98,7 @@ bump. If none is given, it defaults to :patch."
   ([project level]
      (binding [*level* (read-string level)]
        (doseq [task (:release-tasks project)]
+         ;; TODO: use task-args
          (let [[task-name & task-args] (if (vector? task) task [task])
                task-name (main/lookup-alias task-name project)
                current-project (project/init-project (project/read))]
