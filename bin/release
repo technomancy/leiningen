@@ -40,11 +40,7 @@ read CONTINUE
 case "$CONTINUE" in
     y|Y|"")
         gpg -ab $RELEASE_JAR
-        # s3c is an s3cmd wrapper for people who don't hate security:
-        # https://github.com/technomancy/dotfiles/blob/master/bin/s3c
-        s3c lein put -P $RELEASE_JAR s3://leiningen/downloads/
-        s3c lein put -P $RELEASE_JAR.asc s3://leiningen/downloads/
-        echo "Uploaded";;
+        echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION.";;
     *)
         echo "Aborted."
         exit 1;;
