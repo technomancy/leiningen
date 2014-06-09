@@ -14,18 +14,22 @@
     (and (.exists vcs-dir) vcs)))
 
 (defn which-vcs [project & _]
-  (some (partial uses-vcs project) @supported-systems))
+  (or (:vcs project) (some (partial uses-vcs project) @supported-systems)))
 
 
 ;;; Methods
 
-(defmulti push "Push to your remote repository." which-vcs :default :none)
+(defmulti push "Push to your remote repository."
+  which-vcs :default :none)
 
-(defmulti commit "Save indexed changes to current repository." which-vcs :default :none)
+(defmulti commit "Commit changes to current repository."
+  which-vcs :default :none)
 
-(defmulti tag "Apply a version control tag." which-vcs :default :none)
+(defmulti tag "Apply a version control tag. Takes an optional tag prefix."
+  which-vcs :default :none)
 
-(defmulti assert-committed "Abort if uncommitted changes exist." which-vcs :default :none)
+(defmulti assert-committed "Abort if uncommitted changes exist."
+  which-vcs :default :none)
 
 
 
