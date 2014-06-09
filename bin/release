@@ -39,8 +39,7 @@ echo "Are these acceptable times? (~3s) [Y\n]"
 read CONTINUE
 case "$CONTINUE" in
     y|Y|"")
-        gpg -ab $RELEASE_JAR
-        echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION.";;
+        gpg -ab $RELEASE_JAR;;
     *)
         echo "Aborted."
         exit 1;;
@@ -49,11 +48,12 @@ esac
 cd $LEIN_ROOT
 
 git commit -a -m "Release $RELEASE_VERSION"
+git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
+git push && git push --tags && git push origin master:stable
+
+echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION."
 
 rm -rf target leiningen-core/target
-echo "Test self-install."
-echo "If things are good, run this:"
-echo "$ git tag -s $RELEASE_VERSION -m \"Release $RELEASE_VERSION\""
-echo "$ git push && git push --tags && git push origin master:stable"
-echo "$ lein deploy clojars"
-echo "$ cd leiningen-core && lein deploy clojars"
+echo "Test self-install. If things are good, run this:"
+echo "$ lein deploy clojars && cd leiningen-core && lein deploy clojars"
+echo "And announce it on the mailing list."
