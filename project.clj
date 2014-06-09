@@ -16,7 +16,7 @@
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus]]
-                 [reply "0.3.0" :exclusions [ring/ring-core
+                 [reply "0.3.1" :exclusions [ring/ring-core
                                              org.thnetos/cd-client]]
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
