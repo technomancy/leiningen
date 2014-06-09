@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.4.0 / ???
+## 2.4.0 / 2014-06-09
 
 * Allow aliases to splice in values from the project map. (Phil Hagelberg)
 * Allow plugins to override built-in tasks. (Phil Hagelberg)
