@@ -6,7 +6,7 @@
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[leiningen-core "2.4.0"]
+  :dependencies [[leiningen-core "2.4.1-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.3"]
                  [commons-io "2.4"]
                  [bultitude "0.2.6"]
