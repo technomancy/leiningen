@@ -50,7 +50,7 @@
 
 ;;; Git
 
-(defmethod push :git [project & [args]]
+(defmethod push :git [project & args]
   (binding [eval/*dir* (:root project)]
     (apply eval/sh "git" "push" args)
     (apply eval/sh "git" "push" "--tags" args)))
@@ -60,9 +60,11 @@
     (eval/sh "git" "add" "-A")
     (eval/sh "git" "commit" "-m" (str "Version " (:version project)))))
 
-(defmethod tag :git [project]
-  (binding [eval/*dir* (:root project)]
-    (let [version (:version project)]
+(defmethod tag :git [{:keys [root version]} & [prefix]]
+  (binding [eval/*dir* root]
+    (let [tag (if prefix
+                (str prefix "-" version)
+                version)]
       (eval/sh "git" "tag" "-s" version "-m" (str "Release " version)))))
 
 (defmethod assert-committed :git [project]
