@@ -149,12 +149,17 @@
   ;; Use the with-profiles higher-order task to run a task with a
   ;; different set of active profiles.
   ;; See `lein help profiles` for a detailed explanation.
-  :profiles {:dev {:resource-paths ["dummy-data"]
-                   :dependencies [[clj-stacktrace "0.2.4"]]}
-             :debug {:debug true
+  :profiles {:debug {:debug true
                      :injections [(prn (into {} (System/getProperties)))]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
-             :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}}
+             :1.5 {:dependencies [[org.clojure/clojure "1.5.0"]]}
+             ;; activated by default
+             :dev {:resource-paths ["dummy-data"]
+                   :dependencies [[clj-stacktrace "0.2.4"]]}
+             ;; activated automatically during uberjar
+             :uberjar {:aot :all}
+             ;; activated automatically in repl task
+             :repl {:plugins [[cider/cider-nrepl "0.7.1"]]}}
   ;; Load these namespaces from within Leiningen to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
   ;; Apply these middleware functions from plugins to your project when it
