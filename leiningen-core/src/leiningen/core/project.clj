@@ -628,9 +628,8 @@
   ([project key]
      (when (seq (get project key))
        (ensure-dynamic-classloader)
-       (let [repos-project (meta-merge project
-                                       (assoc project :repositories
-                                              (:plugin-repositories project)))]
+       (let [repos-project (update-in project [:repositories] meta-merge
+                                      (:plugin-repositories project))]
          (classpath/resolve-dependencies key repos-project
                                          :add-classpath? true)))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
