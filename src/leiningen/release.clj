@@ -105,6 +105,6 @@ bump. If none is given, it defaults to :patch."
 ;; https://github.com/technomancy/leiningen/issues/1544
 (when-let [[resource] (-> (.getContextClassLoader (Thread/currentThread))
                           (.getResources "leiningen/release.clj")
-                          (enumeration-seq) (rest) (seq))]
+                          (enumeration-seq) (distinct) (rest) (seq))]
   (clojure.lang.Compiler/load (io/reader resource)
                               "leiningen/release.clj" (str resource)))
