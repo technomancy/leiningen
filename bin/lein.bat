@@ -191,7 +191,7 @@ if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
 echo Downloading Leiningen now...
 
-set LEIN_JAR_URL=https://leiningen.s3.amazonaws.com/downloads/leiningen-%LEIN_VERSION%-standalone.jar
+set LEIN_JAR_URL=https://github.com/technomancy/leiningen/releases/download/%LEIN_VERSION%/leiningen-%LEIN_VERSION%-standalone.jar
 call :DownloadFile "%LEIN_JAR%.pending" "%LEIN_JAR_URL%"
 if ERRORLEVEL 1 (
     del "%LEIN_JAR%.pending" >nul 2>&1
