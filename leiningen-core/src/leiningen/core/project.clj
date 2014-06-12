@@ -691,10 +691,18 @@
   "Load the SSL certificates specified by the project and register
    them for use by Aether."
   [project]
-  (let [certs (mapcat ssl/read-certs (:certificates project))
-        context (ssl/make-sslcontext (into (ssl/default-trusted-certs) certs))]
-    (ssl/register-scheme (ssl/https-scheme context))
-    project))
+  (when (seq (:certificates project))
+    ;; lazy-loading might give a launch speed boost here
+    (require 'leiningen.core.ssl)
+    (let [make-context (resolve 'leiningen.core.ssl/make-sslcontext)
+          read-certs (resolve 'leiningen.core.ssl/read-certs)
+          default-certs (resolve 'leiningen.core.ssl/default-trusted-certs)
+          register-scheme (resolve 'leiningen.core.ssl/register-scheme)
+          https-scheme (resolve 'leiningen.core.ssl/https-scheme)
+          certs (mapcat read-certs (:certificates project))
+          context (make-context (into (default-certs) certs))]
+      (register-scheme (https-scheme context))
+      project)))
 
 (defn activate-middleware
   "A helper function to apply middleware and then load certificates and hooks,

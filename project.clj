@@ -26,6 +26,7 @@
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
              :uberjar {:aot [#"leiningen"
+                             leiningen.core.ssl ; lazy-loaded
                              cemerick.pomegranate
                              classlojure.core
                              clojure.tools.nrepl
