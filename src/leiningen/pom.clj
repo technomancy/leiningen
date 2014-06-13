@@ -389,14 +389,24 @@
       (.store properties baos "Leiningen"))
     (str baos)))
 
+(defn write-pom-properties [{:keys [compile-path group name] :as project}]
+  (let [path (format "%s/META-INF/maven/%s/%s/pom.properties"
+                     compile-path group name)]
+    (.mkdirs (.getParentFile (io/file path)))
+    (spit path (make-pom-properties project))))
+
 (defn ^{:help-arglists '([])} pom
-  "Write a pom.xml file to disk for Maven interoperability."
-  ([project pom-location]
-     (let [pom (make-pom project true)
-           pom-file (io/file (:root project) pom-location)]
-       (.mkdirs (.getParentFile pom-file))
-       (with-open [pom-writer (io/writer pom-file)]
-         (.write pom-writer pom))
-       (main/info "Wrote" (str pom-file))
-       (.getAbsolutePath pom-file)))
+  "Write a pom.xml file to disk for Maven interoperability.
+
+With :properties argument, writes pom.properties to :compile-path."
+  ([project pom-location-or-properties]
+     (if (= ":properties" pom-location-or-properties)
+       (write-pom-properties project)
+       (let [pom (make-pom project true)
+             pom-file (io/file (:root project) pom-location-or-properties)]
+         (.mkdirs (.getParentFile pom-file))
+         (with-open [pom-writer (io/writer pom-file)]
+           (.write pom-writer pom))
+         (main/info "Wrote" (str pom-file))
+         (.getAbsolutePath pom-file))))
   ([project] (pom project (io/file (:pom-location project) "pom.xml"))))

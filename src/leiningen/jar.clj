@@ -153,10 +153,6 @@
               :path (format "META-INF/maven/%s/%s/pom.xml"
                             (:group project) (:name project))
               :bytes (.getBytes (pom/make-pom project))}
-             {:type :bytes
-              :path (format "META-INF/maven/%s/%s/pom.properties"
-                            (:group project) (:name project))
-              :bytes (.getBytes (pom/make-pom-properties project))}
              {:type :bytes :path (scope "project.clj")
               :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}
              {:type :bytes :path "project.clj"
