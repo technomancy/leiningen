@@ -201,12 +201,12 @@
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
    :uberjar-merge-with {"META-INF/plexus/components.xml"
-                          'leiningen.uberjar/components-merger,
+                        'leiningen.uberjar/components-merger,
                         "data_readers.clj"
-                          'leiningen.uberjar/clj-map-merger,
+                        'leiningen.uberjar/clj-map-merger,
                         ;; So we don't break Java's ServiceLoader mechanism
                         ;; during uberjar construction
-                        #"META-INF/services/.*" `[slurp str spit]}
+                        #"META-INF/services/.*" `[slurp #(str %1 "\n" %2) spit]}
    :global-vars {}})
 
 (defn dep-key
