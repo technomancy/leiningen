@@ -126,6 +126,20 @@
   ["clojars.pem"]` in your `:user` profile, assuming the certificate
   that ships with Leiningen hasn't expired.
 
+**Q:** How do I determine my project's version at runtime?  
+**A:** Leiningen writes a file called `pom.properties` into
+  `target/classes` which contains a the version number and current git
+  revision of the project. In previous versions of Leiningen this was
+  only available when running from jar files, but as of 2.4.1 it's
+  available during `lein run ...`, etc. You can read it by running
+  this code (replace "group" and "artifact" with values appropriate to
+  your project:
+
+```clj
+(doto (java.util.Properties.)
+  (.load (io/reader (io/resource "META-INF/maven/group/artifact/pom.properties"))))
+```
+
 **Q:** I need to do AOT for an uberjar; can I avoid it during development?  
 **A:** A reasonable request. Leiningen supports isolating different
   profiles by their target directory. Simply specify `:target-path
