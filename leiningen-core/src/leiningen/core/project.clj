@@ -198,7 +198,6 @@
                                   ["vcs" "commit"]
                                   ["vcs" "push"]]
    :jar-exclusions [#"^\."]
-   :certificates ["clojars.pem"]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
    :uberjar-merge-with {"META-INF/plexus/components.xml"
