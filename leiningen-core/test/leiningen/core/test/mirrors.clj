@@ -3,7 +3,7 @@
             [cemerick.pomegranate :as pom]
             [leiningen.core.project :refer [init-project]]))
 
-;; Regression test for Issue #1555
+;; Regression test for issue #1555
 (deftest ^:online mirrors-work-ok-with-plugins
   ;; turn off add-classpath so we don't actually mutate the classpath;
   ;; we're still hitting the internet, and there's probably something
