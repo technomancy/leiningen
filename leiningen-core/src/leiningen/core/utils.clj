@@ -1,5 +1,6 @@
 (ns leiningen.core.utils
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as sh])
   (:import (com.hypirion.io RevivableInputStream)
            (clojure.lang LineNumberingPushbackReader)
            (java.io File FileDescriptor FileInputStream InputStreamReader)
@@ -29,12 +30,11 @@
     (try (read-string (slurp file))
         (catch Exception e
          (binding [*out* *err*]
-           (println "Error reading" 
+           (println "Error reading"
                    (.getName file)
                    "from"
                    (.getParent file)))
          (throw e)))))
-
 
 (defn symlink?
   "Checks if a File is a symbolic link or points to another file."
@@ -104,3 +104,41 @@
 
 (defn map-vals [m f & args]
   (zipmap (keys m) (map #(apply f % args) (vals m))))
+
+;; # Git
+
+(defn ^:internal resolve-git-dir [project]
+  (let [alternate-git-root (io/file (get-in project [:scm :dir]))
+        git-dir-file (io/file (or alternate-git-root (:root project)) ".git")]
+    (if (.isFile git-dir-file)
+      (io/file (second (re-find #"gitdir: (\S+)" (slurp (str git-dir-file)))))
+      git-dir-file)))
+
+(defn- read-git-ref
+  "Reads the commit SHA1 for a git ref path, or nil if no commit exist."
+  [git-dir ref-path]
+  (let [ref (io/file git-dir ref-path)]
+    (if (.exists ref)
+      (.trim (slurp ref))
+      nil)))
+
+(defn- read-git-head-file
+  "Reads the current value of HEAD by attempting to read .git/HEAD, returning
+  the SHA1 or nil if none exists."
+  [git-dir]
+  (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
+                           (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
+                             (read-git-ref git-dir ref-path))))
+
+;; TODO: de-dupe with pom namespace
+
+(defn ^:internal read-git-head
+  "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
+  exist."
+  [git-dir]
+  (try
+    (let [git-ref (sh/sh "git" "rev-parse" "HEAD" :dir git-dir)]
+      (if (= (:exit git-ref) 0)
+        (:out git-ref)
+        (read-git-head-file git-dir)))
+    (catch java.io.IOException e (read-git-head-file git-dir))))

@@ -14,6 +14,19 @@
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader)))
 
+(defn make-project-properties [project]
+  (with-open [baos (java.io.ByteArrayOutputStream.)]
+    (let [properties (doto (java.util.Properties.)
+                       (.setProperty "version" (:version project))
+                       (.setProperty "groupId" (:group project))
+                       (.setProperty "artifactId" (:name project)))
+          git-head (utils/resolve-git-dir project)]
+      (when (.exists git-head)
+        (if-let [revision (utils/read-git-head git-head)]
+          (.setProperty properties "revision" revision)))
+      (.store properties baos "Leiningen"))
+    (str baos)))
+
 (defn- warn [& args]
   ;; TODO: remove me once #1227 is merged
   (require 'leiningen.core.main)
@@ -185,7 +198,7 @@
    :target-path "target"
    :clean-targets ^:top-displace [:target-path]
    ;; TODO: remove :top-displace for :prep-tasks in 3.0
-   :prep-tasks ^:top-displace ["javac" ["pom" ":properties"] "compile"]
+   :prep-tasks ^:top-displace ["javac" "compile"]
    ;; If these change, be sure to update release docstring and DEPLOY.md
    :release-tasks ^:top-displace [["vcs" "assert-committed"]
                                   ["change" "version"
