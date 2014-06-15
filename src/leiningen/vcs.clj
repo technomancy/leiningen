@@ -57,7 +57,7 @@
 
 (defmethod commit :git [project]
   (binding [eval/*dir* (:root project)]
-    (eval/sh "git" "-a" "commit" "-m" (str "Version " (:version project)))))
+    (eval/sh "git" "commit" "-a" "-m" (str "Version " (:version project)))))
 
 (defmethod tag :git [{:keys [root version]} & [prefix]]
   (binding [eval/*dir* root]
