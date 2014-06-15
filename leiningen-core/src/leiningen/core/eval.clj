@@ -32,6 +32,13 @@
 
 ;; # Preparing for eval-in-project
 
+(defn- write-pom-properties [{:keys [compile-path group name] :as project}]
+  (when-not (:disable-pom-properties project)
+    (let [path (format "%s/META-INF/maven/%s/%s/pom.properties"
+                       compile-path group name)]
+      (.mkdirs (.getParentFile (io/file path)))
+      (spit path (project/make-project-properties project)))))
+
 (defn run-prep-tasks
   "Execute all the prep-tasks. A task can either be a string, or a
   vector if it takes arguments. see :prep-tasks in sample.project.clj
@@ -53,6 +60,7 @@
   ;; This must exist before the project is launched.
   (when (:root project)
     (.mkdirs (io/file (:compile-path project "/tmp"))))
+  (write-pom-properties project)
   (classpath/resolve-dependencies :dependencies project)
   (run-prep-tasks project)
   (deliver @prep-blocker true)
