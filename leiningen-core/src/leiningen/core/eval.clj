@@ -209,10 +209,10 @@
   (let [init-file (if-let [checksum (System/getenv "INPUT_CHECKSUM")]
                     (io/file (:target-path project) (str checksum "-init.clj"))
                     (File/createTempFile "form-init" ".clj"))]
-    (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
-      (spit init-file (pr-str `(-> (java.io.File. ~(.getCanonicalPath init-file))
-                                   (.deleteOnExit)))))
-    (spit init-file (pr-str form) :append true)
+    (spit init-file
+          (pr-str (if (System/getenv "LEIN_FAST_TRAMPOLINE")
+                    `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
+                  form))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
