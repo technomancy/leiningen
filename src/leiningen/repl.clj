@@ -174,8 +174,8 @@
                                             trampoline-profile)]
     (eval/eval-in-project
      (project/merge-profiles project [profile])
-     `(do (reply.main/launch '~options) nil)
-     `(do (try (require '~(init-ns project)) (catch Throwable t#))
+     `(do (reply.main/launch '~options) (System/exit 0))
+     `(do (try (require '~(init-ns project)) (catch Exception t#))
           (require ~@(init-requires project 'reply.main))))))
 
 (def ack-server
