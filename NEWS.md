@@ -1,11 +1,15 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.4.2 / 2014-06-15
+
+* Fix a bug preventing out-of-project runs. (Phil Hagelberg)
+* Only load Clojars SSL cert on-demand to improve boot time. (Phil Hagelberg)
+
 ## 2.4.1 / 2014-06-15
 
 * Don't commit untracked files in `lein vcs commit`. (Phil Hagelberg)
-* Expose `pom.properties` for access to version number during development. (Phil Hagelberg)
 * Fix a bug where `:mirrors` could not be configured. (Phil Hagelberg)
-* Only load Clojars SSL cert on-demand to improve boot time. (Phil Hagelberg)
+* Expose `pom.properties` for access to version number during development. (Phil Hagelberg)
 * Fix a bug preventing the release task from loading. (Phil Hagelberg)
 
 ## 2.4.0 / 2014-06-09
