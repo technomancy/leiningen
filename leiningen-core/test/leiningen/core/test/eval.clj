@@ -15,7 +15,8 @@
               :source-paths ["/tmp/lein-sample-project/src"]
               :resource-paths ["/tmp/lein-sample-project/resources"]
               :test-paths ["/tmp/lein-sample-project/test"]
-              :compile-path "/tmp/lein-sample-project/classes"})
+              :compile-path "/tmp/lein-sample-project/classes"
+              :name "test" :group "test" :version "1.0.0"})
 
 (deftest test-eval-in-project
   (doseq [where [:subprocess :leiningen :classloader]]
