@@ -3,7 +3,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.4.1</version>
+  <version>2.4.2</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>d1a634fc4eeea91f19e2f87d503240a31edc2c86
+    <tag>9ae145811b80a99214eba1b4e7d75155f0ee9a45
 </tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
