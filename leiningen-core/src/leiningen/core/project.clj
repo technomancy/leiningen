@@ -8,7 +8,6 @@
             [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.utils :as utils]
-            [leiningen.core.ssl :as ssl]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
   (:import (clojure.lang DynamicClassLoader)
