@@ -2,6 +2,7 @@
   "Generate project scaffolding based on a template."
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
+            [leiningen.core.classpath :as cp]
             [leiningen.core.user :as user]
             [leiningen.core.main :refer [abort parse-options option-arg]]
             [leiningen.new.templates :refer [*dir* *force?*]])
@@ -19,13 +20,12 @@
                         (-> (user/profiles) :user :plugin-repositories))})
 
 (defn resolve-remote-template [name sym]
-  (if-let [get-dep (resolve 'leiningen.core.classpath/resolve-dependencies)]
-    (try (get-dep :templates (fake-project name) :add-classpath? true)
-         (require sym)
-         true
-         (catch clojure.lang.Compiler$CompilerException e
-           (abort (str "Could not load template, failed with: " (.getMessage e))))
-         (catch Exception e nil))))
+  (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
+       (require sym)
+       true
+       (catch clojure.lang.Compiler$CompilerException e
+         (abort (str "Could not load template, failed with: " (.getMessage e))))
+       (catch Exception e nil)))
 
 (defn resolve-template [name]
   (let [sym (symbol (str "leiningen.new." name))]
