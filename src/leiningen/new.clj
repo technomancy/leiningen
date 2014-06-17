@@ -3,6 +3,7 @@
   (:refer-clojure :exclude [new list])
   (:require [bultitude.core :as bultitude]
             [leiningen.core.classpath :as cp]
+            [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.main :refer [abort parse-options option-arg]]
             [leiningen.new.templates :refer [*dir* *force?*]])
@@ -11,15 +12,16 @@
 (def ^:dynamic *use-snapshots?* false)
 
 (defn- fake-project [name]
-  {:templates [[(symbol name "lein-template") (if *use-snapshots?*
-                                                "(0.0.0,)" "RELEASE")]]
-   :repositories (reduce
-                   conj
-                   [["clojars" {:url "http://clojars.org/repo/"
-                                :update :always}]
-                    ["central" {:url "http://repo1.maven.org/maven2"
-                                :update :always}]]
-                   (-> (user/profiles) :user :plugin-repositories))})
+  (let [template-symbol (symbol name "lein-template")
+        template-version (if *use-snapshots?*
+                           "(0.0.0,)"
+                           "RELEASE")
+        repositories (reduce
+                       (:reduce (meta project/default-repositories))
+                       project/default-repositories
+                       (-> (user/profiles) :user :plugin-repositories))]
+    {:templates [[template-symbol template-version]]
+     :repositories repositories}))
 
 (defn resolve-remote-template [name sym]
   (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
