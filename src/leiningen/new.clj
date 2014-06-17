@@ -13,11 +13,13 @@
 (defn- fake-project [name]
   {:templates [[(symbol name "lein-template") (if *use-snapshots?*
                                                 "(0.0.0,)" "RELEASE")]]
-   :repositories (merge {"clojars" {:url "http://clojars.org/repo/"
-                                    :update :always}
-                         "central" {:url "http://repo1.maven.org/maven2"
-                                    :update :always}}
-                        (-> (user/profiles) :user :plugin-repositories))})
+   :repositories (reduce
+                   conj
+                   [["clojars" {:url "http://clojars.org/repo/"
+                                :update :always}]
+                    ["central" {:url "http://repo1.maven.org/maven2"
+                                :update :always}]]
+                   (-> (user/profiles) :user :plugin-repositories))})
 
 (defn resolve-remote-template [name sym]
   (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
