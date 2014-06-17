@@ -278,17 +278,18 @@
 (alter-var-root #'pedantic-print-overrides memoize)
 
 (defn- pedantic-do [pedantic-setting ranges overrides]
-  (when pedantic-setting
-    ;; Need to turn everything into a string before calling
-    ;; pedantic-print-*, otherwise we can't memoize due to bad equality
-    ;; semantics on aether GraphEdge objects.
-    (pedantic-print-ranges (distinct (map message-for-range ranges)))
-    (pedantic-print-overrides (map message-for-override overrides))
-    (when (and (= :abort pedantic-setting)
-               (not (empty? (concat ranges overrides))))
-      (require 'leiningen.core.main)
-      ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
-       "Aborting due to version ranges."))))
+  ;; Need to turn everything into a string before calling
+  ;; pedantic-print-*, otherwise we can't memoize due to bad equality
+  ;; semantics on aether GraphEdge objects.
+  (when (or (true? pedantic-setting) (= pedantic-setting :ranges))
+    (pedantic-print-ranges (distinct (map message-for-range ranges))))
+  (when (or (true? pedantic-setting) (= pedantic-setting :overrides))
+    (pedantic-print-overrides (map message-for-override overrides)))
+  (when (and (= :abort pedantic-setting)
+             (not (empty? (concat ranges overrides))))
+    (require 'leiningen.core.main)
+    ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
+     "Aborting due to version ranges.")))
 
 (defn- pedantic-session [project ranges overrides]
   (if (:pedantic? project)
