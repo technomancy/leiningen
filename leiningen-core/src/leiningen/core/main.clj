@@ -211,6 +211,12 @@
         (println "        " suggestion))))
   (throw (ex-info "Task not found" {:exit-code 1 :suppress-msg true})))
 
+(defn ^:no-project-needed function-not-found [task & _]
+  (binding [*out* *err*]
+    (println (str "leiningen." task
+                  " is a Clojure namespace, but not a Leiningen task.")))
+  (throw (ex-info "Task not found" {:exit-code 1 :suppress-msg true})))
+
 ;; TODO: got to be a cleaner way to do this, right?
 (defn- drop-partial-args [pargs]
   #(for [[f & r] %
@@ -241,7 +247,10 @@ These get replaced with the corresponding values from the project map."
        (if-let [task-var (lookup-task-var task)]
          (partial-task task-var pargs)
          (not-found task))))
-  ([task] (resolve-task task #'task-not-found)))
+  ([task]
+     (resolve-task task (if (find-ns (symbol (str "leiningen." task)))
+                          #'function-not-found
+                          #'task-not-found))))
 
 (defn ^:internal matching-arity? [task args]
   (some (fn [parameters]
