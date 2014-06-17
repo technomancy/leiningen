@@ -11,7 +11,7 @@
 (defproject org.example/sample "1.0.0-SNAPSHOT" ; version "1.0.0-SNAPSHOT"
   ;; Beyond this point you may prepend a form with unquote, or ~, to eval it.
 
-  ;;; Project Metadata
+;;; Project Metadata
   ;; The description text is searchable from repositories like Clojars.
   :description "A sample project"
   :url "http://example.org/sample-clojure-project"
@@ -36,7 +36,7 @@
   ;; relies on features only found in newer Leiningen versions.
   :min-lein-version "2.0.0"
 
-  ;;; Dependencies, Plugins, and Repositories
+;;; Dependencies, Plugins, and Repositories
   ;; Dependencies are listed as [group-id/name version]; in addition
   ;; to keywords supported by Pomegranate, you can use :native-prefix
   ;; to specify a prefix. This prefix is used to extract natives in
@@ -55,8 +55,10 @@
                   ;; LWJGL stores natives in the root of the jar; this
                   ;; :native-prefix will extract them.
                   :native-prefix ""]]
-  ;; Abort when version ranges or version conflicts are detected in
-  ;; dependencies. Also supports :warn to simply emit warnings.
+  ;; What to do in the case of version issues. Defaults to :ranges, which
+  ;; warns when version ranges are present anywhere in the dependency tree,
+  ;; but can be set to true to warn for both ranges and overrides, or :abort
+  ;; to exit in the case of ranges or overrides.
   :pedantic? :abort
   ;; Global exclusions are applied across the board, as an alternative
   ;; to duplication for multiple dependencies with the same excluded libraries.
@@ -142,7 +144,7 @@
   ;; be on Leiningen's classpath or relative to the project root.
   :certificates ["blueant.pem"]
 
-  ;;; Profiles
+;;; Profiles
   ;; Each active profile gets merged into the project map. The :dev
   ;; and :user profiles are active by default, but the latter should be
   ;; looked up in ~/.lein/profiles.clj rather than set in project.clj.
@@ -167,7 +169,7 @@
   ;; name matching a specific pattern as well as by listing them here.
   :middleware [lein-xml.plugin/middleware]
 
-  ;;; Entry Point
+;;; Entry Point
   ;; The -main function in this namespace will be run at launch
   ;; (either via `lein run` or from an uberjar). It should be variadic:
   ;;
@@ -203,7 +205,7 @@
             ;; Nested vectors are supported for the "do" task
             ["do" "clean" ["test" ":integration"] ["deploy" "clojars"]]}
 
-  ;;; Custom Release Tasks
+;;; Custom Release Tasks
   ;; By default `lein release` performs a series of tasks typical of the release
   ;; process for many leiningen-managed projects. These tasks can be overridden
   ;; using `:release-tasks` as follows:
@@ -217,7 +219,7 @@
   ;; go on to perform another `change version` or `vcs` task, instead leaving
   ;; that up to the developer to do manually.
 
-  ;;; Running Project Code
+;;; Running Project Code
   ;; Normally Leiningen runs the javac and compile tasks before
   ;; calling any eval-in-project code, but you can override this with
   ;; the :prep-tasks key to do other things like compile protocol buffers.
@@ -260,11 +262,11 @@
   ;; with certain libraries like Jetty that make assumptions about classloaders.
   :bootclasspath true
 
-  ;;; Filesystem Paths
+;;; Filesystem Paths
   ;; If you'd rather use a different directory structure, you can set these.
   ;; Paths that contain "inputs" are string vectors, "outputs" are strings.
   :source-paths ["src" "src/main/clojure"]
-  :java-source-paths ["src/main/java"] ; Java source is stored separately.
+  :java-source-paths ["src/main/java"]  ; Java source is stored separately.
   :test-paths ["test" "src/test/clojure"]
   :resource-paths ["src/main/resource"] ; Non-code files included in classpath/jar.
   ;; All generated files will be placed in :target-path. In order to avoid
@@ -308,7 +310,7 @@
   :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
 
-  ;;; Testing
+;;; Testing
   ;; Predicates to determine whether to run a test or not, take test metadata
   ;; as argument. See `lein help tutorial` for more information.
   :test-selectors {:default (fn [m] (not (or (:integration m) (:regression m))))
@@ -318,9 +320,9 @@
   ;; clojure.test library. This disables that feature and breaks `lein retest`.
   :monkeypatch-clojure-test false
 
-  ;;; Repl
+;;; Repl
   ;; Options to change the way the REPL behaves.
-  :repl-options {;; Specify the string to print when prompting for input.
+  :repl-options { ;; Specify the string to print when prompting for input.
                  ;; defaults to something like (fn [ns] (str *ns* "=> "))
                  :prompt (fn [ns] (str "your command for <" ns ">, master? " ))
                  ;; What to print when the repl session starts.
@@ -362,7 +364,7 @@
                                         (prn :middle args)
                                         (apply handler args)))]}
 
-  ;;; Jar Output
+;;; Jar Output
   ;; Name of the jar file produced. Will be placed inside :target-path.
   ;; Including %s will splice the project version into the filename.
   :jar-name "sample.jar"
@@ -409,7 +411,7 @@
              ;; Symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
 
-  ;;; Pom Output
+;;; Pom Output
   ;; Where the pom.xml is written. If not set, the project root.
   :pom-location "target/"
   ;; Set parent for working within a multi-module maven project.
@@ -442,7 +444,7 @@
                               [:name "Ben Bitdiddle"]
                               [:url "http://www.example.com/benjamin"]]]
 
-  ;;; Safety flags
+;;; Safety flags
   ;; Indicate whether or not `lein install` should abort when trying to install
   ;; releases. When false, trying to run `lein install` in a project with a version
   ;; that isn't a snapshot will cause leiningen to abort with a descriptive error

@@ -472,6 +472,7 @@
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
+                :pedantic? :ranges
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 :dependencies '[[org.clojure/tools.nrepl "0.2.3"
