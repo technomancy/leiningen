@@ -128,6 +128,15 @@
     (for [n (concat defaults nrepl-syms nses caught)]
       (list 'quote n))))
 
+(defn- ignore-sigint-form []
+  `(when (try (Class/forName "sun.misc.Signal")
+              (catch ClassNotFoundException e#))
+     (try
+       (sun.misc.Signal/handle
+         (sun.misc.Signal. "INT")
+         (proxy [sun.misc.SignalHandler] [] (handle [signal#])))
+       (catch Throwable e#))))
+
 (defn- server-forms [project cfg ack-port start-msg?]
   [`(let [server# (clojure.tools.nrepl.server/start-server
                    :bind ~(:host cfg) :port ~(:port cfg)
@@ -199,8 +208,11 @@
         ack-port (:port @ack-server)]
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
-            (apply eval/eval-in-project project
-                   (server-forms project cfg ack-port headless?))))
+            (let [[evals requires]
+                  (server-forms project cfg ack-port headless?)]
+              (eval/eval-in-project project
+                                    `(do ~(ignore-sigint-form) ~evals)
+                                    requires))))
         (Thread.) (.start))
     (when project @prep-blocker)
     (when headless? @(promise))
