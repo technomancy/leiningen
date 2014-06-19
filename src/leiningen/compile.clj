@@ -5,7 +5,7 @@
             [bultitude.core :as b]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile])
-  (:import (java.io PushbackReader)))
+  (:import (java.io PushbackReader FileNotFoundException)))
 
 (defn- regex? [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
@@ -29,15 +29,27 @@
     (b/namespaces-on-classpath :classpath (map io/file source-paths))
     (find-namespaces-by-regex project aot)))
 
+(defn solitary-file-for-namespace
+  [namespace files]
+  (cond
+   (= 1 (count files)) (first files)
+   (= 0 (count files)) (throw (FileNotFoundException.
+                               (str "Source file cannot be found for namespace \"" namespace "\"")))
+   :else               (throw (IllegalStateException.
+                               (str "Multiple source files found for namespace \"" namespace "\"")))))
+
 (defn stale-namespaces
   "Return a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
   (for [namespace (compilable-namespaces project)
         :let [rel-source (b/path-for namespace)
-              source (first (for [source-path (:source-paths project)
-                                  :let [file (io/file source-path rel-source)]]
-                              file))]
+              source (solitary-file-for-namespace
+                      namespace
+                      (for [source-path (:source-paths project)
+                            :let [file (io/file source-path rel-source)]
+                            :when (.exists file)]
+                        file))]
         :when source
         :let [rel-compiled (.replaceFirst rel-source "\\.clj$" "__init.class")
               compiled (io/file (:compile-path project) rel-compiled)]
