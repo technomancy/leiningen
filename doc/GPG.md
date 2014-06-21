@@ -247,3 +247,47 @@ using `lein deploy clojars`. If you are using `scp` to deploy, you can
 copy signatures along with the artifacts, but they will be
 ignored.
 
+## Troubleshooting
+
+### Mac OSX
+
+#### Unable to get GPG installed via Homebrew and OSX Keychain to work
+
+Try installing GPG from here instead: https://www.gpgtools.org/installer/index.html
+
+[Via lynaghk from this comment](https://github.com/technomancy/leiningen/issues/615#issuecomment-10036450)
+
+#### GPG doesn't ask for a passphrase
+
+>Make sure that you have "use-agent" option explicitly enabled in ~/.gnupg/gpg.conf. See gpg option list.
+
+>You can test the config with
+
+ `gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg`
+>Leiningen should pick it up automatically when the command above works correctly.
+
+[Via katox from this comment](https://github.com/technomancy/leiningen/issues/615#issuecomment-29453032)
+
+### GPG prompts for passphrase but does not work with Leiningen
+
+`gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg`
+>It's hanging for a while after I execute lein repl and then print out these messages
+
+    $ lein repl
+    Could not decrypt credentials from /Users/xxx/.lein/credentials.clj.gpg
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    gpg-agent[1009]: command get_passphrase failed: Invalid IPC response
+    gpg: problem with the agent: Invalid IPC response
+    gpg: decryption failed: No secret key
+    
+>My guess is that for some reason, Leiningen can't present enter-passphrase page of gpg. I don't know exactly that it's an issue on Leiningen or gpg2 or gpg-agent or pinentry.
+
+>My workaround is to use GUI version of gpg GPG Suite. Now when I execute 'lein repl', it prompts for passphrase on GUI instead.
+
+>I spent like half a day figuring out this. Hope this writeup save your time.
+
+[Via visibletrap from this comment](https://github.com/technomancy/leiningen/issues/615#issuecomment-42152824)
