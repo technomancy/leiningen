@@ -165,7 +165,7 @@
   (let [dir (or *dir*
                 (-> (System/getProperty "leiningen.original.pwd")
                     (io/file name) (.getPath)))]
-    (if (or (.mkdir (io/file dir)) *force?*)
+    (if (or (.isDirectory (io/files dir)) (.mkdir (io/file dir)) *force?*)
       (doseq [path paths]
         (if (string? path)
           (.mkdirs (template-path dir path data))
