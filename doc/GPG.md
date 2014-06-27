@@ -261,12 +261,13 @@ Make sure that you have "use-agent" option explicitly enabled in ~/.gnupg/gpg.co
 
 You can test the config with
 
-`gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg`
+    gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
+    
 Leiningen should pick it up automatically when the command above works correctly.
 
 ### GPG prompts for passphrase but does not work with Leiningen
 
-`gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg`
+    gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
 
 It's hanging for a while after executing lein repl and then prints out these messages:
 
