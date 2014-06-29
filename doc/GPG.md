@@ -247,3 +247,41 @@ using `lein deploy clojars`. If you are using `scp` to deploy, you can
 copy signatures along with the artifacts, but they will be
 ignored.
 
+## Troubleshooting
+
+### Mac OSX
+
+#### Unable to get GPG installed via Homebrew and OSX Keychain to work
+
+Installing GPG from here instead: https://www.gpgtools.org/installer/index.html
+
+#### GPG doesn't ask for a passphrase
+
+Make sure that you have "use-agent" option explicitly enabled in ~/.gnupg/gpg.conf. See gpg option list.
+
+You can test the config with
+
+    gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
+    
+Leiningen should pick it up automatically when the command above works correctly.
+
+### GPG prompts for passphrase but does not work with Leiningen
+
+    gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
+
+It's hanging for a while after executing lein repl and then prints out these messages:
+
+    $ lein repl
+    Could not decrypt credentials from /Users/xxx/.lein/credentials.clj.gpg
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    pinentry-curses: no LC_CTYPE known - assuming UTF-8
+    gpg-agent[1009]: command get_passphrase failed: Invalid IPC response
+    gpg: problem with the agent: Invalid IPC response
+    gpg: decryption failed: No secret key
+    
+Leiningen can't present enter-passphrase page of gpg. It's an issue with Leiningen or gpg2 or gpg-agent or pinentry.
+
+Use the GUI version of gpg, GPG Suite. Now when executing 'lein repl', it prompts for passphrase on the GUI instead.
