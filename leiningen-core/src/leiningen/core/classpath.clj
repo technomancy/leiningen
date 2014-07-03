@@ -49,7 +49,9 @@
 (defn extract-native-deps [files native-path native-prefixes]
   (doseq [file files
           :let [native-prefix (get native-prefixes file "native/")
-                jar (JarFile. file)]
+                jar (try (JarFile. file)
+                      (catch Exception e
+                        (throw (Exception. (format "Problem opening jar %s" file) e))))]
           entry (enumeration-seq (.entries jar))
           :when (.startsWith (.getName entry) native-prefix)]
     (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
