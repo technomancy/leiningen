@@ -27,7 +27,7 @@
       ;; check the key portion
       (is (= "(defproject org.example/sample \"6.4.1\" " (.substring after 529 568)))
       ;; check a random dependency for changes
-      (is (= "log4j \"1.2.15\"" (.substring after 2572 2586))))))
+      (is (re-find #"log4j \"1.2.15\"" after)))))
 
 (deftest test-set-group-id
   (testing "renaming an existing group-id"
