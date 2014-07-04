@@ -109,7 +109,8 @@
   ;; Fetch dependencies from mirrors. Mirrors override repositories when the key
   ;; in the :mirrors map matches either the name or URL of a specified
   ;; repository. All settings supported in :repositories may be set here too.
-  :mirrors {"central" {:name "Ibiblio"
+  ;; The :name should match the name of the mirrored repository.
+  :mirrors {"central" {:name "central"
                        :url "http://mirrors.ibiblio.org/pub/mirrors/maven2"}
             #"clojars" {:name "Internal nexus"
                         :url "http://mvn.local/nexus/releases"
