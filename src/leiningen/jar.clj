@@ -141,7 +141,19 @@
                          (FileOutputStream.)
                          (BufferedOutputStream.)
                          (JarOutputStream. (make-manifest project)))]
-    (reduce (partial copy-to-jar project jar-os) #{} filespecs)))
+    (let [jar-paths (reduce (partial copy-to-jar project jar-os)
+                            #{}
+                            filespecs)]
+      (if (:main project)
+        (let [main-path (str (-> (string/replace (:main project) "." "/")
+                                 (string/replace "-" "_"))
+                              ".class")]
+          (if (not (some #{main-path} jar-paths))
+            (main/info "WARNING: The Main-Class specified does not exist"
+                       "within the jar. It may not be executable as expected."
+                       "A gen-class directive may be missing in the namespace"
+                       "which contains the main method."))))
+      jar-paths)))
 
 ;; TODO: change in 3.0; this is hideous
 (defn- filespecs [project]
