@@ -62,7 +62,7 @@
 (defmethod tag :git [{:keys [root version]} & [prefix]]
   (binding [eval/*dir* root]
     (let [tag (if prefix
-                (str prefix "-" version)
+                (str prefix version)
                 version)]
       (eval/sh "git" "tag" "-s" tag "-m" (str "Release " version)))))
 
