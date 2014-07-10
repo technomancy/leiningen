@@ -149,7 +149,7 @@
                                  (string/replace "-" "_"))
                               ".class")]
           (if (not (some #{main-path} jar-paths))
-            (main/info "WARNING: The Main-Class specified does not exist"
+            (main/info "Warning: The Main-Class specified does not exist"
                        "within the jar. It may not be executable as expected."
                        "A gen-class directive may be missing in the namespace"
                        "which contains the main method."))))
