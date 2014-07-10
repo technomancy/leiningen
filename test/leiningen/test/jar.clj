@@ -56,8 +56,8 @@
         (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))))))
 
 (deftest test-write-jar
-  (testing "Confirm that a warning is output when the Main-Class is not part "
-           "of the output jar file"
+  (testing (str "Confirm that a warning is output when the Main-Class is not "
+                "part of the output jar file")
     (let [out-str (with-out-str
                     (write-jar mock-project
                                "/dev/null"
@@ -70,8 +70,8 @@
       (is (.contains out-str
                      "Warning: The Main-Class specified does not exist"))))
 
-  (testing "Confirm that a warning is NOT output when the Main-Class is not "
-           "part of the output jar file"
+  (testing (str "Confirm that a warning is NOT output when the Main-Class is "
+                "not part of the output jar file")
     (let [out-str (with-out-str
                     (write-jar mock-project
                                "/dev/null"
