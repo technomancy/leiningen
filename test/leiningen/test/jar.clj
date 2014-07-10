@@ -54,3 +54,35 @@
       (let [result (jar helper/overlapped-sourcepaths-project)]
         (is result)
         (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))))))
+
+(deftest test-write-jar
+  (testing (str "Confirm that a warning is output when the Main-Class is not "
+                "part of the output jar file")
+    (let [out-str (with-out-str
+                    (write-jar mock-project
+                               "/dev/null"
+                               [{:type :bytes
+                                 :path "foo/one_two.class"
+                                 :bytes ""}
+                                {:type :bytes
+                                 :path "foo/one_two_too.class"
+                                 :bytes ""}]))]
+      (is (.contains out-str
+                     "Warning: The Main-Class specified does not exist"))))
+
+  (testing (str "Confirm that a warning is NOT output when the Main-Class is "
+                "not part of the output jar file")
+    (let [out-str (with-out-str
+                    (write-jar mock-project
+                               "/dev/null"
+                               [{:type :bytes
+                                 :path "foo/one_two.class"
+                                 :bytes ""}
+                                {:type :bytes
+                                 :path "foo/one_two_too.class"
+                                 :bytes ""}
+                                {:type :bytes
+                                 :path "foo/one_two/three_four/bar.class"
+                                 :bytes ""}]))]
+      (is (not (.contains out-str
+                          "Warning: The Main-Class specified does not exist"))))))
