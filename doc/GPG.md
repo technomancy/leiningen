@@ -198,14 +198,14 @@ To set a key globally, add it to your user profile in
 
     {:user 
       ...
-      {:signing {:gpg-key "2ADFB13E"}}} ;; using the key id
+      :signing {:gpg-key "2ADFB13E"}} ;; using the key id
     
 To set a key for a particular project, add it to the project
 definition:
 
     (defproject ham-biscuit "0.1.0"
        ...
-       {:signing {:gpg-key "bob@bobsons.net"}} ;; using the key uid
+       :signing {:gpg-key "bob@bobsons.net"} ;; using the key uid
        ...)
     
 To set a key for a particular deploy repository, add it to the
