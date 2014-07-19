@@ -51,6 +51,10 @@ function add_path {
 
 function download_failed_message {
     echo "Failed to download $1"
+    echo ''
+    echo "If this is your first experience with Leiningen, make sure you have"
+    echo "checked out the 'stable' branch and not the 'master' branch."
+    echo ''
     echo "It's possible your HTTP client's certificate store does not have the"
     echo "correct certificate authority needed. This is often caused by an"
     echo "out-of-date version of libssl. Either upgrade it or set HTTP_CLIENT"
