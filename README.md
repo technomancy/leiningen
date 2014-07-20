@@ -15,17 +15,18 @@ Leiningen is for automating Clojure projects without setting your hair on fire.
 
 If your preferred
 [package manager](https://github.com/technomancy/leiningen/wiki/Packaging)
-has a relatively recent version of Leiningen, try that first.
-Otherwise you can install by hand:
+offers a recent version of Leiningen, try that first.  Many package managers still
+include version 1.x, which is rather outdated, so you may be better off installing manually.
 
-Leiningen bootstraps itself using the `lein` shell script; there is no
-separate install script. It handles installing its own dependencies,
-which means the first run will take longer.
+Leiningen installs itself on the first run of the `lein` shell script; there is no
+separate install script.  Follow these instructions to install Leiningen manually:
 
 1. Make sure you have a Java JDK version 6 or later.
-2. [Download the script](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein).
+2. [Download the `lein` script from the `stable` branch](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)
+ of this project.
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
 4. Set it to be executable. (`chmod 755 ~/bin/lein`)
+5. Run it.
 
 ### Windows
 
