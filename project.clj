@@ -15,7 +15,8 @@
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
-                               org.sonatype.sisu/sisu-inject-plexus]]
+                               org.sonatype.sisu/sisu-inject-plexus
+                               jakarta-regexp]]
                  [reply "0.3.1" :exclusions [ring/ring-core
                                              org.thnetos/cd-client]]
                  ;; bump versions of various common transitive deps
