@@ -11,7 +11,7 @@
             [leiningen.jar :as jar]
             [leiningen.clean :as clean]
             [clojure.java.shell :as sh]
-            [clojure.string :as str]))
+            [clojure.string :as string]))
 
 (defn- abort-message [message]
   (cond (re-find #"Return code is 405" message)
@@ -122,9 +122,16 @@
   (-> (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD")
       :out
       butlast
-      str/join
+      string/join
       branches
       not))
+
+(defn- extension [f]
+  (if-let [[_ signed-extension] (re-find #"\.([a-z]+\.asc)$" f)]
+    signed-extension
+    (if (= "pom.xml" (.getName (io/file f)))
+      "pom"
+      (last (.split f "\\.")))))
 
 (defn ^:no-project-needed deploy
   "Deploy jar and pom to remote repository.
@@ -181,8 +188,7 @@ be able to depend on jars that are deployed without a pom."
            group-id (namespace identifier)
            repo (repo-for project repository)
            artifacts (for [f files]
-                       [[:extension (if (= "pom.xml" (.getName (io/file f)))
-                                      "pom" (last (.split f "\\.")))] f])]
+                       [[:extension (extension f)] f])]
        (main/debug "Deploying" files "to" repo)
        (aether/deploy
         :coordinates [(symbol group-id artifact-id) version]
