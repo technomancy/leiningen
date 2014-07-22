@@ -79,6 +79,15 @@
   (m (first (drop-while #(nil? (re-find (re-pattern %) k))
                         (keys m)))))
 
+(defn- get-with-pattern-fallback
+  "Gets a value from map m, but if it doesn't exist, fallback
+   to use get-by-pattern."
+  [m k]
+  (let [exact-match (m k)]
+    (if (nil? exact-match)
+      (get-by-pattern m k)
+      exact-match)))
+
 (def ^:private native-names
   {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
    "FreeBSD" :freebsd "OpenBSD" :openbsd
@@ -88,12 +97,12 @@
 (defn get-os
   "Returns a keyword naming the host OS."
   []
-  (get-by-pattern native-names (System/getProperty "os.name")))
+  (get-with-pattern-fallback native-names (System/getProperty "os.name")))
 
 (defn get-arch
   "Returns a keyword naming the host architecture"
   []
-  (get-by-pattern native-names (System/getProperty "os.arch")))
+  (get-with-pattern-fallback native-names (System/getProperty "os.arch")))
 
 (defn platform-nullsink
   "Returns a file destination that will discard output."
