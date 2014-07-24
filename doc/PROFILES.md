@@ -128,6 +128,19 @@ profile, which is the profile used if you don't change it using
 `[:dev :provided :user :base]`, but you can change this in your
 `project.clj` just like any other profile.
 
+## Using Functions 
+
+Often you want to read an environment variable or execute a function to capture
+a value to use in your profiles. In order to do such a thing with the profiles.clj
+you'll need to use the read-eval syntax.
+
+Here is an example of such a case:
+
+```clj
+{:user {:compile-path  #=(eval (System/getenv "ci.compile-path")),
+        :target-path #=(eval (System/getenv "ci.target-path"))}}
+```
+
 ## Debugging
 
 To see how a given profile affects your project map, use the
