@@ -10,7 +10,7 @@
   ;; reproduce the bug; IRL maps got converted to seqs somehow or
   ;; another anyhow, but apparently not by init-project.
   :mirrors [["central" {:name "foo"
-                        :url "http://repo1.maven.org/maven2/"}]]
+                        :url "https://repo1.maven.org/maven2/"}]]
   ;; Have to have a plugin to reproduce
   :plugins [[lein-pprint "1.1.1"]])
 

@@ -47,7 +47,7 @@
                                 :exclusions [[org.clojure/clojure]]]],
                :twelve 12 ; testing unquote
 
-               :repositories [["central" {:url "http://repo1.maven.org/maven2/"
+               :repositories [["central" {:url "https://repo1.maven.org/maven2/"
                                           :snapshots false}]
                               ["clojars" {:url "https://clojars.org/repo/"}]]})
 
@@ -526,7 +526,7 @@
              (abort-msg
               #'project/warn-user-repos
               {:user {:repositories
-                      {"central" {:url "http://repo1.maven.org/maven2/"
+                      {"central" {:url "https://repo1.maven.org/maven2/"
                                   :snapshots false}
                        "clojars" {:url "https://clojars.org/repo/"}}}}))))
     (testing "with no suppression,"
@@ -539,7 +539,7 @@
              (abort-msg
               #'project/warn-user-repos
               {:user {:repositories
-                      {"central" {:url "http://repo1.maven.org/maven2/"
+                      {"central" {:url "https://repo1.maven.org/maven2/"
                                   :snapshots false}
                        "clojars" {:url "https://clojars.org/repo/"}}}}))))
       (testing "Warning with user level repo"
@@ -548,7 +548,7 @@
              (abort-msg
               #'project/warn-user-repos
               {:user {:repositories
-                      {"central" "http://repo1.maven.org/maven2/"
+                      {"central" "https://repo1.maven.org/maven2/"
                        "clojars" "https://clojars.org/repo/"}}}))))
       (testing "Warning with user level repo"
         (is (re-find
@@ -557,6 +557,6 @@
               #'project/warn-user-repos
               {:user
                {:repositories
-                [["central" {:url "http://repo1.maven.org/maven2/"
+                [["central" {:url "https://repo1.maven.org/maven2/"
                              :snapshots false}]
                  ["clojars" {:url "https://clojars.org/repo/"}]]}})))))))

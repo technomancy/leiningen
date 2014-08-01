@@ -22,7 +22,7 @@ Add `[lein-pprint "1.1.1"]` to `:plugins`.
  :jar-exclusions [#"^\."],
  :test-path ("/home/phil/src/leiningen/lein-pprint/test"),
  :repositories
- (["central" {:url "http://repo1.maven.org/maven2"}]
+ (["central" {:url "https://repo1.maven.org/maven2"}]
   ["clojars" {:url "http://clojars.org/repo/"}]),
  :uberjar-exclusions [#"^META-INF/DUMMY.SF"],
  :eval-in :leiningen,
