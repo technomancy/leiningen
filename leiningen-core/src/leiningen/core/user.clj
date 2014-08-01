@@ -80,9 +80,10 @@
                         (-> a meta :origin) "and in" (-> b meta :origin)))
              (throw (ex-info "Multiple profiles defined in ~/.lein"
                              {:exit-code 1})))]
-       (merge-with error-fn
-                   (load-profiles (leiningen-home))
-                   (into {} (profiles-d-profiles)))))))
+       (if (not (System/getenv "LEIN_NO_USER_PROFILES"))
+         (merge-with error-fn
+                     (load-profiles (leiningen-home))
+                     (into {} (profiles-d-profiles))))))))
 
 (defn gpg-program
   "Lookup the gpg program to use, defaulting to 'gpg'"
