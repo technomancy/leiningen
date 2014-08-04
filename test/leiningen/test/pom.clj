@@ -310,3 +310,11 @@
                  :let [artifact (first-in dep [:dependency :artifactId])]
                  :when (= "gdx-platform" artifact)]
              [artifact (first-in dep [:dependency :classifier])])))))
+
+(deftest test-override-base-profile
+  (let [p (make-pom (with-profile-merged sample-project
+                      {:dependencies [['org.clojure/tools.nrepl "0.2.2"]]}))
+        deps (deep-content (xml/parse-str p) [:project :dependencies])
+        nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
+        versions (map #(deep-content % [:dependency :version]) nrepls)]
+    (is (= [["0.2.2"]] versions))))
