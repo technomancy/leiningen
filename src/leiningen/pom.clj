@@ -312,9 +312,8 @@
   (list* dep version (apply concat (assoc (apply hash-map opts) :scope scope))))
 
 (defn- dep-key [dep]
-  (-> (project/dependency-map dep)
-      (select-keys [:group-id :artifact-id :classifier
-                    :extension :scope :version])))
+  (select-keys (project/dependency-map dep) [:group-id :artifact-id :classifier
+                                             :extension :scope]))
 
 (defmethod xml-tags ::project
   ([_ project]
@@ -322,11 +321,13 @@
            test-project (reprofile [:base :provided :dev :test])
            profiles (merge @project/default-profiles (:profiles project)
                            (project/project-profiles project))
+           raw-deps (set (map dep-key (:dependencies project)))
            deps (concat (:dependencies project)
                         (for [dep (:dependencies (:provided profiles))]
                           (make-scope "provided" dep))
                         (for [profile [:dev :test :base]
-                              dep (:dependencies (profile profiles))]
+                              dep (:dependencies (profile profiles))
+                              :when (not (raw-deps (dep-key dep)))]
                           (make-scope "test" dep)))]
        (list
         [:project {:xsi:schemaLocation
