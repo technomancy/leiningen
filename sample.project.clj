@@ -165,10 +165,14 @@
              :repl {:plugins [[cider/cider-nrepl "0.7.1"]]}}
   ;; Load these namespaces from within Leiningen to pick up hooks from them.
   :hooks [leiningen.hooks.difftest]
-  ;; Apply these middleware functions from plugins to your project when it
-  ;; loads. Both hooks and middleware can be loaded implicitly by giving them a
-  ;; name matching a specific pattern as well as by listing them here.
+  ;; Apply these middleware functions from plugins to your project
+  ;; when it loads. Both hooks and middleware can be loaded implicitly
+  ;; or by being listed here.
   :middleware [lein-xml.plugin/middleware]
+  ;; These settings disable the implicit loading of middleware and
+  ;; hooks, respectively. You can disable both with :implicits false.
+  :implicit-middleware false
+  :implicit-hooks false
 
 ;;; Entry Point
   ;; The -main function in this namespace will be run at launch
