@@ -327,7 +327,8 @@
                           (make-scope "provided" dep))
                         (for [profile [:dev :test :base]
                               dep (:dependencies (profile profiles))
-                              :when (not (raw-deps (dep-key dep)))]
+                              :when (not (and (= profile :base)
+                                              (raw-deps (dep-key dep))))]
                           (make-scope "test" dep)))]
        (list
         [:project {:xsi:schemaLocation
