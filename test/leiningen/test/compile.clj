@@ -86,10 +86,13 @@
 
 
 (deftest bad-aot-test
-  (is (thrown? java.io.FileNotFoundException (compile (assoc sample-project :aot '[does.not.exist])))))
-
-(deftest multiple-namespace-files
-  (is (thrown? IllegalStateException (compile (assoc sample-project :source-paths ["src/" "src/"] :aot :all)))))
+  (is (re-find #"does\.not\.exist|does\/not\/exist"
+               (with-out-str
+                 (binding [*err* *out*]
+                   (try
+                     (compile (assoc sample-project
+                                :aot '[does.not.exist]))
+                     (catch clojure.lang.ExceptionInfo _)))))))
 
 (deftest compilation-specs-tests
   (is (= '[foo bar] (compilation-specs ["foo" "bar"])))
