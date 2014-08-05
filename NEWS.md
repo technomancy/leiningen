@@ -1,5 +1,16 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.4.3 / 2014-08-05
+
+* Allow implicit hooks/middleware to be disabled. (Phil Hagelberg)
+* Print compilation errors as they occur. (Paul Legato)
+* Switch Central repository to using HTTPS. (Manfred Moser)
+* Add `LEIN_NO_USER_PROFILES` to avoid loading user profile. (Hugo Duncan)
+* Fix deploy task to work with signature files. (Phil Hagelberg)
+* Allow vcs tags to be created with a prefix. (Yannick Scherer)
+* Default to warning when version ranges are present. (Phil Hagelberg)
+* Let templates be loaded from `:plugin-repositories`. (Jason Felice)
+
 ## 2.4.2 / 2014-06-15
 
 * Fix a bug preventing out-of-project runs. (Phil Hagelberg)
