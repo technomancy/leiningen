@@ -9,6 +9,8 @@ CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
 # update the bash scripts or watch for boot slowdowns that way. Maybe
 # try adding lein-shell?
 
+# grep $RELEASE_VERSION NEWS.md || echo "Add $RELEASE_VERSION to NEWS.md" && exit 1
+
 lein vcs assert-committed
 
 for f in bin/lein bin/lein-pkg bin/lein.bat project.clj leiningen-core/project.clj; do
