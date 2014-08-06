@@ -84,7 +84,6 @@
 ;; (deftest test-compile-java-main
 ;;   (compile dev-deps-project))
 
-
 (deftest bad-aot-test
   (is (re-find #"does\.not\.exist|does\/not\/exist"
                (with-out-str
