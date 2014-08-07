@@ -190,7 +190,9 @@
   ;; metadata to the namespace symbol. ^:skip-aot will not disable AOT
   ;; compilation of :main when :aot is :all or contains the main class. It's
   ;; best to be explicit with the :aot key rather than relying on
-  ;; auto-compilation of :main.
+  ;; auto-compilation of :main. Setting :main to nil is useful when a
+  ;; project contains several main functions. nil will produce a jar
+  ;; with manifest.mf that lacks `Main-Class' property.
   :main my.service.runner
   ;; Support project-specific task aliases. These are interpreted in
   ;; the same way as command-line arguments to the lein command. If
