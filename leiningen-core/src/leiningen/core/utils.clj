@@ -24,12 +24,12 @@
          (URL. (str "http://" url)))))
 
 (defn read-file
-  "Read the contents of file if it exists."
+  "Returns the first Clojure form in a file if it exists."
   [file]
   (if (.exists file)
     (try (read-string (slurp file))
         (catch Exception e
-         (binding [*out* *err*]
+         (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
            (println "Error reading"
                    (.getName file)
                    "from"
@@ -55,7 +55,7 @@
         [".clj" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
 
 (defn error [& args]
-  (binding [*out* *err*]
+  (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
     (apply println "Error:" args)))
 
 (defn require-resolve
@@ -116,30 +116,48 @@
 
 ;; # Git
 
+;; This is very similar to the read-file function above. The only differences
+;; are the error messages and the transformations done on the content.
+(defn- git-file-contents
+  "Returns the (trimmed) contents by the given git path, or nil if it is
+  inacessible or nonexisting. If it exists and is not readable, a warning is
+  printed."
+  [git-dir ref-path]
+  (let [ref (io/file git-dir ref-path)]
+    (println (.toString ref))
+    (if (.canRead ref)
+      (.trim (slurp ref))
+      (do
+        (when (.exists ref)
+          (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
+            (println "Warning: Contents of git file"
+                     (str ".git/" ref-path) "is not readable.")
+            (println "(Check that you have the right permissions to read"
+                     "the .git repo)")))
+        nil))))
+
 (defn ^:internal resolve-git-dir [project]
   (let [alternate-git-root (io/file (get-in project [:scm :dir]))
         git-dir-file (io/file (or alternate-git-root (:root project)) ".git")]
-    (if (.isFile git-dir-file)
+    (if (and (.isFile git-dir-file) (.canRead git-dir-file))
       (io/file (second (re-find #"gitdir: (\S+)" (slurp (str git-dir-file)))))
       git-dir-file)))
 
 (defn- read-git-ref
   "Reads the commit SHA1 for a git ref path, or nil if no commit exist."
   [git-dir ref-path]
-  (let [ref (io/file git-dir ref-path)]
-    (if (.exists ref)
-      (.trim (slurp ref))
-      nil)))
+  (git-file-contents git-dir ref-path))
 
 (defn- read-git-head-file
   "Reads the current value of HEAD by attempting to read .git/HEAD, returning
   the SHA1 or nil if none exists."
   [git-dir]
-  (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
-                           (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
-                             (read-git-ref git-dir ref-path))))
+  (some->> (git-file-contents git-dir "HEAD")
+           (re-find #"ref: (\S+)")
+           (second)
+           (read-git-ref git-dir)))
 
-;; TODO: de-dupe with pom namespace
+;; TODO: de-dupe with pom namespace (3.0?)
 
 (defn ^:internal read-git-head
   "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
