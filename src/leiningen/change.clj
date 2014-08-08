@@ -14,9 +14,7 @@
   (throw (IllegalArgumentException. msg)))
 
 (defn- clj->sjacket [value]
-  (if (string? value)
-    (str "\"" value "\"")
-    (-> value print-str parser/parser :content first)))
+  (-> value pr-str parser/parser :content first))
 
 ;; NOTE: this destroy comments, formatting, etc.
 (defn- sjacket->clj [value]
