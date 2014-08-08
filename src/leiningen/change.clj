@@ -13,8 +13,11 @@
 (defn- fail-argument! [msg]
   (throw (IllegalArgumentException. msg)))
 
+;; NOTE: The metadata will be printed out differently. E.g. ^:replace will be
+;; printed as ^{:replace true} -- but at least it is preserved.
 (defn- clj->sjacket [value]
-  (-> value pr-str parser/parser :content first))
+  (binding [*print-meta* true]
+    (-> value pr-str parser/parser :content first)))
 
 ;; NOTE: this destroy comments, formatting, etc.
 (defn- sjacket->clj [value]
@@ -180,7 +183,7 @@ When called programmatically, you may pass a coll of keywords for the
 first arg or an actual function for the second.
 
 All the arguments to f are passed through the reader, so double quoting is
-necessory to use strings. Note that this task reads the project.clj file
+necessary to use strings. Note that this task reads the project.clj file
 from disk rather than honoring the project map, so profile merging or
 `update-in` invocations will not effect it."
   [project key-or-path f & args]
