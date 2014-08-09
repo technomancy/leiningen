@@ -155,3 +155,18 @@
   your uberjars will use `clojure.main` as their entry point. You can
   launch with `java -jar my-app-standalone.jar -m my.entry.namespace
   arg1 arg2 [...]` without any AOT, but it will take longer to launch.
+
+**Q:** I'd like to have certain config active only on a certain OS.  
+**A:** You can do this by using unquote in the `:dev` profile:
+
+```clj
+:profiles {:dev [:dev/all ~(leiningen.core.utils/get-os)]
+           :dev/all {...}
+           :linux {...}
+           :windows {...}
+           :macosx {...}}
+```
+
+You can also check things like `(System/getProperty
+"java.specification.version")` to use the JVM version or any other
+property.
