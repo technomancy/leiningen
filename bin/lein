@@ -50,11 +50,11 @@ function add_path {
 }
 
 function download_failed_message {
-    echo "Failed to download $1"
+    echo "Failed to download $1 (exit code $2)"
     echo "It's possible your HTTP client's certificate store does not have the"
     echo "correct certificate authority needed. This is often caused by an"
     echo "out-of-date version of libssl. It's also possible that you're behind a"
-    echo "firewall haven't yet set HTTP_PROXY and HTTPS_PROXY."
+    echo "firewall and haven't set HTTP_PROXY and HTTPS_PROXY."
 }
 
 function self_install {
@@ -67,12 +67,13 @@ function self_install {
   mkdir -p "$(dirname "$LEIN_JAR")"
   LEIN_URL="https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar"
   $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
-  if [ $? == 0 ]; then
+  local exit_code=$?
+  if [ $exit_code == 0 ]; then
       # TODO: checksum
       mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
   else
       rm "$LEIN_JAR.pending" 2> /dev/null
-      download_failed_message "$LEIN_URL"
+      download_failed_message "$LEIN_URL" "$exit_code"
       exit 1
   fi
 }
