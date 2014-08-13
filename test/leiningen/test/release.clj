@@ -62,6 +62,16 @@
     :beta "1.0.0-beta1"
     :rc "1.0.0-RC1"}]])
 
+(deftest test-string->semantic-version
+  (testing "Testing semantic version string parsing"
+    (doseq [[args expected] valid-semver-version-values]
+      (testing (format "with valid version strings: %s" args)
+        (is (= (string->semantic-version args) expected))))
+
+    (testing "with invalid version strings."
+      (doseq [[semver-test-data] invalid-semver-version-values]
+        (is (nil? (string->semantic-version semver-test-data)))))))
+
 (deftest test-parse-semver-version
   (testing "Testing semantic version string parsing"
     (doseq [[args expected] valid-semver-version-values]
