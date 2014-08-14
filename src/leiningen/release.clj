@@ -6,8 +6,8 @@
 
 (def ^:dynamic *level* :patch)
 
-(defn parse-semantic-version [version-string]
-  "Create map representing the given version string. Raise exception if the
+(defn string->semantic-version [version-string]
+  "Create map representing the given version string. Returns nil if the
   string does not follow guidelines setforth by Semantic Versioning 2.0.0,
   http://semver.org/"
   ;; <MajorVersion>.<MinorVersion>.<PatchVersion>[-<BuildNumber | Qualifier >]
@@ -17,8 +17,14 @@
                          (zipmap [:major :minor :patch]))
         qualifier (last (re-matches #".*-(.+)?" version-string))]
     (if-not (empty? version-map)
-      (merge version-map {:qualifier qualifier})
-      (main/abort "Unrecognized version string:" version-string))))
+      (merge version-map {:qualifier qualifier}))))
+
+(defn parse-semantic-version [version-string]
+  "Create map representing the given version string. Aborts with exit code 1
+  if the string does not follow guidelines setforth by Semantic Versioning 2.0.0,
+  http://semver.org/"
+  (or (string->semantic-version version-string)
+      (main/abort "Unrecognized version string:" version-string)))
 
 (defn version-map->string
   "Given a version-map, return a string representing the version."
