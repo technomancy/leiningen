@@ -187,7 +187,9 @@ You can [search Clojars](http://clojars.org/search?q=clj-http) using
 its web interface or via `lein search $TERM`. On the Clojars page for
 `clj-http` at the time of this writing it shows this:
 
-    [clj-http "0.9.1"]
+```clj
+[clj-http "0.9.1"]
+```
 
 It also shows the Maven syntax for dependencies, which we'll skip for
 now, though you'll need to learn to read it when looking for Java
