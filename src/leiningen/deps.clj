@@ -3,7 +3,9 @@
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
             [leiningen.core.eval :as eval]
+            [leiningen.core.project :as project]
             [leiningen.core.user :as user]
+            [leiningen.core.utils :as utils]
             [cemerick.pomegranate.aether :as aether]
             [clojure.pprint :as pp]
             [clojure.java.io :as io])
@@ -20,6 +22,8 @@
 
 (defn- print-dep [dep level]
   (println (apply str (repeat (* 2 level) \space)) (pr-str dep)))
+
+
 
 (declare check-signature)
 
@@ -60,6 +64,7 @@
                  :unsigned)]
     ;; TODO: support successful exit code only on fully-signed deps
     (println status (pr-str dep))))
+
 
 (def tree-command
   "A mapping from the tree-command to the dependency key it should print a tree
@@ -67,20 +72,39 @@
   {":tree" :dependencies
    ":plugin-tree" :plugins})
 
+
+
+(defn print-implicits [project type]
+  (when-let [implicits (seq (filter utils/require-resolve
+                                    (project/plugin-vars project type)))]
+    (println (str "Implicit " (name type) ":"))
+    (doseq [i implicits] (println " " i))))
+
+
+
 (defn deps
   "Show details about dependencies.
 
-USAGE: lein deps :tree
+    lein deps :tree
+
 Show the full dependency tree for the current project. Each dependency is only
 shown once within a tree.
 
-USAGE: lein deps :plugin-tree
+    lein deps :plugin-tree
+
 Show the full dependency tree for the plugins in the current project.
 
-USAGE: lein deps :verify
+    lein deps :verify
+
 Check signatures of each dependency. ALPHA: subject to change.
 
-USAGE: lein deps
+    lein deps :implicits
+
+List the implicit middleware and hooks that will be activated by the current
+set of plugins. Useful for debugging unexplained behaviour.
+
+    lein deps
+
 Force Leiningen to download the dependencies it needs. This usage is
 deprecated as it should happen automatically on demand.
 
@@ -90,7 +114,10 @@ force them to be updated, use `lein -U $TASK`."
      (deps project nil))
   ([project command]
      (try
-       (cond (tree-command command)
+       (cond (= ":implicits" command)
+             (do (print-implicits project :middleware)
+                 (print-implicits project :hooks))
+             (tree-command command)
              (let [hierarchy (classpath/dependency-hierarchy
                               (tree-command command)
                               (assoc project :pedantic?
