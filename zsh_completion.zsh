@@ -53,10 +53,8 @@ _lein_plugin() {
 
 
 _lein_namespaces() {
-  if [ -d test ]; then
-    _values "lein valid namespaces" $(find $1 -type f -name "*.clj" -exec grep -E \
-                 '^\(ns[[:space:]]+\w+' '{}' ';' | awk '/\(ns[ ]*([A-Za-z\.]+)/ {print $2}')
-  fi 
+  _values "lein valid namespaces" \
+    $(find "$1" -type f -name "*.clj" -exec awk '/^\(ns */ {gsub("\\)", "", $2); print $2}' '{}' '+')
 }
 
 _lein_run() {
