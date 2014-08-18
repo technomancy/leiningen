@@ -53,9 +53,12 @@ _lein_plugin() {
 
 
 _lein_namespaces() {
-  _values "lein valid namespaces" \
-    $(find "$1" -type f -name "*.clj" -exec awk '/^\(ns */ {gsub("\\)", "", $2); print $2}' '{}' '+')
+  if [ -f "./project.clj" -a -d "$1" ]; then
+    _values "lein valid namespaces" \
+      $(find "$1" -type f -name "*.clj" -exec awk '/^\(ns */ {gsub("\\)", "", $2); print $2}' '{}' '+')
+  fi
 }
+
 
 _lein_run() {
   _lein_namespaces "src/"
