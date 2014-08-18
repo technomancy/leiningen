@@ -303,7 +303,12 @@ else
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
     else
-        TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
+        if hash mktemp 2>/dev/null; then
+            # Check if mktemp is available before using it
+            TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
+        else
+            TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+        fi
         trap "rm -f $TRAMPOLINE_FILE" EXIT
     fi
 
