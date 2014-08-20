@@ -52,14 +52,27 @@
     s
     (main/abort "Port is required. See `lein help repl`")))
 
+(defn string-from-file [arg]
+  (if-let [filename-tmp (and (seq arg) (= "@" (subs arg 0 1)) (seq (subs arg 1)))]
+    (let [filename (apply str filename-tmp)
+          errmsg (str "The file '" filename "' can't be read.")]
+      (if-let [content (try (slurp filename)
+                            (catch Exception e
+                            (main/abort errmsg)))]
+        (s/trim content)
+        (main/abort errmsg)))
+      false))
+
 (defn connect-string [project opts]
-  (as-> (str (first opts)) x
-        (s/split x #":")
-        (remove s/blank? x)
-        (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
-            (concat x))
-        (s/join ":" x)
-        (ensure-port x)))
+  (let [opt (str (first opts))]
+    (if-let [sx (string-from-file opt)]
+      (connect-string project [sx])
+      (as-> (s/split opt #":") x
+            (remove s/blank? x)
+            (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
+                (concat x))
+            (s/join ":" x)
+            (ensure-port x)))))
 
 (defn options-for-reply [project & {:keys [attach port]}]
   (as-> (:repl-options project) opts
