@@ -281,11 +281,11 @@
   ;; Need to turn everything into a string before calling
   ;; pedantic-print-*, otherwise we can't memoize due to bad equality
   ;; semantics on aether GraphEdge objects.
-  (when (or (true? pedantic-setting) (= pedantic-setting :ranges))
+  (when (or (true? pedantic-setting) (= (keyword pedantic-setting) :ranges))
     (pedantic-print-ranges (distinct (map message-for-range ranges))))
-  (when (or (true? pedantic-setting) (= pedantic-setting :overrides))
+  (when (or (true? pedantic-setting) (= (keyword pedantic-setting) :overrides))
     (pedantic-print-overrides (map message-for-override overrides)))
-  (when (and (= :abort pedantic-setting)
+  (when (and (= :abort (keyword pedantic-setting))
              (not (empty? (concat ranges overrides))))
     (require 'leiningen.core.main)
     ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
