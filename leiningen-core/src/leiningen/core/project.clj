@@ -209,6 +209,7 @@
                                    "leiningen.release/bump-version"]
                                   ["vcs" "commit"]
                                   ["vcs" "push"]]
+   :pedantic? (quote ^:top-displace ranges)
    :jar-exclusions [#"^\."]
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
@@ -472,7 +473,6 @@
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
-                :pedantic? :ranges
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 :dependencies '[[org.clojure/tools.nrepl "0.2.3"
