@@ -12,7 +12,7 @@
   (let [root (str (:root project) (System/getProperty "file.separator"))]
     (reduce #(update-in %1 [%2]
                         (fn [xs]
-                          (if (seq? xs)
+                          (if (sequential? xs)
                             (vec (for [x xs]
                                    (.replace x root "")))
                             (and xs (.replace xs root "")))))
