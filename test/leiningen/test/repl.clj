@@ -86,7 +86,14 @@
          ["http://localhost/ham"] {:root "/tmp"}
          ["foo1234"]              {:root "/tmp"}
          []                       {:root "/tmp"}
-         []                       lthelper/with-resources-project))
+         []                       lthelper/with-resources-project)
+    (are [in proj]
+         (is (re-find
+              #"The file '.+' can't be read."
+              (lthelper/abort-msg connect-string proj in)))
+         ["@/tmp/please-do-not-create-this-file-it-will-break-my-test"] {}))
+  (is (= "myhost:23" (connect-string lthelper/sample-project ["@test/sample-connect-string"])))
+  (is (= "http://localhost:23/repl" (connect-string lthelper/sample-project ["@test/sample-connect-string-http"])))
 
   (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project [])))
   (is (= "127.0.0.1:4343" (connect-string lthelper/sample-project ["4343"])))
