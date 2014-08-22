@@ -65,16 +65,29 @@
          nil prj "proj-host"
          nil nil "127.0.0.1")))
 
+(deftest test-is-uri
+  (is (= true  (is-uri? "http://example.org")))
+  (is (= true  (is-uri? "https://example.org")))
+  (is (= true  (is-uri? "http://example.org:20/repl")))
+  (is (= true  (is-uri? "https://example.org:20/repl")))
+  (is (= false (is-uri? "")))
+  (is (= false (is-uri? "7")))
+  (is (= false (is-uri? "myhost:9")))
+  (is (= false (is-uri? "localhost:20")))
+  (is (= false (is-uri? "localhost:"))))
+
 (deftest test-connect-string
   (are [in exp]
        (= exp (with-redefs [repl-host (constantly "repl-host")
                             repl-port (constantly 5)]
                 (connect-string {} [in])))
-       ""                        "repl-host:5"
-       "7"                       "repl-host:7"
-       "myhost:9"                "myhost:9"
-       "http://localhost:20"     "http://localhost:20"
-       "http://localhost:20/ham" "http://localhost:20/ham")
+       ""                         "repl-host:5"
+       "7"                        "repl-host:7"
+       "myhost:9"                 "myhost:9"
+       "http://localhost:20"      "http://localhost:20"
+       "http://localhost:20/ham"  "http://localhost:20/ham"
+       "https://localhost:20"     "https://localhost:20"
+       "https://localhost:20/ham" "https://localhost:20/ham")
   (with-redefs [repl-host (constantly "repl-host")
                 repl-port (constantly 0)]
     (is (= "repl-host:1" (connect-string {} ["1"])))
@@ -83,10 +96,11 @@
          (is (re-find
               #"Port is required"
               (lthelper/abort-msg connect-string proj in)))
-         ["http://localhost/ham"] {:root "/tmp"}
-         ["foo1234"]              {:root "/tmp"}
-         []                       {:root "/tmp"}
-         []                       lthelper/with-resources-project)
+         ["https://localhost/ham"] {:root "/tmp"}
+         ["http://localhost/ham"]  {:root "/tmp"}
+         ["foo1234"]               {:root "/tmp"}
+         []                        {:root "/tmp"}
+         []                        lthelper/with-resources-project)
     (are [in proj]
          (is (re-find
               #"The file '.+' can't be read."

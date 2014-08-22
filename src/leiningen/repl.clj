@@ -52,6 +52,9 @@
     s
     (main/abort "Port is required. See `lein help repl`")))
 
+(defn is-uri? [s]
+  (boolean (and (string? s) (re-find #"^https?://" s))))
+
 (defn string-from-file [arg]
   (if-let [filename-tmp (and (seq arg) (= "@" (subs arg 0 1)) (seq (subs arg 1)))]
     (let [filename (apply str filename-tmp)
@@ -238,7 +241,7 @@
       (main/abort "REPL server launch timed out."))))
 
 (defn client [project attach]
-  (when (and (string? attach) (.startsWith attach "http:"))
+  (when (is-uri? attach)
     (require 'cemerick.drawbridge.client))
   (reply/launch-nrepl (options-for-reply project :attach attach)))
 
@@ -265,7 +268,7 @@ Subcommands:
 
 :connect [dest]
   Connects to an already running nREPL server. Dest can be:
-  - an HTTP URL -- connects to an HTTP nREPL endpoint;
+  - an HTTP(S) URL -- connects to an HTTP(S) nREPL endpoint;
   - host:port -- connects to the specified host and port;
   - port -- resolves host from the LEIN_REPL_HOST environment
       variable or :repl-options, in that order, and defaults to
