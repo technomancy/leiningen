@@ -40,6 +40,8 @@ on your `PATH` and running `lein self-install` should still work for
 most users. If you have [Cygwin](http://www.cygwin.com/) you should be
 able to use the shell script above rather than the batch file.
 
+If for whatever reason you can't get any of the shell scripts to download leiningen, the compiled releases [are all on github](https://github.com/technomancy/leiningen/releases/)
+
 ## Basic Usage
 
 The
