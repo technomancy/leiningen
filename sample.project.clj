@@ -43,7 +43,7 @@
   ;; jars that don't adhere to the default "<os>/<arch>/" layout that
   ;; Leiningen expects.
   :dependencies [[org.clojure/clojure "1.3.0"]
-                 [org.jclouds/jclouds "1.0" :classifier "jdk15" :scope "test"]
+                 [org.jclouds/jclouds "1.0" :classifier "jdk15"]
                  [net.sf.ehcache/ehcache "2.3.1" :extension "pom"]
                  [log4j "1.2.15" :exclusions [[javax.mail/mail :extension "jar"]
                                               [javax.jms/jms :classifier "*"]
