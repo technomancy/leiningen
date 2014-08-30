@@ -318,14 +318,18 @@
 (defmethod xml-tags ::project
   ([_ project]
      (let [reprofile #(relativize (project/merge-profiles project %))
-           test-project (reprofile [:base :provided :dev :test])
+           default-kws (->> (-> project meta :profiles :default)
+                            distinct
+                            (remove #{:user :system}))
+           test-profile-kws (conj (vec default-kws) :test)
+           test-project (reprofile test-profile-kws)
            profiles (merge @project/default-profiles (:profiles project)
                            (project/project-profiles project))
            raw-deps (set (map dep-key (:dependencies project)))
            deps (concat (:dependencies project)
                         (for [dep (:dependencies (:provided profiles))]
                           (make-scope "provided" dep))
-                        (for [profile [:dev :test :base]
+                        (for [profile (remove #{:provided} test-profile-kws)
                               dep (:dependencies (profile profiles))
                               :when (not (and (= profile :base)
                                               (raw-deps (dep-key dep))))]
