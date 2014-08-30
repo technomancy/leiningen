@@ -4,7 +4,9 @@
 (defn- prj-map
   ([p] (prj-map p [:default]))
   ([p a]
-     (let [p {:profiles p}, m {:without-profiles p, :active-profiles a}]
+     (let [p {:profiles p}
+           m {:without-profiles p, :active-profiles a
+              :profiles (:profiles p)}]
        (with-meta p m))))
 
 (deftest test-profiles-in-group
