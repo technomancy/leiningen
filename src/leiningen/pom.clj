@@ -318,7 +318,7 @@
 (defmethod xml-tags ::project
   ([_ project]
      (let [reprofile #(relativize (project/merge-profiles project %))
-           test-project (reprofile [:base :provided :dev :test])
+           test-project (reprofile [:base :project :provided :dev :test])
            profiles (merge @project/default-profiles (:profiles project)
                            (project/project-profiles project))
            raw-deps (set (map dep-key (:dependencies project)))
@@ -370,7 +370,7 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [project (project/unmerge-profiles project [:default])]
+     (let [project (project/set-profiles project [:project])]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str
