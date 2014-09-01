@@ -370,7 +370,12 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [project (project/set-profiles project [:project])]
+     (let [project (as-> project project
+                         (project/unmerge-profiles project [:default])
+                         (project/set-profiles
+                          project
+                          ((fnil conj []) (-> project meta :included-profiles)
+                           :project)))]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str
