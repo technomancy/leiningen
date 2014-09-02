@@ -268,6 +268,8 @@ keyword, it's looked up in :profiles before being merged."
         project (-> (project/unmerge-profiles project [:default])
                     (project/merge-profiles [spec])
                     (retain-whitelisted-keys project))]
+    (when (:dependencies spec)
+      (main/warn "WARN: Classifier specifies :dependencies which will be ignored."))
     (eval/prep project)
     (let [jar-file (get-classified-jar-filename project classifier)]
       (write-jar project jar-file (filespecs project))
