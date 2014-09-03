@@ -329,7 +329,10 @@
            deps (concat (:dependencies project)
                         (for [dep (:dependencies (:provided profiles))]
                           (make-scope "provided" dep))
-                        (for [profile (remove #{:provided} test-profile-kws)
+                        (for [profile (concat
+                                       [:dev :test :base]
+                                       (remove #{:provided :dev :test :base}
+                                               test-profile-kws))
                               dep (:dependencies (profile profiles))
                               :when (not (and (= profile :base)
                                               (raw-deps (dep-key dep))))]
