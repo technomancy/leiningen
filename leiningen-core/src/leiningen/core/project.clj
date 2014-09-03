@@ -602,6 +602,18 @@
                           (io/file "/etc" "leiningen"))]
     (user/load-profiles sys-profile-dir)))
 
+(defn- scope-plugin-profile [local-name plugin-name]
+  (keyword (str "plugin." plugin-name) local-name))
+
+(defn- plugin-profiles [project]
+  ;; Technically this doesn't honor default-profiles; problem?
+  (for [[plugin version] (concat (:plugins project)
+                                 (:plugins (:user (user/profiles))))
+        :let [profiles (io/resource (format "%s.plugin/profiles.clj" plugin))]
+        :when profiles]
+    (for [[local-name profile] (read-string (slurp profiles))]
+      [(scope-plugin-profile local-name plugin) profile])))
+
 (defn ^:internal project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
     (warn-user-profile (:root project) profiles)
@@ -620,11 +632,12 @@
   ;;   functionality for 3.0 if we're smart.
   (let [sys-profiles (setup-map-of-profiles (system-profiles))
         user-profiles (setup-map-of-profiles (user/profiles))
-        proj-profiles (setup-map-of-profiles (project-profiles project))]
+        plugin-profiles (setup-map-of-profiles (plugin-profiles project))
+        proj-profiles-file (setup-map-of-profiles (project-profiles project))]
     (warn-user-repos (concat user-profiles sys-profiles))
     (warn-user-profile (:root project) (:profiles project))
     (merge @default-profiles sys-profiles user-profiles
-           (:profiles project) proj-profiles)))
+           plugin-profiles (:profiles project) proj-profiles-file)))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
 
