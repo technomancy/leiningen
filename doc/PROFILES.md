@@ -13,6 +13,9 @@ profiles are activated for each task, but their settings are not
 propagated downstream to projects that depend upon yours. Each profile
 is defined as a map which gets merged into your project map.
 
+The `:project` profile is activated for each task, and its settings
+are propagated downstream to projects that depend upon yours.
+
 You can place any arbitrary key/value pairs supported by `defproject`
 into a given profile and they will be merged into the project map when
 that profile is activated.
@@ -154,8 +157,8 @@ This can be used to avoid duplication:
 Composite profiles are used by Leiningen internally for the `:default`
 profile, which is the profile used if you don't change it using
 `with-profile`. The `:default` profile is defined to be a composite of
-`[:base :system :user :provided :dev]`, but you can change this in your
-`project.clj` just like any other profile.
+`[:base :system :user :provided :project :dev]`, but you can change
+this in your `project.clj` just like any other profile.
 
 ## Using Functions 
 
