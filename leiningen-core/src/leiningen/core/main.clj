@@ -352,15 +352,17 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
   [& raw-args]
   (try
     (user/init)
-    (let [project (project/init-project
-                   (if (.exists (io/file *cwd* "project.clj"))
-                     (project/read (str (io/file *cwd* "project.clj")))
-                     (-> (project/make {:eval-in :leiningen :prep-tasks []
-                                        :source-paths ^:replace []
-                                        :resource-paths ^:replace []
-                                        :test-paths ^:replace []})
-                         project/project-with-profiles
-                         (project/init-profiles [:default]))))]
+    (let [project (binding [project/*suppress-profile-warnings* true]
+                    (project/init-project
+                     (if (.exists (io/file *cwd* "project.clj"))
+                       (project/read (str (io/file *cwd* "project.clj")))
+                       (-> (project/make {:eval-in :leiningen :prep-tasks []
+                                          :source-paths ^:replace []
+                                          :resource-paths ^:replace []
+                                          :test-paths ^:replace []})
+                           project/project-with-profiles
+                           (project/init-profiles [:default])))))
+          project (project/set-profiles project [:default])]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
       (resolve-and-apply project raw-args))
