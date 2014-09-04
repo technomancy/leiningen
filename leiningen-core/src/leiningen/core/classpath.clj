@@ -168,21 +168,20 @@
                                              ;; doesn't have a slash on it
                                              (= (str (.getUrl %) "/") repository))
                                         aether-repos))]
-                    (locking *out*
+                    (locking *err*
                       (warn "Retrieving" name "from" (.getId repo)))
                     ;; else case happens for metadata files
                     )
                   nil)))))
         :proxy (get-proxy-settings))
        (catch DependencyResolutionException e
-         (binding [*out* *err*]
-           ;; Cannot recur from catch/finally so have to put this in its own defn
-           (print-failures e)
-           (println "This could be due to a typo in :dependencies or network issues.")
-           (println "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
-           #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
-               (println "It's possible the specified jar is in the old Clojars Classic repo.")
-               (println "If so see https://github.com/ato/clojars-web/wiki/Releases.")))
+         ;; Cannot recur from catch/finally so have to put this in its own defn
+         (print-failures e)
+         (warn "This could be due to a typo in :dependencies or network issues.")
+         (warn "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
+         #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
+             (warn "It's possible the specified jar is in the old Clojars Classic repo.")
+             (warn "If so see https://github.com/ato/clojars-web/wiki/Releases."))
          (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
                                                            :exit-code 1} e)))
        (catch Exception e
