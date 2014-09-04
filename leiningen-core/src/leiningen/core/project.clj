@@ -475,7 +475,7 @@
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
-                :dependencies '[[org.clojure/tools.nrepl "0.2.3"
+                :dependencies '[[org.clojure/tools.nrepl "0.2.5"
                                  :exclusions [org.clojure/clojure]]
                                 [clojure-complete "0.2.3"
                                  :exclusions [org.clojure/clojure]]]
