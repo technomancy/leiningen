@@ -184,7 +184,7 @@
 
 (def trampoline-profile
   {:dependencies
-   '[^:displace [reply "0.3.4"
+   '[^:displace [reply "0.3.5"
                  :exclusions [org.clojure/clojure ring/ring-core]]]})
 
 (defn- trampoline-repl [project port]
