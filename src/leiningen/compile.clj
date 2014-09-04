@@ -125,11 +125,13 @@ Compiling code loads the namespace, so keep side-effects out of the top level.
 Code that should run on startup belongs in a -main defn."
   ([project]
      (if-let [namespaces (seq (stale-namespaces project))]
-       (let [form `(doseq [namespace# '~namespaces]
-                     (binding [*out* *err*]
-                       (println "Compiling" namespace#))
+       (let [ns-sym (gensym "namespace")
+             form `(doseq [~ns-sym '~namespaces]
+                     ~(if main/*info*
+                        `(binding [*out* *err*]
+                           (println "Compiling" ~ns-sym)))
                      (try
-                       (clojure.core/compile namespace#)
+                       (clojure.core/compile ~ns-sym)
                        (catch Throwable t#
                          (.printStackTrace t#)
                          (throw t#))))
