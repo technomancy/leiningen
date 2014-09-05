@@ -159,10 +159,48 @@ users to add another entry to `:prep-tasks`. Note that this task will
 be invoked for **every** `eval-in-project`, so take care that it runs
 quickly if nothing has changed since the last run.
 
-## Hooks
+## Other Plugin Contents
 
-You can modify the behaviour of built-in tasks to a degree using
-hooks. Hook functionality is provided by the
+Plugins are primarily about providing tasks, but they can also contain
+profiles, hooks, middleware, wagons (dependency transport methods),
+and vcs methods.
+
+### Profiles
+
+If there is configuration that is likely to be used by many projects
+using your plugin, yet for some reason you can't make that
+configuration active by default, you can include profiles inside your
+plugin.
+
+Create a file called `src/myplugin/profiles.clj` in your plugin that
+contains a map:
+
+```clj
+{:default {:x "y and z"}
+ :extra {:other "settings"}}
+```
+
+Each value here is a profile that your users can merge into their
+project. You can do this explicitly on a per-invocation basis using
+`with-profile`:
+
+    $ lein with-profile plugin.myplugin/extra test
+
+Users can also have profiles activated automatically by changing the `:default` profile:
+
+```clj
+:profiles {:default [:base :system :user :provided :dev :plugin.myplugin/default]
+           :other {...}}
+```
+
+Everything in the `:default` profile is active for all
+non-`with-profile` task invocations except for those which produce
+downstream artifacts, like `jar`, `uberjar`, and `pom`.
+
+### Hooks
+
+You can modify the behaviour of built-in Leiningen tasks to a degree
+using hooks. Hook functionality is provided by the
 [Robert Hooke](https://github.com/technomancy/robert-hooke) library,
 which is included with Leiningen.
 
@@ -212,12 +250,15 @@ can also specify namespaces instead of vars in `:hooks`, and the `activate`
 function in that namespace will be called. Note: automatic hooks are activated
 before manually specified hooks.
 
-## Project Middleware
+### Project Middleware
 
 Project middleware is just a function that is called on a project map
 returning a new project map. Middleware gives a plugin the power to do
-almost anything.  For example, a plugin could use middleware to
-reimplement Leiningen's profiles functionality.
+any kind of transformation on the project map. However, problems with
+middleware can be difficult to debug due to their flexibility and
+opaqueness. If you can do what you need using profiles inside your
+plugins instead, that is a much more declarative, introspectable way
+to do things which will save a lot of headache down the line.
 
 The following middleware injects the contents of project map into your
 project's resources folder so it can be read from the project code:
@@ -245,7 +286,7 @@ that whenever we call `merge-profiles`, `unmerge-profiles` or
 `set-profiles`. It also means your middleware functions shouldn't have
 any non-idempotent side-effects since they could be called repeatedly.
 
-## Maven Wagons
+### Maven Wagons
 
 [Pomegranate](https://github.com/cemerick/pomegranate) (the library
 used by Leiningen to resolve dependencies) supports registering
@@ -265,7 +306,7 @@ See [S3 wagon private](https://github.com/technomancy/s3-wagon-private) or
 [lein-webdav](https://github.com/tobias/lein-webdav) for full examples of
 plugins using this technique.
 
-## VCS Methods
+### VCS Methods
 
 Leiningen ships with a `vcs` task which performs a handful of
 release-related version control tasks via multimethods. Out of the box
@@ -292,9 +333,9 @@ middleware.
 
 ## Clojure Version
 
-Leiningen 2.3.4 uses Clojure 1.5.1. If you need to use a different
-version of Clojure from within a Leiningen plugin, you can use
-`eval-in-project` with a dummy project argument:
+Leiningen 2.4.0 and on uses Clojure 1.6.0. If you need to use a
+different version of Clojure from within a Leiningen plugin, you can
+use `eval-in-project` with a dummy project argument:
 
 ```clj
 (eval-in-project {:dependencies '[[org.clojure/clojure "1.4.0"]]}
