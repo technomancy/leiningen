@@ -602,18 +602,6 @@
                           (io/file "/etc" "leiningen"))]
     (user/load-profiles sys-profile-dir)))
 
-(defn- scope-plugin-profile [local-name plugin-name]
-  (keyword (str "plugin." plugin-name) local-name))
-
-(defn- plugin-profiles [project]
-  ;; Technically this doesn't honor default-profiles; problem?
-  (for [[plugin version] (concat (:plugins project)
-                                 (:plugins (:user (user/profiles))))
-        :let [profiles (io/resource (format "%s/profiles.clj" plugin))]
-        :when profiles]
-    (for [[local-name profile] (read-string (slurp profiles))]
-      [(scope-plugin-profile local-name plugin) profile])))
-
 (defn ^:internal project-profiles [project]
   (let [profiles (utils/read-file (io/file (:root project) "profiles.clj"))]
     (warn-user-profile (:root project) profiles)
@@ -632,12 +620,24 @@
   ;;   functionality for 3.0 if we're smart.
   (let [sys-profiles (setup-map-of-profiles (system-profiles))
         user-profiles (setup-map-of-profiles (user/profiles))
-        plugin-profiles (setup-map-of-profiles (plugin-profiles project))
         proj-profiles-file (setup-map-of-profiles (project-profiles project))]
     (warn-user-repos (concat user-profiles sys-profiles))
     (warn-user-profile (:root project) (:profiles project))
     (merge @default-profiles sys-profiles user-profiles
-           plugin-profiles (:profiles project) proj-profiles-file)))
+           (:profiles project) proj-profiles-file)))
+
+(defn- scope-plugin-profile [local-name plugin-name]
+  (keyword (str "plugin." plugin-name) (name local-name)))
+
+(defn- read-plugin-profiles [project]
+  (let [p (for [[plugin version] (:plugins project)
+                :let [plugin-name (if (= (name plugin) (str (namespace plugin)))
+                                    (name plugin) plugin)
+                      profiles (io/resource (format "%s/profiles.clj" plugin-name))]
+                :when profiles]
+            (for [[local-name profile] (read-string (slurp profiles))]
+              [(scope-plugin-profile local-name plugin-name) profile]))]
+    (into {} (apply concat p))))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
 
@@ -746,7 +746,8 @@
              :profiles profiles))
 
 (defn project-with-profiles [project]
-  (project-with-profiles-meta project (read-profiles project)))
+  (project-with-profiles-meta project (merge (read-plugin-profiles project)
+                                             (read-profiles project))))
 
 (defn ^:internal init-profiles
   "Compute a fresh version of the project map, including and excluding the
