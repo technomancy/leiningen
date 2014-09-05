@@ -561,14 +561,20 @@
 (defn- expand-profile* [profiles profile]
   (let [content (or (get profiles profile) (get @default-profiles profile))]
     ;; TODO: drop "support" for partially-composite profiles in 3.0
-    (if (or (nil? content) (map? content) (some map? content))
+    (if (or (nil? content)
+            (map? content)
+            (and (sequential? content)
+                 (some map? content)))
       [profile]
-      (mapcat (partial expand-profile* profiles) content))))
+      (mapcat (partial expand-profile* profiles)
+              (if (sequential? content)
+                content
+                [content])))))
 
 (defn expand-profile
   "Recursively expand the keyword `profile` in `project` to a sequence of
   atomic (non-composite) profile keywords."
-  [project profile] (expand-profile* (:profiles project) profile))
+  [project profile] (expand-profile* (:profiles (meta project)) profile))
 
 (defn expand-profiles
   "Recursively expand a collection of profiles"
