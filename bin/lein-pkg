@@ -103,8 +103,8 @@ else
         -client -XX:+TieredCompilation \
         "${BOOTCLASSPATH[@]}" \
         -Dfile.encoding=UTF-8 \
-        $LEIN_JVM_OPTS \
         -Dmaven.wagon.http.ssl.easy=false \
+        $LEIN_JVM_OPTS \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.script="$0" \
         -classpath "$CLASSPATH" \
