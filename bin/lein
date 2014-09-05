@@ -325,8 +325,8 @@ else
         export TRAMPOLINE_FILE
         "$LEIN_JAVA_CMD" \
             "${BOOTCLASSPATH[@]}" \
-            $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
+            $LEIN_JVM_OPTS \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
