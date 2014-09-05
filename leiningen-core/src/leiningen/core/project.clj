@@ -609,7 +609,7 @@
   ;; Technically this doesn't honor default-profiles; problem?
   (for [[plugin version] (concat (:plugins project)
                                  (:plugins (:user (user/profiles))))
-        :let [profiles (io/resource (format "%s.plugin/profiles.clj" plugin))]
+        :let [profiles (io/resource (format "%s/profiles.clj" plugin))]
         :when profiles]
     (for [[local-name profile] (read-string (slurp profiles))]
       [(scope-plugin-profile local-name plugin) profile])))
