@@ -318,14 +318,21 @@
 (defmethod xml-tags ::project
   ([_ project]
      (let [reprofile #(relativize (project/merge-profiles project %))
-           test-project (reprofile [:base :provided :dev :test])
+           default-kws (->> (-> project meta :profiles :default)
+                            distinct
+                            (remove #{:user :system}))
+           test-profile-kws (conj (vec default-kws) :test)
+           test-project (reprofile test-profile-kws)
            profiles (merge @project/default-profiles (:profiles project)
                            (project/project-profiles project))
            raw-deps (set (map dep-key (:dependencies project)))
            deps (concat (:dependencies project)
                         (for [dep (:dependencies (:provided profiles))]
                           (make-scope "provided" dep))
-                        (for [profile [:dev :test :base]
+                        (for [profile (concat
+                                       [:dev :test :base]
+                                       (remove #{:provided :dev :test :base}
+                                               test-profile-kws))
                               dep (:dependencies (profile profiles))
                               :when (not (and (= profile :base)
                                               (raw-deps (dep-key dep))))]
@@ -370,7 +377,12 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [project (project/unmerge-profiles project [:default])]
+     (let [project (as-> project project
+                         (project/unmerge-profiles project [:default])
+                         (project/set-profiles
+                          project
+                          ((fnil conj []) (-> project meta :included-profiles)
+                           :downstream)))]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str

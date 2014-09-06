@@ -3,7 +3,8 @@
         [clojure.java.io :only [file delete-file]]
         [leiningen.pom :only [make-pom pom]]
         [leiningen.core.user :as user]
-        [leiningen.test.helper :only [sample-project] :as lthelper])
+        [leiningen.test.helper :only [sample-project sample-with-project]
+         :as lthelper])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]))
@@ -318,3 +319,10 @@
         nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
         versions (map #(deep-content % [:dependency :version]) nrepls)]
     (is (= [["0.2.2"]] versions))))
+
+(deftest test-project-profile
+  (let [p (make-pom sample-with-project)
+        deps (deep-content (xml/parse-str p) [:project :dependencies])
+        clj-https (filter #(re-find #"clj-http" (pr-str %)) deps)
+        versions (map #(deep-content % [:dependency :version]) clj-https)]
+    (is (= [["1.0.0"]] versions))))
