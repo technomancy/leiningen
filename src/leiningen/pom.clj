@@ -318,7 +318,7 @@
 (defmethod xml-tags ::project
   ([_ project]
      (let [reprofile #(relativize (project/merge-profiles project %))
-           test-project (reprofile [:base :project :provided :dev :test])
+           test-project (reprofile [:base :downstream :provided :dev :test])
            profiles (merge @project/default-profiles (:profiles project)
                            (project/project-profiles project))
            raw-deps (set (map dep-key (:dependencies project)))
@@ -375,7 +375,7 @@
                          (project/set-profiles
                           project
                           ((fnil conj []) (-> project meta :included-profiles)
-                           :project)))]
+                           :downstream)))]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str

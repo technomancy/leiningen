@@ -469,7 +469,7 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
-  (atom {:default [:base :system :project :user :provided :dev]
+  (atom {:default [:base :system :downstream :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
@@ -543,7 +543,7 @@
         (let [result (get profiles profile)]
           (when-not (or result *suppress-profile-warnings*
                         (#{:provided :dev :user :test :base :default
-                           :production :system :repl :project}
+                           :production :system :repl :downstream}
                          profile) )
             (warn "Warning: profile" profile "not found."))
           (lookup-profile* profiles result))
