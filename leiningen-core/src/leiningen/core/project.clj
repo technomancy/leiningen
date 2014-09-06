@@ -816,13 +816,16 @@
       (pomegranate/add-classpath path))))
 
 (defn init-project
-  "Initializes a project. This is called at startup with the default profiles."
-  [project]
-  (-> (doto project
-        (load-certificates)
-        (init-lein-classpath)
-        (load-plugins))
-      (activate-middleware)))
+  "Initializes a project by loading certificates, plugins, middleware, etc.
+Also merges default profiles."
+  ([project default-profiles]
+     (-> (project-with-profiles (doto project
+                                  (load-certificates)
+                                  (init-lein-classpath)
+                                  (load-plugins)))
+         (init-profiles default-profiles)
+         (activate-middleware)))
+  ([project] (init-project project [:default])))
 
 (defn add-profiles
   "Add the profiles in the given profiles map to the project map, taking care
@@ -837,19 +840,24 @@
                              merge profiles-map)})
       (vary-meta update-in [:profiles] merge profiles-map)))
 
+(defn read-raw
+  "Read project file without loading certificates, plugins, middleware, etc."
+  [file]
+  (locking read-raw
+    (binding [*ns* (find-ns 'leiningen.core.project)]
+      (try (load-file file)
+           (catch Exception e
+             (throw (Exception. (format "Error loading %s" file) e)))))
+    (let [project (resolve 'leiningen.core.project/project)]
+      (when-not project
+        (throw (Exception. (format "%s must define project map" file))))
+      ;; return it to original state
+      (ns-unmap 'leiningen.core.project 'project)
+      @project)))
+
 (defn read
-  "Read project map out of file, which defaults to project.clj."
-  ([file profiles]
-     (locking read
-       (binding [*ns* (find-ns 'leiningen.core.project)]
-         (try (load-file file)
-              (catch Exception e
-                (throw (Exception. (format "Error loading %s" file) e)))))
-       (let [project (resolve 'leiningen.core.project/project)]
-         (when-not project
-           (throw (Exception. (format "%s must define project map" file))))
-         ;; return it to original state
-         (ns-unmap 'leiningen.core.project 'project)
-         (init-profiles (project-with-profiles @project) profiles))))
+  "Read project map out of file, which defaults to project.clj.
+Also initializes the project; see read-raw for a version that skips init."
+  ([file profiles] (init-project (read-raw file) profiles))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
