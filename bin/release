@@ -9,7 +9,12 @@ CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
 # update the bash scripts or watch for boot slowdowns that way. Maybe
 # try adding lein-shell?
 
-# grep $RELEASE_VERSION NEWS.md || echo "Add $RELEASE_VERSION to NEWS.md" && exit 1
+if [ ! -x `which lein-stable` ]; then
+    echo "Install a stable version of Leiningen as lein-stable."
+    exit 1
+fi
+
+grep $RELEASE_VERSION NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit 1)
 
 lein vcs assert-committed
 
@@ -23,7 +28,7 @@ rm -rf $HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar
 LEIN_ROOT=$PWD
 
 cd leiningen-core
-lein2 do clean, install
+lein-stable do clean, install
 cd ..
 
 bin/lein uberjar
@@ -39,10 +44,14 @@ fi
 
 cd test-project
 
+echo "Running a few invocations in order to check boot time..."
+
 time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 
+echo "Check that these are about the same boot times as with the last version."
+echo "Run this in a project: time lein-stable run -m clojure.main/main -e nil"
 echo "Are these acceptable times? (~3s) [Y\n]"
 read CONTINUE
 case "$CONTINUE" in
@@ -60,6 +69,7 @@ git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin master:stable
 
 echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION."
+echo "Copy this version's section of NEWS.md to the GitHub release description."
 
 rm -rf target leiningen-core/target
 echo "Test self-install. If things are good, run this:"
