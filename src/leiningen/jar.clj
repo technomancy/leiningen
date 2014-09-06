@@ -304,7 +304,8 @@ With an argument, the jar will be built with an alternate main."
        (when (:auto-clean project true)
          (clean/clean project))
        (eval/prep
-        (process-project project main project/merge-profiles [:provided]))
+        (process-project project main project/merge-profiles
+                         [:downstream :provided]))
        (let [jar-file (get-jar-filename* project nil)]
          (write-jar project jar-file (filespecs project))
          (main/info "Created" (str jar-file))

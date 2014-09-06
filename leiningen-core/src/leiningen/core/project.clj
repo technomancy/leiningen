@@ -469,7 +469,7 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
-  (atom {:default [:base :system :user :provided :dev]
+  (atom {:default [:base :system :downstream :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
@@ -540,7 +540,7 @@
   (cond (keyword? profile)
         (let [result (get profiles profile)]
           (when-not (or result (#{:provided :dev :user :test :base :default
-                                  :production :system :repl}
+                                  :production :system :repl :downstream}
                                 profile))
             (warn "Warning: profile" profile "not found."))
           (lookup-profile* profiles result))
@@ -561,14 +561,20 @@
 (defn- expand-profile* [profiles profile]
   (let [content (or (get profiles profile) (get @default-profiles profile))]
     ;; TODO: drop "support" for partially-composite profiles in 3.0
-    (if (or (nil? content) (map? content) (some map? content))
+    (if (or (nil? content)
+            (map? content)
+            (and (sequential? content)
+                 (some map? content)))
       [profile]
-      (mapcat (partial expand-profile* profiles) content))))
+      (mapcat (partial expand-profile* profiles)
+              (if (sequential? content)
+                content
+                [content])))))
 
 (defn expand-profile
   "Recursively expand the keyword `profile` in `project` to a sequence of
   atomic (non-composite) profile keywords."
-  [project profile] (expand-profile* (:profiles project) profile))
+  [project profile] (expand-profile* (:profiles (meta project)) profile))
 
 (defn expand-profiles
   "Recursively expand a collection of profiles"
@@ -620,11 +626,24 @@
   ;;   functionality for 3.0 if we're smart.
   (let [sys-profiles (setup-map-of-profiles (system-profiles))
         user-profiles (setup-map-of-profiles (user/profiles))
-        proj-profiles (setup-map-of-profiles (project-profiles project))]
+        proj-profiles-file (setup-map-of-profiles (project-profiles project))]
     (warn-user-repos (concat user-profiles sys-profiles))
     (warn-user-profile (:root project) (:profiles project))
     (merge @default-profiles sys-profiles user-profiles
-           (:profiles project) proj-profiles)))
+           (:profiles project) proj-profiles-file)))
+
+(defn- scope-plugin-profile [local-name plugin-name]
+  (keyword (str "plugin." plugin-name) (name local-name)))
+
+(defn- read-plugin-profiles [project]
+  (let [p (for [[plugin version] (:plugins project)
+                :let [plugin-name (if (= (name plugin) (str (namespace plugin)))
+                                    (name plugin) plugin)
+                      profiles (io/resource (format "%s/profiles.clj" plugin-name))]
+                :when profiles]
+            (for [[local-name profile] (read-string (slurp profiles))]
+              [(scope-plugin-profile local-name plugin-name) profile]))]
+    (into {} (apply concat p))))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
 
@@ -733,7 +752,8 @@
              :profiles profiles))
 
 (defn project-with-profiles [project]
-  (project-with-profiles-meta project (read-profiles project)))
+  (project-with-profiles-meta project (merge (read-plugin-profiles project)
+                                             (read-profiles project))))
 
 (defn ^:internal init-profiles
   "Compute a fresh version of the project map, including and excluding the
@@ -799,13 +819,16 @@
       (pomegranate/add-classpath path))))
 
 (defn init-project
-  "Initializes a project. This is called at startup with the default profiles."
-  [project]
-  (-> (doto project
-        (load-certificates)
-        (init-lein-classpath)
-        (load-plugins))
-      (activate-middleware)))
+  "Initializes a project by loading certificates, plugins, middleware, etc.
+Also merges default profiles."
+  ([project default-profiles]
+     (-> (project-with-profiles (doto project
+                                  (load-certificates)
+                                  (init-lein-classpath)
+                                  (load-plugins)))
+         (init-profiles default-profiles)
+         (activate-middleware)))
+  ([project] (init-project project [:default])))
 
 (defn add-profiles
   "Add the profiles in the given profiles map to the project map, taking care
@@ -820,19 +843,24 @@
                              merge profiles-map)})
       (vary-meta update-in [:profiles] merge profiles-map)))
 
+(defn read-raw
+  "Read project file without loading certificates, plugins, middleware, etc."
+  [file]
+  (locking read-raw
+    (binding [*ns* (find-ns 'leiningen.core.project)]
+      (try (load-file file)
+           (catch Exception e
+             (throw (Exception. (format "Error loading %s" file) e)))))
+    (let [project (resolve 'leiningen.core.project/project)]
+      (when-not project
+        (throw (Exception. (format "%s must define project map" file))))
+      ;; return it to original state
+      (ns-unmap 'leiningen.core.project 'project)
+      @project)))
+
 (defn read
-  "Read project map out of file, which defaults to project.clj."
-  ([file profiles]
-     (locking read
-       (binding [*ns* (find-ns 'leiningen.core.project)]
-         (try (load-file file)
-              (catch Exception e
-                (throw (Exception. (format "Error loading %s" file) e)))))
-       (let [project (resolve 'leiningen.core.project/project)]
-         (when-not project
-           (throw (Exception. (format "%s must define project map" file))))
-         ;; return it to original state
-         (ns-unmap 'leiningen.core.project 'project)
-         (init-profiles (project-with-profiles @project) profiles))))
+  "Read project map out of file, which defaults to project.clj.
+Also initializes the project; see read-raw for a version that skips init."
+  ([file profiles] (init-project (read-raw file) profiles))
   ([file] (read file [:default]))
   ([] (read "project.clj")))

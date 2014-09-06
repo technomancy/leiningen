@@ -4,12 +4,14 @@
 (defn- prj-map
   ([p] (prj-map p [:default]))
   ([p a]
-     (let [p {:profiles p}, m {:without-profiles p, :active-profiles a}]
+     (let [p {:profiles p}
+           m {:without-profiles p, :active-profiles a
+              :profiles (:profiles p)}]
        (with-meta p m))))
 
 (deftest test-profiles-in-group
   (doseq [[project pgroup expected]
-          [[(prj-map {}) "+foo" [:base :system :user :provided :dev :foo]]
+          [[(prj-map {}) "+foo" [:base :system :downstream :user :provided :dev :foo]]
            [(prj-map {:default [:base :dev]}) "+foo" [:base, :dev, :foo]]
            [(prj-map {:default [:base :dev]}) "-dev" [:base]]
            [(prj-map {:default [:base :dev]}) "-dev,+foo" [:base, :foo]]
