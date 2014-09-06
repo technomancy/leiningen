@@ -23,7 +23,7 @@
       (let [project (.getAbsolutePath project-file)]
         ;; TODO 3.0: core.project and core.classpath currently rely upon each other *uk*
         (require 'leiningen.core.project)
-        (try ((resolve 'leiningen.core.project/read) project [:default])
+        (try ((resolve 'leiningen.core.project/read) project)
              (catch Exception e
                (throw (Exception. (format "Problem loading %s" project) e)))))
       (warn "WARN ignoring checkouts directory" dep

@@ -353,15 +353,13 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
   (try
     (user/init)
     (let [project (binding [project/*suppress-profile-warnings* true]
-                    (project/init-project
-                     (if (.exists (io/file *cwd* "project.clj"))
-                       (project/read (str (io/file *cwd* "project.clj")))
-                       (-> (project/make {:eval-in :leiningen :prep-tasks []
-                                          :source-paths ^:replace []
-                                          :resource-paths ^:replace []
-                                          :test-paths ^:replace []})
-                           project/project-with-profiles
-                           (project/init-profiles [:default])))))
+                    (if (.exists (io/file *cwd* "project.clj"))
+                      (project/read (str (io/file *cwd* "project.clj")))
+                      (-> (project/make {:eval-in :leiningen :prep-tasks []
+                                         :source-paths ^:replace []
+                                         :resource-paths ^:replace []
+                                         :test-paths ^:replace []})
+                          (project/init-project))))
           project (project/set-profiles project [:default])]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
