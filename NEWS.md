@@ -1,5 +1,18 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.4.4 / ???
+
+* Add `:downstream` profile which can affect pom/jar. (Hugo Duncan)
+* Allow profiles to be loaded out of plugins. (Phil Hagelberg, Hugo Duncan)
+* Make `leiningen.core.project/read` init the project and merge default profiles. (Phil Hagelberg)
+* Move auto-clean to jar task for consistency. (Phil Hagelberg)
+* Make compilation messages honor `$LEIN_SILENT` (Jean Niklas L'orange)
+* Fix a bug around EOF in the repl. (Colin Jones)
+* Add `:implicits` subtask to `deps` task. (Phil Hagelberg)
+* Update zsh completion rules. (Joshua Davey)
+* Fix a stack overflow with :pedantic. (Nelson Morris)
+* Fix a bug where repls outside of a project were broken. (Phil Hagelberg)
+
 ## 2.4.3 / 2014-08-05
 
 * Allow implicit hooks/middleware to be disabled. (Phil Hagelberg)
