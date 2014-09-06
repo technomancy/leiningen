@@ -8,4 +8,4 @@
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :description "A test project"
   :plugins [[com.palletops/discovery-api "0.1.0"]]
-  :profiles {:project [:discovery-api]})
+  :profiles {:downstream [:discovery-api]})
