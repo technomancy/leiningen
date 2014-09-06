@@ -532,8 +532,6 @@
           project
           profiles))
 
-(def ^:internal ^:dynamic *suppress-profile-warnings* nil)
-
 (defn- lookup-profile*
   "Lookup a profile in the given profiles map, warning when the profile doesn't
   exist. Recurse whenever a keyword or vector is found, combining all profiles
@@ -541,10 +539,9 @@
   [profiles profile]
   (cond (keyword? profile)
         (let [result (get profiles profile)]
-          (when-not (or result *suppress-profile-warnings*
-                        (#{:provided :dev :user :test :base :default
-                           :production :system :repl :downstream}
-                         profile) )
+          (when-not (or result (#{:provided :dev :user :test :base :default
+                                  :production :system :repl :downstream}
+                                profile))
             (warn "Warning: profile" profile "not found."))
           (lookup-profile* profiles result))
 
