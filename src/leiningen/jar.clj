@@ -1,6 +1,7 @@
 (ns leiningen.jar
   "Package up all the project's files into a jar file."
   (:require [leiningen.pom :as pom]
+            [leiningen.clean :as clean]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
@@ -300,6 +301,8 @@ function in that namespace will be used as the main-class for executable jar.
 With an argument, the jar will be built with an alternate main."
   ([project main]
      (let [project (preprocess-project project main)]
+       (when (:auto-clean project true)
+         (clean/clean project))
        (eval/prep
         (process-project project main project/merge-profiles [:provided]))
        (let [jar-file (get-jar-filename* project nil)]

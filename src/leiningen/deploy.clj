@@ -9,7 +9,6 @@
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]
-            [leiningen.clean :as clean]
             [clojure.java.shell :as sh]
             [clojure.string :as string]))
 
@@ -167,8 +166,6 @@ be able to depend on jars that are deployed without a pom."
          (apply main/abort "Can only deploy from branches listed in"
                 ":deploy-branches:" branches)))
      (warn-missing-metadata project)
-     (when (:auto-clean project true)
-       (clean/clean project))
      (let [repo (repo-for project repository)
            files (files-for project repo)]
        (try

@@ -383,7 +383,7 @@
   :jar-exclusions [#"(?:^|/).svn/"]
   ;; Same thing, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
-  ;; By default Leiningen will run a clean before deploying to prevent
+  ;; By default Leiningen will run a clean before creating jars to prevent
   ;; undeclared AOT from leaking to downstream consumers; this disables
   ;; that behaviour.
   :auto-clean false
