@@ -13,8 +13,11 @@ profiles are activated for each task, but their settings are not
 propagated downstream to projects that depend upon yours. Each profile
 is defined as a map which gets merged into your project map.
 
-The `:project` profile is activated for each task, and its settings
-are propagated downstream to projects that depend upon yours.
+The `:downstream` profile is activated for each task, and its settings
+are propagated downstream to projects that depend upon yours. It's
+intended to reference profiles which are loaded from plugins;
+otherwise this configuration would simply be included in the main
+`defproject` part.
 
 You can place any arbitrary key/value pairs supported by `defproject`
 into a given profile and they will be merged into the project map when
@@ -186,7 +189,7 @@ This can be used to avoid duplication:
 Composite profiles are used by Leiningen internally for the `:default`
 profile, which is the profile used if you don't change it using
 `with-profile`. The `:default` profile is defined to be a composite of
-`[:base :system :user :provided :project :dev]`, but you can change
+`[:base :system :user :provided :downstream :dev]`, but you can change
 this in your `project.clj` just like any other profile.
 
 ## Using Functions 
