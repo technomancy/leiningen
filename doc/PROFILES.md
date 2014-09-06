@@ -8,17 +8,6 @@ in the jar, or you may want to have development tools like
 every project you hack on without modifying every single `project.clj`
 you use.
 
-By default the `:dev`, `:provided`, `:user`, `:system`, and `:base`
-profiles are activated for each task, but their settings are not
-propagated downstream to projects that depend upon yours. Each profile
-is defined as a map which gets merged into your project map.
-
-The `:downstream` profile is activated for each task, and its settings
-are propagated downstream to projects that depend upon yours. It's
-intended to reference profiles which are loaded from plugins;
-otherwise this configuration would simply be included in the main
-`defproject` part.
-
 You can place any arbitrary key/value pairs supported by `defproject`
 into a given profile and they will be merged into the project map when
 that profile is activated.
@@ -58,10 +47,14 @@ from the file itself (without the `.clj` part). Defining the same
 user-wide profile in both `~/.lein/profiles.clj` and in
 `~/.lein/profiles.d` is considered an error.
 
-## Built-in Profiles
+## Default Profiles
 
-If you want to access dependencies during development time for any
-project place them in your `:user` profile. Your
+Certain profiles are active by default unless you specify another set
+of profiles using the `with-profiles` task. Each of the default
+profiles have different semantics:
+
+If you want to access dependencies or plugins during development time
+for any project place them in your `:user` profile. Your
 `~/.lein/profiles.clj` file could look something like this:
 
 ```clj
@@ -70,7 +63,8 @@ project place them in your `:user` profile. Your
 ```
 
 The `:dev` profile is used to specify project specific development
-tooling.
+tooling. Put things here if they are required for builds or tests,
+rather than just convenience tooling.
 
 The `:user` profile is separate from `:dev`; the latter is intended to
 be specified in the project itself. In order to avoid collisions, the
@@ -78,21 +72,30 @@ project should never define a `:user` profile, nor should a user-wide
 `:dev` profile be defined.  Likewise, system profiles should use the
 `:system` profile, and define neither `:user` nor `:dev` profiles.
 
-The `:base` profile provides `nrepl` and `clojure-complete`
-dependencies, adds `dev-resources` to the `:resources-path`, and sets
+The `:base` profile provides dependencies necessary for basic repl
+functionality, adds `dev-resources` to the `:resources-path`, and sets
 defaults for `:jvm-opts`, `:checkout-deps-share` and
-`:test-selectors`.  You don't normally need to touch
+`:test-selectors`. It is part of Leiningen itself; you shouldn't need
+to change it.
 
-The `:provided` profile is used to specify dependencies that should
-appear in your jar's `pom.xml` with a `provided` scope.  These are
-dependencies that the project assumes will be provided by whatever
-environment the jar is used in, but are needed during the development
-of the project.
+The profiles listed above are active during development, but they are
+unmerged before the jar and pom files are created, making them
+invisible to code that depends upon your project. The next two
+profiles are different.
 
-The `:project` profile is used to change the base project, as it will
-appear in you final jar artifact and `pom.xml`.  You can use this to
-add dependencies and change paths, such as `:source-paths`, that
-affect what gets put into your jar.
+The `:provided` profile is used to specify dependencies that should be
+available during jar creation, but not propagated to other code that
+depends on your project. These are dependencies that the project
+assumes will be provided by whatever environment the jar is used in,
+but are needed during the development of the project. This is often
+used for frameworks like Hadoop that provide their own copies of
+certain libraries.
+
+The `:downstream` profile is similar, but all its settings are
+propagated downstream to projects that depend upon yours, including
+`:dependencies`. It's intended to reference profiles which are loaded
+from plugins; otherwise this configuration would simply be included in
+the main `defproject` part.
 
 ## Task Specific Profiles
 
