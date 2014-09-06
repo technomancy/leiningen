@@ -301,7 +301,8 @@ With an argument, the jar will be built with an alternate main."
   ([project main]
      (let [project (preprocess-project project main)]
        (eval/prep
-        (process-project project main project/merge-profiles [:provided]))
+        (process-project project main project/merge-profiles
+                         [:project :provided]))
        (let [jar-file (get-jar-filename* project nil)]
          (write-jar project jar-file (filespecs project))
          (main/info "Created" (str jar-file))
