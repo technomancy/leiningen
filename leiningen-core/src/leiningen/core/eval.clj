@@ -107,13 +107,13 @@
   "Calculate command-line arguments for launching java subprocess."
   [project]
   (let [native-arch-paths (native-arch-paths project)]
-    `(~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
+    `(~(d-property [:file.encoding (or (System/getProperty "file.encoding") "UTF-8")])
+      ~@(get-jvm-opts-from-env (System/getenv "JVM_OPTS"))
       ~@(:jvm-opts project)
       ~@(get arch-options (:arch project))
       ;; TODO: support -Xverify:none
       ~@(map d-property {:clojure.compile.path (:compile-path project)
                          (str (:name project) ".version") (:version project)
-                         :file.encoding (or (System/getProperty "file.encoding") "UTF-8")
                          :clojure.debug (boolean (or (System/getenv "DEBUG")
                                                      (:debug project)))})
       ~@(if native-arch-paths
