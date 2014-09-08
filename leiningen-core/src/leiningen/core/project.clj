@@ -827,6 +827,7 @@ Also merges default profiles."
                                   (init-lein-classpath)
                                   (load-plugins)))
          (init-profiles default-profiles)
+         (load-plugins)
          (activate-middleware)))
   ([project] (init-project project [:default])))
 
