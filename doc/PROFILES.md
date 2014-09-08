@@ -91,12 +91,6 @@ but are needed during the development of the project. This is often
 used for frameworks like Hadoop that provide their own copies of
 certain libraries.
 
-The `:downstream` profile is similar, but all its settings are
-propagated downstream to projects that depend upon yours, including
-`:dependencies`. It's intended to reference profiles which are loaded
-from plugins; otherwise this configuration would simply be included in
-the main `defproject` part.
-
 ## Task Specific Profiles
 
 Some tasks automatically merge a profile if specified.  Examples of
@@ -192,7 +186,7 @@ This can be used to avoid duplication:
 Composite profiles are used by Leiningen internally for the `:default`
 profile, which is the profile used if you don't change it using
 `with-profile`. The `:default` profile is defined to be a composite of
-`[:base :system :user :provided :downstream :dev]`, but you can change
+`[:base :system :user :provided :dev]`, but you can change
 this in your `project.clj` just like any other profile.
 
 ## Using Functions 
