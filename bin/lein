@@ -325,10 +325,10 @@ else
         export TRAMPOLINE_FILE
         "$LEIN_JAVA_CMD" \
             "${BOOTCLASSPATH[@]}" \
-            $LEIN_JVM_OPTS \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
+            $LEIN_JVM_OPTS \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.script="$SCRIPT" \
             -classpath "$CLASSPATH" \
