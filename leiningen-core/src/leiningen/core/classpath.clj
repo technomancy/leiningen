@@ -14,7 +14,7 @@
 (defn- warn [& args]
   ;; TODO: remove me once #1227 is merged
   (require 'leiningen.core.main)
-  ((resolve 'leiningen.core.main/warn) args))
+  (apply (resolve 'leiningen.core.main/warn) args))
 
 ;; Basically just for re-throwing a more comprehensible error.
 (defn- read-dependency-project [root dep]
@@ -280,15 +280,17 @@
   ;; Need to turn everything into a string before calling
   ;; pedantic-print-*, otherwise we can't memoize due to bad equality
   ;; semantics on aether GraphEdge objects.
-  (when (or (true? pedantic-setting) (= (keyword pedantic-setting) :ranges))
-    (pedantic-print-ranges (distinct (map message-for-range ranges))))
-  (when (or (true? pedantic-setting) (= (keyword pedantic-setting) :overrides))
-    (pedantic-print-overrides (map message-for-override overrides)))
-  (when (and (= :abort (keyword pedantic-setting))
-             (not (empty? (concat ranges overrides))))
-    (require 'leiningen.core.main)
-    ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
-     "Aborting due to version ranges.")))
+  (let [key (keyword pedantic-setting)
+        abort-or-warn (#{:warn :abort} key)]
+    (when (and key (not= key :overrides))
+      (pedantic-print-ranges (distinct (map message-for-range ranges))))
+    (when (and key (not= key :ranges))
+      (pedantic-print-overrides (map message-for-override overrides)))
+    (when (and (= :abort key)
+               (not (empty? (concat ranges overrides))))
+      (require 'leiningen.core.main)
+      ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
+       "Aborting due to :pedantic? :abort"))))
 
 (defn- pedantic-session [project ranges overrides]
   (if (:pedantic? project)
