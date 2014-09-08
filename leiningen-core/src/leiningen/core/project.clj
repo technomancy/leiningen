@@ -637,12 +637,11 @@
 
 (defn- read-plugin-profiles [project]
   (let [p (for [[plugin version] (:plugins project)
-                :let [plugin-name (if (= (name plugin) (str (namespace plugin)))
-                                    (name plugin) plugin)
-                      profiles (io/resource (format "%s/profiles.clj" plugin-name))]
+                :let [profiles (io/resource (format "%s/profiles.clj"
+                                                    (name plugin)))]
                 :when profiles]
             (for [[local-name profile] (read-string (slurp profiles))]
-              [(scope-plugin-profile local-name plugin-name) profile]))]
+              [(scope-plugin-profile local-name (name plugin)) profile]))]
     (into {} (apply concat p))))
 
 ;; # Lower-level profile plumbing: loading plugins, hooks, middleware, certs
