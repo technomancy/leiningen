@@ -28,8 +28,6 @@
 
 (def sample-no-aot-project (read-test-project "sample-no-aot"))
 
-(def sample-with-project (read-test-project "sample-with-downstream"))
-
 (def tricky-name-project (read-test-project "tricky-name"))
 
 (def native-project (read-test-project "native"))

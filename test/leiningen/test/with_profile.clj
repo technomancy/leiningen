@@ -11,7 +11,7 @@
 
 (deftest test-profiles-in-group
   (doseq [[project pgroup expected]
-          [[(prj-map {}) "+foo" [:base :system :downstream :user :provided :dev :foo]]
+          [[(prj-map {}) "+foo" [:base :system :user :provided :dev :foo]]
            [(prj-map {:default [:base :dev]}) "+foo" [:base, :dev, :foo]]
            [(prj-map {:default [:base :dev]}) "-dev" [:base]]
            [(prj-map {:default [:base :dev]}) "-dev,+foo" [:base, :foo]]
