@@ -118,10 +118,13 @@ force them to be updated, use `lein -U $TASK`."
              (do (print-implicits project :middleware)
                  (print-implicits project :hooks))
              (tree-command command)
-             (let [hierarchy (classpath/dependency-hierarchy
+             (let [project (project/merge-profiles
+                            project
+                            [{:pedantic? (quote ^:displace warn)}])
+                   hierarchy (classpath/dependency-hierarchy
                               (tree-command command)
-                              (assoc project :pedantic?
-                                     (get project :pedantic? :warn)))]
+                              project)]
+               (prn (:pedantic? project))
                (walk-deps hierarchy print-dep))
              (= command ":verify")
              (if (user/gpg-available?)
