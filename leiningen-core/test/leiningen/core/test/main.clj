@@ -23,6 +23,10 @@
 (deftest test-task-args-help-pass-through
   (let [project {:aliases {"sirius-p" ["sirius" "partial"]
                            "s" "sirius"
+                           "s-p" ["s" "partial"]
+                           "sirius-pp" ["sirius-p" "foo"]
+                           "sp" "s-p"
+                           "test" "test"
                            "ohai" ^:pass-through-help ["run" "-m" "o.hai"]}}]
     (testing "with :pass-through-help meta"
       (testing "on a var"
@@ -40,6 +44,10 @@
              [["sirius" "partial"] ["-?"]] ["sirius-p" "-?"]
              ["sirius" ["--help"]] ["s" "--help"]
              [["sirius" "partial"] []] ["sirius-p"]
+             [["sirius" "partial"] []] ["s-p"]
+             [["sirius" "partial"] []] ["sp"]
+             [["sirius" "partial" "foo"] ["bar"]] ["sirius-pp" "bar"]
+             ["test" []] ["test"]
              ["sirius" []] ["s"]
              [["run" "-m" "o.hai"] ["help"]] ["ohai" "help"])))))
 
