@@ -2,6 +2,7 @@
 
 ## 2.4.4 / ???
 
+* Allow certain profiles to be `^:leaky` and affect downstream. (Hugo Duncan)
 * Allow profiles to be loaded out of plugins. (Phil Hagelberg, Hugo Duncan)
 * Make `leiningen.core.project/read` init the project and merge default profiles. (Phil Hagelberg)
 * Move auto-clean to jar task for consistency. (Phil Hagelberg)
