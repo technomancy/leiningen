@@ -469,8 +469,8 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
-  (atom {:default [:core-default]
-         :core-default [:base :system :user :provided :dev]
+  (atom {:default [:leiningen/default]
+         :leiningen/default [:base :system :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
