@@ -81,7 +81,7 @@ to change it.
 The profiles listed above are active during development, but they are
 unmerged before the jar and pom files are created, making them
 invisible to code that depends upon your project. The next two
-profiles are different.
+profile is different.
 
 The `:provided` profile is used to specify dependencies that should be
 available during jar creation, but not propagated to other code that
@@ -91,11 +91,31 @@ but are needed during the development of the project. This is often
 used for frameworks like Hadoop that provide their own copies of
 certain libraries.
 
+## Default Profiles
+
+The `:default-profile` specifies the profiles that are active by
+default when running lein tasks.  If not overridden, this is set to
+`:core-default`, which is a composite profile with
+`[:base :system :user :provided :dev]`.
+
 ## Task Specific Profiles
 
 Some tasks automatically merge a profile if specified.  Examples of
 these are the `:test` profile, when running the `test` task, and the
 `:repl` profile, when running the `repl` task.
+
+## Profile Metadata
+
+If you mark your profile with `^:leaky` metadata, then the profile
+will affect the generated pom and jar when active.
+
+If you mark a profile with `^{:pom-scope :test}` metadata, then the
+profile's `:dependencies` will be added with a `test` scope in the
+generated pom and jar when active.
+
+If you mark a profile with `^{:pom-scope :provided}` metadata, then the
+profile's `:dependencies` will be added with a `provided` scope in the
+generated pom and jar when active.
 
 ## Merging
 

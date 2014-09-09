@@ -3,7 +3,8 @@
         [clojure.java.io :only [file delete-file]]
         [leiningen.pom :only [make-pom pom]]
         [leiningen.core.user :as user]
-        [leiningen.test.helper :only [sample-project]
+        [leiningen.test.helper
+         :only [sample-project sample-profile-meta-project]
          :as lthelper])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
@@ -32,14 +33,20 @@
 (def first-in (comp first deep-content))
 
 (defn with-profile [project name profile]
-  (-> project
-      (vary-meta update-in [:without-profiles :profiles]
-                 assoc name profile)
-      (vary-meta update-in [:profiles]
-                 assoc name profile)))
+  (let [profile (#'project/apply-profile-meta
+                 (project/default-profile-metadata name)
+                 profile)]
+    (-> project
+        (vary-meta update-in [:without-profiles :profiles]
+                   assoc name profile)
+        (vary-meta update-in [:profiles]
+                   assoc name profile))))
 
-(defn with-profile-merged [project profile]
-  (project/merge-profiles (with-profile project :testy profile) [:testy]))
+(defn with-profile-merged
+  ([project profile]
+     (with-profile-merged project :testy profile))
+  ([project name profile]
+      (project/merge-profiles (with-profile project name profile) [name])))
 
 (deftest test-pom-default-values
   (let [xml (xml/parse-str (make-pom sample-project))]
@@ -110,18 +117,17 @@
 
 (deftest test-dependencies-are-test-scoped
   (let [xml (xml/parse-str
-             (make-pom (with-profile
+             (make-pom (with-profile-merged
                          sample-project
-                         :test
-                         {:dependencies '[[peridot "0.0.5"]]})))]
-    (is (= ["org.clojure" "rome" "ring" "peridot"
-            "org.clojure" "clojure-complete"]
+                         :test {:dependencies '[[peridot "0.0.5"]]})))]
+    (is (= ["org.clojure" "rome" "ring"
+            "org.clojure" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
+    (is (= ["clojure" "rome" "ring" "tools.nrepl" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.5" "0.2.3"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.5" "0.2.3" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "test" "test" "test"]
@@ -130,18 +136,18 @@
 
 (deftest dev-dependencies-are-test-scoped
   (let [xml (xml/parse-str
-             (make-pom (with-profile
+             (make-pom (with-profile-merged
                          sample-project
                          :dev
                          {:dependencies '[[peridot "0.0.5"]]})))]
-    (is (= ["org.clojure" "rome" "ring" "peridot"
-            "org.clojure" "clojure-complete"]
+    (is (= ["org.clojure" "rome" "ring"
+            "org.clojure" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
+    (is (= ["clojure" "rome" "ring" "tools.nrepl" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.5" "0.2.3"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.5" "0.2.3" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil "test" "test" "test"]
@@ -150,21 +156,21 @@
 
 (deftest provided-dependencies-are-provided-scoped
   (let [xml (xml/parse-str
-             (make-pom (with-profile
+             (make-pom (with-profile-merged
                          sample-project
                          :provided
                          {:dependencies '[[peridot "0.0.5"]]})))]
-    (is (= ["org.clojure" "rome" "ring" "peridot"
-            "org.clojure" "clojure-complete"]
+    (is (= ["org.clojure" "rome" "ring"
+            "org.clojure" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
+    (is (= ["clojure" "rome" "ring" "tools.nrepl" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.5" "0.2.3"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.5" "0.2.3" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "provided" "test" "test"]
+    (is (= [nil nil nil "test" "test" "provided"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))))
 
@@ -172,71 +178,71 @@
   (let [xml (xml/parse-str
              (make-pom (with-profile-merged
                          sample-project
-                         {:dependencies '[[peridot "0.0.5"
-                                           :scope "provided"
-                                           :optional true
-                                           :classifier "sources"
-                                           :extension "pom"
-                                           :exclusions
-                                           [[ring-mock
-                                             :classifier "cla"
-                                             :extension "dom"]]]]})))]
-    (is (= ["org.clojure" "rome" "ring" "peridot"
-            "org.clojure" "clojure-complete"]
+                         ^:leaky {:dependencies '[[peridot "0.0.5"
+                                                   :scope "provided"
+                                                   :optional true
+                                                   :classifier "sources"
+                                                   :extension "pom"
+                                                   :exclusions
+                                                   [[ring-mock
+                                                     :classifier "cla"
+                                                     :extension "dom"]]]]})))]
+    (is (= ["org.clojure" "rome" "ring"
+            "org.clojure" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["clojure" "rome" "ring" "peridot"
-            "tools.nrepl" "clojure-complete"]
+    (is (= ["clojure" "rome" "ring"
+            "tools.nrepl" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.5" "0.2.3"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.5" "0.2.3" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "provided" "test" "test"]
+    (is (= [nil nil nil "test" "test" "provided"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "true" nil nil]
+    (is (= [nil nil nil nil nil "true"]
            (map #(first-in % [:dependency :optional])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "sources" nil nil]
+    (is (= [nil nil nil nil nil "sources"]
            (map #(first-in % [:dependency :classifier])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "pom" nil nil]
+    (is (= [nil nil nil nil nil "pom"]
            (map #(first-in % [:dependency :type])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "ring-mock" "clojure" "clojure"]
+    (is (= [nil nil nil "clojure" "clojure" "ring-mock"]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "ring-mock" "org.clojure" "org.clojure"]
+    (is (= [nil nil nil "org.clojure" "org.clojure" "ring-mock"]
            (map #(first-in % [:dependency :exclusions :exclusion :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "cla" nil nil]
+    (is (= [nil nil nil nil nil "cla"]
            (map #(first-in % [:dependency :exclusions :exclusion :classifier])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "dom" nil nil]
+    (is (= [nil nil nil nil nil "dom"]
            (map #(first-in % [:dependency :exclusions :exclusion :type])
                 (deep-content xml [:project :dependencies])))))
   (let [xml (xml/parse-str
              (make-pom (with-profile-merged
                          sample-project
-                         {:dependencies '[[peridot "0.0.5"
-                                           :scope "provided"
-                                           :exclusions
-                                           [ring-mock]]]})))]
-    (is (= ["org.clojure" "rome" "ring" "peridot"
-            "org.clojure" "clojure-complete"]
+                         ^:leaky {:dependencies '[[peridot "0.0.5"
+                                                   :scope "provided"
+                                                   :exclusions
+                                                   [ring-mock]]]})))]
+    (is (= ["org.clojure" "rome" "ring"
+            "org.clojure" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["clojure" "rome" "ring" "peridot" "tools.nrepl" "clojure-complete"]
+    (is (= ["clojure" "rome" "ring" "tools.nrepl" "clojure-complete" "peridot"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.0.5" "0.2.5" "0.2.3"]
+    (is (= ["1.3.0" "0.9" "1.0.0" "0.2.5" "0.2.3" "0.0.5"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "provided" "test" "test"]
+    (is (= [nil nil nil "test" "test" "provided"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "ring-mock" "clojure" "clojure"]
+    (is (= [nil nil nil "clojure" "clojure" "ring-mock"]
            (map #(first-in % [:dependency :exclusions :exclusion :artifactId])
                 (deep-content xml [:project :dependencies]))))
     (is (= [nil nil nil nil nil nil]
@@ -248,18 +254,19 @@
 
 (deftest dependencies-are-required-when-overlapped-by-builtin-profiles
   (let [xml (xml/parse-str
-             (make-pom (with-profile sample-project
+             (make-pom (with-profile-merged
+                         sample-project
                          :dev {:dependencies '[[rome "0.8"]]})))]
-    (is (= ["org.clojure" "rome" "ring" "rome" "org.clojure" "clojure-complete"]
+    (is (= ["org.clojure" "rome" "ring" "org.clojure" "clojure-complete"]
            (map #(first-in % [:dependency :groupId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["clojure" "rome" "ring" "rome" "tools.nrepl" "clojure-complete"]
+    (is (= ["clojure" "rome" "ring" "tools.nrepl" "clojure-complete"]
            (map #(first-in % [:dependency :artifactId])
                 (deep-content xml [:project :dependencies]))))
-    (is (= ["1.3.0" "0.9" "1.0.0" "0.8" "0.2.5" "0.2.3"]
+    (is (= ["1.3.0" "0.8" "1.0.0" "0.2.5" "0.2.3"]
            (map #(first-in % [:dependency :version])
                 (deep-content xml [:project :dependencies]))))
-    (is (= [nil nil nil "test" "test" "test"]
+    (is (= [nil "test" nil "test" "test"]
            (map #(first-in % [:dependency :scope])
                 (deep-content xml [:project :dependencies]))))))
 
@@ -269,13 +276,14 @@
   (is (= "stuff"
          (-> (make-pom (with-profile-merged
                          sample-project
-                         {:classifier "stuff"}))
+                         ^:leaky {:classifier "stuff"}))
               xml/parse-str
               (first-in [:project :classifier])))))
 
 (deftest test-pom-adds-java-source-paths
   (is (= (vec (map lthelper/fix-path-delimiters ["java/src" "java/another"]))
          (-> (make-pom (with-profile-merged sample-project
+                         ^:leaky
                          {:java-source-paths ["java/src" "java/another"]}))
              xml/parse-str
              (deep-content [:project :build :plugins :plugin :executions
@@ -285,7 +293,7 @@
 (deftest test-pom-handles-global-exclusions
   (is (= [["clojure"] ["clojure"] ["clojure"] ["clojure"] ["clojure"]]
          (-> (make-pom (with-profile-merged sample-project
-                         {:exclusions '[org.clojure/clojure]}))
+                         ^:leaky {:exclusions '[org.clojure/clojure]}))
              xml/parse-str
              (deep-content [:project :dependencies])
              ((partial map #(deep-content % [:dependency :exclusions])))
@@ -313,9 +321,32 @@
              [artifact (first-in dep [:dependency :classifier])])))))
 
 (deftest test-override-base-profile
-  (let [p (make-pom (with-profile-merged sample-project
-                      {:dependencies [['org.clojure/tools.nrepl "0.2.2"]]}))
+  (testing "leaky explicit profile"
+    (let [p (make-pom (with-profile-merged sample-project
+                        ^:leaky
+                        {:dependencies [['org.clojure/tools.nrepl "0.2.2"]]}))
+          deps (deep-content (xml/parse-str p) [:project :dependencies])
+          nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
+          versions (map #(deep-content % [:dependency :version]) nrepls)]
+      (is (= [["0.2.2"]] versions))))
+  (testing "pom-scope"
+    (let [p (make-pom (with-profile-merged sample-project
+                        ^{:pom-scope :test}
+                        {:dependencies [['org.clojure/tools.nrepl "0.2.2"]]}))
+          deps (deep-content (xml/parse-str p) [:project :dependencies])
+          nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
+          versions (map #(deep-content % [:dependency :version]) nrepls)]
+      (is (= [["0.2.2"]] versions)))))
+
+(deftest test-leaky-profile
+  (let [p (make-pom sample-profile-meta-project)
         deps (deep-content (xml/parse-str p) [:project :dependencies])
-        nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
-        versions (map #(deep-content % [:dependency :version]) nrepls)]
-    (is (= [["0.2.2"]] versions))))
+        t-m (filter #(re-find #"tools.macro" (pr-str %)) deps)
+        j-c (filter #(re-find #"java.classpath" (pr-str %)) deps)
+        t-n (filter #(re-find #"tools.namespace" (pr-str %)) deps)]
+    (is (= [["0.1.2"]] (map #(deep-content % [:dependency :version]) t-m)))
+    (is (= [["0.2.2"]] (map #(deep-content % [:dependency :version]) j-c)))
+    (is (= [["0.2.6"]] (map #(deep-content % [:dependency :version]) t-n)))
+    (is (= [nil] (map #(deep-content % [:dependency :scope]) t-m)))
+    (is (= [["test"]] (map #(deep-content % [:dependency :scope]) j-c)))
+    (is (= [["provided"]] (map #(deep-content % [:dependency :scope]) t-n)))))

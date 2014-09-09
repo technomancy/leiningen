@@ -4,6 +4,7 @@
   (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
+            [clojure.set :as set]
             [clojure.string :as s]
             [clojure.java.shell :as sh]
             [clojure.data.xml :as xml]))
@@ -317,26 +318,19 @@
 
 (defmethod xml-tags ::project
   ([_ project]
-     (let [reprofile #(relativize (project/merge-profiles project %))
-           default-kws (->> (-> project meta :profiles :default)
-                            distinct
-                            (remove #{:user :system}))
-           test-profile-kws (conj (vec default-kws) :test)
-           test-project (reprofile test-profile-kws)
-           profiles (merge @project/default-profiles (:profiles project)
-                           (project/project-profiles project))
-           raw-deps (set (map dep-key (:dependencies project)))
-           deps (concat (:dependencies project)
-                        (for [dep (:dependencies (:provided profiles))]
-                          (make-scope "provided" dep))
-                        (for [profile (concat
-                                       [:dev :test :base]
-                                       (remove #{:provided :dev :test :base}
-                                               test-profile-kws))
-                              dep (:dependencies (profile profiles))
-                              :when (not (and (= profile :base)
-                                              (raw-deps (dep-key dep))))]
-                          (make-scope "test" dep)))]
+     (let [original-project (-> project meta ::original-project)
+           profile-kws (concat
+                        (set/difference
+                         (set (project/non-leaky-profiles original-project))
+                         (set (project/pom-scope-profiles
+                               original-project :provided))
+                         (set (project/pom-scope-profiles
+                               original-project :test))))
+           test-project (-> original-project
+                            (project/unmerge-profiles profile-kws)
+                            (project/merge-profiles [:test])
+                            relativize)
+           deps (:dependencies test-project)]
        (list
         [:project {:xsi:schemaLocation
                    (str "http://maven.apache.org/POM/4.0.0"
@@ -377,7 +371,10 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [project (project/unmerge-profiles project [:default])]
+     (let [profile-kws (project/non-leaky-profiles project)
+           project (-> project
+                       (project/unmerge-profiles profile-kws)
+                       (vary-meta assoc ::original-project project))]
        (check-for-snapshot-deps project)
        (str
         (xml/indent-str
