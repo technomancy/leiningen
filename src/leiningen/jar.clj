@@ -245,7 +245,8 @@ propagated to the compilation phase and not stripped out."
       (add-main main)))
 
 (defn- preprocess-project [project & [main]]
-  (process-project project main project/unmerge-profiles [:default]))
+  (process-project project main project/unmerge-profiles
+                   (project/non-leaky-profiles project)))
 
 (defn- get-jar-filename*
   [project uberjar?]
@@ -304,7 +305,8 @@ With an argument, the jar will be built with an alternate main."
        (when (:auto-clean project true)
          (clean/clean project))
        (eval/prep
-        (process-project project main project/merge-profiles [:provided]))
+        (process-project project main project/merge-profiles
+                         (project/pom-scope-profiles project :provided)))
        (let [jar-file (get-jar-filename* project nil)]
          (write-jar project jar-file (filespecs project))
          (main/info "Created" (str jar-file))
