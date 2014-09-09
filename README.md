@@ -57,6 +57,8 @@ project, but here are the commonly-used tasks:
 
     $ lein uberjar # package the project and dependencies as standalone jar
 
+    $ lein deploy clojars # publish the project to Clojars as a library
+
 Use `lein help` to see a complete list. `lein help $TASK` shows the
 usage for a specific task.
 
@@ -79,7 +81,7 @@ The `project.clj` file in the project root should look like this:
   :license "Eclipse Public License 1.0"
   :url "http://github.com/technomancy/myproject"
   :dependencies [[org.clojure/clojure "1.5.1"]]
-  :plugins [[lein-ring "0.4.5"]])
+  :plugins [[lein-tar "3.2.0"]])
 ```
 
 The `lein new` task generates a project skeleton with an appropriate
@@ -95,14 +97,14 @@ The `project.clj` file can be customized further with the use of
 
 Leiningen documentation is organized as a number of guides:
 
- * [Tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
- * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
+ * [Tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md) (start here if you are new)
+ * [FAQ](https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md)
  * [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
  * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
  * [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
  * [Writing Templates](https://github.com/technomancy/leiningen/blob/stable/doc/TEMPLATES.md)
- * [FAQ](https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md)
+ * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
  * [Contributing](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md)
 
 ## Plugins
@@ -113,7 +115,7 @@ that modify behaviour of existing tasks. See
 for a full list. If a plugin is needed for successful test or build
 runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
-`swank-clojure`) then it should be added to the `:plugins` list in the
+`lein-pprint`) then it should be added to the `:plugins` list in the
 `:user` profile in `~/.lein/profiles.clj`. See the
 [profiles guide](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
 for details on how to add to your `:user` profile. The

@@ -1,9 +1,10 @@
 # Contributing
 
-Leiningen is the most active open-source Clojure project. We welcome
-potential contributors and do our best to try to make it easy to help
-out. Contributors who have had a single patch accepted may request
-commit rights as well as a free [sticker](http://twitpic.com/2e33r1).
+Leiningen is the most widely-contributed-to Clojure project. We
+welcome potential contributors and do our best to try to make it easy
+to help out. Contributors who have had a single patch accepted may
+request commit rights as well as a free
+[sticker](http://twitpic.com/2e33r1).
 
 Discussion occurs both in the
 [#leiningen channel on Freenode](irc://chat.freenode.net#leiningen)
