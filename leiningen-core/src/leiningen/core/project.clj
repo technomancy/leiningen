@@ -469,7 +469,8 @@
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
-  (atom {:default [:base :system :user :provided :dev]
+  (atom {:default [:core-default]
+         :core-default [:base :system :user :provided :dev]
          :base {:resource-paths ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
@@ -492,6 +493,12 @@
          :update {:update :always}
          :offline {:offline? true}
          :debug {:debug true}}))
+
+(def default-profile-metadata
+  {:dev {:pom-scope :test}
+   :test {:pom-scope :test}
+   :base {:pom-scope :test}
+   :provided {:pom-scope :provided}})
 
 (defn- meta-merge
   "Recursively merge values based on the information in their metadata."
@@ -750,9 +757,32 @@
   (vary-meta project assoc
              :profiles profiles))
 
+(defn- apply-profile-meta [default-meta profile]
+  (if (map? profile)
+    (let [profile (vary-meta profile (fn [m] (merge default-meta m)))]
+      (if-let [scope (:pom-scope (meta profile))]
+        (with-meta
+          (update-in profile [:dependencies]
+                     (fn [deps]
+                       (map
+                        (fn [dep]
+                          (if (some #(= :scope %) dep)
+                            dep
+                            (-> dep (conj :scope) (conj (name scope)))))
+                        deps)))
+          (meta profile))
+        profile))
+    profile))
+
 (defn project-with-profiles [project]
-  (project-with-profiles-meta project (merge (read-plugin-profiles project)
-                                             (read-profiles project))))
+  (let [profiles (merge (read-plugin-profiles project)
+                        (read-profiles project))]
+    (project-with-profiles-meta
+     project
+     (->> (map (fn [[k p]]
+                 [k (apply-profile-meta (default-profile-metadata k) p)])
+               profiles)
+          (into {})))))
 
 (defn ^:internal init-profiles
   "Compute a fresh version of the project map, including and excluding the
@@ -842,6 +872,38 @@ Also merges default profiles."
                              [:profiles]
                              merge profiles-map)})
       (vary-meta update-in [:profiles] merge profiles-map)))
+
+(defn included-profiles
+  "Return a sequence of keywords for the profiles in :included-profiles."
+  [project]
+  (-> project meta :included-profiles))
+
+(defn profile-annotations
+  "Return a map of profile keyword to profile annotations for the profiles
+  in :include-profiles."
+  [project]
+  (->> (map
+        (juxt identity (comp meta (-> project meta :profiles)))
+        (included-profiles project))
+       (into {})
+       ;; (merge-with merge default-profile-metadata)
+       ))
+
+(defn non-leaky-profiles
+  "Return a sequence of profile keywords for the non-leaky profiles
+  currently included in the project."
+  [project]
+  (->> (profile-annotations project)
+       (remove (comp :leaky val))
+       (map key)))
+
+(defn pom-scope-profiles
+  "Return a sequence of profile keywords for the currently active
+  project profiles with :pom-scope equal to scope."
+  [project scope]
+  (->> (profile-annotations project)
+       (filter (comp #(= scope (:pom-scope %)) val))
+       keys))
 
 (defn read-raw
   "Read project file without loading certificates, plugins, middleware, etc."
