@@ -33,13 +33,26 @@
     (swap! atom dissoc key)
     v))
 
-(defn lookup-alias [task-name project & [not-found]]
-  (or (aliases task-name)
-      (get (:aliases project) task-name)
-      (when-not project
-        (get-and-dissoc! @profile-aliases task-name))
-      task-name
-      (or not-found "help")))
+(defn lookup-alias
+  "Recursively look up aliases until the task is not an alias anymore. If
+  task-name is a vector, calls lookup-alias on the first argument and returns a
+  partially applied task. Discards already used aliases."
+  [task-name project & [not-found]]
+  (if (vector? task-name)
+    (let [[t & args] task-name ;; never mind the poor naming here.
+          resolved-task (lookup-alias t project not-found)]
+      (into (if (vector? resolved-task)
+              resolved-task
+              [resolved-task])
+            args))
+    (let [project-wo-alias (update-in project [:aliases] dissoc task-name)
+          resolved-task (or (aliases task-name)
+                            (get (:aliases project) task-name)
+                            (when-not project
+                              (get-and-dissoc! @profile-aliases task-name)))]
+      (cond (nil? resolved-task) (or task-name not-found "help")
+            (= task-name resolved-task) task-name
+            :else (recur resolved-task project-wo-alias not-found)))))
 
 (defn- lookup-task-var
   "Require and resolve a leiningen task from its name."
