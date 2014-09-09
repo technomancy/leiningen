@@ -5,7 +5,7 @@
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :dependencies []
-  :profiles {:default [:core-default :my-leaky :my-provided :my-test]
+  :profiles {:default [:leiningen/default :my-leaky :my-provided :my-test]
              :my-leaky ^:leaky {:dependencies
                                 [[org.clojure/tools.macro "0.1.2"]]}
              :my-test

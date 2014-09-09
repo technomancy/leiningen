@@ -305,6 +305,7 @@ With an argument, the jar will be built with an alternate main."
        (when (:auto-clean project true)
          (clean/clean project))
        (eval/prep
+        ;; TODO: don't hard-code :provided here, rely on ^:leaky
         (process-project project main project/merge-profiles
                          (project/pom-scope-profiles project :provided)))
        (let [jar-file (get-jar-filename* project nil)]

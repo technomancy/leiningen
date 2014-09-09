@@ -13,7 +13,8 @@ into a given profile and they will be merged into the project map when
 that profile is activated.
 
 The example below adds a "dummy-data" resources directory during
-development and a dependency upon "expectations" that's only used for tests.
+development and a dependency upon "expectations" that's only used for
+tests/development.
 
 ```clj
 (defproject myproject "0.5.0-SNAPSHOT"
@@ -72,6 +73,9 @@ project should never define a `:user` profile, nor should a user-wide
 `:dev` profile be defined.  Likewise, system profiles should use the
 `:system` profile, and define neither `:user` nor `:dev` profiles.
 
+The `:system` profile is similar to `:user`, except it applies
+system-wide instead of merely to a single user.
+
 The `:base` profile provides dependencies necessary for basic repl
 functionality, adds `dev-resources` to the `:resources-path`, and sets
 defaults for `:jvm-opts`, `:checkout-deps-share` and
@@ -80,8 +84,7 @@ to change it.
 
 The profiles listed above are active during development, but they are
 unmerged before the jar and pom files are created, making them
-invisible to code that depends upon your project. The next two
-profile is different.
+invisible to code that depends upon your project.
 
 The `:provided` profile is used to specify dependencies that should be
 available during jar creation, but not propagated to other code that
@@ -91,11 +94,9 @@ but are needed during the development of the project. This is often
 used for frameworks like Hadoop that provide their own copies of
 certain libraries.
 
-## Default Profiles
-
-The `:default-profile` specifies the profiles that are active by
+The `:default` profile specifies the profiles that are active by
 default when running lein tasks.  If not overridden, this is set to
-`:core-default`, which is a composite profile with
+`:leiningen/default`, which is a composite profile with
 `[:base :system :user :provided :dev]`.
 
 ## Task Specific Profiles
@@ -107,15 +108,17 @@ these are the `:test` profile, when running the `test` task, and the
 ## Profile Metadata
 
 If you mark your profile with `^:leaky` metadata, then the profile
-will affect the generated pom and jar when active.
+will not be stripped out when the pom and jar files are created.
 
 If you mark a profile with `^{:pom-scope :test}` metadata, then the
 profile's `:dependencies` will be added with a `test` scope in the
-generated pom and jar when active.
+generated pom and jar when active. The `:dev`, `:test`, and `:base`
+profiles have this set automatically.
 
-If you mark a profile with `^{:pom-scope :provided}` metadata, then the
-profile's `:dependencies` will be added with a `provided` scope in the
-generated pom and jar when active.
+If you mark a profile with `^{:pom-scope :provided}` metadata, then
+the profile's `:dependencies` will be added with a `provided` scope in
+the generated pom and jar when active. The `:provided` profile has
+this set automatically.
 
 ## Merging
 
@@ -203,13 +206,7 @@ This can be used to avoid duplication:
  :production [:shared {:servers ["prod1.mycorp.com", "prod1.mycorp.com"]}]}
 ```
 
-Composite profiles are used by Leiningen internally for the `:default`
-profile, which is the profile used if you don't change it using
-`with-profile`. The `:default` profile is defined to be a composite of
-`[:base :system :user :provided :dev]`, but you can change
-this in your `project.clj` just like any other profile.
-
-## Using Functions 
+## Dynamic Eval
 
 Often you want to read an environment variable or execute a function to capture
 a value to use in your profiles. In order to do such a thing with the profiles.clj
