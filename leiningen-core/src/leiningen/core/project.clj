@@ -500,6 +500,7 @@
   {:dev {:pom-scope :test}
    :test {:pom-scope :test}
    :base {:pom-scope :test}
+   :uberjar {:leaky true}
    :provided {:pom-scope :provided}})
 
 (defn- meta-merge
