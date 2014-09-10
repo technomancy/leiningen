@@ -339,8 +339,10 @@
   [raw-profile]
   (if (composite-profile? raw-profile)
     ;; TODO: drop support for partially-composite profiles in 3.0
-    (mapv #(cond-> % (composite-profile? %) setup-profile-with-empty)
-          raw-profile)
+    (with-meta
+      (mapv #(cond-> % (composite-profile? %) setup-profile-with-empty)
+            raw-profile)
+      (meta raw-profile))
     (let [empty-defaults (select-keys empty-meta-merge-defaults
                                       (keys raw-profile))]
       (setup-map-defaults raw-profile empty-defaults))))
@@ -565,23 +567,38 @@
           (keyword? profile)
           (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
 
-(defn- expand-profile* [profiles profile]
+(defn- expand-profile* [profiles profile-meta profile]
   (let [content (or (get profiles profile) (get @default-profiles profile))]
     ;; TODO: drop "support" for partially-composite profiles in 3.0
     (if (or (nil? content)
             (map? content)
             (and (sequential? content)
                  (some map? content)))
-      [profile]
-      (mapcat (partial expand-profile* profiles)
+      [[profile profile-meta]]
+      (mapcat (partial expand-profile*
+                       profiles (merge profile-meta (meta content)))
               (if (sequential? content)
                 content
                 [content])))))
 
+(defn expand-profile-with-meta
+  "Recursively expand the keyword `profile` in `project` to a sequence of
+  vectors of atomic (non-composite) profile keywords and their inherited
+  metadata."
+  [project profile]
+  (expand-profile* (:profiles (meta project)) nil profile))
+
+(defn expand-profiles-with-meta
+  "Recursively expand a collection of profiles"
+  [project profiles]
+  (into {} (mapcat (partial expand-profile-with-meta project) profiles)))
+
 (defn expand-profile
   "Recursively expand the keyword `profile` in `project` to a sequence of
   atomic (non-composite) profile keywords."
-  [project profile] (expand-profile* (:profiles (meta project)) profile))
+  [project profile]
+  (->> (expand-profile* (:profiles (meta project)) nil profile)
+       (map first)))
 
 (defn expand-profiles
   "Recursively expand a collection of profiles"
@@ -791,7 +808,9 @@
   (let [project (with-meta
                   (:without-profiles (meta project) project)
                   (meta project))
-        include-profiles (expand-profiles project include-profiles)
+        include-profiles-meta (expand-profiles-with-meta
+                               project include-profiles)
+        include-profiles (map key include-profiles-meta)
         exclude-profiles (expand-profiles project exclude-profiles)
         normalize #(if (coll? %) (lookup-profile (:profiles project) %) [%])
         exclude-profiles (mapcat normalize exclude-profiles)
@@ -807,7 +826,8 @@
         (add-global-exclusions)
         (vary-meta merge {:without-profiles project
                           :included-profiles include-profiles
-                          :excluded-profiles exclude-profiles}))))
+                          :excluded-profiles exclude-profiles
+                          :profile-inherited-meta include-profiles-meta}))))
 
 ;; # High-level profile operations
 
@@ -873,21 +893,15 @@ Also merges default profiles."
                              merge profiles-map)})
       (vary-meta update-in [:profiles] merge profiles-map)))
 
-(defn included-profiles
-  "Return a sequence of keywords for the profiles in :included-profiles."
-  [project]
-  (-> project meta :included-profiles))
-
 (defn profile-annotations
   "Return a map of profile keyword to profile annotations for the profiles
   in :include-profiles."
   [project]
   (->> (map
-        (juxt identity (comp meta (-> project meta :profiles)))
-        (included-profiles project))
-       (into {})
-       ;; (merge-with merge default-profile-metadata)
-       ))
+        (juxt first (fn [[profile m]]
+                      (merge m (meta ((-> project meta :profiles) profile)))))
+        (-> project meta :profile-inherited-meta))
+       (into {})))
 
 (defn non-leaky-profiles
   "Return a sequence of profile keywords for the non-leaky profiles
