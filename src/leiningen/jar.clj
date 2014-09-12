@@ -255,6 +255,21 @@ propagated to the compilation phase and not stripped out."
 (defn get-jar-filename [project & [uberjar?]]
   (get-jar-filename* (preprocess-project project) uberjar?))
 
+(defn build-jar
+  "Build a jar for the given project and jar-file."
+  [project jar-file]
+  (eval/prep project)
+  (write-jar project jar-file (filespecs project))
+  (main/info "Created" (str jar-file))
+  jar-file)
+
+(defn main-jar
+  [project main]
+  (let [project (process-project project main project/merge-profiles
+                                 (project/pom-scope-profiles
+                                  project :provided))]
+    {[:extension "jar"] (build-jar project (get-jar-filename* project nil))}))
+
 (defn classifier-jar
   "Package up all the project's classified files into a jar file.
 
@@ -263,20 +278,20 @@ files as well as .class files if applicable. The classifier is looked up in the
 project`s :classifiers map. If it's a map, it's merged like a profile. If it's a
 keyword, it's looked up in :profiles before being merged."
   [{:keys [target-path] :as project} classifier spec]
-  (let [spec (assoc (if (keyword? spec)
-                      (-> project :profiles spec)
-                      spec)
-               :target-path (.getPath (io/file target-path (name classifier))))
-        project (-> (project/unmerge-profiles project [:default])
-                    (project/merge-profiles [spec])
-                    (retain-whitelisted-keys project))]
-    (when (:dependencies spec)
-      (main/warn "WARN: Classifier specifies :dependencies which will be ignored."))
-    (eval/prep project)
-    (let [jar-file (get-classified-jar-filename project classifier)]
-      (write-jar project jar-file (filespecs project))
-      (main/info "Created" (str jar-file))
-      jar-file)))
+  (when (:dependencies spec)
+    (main/warn
+     "WARN: Classifier specifies :dependencies which will be ignored."))
+  (let [profiles (concat (project/pom-scope-profiles project :provided)
+                         [::target ::classifier])
+        target-profile {:target-path
+                        (.getPath (io/file target-path (name classifier)))}
+        project (-> project
+                    (vary-meta assoc-in [:profiles ::classifier] spec)
+                    (vary-meta assoc-in [:profiles ::target] target-profile)
+                    (process-project nil project/merge-profiles profiles))]
+
+    [[:classifier (name classifier) :extension "jar"]
+     (build-jar project (get-classified-jar-filename project classifier))]))
 
 (defn classifier-jars
   "Package up all the project's classified files into jar files.
@@ -284,13 +299,7 @@ keyword, it's looked up in :profiles before being merged."
 Create a $PROJECT-$VERSION-$CLASSIFIER.jar file for each entry in the project's
 :classifiers. Returns a map of :classifier/:extension coordinates to files."
   [{:keys [classifiers] :as project}]
-  (reduce
-   (fn [result [classifier spec]]
-     (assoc result
-       [:classifier (name classifier) :extension "jar"]
-       (classifier-jar project classifier spec)))
-   {}
-   classifiers))
+  (into {} (map #(apply classifier-jar project %) classifiers)))
 
 (defn jar
   "Package up all the project's files into a jar file.
@@ -304,13 +313,7 @@ With an argument, the jar will be built with an alternate main."
      (let [project (preprocess-project project main)]
        (when (:auto-clean project true)
          (clean/clean project))
-       (eval/prep
-        ;; TODO: don't hard-code :provided here, rely on ^:leaky
-        (process-project project main project/merge-profiles
-                         (project/pom-scope-profiles project :provided)))
-       (let [jar-file (get-jar-filename* project nil)]
-         (write-jar project jar-file (filespecs project))
-         (main/info "Created" (str jar-file))
-         (merge {[:extension "jar"] jar-file}
-                (classifier-jars project)))))
+
+       (merge (main-jar project main)
+              (classifier-jars project))))
   ([project] (jar project nil)))
