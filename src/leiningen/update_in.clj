@@ -22,7 +22,7 @@
         (project/load-plugins)
         (project/activate-middleware))))
 
-(defn ^:higher-order update-in
+(defn ^:higher-order ^:no-project-needed update-in
   "Perform arbitrary transformations on your project map.
 
 Acts a lot like calling `clojure.core/update-in` on your project map
