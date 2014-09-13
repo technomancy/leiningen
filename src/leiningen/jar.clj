@@ -264,10 +264,9 @@ propagated to the compilation phase and not stripped out."
   jar-file)
 
 (defn main-jar
-  [project main]
+  [project provided-profiles main]
   (let [project (process-project project main project/merge-profiles
-                                 (project/pom-scope-profiles
-                                  project :provided))]
+                                 provided-profiles)]
     {[:extension "jar"] (build-jar project (get-jar-filename* project nil))}))
 
 (defn classifier-jar
@@ -277,12 +276,11 @@ Create a $PROJECT-$VERSION-$CLASSIFIER.jar file containing project's source
 files as well as .class files if applicable. The classifier is looked up in the
 project`s :classifiers map. If it's a map, it's merged like a profile. If it's a
 keyword, it's looked up in :profiles before being merged."
-  [{:keys [target-path] :as project} classifier spec]
+  [{:keys [target-path] :as project} provided-profiles classifier spec]
   (when (:dependencies spec)
     (main/warn
      "WARNING: Classifier specifies :dependencies which will be ignored."))
-  (let [profiles (concat (project/pom-scope-profiles project :provided)
-                         [::target ::classifier])
+  (let [profiles (concat provided-profiles [::target ::classifier])
         target-profile {:target-path
                         (.getPath (io/file target-path (name classifier)))}
         project (-> project
@@ -298,8 +296,9 @@ keyword, it's looked up in :profiles before being merged."
 
 Create a $PROJECT-$VERSION-$CLASSIFIER.jar file for each entry in the project's
 :classifiers. Returns a map of :classifier/:extension coordinates to files."
-  [{:keys [classifiers] :as project}]
-  (into {} (map #(apply classifier-jar project %) classifiers)))
+  [{:keys [classifiers] :as project} provided-profiles]
+  (into {}
+        (map #(apply classifier-jar project %) provided-profiles classifiers)))
 
 (defn jar
   "Package up all the project's files into a jar file.
@@ -310,10 +309,10 @@ function in that namespace will be used as the main-class for executable jar.
 
 With an argument, the jar will be built with an alternate main."
   ([project main]
-     (let [project (preprocess-project project main)]
-       (when (:auto-clean project true)
-         (clean/clean project))
-
-       (merge (main-jar project main)
-              (classifier-jars project))))
+     (when (:auto-clean project true)
+       (clean/clean project))
+     (let [provided-profiles (project/pom-scope-profiles project :provided)
+           project (preprocess-project project main)]
+       (merge (main-jar project provided-profiles main)
+              (classifier-jars project provided-profiles))))
   ([project] (jar project nil)))
