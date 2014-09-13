@@ -210,7 +210,7 @@
                     (io/file (:target-path project) (str checksum "-init.clj"))
                     (File/createTempFile "form-init" ".clj"))]
     (spit init-file
-          (pr-str (if (System/getenv "LEIN_FAST_TRAMPOLINE")
+          (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                     `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                   form))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
