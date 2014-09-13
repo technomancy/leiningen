@@ -296,8 +296,11 @@ else
         echo "Leiningen's classpath: $CLASSPATH"
     fi
 
-    if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
-        [ -r project.clj ]; then
+    if [ -r .lein-fast-trampoline ]; then
+        export LEIN_FAST_TRAMPOLINE='y'
+    fi
+
+    if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
         INPUTS="$@ $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
         export INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
