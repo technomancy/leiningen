@@ -478,15 +478,15 @@
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
-                :dependencies '[[org.clojure/tools.nrepl "0.2.5"
-                                 :exclusions [org.clojure/clojure]]
-                                [clojure-complete "0.2.3"
-                                 :exclusions [org.clojure/clojure]]]
                 :checkout-deps-shares [:source-paths
                                        :test-paths
                                        :resource-paths
                                        :compile-path
                                        #'classpath/checkout-deps-paths]}
+         :leiningen/repl {:dependencies '[[org.clojure/tools.nrepl "0.2.5"
+                                           :exclusions [org.clojure/clojure]]
+                                          [clojure-complete "0.2.3"
+                                           :exclusions [org.clojure/clojure]]]}
          :leiningen/test {:injections [hooke-injection]
                           :test-selectors {:default (with-meta
                                                       '(constantly true)

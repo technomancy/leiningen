@@ -282,7 +282,7 @@ deactivated, but it can be overridden."
 
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-     (let [project (project/merge-profiles project [:repl])]
+     (let [project (project/merge-profiles project [:leiningen/repl :repl])]
        (if (= subcommand ":connect")
          (client project (doto (connect-string project opts)
                            (->> (main/info "Connecting to nREPL at"))))
