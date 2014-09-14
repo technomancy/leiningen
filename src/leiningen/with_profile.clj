@@ -11,8 +11,7 @@
   (hooke/with-scope
     (let [project (and project (project/set-profiles
                                  (project/project-with-profiles project)
-                                 profiles))
-          task-name (main/lookup-alias task-name project)]
+                                 profiles))]
       (main/apply-task task-name project args))))
 
 (defn profiles-in-group
