@@ -3,7 +3,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.4.3</version>
+  <version>2.5.0</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>983847276d12fcdac7a5b5eabbd5dfcb926087d7
+    <tag>7cca27e54a28c11f86de697fa60dfba378690876
 </tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
@@ -101,7 +101,7 @@
     <dependency>
       <groupId>pedantic</groupId>
       <artifactId>pedantic</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
