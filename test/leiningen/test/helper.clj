@@ -22,6 +22,10 @@
 
 (def with-resources-project (read-test-project "with-resources"))
 
+(def with-aliases-project (read-test-project "with-aliases"))
+
+(def with-aliases2-project (read-test-project "with-aliases2"))
+
 (def sample-project (read-test-project "sample"))
 
 (def sample-failing-project (read-test-project "sample-failing"))

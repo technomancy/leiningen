@@ -60,11 +60,14 @@
   (or (utils/require-resolve (str "leiningen.plugin" task-name) task-name)
       (utils/require-resolve (str "leiningen." task-name) task-name)))
 
+(declare remove-alias)
+
 (defn- pass-through-help? [task-name project]
   (let [de-aliased (lookup-alias task-name project)]
     (if (vector? de-aliased)
       (or (:pass-through-help (meta de-aliased))
-          (pass-through-help? (first de-aliased) project))
+          (pass-through-help? (first de-aliased)
+                              (remove-alias project task-name)))
       (:pass-through-help (meta (lookup-task-var de-aliased))))))
 
 (defn task-args [[task-name & args] project]
