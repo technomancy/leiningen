@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.5.0 / ???
+## 2.5.0 / 2014-09-14
 
 * Allow certain profiles to be `^:leaky` and affect downstream. (Hugo Duncan)
 * Allow profiles to be loaded out of plugins. (Phil Hagelberg, Hugo Duncan)
