@@ -360,6 +360,15 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
 
 (def ^:dynamic *cwd* (System/getProperty "user.dir"))
 
+(defn default-project
+  "Return the default project used when not in a project directory."
+  []
+  (-> (project/make {:eval-in :leiningen :prep-tasks []
+                     :source-paths ^:replace []
+                     :resource-paths ^:replace []
+                     :test-paths ^:replace []})
+      (project/init-project)))
+
 (defn -main
   "Command-line entry point."
   [& raw-args]
@@ -367,11 +376,7 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (user/init)
     (let [project (if (.exists (io/file *cwd* "project.clj"))
                     (project/read (str (io/file *cwd* "project.clj")))
-                    (-> (project/make {:eval-in :leiningen :prep-tasks []
-                                       :source-paths ^:replace []
-                                       :resource-paths ^:replace []
-                                       :test-paths ^:replace []})
-                        (project/init-project)))]
+                    (default-project))]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
       (resolve-and-apply project raw-args))
