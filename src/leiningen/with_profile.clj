@@ -9,9 +9,7 @@
   "Apply the given task with a comma-separated profile list."
   [project profiles task-name args]
   (hooke/with-scope
-    (let [project (and project (project/set-profiles
-                                 (project/project-with-profiles project)
-                                 profiles))
+    (let [project (and project (project/set-profiles project profiles))
           task-name (main/lookup-alias task-name project)]
       (main/apply-task task-name project args))))
 
