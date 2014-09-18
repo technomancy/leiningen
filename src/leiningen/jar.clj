@@ -19,29 +19,50 @@
   (.replace path "\\" "/"))
 
 (def ^:private default-manifest
-  {"Created-By" (str "Leiningen " (main/leiningen-version))
-   "Built-By" (System/getProperty "user.name")
-   "Build-Jdk" (System/getProperty "java.version")})
+  [["Created-By" (str "Leiningen " (main/leiningen-version))]
+   ["Built-By" (System/getProperty "user.name")]
+   ["Build-Jdk" (System/getProperty "java.version")]])
+
+(declare ^:private manifest-entry)
+
+(defn- manifest-entries [project manifest-seq]
+  (map (partial manifest-entry project) manifest-seq))
 
 (defn- manifest-entry [project [k v]]
   (cond (symbol? v) (manifest-entry project [k (resolve v)])
         (fn? v) (manifest-entry project [k (v project)])
+        (coll? v) (->> v ;; Sub-manifest = manifest section
+                         (manifest-entries project)
+                         (cons (str "\nName: " (name k)))
+                         (string/join "\n"))
         :else (->> (str (name k) ": " v)
                    (partition-all 70)  ;; Manifest spec says lines <= 72 chars
                    (map (partial apply str))
                    (string/join "\n ")  ;; Manifest spec says join with "\n "
                    (format "%s\n"))))
 
+(defn- manifest-map-to-reordered-seq [mf]
+  (sort
+    (comparator
+      (fn [e1 e2]
+        (not (coll? (second e1)))))
+    (seq mf)))
+
 (defn ^:internal make-manifest [project]
-  (->> (merge default-manifest (:manifest project)
+  (let [initial-mf
+            (concat (conj default-manifest
               (if-let [main (:main project 'clojure.main)]
-                {"Main-Class" (munge (str main))}))
-       (map (partial manifest-entry project))
-       (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
-       (string/join "")
-       .getBytes
-       ByteArrayInputStream.
-       Manifest.))
+                ["Main-Class" (munge (str main))]))
+              (manifest-map-to-reordered-seq (:manifest project)))]
+    (->> initial-mf
+              (manifest-entries project)
+              ((fn [x] (println x) x))
+              (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
+              (string/join "")
+              ((fn [x] (println x) x))
+              .getBytes
+              ByteArrayInputStream.
+              Manifest.)))
 
 (defn ^:internal manifest-map [manifest]
   (let [attrs (.getMainAttributes manifest)]
