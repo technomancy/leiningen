@@ -33,8 +33,8 @@
         (fn? v) (manifest-entry project [k (v project)])
         (coll? v) (->> v ;; Sub-manifest = manifest section
                          (manifest-entries project)
-                         (cons (str "\nName: " (name k)))
-                         (string/join "\n"))
+                         (cons (str "\nName: " (name k) "\n"))
+                         (string/join))
         :else (->> (str (name k) ": " v)
                    (partition-all 70)  ;; Manifest spec says lines <= 72 chars
                    (map (partial apply str))
@@ -56,10 +56,8 @@
               (manifest-map-to-reordered-seq (:manifest project)))]
     (->> initial-mf
               (manifest-entries project)
-              ((fn [x] (println x) x))
               (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
               (string/join "")
-              ((fn [x] (println x) x))
               .getBytes
               ByteArrayInputStream.
               Manifest.)))
