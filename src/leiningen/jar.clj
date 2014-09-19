@@ -32,9 +32,9 @@
   (cond (symbol? v) (manifest-entry project [k (resolve v)])
         (fn? v) (manifest-entry project [k (v project)])
         (coll? v) (->> v ;; Sub-manifest = manifest section
-                         (manifest-entries project)
-                         (cons (str "\nName: " (name k) "\n"))
-                         (string/join))
+                       (manifest-entries project)
+                       (cons (str "\nName: " (name k) "\n"))
+                       (string/join))
         :else (->> (str (name k) ": " v)
                    (partition-all 70)  ;; Manifest spec says lines <= 72 chars
                    (map (partial apply str))
@@ -50,17 +50,17 @@
 
 (defn ^:internal make-manifest [project]
   (let [initial-mf
-            (concat (conj default-manifest
-              (if-let [main (:main project 'clojure.main)]
-                ["Main-Class" (munge (str main))]))
-              (manifest-map-to-reordered-seq (:manifest project)))]
+         (concat (conj default-manifest
+           (if-let [main (:main project 'clojure.main)]
+             ["Main-Class" (munge (str main))]))
+           (manifest-map-to-reordered-seq (:manifest project)))]
     (->> initial-mf
-              (manifest-entries project)
-              (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
-              (string/join "")
-              .getBytes
-              ByteArrayInputStream.
-              Manifest.)))
+         (manifest-entries project)
+         (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
+         (string/join "")
+         .getBytes
+         ByteArrayInputStream.
+         Manifest.)))
 
 (defn ^:internal manifest-map [manifest]
   (let [attrs (.getMainAttributes manifest)]
