@@ -905,6 +905,14 @@ Also merges default profiles."
         (-> project meta :profile-inherited-meta))
        (into {})))
 
+(defn profiles-with-matching-meta
+  "Return a sequence of profile keywords for the project profiles that
+  have metadata that satisfies the predicate, pred."
+  [project pred]
+  (->> (-> project meta :profiles)
+       (filter (comp pred meta val))
+       (map key)))
+
 (defn non-leaky-profiles
   "Return a sequence of profile keywords for the non-leaky profiles
   currently included in the project."
