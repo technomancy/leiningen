@@ -502,7 +502,8 @@
    :test {:pom-scope :test}
    :base {:pom-scope :test}
    :uberjar {:leaky true}
-   :provided {:pom-scope :provided}})
+   :provided {:pom-scope :provided}
+   :repl {:repl true}})
 
 (defn- meta-merge
   "Recursively merge values based on the information in their metadata."
