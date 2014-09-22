@@ -1,7 +1,7 @@
 (ns leiningen.test.pom
   (:use [clojure.test]
         [clojure.java.io :only [file delete-file]]
-        [leiningen.pom :only [make-pom pom]]
+        [leiningen.pom :only [make-pom pom snapshot?]]
         [leiningen.core.user :as user]
         [leiningen.test.helper
          :only [sample-project sample-profile-meta-project]
@@ -350,3 +350,11 @@
     (is (= [nil] (map #(deep-content % [:dependency :scope]) t-m)))
     (is (= [["test"]] (map #(deep-content % [:dependency :scope]) j-c)))
     (is (= [["provided"]] (map #(deep-content % [:dependency :scope]) t-n)))))
+
+(deftest test-determine-release-type
+  (testing "Version containing SNAPSHOT is treated as snapshot"
+    (is (snapshot? {:version "SNAPSHOT"}))
+    (is (snapshot? {:version "fooSNAPSHOTbar"})))
+  (testing "Version containing anything else is not a snapshot "
+    (is (not (snapshot? {:version "foo"})))
+    (is (not (snapshot? nil)))))

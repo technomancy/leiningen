@@ -358,7 +358,8 @@
          (and (:pom-addition project) (:pom-addition project))]))))
 
 (defn snapshot? [project]
-  (re-find #"SNAPSHOT" (:version project)))
+  (and (:version project)
+       (re-find #"SNAPSHOT" (:version project))))
 
 (defn check-for-snapshot-deps [project]
   (when (and (not (snapshot? project))

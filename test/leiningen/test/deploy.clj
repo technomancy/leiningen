@@ -62,3 +62,9 @@
     (is (= (sign-for-repo? ["foo" {:sign-releases true}]) true))
     (is (= (sign-for-repo? ["foo" {:sign-releases false}]) false))
     (is (= (sign-for-repo? ["foo" {}]) true))))
+
+(deftest validate-input
+  (testing "Fail if project data is missing"
+    (is (thrown? clojure.lang.ExceptionInfo (deploy nil))))
+  (testing "Fail if project data is missing"
+    (is (thrown? clojure.lang.ExceptionInfo (deploy nil "snapshots")))))

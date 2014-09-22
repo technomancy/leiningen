@@ -132,6 +132,10 @@
       "pom"
       (last (.split f "\\.")))))
 
+(defn- fail-on-empty-project [project]
+  (if-not (:root project)
+    (main/abort "Couldn't find project.clj, which is needed for deploy task")))
+
 (defn ^:no-project-needed deploy
   "Deploy jar and pom to remote repository.
 
@@ -160,6 +164,7 @@ be able to depend on jars that are deployed without a pom."
                        "snapshots"
                        "releases")))
   ([project repository]
+     (fail-on-empty-project project)
      (let [branches (set (:deploy-branches project))]
        (when (and (seq branches)
                   (in-branches branches))
