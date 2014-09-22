@@ -124,7 +124,6 @@
   printed."
   [git-dir ref-path]
   (let [ref (io/file git-dir ref-path)]
-    (println (.toString ref))
     (if (.canRead ref)
       (.trim (slurp ref))
       (do
