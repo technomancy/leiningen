@@ -48,6 +48,8 @@
 
 (def file-not-found-thrower-project (read-test-project "file-not-found-thrower"))
 
+(def jvm-opts-project (read-test-project "jvm-opts"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."
