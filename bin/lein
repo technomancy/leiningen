@@ -113,6 +113,9 @@ LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 # normalize $0 on certain BSDs
 if [ "$(dirname "$0")" = "." ]; then
     SCRIPT="$(which $(basename "$0"))"
+    if [ -z "$SCRIPT" ]; then
+        SCRIPT="$0"
+    fi
 else
     SCRIPT="$0"
 fi
