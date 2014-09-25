@@ -7,6 +7,7 @@
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
             [bultitude.core :as b]
+            [clojure.set :as set]
             [clojure.string :as string]
             [clojure.java.io :as io])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
@@ -311,7 +312,11 @@ With an argument, the jar will be built with an alternate main."
   ([project main]
      (when (:auto-clean project true)
        (clean/clean project))
-     (let [provided-profiles (project/pom-scope-profiles project :provided)
+     (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
+           default-profiles (set (project/expand-profile project :default))
+           provided-profiles (remove
+                              (set/difference default-profiles scoped-profiles)
+                              (-> project meta :included-profiles))
            project (preprocess-project project main)]
        (merge (main-jar project provided-profiles main)
               (classifier-jars project provided-profiles))))
