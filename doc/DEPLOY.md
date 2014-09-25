@@ -236,7 +236,7 @@ The following events will happen:
 2. `vcs` tasks will be run to commit this change and then tag the repository
    with the `release` version number.
 
-3. The `deploy` task will be the same as if `lein deploy` had ben run from the
+3. The `deploy` task will be the same as if `lein deploy` had been run from the
    command line. **NOTE** This will require a valid `"releases"` entry either in
    `:deploy-repositories` or `:repositories`
 
