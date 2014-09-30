@@ -48,8 +48,13 @@
                "to avoid prompts.")
       (print "Username: ") (flush)
       (let [username (read-line)
-            password (.readPassword (System/console) "%s"
-                                    (into-array ["Password: "]))]
+            console (System/console)
+            password (if console
+                       (.readPassword console "%s"  (into-array ["Password: "]))
+                       (do
+                         (print "Password(visible): ")
+                         (flush)
+                         (read-line)))]
         [id (assoc settings :username username :password password)]))))
 
 ;; repo names must not contain path delimiters because they're used by
