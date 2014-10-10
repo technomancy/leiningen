@@ -124,7 +124,6 @@ force them to be updated, use `lein -U $TASK`."
                    hierarchy (classpath/dependency-hierarchy
                               (tree-command command)
                               project)]
-               (prn (:pedantic? project))
                (walk-deps hierarchy print-dep))
              (= command ":verify")
              (if (user/gpg-available?)
