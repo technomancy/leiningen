@@ -9,9 +9,8 @@
   "Apply the given task with a comma-separated profile list."
   [project profiles task-name args]
   (hooke/with-scope
-    (let [project (and project (project/set-profiles
-                                 (project/project-with-profiles project)
-                                 profiles))]
+    (let [project (and project (project/set-profiles project profiles))
+          task-name (main/lookup-alias task-name project)]
       (main/apply-task task-name project args))))
 
 (defn profiles-in-group
@@ -42,6 +41,25 @@
        "Profiles in with-profile must either all be qualified, or none qualified"
        {:exit-code 1})))))
 
+
+(defn- apply-task-with-profiles
+  [project profiles task-name args failures multi-group]
+  (when multi-group
+    (main/info (format "Performing task '%s' with profile(s): '%s'"
+                       task-name
+                       (string/join "," (map name profiles)))))
+  (binding [main/*exit-process?* false]
+    (try
+      (with-profiles* project profiles task-name args)
+      (catch Exception e
+        (main/info
+         (format "Error encountered performing task '%s' with profile(s): '%s'"
+                 task-name (string/join "," (map name profiles))))
+        (if (and (:exit-code (ex-data e)) (not main/*debug*))
+          (main/info (.getMessage e))
+          (.printStackTrace e))
+        (swap! failures inc)))))
+
 (defn ^:no-project-needed ^:higher-order with-profile
   "Apply the given task with the profile(s) specified.
 
@@ -61,22 +79,12 @@ To list all profiles or show a single one, see the show-profiles task.
 For a detailed description of profiles, see `lein help profiles`."
   [project profiles task-name & args]
   (let [profile-groups (seq (.split profiles ":"))
-        failures (atom 0)]
-    (doseq [profiles (map (partial profiles-in-group project) profile-groups)]
-      (when (> (count profile-groups) 1)
-        (main/info (format "Performing task '%s' with profile(s): '%s'"
-                           task-name (string/join "," (map name profiles)))))
-      (binding [main/*exit-process?* false]
-        (try
-          (with-profiles* project profiles task-name args)
-          (catch Exception e
-            (main/info
-             (format
-              "Error encountered performing task '%s' with profile(s): '%s'"
-              task-name (string/join "," (map name profiles))))
-            (if (and (:exit-code (ex-data e)) (not main/*debug*))
-              (main/info (.getMessage e))
-              (.printStackTrace e))
-            (swap! failures inc)))))
+        failures (atom 0)
+        result (->> profile-groups
+                    (map (partial profiles-in-group project))
+                    (mapv #(apply-task-with-profiles
+                            project % task-name args failures
+                            (> (count profile-groups) 1))))]
     (when (pos? @failures)
-      (main/abort))))
+      (main/abort))
+    result))

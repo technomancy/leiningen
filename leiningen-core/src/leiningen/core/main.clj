@@ -60,11 +60,14 @@
   (or (utils/require-resolve (str "leiningen.plugin" task-name) task-name)
       (utils/require-resolve (str "leiningen." task-name) task-name)))
 
+(declare remove-alias)
+
 (defn- pass-through-help? [task-name project]
   (let [de-aliased (lookup-alias task-name project)]
     (if (vector? de-aliased)
       (or (:pass-through-help (meta de-aliased))
-          (pass-through-help? (first de-aliased) project))
+          (pass-through-help? (first de-aliased)
+                              (remove-alias project task-name)))
       (:pass-through-help (meta (lookup-task-var de-aliased))))))
 
 (defn task-args [[task-name & args] project]
@@ -360,6 +363,15 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
 
 (def ^:dynamic *cwd* (System/getProperty "user.dir"))
 
+(defn default-project
+  "Return the default project used when not in a project directory."
+  []
+  (-> (project/make {:eval-in :leiningen :prep-tasks []
+                     :source-paths ^:replace []
+                     :resource-paths ^:replace []
+                     :test-paths ^:replace []})
+      (project/init-project)))
+
 (defn -main
   "Command-line entry point."
   [& raw-args]
@@ -367,11 +379,7 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
     (user/init)
     (let [project (if (.exists (io/file *cwd* "project.clj"))
                     (project/read (str (io/file *cwd* "project.clj")))
-                    (-> (project/make {:eval-in :leiningen :prep-tasks []
-                                       :source-paths ^:replace []
-                                       :resource-paths ^:replace []
-                                       :test-paths ^:replace []})
-                        (project/init-project)))]
+                    (default-project))]
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
       (resolve-and-apply project raw-args))
