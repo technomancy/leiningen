@@ -502,7 +502,8 @@
    :test {:pom-scope :test}
    :base {:pom-scope :test}
    :uberjar {:leaky true}
-   :provided {:pom-scope :provided}})
+   :provided {:pom-scope :provided}
+   :repl {:repl true}})
 
 (defn- meta-merge
   "Recursively merge values based on the information in their metadata."
@@ -904,6 +905,14 @@ Also merges default profiles."
                       (merge m (meta ((-> project meta :profiles) profile)))))
         (-> project meta :profile-inherited-meta))
        (into {})))
+
+(defn profiles-with-matching-meta
+  "Return a sequence of profile keywords for the project profiles that
+  have metadata that satisfies the predicate, pred."
+  [project pred]
+  (->> (-> project meta :profiles)
+       (filter (comp pred meta val))
+       (map key)))
 
 (defn non-leaky-profiles
   "Return a sequence of profile keywords for the non-leaky profiles

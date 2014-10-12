@@ -40,8 +40,8 @@
   [file]
   (try
     (let [kw (->> file .getName (re-find #".+(?=\.clj)") keyword)
-          contents (with-meta (utils/read-file file) ;; assumes the file exist
-                     {:origin (.getAbsolutePath file)})]
+          contents (vary-meta (utils/read-file file) ;; assumes the file exist
+                              merge {:origin (.getAbsolutePath file)})]
       [kw contents])
     (catch Exception e
       (binding [*out* *err*]
@@ -65,7 +65,7 @@
   (memoize
    (fn [dir]
        (if-let [contents (utils/read-file (io/file dir "profiles.clj"))]
-         (utils/map-vals contents with-meta
+         (utils/map-vals contents vary-meta merge
                          {:origin (str (io/file dir "profiles.clj"))})))))
 
 
