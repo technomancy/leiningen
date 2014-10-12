@@ -1,6 +1,7 @@
 (ns leiningen.test.jar
   (:require [clojure.java.io :as io]
             [leiningen.core.main :as main]
+            [leiningen.core.project :as project]
             [leiningen.core.utils :refer [platform-nullsink]]
             [leiningen.test.helper :as helper])
   (:use [clojure.test]
@@ -36,6 +37,16 @@
           entry-names (set (helper/walkzip jar #(.getName %)))]
       (is (entry-names "nested/dir/"))
       (is (not (some #(.startsWith % "/") entry-names))))))
+
+(deftest test-profile-added-to-jar
+  (with-out-str
+    (let [project (-> helper/with-resources-project
+                      (project/add-profiles
+                       {:test-jar {:resource-paths ^:replace []}})
+                      (project/merge-profiles [:test-jar]))
+          jar (first (vals (jar project)))
+          entry-names (set (helper/walkzip jar #(.getName %)))]
+      (is (not (entry-names "nested/dir/sample.txt"))))))
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
