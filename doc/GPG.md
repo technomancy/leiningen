@@ -150,10 +150,13 @@ following:
 
 ## How Leiningen uses GPG
 
-Leiningen uses GPG for two things: decrypting credential files and
-signing release artifacts. We'll focus on artifact signing here; for
-information on credentials encryption/decryption, see the
-[deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
+Leiningen uses GPG for three things: decrypting credential files,
+signing release artifacts, and signing tags. We'll focus on artifact
+signing here; for information on credentials encryption/decryption,
+see the
+[deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md). Once
+you are configured to sign releases, signing tags should be
+straightforward.
 
 On some systems you will be prompted for your GPG passphrase when it
 is needed if you haven't entered it. If yours does not, you can

@@ -1,5 +1,13 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.5.1 / ???
+
+* Allow multiple `:repl` profiles. (Hugo Duncan)
+* Fix a bug with aliases and `with-profile`. (Hugo Duncan)
+* Add flexibility in jar manifest declarations. (Fabio Tudone)
+* Fix a bug preventing extra profiles from being included in jars. (Hugo Duncan)
+* Fix a bug in self-install on Windows. (Sindunata Sudarmaji)
+
 ## 2.5.0 / 2014-09-14
 
 * Allow certain profiles to be `^:leaky` and affect downstream. (Hugo Duncan)
