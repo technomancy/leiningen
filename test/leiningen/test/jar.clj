@@ -11,21 +11,45 @@
 (def long-line
   (apply str (repeat 10000 "a")))
 
-(def mock-project {:name "mock-project" :version "1.0"
+(def mock-project-1 {:name "mock-project" :version "1.0"
                    :main 'foo.one-two.three-four.bar
-                   :manifest {"hello" "world"
-                              "long-line" long-line}})
+                   :manifest [
+                               ["hello" "world"]
+                               [:my-section-1 {"C" "D" "S" "T"}]
+                               ["A" "B"]
+                               [:my-section-2 [["E" "F"] ["X" "Y"]] ]
+                               ["G" "H"]
+                               ["long-line" long-line]
+                             ]})
+
+(def mock-project-2 {:name "mock-project" :version "1.0"
+                   :main 'foo.one-two.three-four.bar
+                   :manifest {
+                               "hello" "world"
+                               :my-section-1 {"C" "D" "S" "T"}
+                               "A" "B"
+                               :my-section-2 [["E" "F"] ["X" "Y"]]
+                               "G" "H"
+                               "long-line" long-line
+                             }})
 
 (deftest test-manifest
-  (let [mm (-> mock-project
-               make-manifest
-               manifest-map)]
-    (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
-           (select-keys mm ["hello" "Main-Class"])))
-    (is (= #{"Manifest-Version" "Main-Class" "hello" "Created-By" "Built-By"
-             "Build-Jdk" "long-line"}
-           (-> mm keys set)))
-    (is (= (get mm "long-line") long-line))))
+  (doseq [mock-project [mock-project-1 mock-project-2]]
+    (let [mm (-> mock-project
+                 make-manifest
+                 manifest-map)]
+      (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
+             (select-keys mm ["hello" "Main-Class"])))
+      (is (= #{"Manifest-Version" "Main-Class" "hello" "A" "G" "Created-By" "Built-By"
+               "Build-Jdk" "long-line"}
+             (-> mm keys set)))
+      (is (= (get mm "long-line") long-line))
+      (is (=  #{"my-section-1" "my-section-2"}
+             (-> mock-project
+                 make-manifest
+                 .getEntries
+                 keys
+                 set))))))
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
@@ -65,6 +89,8 @@
       (let [result (jar helper/overlapped-sourcepaths-project)]
         (is result)
         (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))))))
+
+(def mock-project mock-project-1)
 
 (deftest test-write-jar
   (testing (str "Confirm that a warning is output when the Main-Class is not "

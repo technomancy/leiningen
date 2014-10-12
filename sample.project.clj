@@ -409,12 +409,17 @@
                                {:type :bytes :path "git-log"
                                 :bytes (:out (clojure.java.shell/sh
                                               "git" "log" "-n" "1"))})}]
-  ;; Set arbitrary key/value pairs for the jar's manifest.
+  ;; Set arbitrary key/value pairs for the jar's manifest. Any
+  ;; vector or sequence of pairs is supported as well.
   :manifest {"Project-awesome-level" "super-great"
              ;; Function values will be called with the project as an argument.
              "Class-Path" ~#(clojure.string/join
                              \space
                              (leiningen.core.classpath/get-classpath %))
+             ;; If a value is a collection, a manifest section is built for it and
+             ;; the name of the key is used as the section name.
+             :my-section-1 [["MyKey1" "MyValue1"] ["MyKey2" "MyValue2"]]
+             :my-section-2 {"MyKey3" "MyValue3" "MyKey4" "MyValue4"}
              ;; Symbol values will be resolved to find a function to call.
              "Grunge-level" my.plugin/calculate-grunginess}
 
