@@ -3,12 +3,13 @@
   (:refer-clojure :exclude [update-in])
   (:require [leiningen.core.main :as main]
             [leiningen.core.project :as project]
+            [leiningen.core.utils :as utils]
             [clojure.core :as clj]))
 
 (defn ^:internal parse-args [key-path f args]
   (let [[f-args [_ & task+args]] (split-with #(not= "--" %) args)]
     [(mapv keyword (rest (.split key-path ":")))
-     (resolve (read-string f))
+     (utils/require-resolve (read-string f))
      (mapv read-string f-args)
      task+args]))
 
