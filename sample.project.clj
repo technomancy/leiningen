@@ -483,5 +483,6 @@
 ;; LEIN_NEW_UNIX_NEWLINES - ensure that `lein new` emits '\n' as newlines
 ;; LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS - suppress "repository in user profile" warnings
 ;; LEIN_FAST_TRAMPOLINE - memoize `java` invocation command to speed up subsequent trampoline launches
+;; LEIN_NO_USER_PROFILES - suppress loading of user and system profiles
 ;; http_proxy - host and port to proxy HTTP connections through
 ;; http_no_proxy - pipe-separated list of hosts which may be accessed directly
