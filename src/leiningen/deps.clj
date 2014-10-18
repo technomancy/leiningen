@@ -23,7 +23,7 @@
 (defn- print-dep [dep level]
   (println (apply str (repeat (* 2 level) \space)) (pr-str dep)))
 
-
+
 
 (declare check-signature)
 
@@ -64,7 +64,7 @@
                  :unsigned)]
     ;; TODO: support successful exit code only on fully-signed deps
     (println status (pr-str dep))))
-
+
 
 (def tree-command
   "A mapping from the tree-command to the dependency key it should print a tree
@@ -72,7 +72,7 @@
   {":tree" :dependencies
    ":plugin-tree" :plugins})
 
-
+
 
 (defn print-implicits [project type]
   (when-let [implicits (seq (filter utils/require-resolve
@@ -80,7 +80,7 @@
     (println (str "Implicit " (name type) ":"))
     (doseq [i implicits] (println " " i))))
 
-
+
 
 (defn deps
   "Show details about dependencies.

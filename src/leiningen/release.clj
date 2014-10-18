@@ -66,7 +66,7 @@
       (bump-version-map (or level *level*))
       (version-map->string)))
 
-
+
 
 (defn ^{:subtasks []} release
   "Perform release tasks.
