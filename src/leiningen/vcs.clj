@@ -16,7 +16,7 @@
 (defn which-vcs [project & _]
   (or (:vcs project) (some (partial uses-vcs project) @supported-systems)))
 
-
+
 ;;; Methods
 
 (defmulti push "Push to your remote repository."
@@ -31,7 +31,7 @@
 (defmulti assert-committed "Abort if uncommitted changes exist."
   which-vcs :default :none)
 
-
+
 
 ;;; VCS not found
 
@@ -72,7 +72,7 @@
                    (with-out-str (eval/sh "git" "status")))
        (main/abort "Uncommitted changes in" (:root project) "directory."))))
 
-
+
 
 (defn- not-found [subtask]
   (partial #'main/task-not-found (str "vcs " subtask)))
