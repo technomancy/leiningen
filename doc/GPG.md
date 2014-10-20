@@ -199,10 +199,9 @@ or by the uid.
 To set a key globally, add it to your user profile in
 `~/.lein/profiles.clj`:
 
-    {:user 
-      ...
-      :signing {:gpg-key "2ADFB13E"}} ;; using the key id
-    
+    {:user {...
+            :signing {:gpg-key "2ADFB13E"}}} ;; using the key id
+
 To set a key for a particular project, add it to the project
 definition:
 
