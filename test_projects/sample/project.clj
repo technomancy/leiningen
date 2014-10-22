@@ -22,8 +22,7 @@
                                                  (:name p) "]")})}]
   :test-selectors {:integration :integration
                    :default (complement :integration)
-                   :random (fn [_] (> (rand) ~(float 1/2)))
-                   :all (constantly true)}
+                   :random (fn [_] (> (rand) ~(float 1/2)))}
   :repositories {"other" "http://example.com/repo"}
   :deploy-repositories {"snapshots" ~(format "file://%s/lein-repo"
                                              (System/getProperty "java.io.tmpdir"))})

@@ -170,8 +170,7 @@ specify a subset of your test suite to run:
 Write the selectors in project.clj:
 
     :test-selectors {:default (complement :integration)
-                     :integration :integration
-                     :all (constantly true)}
+                     :integration :integration}
 
 Arguments to this task will be considered test selectors if they are keywords,
 otherwise arguments must be test namespaces or files to run. With no
