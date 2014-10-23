@@ -46,10 +46,10 @@
   [opts]
   (if (map? opts)
     (let [special-opts (select-keys opts special-ant-javac-keys)
-          other-opts   (apply dissoc (concat [opts] special-ant-javac-keys))
+          other-opts   (apply dissoc opts special-ant-javac-keys)
           specials     (normalize-specials special-opts)
           others       (mapcat (fn [[k v]] [(str "-" (name k)) v]) other-opts)]
-      (vec (map (comp name str) (flatten (concat specials others)))))
+      (vec (map (comp name str) (concat specials others))))
     opts))
 
 (defn- safe-quote [s]
