@@ -69,6 +69,10 @@
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project
 
+(deftest test-replace-repositories
+  (let [actual (read (.getFile (io/resource "replace-repositories.clj")))]
+    (is (= 1 (-> actual :repositories count)))))
+
 (deftest test-retain-profile-metadata
   (let [actual (read (.getFile (io/resource "profile-metadata.clj")))
         profiles (:profiles actual)]
