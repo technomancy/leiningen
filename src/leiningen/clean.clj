@@ -38,10 +38,9 @@
   (let [root-dir (:root project)]
     (->> [:source-paths :java-source-paths :test-paths :resource-paths]
          (select-keys project)
-         vals
-         flatten
-         (cons (io/file root-dir "doc"))
-         (cons (io/file root-dir "project.clj"))
+         (mapcat val)
+         (list* (io/file root-dir "doc")
+                (io/file root-dir "project.clj"))
          (map io/file)
          (map #(.getCanonicalPath %))
          set)))
