@@ -320,7 +320,7 @@ These get replaced with the corresponding values from the project map."
               (.load reader))
             (.getProperty "version")))))
 
-(defn ^:internal version-satisfies? [v1 v2]
+(defn version-satisfies? [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d+" (first (string/split v1 #"-" 2))))
         v2 (map #(Integer. %) (re-seq #"\d+" (first (string/split v2 #"-" 2))))]
     (loop [versions (map vector v1 v2)
