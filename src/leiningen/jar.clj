@@ -51,10 +51,12 @@
 
 (defn ^:internal make-manifest [project]
   (let [initial-mf
-         (concat (conj default-manifest
-           (if-let [main (:main project 'clojure.main)]
-             ["Main-Class" (munge (str main))]))
-           (manifest-map-to-reordered-seq (:manifest project)))]
+        (concat (if (get (:manifest project) "Main-Class")
+                  default-manifest
+                  (conj default-manifest
+                        ["Main-Class"
+                         (munge (str (:main project 'clojure.main)))]))
+                (manifest-map-to-reordered-seq (:manifest project)))]
     (->> initial-mf
          (manifest-entries project)
          (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
