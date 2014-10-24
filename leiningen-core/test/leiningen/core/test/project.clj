@@ -389,6 +389,14 @@
              (-> (merge-profiles project [:empty :red :clj-2 :green])
                  :repositories))))))
 
+(deftest test-merge-many-profiles
+  (let [profiles (into {} (map #(vector (-> % str keyword) {:foo [%]}) (range 10)))
+        project (make {:profiles profiles})]
+    (is (= (range 10)
+          (-> (make-project project)
+            (merge-profiles [:0 :1 :2 :3 :4 :5 :6 :7 :8 :9])
+            :foo)))))
+
 (deftest test-global-exclusions
   (let [project {:dependencies
                  '[[lancet "1.0.1"]

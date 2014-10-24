@@ -595,7 +595,7 @@
 (defn expand-profiles-with-meta
   "Recursively expand a collection of profiles"
   [project profiles]
-  (into {} (mapcat (partial expand-profile-with-meta project) profiles)))
+  (mapcat (partial expand-profile-with-meta project) profiles))
 
 (defn expand-profile
   "Recursively expand the keyword `profile` in `project` to a sequence of
@@ -814,7 +814,7 @@
                   (meta project))
         include-profiles-meta (expand-profiles-with-meta
                                project include-profiles)
-        include-profiles (map key include-profiles-meta)
+        include-profiles (map first include-profiles-meta)
         exclude-profiles (expand-profiles project exclude-profiles)
         normalize #(if (coll? %) (lookup-profile (:profiles project) %) [%])
         exclude-profiles (mapcat normalize exclude-profiles)
