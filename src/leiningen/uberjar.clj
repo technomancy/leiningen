@@ -129,13 +129,13 @@ be deactivated."
      (let [project (project/merge-profiles project [:uberjar])
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))
-           standalone-filename (jar/get-jar-filename project :standalone)
            [_ jar] (try (first (jar/jar project main))
                         (catch Exception e
                           (when main/*debug*
                             (.printStackTrace e))
                           (main/abort "Uberjar aborting because jar failed:"
-                                      (.getMessage e))))]
+                                      (.getMessage e))))
+           standalone-filename (jar/get-jar-filename project :standalone)]
        (with-open [out (-> standalone-filename
                            (FileOutputStream.)
                            (ZipOutputStream.))]
