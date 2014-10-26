@@ -320,7 +320,7 @@ Create a $PROJECT-$VERSION-$CLASSIFIER.jar file for each entry in the project's
 :classifiers. Returns a map of :classifier/:extension coordinates to files."
   [{:keys [classifiers] :as project} provided-profiles]
   (into {}
-        (map #(apply classifier-jar project %) provided-profiles classifiers)))
+        (map #(apply classifier-jar project provided-profiles %) classifiers)))
 
 (defn jar
   "Package up all the project's files into a jar file.

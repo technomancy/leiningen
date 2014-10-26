@@ -76,6 +76,17 @@
   (with-out-str
     (is (jar helper/sample-no-aot-project))))
 
+(deftest test-classifier-jar-succeeds
+  (is (= 1 (count (:classifiers helper/with-classifiers-project)))
+      "test project has a classifier")
+  (is (= 1 (count (classifier-jars helper/with-classifiers-project nil)))
+      "test project produces a classifier jar")
+  (with-out-str
+    (is (jar helper/with-classifiers-project)
+        "jar runs correctly")
+    (is (= 2 (count (jar helper/with-classifiers-project)))
+        "jar produces two jar files")))
+
 (deftest ^:online test-no-deps-jar
   (let [[coord jar-file] (first
                           (jar (dissoc helper/sample-project
