@@ -425,6 +425,10 @@
       (init-project (read (.getFile (io/resource "p3.clj")))))
     (is (= [] @errors))))
 
+(deftest test-certificates
+  (let [project {:certificates ["clojars.pem"]}]
+    (is (-> (init-project project) :certificates seq))))
+
 (deftest test-plugin-vars
   (are [project hooks middleware] (= (list hooks middleware)
                                      (map (partial plugin-vars project) [:hooks :middleware]))
