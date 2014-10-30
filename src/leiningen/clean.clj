@@ -1,7 +1,8 @@
 (ns leiningen.clean
   "Remove all files from project's target-path."
   (:require [clojure.java.io :as io]
-            [leiningen.core.utils :as utils])
+            [leiningen.core.utils :as utils]
+            [leiningen.core.project :as project])
   (:import [java.io IOException]))
 
 (defn real-directory?
@@ -79,13 +80,26 @@
                   (error-msg
                    (format "Deleting non-target project paths [\"%s\"] is not allowed." clean-target)))))))
 
-(defn clean
-  "Remove all files from paths in project's clean-targets."
+(defn clean-targets
+  "Return a seq of the project's clean targets."
   [project]
-  (doseq [target-key (:clean-targets project)]
+  (for [target-key (:clean-targets project)]
     (when-let [target (cond (vector? target-key) (get-in project target-key)
                             (keyword? target-key) (target-key project)
                             (string? target-key) target-key)]
-      (doseq [f (flatten [target])]
-        (sanity-check project f)
-        (delete-file-recursively f :silently)))))
+      (flatten [target]))))
+
+(defn clean
+  "Removes all files from paths in clean-targets for a project, and for all
+  of its profiles."
+  [project]
+  (doseq [targets (->> (project/read-profiles project)
+                       keys
+                       (map vector)
+                       (map (partial project/set-profiles project))
+                       (cons project)
+                       (mapcat clean-targets)
+                       distinct)]
+    (doseq [f targets]
+      (sanity-check project f)
+      (delete-file-recursively f :silently))))
