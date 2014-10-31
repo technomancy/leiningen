@@ -329,16 +329,32 @@ else
         exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
     else
         export TRAMPOLINE_FILE
-        "$LEIN_JAVA_CMD" \
-            "${BOOTCLASSPATH[@]}" \
-            -Dfile.encoding=UTF-8 \
-            -Dmaven.wagon.http.ssl.easy=false \
-            -Dmaven.wagon.rto=10000 \
-            $LEIN_JVM_OPTS \
-            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-            -Dleiningen.script="$SCRIPT" \
-            -classpath "$CLASSPATH" \
-            clojure.main -m leiningen.core.main "$@"
+        postfix=`echo $1|rev`
+        clj=${postfix:0:3}
+        clj=`echo $clj|rev`
+        if [ "$clj" = "clj" ]; then
+            "$LEIN_JAVA_CMD" \
+                "${BOOTCLASSPATH[@]}" \
+                -Dfile.encoding=UTF-8 \
+                -Dmaven.wagon.http.ssl.easy=false \
+                -Dmaven.wagon.rto=10000 \
+                $LEIN_JVM_OPTS \
+                -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+                -Dleiningen.script="$SCRIPT" \
+                -classpath "$CLASSPATH" \
+                clojure.main $1
+        else
+            "$LEIN_JAVA_CMD" \
+                "${BOOTCLASSPATH[@]}" \
+                -Dfile.encoding=UTF-8 \
+                -Dmaven.wagon.http.ssl.easy=false \
+                -Dmaven.wagon.rto=10000 \
+                $LEIN_JVM_OPTS \
+                -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+                -Dleiningen.script="$SCRIPT" \
+                -classpath "$CLASSPATH" \
+                clojure.main -m leiningen.core.main "$@"
+        fi
 
         EXIT_CODE=$?
 
