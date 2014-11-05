@@ -75,8 +75,8 @@
   [url]
   (if url
     (rest
-     (or (re-matches #"(?:git@)?github.com:([^/]+)/([^/]+).git" url)
-         (re-matches #"[^:]+://(?:git@)?github.com/([^/]+)/([^/]+).git" url)))))
+     (or (re-matches #"(?:[A-Za-z_]{2,}@)?github.com:([^/]+)/([^/]+).git" url)
+         (re-matches #"[^:]+://(?:[A-Za-z_]{2,}@)?github.com/([^/]+)/([^/]+).git" url)))))
 
 (defn- github-urls [url]
   (if-let [[user repo] (parse-github-url url)]
