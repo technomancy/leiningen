@@ -133,7 +133,7 @@
       (last (.split f "\\.")))))
 
 (defn- fail-on-empty-project [project]
-  (if-not (:root project)
+  (when-not (:root project)
     (main/abort "Couldn't find project.clj, which is needed for deploy task")))
 
 (defn ^:no-project-needed deploy

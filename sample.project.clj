@@ -450,8 +450,9 @@
         ;; project's root, for instance, if you had multiple projects in a
         ;; single git repository.
         :dir ".."}
-  ;; Include arbitrary xml in generated pom.xml file,
-  ;; as parsed by clojure.data.xml/sexp-as-element.
+  ;; Include xml in generated pom.xml file, as parsed by
+  ;; clojure.data.xml/sexp-as-element. Resulting pom still needs to
+  ;; validate according to the pom XML schema.
   :pom-addition [:developers [:developer {:id "benbit"}
                               [:name "Ben Bitdiddle"]
                               [:url "http://www.example.com/benjamin"]]]
