@@ -6,6 +6,7 @@
             [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [bultitude.core :as b]
             [clojure.set :as set]
             [clojure.string :as string]
@@ -331,14 +332,15 @@ function in that namespace will be used as the main-class for executable jar.
 
 With an argument, the jar will be built with an alternate main."
   ([project main]
-     (when (:auto-clean project true)
-       (clean/clean project))
-     (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
-           default-profiles (set (project/expand-profile project :default))
-           provided-profiles (remove
-                              (set/difference default-profiles scoped-profiles)
-                              (-> project meta :included-profiles))
-           project (preprocess-project project main)]
-       (merge (main-jar project provided-profiles main)
-              (classifier-jars project provided-profiles))))
+     (utils/with-write-permissions (:root project)
+       (when (:auto-clean project true)
+         (clean/clean project))
+       (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
+             default-profiles (set (project/expand-profile project :default))
+             provided-profiles (remove
+                                (set/difference default-profiles scoped-profiles)
+                                (-> project meta :included-profiles))
+             project (preprocess-project project main)]
+         (merge (main-jar project provided-profiles main)
+                (classifier-jars project provided-profiles)))))
   ([project] (jar project nil)))

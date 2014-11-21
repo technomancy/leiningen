@@ -23,6 +23,15 @@
        (catch java.net.MalformedURLException _
          (URL. (str "http://" url)))))
 
+(defmacro with-write-permissions
+  "Runs body only if path is writeable"
+  [path & body]
+  `(let [f# (new File ~path)]
+     (if (.canWrite f#)
+       (do ~@body)
+       (throw (java.io.IOException.
+         (str "Permission denied. Please check your access rights for " ~path))))))
+
 (defn read-file
   "Returns the first Clojure form in a file if it exists."
   [file]
