@@ -8,6 +8,7 @@
             [clojure.tools.nrepl.server :as nrepl.server]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
@@ -167,9 +168,11 @@
       (when ~start-msg?
         (println "nREPL server started on port" port# "on host" ~(:host cfg)
                  (str "- nrepl://" ~(:host cfg) ":" port#)))
-      (spit (doto repl-port-file# .deleteOnExit) port#)
+      (utils/with-write-permissions (.getPath repl-port-file#)
+        (spit (doto repl-port-file# .deleteOnExit) port#))
       (when legacy-repl-port#
-        (spit (doto legacy-repl-port# .deleteOnExit) port#))
+        (utils/with-write-permissions (.getPath legacy-repl-port#)
+          (spit (doto legacy-repl-port# .deleteOnExit) port#)))
       @(promise))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
