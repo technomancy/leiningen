@@ -32,7 +32,10 @@ During plugin development, having to re-run `lein install` in your
 plugin project and then switch to a test project can be very
 cumbersome. Once you've installed the plugin once, you can avoid this
 annoyance by creating a `.lein-classpath` file in your test project
-containing the path to the `src` directory of your plugin.
+containing the path to the `src` directory of your plugin. If your plugin
+depends on another library that you are also working on then that needs
+to be added to `.lein-classpath` with the classpath separator, either
+`:` for unix, or `;` for Windows.
 
 When emitting output, please use `leiningen.core.main/info`,
 `leiningen.core.main/warn`, and `leiningen.core.main/debug` rather than
