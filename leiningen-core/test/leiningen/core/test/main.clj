@@ -20,6 +20,18 @@
     (is (= "Warning message\n" (with-err-str
                                      (warn "Warning message"))))))
 
+(deftest test-lookup-alias
+  (testing "meta merging"
+    (let [project {:aliases {"a" ^:foo ["root"]
+                             "b" ^:bar ["a"]
+                             "c" ^{:pass-through-help false :doc "Yo"} ["b"]
+                             "d" ^:pass-through-help ["c"]}}]
+      (are [task m] (= (meta (lookup-alias task project)) m)
+           "a" {:foo true}
+           "b" {:bar true}
+           "c" {:doc "Yo" :pass-through-help false}
+           "d" {:pass-through-help true :doc "Yo"}))))
+
 (deftest test-task-args-help-pass-through
   (let [project {:aliases {"sirius-p" ["sirius" "partial"]
                            "s" "sirius"
@@ -27,7 +39,9 @@
                            "sirius-pp" ["sirius-p" "foo"]
                            "sp" "s-p"
                            "test" "test"
-                           "ohai" ^:pass-through-help ["run" "-m" "o.hai"]}}]
+                           "ohai" ^:pass-through-help ["run" "-m" "o.hai"]
+                           "aliaso" ["ohai"]
+                           "aliaso2" ["ohai"]}}]
     (testing "with :pass-through-help meta"
       (testing "on a var"
         (are [res arg] (= res (task-args arg project))
@@ -49,6 +63,10 @@
              [["sirius" "partial" "foo"] ["bar"]] ["sirius-pp" "bar"]
              ["test" []] ["test"]
              ["sirius" []] ["s"]
+             [["run" "-m" "o.hai"] ["-h"]] ["ohai" "-h"]
+             [["run" "-m" "o.hai"] ["-h"]] ["aliaso" "-h"]
+             [["run" "-m" "o.hai"] ["-h"]] ["aliaso2" "-h"]
+             [["run" "-m" "o.hai"] ["--help"]] ["ohai" "--help"]
              [["run" "-m" "o.hai"] ["help"]] ["ohai" "help"])))))
 
 (deftest test-matching-arity

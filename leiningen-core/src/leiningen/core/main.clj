@@ -33,6 +33,10 @@
     (swap! atom dissoc key)
     v))
 
+(defn- merge-alias-meta [task-vector task-name]
+  (merge (select-keys (meta task-vector) [:doc :pass-through-help])
+         (meta task-name)))
+
 (defn lookup-alias
   "Recursively look up aliases until the task is not an alias anymore. If
   task-name is a vector, calls lookup-alias on the first argument and returns a
@@ -40,11 +44,14 @@
   [task-name project & [not-found]]
   (if (vector? task-name)
     (let [[t & args] task-name ;; never mind the poor naming here.
-          resolved-task (lookup-alias t project not-found)]
-      (into (if (vector? resolved-task)
-              resolved-task
-              [resolved-task])
-            args))
+          resolved-task (lookup-alias t project not-found)
+          task-vector (if (vector? resolved-task)
+                        resolved-task
+                        [resolved-task])
+          merged-meta (merge-alias-meta task-vector task-name)]
+      (-> task-vector
+          (into args)
+          (with-meta merged-meta)))
     (let [project-wo-alias (update-in project [:aliases] dissoc task-name)
           resolved-task (or (aliases task-name)
                             (get (:aliases project) task-name)
