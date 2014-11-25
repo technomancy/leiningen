@@ -162,8 +162,7 @@ to prevent template args from being interpreted as arguments to `lein new`:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot -- template-arg-1 template-arg-2
 
-The list of built-in templates can be shown with `lein help new`. Third-party
-templates can be found at https://clojars.org/search?q=lein-template.
+Third-party templates can be found at https://clojars.org/search?q=lein-template.
 When creating a new project from a third-party template, use its group-id
 as the template name. Note that there's no need to \"install\" a given third-
 party template --- lein will automatically fetch it for you.
