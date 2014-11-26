@@ -206,6 +206,9 @@
             ;; using :project/key keywords.
             "launch-version" ["run" "-m" "myproject.main" :project/version]
             "dumbrepl" ["trampoline" "run" "-m" "clojure.main/main"]
+            ;; :pass-through-help ensures `lein my-alias help` is not converted
+            ;; into `lein help my-alias`.
+            "go" ^:pass-through-help ["run" "-m"]
             ;; For complex aliases, a docstring may be attached. The docstring
             ;; will be printed instead of the expansion when running `lein help`.
             "deploy!" ^{:doc "Recompile sources, then deploy if tests succeed."}
