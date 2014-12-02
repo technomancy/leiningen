@@ -15,6 +15,18 @@
             [leiningen.trampoline :as trampoline]
             [reply.main :as reply]))
 
+(defn- repl-port-file-vector
+  "Returns the repl port file for this project as a vector."
+  [project]
+  (if-let [root (:root project)]
+    [root ".nrepl-port"]
+    [(user/leiningen-home) "repl-port"]))
+
+(defn- repl-port-file-path
+  "Returns the repl port file path for this project."
+  [project]
+  (.getPath (apply io/file (repl-port-file-vector project))))
+
 (defn lookup-opt [opt-key opts]
   (second (drop-while #(not= % opt-key) opts)))
 
@@ -160,19 +172,16 @@
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
           port# (:port server#)
-          repl-port-file# (apply io/file ~(if (:root project)
-                                            [(:root project) ".nrepl-port"]
-                                            [(user/leiningen-home) "repl-port"]))
+          repl-port-file# (apply io/file ~(repl-port-file-vector project))
+          ;; TODO 3.0: remove legacy repl port support.
           legacy-repl-port# (if (.exists (io/file ~(:target-path project)))
                               (io/file ~(:target-path project) "repl-port"))]
       (when ~start-msg?
         (println "nREPL server started on port" port# "on host" ~(:host cfg)
                  (str "- nrepl://" ~(:host cfg) ":" port#)))
-      (utils/with-write-permissions (.getPath repl-port-file#)
-        (spit (doto repl-port-file# .deleteOnExit) port#))
+      (spit (doto repl-port-file# .deleteOnExit) port#)
       (when legacy-repl-port#
-        (utils/with-write-permissions (.getPath legacy-repl-port#)
-          (spit (doto legacy-repl-port# .deleteOnExit) port#)))
+        (spit (doto legacy-repl-port# .deleteOnExit) port#))
       @(promise))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
@@ -285,14 +294,15 @@ deactivated, but it can be overridden."
 
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-     (let [project (project/merge-profiles
-                    project
-                    (project/profiles-with-matching-meta project :repl))]
-       (if (= subcommand ":connect")
-         (client project (doto (connect-string project opts)
-                           (->> (main/info "Connecting to nREPL at"))))
-         (let [cfg {:host (or (opt-host opts) (repl-host project))
-                    :port (or (opt-port opts) (repl-port project))}]
+   (let [project (project/merge-profiles
+                  project
+                  (project/profiles-with-matching-meta project :repl))]
+     (if (= subcommand ":connect")
+       (client project (doto (connect-string project opts)
+                         (->> (main/info "Connecting to nREPL at"))))
+       (let [cfg {:host (or (opt-host opts) (repl-host project))
+                  :port (or (opt-port opts) (repl-port project))}]
+         (utils/with-write-permissions (repl-port-file-path project)
            (case subcommand
              ":start" (if trampoline/*trampoline?*
                         (trampoline-repl project (:port cfg))
@@ -300,7 +310,7 @@ deactivated, but it can be overridden."
              ":headless" (apply eval/eval-in-project project
                                 (server-forms project cfg (ack-port project)
                                               true))
-             (main/abort (str "Unknown subcommand " subcommand))))))))
+             (main/abort (str "Unknown subcommand " subcommand)))))))))
 
 ;; A note on testing the repl task: it has a number of modes of operation
 ;; which need to be tested individually:
