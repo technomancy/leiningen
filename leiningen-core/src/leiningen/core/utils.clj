@@ -24,13 +24,16 @@
          (URL. (str "http://" url)))))
 
 (defmacro with-write-permissions
-  "Runs body only if path is writeable"
+  "Runs body only if path is writeable, or - if it does not already exist - can
+  be created."
   [path & body]
-  `(let [f# (new File ~path)]
-     (if (.canWrite f#)
+  `(let [p# ~path
+         f# (new File p#)]
+     (if (or (and (.exists f#) (.canWrite f#))
+             (and (not (.exists f#)) (some-> f# .getParentFile .canWrite)))
        (do ~@body)
        (throw (java.io.IOException.
-         (str "Permission denied. Please check your access rights for " ~path))))))
+         (str "Permission denied. Please check your access rights for " p#))))))
 
 (defn read-file
   "Returns the first Clojure form in a file if it exists."
