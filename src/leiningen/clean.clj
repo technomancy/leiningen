@@ -84,7 +84,9 @@
   specifier is detected in the raw :target-path"
   [project]
   (if-let [tp (->> project meta :without-profiles :target-path (re-find #"(.*?)/[^/]*%") second)]
-    (assoc project :target-path (str (io/file (:root project) tp)))
+    (assoc project :target-path (if (.isAbsolute (io/file tp))
+                                  tp
+                                  (str (io/file (:root project) tp))))
     project))
 
 (defn clean

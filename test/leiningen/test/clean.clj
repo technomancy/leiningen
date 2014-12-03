@@ -131,3 +131,12 @@
     (is (= "/a/b/c/foo/bar/dev" (:target-path p)))
     (clean p)
     (assert-cleaned "/a/b/c/foo/bar/dev")))
+
+(deftest absolute-spliced-target-path
+  (let [p (-> (project/make {:root "/a/b/c"
+                             :target-path "/foo/bar/%s"
+                             :clean-targets ^{:protect false} [:target-path]})
+            (project/set-profiles [:dev]))]
+    (is (= "/foo/bar/dev" (:target-path p)))
+    (clean p)
+    (assert-cleaned "/foo/bar/dev")))
