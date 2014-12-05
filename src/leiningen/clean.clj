@@ -1,7 +1,8 @@
 (ns leiningen.clean
   "Remove all files from project's target-path."
   (:require [clojure.java.io :as io]
-            [leiningen.core.utils :as utils])
+            [leiningen.core.utils :as utils]
+            [leiningen.core.main :as main])
   (:import [java.io IOException]))
 
 (defn real-directory?
@@ -59,10 +60,11 @@
   [project]
   (-> project :clean-targets meta (get :protect true)))
 
-(defn- error-msg [pre]
-  (str pre " "
-       "Check :clean-targets or override this behavior by adding metadata -> "
-       ":clean-targets ^{:protect false} [...targets...]"))
+(defn- error-msg [& args]
+  (apply str (concat args
+                     "\nCheck :clean-targets"
+                     " or override this behavior by adding metadata ->"
+                     "\n  :clean-targets ^{:protect false} [...targets...]")))
 
 (defn- sanity-check
   "Ensure that a clean-target string refers to a directory that is sensible to
@@ -71,13 +73,11 @@
   (when (and (string? clean-target)
              (protect-clean-targets? project))
     (cond (not (ancestor? (:root project) clean-target))
-          (throw (IOException.
-                  (error-msg
-                   (format "Deleting a path outside of the project root [\"%s\"] is not allowed." clean-target))))
+          (main/abort (error-msg "Deleting path outside of the project root [\""
+                                 clean-target "\"] is not allowed."))
           (protected-path? project clean-target)
-          (throw (IOException.
-                  (error-msg
-                   (format "Deleting non-target project paths [\"%s\"] is not allowed." clean-target)))))))
+          (main/abort (error-msg "Deleting non-target project paths [\""
+                                 clean-target "%s\"] is not allowed.")))))
 
 (defn- with-parent-target-path
   "Assoc the :target-path sans the profile suffix, if any format

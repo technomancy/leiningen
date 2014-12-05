@@ -106,3 +106,7 @@
   [filename f]
   (with-open [z (java.util.zip.ZipFile. filename)]
     (reduce #(conj %1 (f %2)) [] (entries z))))
+
+(defn noerr-fixture [f]
+  (binding [*err* (java.io.StringWriter.)]
+    (f)))

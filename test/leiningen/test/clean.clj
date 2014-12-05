@@ -2,7 +2,7 @@
   (:use [clojure.test]
         [clojure.java.io :only [file make-parents writer]]
         [leiningen.clean :only [clean]]
-        [leiningen.test.helper :only [sample-project]])
+        [leiningen.test.helper :only [sample-project noerr-fixture]])
   (:require [leiningen.core.project :as project]))
 
 (def target-1 (:target-path sample-project))
@@ -25,7 +25,8 @@
 
     ;; The original delete-file-recursively is potentially destructive, so let's mock it.
     (with-redefs [leiningen.clean/delete-file-recursively mock-delete-files]
-      (f))))
+      (f)))
+  noerr-fixture)
 
 (defn assert-cleaned
   "Asserts that the mock was called for the given target path."
@@ -77,8 +78,8 @@
       (let [modified-project
             (assoc sample-project
               :clean-targets [test-dir])]
-        (is (thrown-with-msg? java.io.IOException #"project root"
-                     (clean modified-project))))))
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"project root"
+                              (clean modified-project))))))
 
   (testing "should not delete protected project paths"
     (doseq [path-key [:test-paths :resource-paths :source-paths :java-source-paths]]
@@ -87,21 +88,21 @@
             (assoc sample-project
               path-key [test-path]
               :clean-targets [test-path])]
-        (is (thrown-with-msg? java.io.IOException #"non-target"
+        (is (thrown-with-msg? clojure.lang.ExceptionInfo #"non-target"
                               (clean modified-project))))))
 
   (testing "should not delete project.clj"
     (let [modified-project
           (assoc sample-project
             :clean-targets [(relative-to-absolute-project-path "project.clj")])]
-      (is (thrown-with-msg? java.io.IOException #"non-target"
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo #"non-target"
                             (clean modified-project)))))
 
   (testing "should not delete docs"
     (let [modified-project
           (assoc sample-project
             :clean-targets [(relative-to-absolute-project-path "doc/stuff.doc")])]
-      (is (thrown-with-msg? java.io.IOException #"non-target"
+      (is (thrown-with-msg? clojure.lang.ExceptionInfo #"non-target"
                             (clean modified-project))))))
 
 (deftest test-protect-metadata-override
