@@ -1,8 +1,7 @@
 (ns leiningen.clean
   "Remove all files from project's target-path."
   (:require [clojure.java.io :as io]
-            [leiningen.core.utils :as utils]
-            [leiningen.core.project :as project])
+            [leiningen.core.utils :as utils])
   (:import [java.io IOException]))
 
 (defn real-directory?
@@ -80,26 +79,24 @@
                   (error-msg
                    (format "Deleting non-target project paths [\"%s\"] is not allowed." clean-target)))))))
 
-(defn clean-targets
-  "Return a seq of the project's clean targets."
+(defn- with-parent-target-path
+  "Assoc the :target-path sans the profile suffix, if any format
+  specifier is detected in the raw :target-path"
   [project]
-  (for [target-key (:clean-targets project)]
-    (when-let [target (cond (vector? target-key) (get-in project target-key)
-                            (keyword? target-key) (target-key project)
-                            (string? target-key) target-key)]
-      (flatten [target]))))
+  (if-let [tp (->> project meta :without-profiles :target-path (re-find #"(.*?)/[^/]*%") second)]
+    (assoc project :target-path (if (.isAbsolute (io/file tp))
+                                  tp
+                                  (str (io/file (:root project) tp))))
+    project))
 
 (defn clean
-  "Removes all files from paths in clean-targets for a project, and for all
-  of its profiles."
+  "Removes all files from paths in clean-targets for a project"
   [project]
-  (doseq [targets (->> (project/read-profiles project)
-                       keys
-                       (map vector)
-                       (map (partial project/set-profiles project))
-                       (cons project)
-                       (mapcat clean-targets)
-                       distinct)]
-    (doseq [f targets]
-      (sanity-check project f)
-      (delete-file-recursively f :silently))))
+  (let [project (with-parent-target-path project)]
+    (doseq [target-key (:clean-targets project)]
+      (when-let [target (cond (vector? target-key)  (get-in project target-key)
+                          (keyword? target-key) (target-key project)
+                          (string? target-key)  target-key)]
+        (doseq [f (flatten [target])]
+          (sanity-check project f)
+          (delete-file-recursively f :silently))))))

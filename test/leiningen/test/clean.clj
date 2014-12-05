@@ -2,7 +2,8 @@
   (:use [clojure.test]
         [clojure.java.io :only [file make-parents writer]]
         [leiningen.clean :only [clean]]
-        [leiningen.test.helper :only [sample-project]]))
+        [leiningen.test.helper :only [sample-project]])
+  (:require [leiningen.core.project :as project]))
 
 (def target-1 (:target-path sample-project))
 (def target-2 (str (file (:root sample-project) "target-2")))
@@ -28,9 +29,9 @@
 
 (defn assert-cleaned
   "Asserts that the mock was called for the given target path."
-  [test-path]
-  (is (some #(= test-path (first %)) @delete-calls)
-      (format "delete-files-recursively was not called for %s" test-path)))
+  [path]
+  (is (some (comp #(.startsWith path %) first) @delete-calls)
+      (format "delete-files-recursively was not called for %s" path)))
 
 (defn relative-to-absolute-project-path
   "Converts a relative path to an absolute path within the sample project"
@@ -123,3 +124,19 @@
               :clean-targets ^{:protect false} [test-dir])]
         (clean modified-project)
         (assert-cleaned test-dir)))))
+
+(deftest spliced-target-paths
+  (let [p (-> (project/make {:root "/a/b/c" :target-path "foo/bar/%s"})
+            (project/set-profiles [:dev]))]
+    (is (= "/a/b/c/foo/bar/dev" (:target-path p)))
+    (clean p)
+    (assert-cleaned "/a/b/c/foo/bar/dev")))
+
+(deftest absolute-spliced-target-path
+  (let [p (-> (project/make {:root "/a/b/c"
+                             :target-path "/foo/bar/%s"
+                             :clean-targets ^{:protect false} [:target-path]})
+            (project/set-profiles [:dev]))]
+    (is (= "/foo/bar/dev" (:target-path p)))
+    (clean p)
+    (assert-cleaned "/foo/bar/dev")))
