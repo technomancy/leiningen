@@ -34,7 +34,7 @@
     v))
 
 (defn- merge-alias-meta [task-vector task-name]
-  (merge (select-keys (meta task-vector) [:doc :pass-through-help])
+  (merge (select-keys (meta task-vector) [:pass-through-help])
          (meta task-name)))
 
 (defn lookup-alias

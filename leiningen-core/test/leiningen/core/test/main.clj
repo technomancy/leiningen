@@ -30,7 +30,7 @@
            "a" {:foo true}
            "b" {:bar true}
            "c" {:doc "Yo" :pass-through-help false}
-           "d" {:pass-through-help true :doc "Yo"}))))
+           "d" {:pass-through-help true}))))
 
 (deftest test-task-args-help-pass-through
   (let [project {:aliases {"sirius-p" ["sirius" "partial"]
