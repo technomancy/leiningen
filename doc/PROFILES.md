@@ -145,8 +145,8 @@ replace/displace metadata hints still apply though.
 
 Remember that if a profile with the same name is specified in multiple
 locations, only the profile with the highest "priority" is picked – no merging
-is done. The "priority" is – from highest to lowest – `project.clj`,
-`profiles.clj`, user-wide profiles, and finally system-wide profiles.
+is done. The "priority" is – from highest to lowest – `profiles.clj`,
+`project.clj`, user-wide profiles, and finally system-wide profiles.
 
 If you need to enable personal overrides of parts of a profile, you can use a
 composite profile with common and personal parts - something like `:dev
