@@ -15,6 +15,7 @@
              ["README.md" (render "README.md" data)]
              ["project.clj" (render "project.clj" data)]
              [".gitignore" (render "gitignore" data)]
+             [".hgignore" (render "hgignore" data)]
              ["src/leiningen/new/{{sanitized}}.clj" (render "temp.clj" data)]
              ["resources/leiningen/new/{{sanitized}}/foo.clj" (render "foo.clj")]
              ["LICENSE" (render "LICENSE" data)])))
