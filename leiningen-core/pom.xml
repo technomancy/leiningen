@@ -14,21 +14,27 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/m00nlight/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/m00nlight/leiningen.git</developerConnection>
-    <tag>1f324dad13addb09b3ab54254c0a72a560b7ef78
+    <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
+    <tag>e77db48947ee47e7ee0c1e4b8f5e43764e3aa3b7
 </tag>
-    <url>https://github.com/m00nlight/leiningen</url>
+    <url>https://github.com/technomancy/leiningen</url>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
     <resources>
       <resource>
+        <directory>dev-resources</directory>
+      </resource>
+      <resource>
         <directory>resources</directory>
       </resource>
     </resources>
     <testResources>
+      <testResource>
+        <directory>dev-resources</directory>
+      </testResource>
       <testResource>
         <directory>dev-resources</directory>
       </testResource>
@@ -43,7 +49,7 @@
   <repositories>
     <repository>
       <id>central</id>
-      <url>https://repo1.maven.org/maven2/</url>
+      <url>http://repo1.maven.org/maven2/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -99,6 +105,11 @@
       <version>0.3.1</version>
     </dependency>
     <dependency>
+      <groupId>spyscope</groupId>
+      <artifactId>spyscope</artifactId>
+      <version>0.1.4</version>
+    </dependency>
+    <dependency>
       <groupId>pedantic</groupId>
       <artifactId>pedantic</artifactId>
       <version>0.2.0</version>
@@ -113,7 +124,6 @@
           <artifactId>clojure</artifactId>
         </exclusion>
       </exclusions>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>clojure-complete</groupId>
@@ -125,7 +135,6 @@
           <artifactId>clojure</artifactId>
         </exclusion>
       </exclusions>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
