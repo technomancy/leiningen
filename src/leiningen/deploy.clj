@@ -52,7 +52,9 @@
             password (if console
                        (.readPassword console "%s"  (into-array ["Password: "]))
                        (do
-                         (print "Password(visible): ")
+                         (println "LEIN IS UNABLE TO TURN OFF ECHOING, SO"
+                                  "THE PASSWORD IS PRINTED TO THE CONSOLE")
+                         (print "Password: ")
                          (flush)
                          (read-line)))]
         [id (assoc settings :username username :password password)]))))
