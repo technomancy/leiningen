@@ -1,5 +1,6 @@
 **/target
 *.bak
+*.swp
 *.class
 *asc
 *jar

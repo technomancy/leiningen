@@ -1,3 +1,5 @@
+[Japanese](ja/PLUGINS_ja.md)
+
 # Leiningen Plugins
 
 Leiningen tasks are simply functions named $TASK in a leiningen.$TASK
