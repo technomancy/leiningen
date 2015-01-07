@@ -143,7 +143,7 @@ if NOT "x%HTTP_CLIENT%" == "x" (
 )
 call wget --help >nul 2>&1
 if NOT ERRORLEVEL 1 (
-    call wget --no-check-certificate -O %1 %2
+    call wget -O %1 %2
     goto EOF
 )
 call curl --help >nul 2>&1
@@ -151,7 +151,7 @@ if NOT ERRORLEVEL 1 (
     rem We set CURL_PROXY to a space character below to pose as a no-op argument
     set CURL_PROXY= 
     if NOT "x%HTTPS_PROXY%" == "x" set CURL_PROXY="-x %HTTPS_PROXY%"
-    call curl %CURL_PROXY% --insecure -f -L -o  %1 %2
+    call curl %CURL_PROXY% -f -L -o  %1 %2
     goto EOF
 )
 call powershell -? >nul 2>&1
