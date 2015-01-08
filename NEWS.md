@@ -1,9 +1,15 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.5.1 / ???
+## 2.5.1 / 2015-01-09
 
+* No longer skip certificate checking when upgrading on Windows. (Phil Hagelberg)
+* Fix password prompt for Cygwin users. (Carsten Behring)
+* Fix a bug where `lein pom` did not add the project's SCM URL to pom.xml. (Fredrick Giasson)
+* `lein clean` now cleans up all profile targets. (Jeb Beich, Jim Crossley)
+* The order included profiles are merged in is now retained. (Jim Crossley)
+* Fix a bug preventing `update-in` to use functions not yet required. (Phil Hagelberg)
 * Allow multiple `:repl` profiles. (Hugo Duncan)
-* Fix a bug with aliases and `with-profile`. (Hugo Duncan)
+* Fix an infinite recursion bug with aliases and `with-profile`. (Hugo Duncan)
 * Add flexibility in jar manifest declarations. (Fabio Tudone)
 * Fix a bug preventing extra profiles from being included in jars. (Hugo Duncan)
 * Fix a bug in self-install on Windows. (Sindunata Sudarmaji)
