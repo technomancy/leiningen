@@ -1,7 +1,7 @@
 ;; This is Leiningen's own project configuration. See doc/TUTORIAL.md
 ;; file as well as sample.project.clj for help writing your own.
 
-(defproject leiningen "2.5.1"
+(defproject leiningen "2.5.2-SNAPSHOT"
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
