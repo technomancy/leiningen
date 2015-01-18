@@ -217,7 +217,7 @@
 
 ;;; Custom Release Tasks
   ;; By default `lein release` performs a series of tasks typical of the release
-  ;; process for many leiningen-managed projects. These tasks can be overridden
+  ;; process for many Leiningen-managed projects. These tasks can be overridden
   ;; using `:release-tasks` as follows:
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"
@@ -463,7 +463,7 @@
 ;;; Safety flags
   ;; Indicate whether or not `lein install` should abort when trying to install
   ;; releases. When false, trying to run `lein install` in a project with a version
-  ;; that isn't a snapshot will cause leiningen to abort with a descriptive error
+  ;; that isn't a snapshot will cause Leiningen to abort with a descriptive error
   ;; message.
   :install-releases? false
   ;; Dictate which git branches deploys should be allowed from. When set,
