@@ -276,8 +276,7 @@ propagated to the compilation phase and not stripped out."
   (get-classified-jar-filename project (when uberjar? :standalone)))
 
 (defn get-jar-filename [project & [uberjar?]]
-  (get-jar-filename* (assoc (preprocess-project project)
-                       :uberjar-name (:uberjar-name project)) uberjar?))
+  (get-jar-filename* (preprocess-project project) uberjar?))
 
 (defn build-jar
   "Build a jar for the given project and jar-file."
