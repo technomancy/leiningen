@@ -83,12 +83,14 @@
   (let [opt (str (first opts))]
     (if-let [sx (string-from-file opt)]
       (connect-string project [sx])
-      (as-> (s/split opt #":") x
-            (remove s/blank? x)
-            (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
-                (concat x))
-            (s/join ":" x)
-            (ensure-port x)))))
+      (if (is-uri? opt)
+        opt
+        (as-> (s/split opt #":") x
+              (remove s/blank? x)
+              (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
+                  (concat x))
+              (s/join ":" x)
+              (ensure-port x))))))
 
 (defn options-for-reply [project & {:keys [attach port]}]
   (as-> (:repl-options project) opts

@@ -84,8 +84,12 @@
        ""                         "repl-host:5"
        "7"                        "repl-host:7"
        "myhost:9"                 "myhost:9"
+       "http://localhost"         "http://localhost"
+       "http://localhost/ham"     "http://localhost/ham"
        "http://localhost:20"      "http://localhost:20"
        "http://localhost:20/ham"  "http://localhost:20/ham"
+       "https://localhost"        "https://localhost"
+       "https://localhost/ham"    "https://localhost/ham"
        "https://localhost:20"     "https://localhost:20"
        "https://localhost:20/ham" "https://localhost:20/ham")
   (with-redefs [repl-host (constantly "repl-host")
@@ -96,8 +100,6 @@
          (is (re-find
               #"Port is required"
               (lthelper/abort-msg connect-string proj in)))
-         ["https://localhost/ham"] {:root "/tmp"}
-         ["http://localhost/ham"]  {:root "/tmp"}
          ["foo1234"]               {:root "/tmp"}
          []                        {:root "/tmp"}
          []                        lthelper/with-resources-project)
