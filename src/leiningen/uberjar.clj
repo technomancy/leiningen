@@ -7,7 +7,8 @@
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
             [leiningen.core.utils :as utils]
-            [leiningen.jar :as jar])
+            [leiningen.jar :as jar]
+            [clojure.set :as set])
   (:import (java.io File FileOutputStream PrintWriter)
            (java.util.regex Pattern)
            (java.util.zip ZipFile ZipOutputStream ZipEntry)
@@ -126,7 +127,12 @@ Note: The :uberjar profile is implicitly activated for this task, and cannot
 be deactivated."
 
   ([project main]
-     (let [project (project/merge-profiles project [:uberjar])
+     (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
+           default-profiles (set (project/expand-profile project :default))
+           provided-profiles (remove
+                              (set/difference default-profiles scoped-profiles)
+                              (-> project meta :included-profiles))
+           project (project/merge-profiles (project/merge-profiles project [:uberjar]) provided-profiles)
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))
            [_ jar] (try (first (jar/jar project main))
