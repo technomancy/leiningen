@@ -164,7 +164,7 @@
   (when *pump-in*
     (utils/rebind-io!))
   (let [env (overridden-env *env*)
-        proc (.exec (Runtime/getRuntime) (into-array cmd) env (io/file *dir*))]
+        proc (.exec (Runtime/getRuntime) (into-array String cmd) env (io/file *dir*))]
     (.addShutdownHook (Runtime/getRuntime)
                       (Thread. (fn [] (.destroy proc))))
     (with-open [out (io/reader (.getInputStream proc))
