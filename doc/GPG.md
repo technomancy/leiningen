@@ -251,6 +251,25 @@ ignored.
 
 ## Troubleshooting
 
+### Debian based systems
+
+#### gpg: can't query passphrase in batch mode
+
+```
+gpg: can't query passphrase in batch mode
+gpg: decryption failed: secret key not available
+```
+
+Check your ~/.gnupg/gpg.conf and make sure `use-agent` is not commented.
+
+You can test your gpg.conf with
+
+```
+gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
+```
+
+If the system asked your passphrase then problem solved.
+
 ### Mac OSX
 
 #### Unable to get GPG installed via Homebrew and OSX Keychain to work

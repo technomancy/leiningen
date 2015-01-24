@@ -145,6 +145,21 @@ encrypted it. Due to a bug in `gpg` you currently need to use
 launches, but with `gpg-agent` you only have to enter your passphrase
 periodically; it will keep it cached for a given period.
 
+Remember to uncomment `use-agent` in ~/.gnupg/gpg.conf otherwise you get this error
+
+```
+gpg: can't query passphrase in batch mode
+gpg: decryption failed: secret key not available
+```
+
+You can test your gpg.conf with
+
+```
+gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
+```
+
+If the system asked your passphrase then problem solved.
+
 ### Full-disk Encryption
 
 If you use full-disk encryption, it may be safe to store your
