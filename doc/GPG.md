@@ -255,14 +255,16 @@ ignored.
 
 #### gpg: can't query passphrase in batch mode
 
+If you get this error message:
+
 ```
 gpg: can't query passphrase in batch mode
 gpg: decryption failed: secret key not available
 ```
 
-Check your ~/.gnupg/gpg.conf and make sure `use-agent` is not commented.
+Check your `~/.gnupg/gpg.conf` and make sure `use-agent` is not commented.
 
-You can test your gpg.conf with
+You can test the new configuration with:
 
 ```
 gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
