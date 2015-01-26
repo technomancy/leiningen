@@ -123,7 +123,11 @@
 (defn renderer
   "Create a renderer function that looks for mustache templates in the
   right place given the name of your template. If no data is passed, the
-  file is simply slurped and the content returned unchanged."
+  file is simply slurped and the content returned unchanged.
+  
+  render-fn - Optional rendering function that will be used in place of the
+              default renderer. This allows rendering templates that contain
+              tags that conflic with the Stencil renderer such as {{..}}."
   [name & [render-fn]]
   (let [render (or render-fn render-text)]
     (fn [template & [data]]
