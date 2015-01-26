@@ -251,24 +251,20 @@ ignored.
 
 ## Troubleshooting
 
-### Debian based systems
+### Debian based distributions
 
 #### gpg: can't query passphrase in batch mode
 
-If you get this error message:
+	Could not decrypt credentials from /home/xxx/.lein/credentials.clj.gpg
+	gpg: can't query passphrase in batch mode
+	gpg: decryption failed: secret key not available
 
-```
-gpg: can't query passphrase in batch mode
-gpg: decryption failed: secret key not available
-```
 
-Check your `~/.gnupg/gpg.conf` and make sure `use-agent` is not commented.
+This error happens with gpg 1.4.12. Make sure that you have `use-agent` option explicitly enabled in `~/.gnupg/gpg.conf`. See gpg option list.
 
-You can test the new configuration with:
+You can test whether this solution works with
 
-```
-gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
-```
+	gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
 
 If the system asked your passphrase then problem solved.
 
