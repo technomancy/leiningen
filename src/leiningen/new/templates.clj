@@ -123,15 +123,20 @@
 (defn renderer
   "Create a renderer function that looks for mustache templates in the
   right place given the name of your template. If no data is passed, the
-  file is simply slurped and the content returned unchanged."
-  [name]
-  (fn [template & [data]]
+  file is simply slurped and the content returned unchanged.
+  
+  render-fn - Optional rendering function that will be used in place of the
+              default renderer. This allows rendering templates that contain
+              tags that conflic with the Stencil renderer such as {{..}}."
+  [name & [render-fn]]
+  (let [render (or render-fn render-text)]
+    (fn [template & [data]]
     (let [path (string/join "/" ["leiningen" "new" (sanitize name) template])]
       (if-let [resource (io/resource path)]
         (if data
-          (render-text (slurp-resource resource) data)
+          (render (slurp-resource resource) data)
           (io/reader resource))
-        (main/abort (format "Template resource '%s' not found." path))))))
+        (main/abort (format "Template resource '%s' not found." path)))))))
 
 ;; Our file-generating function, `->files` is very simple. We'd like
 ;; to keep it that way. Sometimes you need your file paths to be
