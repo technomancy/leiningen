@@ -131,12 +131,12 @@
   [name & [render-fn]]
   (let [render (or render-fn render-text)]
     (fn [template & [data]]
-    (let [path (string/join "/" ["leiningen" "new" (sanitize name) template])]
-      (if-let [resource (io/resource path)]
-        (if data
-          (render (slurp-resource resource) data)
-          (io/reader resource))
-        (main/abort (format "Template resource '%s' not found." path)))))))
+      (let [path (string/join "/" ["leiningen" "new" (sanitize name) template])]
+        (if-let [resource (io/resource path)]
+          (if data
+            (render (slurp-resource resource) data)
+            (io/reader resource))
+          (main/abort (format "Template resource '%s' not found." path)))))))
 
 ;; Our file-generating function, `->files` is very simple. We'd like
 ;; to keep it that way. Sometimes you need your file paths to be
