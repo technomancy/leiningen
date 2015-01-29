@@ -21,9 +21,9 @@
   (.replace path "\\" "/"))
 
 (def ^:private default-manifest
-  [["Created-By" (str "Leiningen " (main/leiningen-version))]
-   ["Built-By" (System/getProperty "user.name")]
-   ["Build-Jdk" (System/getProperty "java.version")]])
+  {"Created-By" (str "Leiningen " (main/leiningen-version))
+   "Built-By" (System/getProperty "user.name")
+   "Build-Jdk" (System/getProperty "java.version")})
 
 (declare ^:private manifest-entry)
 
@@ -51,14 +51,15 @@
     (seq mf)))
 
 (defn ^:internal make-manifest [project]
-  (let [initial-mf
-        (concat (if (get (:manifest project) "Main-Class")
-                  default-manifest
-                  (conj default-manifest
-                        ["Main-Class"
-                         (munge (str (:main project 'clojure.main)))]))
-                (manifest-map-to-reordered-seq (:manifest project)))]
-    (->> initial-mf
+  (let [project-manifest (into {} (:manifest project))]
+    (->> project-manifest
+         (merge
+           (if (get project-manifest "Main-Class")
+             default-manifest
+             (assoc default-manifest
+               "Main-Class"
+               (munge (str (:main project 'clojure.main))))))
+         manifest-map-to-reordered-seq
          (manifest-entries project)
          (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
          (string/join "")
