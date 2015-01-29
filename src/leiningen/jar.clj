@@ -43,25 +43,27 @@
                    (string/join "\n ")  ;; Manifest spec says join with "\n "
                    (format "%s\n"))))
 
-(defn- manifest-map-to-reordered-seq [mf]
-  (sort
-    (comparator
-      (fn [e1 e2]
-        (not (coll? (second e1)))))
-    (seq mf)))
+(defn- place-sections-last
+  "Places sections at the end of the manifest seq, as specified by the
+  Manifest spec. Retains ordering otherwise (if mf is ordered)."
+  [mf]
+  (sort-by val (fn [v1 v2]
+                 (and (not (coll? v1)) (coll? v2)))
+           (seq mf)))
 
 (defn ^:internal make-manifest [project]
-  (let [project-manifest (into {} (:manifest project))]
-    (->> project-manifest
-         (merge
-           (if (get project-manifest "Main-Class")
-             default-manifest
-             (assoc default-manifest
-               "Main-Class"
-               (munge (str (:main project 'clojure.main))))))
-         manifest-map-to-reordered-seq
+  (let [project-manifest (into {} (:manifest project))
+        default-manifest' (cond-> default-manifest
+                            ;; Add default "Main-Class" only if :main is not
+                            ;; explicitly set to nil
+                            (:main project :not-found)
+                            (assoc "Main-Class"
+                                   (munge (str (:main project 'clojure.main)))))]
+    (->> (merge default-manifest' project-manifest)
+         ;; manifest's "Main-Class" always overrides default "Main-Class"
+         place-sections-last
          (manifest-entries project)
-         (cons "Manifest-Version: 1.0\n")  ;; Manifest-Version line must be first
+         (cons "Manifest-Version: 1.0\n") ;; Manifest-Version line must be first
          (string/join "")
          .getBytes
          ByteArrayInputStream.
