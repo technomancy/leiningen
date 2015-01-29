@@ -56,7 +56,7 @@
 
            ;; If we didn't succeed above, check if a class exists for
            ;; the given name
-           class#
+           ^Class class#
            (when-not (= :var ns-flag#)
              (try (Class/forName ~(name given))
                   (catch ClassNotFoundException _#)))]
