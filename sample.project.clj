@@ -469,7 +469,15 @@
   ;; Dictate which git branches deploys should be allowed from. When set,
   ;; `lein deploy` will only work from the git branches included and will
   ;; abort otherwise.
-  :deploy-branches ["master"])
+  :deploy-branches ["master"]
+
+;;; Artifact Classifers Installation
+  ;; Option to install classified maven artifacts. A map where keys
+  ;; indicate the classifier name.
+  :classifiers {;; If the value is a map it is merged like a profile
+                :tests {:source-paths ^:replace ["test"]}
+                ;; If a keyword it is looked up from :profiles
+                :classy :my-profile})
 
 ;;; Environment Variables used by Leiningen
 
