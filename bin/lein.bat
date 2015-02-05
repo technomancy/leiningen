@@ -156,7 +156,7 @@ if NOT ERRORLEVEL 1 (
 )
 call powershell -? >nul 2>&1
 if NOT ERRORLEVEL 1 (
-    powershell -Command "& {param($a,$f) (new-object System.Net.WebClient).DownloadFile($a, $f)}" ""%2"" ""%1""
+    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
     goto EOF
 )
 goto NO_HTTP_CLIENT
