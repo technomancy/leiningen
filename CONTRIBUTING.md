@@ -48,14 +48,20 @@ private but shouldn't be considered part of the public API.
 ## Bootstrapping
 
 You don't need to "build" Leiningen per se, but when you're developing on a
-checkout you will need to get its dependencies in place. Just use a stable
-release of Leiningen to run `lein bootstrap` (an alias for `lein do install,
-classpath .lein-bootstrap`) in the `leiningen-core` directory. If you want to
-use or develop the `search` functionality on master, you also have to run `lein
-compile` in the root (`leiningen`) directory.
+checkout you will need to get its dependencies in place and compile some of the
+tasks. Assuming you are in Leiningen's project root, you can do that like this:
 
-If you don't have a stable `lein` installed, simply check out the
-`stable` branch and copy `bin/lein` to somewhere on your `$PATH`, then
+```bash
+$ cd leiningen-core
+$ lein bootstrap
+$ cd ..
+$ bin/lein compile
+## or the bat file on Windows.
+```
+
+The `lein` command is a stable release of Leiningen on your `$PATH` – preferably
+the newest one. If you don't have a stable `lein` installed, simply check out
+the `stable` branch and copy `bin/lein` to somewhere on your `$PATH`, then
 switch your branch back.
 
 If you want to use your development copy for everyday usage, symlink
@@ -64,13 +70,32 @@ stable installation to keep them from interfering; typically you can
 name that `lein2` or `lein-stable`.
 
 When dependencies in Leiningen change, you may have to do `rm .lein-classpath`
-in the project root, though in most cases this can be done automatically. If
+in the project root, though in most cases this will be done automatically. If
 dependencies in leiningen-core change, you have to redo the `lein bootstrap`
 step mentioned earlier.
 
 Using `bin/lein` alone from the master branch without a full checkout
 is not supported. If you want to just grab a shell script to work
 with, use the `stable` branch.
+
+### Uberjar from Master
+
+Since a development version is not uberjared, it can be rather slow compared to
+a stable release. If this is annoying and you depend on a recent fix or
+enhancement, you can build an uberjar from master as follows:
+
+```bash
+$ bin/lein uberjar
+# The last line should contain the location of the standalone.
+$ cp target/leiningen-2.5.2-SNAPSHOT-standalone.jar $HOME/.lein/self-installs
+$ cp bin/lein $HOME/bin/lein-master
+```
+
+Here, 2.5.2-SNAPSHOT is the version we've built, and we have `$HOME/bin` on our
+$PATH.
+
+Note that changes on master won't be visible in the uberjared version unless you
+overwrite both the lein script and a freshly created uberjar.
 
 ## Tests
 
