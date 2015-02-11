@@ -141,6 +141,11 @@ if NOT "x%HTTP_CLIENT%" == "x" (
     %HTTP_CLIENT% %1 %2
     goto EOF
 )
+call powershell -? >nul 2>&1
+if NOT ERRORLEVEL 1 (
+    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
+    goto EOF
+)
 call wget --help >nul 2>&1
 if NOT ERRORLEVEL 1 (
     call wget -O %1 %2
@@ -152,11 +157,6 @@ if NOT ERRORLEVEL 1 (
     set CURL_PROXY= 
     if NOT "x%HTTPS_PROXY%" == "x" set CURL_PROXY="-x %HTTPS_PROXY%"
     call curl %CURL_PROXY% -f -L -o  %1 %2
-    goto EOF
-)
-call powershell -? >nul 2>&1
-if NOT ERRORLEVEL 1 (
-    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
     goto EOF
 )
 goto NO_HTTP_CLIENT
