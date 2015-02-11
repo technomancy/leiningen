@@ -203,6 +203,17 @@ goto EOF
 :DOWNLOAD_FAILED
 echo.
 echo Failed to download %LEIN_JAR_URL%
+echo .
+echo It is possible that the download failed due to "curl", 
+echo "wget" or "powershell" inability to retreive GitHub's certificate.
+echo .
+echo If it is the case, then try to remove the option 
+echo ("powershell", "curl" or "wget") that 
+echo fails from your PATH and retry running "lein upgrade". 
+echo Leiningen will try one of the remaining options to download
+echo the latest version from GitHub.
+echo .
+echo Reiterate the process if the second option fails as well.
 if %SNAPSHOT% == YES echo See README.md for SNAPSHOT build instructions.
 echo.
 goto EOF
