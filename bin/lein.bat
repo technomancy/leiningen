@@ -136,27 +136,31 @@ if "x%JVM_OPTS%" == "x" set JVM_OPTS=%JAVA_OPTS%
 goto RUN
 
 :DownloadFile
+set LAST_HTTP_CLIENT=
 rem parameters: TargetFileName Address
 if NOT "x%HTTP_CLIENT%" == "x" (
     %HTTP_CLIENT% %1 %2
     goto EOF
 )
+call powershell -? >nul 2>&1
+if NOT ERRORLEVEL 1 (
+    set LAST_HTTP_CLIENT=powershell
+    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
+    goto EOF
+)
 call wget --help >nul 2>&1
 if NOT ERRORLEVEL 1 (
+    set LAST_HTTP_CLIENT=wget
     call wget -O %1 %2
     goto EOF
 )
 call curl --help >nul 2>&1
 if NOT ERRORLEVEL 1 (
     rem We set CURL_PROXY to a space character below to pose as a no-op argument
+    set LAST_HTTP_CLIENT=curl
     set CURL_PROXY= 
     if NOT "x%HTTPS_PROXY%" == "x" set CURL_PROXY="-x %HTTPS_PROXY%"
     call curl %CURL_PROXY% -f -L -o  %1 %2
-    goto EOF
-)
-call powershell -? >nul 2>&1
-if NOT ERRORLEVEL 1 (
-    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
     goto EOF
 )
 goto NO_HTTP_CLIENT
@@ -203,6 +207,54 @@ goto EOF
 :DOWNLOAD_FAILED
 echo.
 echo Failed to download %LEIN_JAR_URL%
+echo.
+echo It is possible that the download failed due to "powershell", 
+echo "curl" or "wget" inability to retreive GitHub's security certificate.
+echo.
+
+if "%LAST_HTTP_CLIENT%" == "powershell" (
+  echo The PowerShell failed to download the latest Leiningen version.
+  echo Try to use "curl" or "wget" to download Leiningen by seting up
+  echo the HTTP_CLIENT environment variable with one of the folowing 
+  echo values:
+  echo.
+  echo "  a) set HTTP_CLIENT=wget --no-check-certificate -O"
+  echo "  b) set HTTP_CLIENT=curl -f -L -k -o"
+  echo.
+  echo NOTE: make sure *not* to add double quotes to set the value of 
+  echo       HTTP_CLIENT
+)
+
+if "%LAST_HTTP_CLIENT%" == "curl" (
+  echo Curl failed to download the latest Leiningen version.
+  echo Try to use "wget" to download Leiningen by seting up
+  echo the HTTP_CLIENT environment variable with one of the folowing 
+  echo values:
+  echo.
+  echo "  a) set HTTP_CLIENT=wget --no-check-certificate -O"
+  echo.
+  echo NOTE: make sure *not* to add double quotes to set the value of 
+  echo       HTTP_CLIENT
+  echo. 
+  echo If neither curl nor wget can download Leiningen, the please
+  echo seek for help on Leiningen's GitHub project issues page.
+)
+
+if "%LAST_HTTP_CLIENT%" == "wget" (
+  echo Curl failed to download the latest Leiningen version.
+  echo Try to use "wget" to download Leiningen by seting up
+  echo the HTTP_CLIENT environment variable with one of the folowing 
+  echo values:
+  echo.
+  echo. "  a) set HTTP_CLIENT=curl -f -L -k -o"
+  echo.
+  echo NOTE: make sure *not* to add double quotes to set the value of 
+  echo       HTTP_CLIENT
+  echo. 
+  echo If neither curl nor wget can download Leiningen, the please
+  echo seek for help on Leiningen's GitHub project issues page.
+)
+
 if %SNAPSHOT% == YES echo See README.md for SNAPSHOT build instructions.
 echo.
 goto EOF
