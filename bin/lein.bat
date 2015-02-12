@@ -209,41 +209,43 @@ echo.
 echo Failed to download %LEIN_JAR_URL%
 echo.
 echo It is possible that the download failed due to "powershell", 
-echo "curl" or "wget" inability to retreive GitHub's security certificate.
+echo "curl" or "wget"'s inability to retreive GitHub's security certificate.
+echo The suggestions below do not check certificates, so use this only if
+echo you understand the security implications of not doing so.
 echo.
 
 if "%LAST_HTTP_CLIENT%" == "powershell" (
   echo The PowerShell failed to download the latest Leiningen version.
-  echo Try to use "curl" or "wget" to download Leiningen by seting up
-  echo the HTTP_CLIENT environment variable with one of the folowing 
+  echo Try to use "curl" or "wget" to download Leiningen by setting up
+  echo the HTTP_CLIENT environment variable with one of the following 
   echo values:
   echo.
   echo "  a) set HTTP_CLIENT=wget --no-check-certificate -O"
   echo "  b) set HTTP_CLIENT=curl -f -L -k -o"
   echo.
-  echo NOTE: make sure *not* to add double quotes to set the value of 
-  echo       HTTP_CLIENT
+  echo NOTE: Make sure to *not* add double quotes when setting the value
+  echo       of HTTP_CLIENT
 )
 
 if "%LAST_HTTP_CLIENT%" == "curl" (
   echo Curl failed to download the latest Leiningen version.
-  echo Try to use "wget" to download Leiningen by seting up
-  echo the HTTP_CLIENT environment variable with one of the folowing 
+  echo Try to use "wget" to download Leiningen by setting up
+  echo the HTTP_CLIENT environment variable with one of the following 
   echo values:
   echo.
   echo "  a) set HTTP_CLIENT=wget --no-check-certificate -O"
   echo.
-  echo NOTE: make sure *not* to add double quotes to set the value of 
-  echo       HTTP_CLIENT
+  echo NOTE: Make sure to *not* add double quotes when setting the value
+  echo       of HTTP_CLIENT
   echo. 
-  echo If neither curl nor wget can download Leiningen, the please
-  echo seek for help on Leiningen's GitHub project issues page.
+  echo If neither curl nor wget can download Leiningen, please seek
+  echo for help on Leiningen's GitHub project issues page.
 )
 
 if "%LAST_HTTP_CLIENT%" == "wget" (
   echo Curl failed to download the latest Leiningen version.
-  echo Try to use "wget" to download Leiningen by seting up
-  echo the HTTP_CLIENT environment variable with one of the folowing 
+  echo Try to use "wget" to download Leiningen by setting up
+  echo the HTTP_CLIENT environment variable with one of the following 
   echo values:
   echo.
   echo. "  a) set HTTP_CLIENT=curl -f -L -k -o"
@@ -251,8 +253,8 @@ if "%LAST_HTTP_CLIENT%" == "wget" (
   echo NOTE: make sure *not* to add double quotes to set the value of 
   echo       HTTP_CLIENT
   echo. 
-  echo If neither curl nor wget can download Leiningen, the please
-  echo seek for help on Leiningen's GitHub project issues page.
+  echo If neither curl nor wget can download Leiningen, please seek
+  echo for help on Leiningen's GitHub project issues page.
 )
 
 if %SNAPSHOT% == YES echo See README.md for SNAPSHOT build instructions.
