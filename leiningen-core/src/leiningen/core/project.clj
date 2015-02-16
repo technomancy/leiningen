@@ -469,6 +469,7 @@
     ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"
      "-XX:-OmitStackTraceInFastThrow"] []))
 
+
 (def default-profiles
   "Profiles get merged into the project map. The :dev, :provided, and :user
   profiles are active by default."
@@ -952,3 +953,27 @@ Also initializes the project; see read-raw for a version that skips init."
   ([file profiles] (init-project (read-raw file) profiles))
   ([file] (read file [:default]))
   ([] (read "project.clj")))
+
+;; Basically just for re-throwing a more comprehensible error.
+(defn- read-dependency-project [project-file]
+  (if (.exists project-file)
+    (let [project (.getAbsolutePath project-file)]
+      (try (read project)
+           (catch Exception e
+             (throw (Exception. (format "Problem loading %s" project) e)))))
+    (warn "WARN ignoring checkouts directory" (.getParent project-file)
+             "as it does not contain a project.clj file.")))
+
+(alter-var-root #'read-dependency-project memoize)
+
+(defn read-checkouts
+  "Checkout dependencies are used to place source for a dependency
+  project directly on the classpath rather than having to install the
+  dependency and restart the dependent project."
+  [project]
+  (for [dep (.listFiles (io/file (:root project) "checkouts"))
+        :let [project-file (io/file dep "project.clj")
+              checkout-project (read-dependency-project project-file)]
+        :when checkout-project]
+    checkout-project))
+

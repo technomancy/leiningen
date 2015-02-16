@@ -415,6 +415,10 @@
 (deftest test-middleware
   (is (= 7 (:seven (init-project (read (.getFile (io/resource "p2.clj"))))))))
 
+(deftest test-checkouts
+  (let [project (read (.getFile (io/resource "p1.clj")))]
+    (is (= #{"checkout-lib1" "checkout-lib2"} (set (map :name (read-checkouts project)))))))
+
 (deftest test-activate-middleware
   (let [errors (atom [])]
     (with-redefs [utils/error (fn [& args] (swap! errors conj args))]

@@ -16,36 +16,6 @@
   (require 'leiningen.core.main)
   (apply (resolve 'leiningen.core.main/warn) args))
 
-;; Basically just for re-throwing a more comprehensible error.
-(defn- read-dependency-project [root dep]
-  (let [project-file (io/file root "checkouts" dep "project.clj")]
-    (if (.exists project-file)
-      (let [project (.getAbsolutePath project-file)]
-        ;; TODO 3.0: core.project and core.classpath currently rely upon each other *uk*
-        (require 'leiningen.core.project)
-        (try ((resolve 'leiningen.core.project/read) project)
-             (catch Exception e
-               (throw (Exception. (format "Problem loading %s" project) e)))))
-      (warn "WARN ignoring checkouts directory" dep
-               "as it does not contain a project.clj file."))))
-
-(alter-var-root #'read-dependency-project memoize)
-
-(defn- checkout-dep-paths [project dep-project]
-  ;; can't mapcat here since :checkout-deps-shares points to vectors and strings
-  (flatten (map #(% dep-project) (:checkout-deps-shares project))))
-
-(defn ^:internal checkout-deps-paths
-  "Checkout dependencies are used to place source for a dependency
-  project directly on the classpath rather than having to install the
-  dependency and restart the dependent project."
-  [project]
-  (apply concat (for [dep (.list (io/file (:root project) "checkouts"))
-                      :let [dep-project (read-dependency-project
-                                         (:root project) dep)]
-                      :when dep-project]
-                  (checkout-dep-paths project dep-project))))
-
 (defn extract-native-deps [files native-path native-prefixes]
   (doseq [file files
           :let [native-prefix (get native-prefixes file "native/")
@@ -393,6 +363,20 @@
         (assoc project :dependencies)
         (resolve-dependencies :dependencies)
         (map (memfn getAbsolutePath)))))
+
+(defn ^:internal checkout-deps-paths
+  [project]
+  (require 'leiningen.core.project)
+  (try
+    (let [checkout-paths (:checkout-deps-shares project)
+          checkouts ((resolve 'leiningen.core.project/read-checkouts) project)]
+      (mapcat (fn [checkout]
+                ;; can't mapcat here since :checkout-deps-shares points to
+                ;; vectors and strings
+                (flatten (map #(% checkout) checkout-paths)))
+              checkouts))
+    (catch Exception e
+      (throw (Exception. (format "Problem loading %s checkouts" project) e)))))
 
 (defn get-classpath
   "Return the classpath for project as a list of strings."
