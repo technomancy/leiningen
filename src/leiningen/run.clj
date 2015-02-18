@@ -14,71 +14,84 @@
     (symbol given)
     (symbol (name given) "-main")))
 
+(defn- invocation? [arg]
+  (and (list? arg)
+       (or (symbol? (first arg))
+           (invocation? (first arg)))))
+
+(defn- normalize-arg [arg]
+  (if (and (list? arg)
+           (not (invocation? arg)))
+    (vec arg)
+    arg))
+
 ;; TODO: get rid of this in 3.0
 (defn run-form
   "Construct a form to run the given main defn or class with arguments."
   [given args]
-  `(binding [*command-line-args* '~args]
-     ;;
-     ;; Some complicated error-handling logic here to support main
-     ;; being either a namespace or a class.
-     ;;
-     ;; The use case that prompted this complexity is that if we
-     ;; have a namespace such as:
-     ;;
-     ;;   (ns foo.main
-     ;;     (:require does.not.exist))
-     ;;
-     ;; and we do a `lein run -m foo.main`, we will get a
-     ;; FileNotFoundException, but NOT because foo.main doesn't
-     ;; exist. So we want to make sure that error propogates
-     ;; up in the event that the class doesn't exist as well.
-     ;; But we still have to try the class first because it's
-     ;; not easy to distinguish the above case from the case
-     ;; when foo.main is a class and not a namespace at all.
-     ;;
-     ;; This would be a lot simpler if we weren't trying to
-     ;; transparently support both namespaces and classes specified in
-     ;; the same way.
-     ;;
+  (let [args (map normalize-arg args)]
+    `(binding [*command-line-args* '~args]
+       ;;
+       ;; Some complicated error-handling logic here to support main
+       ;; being either a namespace or a class.
+       ;;
+       ;; The use case that prompted this complexity is that if we
+       ;; have a namespace such as:
+       ;;
+       ;;   (ns foo.main
+       ;;     (:require does.not.exist))
+       ;;
+       ;; and we do a `lein run -m foo.main`, we will get a
+       ;; FileNotFoundException, but NOT because foo.main doesn't
+       ;; exist. So we want to make sure that error propogates
+       ;; up in the event that the class doesn't exist as well.
+       ;; But we still have to try the class first because it's
+       ;; not easy to distinguish the above case from the case
+       ;; when foo.main is a class and not a namespace at all.
+       ;;
+       ;; This would be a lot simpler if we weren't trying to
+       ;; transparently support both namespaces and classes specified in
+       ;; the same way.
+       ;;
 
-     ;; Try to require the namespace and run the appropriate var,
-     ;; noting what happened.
-     (let [[ns-flag# data#]
-           (try (require '~(symbol (namespace
-                                    (normalize-main given))))
-                (let [v# (resolve '~(normalize-main given))]
-                  (if (ifn? v#)
-                    [:var v#]
-                    [:not-found]))
-                (catch FileNotFoundException e#
-                  [:threw e#]))
+       ;; Try to require the namespace and run the appropriate var,
+       ;; noting what happened.
+       (let [[ns-flag# data#]
+             (try (require '~(symbol (namespace
+                                      (normalize-main given))))
+                  (let [v# (resolve '~(normalize-main given))]
+                    (if (ifn? v#)
+                      [:var v#]
+                      [:not-found]))
+                  (catch FileNotFoundException e#
+                    [:threw e#]))
 
-           ;; If we didn't succeed above, check if a class exists for
-           ;; the given name
-           ^Class class#
-           (when-not (= :var ns-flag#)
-             (try (Class/forName ~(name given))
-                  (catch ClassNotFoundException _#)))]
-       (cond
-        (= :var ns-flag#) (data# ~@args)
+             ;; If we didn't succeed above, check if a class exists for
+             ;; the given name
+             ^Class class#
+             (when-not (= :var ns-flag#)
+               (try (Class/forName ~(name given))
+                    (catch ClassNotFoundException _#)))]
+         (cond
+           (= :var ns-flag#)
+           (data# ~@args)
 
-        ;; If the class exists, run its main method.
-        class#
-        (Reflector/invokeStaticMethod
-         class# "main" (into-array [(into-array String '~args)]))
+           ;; If the class exists, run its main method.
+           class#
+           (Reflector/invokeStaticMethod
+            class# "main" (into-array [(into-array String '~args)]))
 
-        ;; If the symbol didn't resolve, give a reasonable message
-        (= :not-found ns-flag#)
-        (throw (Exception. ~(str "Cannot find anything to run for: " (name given))))
+           ;; If the symbol didn't resolve, give a reasonable message
+           (= :not-found ns-flag#)
+           (throw (Exception. ~(str "Cannot find anything to run for: " (name given))))
 
-        ;; If we got an exception earlier and nothing else worked,
-        ;; rethrow that.
-        (= :threw ns-flag#)
-        (do (binding [*out* *err*]
-              (println (str "Can't find '" '~given "' as .class or .clj for "
-                            "lein run: please check the spelling.")))
-            (throw data#))))))
+           ;; If we got an exception earlier and nothing else worked,
+           ;; rethrow that.
+           (= :threw ns-flag#)
+           (do (binding [*out* *err*]
+                 (println (str "Can't find '" '~given "' as .class or .clj for "
+                               "lein run: please check the spelling.")))
+               (throw data#)))))))
 
 (defn- run-main
   "Loads the project namespaces as well as all its dependencies and then calls
