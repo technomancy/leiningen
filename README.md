@@ -7,7 +7,7 @@
 > fight&mdash;they're an elemental&mdash;an 'act of God!' Ten miles long, two
 > miles wide&mdash;ants, nothing but ants! And every single one of them a
 > fiend from hell..."
-> - from Leiningen Versus the Ants by Carl Stephenson
+> - from [Leiningen Versus the Ants](http://www.classicshorts.com/stories/lvta.html) by Carl Stephenson
 
 Leiningen is for automating Clojure projects without setting your hair on fire.
 
