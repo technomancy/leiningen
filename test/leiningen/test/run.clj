@@ -10,6 +10,23 @@
 
 (def out-file (format "%s/lein-test" tmp-dir))
 
+(deftest test-arg-map
+  (let [parse-args #'leiningen.run/parse-args]
+    (is (= (:main (parse-args ["-m" "my-main"]))
+           "my-main"))
+    (is (= ((juxt :main :args) (parse-args ["-m" "my-main" "-m" "foo"]))
+           ["my-main" ["-m" "foo"]]))
+    (is (= (:arg-conversion (parse-args ["-m" "my-main"]))
+           :stringify))
+    (is (= (:arg-conversion (parse-args ["-m" "my-main" "--quote-args"]))
+           :quote))
+    (is (= (:arg-conversion (parse-args ["--quote-args" "-m" "my-main"]))
+           :quote))
+    (is (= (:args (parse-args ["--" "--quote-args" "-m" "my-main"]))
+           ["--quote-args" "-m" "my-main"]))
+    (is (= (:args (parse-args ["--" "--" "-m" "my-main"]))
+           ["--" "-m" "my-main"]))))
+
 (use-fixtures :each (fn [f]
                       (f)
                       (io/delete-file out-file :silently)))
