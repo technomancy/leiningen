@@ -48,10 +48,10 @@ If you don't already have a server running,
 you can deploy to S3 buckets using the
 [S3 wagon private](https://github.com/technomancy/s3-wagon-private) plugin.
 
-### Nexus/Archiva
+### Artifactory/Nexus/Archiva
 
 The most full-featured and complex route is to run a full-fledged
-repository manager. Both [Archiva](http://archiva.apache.org/) and
+repository manager. Both [Artifactory](http://www.jfrog.com/open-source/#os-arti), [Archiva](http://archiva.apache.org/) and
 [Nexus](http://nexus.sonatype.org/) provide this. They also proxy to
 other repositories, so you can set `^:replace` metadata on
 `:repositories` in project.clj, and dependency downloads will speed up
@@ -59,7 +59,7 @@ by quite a bit since Clojars and Maven Central won't need to be
 checked.
 
 The private server will need to be added to the `:repositories`
-listing in project.clj. Archiva and Nexus offer separate repositories
+listing in project.clj. Artifactory, Archiva and Nexus offer separate repositories
 for snapshots and releases, so you'll want two entries for them:
 
 ```clj
