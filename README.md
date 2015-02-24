@@ -124,7 +124,7 @@ explains how to write plugins.
 
 ## License
 
-Source Copyright © 2009-2014 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+Source Copyright © 2009-2015 Phil Hagelberg, Alex Osborne, Dan Larkin, and
 [contributors](https://github.com/technomancy/leiningen/contributors). 
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.
