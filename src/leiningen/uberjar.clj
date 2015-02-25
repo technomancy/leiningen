@@ -8,6 +8,7 @@
             [leiningen.core.main :as main]
             [leiningen.core.utils :as utils]
             [leiningen.jar :as jar]
+            [leiningen.pom :as pom]
             [clojure.set :as set])
   (:import (java.io File FileOutputStream PrintWriter)
            (java.util.regex Pattern)
@@ -133,6 +134,7 @@ be deactivated."
                               (set/difference default-profiles scoped-profiles)
                               (-> project meta :included-profiles))
            project (project/merge-profiles (project/merge-profiles project [:uberjar]) provided-profiles)
+           _ #_ (bail early if snapshot) (pom/check-for-snapshot-deps project)
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))
            [_ jar] (try (first (jar/jar project main))
