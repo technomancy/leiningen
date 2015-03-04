@@ -280,7 +280,7 @@ create a directory called `checkouts` in the project root, like so:
         `-- my_stuff
             `-- core_test.clj
 
-Then, under the checkouts directory, create symlinks to projects you need.
+Then, under the checkouts directory, create symlinks to projects you need. Symlinks should be absolute, not relative.
 
     .
     |-- project.clj
