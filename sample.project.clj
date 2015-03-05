@@ -238,7 +238,7 @@
   ;; other Java interop functionality. Put a regex here to compile all
   ;; namespaces whose names match. If you only need AOT for an uberjar
   ;; gen-class, put `:aot :all` in the :uberjar profile and see :target-path for
-  ;; how to enable profile-baset target isolation.
+  ;; how to enable profile-based target isolation.
   :aot [org.example.sample]
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
