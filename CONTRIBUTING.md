@@ -21,7 +21,8 @@ contributors looking to help out are tagged "newbie".
 Patches are preferred as patches from `git format-patch` on the
 mailing list or as GitHub pull requests. Please use topic branches
 when sending pull requests rather than committing directly to master
-in order to minimize unnecessary merge commit clutter.
+in order to minimize unnecessary merge commit clutter. Direct pull
+requests towards the master branch, not the stable branch.
 
 Leiningen is [mirrored at Gitorious](https://gitorious.org/leiningen/leiningen)
 and [tested on Travis](http://travis-ci.org/technomancy/leiningen).
