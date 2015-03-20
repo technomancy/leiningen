@@ -4,7 +4,8 @@
             [clojure.java.io :as io]
             [leiningen.test.helper :as helper
              :refer [bad-require-project tmp-dir tricky-name-project
-                     java-main-project file-not-found-thrower-project]])
+                     java-main-project file-not-found-thrower-project
+                     with-system-out-str with-system-err-str]])
   (:use [clojure.test]
         [leiningen.run]))
 
@@ -45,10 +46,9 @@
 
 (deftest test-nonexistant-ns-error-message
   (is (re-find #"Can't find 'nonexistant.ns' as \.class or \.clj for lein run"
-               (with-out-str
-                 (binding [*err* *out*]
-                   (try (run tricky-name-project "-m" "nonexistant.ns")
-                        (catch Exception _)))))))
+               (with-system-err-str
+                 (try (run tricky-name-project "-m" "nonexistant.ns")
+                      (catch Exception _))))))
 
 (deftest test-escape-args
   (run tricky-name-project "--" ":bbb")
@@ -57,31 +57,29 @@
   (is (= "nom:-m" (slurp out-file))))
 
 (deftest test-bad-require-error-msg
-  (let [sw (java.io.StringWriter.)]
-    (binding [*err* sw]
-      (try (run bad-require-project)
-           (catch clojure.lang.ExceptionInfo e nil)))
-    (let [e-msg (str sw)]
-      ;; Don't throw the old ClassNotFoundException
-      (is (not (re-find #"ClassNotFoundException: bad-require.core" e-msg)))
-      ;; Do show a relevant error message
-      (is (re-find #"FileNotFoundException" e-msg))
-      (is (re-find #"this/namespace/does/not/exist.clj" e-msg)))))
+  (let [e-msg (with-system-err-str
+                (try (run bad-require-project)
+                     (catch clojure.lang.ExceptionInfo e nil)))]
+    ;; Don't throw the old ClassNotFoundException
+    (is (not (re-find #"ClassNotFoundException: bad-require.core" e-msg)))
+    ;; Do show a relevant error message
+    (is (re-find #"FileNotFoundException" e-msg))
+    (is (re-find #"this/namespace/does/not/exist.clj" e-msg))))
 
 (deftest test-run-java-main
   (leiningen.javac/javac java-main-project)
-  (let [out-result (with-out-str (run java-main-project))]
+  (let [out-result (with-system-out-str (run java-main-project))]
     (is (= (.trim out-result) ;; To avoid os-specific newline handling
             "Hello from Java!"))))
 
 ;; Regression test for https://github.com/technomancy/leiningen/issues/1469
 (deftest file-not-found-exception-test
-  (let [sw (java.io.StringWriter.)]
-    (binding [*err* sw]
-      (try (run file-not-found-thrower-project "-m" "file-not-found-thrower.core")
-           (catch clojure.lang.ExceptionInfo e nil))
-      ;; testing that the true exception is printed immediately and
-      ;; the inappropriate error message "Can't find
-      ;; 'file-not-found-thrower.core' as .class or .clj for lein run:
-      ;; please check the spelling." is not
-      (is (.startsWith (str sw) "Exception in thread \"main\" java.io.FileNotFoundException")))))
+  (let [s (with-system-err-str
+            (try (run file-not-found-thrower-project
+                   "-m" "file-not-found-thrower.core")
+                 (catch clojure.lang.ExceptionInfo e nil)))]
+    ;; testing that the true exception is printed immediately and
+    ;; the inappropriate error message "Can't find
+    ;; 'file-not-found-thrower.core' as .class or .clj for lein run:
+    ;; please check the spelling." is not
+    (is (.startsWith s "Exception in thread \"main\" java.io.FileNotFoundException"))))

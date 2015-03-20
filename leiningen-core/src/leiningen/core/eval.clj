@@ -167,11 +167,11 @@
         proc (.exec (Runtime/getRuntime) (into-array String cmd) env (io/file *dir*))]
     (.addShutdownHook (Runtime/getRuntime)
                       (Thread. (fn [] (.destroy proc))))
-    (with-open [out (io/reader (.getInputStream proc))
-                err (io/reader (.getErrorStream proc))
+    (with-open [out (.getInputStream proc)
+                err (.getErrorStream proc)
                 in (.getOutputStream proc)]
-      (let [pump-out (doto (Pipe. out *out*) .start)
-            pump-err (doto (Pipe. err *err*) .start)
+      (let [pump-out (doto (Pipe. out System/out) .start)
+            pump-err (doto (Pipe. err System/err) .start)
             ;; TODO: this prevents nrepl need-input msgs from being propagated
             ;; in the case of connecting to Leiningen over nREPL.
             pump-in (ClosingPipe. System/in in)]

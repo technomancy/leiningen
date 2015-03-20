@@ -7,7 +7,8 @@
         [leiningen.test.helper :only [sample-project delete-file-recursively
                                       sample-failing-project
                                       tricky-name-project
-                                      more-gen-classes-project]])
+                                      more-gen-classes-project
+                                      with-system-err-str]])
   (:require [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]))
 
@@ -86,12 +87,11 @@
 
 (deftest bad-aot-test
   (is (re-find #"does\.not\.exist|does\/not\/exist"
-               (with-out-str
-                 (binding [*err* *out*]
-                   (try
-                     (compile (assoc sample-project
-                                :aot '[does.not.exist]))
-                     (catch clojure.lang.ExceptionInfo _)))))))
+               (with-system-err-str
+                 (try
+                   (compile (assoc sample-project
+                                   :aot '[does.not.exist]))
+                   (catch clojure.lang.ExceptionInfo _))))))
 
 (deftest compilation-specs-tests
   (is (= '[foo bar] (compilation-specs ["foo" "bar"])))

@@ -3,7 +3,8 @@
   (:require [clojure.test :refer :all]
             [leiningen.test :refer :all]
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
-                                           sample-failing-project abort-msg]]
+                                           sample-failing-project
+                                           with-system-err-str]]
             [clojure.java.io :as io]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]))
@@ -69,8 +70,12 @@
 
 (deftest test-invalid-namespace-argument
   (is (.contains
-       (abort-msg
-        test sample-no-aot-project "boom")
+       (with-system-err-str
+         (try
+           (test sample-no-aot-project "boom")
+           (catch clojure.lang.ExceptionInfo e
+             (when-not (:exit-code (ex-data e))
+               (throw e)))))
        "java.io.FileNotFoundException: Could not locate")))
 
 (deftest test-file-argument
