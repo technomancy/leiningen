@@ -41,7 +41,7 @@
                                [lancet/lancet "1.0.1"]
                                [robert/hooke "1.1.2"]
                                [stencil/stencil "0.2.0"]
-                               [org.clojure/tools.nrepl "0.2.7"
+                               [org.clojure/tools.nrepl "0.2.8"
                                 :exclusions [[org.clojure/clojure]]
                                 :scope "test"]
                                [clojure-complete/clojure-complete "0.2.3"
