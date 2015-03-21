@@ -156,6 +156,12 @@
   launch with `java -jar my-app-standalone.jar -m my.entry.namespace
   arg1 arg2 [...]` without any AOT, but it will take longer to launch.
 
+**Q:** Why does `lein jar` package some namespaces from dependencies into my jar?  
+**A:** This is likely because you want to AOT-compile namespaces. Any
+  AOT-compiled namespace can only depend on AOT-compiled namespaces. Therefore,
+  if you depend on a namespace in a dependency that is not AOT-compiled, it will
+  be AOT-compiled and bundled with the jar.
+
 **Q:** I'd like to have certain config active only on a certain OS.  
 **A:** You can do this by using unquote in the `:dev` profile:
 
