@@ -94,7 +94,8 @@
   "Shells out to (gpg-program) with the given arguments"
   [& args]
   (try
-    (apply shell/sh (gpg-program) args)
+    (shell/with-sh-env {:LANGUAGE "en"} 
+      (apply shell/sh (gpg-program) args))
     (catch java.io.IOException e
       {:exit 1 :err (.getMessage e)})))
 
