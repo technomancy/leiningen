@@ -220,8 +220,8 @@
     (str (io/file target jar-name))))
 
 (def whitelist-keys
-  "Project keys which don't affect the production of the jar should be
-propagated to the compilation phase and not stripped out."
+  "Project keys which don't affect the production of the jar (sans its name)
+  should be propagated to the compilation phase and not stripped out."
   [:offline? :local-repo :certificates :warn-on-reflection :mirrors :uberjar-name :jar-name])
 
 (defn- retain-whitelisted-keys
