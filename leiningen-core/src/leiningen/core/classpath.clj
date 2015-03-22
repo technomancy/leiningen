@@ -365,6 +365,9 @@
         (map (memfn getAbsolutePath)))))
 
 (defn ^:internal checkout-deps-paths
+  "Checkout dependencies are used to place source for a dependency
+  project directly on the classpath rather than having to install the
+  dependency and restart the dependent project."
   [project]
   (require 'leiningen.core.project)
   (try

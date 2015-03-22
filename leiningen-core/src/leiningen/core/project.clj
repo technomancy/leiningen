@@ -967,9 +967,8 @@ Also initializes the project; see read-raw for a version that skips init."
 (alter-var-root #'read-dependency-project memoize)
 
 (defn read-checkouts
-  "Checkout dependencies are used to place source for a dependency
-  project directly on the classpath rather than having to install the
-  dependency and restart the dependent project."
+  "Returns a list of project maps for this project's checkout
+  dependencies."
   [project]
   (for [dep (.listFiles (io/file (:root project) "checkouts"))
         :let [project-file (io/file dep "project.clj")
