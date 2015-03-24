@@ -19,7 +19,7 @@
                                jakarta-regexp]]
                  [reply "0.3.6" :exclusions [ring/ring-core
                                              org.thnetos/cd-client]]
-                 [org.clojure/tools.nrepl "0.2.8"]
+                 [org.clojure/tools.nrepl "0.2.9"]
                  [clojure-complete "0.2.3"]
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
