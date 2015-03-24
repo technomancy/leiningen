@@ -111,8 +111,10 @@
 
 (defn files-for [project repo]
   (let [signed? (sign-for-repo? repo)
-        artifacts (merge {[:extension "pom"] (pom/pom project)}
-                         (jar/jar project))
+        ;; If pom is put in "target/", :auto-clean true will remove it if the
+        ;; jar is created afterwards. So make jar first, then pom.
+        artifacts (merge (jar/jar project)
+                         {[:extension "pom"] (pom/pom project)})
         sig-opts (signing-opts project repo)]
     (if (and signed? (not (.endsWith (:version project) "-SNAPSHOT")))
       (reduce merge artifacts (map #(signature-for-artifact % sig-opts)
