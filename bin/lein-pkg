@@ -31,7 +31,7 @@ JAVA_CMD=${JAVA_CMD:-"java"}
 # User init
 export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
 
-for f in "$LEIN_HOME/leinrc" ".leinrc"; do
+for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
     if [ -e "$f" ]; then
         source "$f"
     fi
