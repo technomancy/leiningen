@@ -10,12 +10,13 @@
   (:import java.io.FileNotFoundException))
 
 (def ^:dynamic *use-snapshots?* false)
+(def ^:dynamic *template-version* nil)
 
 (defn- fake-project [name]
   (let [template-symbol (symbol name "lein-template")
-        template-version (if *use-snapshots?*
-                           "(0.0.0,)"
-                           "RELEASE")
+        template-version (cond *template-version* *template-version*
+                               *use-snapshots?*   "(0.0.0,)"
+                               :else              "RELEASE")
         repositories (reduce
                        (:reduce (meta project/default-repositories))
                        project/default-repositories
@@ -162,8 +163,14 @@ If you'd like to use an unreleased (ie, SNAPSHOT) template, pass in --snapshot:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot
 
-If you use the `--snapshot` argument with template args you may need to use `--`
-to prevent template args from being interpreted as arguments to `lein new`:
+If you'd rather like to use a specific version of template, specify the version
+with --template-version option:
+
+    lein new $TEMPLATE_NAME $PROJECT_NAME --template-version $TEMPLATE_VERSION
+
+If you use the `--snapshot` or `--template-version` argument with template args
+you may need to use `--` to prevent template args from being interpreted as
+arguments to `lein new`:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot -- template-arg-1 template-arg-2
 
@@ -189,6 +196,8 @@ lein-new Leiningen plug-in."
           (binding [*dir* (or (:to-dir options) (:--to-dir options))
                     *use-snapshots?* (or (:snapshot options)
                                          (:--snapshot options))
+                    *template-version* (or (:template-version options)
+                                           (:--template-version options))
                     *force?* (or (:force options) (:--force options))]
             (apply create (or template-name "default")
                    new-project-name template-args)))))))
