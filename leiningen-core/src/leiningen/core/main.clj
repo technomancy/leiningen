@@ -240,13 +240,11 @@
                   " is a Clojure namespace, but not a Leiningen task.")))
   (throw (ex-info "Task not found" {:exit-code 1 :suppress-msg true})))
 
-;; TODO: got to be a cleaner way to do this, right?
 (defn- drop-partial-args [pargs]
   #(for [[f & r] %
-         :let [non-varargs (if (pos? (inc (.indexOf (or r []) '&)))
-                             (min (count pargs) (.indexOf r '&))
-                             (count pargs))]]
-     (cons f (drop non-varargs r))))
+         :let [[fixed-args rest-args] (split-with (partial not= '&) r)
+               new-fixed-args (drop (count pargs) fixed-args)]]
+     (cons f (concat new-fixed-args rest-args))))
 
 (defn- splice-into-args
   "Alias vectors may include :project/key entries.
