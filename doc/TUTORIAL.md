@@ -315,6 +315,26 @@ Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
 work without checkouts before you push or merge.
 
+#### FAQ for checkout dependencies
+
+1. *I created a checkout dependency but I get a message like "Could not find artifact marick:suchwow:jar:2.1.2".*
+   
+   Most likely, you are working on "suchwow" while also working on the project that uses it, have bumped
+   suchwow's version number, but not installed that new version in the local Maven repository. Run `lein install`
+   in suchwow's repository. That is: the suchwow version number must be the same in *three* places:
+   in suchwow's `project.clj`, in some repository (probably local), and in the project file for suchwow's client.
+
+2. *I use Maven groupids, so my `defproject` looks like `(defproject marick/suchwow "2.2.1" ...)`. How does that affect the checkouts directory?*
+
+   It doesn't. `checkouts/suchwow` should still point to the root of the "suchwow" project, just as if there would be no groupid.
+   So the checkouts directory would look like this:
+
+       .
+       |-- project.clj
+       |-- README.md
+       |-- checkouts
+       |   `-- suchwow [link to ~/code/oss/suchwow]
+
 ### Search
 
 Leiningen supports searching remote Maven repositories for matching
