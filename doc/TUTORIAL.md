@@ -321,12 +321,12 @@ work without checkouts before you push or merge.
    
    Most likely, you are working on "suchwow" while also working on the project that uses it, have bumped
    suchwow's version number, but not installed that new version in the local Maven repository. Run `lein install`
-   in suchwow's repository. That is: the suchwow version number must be the same in *three* places:
-   in suchwow's `project.clj`, in some repository (probably local), and in the project file for suchwow's client.
+   in suchwow's project directory. That is: the suchwow version number must be the same in *three* places:
+   in suchwow's `project.clj`, in the project file for suchwow's client, *and in some repository the client uses*. 
 
 2. *I use Maven groupids, so my `defproject` looks like `(defproject marick/suchwow "2.2.1" ...)`. How does that affect the checkouts directory?*
 
-   It doesn't. `checkouts/suchwow` should still point to the root of the "suchwow" project, just as if there would be no groupid.
+   It doesn't. `checkouts/suchwow` should still point to the root of the "suchwow" project, just as if there were no groupid.
    So the checkouts directory would look like this:
    
          .
