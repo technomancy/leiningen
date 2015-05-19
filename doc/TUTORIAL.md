@@ -329,11 +329,11 @@ work without checkouts before you push or merge.
    It doesn't. `checkouts/suchwow` should still point to the root of the "suchwow" project, just as if there would be no groupid.
    So the checkouts directory would look like this:
    
-       .
-       |-- project.clj
-       |-- README.md
-       |-- checkouts
-       |   `-- suchwow [link to ~/code/oss/suchwow]
+         .
+         |-- project.clj
+         |-- README.md
+         |-- checkouts
+         |   `-- suchwow [link to ~/code/oss/suchwow]
 
 ### Search
 
