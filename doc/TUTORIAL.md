@@ -317,7 +317,7 @@ hierarchy doesn't need to appear in the way `commons` is actually laid out on di
 After you've updated `:dependencies`, `lein` will still need to be able
 to find the library in some repository like clojars or your `~/.m2`
 directory.  If `lein` complains with a message like "Could not find artifact suchwow:jar:0.3.9",
-it's possible that `project.clj` and `suchwow/project.clj` have different version numbers.
+it's possible that `project.clj` and `suchwow/project.clj` use different version numbers.
 It's also possible that you're working on the main project and `suchwow` at the same time,
 have bumped the version number in both project files, but still have the old version in your
 local Maven repository. Run `lein install` in the `suchwow` directory. That is: the `suchwow`
