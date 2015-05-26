@@ -280,14 +280,16 @@ create a directory called `checkouts` in the project root, like so:
         `-- my_stuff
             `-- core_test.clj
 
-Then, under the checkouts directory, create symlinks to projects you need.
+Then, under the checkouts directory, create symlinks to the root directories of projects you need.
+The names of the symlinks don't matter: Leiningen just follows all of them to find
+`project.clj` files to use. Traditionally, they have the same name as the directory they point to.
 
     .
     |-- project.clj
     |-- README.md
     |-- checkouts
-    |   `-- superlib2 [link to ~/code/oss/superlib2]
-    |   `-- superlib3 [link to ~/code/megacorp/superlib3]
+    |   `-- suchwow [link to ~/code/oss/suchwow]
+    |   `-- commons [link to ~/code/company/commons]
     |-- src
     |   `-- my_stuff
     |       `-- core.clj
@@ -298,42 +300,38 @@ Then, under the checkouts directory, create symlinks to projects you need.
 Libraries located under the `checkouts` directory take precedence
 over libraries pulled from repositories, but this is not a replacement
 for listing the project in your main project's `:dependencies`; it
-simply supplements that for convenience. If you have a project in
-`checkouts` without putting it in `:dependencies` then its source will
-be visible but its dependencies will not be found. If you change the
+simply supplements that for convenience. That is, given the above directory hierarchy,
+`project.clj` should contain something like:
+
+      :dependencies [[org.clojure/clojure "1.6.0"]
+                     ...
+                     suchwow "0.3.9"
+                     com.megacorp/commons "1.3.5"
+                     ...]
+                 
+
+(Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
+The `suchwow` and `commons` links look the same in `checkouts`, and the groupid
+hierarchy doesn't need to appear in the way `commons` is actually laid out on disk.)
+
+After you've updated `:dependencies`, `lein` will still need to be able
+to find the library in some repository like clojars or your `~/.m2`
+directory.  If `lein` complains with a message like "Could not find artifact suchwow:jar:0.3.9",
+it's possible that you're using different version in `project.clj` and `suchwow/project.clj`.
+It's also possible that you're working on the main project and `suchwow` at the same time,
+have bumped the version number in both project files, but still have the old version in your
+local Maven repository. Run `lein install` in the `suchwow` directory. That is: the `suchwow`
+version number must be the same in *three* places:
+in suchwow's `project.clj`, in the main project's `project.clj`, *and in some repository the main project uses*. 
+
+If you change the
 dependencies of a checkout project you will still have to run `lein
 install` and restart your repl; it's just that source changes will be
 picked up immediately.
 
-After you've updated `:dependencies`, `lein` will still need to be able
-to find the library in some repository like clojars or your `~/.m2`
-directory.  If `lein` complains that it could not find the library
-artifact, you can install it locally by running `lein install` in the
-checkout dependency project directory.
-
 Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
 work without checkouts before you push or merge.
-
-#### FAQ for checkout dependencies
-
-1. *I created a checkout dependency but I get a message like "Could not find artifact marick:suchwow:jar:2.1.2".*
-   
-   Most likely, you are working on "suchwow" while also working on the project that uses it, have bumped
-   suchwow's version number, but not installed that new version in the local Maven repository. Run `lein install`
-   in suchwow's project directory. That is: the suchwow version number must be the same in *three* places:
-   in suchwow's `project.clj`, in the project file for suchwow's client, *and in some repository the client uses*. 
-
-2. *I use Maven groupids, so my `defproject` looks like `(defproject marick/suchwow "2.2.1" ...)`. How does that affect the checkouts directory?*
-
-   It doesn't. `checkouts/suchwow` should still point to the root of the "suchwow" project, just as if there were no groupid.
-   So the checkouts directory would look like this:
-   
-         .
-         |-- project.clj
-         |-- README.md
-         |-- checkouts
-         |   `-- suchwow [link to ~/code/oss/suchwow]
 
 ### Search
 
