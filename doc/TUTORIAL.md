@@ -303,7 +303,7 @@ for listing the project in your main project's `:dependencies`; it
 simply supplements that for convenience. That is, given the above directory hierarchy,
 `project.clj` should contain something like:
 
-      :dependencies [[org.clojure/clojure "1.6.0"]
+      :dependencies [[org.clojure/clojure "1.9.0"]
                      ...
                      suchwow "0.3.9"
                      com.megacorp/commons "1.3.5"
@@ -317,7 +317,7 @@ hierarchy doesn't need to appear in the way `commons` is actually laid out on di
 After you've updated `:dependencies`, `lein` will still need to be able
 to find the library in some repository like clojars or your `~/.m2`
 directory.  If `lein` complains with a message like "Could not find artifact suchwow:jar:0.3.9",
-it's possible that you're using different version in `project.clj` and `suchwow/project.clj`.
+it's possible that `project.clj` and `suchwow/project.clj` have different version numbers.
 It's also possible that you're working on the main project and `suchwow` at the same time,
 have bumped the version number in both project files, but still have the old version in your
 local Maven repository. Run `lein install` in the `suchwow` directory. That is: the `suchwow`
