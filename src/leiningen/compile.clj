@@ -5,7 +5,7 @@
             [bultitude.core :as b]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile])
-  (:import (java.io PushbackReader)))
+  (:import (java.io PushbackReader File)))
 
 (defn- regex? [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
@@ -34,13 +34,17 @@
   out-of-date class files."
   [project]
   (for [namespace (compilable-namespaces project)
-        :let [rel-source (b/path-for namespace)
-              source (first (sort-by (fn [f] (not (.exists f)))
-                                     (for [source-path (:source-paths project)
-                                           :let [file (io/file source-path rel-source)]]
-                                       file)))]
+        :let [[rel-source source]
+              (or (first (for [source-path (:source-paths project)
+                               rel-source (map (partial b/path-for namespace) ["clj" "cljc"])
+                               :let [file (io/file source-path rel-source)]
+                               :when (.exists ^File file)]
+                           [rel-source file]))
+                  (let [rel-source (b/path-for namespace)]
+                    ;; always return a source file location (#1205)
+                    [rel-source (io/file (first (:source-paths project)) rel-source)]))]
         :when source
-        :let [rel-compiled (.replaceFirst rel-source "\\.clj$" "__init.class")
+        :let [rel-compiled (.replaceFirst rel-source "\\.cljc?$" "__init.class")
               compiled (io/file (:compile-path project) rel-compiled)]
         :when (>= (.lastModified source) (.lastModified compiled))]
     namespace))
@@ -68,7 +72,9 @@
 (defn- source-in-project?
   "Tests if a file found in the compile path exists in the source path."
   [parent compile-path source-path]
-  (.exists (io/file (str (.replace parent compile-path source-path) ".clj"))))
+  (let [path (.replace parent compile-path source-path)]
+    (or (.exists (io/file (str path ".clj")))
+        (.exists (io/file (str path ".cljc"))))))
 
 (defn- class-in-project? [project f]
   (or (has-source-package? project f (:source-paths project))

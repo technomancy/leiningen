@@ -36,6 +36,8 @@
 
 (def sample-profile-meta-project (read-test-project "sample-profile-meta"))
 
+(def sample-reader-cond-project (read-test-project "sample-reader-cond"))
+
 (def tricky-name-project (read-test-project "tricky-name"))
 
 (def native-project (read-test-project "native"))

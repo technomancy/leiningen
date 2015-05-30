@@ -6,6 +6,7 @@
         [leiningen.compile]
         [leiningen.test.helper :only [sample-project delete-file-recursively
                                       sample-failing-project
+                                      sample-reader-cond-project
                                       tricky-name-project
                                       more-gen-classes-project
                                       with-system-err-str]])
@@ -38,6 +39,13 @@
                      "classes" "more_gen_classes" "baz.class")))
   (is (not (.exists (file "test_projects" "more-gen-classes" "target"
                           "classes" "more_gen_classes" "foo.class")))))
+
+(deftest test-compile-cljc
+  (compile sample-reader-cond-project)
+  (is (.exists (file "test_projects" "sample-reader-cond" "target"
+                     "classes" "nom" "nom" "clj__init.class")))
+  (is (.exists (file "test_projects" "sample-reader-cond" "target"
+                     "classes" "nom" "nom" "cljc__init.class"))))
 
 (def eip-check (atom false))
 

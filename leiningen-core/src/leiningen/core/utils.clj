@@ -64,7 +64,7 @@
               (subs 1)
               (str suffix)
               io/resource))
-        [".clj" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
+        [".clj" ".cljc" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
 
 (defn error [& args]
   (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0

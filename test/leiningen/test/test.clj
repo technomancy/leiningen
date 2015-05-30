@@ -3,6 +3,7 @@
   (:require [clojure.test :refer :all]
             [leiningen.test :refer :all]
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
+                                           sample-reader-cond-project
                                            sample-failing-project
                                            with-system-err-str]]
             [clojure.java.io :as io]
@@ -67,6 +68,10 @@
 (deftest test-namespace-argument
   (test sample-no-aot-project "selectors")
   (is (= (ran?) #{:regular :not-custom :int2 :fixture})))
+
+(deftest test-reader-conditional-tests
+  (test sample-reader-cond-project)
+  (is (= (ran?) #{:clj-test :cljc-test})))
 
 (deftest test-invalid-namespace-argument
   (is (.contains
