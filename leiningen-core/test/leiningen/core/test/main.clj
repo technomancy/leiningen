@@ -79,6 +79,18 @@
   (is (matching-arity? (resolve-task "one-or-two") ["clojure" "2"]))
   (is (not (matching-arity? (resolve-task "one-or-two") ["clojure" "2" "3"]))))
 
+(deftest partial-tasks
+  (are [task args] (matching-arity? (resolve-task task) args)
+       ["one-or-two" "clojure"] ["2"]
+       ["one-or-two" "clojure" "2"] []
+       ["fixed-and-var-args" "one"] ["two"]
+       ["fixed-and-var-args" "one" "two"] []
+       ["fixed-and-var-args" "one" "two"] ["more"])
+  (are [task args] (not (matching-arity? (resolve-task task) args))
+       ["one-or-two" "clojure"] ["2" "3"]
+       ["one-or-two" "clojure" "2"] ["3"]
+       ["fixed-and-var-args" "one"] []))
+
 (deftest test-version-satisfies
   (is (version-satisfies? "1.5.0" "1.4.2"))
   (is (not (version-satisfies? "1.4.2" "1.5.0")))
