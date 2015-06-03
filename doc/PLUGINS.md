@@ -30,7 +30,27 @@ See the `lein-pprint` directory
 [in the Leiningen source](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
 for a sample of a very simple plugin.
 
-During plugin development, having to re-run `lein install` in your
+### Local development
+When developing the plugin locally you can test the functionality by calling ```lein sample-plugin``` from the root of your plugin project. When you're ready to test it in a separate project you can include it via the following:
+
+```
+lein install
+Created ~/sample-plugin/target/sample-plugin-0.1.0-SNAPSHOT.jar
+Wrote ~/sample-plugin/pom.xml
+Installed jar and pom into local repo.
+```
+
+This will build a jar using the :version listed in the plugin's project.clj file (see above for example project.clj) and install it into your local m2 repository (~/.m2/repository)
+
+After this step completes you can now list your plugin in your separate project with the version outputted from above. This example would look like this:
+
+```
+...
+:plugins [[sample-plugin "0.1.0-SNAPSHOT"]]
+...
+```
+
+During local development, having to re-run `lein install` in your
 plugin project and then switch to a test project can be very
 cumbersome. Once you've installed the plugin once, you can avoid this
 annoyance by creating a `.lein-classpath` file in your test project
