@@ -31,7 +31,7 @@ See the `lein-pprint` directory
 for a sample of a very simple plugin.
 
 ### Local development
-When developing the plugin locally you can test the functionality by calling ```lein sample-plugin``` from the root of your plugin project. When you're ready to test it in a separate project you can include it via the following:
+When you're ready to test your plugin in a separate project you can include it via the following (example a plugin named sample-plugin):
 
 ```
 lein install
