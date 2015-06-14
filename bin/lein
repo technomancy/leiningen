@@ -23,9 +23,9 @@ else
   cygwin=false
 fi
 
-if hash shasum >/dev/null 2>&1; then
-    SUM="shasum -"
-elif hash sha1sum >/dev/null 2>&1; then
+if command -v shasum >/dev/null 2>&1; then
+    SUM="shasum"
+elif command -v sha1sum >/dev/null 2>&1; then
     SUM="sha1sum"
 fi
 
