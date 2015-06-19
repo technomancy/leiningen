@@ -6,9 +6,7 @@
 
 export LEIN_VERSION="2.5.2-SNAPSHOT"
 
-export USR=`whoami`
-
-if [ "$USR" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
+if [ "`whoami`" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
