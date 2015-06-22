@@ -58,7 +58,7 @@ if [ -f .lein-classpath ]; then
     CLASSPATH="`cat .lein-classpath`:$CLASSPATH"
 fi
 
-if [ $DEBUG ]; then
+if [ -n "$DEBUG" ]; then
     echo "Leiningen's classpath: $CLASSPATH"
 fi
 
@@ -76,8 +76,8 @@ export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
 if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
     [ -r project.clj ]; then
-    INPUTS="$@ $(cat project.clj) $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
-    INPUT_CHECKSUM=$(echo $INPUTS | shasum - | cut -f 1 -d " ")
+    INPUTS="$* $(cat project.clj) $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
+    INPUT_CHECKSUM=$(echo "$INPUTS" | shasum - | cut -f 1 -d " ")
     # Just don't change :target-path in project.clj, mkay?
     TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
 else
@@ -93,7 +93,7 @@ if [ "$1" = "upgrade" ]; then
 fi
 
 if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
-    if [ $DEBUG ]; then
+    if [ -n "$DEBUG" ]; then
         echo "Fast trampoline with $TRAMPOLINE_FILE."
     fi
     exec sh -c "exec $(cat $TRAMPOLINE_FILE)"

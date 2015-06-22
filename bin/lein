@@ -83,7 +83,7 @@ function self_install {
   fi
 }
 
-if [ `id -u` -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
+if [ "`id -u`" -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
@@ -117,7 +117,7 @@ LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
 
 # normalize $0 on certain BSDs
 if [ "$(dirname "$0")" = "." ]; then
-    SCRIPT="$(which $(basename "$0"))"
+    SCRIPT="$(which "$(basename "$0")")"
     if [ -z "$SCRIPT" ]; then
         SCRIPT="$0"
     fi
@@ -300,7 +300,7 @@ else
         add_path CLASSPATH "$(cat .lein-classpath)"
     fi
 
-    if [ $DEBUG ]; then
+    if [ -n "$DEBUG" ]; then
         echo "Leiningen's classpath: $CLASSPATH"
     fi
 
@@ -309,7 +309,7 @@ else
     fi
 
     if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
-        INPUTS="$@ $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
+        INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
 
         if command -v shasum >/dev/null 2>&1; then
             SUM="shasum"
@@ -319,7 +319,7 @@ else
             command_not_found "sha1sum or shasum"
         fi
 
-        export INPUT_CHECKSUM=$(echo $INPUTS | $SUM | cut -f 1 -d " ")
+        export INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
     else
@@ -337,10 +337,10 @@ else
     fi
 
     if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
-        if [ $DEBUG ]; then
+        if [ -n "$DEBUG" ]; then
             echo "Fast trampoline with $TRAMPOLINE_FILE."
         fi
-        exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
+        exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
     else
         export TRAMPOLINE_FILE
         "$LEIN_JAVA_CMD" \
@@ -363,9 +363,9 @@ else
         ## TODO: [ -r "$TRAMPOLINE_FILE" ] may be redundant? A trampoline file
         ## is always generated these days.
         if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
-            TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
+            TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
             if [ "$INPUT_CHECKSUM" = "" ]; then
-                rm $TRAMPOLINE_FILE
+                rm "$TRAMPOLINE_FILE"
             fi
             if [ "$TRAMPOLINE" = "" ]; then
                 exit $EXIT_CODE
