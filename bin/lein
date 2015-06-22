@@ -83,7 +83,7 @@ function self_install {
   fi
 }
 
-if [ "`id -u`" -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
+if [ "$(id -u)" -eq 0 ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
@@ -110,7 +110,7 @@ for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
 done
 
 if $cygwin; then
-    export LEIN_HOME=`cygpath -w "$LEIN_HOME"`
+    export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
 fi
 
 LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
@@ -127,8 +127,8 @@ fi
 
 # resolve symlinks to the script itself portably
 while [ -h "$SCRIPT" ] ; do
-    ls=`ls -ld "$SCRIPT"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
+    ls=$(ls -ld "$SCRIPT")
+    link=$(expr "$ls" : '.*-> \(.*\)$')
     if expr "$link" : '/.*' > /dev/null; then
         SCRIPT="$link"
     else
@@ -270,7 +270,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                 echo "Upgrading..."
                 TARGET="/tmp/lein-$$-upgrade"
                 if $cygwin; then
-                    TARGET=`cygpath -w $TARGET`
+                    TARGET=$(cygpath -w "$TARGET")
                 fi
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
                 $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
@@ -292,7 +292,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
 else
     if $cygwin; then
         # When running on Cygwin, use Windows-style paths for java
-        ORIGINAL_PWD=`cygpath -w "$ORIGINAL_PWD"`
+        ORIGINAL_PWD=$(cygpath -w "$ORIGINAL_PWD")
     fi
 
     # apply context specific CLASSPATH entries
@@ -333,7 +333,7 @@ else
     fi
 
     if $cygwin; then
-        TRAMPOLINE_FILE=`cygpath -w $TRAMPOLINE_FILE`
+        TRAMPOLINE_FILE=$(cygpath -w "$TRAMPOLINE_FILE")
     fi
 
     if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
