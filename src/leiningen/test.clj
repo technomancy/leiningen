@@ -71,7 +71,7 @@
        `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
           (when (seq ~ns-sym)
             (apply require :reload ~ns-sym))
-          (let [failures# (atom #{})
+          (let [failures# (atom {})
                 selected-namespaces# ~(form-for-nses-selectors-match selectors ns-sym)
                 _# (when ~*monkeypatch?*
                      (leiningen.core.injected/add-hook
@@ -79,11 +79,13 @@
                       (fn [report# m# & args#]
                         (when (#{:error :fail} (:type m#))
                           (when-let [first-var# (-> clojure.test/*testing-vars* first meta)]
-                            (swap! failures# conj (ns-name (:ns first-var#)))
-                            (newline)
-                            (println "lein test :only"
-                                     (str (ns-name (:ns first-var#)) "/"
-                                          (:name first-var#)))))
+                            (let [ns-name# (-> first-var# :ns ns-name name)
+                                  test-name# (-> first-var# :name name)]
+                              (swap! failures#
+                                     (fn [_#]
+                                       (update-in @failures# [ns-name#] (fnil conj []) test-name#)))
+                              (newline)
+                              (println "lein test :only" (str ns-name# "/" test-name#)))))
                         (if (= :begin-test-ns (:type m#))
                           (clojure.test/with-test-out
                             (newline)

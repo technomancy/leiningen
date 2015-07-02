@@ -10,6 +10,6 @@
     (apply test/test project
            (concat (if (.exists (java.io.File. ".lein-failures"))
                      (->> (slurp ".lein-failures")
-                          read-string sort (map name)))
+                          read-string keys sort))
                    selectors))
     (main/abort "Cannot retest when :monkeypatch-clojure-test is disabled.")))
