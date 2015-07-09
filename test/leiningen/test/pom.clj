@@ -10,7 +10,7 @@
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]))
 
-(def nrepl-vsn "0.2.9") ;; bump me when tools.nrepl is bumped
+(def nrepl-vsn "0.2.10") ;; bump me when tools.nrepl is bumped
 
 (use-fixtures :once (fn [f]
                       (with-redefs [user/profiles (constantly {})]
