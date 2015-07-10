@@ -151,7 +151,7 @@ if NOT ERRORLEVEL 1 (
 call wget --help >nul 2>&1
 if NOT ERRORLEVEL 1 (
     set LAST_HTTP_CLIENT=wget
-    call wget -O %1 %2
+    call wget --no-check-certificate -O %1 %2
     goto EOF
 )
 call curl --help >nul 2>&1
