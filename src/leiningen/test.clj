@@ -134,7 +134,7 @@
             vars))])
 
 (defn- convert-to-ns [possible-file]
-  (if (and (.endsWith possible-file ".clj") (.exists (io/file possible-file)))
+  (if (and (or (.endsWith possible-file ".clj") (.endsWith possible-file ".cljc")) (.exists (io/file possible-file)))
     (str (second (b/ns-form-for-file possible-file)))
     possible-file))
 
