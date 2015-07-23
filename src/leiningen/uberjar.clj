@@ -15,10 +15,30 @@
            (java.util.zip ZipFile ZipOutputStream ZipEntry)
            (org.apache.commons.io.output CloseShieldOutputStream)))
 
+(defn- tree-edit
+  "Walk the componment xml dom looking for description tag"
+  [zipper editor]
+  (loop [loc zipper]
+    (if (zip/end? loc)
+      (zip/root loc)
+      (if (= :description (:tag (zip/node loc)))
+        (let [new-loc (zip/edit loc editor)]
+          (recur (zip/next new-loc)))
+        (recur (zip/next loc))))))
+
+(defn- html-escape-editor
+  "Escape <,>,& from content"
+  [node]
+  (let [content (get (:content node) 0)]
+    (if-not (nil? content)
+      (assoc-in node [:content 0] (clojure.string/escape content {\< "&lt;" \> "&gt;" \& "&amp;" \" "&quot;"}))
+      node)))
+
 (defn- components-read [ins]
-  (->> ins xml/parse zip/xml-zip zip/children
-       (filter #(= (:tag %) :components))
-       first :content))
+  (let [zipper (->> ins xml/parse zip/xml-zip)]
+    (->> (tree-edit zipper html-escape-editor) zip/xml-zip zip/children
+         (filter #(= (:tag %) :components))
+         first :content)))
 
 (defn- components-write [out components]
   (binding [*out* (PrintWriter. out)]

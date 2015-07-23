@@ -2,10 +2,11 @@
   (:require [leiningen.uberjar :refer :all]
             [clojure.test :refer :all]
             [clojure.java.shell :refer [sh]]
+            [clojure.xml :as xml]
             [leiningen.test.helper :refer [sample-no-aot-project
                                            uberjar-merging-project
                                            provided-project]])
-  (:import (java.io File)
+  (:import (java.io File FileOutputStream)
            (java.util.zip ZipFile)))
 
 (deftest test-uberjar
@@ -40,6 +41,21 @@
                (->> (.getEntry zf "data_readers.clj")
                     (.getInputStream zf)
                     slurp read-string)))))))
+
+(deftest test-components-merger
+  (let [file1 (str "test_projects/uberjar-components-merging/components1.xml")
+        file2 (str "test_projects/uberjar-components-merging/components2.xml")
+        readxml (components-merger 0)
+        combine (components-merger 1)
+        writexml (components-merger 2)
+        combined-xml (combine (readxml file1) (readxml file2))
+        expected-xml (xml/parse "test_projects/uberjar-components-merging/expected-components.xml")
+        result-file "test_projects/uberjar-components-merging/result-components.xml"
+        out-file (FileOutputStream. (File. result-file))]
+      (writexml out-file combined-xml)
+      (is (= expected-xml (xml/parse result-file)))
+    )
+    )
 
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided

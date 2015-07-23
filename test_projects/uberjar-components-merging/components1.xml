@@ -1,0 +1,73 @@
+<component-set>
+  <components>
+    <component>
+      <role>org.apache.maven.doxia.Doxia</role>
+      <implementation>org.apache.maven.doxia.DefaultDoxia</implementation>
+      <description>Simple implementation of the Doxia interface:
+uses a ParserManager to lookup a parser.</description>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.doxia.parser.manager.ParserManager</role>
+          <field-name>parserManager</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.macro.Macro</role>
+      <role-hint>echo</role-hint>
+      <implementation>org.apache.maven.doxia.macro.EchoMacro</implementation>
+      <description>A simple macro that prints out the key and value of some supplied parameters.</description>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.macro.manager.MacroManager</role>
+      <implementation>org.apache.maven.doxia.macro.manager.DefaultMacroManager</implementation>
+      <description>Default implementation of &lt;code&gt;MacroManager&lt;/code&gt;</description>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.doxia.macro.Macro</role>
+          <field-name>macros</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.macro.Macro</role>
+      <role-hint>snippet</role-hint>
+      <implementation>org.apache.maven.doxia.macro.snippet.SnippetMacro</implementation>
+      <description>A macro that prints out the content of a file or a URL.</description>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.macro.Macro</role>
+      <role-hint>swf</role-hint>
+      <implementation>org.apache.maven.doxia.macro.SwfMacro</implementation>
+      <description>Macro for embedding Flash (SWF) within Maven documentation.</description>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.macro.Macro</role>
+      <role-hint>toc</role-hint>
+      <implementation>org.apache.maven.doxia.macro.toc.TocMacro</implementation>
+      <description>Macro to display a &lt;code&gt;Table Of Content&lt;/code&gt; in a given &lt;code&gt;Sink&lt;/code&gt;.</description>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.module.site.manager.SiteModuleManager</role>
+      <implementation>org.apache.maven.doxia.module.site.manager.DefaultSiteModuleManager</implementation>
+      <description>Simple implementation of the SiteModuleManager interface.</description>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.doxia.module.site.SiteModule</role>
+          <field-name>siteModules</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.apache.maven.doxia.parser.manager.ParserManager</role>
+      <implementation>org.apache.maven.doxia.parser.manager.DefaultParserManager</implementation>
+      <description>Simple implementation of the &lt;code&gt;ParserManager&lt;/code&gt; interface.</description>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.doxia.parser.Parser</role>
+          <field-name>parsers</field-name>
+        </requirement>
+      </requirements>
+    </component>
+  </components>
+</component-set>
