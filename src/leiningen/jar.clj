@@ -231,7 +231,8 @@
 
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
-       (some #(.exists (io/file % (b/path-for main))) source-paths)))
+       (some #(or (.exists (io/file % (b/path-for main "clj")))
+                  (.exists (io/file % (b/path-for main "cljc")))) source-paths)))
 
 (def ^:private implicit-aot-warning
   (delay

@@ -3,8 +3,8 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [bultitude "0.2.6"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [bultitude "0.2.8"]
                  [classlojure "0.6.6"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.3.0"]

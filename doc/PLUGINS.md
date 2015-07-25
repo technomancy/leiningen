@@ -358,7 +358,7 @@ middleware.
 
 ## Clojure Version
 
-Leiningen 2.4.0 and on uses Clojure 1.6.0. If you need to use a
+Leiningen 2.5.2 and on uses Clojure 1.7.0. If you need to use a
 different version of Clojure from within a Leiningen plugin, you can
 use `eval-in-project` with a dummy project argument:
 

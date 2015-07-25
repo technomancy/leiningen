@@ -3,8 +3,8 @@
 ;; just want a basic project to work from, generate a new one with
 ;; "lein new".
 
-(defproject custom/args "0.0.1-SNAPSHOT"
-  :description "A test project"
-  :dependencies [[org.clojure/clojure "1.7.0"]]
-  :profiles {:no-op {}
-             :ascii {:jvm-opts ["-Dfile.encoding=ASCII"]}})
+(defproject nomnomnom "0.5.0-SNAPSHOT"
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [janino "2.5.15"]]
+  :aot :all
+  :uberjar-exclusions [#"DUMMY"])

@@ -3,6 +3,7 @@
   (:require [clojure.test :refer :all]
             [leiningen.test :refer :all]
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
+                                           sample-reader-cond-project
                                            sample-failing-project
                                            with-system-err-str]]
             [clojure.java.io :as io]
@@ -68,6 +69,10 @@
   (test sample-no-aot-project "selectors")
   (is (= (ran?) #{:regular :not-custom :int2 :fixture})))
 
+(deftest test-reader-conditional-tests
+  (test sample-reader-cond-project)
+  (is (= (ran?) #{:clj-test :cljc-test})))
+
 (deftest test-invalid-namespace-argument
   (is (.contains
        (with-system-err-str
@@ -87,7 +92,7 @@
   (let [project (project/merge-profiles sample-failing-project
                                         [{:aot ^:replace []
                                           :dependencies ^:replace
-                                          [['org.clojure/clojure "1.6.0"]]}])]
+                                          [['org.clojure/clojure "1.7.0"]]}])]
     (binding [main/*exit-process?* false]
       (is (= "EOF while reading" (try (test project) false
                                       (catch Exception e

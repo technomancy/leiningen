@@ -6,10 +6,10 @@
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[leiningen-core "2.5.1"]
+  :dependencies [[leiningen-core "2.5.2-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.3"]
                  [commons-io "2.4"]
-                 [bultitude "0.2.6"]
+                 [bultitude "0.2.8"]
                  [stencil "0.3.5" :exclusions [org.clojure/core.cache]]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
