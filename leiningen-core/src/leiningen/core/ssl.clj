@@ -1,5 +1,6 @@
 (ns leiningen.core.ssl
-  (:require [clojure.java.io :as io]
+  (:require [cemerick.pomegranate.aether :as aether]
+            [clojure.java.io :as io]
             [leiningen.core.user :as user])
   (:import java.security.KeyStore
            java.security.KeyStore$TrustedCertificateEntry
@@ -10,10 +11,12 @@
            javax.net.ssl.TrustManagerFactory
            javax.net.ssl.X509TrustManager
            java.io.FileInputStream
-           org.apache.http.conn.ssl.SSLSocketFactory
-           org.apache.http.conn.scheme.Scheme
-           org.apache.maven.wagon.providers.http.HttpWagon
-           org.apache.http.conn.ssl.BrowserCompatHostnameVerifier))
+           org.apache.http.config.RegistryBuilder
+           org.apache.http.conn.socket.PlainConnectionSocketFactory
+           org.apache.http.conn.ssl.BrowserCompatHostnameVerifier
+           org.apache.http.conn.ssl.SSLConnectionSocketFactory
+           org.apache.http.impl.conn.PoolingHttpClientConnectionManager
+           org.apache.maven.wagon.providers.http.HttpWagon))
 
 (defn ^TrustManagerFactory trust-manager-factory [^KeyStore keystore]
   (doto (TrustManagerFactory/getInstance "PKIX")
@@ -78,16 +81,48 @@
 
 (alter-var-root #'make-sslcontext memoize)
 
-(defn https-scheme
-  "Construct a Scheme that uses a given SSLContext."
-  ([context] (https-scheme context 443))
-  ([context port]
-     (let [factory (SSLSocketFactory. context (BrowserCompatHostnameVerifier.))]
-       (Scheme. "https" port factory))))
+(defn https-registry
+  "Constructs a registry map that uses a given SSLContext for https."
+  [context]
+  (let [factory (SSLConnectionSocketFactory. context (BrowserCompatHostnameVerifier.))]
+    {"https" factory
+     "http" PlainConnectionSocketFactory/INSTANCE}))
 
-(def register-scheme
-  "Register a scheme with the HTTP Wagon for use with Aether."
-  (memoize (fn [scheme]
-             (-> (.getConnectionManager (HttpWagon.))
-                 (.getSchemeRegistry)
-                 (.register scheme)))))
+(defn ^:deprecated https-scheme
+  "Constructs a registry map that uses a given SSLContext for https.
+
+  DEPRECATED: Use https-registry instead."
+  ([context port]
+   (if (not= port 443) ;; TODO: Should we support this?
+     (throw (ex-info "Specifying port for https-scheme is not possible anymore."
+                     {:context context :port port}))
+     (https-scheme context)))
+  ([context]
+   (binding [*out* *err*]
+     (println "https-scheme is deprecated, use https-registry instead"))
+   (https-registry context)))
+
+(defn- map->registry
+  "Creates a Registry based of the given map."
+  [m]
+  (let [rb (RegistryBuilder/create)]
+    (doseq [[scheme conn-sock-factory] m]
+      (.register rb scheme conn-sock-factory))
+    (.build rb)))
+
+(defn override-wagon-registry!
+  "Override the registry scheme used by the HTTP Wagon's Connection
+  manager (used for Aether)."
+  [registry]
+  (let [cm (PoolingHttpClientConnectionManager. (map->registry registry))]
+    (HttpWagon/setPoolingHttpClientConnectionManager cm)))
+
+(defn ^:deprecated register-scheme
+  "Override the registry scheme used by the HTTP Wagon's Connection
+  manager (used for Aether).
+
+  DEPRECATED: Use override-wagon-registry! instead."
+  [scheme]
+  (binding [*out* *err*]
+    (println "register-scheme is deprecated, use override-wagon-registry! instead"))
+  (override-wagon-registry! scheme))

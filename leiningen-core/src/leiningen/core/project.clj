@@ -758,11 +758,11 @@
     (let [make-context (resolve 'leiningen.core.ssl/make-sslcontext)
           read-certs (resolve 'leiningen.core.ssl/read-certs)
           default-certs (resolve 'leiningen.core.ssl/default-trusted-certs)
-          register-scheme (resolve 'leiningen.core.ssl/register-scheme)
-          https-scheme (resolve 'leiningen.core.ssl/https-scheme)
+          override-wagon-registry! (resolve 'leiningen.core.ssl/override-wagon-registry!)
+          https-registry (resolve 'leiningen.core.ssl/https-registry)
           certs (mapcat read-certs (:certificates project))
           context (make-context (into (default-certs) certs))]
-      (register-scheme (https-scheme context))
+      (override-wagon-registry! (https-registry context))
       project)))
 
 (defn activate-middleware
