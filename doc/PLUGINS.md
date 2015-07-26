@@ -30,6 +30,10 @@ See the `lein-pprint` directory
 [in the Leiningen source](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
 for a sample of a very simple plugin.
 
+When emitting output, please use `leiningen.core.main/info`,
+`leiningen.core.main/warn`, and `leiningen.core.main/debug` rather than
+`println` since these will respect the user's output settings.
+
 ### Local development
 When you're ready to test your plugin in a separate project you can include it via the following (example a plugin named sample-plugin):
 
@@ -52,16 +56,24 @@ After this step completes you can now list your plugin in your separate project 
 
 During local development, having to re-run `lein install` in your
 plugin project and then switch to a test project can be very
-cumbersome. Once you've installed the plugin once, you can avoid this
-annoyance by creating a `.lein-classpath` file in your test project
-containing the path to the `src` directory of your plugin. If your plugin
-depends on another library that you are also working on then that needs
-to be added to `.lein-classpath` with the classpath separator, either
-`:` for unix, or `;` for Windows.
+cumbersome. In order to avoid this annoyance, you can do the following:
 
-When emitting output, please use `leiningen.core.main/info`,
-`leiningen.core.main/warn`, and `leiningen.core.main/debug` rather than
-`println` since these will respect the user's output settings.
+ 1. If you haven't done it yet, run `lein install` in the plugin's project
+    directory.
+ 2. Just to make sure, run `lein help <plugin-name>` in your test project
+    directory. A help message for your plugin should be displayed now. Or an
+    exception originating in your plugin.
+ 3. Add the path to the `src` directory of your plugin to the file
+    `.lein-classpath` in your test project directory. Probably you'll have to
+    create that file.
+ 4. If your plugin depends on another library that you are also working on, then
+    that needs to be added to `.lein-classpath` with the classpath separator,
+    either `:` for unix, or `;` for Windows. The same goes for your plugin's
+    other direct dependencies. Run `lein classpath` in order to get an idea how
+    the contents of `.lein-classpath` are supposed to look.
+ 5. Remove the entry for your plugin from the test project's `project.clj`.
+    Otherwise it would override what you've added to `.lein-classpath`, because
+    Leiningen loads those things before it loads plugins.
 
 ### Task Arguments
 
@@ -92,7 +104,7 @@ library (IDE integration, etc) may not behave the same way, so for
 greatest portability check the `:root` key of the project map and work
 from there.
 
-### Documentation
+### Documentation and subtasks
 
 The `lein help` task uses docstrings. A namespace-level docstring will
 be used as the short summary if present; if not then it will take the
@@ -111,11 +123,27 @@ Often more complicated tasks get divided up into subtasks. Placing
 `:subtasks` metadata on a task defn which contains a vector of subtask
 vars will allow `lein help $TASK_CONTAINING_SUBTASKS` to list them.
 This list of subtasks will show the first line of the docstring for each
-subtask. The full help for a subtask can be viewed via 
-`lein help $TASK_CONTAINING_SUBTASKS $SUBTASK`. 
+subtask. The full help for a subtask can be viewed via
+`lein help $TASK_CONTAINING_SUBTASKS $SUBTASK`.
+
+Note that Leiningen doesn't have a mechanism for automatically invoking
+subtasks. You'll have to do that yourself in the main task. A dumb
+implementation of it all might look like this:
+
+```clojure
+(defn my-task
+  "Automatically write all the project's code."
+  {:subtasks [#'my-subtask-0 #'my-subtask-1]}
+  [project & [sub-name]]
+  (case sub-name
+    "my-subtask-0" (my-subtask-0 project args)
+    "my-subtask-1" (my-subtask-1 project args)
+    nil            :not-implemented-yet
+    (leiningen.core.main/warn "Unknown task.")))
+```
 
 Leiningen will intercept calls to `lein $MYTASK help` by default and
-turn it into `lein help $MYTASK`. If your task provides its own help
+turn them into `lein help $MYTASK`. If your task provides its own help
 subtask you can add `^:pass-through-help` metadata to your task defn
 to opt-out of this behaviour.
 
@@ -156,7 +184,7 @@ profile in so users can override your changes if necessary. Use
   [project port host & opts]
     (let [profile (or (:swank (:profiles project)) swank-profile)
           project (project/merge-profiles project [profile])]
-      (eval-in-project project 
+      (eval-in-project project
                        `(swank.core/-main ~@opts)
                        '(require 'swank.core))))
 ```
