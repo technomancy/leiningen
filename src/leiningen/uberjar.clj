@@ -13,7 +13,8 @@
   (:import (java.io File FileOutputStream PrintWriter)
            (java.util.regex Pattern)
            (java.util.zip ZipFile ZipOutputStream ZipEntry)
-           (org.apache.commons.io.output CloseShieldOutputStream)))
+           (org.apache.commons.io.output CloseShieldOutputStream)
+           (org.apache.commons.lang StringEscapeUtils)))
 
 (defn- tree-edit
   "Walk the componment xml dom looking for description tag"
@@ -31,7 +32,7 @@
   [node]
   (let [content (get (:content node) 0)]
     (if-not (nil? content)
-      (assoc-in node [:content 0] (clojure.string/escape content {\< "&lt;" \> "&gt;" \& "&amp;" \" "&quot;"}))
+      (assoc-in node [:content 0] (StringEscapeUtils/escapeXml content))
       node)))
 
 (defn- components-read [ins]
