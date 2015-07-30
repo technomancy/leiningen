@@ -3,7 +3,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.5.1</version>
+  <version>2.5.2-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -14,11 +14,11 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>f48846ff3cce9158d2c8ec5e6b488d45d74d286d
+    <connection>scm:git:git://github.com/towler73/leiningen.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/towler73/leiningen.git</developerConnection>
+    <tag>7045e666e10bfe4dbb6630b497fd94dbc257519f
 </tag>
-    <url>https://github.com/technomancy/leiningen</url>
+    <url>https://github.com/towler73/leiningen</url>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -43,7 +43,7 @@
   <repositories>
     <repository>
       <id>central</id>
-      <url>http://repo1.maven.org/maven2/</url>
+      <url>https://repo1.maven.org/maven2/</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -106,7 +106,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.nrepl</artifactId>
-      <version>0.2.3</version>
+      <version>0.2.6</version>
       <exclusions>
         <exclusion>
           <groupId>org.clojure</groupId>
