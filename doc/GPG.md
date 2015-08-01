@@ -242,13 +242,6 @@ the key id. Example:
 Copy the entire output (including the BEGIN and END lines), and paste
 it into the 'PGP public key' field of your Clojars profile.
 
-### lein deploy clojars vs. scp
-
-Currently, publishing signatures to Clojars only works if you are
-using `lein deploy clojars`. If you are using `scp` to deploy, you can
-copy signatures along with the artifacts, but they will be
-ignored.
-
 ## Troubleshooting
 
 ### Debian based distributions

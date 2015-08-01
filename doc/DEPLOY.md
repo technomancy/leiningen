@@ -41,6 +41,8 @@ It's also possible to deploy to a repository using the `scp` transport
 and consume from it over `http` if you set up nginx or something
 similar to serve the repository directory over HTTP.
 
+N.B. SCP deploys to Clojars are no longer supported.
+
 ### S3
 
 If you don't already have a server running,
