@@ -153,7 +153,7 @@ Your `project.clj` file will start off looking something like this:
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.5.1"]]
+  :dependencies [[org.clojure/clojure "1.7.0"]]
   :main ^:skip-aot my-stuff.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
@@ -188,19 +188,17 @@ its web interface or via `lein search $TERM`. On the Clojars page for
 `clj-http` at the time of this writing it shows this:
 
 ```clj
-[clj-http "0.9.1"]
+[clj-http "2.0.0"]
 ```
 
-It also shows the Maven syntax for dependencies, which we'll skip for
-now, though you'll need to learn to read it when looking for Java
-libraries from [Central](http://search.maven.org). You can copy the
+It also shows the Maven and Gradle syntax for dependencies. You can copy the
 Leiningen version directly into the `:dependencies` vector in
 `project.clj`.  So for instance, if you change the `:dependencies`
 line in the example `project.clj` above to
 
 ```clj
-:dependencies [[org.clojure/clojure "1.5.1"]
-               [clj-http "0.9.1"]]
+:dependencies [[org.clojure/clojure "1.7.0"]
+               [clj-http "2.0.0"]]
 ```
 
 Leiningen will automatically download the `clj-http` jar and make sure
@@ -209,11 +207,11 @@ download new dependencies, you can do so with `lein deps`, but it will
 happen on-demand if you don't.
 
 Within the vector, "clj-http" is referred to as the "artifact id".
-"0.9.1" is the version. Some libraries will also have "group ids",
+"2.0.0" is the version. Some libraries will also have "group ids",
 which are displayed like this:
 
 ```clj
-[com.cedarsoft.utils.legacy/hibernate "1.3.4"]
+[com.cedarsoft.utils.legacy/hibernate "1.3.7"]
 ```
 
 The group id is the part before the slash. Especially for Java
@@ -259,7 +257,8 @@ wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj).
+[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+for examples on how to do so.
 
 ### Checkout Dependencies
 
@@ -370,7 +369,7 @@ to run in the context of your project. Since we've added `clj-http` to
     user=> (def response (http/get "http://leiningen.org"))
     #'user/response
     user=> (keys response)
-    (:trace-redirects :status :headers :body)
+    (:status :headers :body :request-time :trace-redirects :orig-content-encoding)
 
 The call to `-main` shows both println output ("Hello, World!") and
 the return value (nil) together.
@@ -437,7 +436,7 @@ Running `lein test` from the command-line is suitable for regression
 testing, but the slow startup time of the JVM makes it a poor fit for
 testing styles that require tighter feedback loops. In these cases,
 either keep a repl open for running the appropriate call to
-[clojure.test/run-tests](http://clojuredocs.org/clojure_core/1.3.0/clojure.test/run-tests)
+[clojure.test/run-tests](https://clojuredocs.org/clojure.test/run-tests)
 or look into editor integration such as
 [clojure-test-mode](https://github.com/technomancy/clojure-mode).
 
@@ -491,7 +490,7 @@ The simplest thing to do is to distribute an uberjar. This is a single
 standalone executable jar file most suitable for giving to
 nontechnical users. For this to work you'll need to specify a
 namespace as your `:main` in `project.clj` and ensure it's also AOT (Ahead Of Time)
-compiled by adding it to `:aot`. By this point our `project.clj` file
+compiled by adding it to `:aot`. By this point, our `project.clj` file
 should look like this:
 
 ```clj
@@ -500,22 +499,22 @@ should look like this:
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.3.0"]
-                 [org.apache.lucene/lucene-core "3.0.2"]
-                 [clj-http "0.9.1"]]
-  :profiles {:dev {:dependencies [[ring/ring-devel "1.2.0"]]}}
-  :test-selectors {:default (complement :integration)
-                  :integration :integration
-                  :all (fn [_] true)}
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [clj-http "2.0.0"]]
+  :profiles {:dev {:dependencies [[ring/ring-devel "1.4.0"]]}}
   :main my.stuff
   :aot [my.stuff])
 ```
+
+We have also added a development dependency, `ring-devel`. `ring-devel` will not
+be available in uberjars, and will not be considered a dependency if you publish
+this project to a repository.
 
 The namespace you specify will need to contain a `-main` function that
 will get called when your standalone jar is run. This namespace should
 have a `(:gen-class)` declaration in the `ns` form at the top. The
 `-main` function will get passed the command-line arguments. Let's try
-something simple in `src/my/stuff.clj`:
+something easy in `src/my_stuff.clj`:
 
 ```clj
 (ns my.stuff
@@ -529,13 +528,8 @@ Now we're ready to generate your uberjar:
 
     $ lein uberjar
     Compiling my.stuff
-    Compilation succeeded.
-    Created /home/phil/src/leiningen/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
-    Including my-stuff-0.1.0-SNAPSHOT.jar
-    Including clj-http-0.9.1.jar
-    Including clojure-1.3.0.jar
-    Including lucene-core-3.0.2.jar
-    Created /home/phil/src/leiningen/my-stuff/target/my-stuff-0.1.0-SNAPSHOT-standalone.jar
+    Created /home/phil/my-stuff/target/uberjar+uberjar/my-stuff-0.1.0-SNAPSHOT.jar
+    Created /home/phil/my-stuff/target/uberjar/my-stuff-0.1.0-SNAPSHOT-standalone.jar
 
 This creates a single jar file that contains the contents of all your
 dependencies. Users can run it with a simple `java` invocation,
@@ -570,15 +564,13 @@ containing all dependencies except the Hadoop libraries themselves:
   ...
   :profiles {:provided
              {:dependencies
-              [[org.apache.hadoop/hadoop-core "0.20.2-dev"]]}}
+              [[org.apache.hadoop/hadoop-core "1.2.1"]]}}
   :main example.hadoop)
 ```
 
     $ lein uberjar
     Compiling example.hadoop
     Created /home/xmpl/src/example.hadoop/example.hadoop-0.1.0.jar
-    Including example.hadoop-0.1.0.jar
-    Including clojure-1.4.0.jar
     Created /home/xmpl/src/example.hadoop/example.hadoop-0.1.0-standalone.jar
     $ hadoop jar example.hadoop-0.1.0-standalone.jar
     12/08/24 08:28:30 INFO util.Util: resolving application jar from found main method on: example.hadoop
