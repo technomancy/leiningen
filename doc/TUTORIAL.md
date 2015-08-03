@@ -304,14 +304,14 @@ simply supplements that for convenience. That is, given the above directory hier
 
       :dependencies [[org.clojure/clojure "1.9.0"]
                      ...
-                     suchwow "0.3.9"
-                     com.megacorp/commons "1.3.5"
+                     [suchwow "0.3.9"]
+                     [com.megacorp/commons "1.3.5"]
                      ...]
                  
 
-(Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
+Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
 The `suchwow` and `commons` links look the same in `checkouts`, and the groupid
-hierarchy doesn't need to appear in the way `commons` is actually laid out on disk.)
+hierarchy doesn't need to appear in the way `commons` is actually laid out on disk.
 
 After you've updated `:dependencies`, `lein` will still need to be able
 to find the library in some repository like clojars or your `~/.m2`
