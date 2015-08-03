@@ -319,8 +319,9 @@ work without checkouts before you push or merge.
 Leiningen supports searching remote Maven repositories for matching
 jars with the command `lein search $TERM`. The first time `lein search`
 is run, a set of indices are downloaded. Once this is finished, the query
-is evaluated as a Lucene search. This allows for simple string matching
-or strings prefixed with one of the following operators:
+is evaluated as a [Lucene search](http://www.lucenetutorial.com/lucene-query-syntax.html).
+This allows for simple string matching or strings prefixed with one of the
+following operators:
 
   * `artifact-id`, `artifact\_id`, `id`, `a`
   * `group-id`, `group\_id`, `group`, `g`
