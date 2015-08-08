@@ -1,6 +1,7 @@
 (ns leiningen.test.uberjar
   (:require [leiningen.uberjar :refer :all]
             [clojure.test :refer :all]
+            [clojure.java.io :refer [delete-file]]
             [clojure.java.shell :refer [sh]]
             [clojure.xml :as xml]
             [leiningen.test.helper :refer [sample-no-aot-project
@@ -54,8 +55,7 @@
         out-file (FileOutputStream. (File. result-file))]
       (writexml out-file combined-xml)
       (is (= expected-xml (xml/parse result-file)))
-    )
-    )
+      (delete-file result-file true)))
 
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided
