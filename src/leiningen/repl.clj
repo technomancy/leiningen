@@ -259,6 +259,16 @@
     (require 'cemerick.drawbridge.client))
   (reply/launch-nrepl (options-for-reply project :attach attach)))
 
+(defn- fixup-no-project
+  "fixup-no-project ensures that dependencies within profiles is fetched
+  and loaded, even if we're outside a project."
+  [project]
+  (if (:root project)
+    project
+    (-> project ;; Ugh, this feels like an ugly hack
+        (project/merge-profiles [{:dependencies '[^:displace [org.clojure/clojure "1.7.0"]]}])
+        (assoc :eval-in :subprocess))))
+
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
@@ -296,9 +306,9 @@ deactivated, but it can be overridden."
 
   ([project] (repl project ":start"))
   ([project subcommand & opts]
-   (let [project (project/merge-profiles
-                  project
-                  (project/profiles-with-matching-meta project :repl))]
+   (let [repl-profiles (project/profiles-with-matching-meta project :repl)
+         project (-> (project/merge-profiles project repl-profiles)
+                     (fixup-no-project))]
      (if (= subcommand ":connect")
        (client project (doto (connect-string project opts)
                          (->> (main/info "Connecting to nREPL at"))))
