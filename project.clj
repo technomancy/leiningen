@@ -17,7 +17,7 @@
                                org.sonatype.aether/aether-util
                                org.sonatype.sisu/sisu-inject-plexus
                                jakarta-regexp]]
-                 [reply "0.3.6" :exclusions [ring/ring-core
+                 [reply "0.3.7" :exclusions [ring/ring-core
                                              org.thnetos/cd-client]]
                  [org.clojure/tools.nrepl "0.2.10"]
                  [clojure-complete "0.2.3"]
