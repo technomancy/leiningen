@@ -146,6 +146,7 @@
 
         ;; TODO: support :reverse?
         (top-displace? left) right
+        (and (displace? left) (top-displace? right)) left
 
         (and (displace? left)   ;; Pick the rightmost
              (displace? right)) ;; if both are marked as displaceable
