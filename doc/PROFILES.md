@@ -105,6 +105,35 @@ Some tasks automatically merge a profile if specified.  Examples of
 these are the `:test` profile, when running the `test` task, and the
 `:repl` profile, when running the `repl` task.
 
+### Replacing Default Repl Dependencies
+
+By default, the repl task will use the version of Clojure, tools.nrepl
+and clojure-complete that ships with the Leiningen. These can be
+overridden in projects, but this doesn't change the repl's behaviour
+outside of those projects. To do that, you should put a `:repl`
+profile in your `~/.lein/profiles.clj` file. For example, to replace
+the default tools.nrepl dependency with version 0.2.10, you can insert
+the following profile:
+
+```clj
+{:repl {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}}
+```
+
+Now, all calls to `lein repl` will use version 0.2.10 of tools.nrepl,
+with the exception of the projects that has defined a `:repl` profile
+themselves.
+
+If you want to specify the default Clojure version outside of
+projects, you can do so by `^:displace`-ing it in the `:repl` profile:
+
+```clj
+{:repl {:dependencies [^:displace [org.clojure/clojure "1.8.0-alpha3"]]}}
+```
+
+This version will only be used outside of Clojure projects. Note that
+this `^:displace` trick will not work with tools.nrepl or
+clojure-complete.
+
 ## Profile Metadata
 
 If you mark your profile with `^:leaky` metadata, then the profile
