@@ -481,10 +481,10 @@
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 ;; bump deps in leiningen's own project.clj with these
-                :dependencies '[[org.clojure/tools.nrepl "0.2.10"
-                                 :exclusions [org.clojure/clojure]]
-                                [clojure-complete "0.2.3"
-                                 :exclusions [org.clojure/clojure]]]
+                :dependencies '[^:displace [org.clojure/tools.nrepl "0.2.10"
+                                            :exclusions [org.clojure/clojure]]
+                                ^:displace [clojure-complete "0.2.3"
+                                            :exclusions [org.clojure/clojure]]]
                 :checkout-deps-shares [:source-paths
                                        :test-paths
                                        :resource-paths
