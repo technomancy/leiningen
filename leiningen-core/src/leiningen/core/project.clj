@@ -503,7 +503,6 @@
 (def default-profile-metadata
   {:dev {:pom-scope :test}
    :test {:pom-scope :test}
-   :base {:pom-scope :test}
    :uberjar {:leaky true}
    :provided {:pom-scope :provided}
    :repl {:repl true}})
