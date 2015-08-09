@@ -1,5 +1,18 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.5.2 / 2015-08-09
+
+* Allow repl dependencies to be specified in default user profiles. (Jean Niklas L'orange)
+* Fix a bug where transitive dependencies on tools.nrepl failed. (Jean Niklas L'orange)
+* Fix a bug preventing custom certificates to work. (Jean Niklas L'orange)
+* Add support for reader conditional files. (Stephen Nelson)
+* Add `--template-version` flag to `lein new`. (Ohta Shogo)
+* Bail immediately if snapshot dependencies are discovered during uberjaring. (Justin Smith)
+* Use powershell by default in `lein.bat`. (Frederick Giasson, Florian Anderiasch)
+* Fix bug where manifest files could contain duplicate entries. (Michael Blume)
+* Allow template designers to use a custom rendering function. (Dmitri Sotnikov)
+* Fix a bug where `:uberjar-name` wasn't used when inside the `:uberjar` profile. (Kyle Harrington)
+
 ## 2.5.1 / 2015-01-09
 
 * No longer skip certificate checking when upgrading on Windows. (Phil Hagelberg)
