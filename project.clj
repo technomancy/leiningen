@@ -24,7 +24,8 @@
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
                  [cheshire "5.5.0"]
-                 [clj-http "0.9.2" :exclusions [crouton]]]
+                 [clj-http "0.9.2" :exclusions [crouton]]
+                 [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
@@ -33,7 +34,9 @@
                              cemerick.pomegranate
                              classlojure.core
                              clojure.tools.nrepl
-                             clj-http.core]}}
+                             clj-http.core
+                             ;; to avoid compile warnings at runtime:
+                             clj-http.client]}}
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
