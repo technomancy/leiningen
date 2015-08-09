@@ -28,7 +28,7 @@ rm -rf $HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar
 LEIN_ROOT=$PWD
 
 cd leiningen-core
-lein-stable do clean, install
+lein-stable do clean, bootstrap
 cd ..
 
 bin/lein uberjar
