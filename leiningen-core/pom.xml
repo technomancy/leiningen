@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.5.2-SNAPSHOT</version>
+  <version>2.5.2</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -14,11 +15,11 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/towler73/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/towler73/leiningen.git</developerConnection>
-    <tag>7045e666e10bfe4dbb6630b497fd94dbc257519f
+    <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
+    <tag>6c7de27414532a6727e183392221758e20c65ba7
 </tag>
-    <url>https://github.com/towler73/leiningen</url>
+    <url>https://github.com/technomancy/leiningen</url>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -66,12 +67,12 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.6.0</version>
+      <version>1.7.0</version>
     </dependency>
     <dependency>
       <groupId>bultitude</groupId>
       <artifactId>bultitude</artifactId>
-      <version>0.2.6</version>
+      <version>0.2.8</version>
     </dependency>
     <dependency>
       <groupId>classlojure</groupId>
@@ -91,7 +92,7 @@
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
       <artifactId>wagon-http</artifactId>
-      <version>2.7</version>
+      <version>2.9</version>
     </dependency>
     <dependency>
       <groupId>com.hypirion</groupId>
