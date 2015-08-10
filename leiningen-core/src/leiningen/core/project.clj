@@ -490,7 +490,8 @@
                                        :test-paths
                                        :resource-paths
                                        :compile-path
-                                       #'classpath/checkout-deps-paths]}
+                                       #'classpath/checkout-deps-paths]
+                :aliases {"downgrade" "upgrade"}}
          :leiningen/test {:injections [hooke-injection]
                           :test-selectors {:default (with-meta
                                                       '(constantly true)
