@@ -149,7 +149,7 @@ periodically; it will keep it cached for a given period.
 
 Note to windows users: Be sure to download the full version of 
 [Gpg4win](http://gpg4win.org/download.html) and
-select Gpg for installation. You then need to run 
+select GPA for installation. You then need to run 
 `gpg-connect-agent /bye` from the command line before starting lein.
 
 ### Full-disk Encryption
