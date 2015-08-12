@@ -253,7 +253,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
     fi
     if [ $SNAPSHOT = "YES" ]; then
         echo "The upgrade task is only meant for stable releases."
-        echo "See the \"Hacking\" section of the README."
+        echo "See the \"Bootstrapping\" section of CONTRIBUTING.md."
         exit 1
     fi
     if [ ! -w "$SCRIPT" ]; then
