@@ -147,6 +147,11 @@ encrypted it. Due to a bug in `gpg` you currently need to use
 launches, but with `gpg-agent` you only have to enter your passphrase
 periodically; it will keep it cached for a given period.
 
+Note to windows users: Be sure to download the full version of 
+[Gpg4win](http://gpg4win.org/download.html) and
+select GPA for installation. You then need to run 
+`gpg-connect-agent /bye` from the command line before starting lein.
+
 ### Full-disk Encryption
 
 If you use full-disk encryption, it may be safe to store your
