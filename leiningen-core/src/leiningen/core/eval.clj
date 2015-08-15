@@ -313,17 +313,33 @@
     (System/setProperty k v))
   (eval form))
 
-(defmethod eval-in :pprint [project form]
+(defn runtime-info
+  "Function returning command line info as pure data. Can be called by third party libraries"
+  [project]
+  {:java      (or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
+   :classpath (classpath-arg project)
+   :jvm-args  (get-jvm-args project)})
+
+(defn pprint-form [form]
   (require 'clojure.pprint)
-  (println "Java:" (or (:java-cmd project) (System/getenv "JAVA_CMD") "java"))
-  (apply println "Classpath:" (classpath-arg project))
-  (apply println "JVM args:" (get-jvm-args project))
   ;; Can't use binding with dynamic require
   (let [dispatch-var (resolve 'clojure.pprint/*print-pprint-dispatch*)
         code-dispatch @(resolve 'clojure.pprint/code-dispatch)]
     (try (push-thread-bindings {dispatch-var code-dispatch})
          ((resolve 'clojure.pprint/pprint) form)
          (finally (pop-thread-bindings)))))
+
+(defmethod eval-in :pprint-edn [project form]
+  (require 'clojure.pprint)
+  ((resolve 'clojure.pprint/pprint) (runtime-info project))
+  (pprint-form form))
+
+(defmethod eval-in :pprint [project form]
+  (let [{:keys [java classpath jvm-args] :as info} (runtime-info project)]
+    (println "Java:" java)
+    (apply println "Classpath:" classpath)
+    (apply println "JVM args:" jvm-args))
+  (pprint-form form))
 
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
