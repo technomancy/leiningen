@@ -90,14 +90,22 @@
   []
   (or (getenv "LEIN_GPG") "gpg"))
 
+(defn- get-english-env []
+  "Returns environment variables as a map with clojure keywords and LANGUAGE set to 'en'"
+  (let [env (System/getenv)
+        keywords (map #(keyword %) (keys env))]
+    (merge (zipmap keywords (vals env))
+                {:LANGUAGE "en"})))
+
 (defn gpg
   "Shells out to (gpg-program) with the given arguments"
   [& args]
-  (try
-    (shell/with-sh-env {:LANGUAGE "en"} 
-      (apply shell/sh (gpg-program) args))
-    (catch java.io.IOException e
-      {:exit 1 :err (.getMessage e)})))
+  (let [env (get-english-env)]
+    (try
+      (shell/with-sh-env env
+        (apply shell/sh (gpg-program) args))
+      (catch java.io.IOException e
+        {:exit 1 :err (.getMessage e)}))))
 
 (defn gpg-available?
   "Verifies (gpg-program) exists"
