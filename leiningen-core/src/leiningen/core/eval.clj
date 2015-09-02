@@ -185,6 +185,21 @@
             (.resurrect System/in))
           exit-value)))))
 
+(defn sh-with-exit-code
+  "Applies SH to CMD and on a non-0 exit code, throws an Exception
+  using FAILURE-MESSAGE. A period is appended to FAILURE-MESSAGE.
+  Returns the exit code on success.
+
+  FAILURE-MESSAGE must satisfy `string?`.
+  (first CMD) must satisfy `string?`."
+  [failure-message & cmd]
+  {:pre [(string? failure-message)
+         (string? (first cmd))]}
+  (let [exit-code (apply sh cmd)]
+    (when-not (= 0 exit-code)
+      (throw (Exception. (format "%s. %s exit code: %d" failure-message (first cmd) exit-code))))
+    exit-code))
+
 (defn- agent-arg [coords file]
   (let [{:keys [options bootclasspath]} (apply hash-map coords)]
     (concat [(str "-javaagent:" file (and options (str "=" options)))]
