@@ -52,24 +52,24 @@
 
 (defmethod push :git [project & args]
   (binding [eval/*dir* (:root project)]
-    (apply eval/sh "git" "push" args)
-    (apply eval/sh "git" "push" "--tags" args)))
+    (apply eval/sh-with-exit-code "Couldn't push to the remote" "git" "push" args)
+    (apply eval/sh-with-exit-code "Couldn't push tags to the remote" "git" "push" "--tags" args)))
 
 (defmethod commit :git [project]
   (binding [eval/*dir* (:root project)]
-    (eval/sh "git" "commit" "-a" "-m" (str "Version " (:version project)))))
+    (eval/sh-with-exit-code "Couldn't commit" "git" "commit" "-a" "-m" (str "Version " (:version project)))))
 
 (defmethod tag :git [{:keys [root version]} & [prefix]]
   (binding [eval/*dir* root]
     (let [tag (if prefix
                 (str prefix version)
                 version)]
-      (eval/sh "git" "tag" "-s" tag "-m" (str "Release " version)))))
+      (eval/sh-with-exit-code "Couldn't tag" "git" "tag" "-s" tag "-m" (str "Release " version)))))
 
 (defmethod assert-committed :git [project]
   (binding [eval/*dir* (:root project)]
     (when (re-find #"Changes (not staged for commit|to be committed)"
-                   (with-out-str (eval/sh "git" "status")))
+                   (with-out-str (eval/sh-with-exit-code "Couldn't get status" "git" "status")))
        (main/abort "Uncommitted changes in" (:root project) "directory."))))
 
 
