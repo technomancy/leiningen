@@ -106,6 +106,7 @@ Leiningen documentation is organized as a number of guides:
  * [Writing Templates](https://github.com/technomancy/leiningen/blob/stable/doc/TEMPLATES.md)
  * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
  * [Contributing](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md)
+ * [Building Leiningen](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md#bootstrapping)
 
 ## Plugins
 
