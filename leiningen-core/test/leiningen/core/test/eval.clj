@@ -60,3 +60,11 @@
                                    "/2.18.0/newrelic-agent-2.18.0.jar"))))
     (is (re-find #"bootclasspath.*newrelic.*jar" newrelic-bootcp))
     (is (re-find #"-javaagent:.*nodisassemble-0.1.2.jar=hello" nodisassemble))))
+
+(deftest test-sh-with-exit-code-successful-command
+  (with-redefs [sh (constantly 0)]
+    (is (= 0 (sh-with-exit-code "Shouldn't see me." "ls")))))
+
+(deftest test-sh-with-exit-code-failed-command
+  (with-redefs [sh (constantly 1)]
+    (is (thrown-with-msg? Exception #"Should see me. ls exit code: 1" (sh-with-exit-code "Should see me" "ls")))))
