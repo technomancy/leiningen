@@ -27,6 +27,22 @@
       (is (= "{:foo \"bar\"}" (slurp file)))
       (.delete file))))
 
+(deftest test-classpath-directories-created
+  (doseq [path (concat (:source-paths project)
+                       (:test-paths project)
+                       (:resource-paths project))]
+    (let [file (File/createTempFile "lein-eval-test" "")]
+      (eval-in-project project
+                       `(do (.mkdirs (clojure.java.io/file ~path))
+                            (spit ~(str path "/foo.txt") "Hello World")
+                            (when-let [f# (clojure.java.io/resource "foo.txt")]
+                              (spit ~(.getPath file) (slurp f#))))
+                       `(require 'clojure.java.io))
+      (is (= "Hello World" (slurp file)))
+      (.delete (io/file (str path "/foo.txt")))
+      (.delete (io/file path))
+      (.delete file))))
+
 (deftest test-jvm-opts
   (is (= ["-Dhello=\"guten tag\"" "-XX:+HeapDumpOnOutOfMemoryError"]
          (get-jvm-opts-from-env (str "-Dhello=\"guten tag\" "
