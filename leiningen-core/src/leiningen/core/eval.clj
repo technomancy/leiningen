@@ -57,9 +57,13 @@
   "Before we can run eval-in-project we need to prep the project by running
   javac, compile, and any other tasks the project specifies."
   [project]
-  ;; This must exist before the project is launched.
+  ;; These must exist before the project is launched.
   (when (:root project)
-    (.mkdirs (io/file (:compile-path project "/tmp"))))
+    (.mkdirs (io/file (:compile-path project "/tmp")))
+    (doseq [path (concat (:source-paths project)
+                         (:test-paths project)
+                         (:resource-paths project))]
+      (.mkdirs (io/file path))))
   (write-pom-properties project)
   (classpath/resolve-dependencies :dependencies project)
   (run-prep-tasks project)
