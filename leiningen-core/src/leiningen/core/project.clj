@@ -158,6 +158,11 @@
         (with-meta* right
           (merge (meta* left) (meta* right)))
 
+        (and (replace? right)
+             (empty? (meta left)))
+        (with-meta* left
+          (merge (meta* left) (meta* right)))
+
         (or (displace? left)
             (replace? right))
         (with-meta* right
