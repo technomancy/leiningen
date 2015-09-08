@@ -13,13 +13,20 @@
      (mapv read-string f-args)
      task+args]))
 
+(defn discard-metadata [project keys-vec]
+  (if-not (nil? (get-in (meta project) keys-vec))
+    (vary-meta project clj/update-in keys-vec #(with-meta % {}))
+    project))
+
 (defn ^:internal update-project [project keys-vec f args]
   (let [f #(apply apply (concat (if (seq keys-vec)
                                   [clj/update-in % keys-vec f]
                                   [f %])
                                 args
                                 [nil]))]
+
     (-> (vary-meta (f project) clj/update-in [:without-profiles] f)
+        (discard-metadata (into [:profiles :user] keys-vec))
         (project/load-plugins)
         (project/activate-middleware))))
 
