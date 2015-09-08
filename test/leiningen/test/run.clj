@@ -82,4 +82,4 @@
     ;; the inappropriate error message "Can't find
     ;; 'file-not-found-thrower.core' as .class or .clj for lein run:
     ;; please check the spelling." is not
-    (is (.startsWith s "Exception in thread \"main\" java.io.FileNotFoundException"))))
+    (is (.contains s "Exception in thread \"main\" java.io.FileNotFoundException"))))
