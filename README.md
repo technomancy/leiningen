@@ -97,16 +97,21 @@ The `project.clj` file can be customized further with the use of
 
 Leiningen documentation is organized as a number of guides:
 
+### Usage
+
  * [Tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md) (start here if you are new)
  * [FAQ](https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md)
  * [Profiles](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
  * [Deployment & Distribution of Libraries](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
  * [Sample project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
- * [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
- * [Writing Templates](https://github.com/technomancy/leiningen/blob/stable/doc/TEMPLATES.md)
  * [Polyglot (e.g. Clojure/Java) projects](https://github.com/technomancy/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
- * [Contributing](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md)
- * [Building Leiningen](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md#bootstrapping)
+
+### Development
+
+* [Writing Plugins](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+* [Writing Templates](https://github.com/technomancy/leiningen/blob/stable/doc/TEMPLATES.md)
+* [Contributing](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md)
+* [Building Leiningen](https://github.com/technomancy/leiningen/blob/stable/CONTRIBUTING.md#bootstrapping)
 
 ## Plugins
 
