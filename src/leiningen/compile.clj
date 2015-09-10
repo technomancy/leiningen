@@ -140,7 +140,7 @@ Code that should run on startup belongs in a -main defn."
                        (clojure.core/compile ~ns-sym)
                        (catch Throwable t#
                          (binding [*out* *err*]
-                           (.printStackTrace t#))
+                           (println (.getMessage t#)))
                          (throw t#))))
              project (update-in project [:prep-tasks]
                                 (partial remove #{"compile"}))]
