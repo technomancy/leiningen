@@ -16,7 +16,15 @@
 (defn which-vcs [project & _]
   (or (:vcs project) (some (partial uses-vcs project) @supported-systems)))
 
-
+(defn parse-tag-args [args]
+  (loop [parsed-args {:sign? true}
+         args args]
+    (case (first args)
+      ("--sign" "-s") (recur (assoc parsed-args :sign? true) (rest args))
+      "--no-sign" (recur (assoc parsed-args :sign? false) (rest args))
+      nil parsed-args                                       ;; We're finished and can exit
+      (recur (assoc parsed-args :prefix (first args)) (rest args)))))
+
 ;;; Methods
 
 (defmulti push "Push to your remote repository."
@@ -31,7 +39,6 @@
 (defmulti assert-committed "Abort if uncommitted changes exist."
   which-vcs :default :none)
 
-
 
 ;;; VCS not found
 
@@ -48,6 +55,7 @@
 
 (defmethod assert-committed :none [project] (unknown-vcs "assert-committed"))
 
+
 ;;; Git
 
 (defmethod push :git [project & args]
@@ -59,12 +67,15 @@
   (binding [eval/*dir* (:root project)]
     (eval/sh-with-exit-code "Couldn't commit" "git" "commit" "-a" "-m" (str "Version " (:version project)))))
 
-(defmethod tag :git [{:keys [root version]} & [prefix]]
+(defmethod tag :git [{:keys [root version]} & args]
   (binding [eval/*dir* root]
-    (let [tag (if prefix
+    (let [{:keys [sign? prefix]} (parse-tag-args args)
+          tag (if prefix
                 (str prefix version)
-                version)]
-      (eval/sh-with-exit-code "Couldn't tag" "git" "tag" "-s" tag "-m" (str "Release " version)))))
+                version)
+          cmd (->> ["git" "tag" (when sign? "--sign") tag "-m" (str "Release " version)]
+                   (filter some?))]
+      (apply eval/sh-with-exit-code "Couldn't tag" cmd))))
 
 (defmethod assert-committed :git [project]
   (binding [eval/*dir* (:root project)]

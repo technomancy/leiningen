@@ -297,6 +297,13 @@ libraries using Leiningen. Applications will have different requirements
 that are varied enough that Leiningen doesn't attempt to support them
 out of the box.
 
+### Tagging
+
+By default `["vcs" "tag"]` will create a GPG signed tag with your project version
+number. You can add a tag prefix by passing the prefix after `"tag"`,
+for example: `["vcs" "tag" "v"]`. You can disable tag signing by passing `--no-sign`,
+for example: `["vcs" "tag" "v" "--no-sign"]` or `["vcs" "tag" "--no-sign"]`.
+
 ## Deploying to Maven Central
 
 Deploying your libraries and other artifacts to [Maven
