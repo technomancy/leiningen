@@ -1,5 +1,5 @@
 (ns leiningen.new.plugin
-  (:require [leiningen.new.templates :refer [renderer sanitize year ->files]]
+  (:require [leiningen.new.templates :refer [renderer sanitize year date ->files]]
             [leiningen.core.main :as main]))
 
 (defn plugin
@@ -12,7 +12,8 @@
         data {:name name
               :unprefixed-name unprefixed
               :sanitized (sanitize unprefixed)
-              :year (year)}]
+              :year (year)
+              :date (date)}]
     (main/info (str "Generating a fresh Leiningen plugin called " name "."))
     (->files data
              ["project.clj" (render "project.clj" data)]
@@ -20,4 +21,5 @@
              [".gitignore" (render "gitignore" data)]
              [".hgignore" (render "hgignore" data)]
              ["src/leiningen/{{sanitized}}.clj" (render "name.clj" data)]
-             ["LICENSE" (render "LICENSE" data)])))
+             ["LICENSE" (render "LICENSE" data)]
+             ["CHANGELOG.md" (render "CHANGELOG.md" data)])))

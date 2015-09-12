@@ -1,6 +1,6 @@
 (ns leiningen.new.app
   "Generate a basic application project."
-  (:require [leiningen.new.templates :refer [renderer year project-name
+  (:require [leiningen.new.templates :refer [renderer year date project-name
                                              ->files sanitize-ns name-to-path
                                              multi-segment]]
             [leiningen.core.main :as main]))
@@ -14,7 +14,8 @@
               :name (project-name name)
               :namespace main-ns
               :nested-dirs (name-to-path main-ns)
-              :year (year)}]
+              :year (year)
+              :date (date)}]
     (main/info "Generating a project called" name "based on the 'app' template.")
     (->files data
              ["project.clj" (render "project.clj" data)]
@@ -25,4 +26,5 @@
              ["src/{{nested-dirs}}.clj" (render "core.clj" data)]
              ["test/{{nested-dirs}}_test.clj" (render "test.clj" data)]
              ["LICENSE" (render "LICENSE" data)]
+             ["CHANGELOG.md" (render "CHANGELOG.md" data)]
              "resources")))

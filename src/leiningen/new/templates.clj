@@ -103,6 +103,12 @@
   "Get the current year. Useful for setting copyright years and such."
   [] (.get (Calendar/getInstance) Calendar/YEAR))
 
+(defn date
+  "Get the current date as a string in ISO8601 format."
+  []
+  (let [df (java.text.SimpleDateFormat. "yyyy-MM-dd")]
+    (.format df (java.util.Date.))))
+
 ;; It'd be silly to expect people to pull in stencil just to render a mustache
 ;; string. We can just provide this function instead. In doing so, it is much
 ;; less likely that template authors will have to pull in any external
