@@ -1,6 +1,6 @@
 (ns leiningen.new.default
   "Generate a library project."
-  (:require [leiningen.new.templates :refer [renderer year project-name
+  (:require [leiningen.new.templates :refer [renderer year date project-name
                                              ->files sanitize-ns name-to-path
                                              multi-segment]]
             [leiningen.core.main :as main]))
@@ -16,7 +16,8 @@ Accepts a group id in the project name: `lein new foo.bar/baz`"
               :name (project-name name)
               :namespace main-ns
               :nested-dirs (name-to-path main-ns)
-              :year (year)}]
+              :year (year)
+              :date (date)}]
     (main/info "Generating a project called" name "based on the 'default' template.")
     (main/info "The default template is intended for library projects, not applications.")
     (main/info "To see other templates (app, plugin, etc), try `lein help new`.")
@@ -29,4 +30,5 @@ Accepts a group id in the project name: `lein new foo.bar/baz`"
              ["src/{{nested-dirs}}.clj" (render "core.clj" data)]
              ["test/{{nested-dirs}}_test.clj" (render "test.clj" data)]
              ["LICENSE" (render "LICENSE" data)]
+             ["CHANGELOG.md" (render "CHANGELOG.md" data)]
              "resources")))
