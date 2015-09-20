@@ -7,7 +7,7 @@
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
   (is (= #{"README.md" "project.clj" "resources" "src" "core.clj" "test"
-           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore" 
+           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"
            ".hgignore" "LICENSE"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-proj")))))))
   (delete-file-recursively (file "test-new-proj") :silently))
@@ -57,6 +57,18 @@
        #"Could not find template zzz"
        (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
          (abort-msg leiningen.new/new nil "zzz" "my-zzz")))))
+
+(deftest test-new-with-nonexistent-template-in-mirrors
+  (is (nil?
+       (with-redefs
+         [leiningen.core.user/profiles
+          (constantly {:user
+                        {:mirrors
+                          {"clojars" "https://clojars.example.com"
+                           "central" "http://central.exmaple.com"}}})]
+         (let [name "luminus"
+               sym (symbol (str "leiningen.new." name))]
+           (leiningen.new/resolve-remote-template name sym))))))
 
 (deftest test-new-with-*-jure-project-name
   (is (re-find

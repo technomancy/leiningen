@@ -17,12 +17,15 @@
         template-version (cond *template-version* *template-version*
                                *use-snapshots?*   "(0.0.0,)"
                                :else              "RELEASE")
+        user-profiles (:user (user/profiles))
         repositories (reduce
                        (:reduce (meta project/default-repositories))
                        project/default-repositories
-                       (-> (user/profiles) :user :plugin-repositories))]
-    {:templates [[template-symbol template-version]]
-     :repositories repositories}))
+                       (:plugin-repositories user-profiles))
+        {:keys [mirrors] :as extra-user-profiles} user-profiles]
+    (conj {:templates [[template-symbol template-version]]
+           :repositories repositories}
+          extra-user-profiles)))
 
 (defn resolve-remote-template [name sym]
   (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
