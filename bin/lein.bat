@@ -101,7 +101,9 @@ rem the paths inside the bootstrap file do not already contain double quotes but
 
     :: Apply context specific CLASSPATH entries
     if exist "%~dp0..\.lein-classpath" (
-        for /f %%i in ("%~dp0...lein-classpath") do set CONTEXT_CP=%%i
+        for /f "tokens=* delims= " %%i in (%~dp0..\.lein-classpath) do (
+            set CONTEXT_CP=%%i
+        )
 
         if NOT "x!CONTEXT_CP!"=="x" (
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
@@ -114,7 +116,9 @@ rem the paths inside the bootstrap file do not already contain double quotes but
     set CLASSPATH=%LEIN_JAR%
   
     if exist ".lein-classpath" (
-        for /f %%i in (.lein-classpath) do set CONTEXT_CP=%%i 
+        for /f "tokens=* delims= " %%i in (.lein-classpath) do (
+            set CONTEXT_CP=%%i
+        )
 
         if NOT "x!CONTEXT_CP!"=="x" (
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
