@@ -21,11 +21,10 @@
         repositories (reduce
                        (:reduce (meta project/default-repositories))
                        project/default-repositories
-                       (:plugin-repositories user-profiles))
-        {:keys [mirrors] :as extra-user-profiles} user-profiles]
-    (conj {:templates [[template-symbol template-version]]
-           :repositories repositories}
-          extra-user-profiles)))
+                       (:plugin-repositories user-profiles))]
+    (merge {:templates [[template-symbol template-version]]
+            :repositories repositories}
+           (select-keys user-profiles [:mirrors]))))
 
 (defn resolve-remote-template [name sym]
   (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
