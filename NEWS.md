@@ -1,5 +1,13 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.5.3 / 2015-09-21
+
+* Add CHANGELOG.md to default lein templates. (Daniel Compton)
+* `lein vcs tag` now supports the `--no-sign` flag. (Daniel Compton)
+* Fix a bug where javac errors were not printed to terminal. (Brandon Shimanek)
+* Fix a bug where environment variables were not propagated down to GPG. (Brandon Shimanek)
+* `lein retest` now saves information on which tests that fail. (Shalaka Patil)
+
 ## 2.5.2 / 2015-08-09
 
 * Allow repl dependencies to be specified in default user profiles. (Jean Niklas L'orange)
