@@ -93,6 +93,30 @@ generated project will contain a file named `README.md` where the header is
 [Mustache]: http://mustache.github.io/
 [mustache-manual]: http://mustache.github.io/mustache.5.html
 
+#### A warning about Mustache tag delimiters
+Clojure syntax can conflict with the default mustache tag delimiter. For 
+example, when destructuring a nested map:
+
+```clj
+(let [{{:keys [a b]} :ab} some-map]
+  (do-something a b))
+```
+
+Stencil will interpret the `{{` as the start of a mustache tag, but since the
+contents are not valid mustache, the render fails. To get around this, we can 
+change the mustache delimiter temporarily, like so:
+
+```clj
+{{! Change mustache delimiter to <% and %> }}
+{{=<% %>=}}
+
+(let [{{:keys [a b]} :ab} some-map]
+  (do-something a b))
+
+<%! Reset mustache delimiter %>
+<%={{ }}=%>
+```
+
 ## Distributing your Template
 
 Templates are just maven artifacts. Particularly, they need only be on
