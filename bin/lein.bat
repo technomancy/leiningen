@@ -84,7 +84,7 @@ rem the paths inside the bootstrap file do not already contain double quotes but
 	rem so this will work instead:
 	rem for /f "usebackq delims=" %%j in (!bootstrapfile!) do set LEIN_LIBS=%%j
 	rem just  set LEIN_LIBS="%%j"  is uglier/hacky but would also work here instead of the below:
-	for /f "usebackq delims=" %%j in (!bootstrapfile!) do (
+	for /f "usebackq delims=" %%j in ("!bootstrapfile!") do (
 		set tmpline=%%j
 		call :processPath
 	)
@@ -101,7 +101,7 @@ rem the paths inside the bootstrap file do not already contain double quotes but
 
     :: Apply context specific CLASSPATH entries
     if exist "%~dp0..\.lein-classpath" (
-        for /f "tokens=* delims= " %%i in (%~dp0..\.lein-classpath) do (
+        for /f "tokens=* delims= " %%i in ("%~dp0..\.lein-classpath") do (
             set CONTEXT_CP=%%i
         )
 
