@@ -246,7 +246,8 @@
     (when (and (:main project) (not (:skip-aot (meta (:main project))))
                (not= :all (:aot project))
                (not= [:all] (:aot project))
-               (not (some #{(:main project)} (:aot project))))
+               (not (some #{(:main project)} (:aot project)))
+               (not (some #(re-matches % (:main project)) (filter regex? (:aot project)))))
       (force implicit-aot-warning))))
 
 ;; TODO: remove for 3.0
