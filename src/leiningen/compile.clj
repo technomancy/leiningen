@@ -7,7 +7,7 @@
   (:refer-clojure :exclude [compile])
   (:import (java.io PushbackReader File)))
 
-(defn- regex? [str-or-re]
+(defn regex? [str-or-re]
   (instance? java.util.regex.Pattern str-or-re))
 
 (defn- matching-nses [re-or-sym namespaces]
