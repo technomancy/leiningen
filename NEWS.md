@@ -7,6 +7,7 @@
 * Fix a bug where javac errors were not printed to terminal. (Brandon Shimanek)
 * Fix a bug where environment variables were not propagated down to GPG. (Brandon Shimanek)
 * `lein retest` now saves information on which tests that fail. (Shalaka Patil)
+* `lein release` now honors exit codes from `git` and throws if non-0 occurs. (Tim Visher)
 
 ## 2.5.2 / 2015-08-09
 
