@@ -251,12 +251,12 @@
   ;; pedantic-print-*, otherwise we can't memoize due to bad equality
   ;; semantics on aether GraphEdge objects.
   (let [key (keyword pedantic-setting)
-        abort-or-warn (#{:warn :abort} key)]
+        abort-or-true (#{true :abort} key)]
     (when (and key (not= key :overrides))
       (pedantic-print-ranges (distinct (map message-for-range ranges))))
     (when (and key (not= key :ranges))
       (pedantic-print-overrides (map message-for-override overrides)))
-    (when (and (= :abort key)
+    (when (and abort-or-true
                (not (empty? (concat ranges overrides))))
       (require 'leiningen.core.main)
       ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
