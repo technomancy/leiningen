@@ -77,7 +77,7 @@ The `:system` profile is similar to `:user`, except it applies
 system-wide instead of merely to a single user.
 
 The `:base` profile provides dependencies necessary for basic repl
-functionality, adds `dev-resources` to the `:resources-path`, and sets
+functionality, adds `dev-resources` to the `:resource-paths`, and sets
 defaults for `:jvm-opts`, `:checkout-deps-share` and
 `:test-selectors`. It is part of Leiningen itself; you shouldn't need
 to change it.
