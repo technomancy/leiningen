@@ -178,7 +178,7 @@ by using a namespaced keyword, like so:
 ```clj
 :repositories [["releases" {:url "http://blueant.com/archiva/internal"
                             :username :env/archiva_username
-                            :passphrase :env/archiva_passphrase}]]
+                            :password :env/archiva_password}]]
 ```
 
 Finally, you can opt to load credentials from the environment _or_ GPG credentials
