@@ -74,7 +74,7 @@
   "Parses a GitHub URL returning a [username repo] pair."
   [url]
   (if url
-    (rest
+    (next
      (or (re-matches #"(?:[A-Za-z_]{2,}@)?github.com:([^/]+)/([^/]+).git" url)
          (re-matches #"[^:]+://(?:[A-Za-z_]{2,}@)?github.com/([^/]+)/([^/]+).git" url)))))
 
