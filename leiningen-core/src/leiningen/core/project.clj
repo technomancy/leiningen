@@ -482,7 +482,7 @@
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 ;; bump deps in leiningen's own project.clj with these
-                :dependencies '[^:displace [org.clojure/tools.nrepl "0.2.10"
+                :dependencies '[^:displace [org.clojure/tools.nrepl "0.2.12"
                                             :exclusions [org.clojure/clojure]]
                                 ^:displace [clojure-complete "0.2.3"
                                             :exclusions [org.clojure/clojure]]]
