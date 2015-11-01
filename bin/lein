@@ -222,8 +222,19 @@ else # Not running from a checkout
     fi
 fi
 
-# TODO: explain what to do when Java is missing
-export JAVA_CMD="${JAVA_CMD:-"java"}"
+if [ -z "$JAVA_CMD" ]
+then
+    JAVA_CMD=$(which java)
+fi
+
+if [ ! -x "$JAVA_CMD" ]
+then
+    >&2 echo "Leiningen coundn't find 'java' executable, which is required."
+    >&2 echo "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
+    exit 1
+fi
+
+export JAVA_CMD
 export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
 
 if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
