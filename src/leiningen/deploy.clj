@@ -32,6 +32,7 @@
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
+          (:no-auth settings)
           (re-find #"(file|scp|scpexe)://" (:url settings)))
     [id settings]
     (do
