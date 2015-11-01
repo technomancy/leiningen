@@ -112,14 +112,14 @@ and clojure-complete that ships with the Leiningen. These can be
 overridden in projects, but this doesn't change the repl's behaviour
 outside of those projects. To do that, you should put a `:repl`
 profile in your `~/.lein/profiles.clj` file. For example, to replace
-the default tools.nrepl dependency with version 0.2.10, you can insert
+the default tools.nrepl dependency with version 0.2.12, you can insert
 the following profile:
 
 ```clj
-{:repl {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}}
+{:repl {:dependencies [[org.clojure/tools.nrepl "0.2.12"]]}}
 ```
 
-Now, all calls to `lein repl` will use version 0.2.10 of tools.nrepl,
+Now, all calls to `lein repl` will use version 0.2.12 of tools.nrepl,
 with the exception of the projects that has defined a `:repl` profile
 themselves.
 
