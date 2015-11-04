@@ -110,9 +110,9 @@ rem the paths inside the bootstrap file do not already contain double quotes but
         )
     )
 
-) else (
+) else if exist "%LEIN_JAR%" (
+
     :: Not running from a checkout.
-    if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
     set CLASSPATH=%LEIN_JAR%
   
     if exist ".lein-classpath" (
@@ -124,6 +124,8 @@ rem the paths inside the bootstrap file do not already contain double quotes but
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
         )
     )
+) else (
+    goto NO_LEIN_JAR
 )
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
@@ -353,7 +355,7 @@ goto EOF
 setLocal DisableDelayedExpansion
 
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
-del "%TRAMPOLINE_FILE%" 2>nul
+del "%TRAMPOLINE_FILE%" >nul 2>&1
 
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
