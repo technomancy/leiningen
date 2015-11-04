@@ -290,20 +290,23 @@ echo Downloading latest Leiningen batch script...
 set LEIN_BAT_URL=https://github.com/technomancy/leiningen/raw/%TARGET_VERSION%/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
 call :DownloadFile "%LEIN_BAT%.pending" "%LEIN_BAT_URL%"
-if not ERRORLEVEL 0 goto EXEC_UPGRADE
+if ERRORLEVEL 0 goto EXEC_UPGRADE
     del "%LEIN_BAT%.pending" >nul 2>&1
     echo Failed to download %LEIN_BAT_URL%
     goto EXITRC
 :EXEC_UPGRADE
-move /y "%LEIN_BAT%.pending" "%TEMP_BAT%"
+move /y "%LEIN_BAT%.pending" "%TEMP_BAT%" >nul 2>&1
 echo.
 echo Upgrading...
 set LEIN_JAR=
 call "%TEMP_BAT%" self-install
-move /y "%TEMP_BAT%" "%LEIN_BAT%"
-SET RC=%ERRORLEVEL%
-goto EXITRC
-
+(
+   rem This is self-modifying batch code. Use brackets to pre-load the exit command.
+   rem This way, script execution does not depend on whether the replacement script
+   rem has that command at the *very same* file position as the calling batch file.
+   move /y "%TEMP_BAT%" "%LEIN_BAT%" >nul 2>&1
+   exit /B %ERRORLEVEL%
+)
 
 :NO_HTTP_CLIENT
 echo.
