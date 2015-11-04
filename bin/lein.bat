@@ -23,14 +23,16 @@ if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 if "x%LEIN_HOME%" == "x" (
     set LEIN_HOME=!USERPROFILE!\.lein
 )
+SET RC=1
 
 if "x%LEIN_JAR%" == "x" set "LEIN_JAR=!LEIN_HOME!\self-installs\leiningen-!LEIN_VERSION!-standalone.jar"
 
 if "%1" == "self-install" goto SELF_INSTALL
 if "%1" == "upgrade"      goto UPGRADE
 if "%1" == "downgrade"    goto UPGRADE
-	
-if exist "%~dp0..\src\leiningen\version.clj" (
+
+if not exist "%~dp0..\src\leiningen\version.clj" goto RUN_NO_CHECKOUT
+
     :: Running from source checkout.
     call :SET_LEIN_ROOT "%~dp0.."
 
@@ -50,33 +52,27 @@ if exist "%~dp0..\src\leiningen\version.clj" (
 	
 	rem oddly enough /G:/ should've worked but doesn't where / they say it's console
 	rem findstr is C:\Windows\System32\findstr.exe
-	echo !LEIN_ROOT! | findstr /C:";" /G:con >nul
-	if not errorlevel 1 ( rem aka errorlevel is 0 aka the string ";" was found
+	echo.!LEIN_ROOT! | findstr /C:";" >nul 2>&1 && (
+		rem aka errorlevel is 0 aka the string ";" was found
 		echo Your folder structure !LEIN_ROOT! contains at least one semicolon in its name
 		echo This is not allowed and would break things with the generated bootstrap file
 		echo Please correct this by renaming the folders to not contain semicolons in their name
 		del !bootstrapfile! >nul 2>&1
 		echo You'll also have to recreate the bootstrap file just to be sure it has semicolon-free names inside
-		echo the bootstrap file^(which was just deleted^) is: !bootstrapfile!
+		echo the bootstrap file ^(which was just deleted^) is: !bootstrapfile!
 		echo  and the info on how to do that is:
-		goto :RUN_BOOTSTRAP
+		goto RUN_BOOTSTRAP
 	)
 
 	if not exist !bootstrapfile! goto NO_DEPENDENCIES
-	
-	findstr /C:^"\^"^" "!bootstrapfile!" >nul
-	if not errorlevel 1 (
-		set hasAtLeastOneDoubleQuote=1
-	) ELSE (
-		set hasAtLeastOneDoubleQuote=0
-	)
-	
-	if !hasAtLeastOneDoubleQuote! == 1 (
+
+	findstr \^" "!bootstrapfile!" >nul 2>&1
+	if errorlevel 1 goto PARSE_BOOTSTRAPFILE
 		echo double quotes detected inside file: !bootstrapfile!
 		echo this should not be happening
-		goto :RUN_BOOTSTRAP
-	)
+		goto RUN_BOOTSTRAP
 
+:PARSE_BOOTSTRAPFILE
 rem will proceed to set LEIN_LIBS and surround each path from bootstrap file in double quotes and separate it from others with a semicolon
 rem the paths inside the bootstrap file do not already contain double quotes but may contain spaces
 	rem note worthy: the following won't work due to a hard 1022bytes limit truncation in the variable that was set
@@ -86,7 +82,7 @@ rem the paths inside the bootstrap file do not already contain double quotes but
 	rem just  set LEIN_LIBS="%%j"  is uglier/hacky but would also work here instead of the below:
 	for /f "usebackq delims=" %%j in ("!bootstrapfile!") do (
 		set tmpline=%%j
-		call :processPath
+		call :PROCESSPATH
 	)
 
 	rem remove trailing semicolon, if any
@@ -110,8 +106,9 @@ rem the paths inside the bootstrap file do not already contain double quotes but
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
         )
     )
+    goto SETUP_JAVA
 
-) else (
+:RUN_NO_CHECKOUT
 
     :: Not running from a checkout.
     if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
@@ -126,7 +123,8 @@ rem the paths inside the bootstrap file do not already contain double quotes but
             set CLASSPATH=!CONTEXT_CP!;!CLASSPATH!
         )
     )
-)
+
+:SETUP_JAVA
 
 if not "x%DEBUG%" == "x" echo CLASSPATH=!CLASSPATH!
 :: ##################################################
@@ -144,33 +142,37 @@ goto RUN
 :DownloadFile
 set LAST_HTTP_CLIENT=
 rem parameters: TargetFileName Address
-if NOT "x%HTTP_CLIENT%" == "x" (
+if "x%HTTP_CLIENT%" == "x" goto TRY_POWERSHELL
     %HTTP_CLIENT% %1 %2
-    goto EOF
-)
+    SET RC=%ERRORLEVEL%
+    goto EXITRC
+
+:TRY_POWERSHELL
 call powershell -? >nul 2>&1
-if NOT ERRORLEVEL 1 (
+if NOT ERRORLEVEL 0 goto TRY_WGET
     set LAST_HTTP_CLIENT=powershell
     powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
-    goto EOF
-)
+    SET RC=%ERRORLEVEL%
+    goto EXITRC
+
+:TRY_WGET
 call wget --help >nul 2>&1
-if NOT ERRORLEVEL 1 (
+if NOT ERRORLEVEL 0 goto TRY_CURL
     set LAST_HTTP_CLIENT=wget
     call wget -O %1 %2
-    goto EOF
-)
+    SET RC=%ERRORLEVEL%
+    goto EXITRC
+
+:TRY_CURL
 call curl --help >nul 2>&1
-if NOT ERRORLEVEL 1 (
+if NOT ERRORLEVEL 0 GOTO NO_HTTP_CLIENT
     rem We set CURL_PROXY to a space character below to pose as a no-op argument
     set LAST_HTTP_CLIENT=curl
     set CURL_PROXY= 
     if NOT "x%HTTPS_PROXY%" == "x" set CURL_PROXY="-x %HTTPS_PROXY%"
     call curl %CURL_PROXY% -f -L -o  %1 %2
-    goto EOF
-)
-goto NO_HTTP_CLIENT
-
+    SET RC=%ERRORLEVEL%
+    goto EXITRC
 
 :NO_LEIN_JAR
 echo.
@@ -179,7 +181,7 @@ echo You can try running "lein self-install"
 echo or change LEIN_JAR environment variable
 echo or edit lein.bat to set appropriate LEIN_JAR path.
 echo.
-goto EOF
+goto EXITRC
 
 :NO_DEPENDENCIES
 echo.
@@ -188,12 +190,12 @@ echo Leiningen is missing its dependencies.
 echo Please run "lein bootstrap" in the leiningen-core/ directory
 echo with a stable release of Leiningen. See CONTRIBUTING.md for details.
 echo.
-goto EOF
+goto EXITRC
 
 :SELF_INSTALL
 if exist "%LEIN_JAR%" (
     echo %LEIN_JAR% already exists. Delete and retry.
-    goto EOF
+    goto EXITRC
 )
 
 for %%f in ("%LEIN_JAR%") do set LEIN_INSTALL_DIR="%%~dpf"
@@ -203,19 +205,21 @@ echo Downloading Leiningen now...
 
 set LEIN_JAR_URL=https://github.com/technomancy/leiningen/releases/download/%LEIN_VERSION%/leiningen-%LEIN_VERSION%-standalone.zip
 call :DownloadFile "%LEIN_JAR%.pending" "%LEIN_JAR_URL%"
-if ERRORLEVEL 1 (
-    del "%LEIN_JAR%.pending" >nul 2>&1
-    goto DOWNLOAD_FAILED
-)
-move /y "%LEIN_JAR%.pending" "%LEIN_JAR%"
-goto EOF
+SET RC=%ERRORLEVEL%
+if not %RC% == 0 goto DOWNLOAD_FAILED
+if not exist "%LEIN_JAR%.pending" goto DOWNLOAD_FAILED
+move /y "%LEIN_JAR%.pending" "%LEIN_JAR%" >nul 2>&1
+SET RC=%ERRORLEVEL%
+goto EXITRC
 
 :DOWNLOAD_FAILED
+SET RC=3
+del "%LEIN_JAR%.pending" >nul 2>&1
 echo.
 echo Failed to download %LEIN_JAR_URL%
 echo.
 echo It is possible that the download failed due to "powershell", 
-echo "curl" or "wget"'s inability to retreive GitHub's security certificate.
+echo "curl" or "wget"'s inability to retrieve GitHub's security certificate.
 echo The suggestions below do not check certificates, so use this only if
 echo you understand the security implications of not doing so.
 echo.
@@ -226,8 +230,8 @@ if "%LAST_HTTP_CLIENT%" == "powershell" (
   echo the HTTP_CLIENT environment variable with one of the following 
   echo values:
   echo.
-  echo "  a) set HTTP_CLIENT=wget --no-check-certificate -O"
-  echo "  b) set HTTP_CLIENT=curl -f -L -k -o"
+  echo   a^) set HTTP_CLIENT=wget --no-check-certificate -O
+  echo   b^) set HTTP_CLIENT=curl -f -L -k -o
   echo.
   echo NOTE: Make sure to *not* add double quotes when setting the value
   echo       of HTTP_CLIENT
@@ -239,7 +243,7 @@ if "%LAST_HTTP_CLIENT%" == "curl" (
   echo the HTTP_CLIENT environment variable with one of the following 
   echo values:
   echo.
-  echo "  a) set HTTP_CLIENT=wget --no-check-certificate -O"
+  echo   a^) set HTTP_CLIENT=wget --no-check-certificate -O
   echo.
   echo NOTE: Make sure to *not* add double quotes when setting the value
   echo       of HTTP_CLIENT
@@ -254,7 +258,7 @@ if "%LAST_HTTP_CLIENT%" == "wget" (
   echo the HTTP_CLIENT environment variable with one of the following 
   echo values:
   echo.
-  echo. "  a) set HTTP_CLIENT=curl -f -L -k -o"
+  echo.   a^) set HTTP_CLIENT=curl -f -L -k -o
   echo.
   echo NOTE: make sure *not* to add double quotes to set the value of 
   echo       HTTP_CLIENT
@@ -277,7 +281,7 @@ set /P ANSWER=Do you want to continue (Y/N)?
 if /i {%ANSWER%}=={y}   goto YES_UPGRADE
 if /i {%ANSWER%}=={yes} goto YES_UPGRADE
 echo Aborted.
-exit /B 1
+goto EXITRC
 
 
 :YES_UPGRADE
@@ -286,18 +290,19 @@ echo Downloading latest Leiningen batch script...
 set LEIN_BAT_URL=https://github.com/technomancy/leiningen/raw/%TARGET_VERSION%/bin/lein.bat
 set TEMP_BAT=%~dp0temp-lein-%RANDOM%%RANDOM%.bat
 call :DownloadFile "%LEIN_BAT%.pending" "%LEIN_BAT_URL%"
-if ERRORLEVEL 1 (
+if not ERRORLEVEL 0 goto EXEC_UPGRADE
     del "%LEIN_BAT%.pending" >nul 2>&1
     echo Failed to download %LEIN_BAT_URL%
-    goto EOF
-)
+    goto EXITRC
+:EXEC_UPGRADE
 move /y "%LEIN_BAT%.pending" "%TEMP_BAT%"
 echo.
 echo Upgrading...
 set LEIN_JAR=
 call "%TEMP_BAT%" self-install
-move /y "%TEMP_BAT%" "%LEIN_BAT%" && goto EOF
-goto EOF
+move /y "%TEMP_BAT%" "%LEIN_BAT%"
+SET RC=%ERRORLEVEL%
+goto EXITRC
 
 
 :NO_HTTP_CLIENT
@@ -307,10 +312,17 @@ echo        Make sure at least one of these tools is installed
 echo        and is in PATH. You can get them from URLs below:
 echo.
 echo PowerShell: "http://www.microsoft.com/powershell"
-echo Wget:       "http://users.ugent.be/~bpuype/wget/"
+
+rem echo Wget:       "http://users.ugent.be/~bpuype/wget/"
+rem Note: Stale URL. HTTP 404.
+rem Alternative: wget64.exe compiled by J. Simoncic, rename to wget.exe
+rem MD5 1750c130c5daca8b347d3f7e34824c9b
+rem Check: https://www.virustotal.com/en/file/abf507f8240ed41aac74c9df6de558c88c2f11d7770f0298135f1cc544b9c08b/analysis/
+echo Wget:       "https://eternallybored.org/misc/wget/"
+
 echo Curl:       "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
 echo.
-goto EOF
+goto EXITRC
 
 
 :SET_LEIN_ROOT
@@ -361,21 +373,26 @@ del "%TRAMPOLINE_FILE%" >nul 2>&1
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
  -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
+SET RC=%ERRORLEVEL%
+if not %RC% == 0 goto EXITRC
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
 del "%TRAMPOLINE_FILE%" >nul 2>&1
 goto EOF
 
-rem this label must reside here outside of ( ) from the if block, otherwise the ELSE ( ) block is also executed
-:processPath
+
+:PROCESSPATH
 rem will surround each path with double quotes before appending it to LEIN_LIBS
 	for /f "tokens=1* delims=;" %%a in ("%tmpline%") do (
 		set LEIN_LIBS=!LEIN_LIBS!"%%a";
 		set tmpline=%%b
 	)
-	if not "%tmpline%" == "" goto :processPath
-	goto :eof
+	if not "%tmpline%" == "" goto PROCESSPATH
+	goto EOF
+
+:EXITRC
+exit /B %RC%
 
 :EOF
 
