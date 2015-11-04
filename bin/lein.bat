@@ -35,7 +35,7 @@ if exist "%~dp0..\src\leiningen\version.clj" (
     call :SET_LEIN_ROOT "%~dp0.."
 
 
-	set bootstrapfile="!LEIN_ROOT!\leiningen-core\.lein-bootstrap"
+	set "bootstrapfile=!LEIN_ROOT!\leiningen-core\.lein-bootstrap"
 	rem in .lein-bootstrap there is only one line where each path is concatenated to each other via a semicolon, there's no semicolon at the end
 	rem each path is NOT inside double quotes and may contain spaces (even semicolons but this is not supported here) in their names, 
 	rem  but they won't/cannot contain double quotes " or colons :  in their names (at least on windows it's not allowed/won't work)
@@ -64,7 +64,7 @@ if exist "%~dp0..\src\leiningen\version.clj" (
 
 	if not exist !bootstrapfile! goto NO_DEPENDENCIES
 	
-	findstr /C:^"\^"^" !bootstrapfile! >nul
+	findstr /C:^"\^"^" "!bootstrapfile!" >nul
 	if not errorlevel 1 (
 		set hasAtLeastOneDoubleQuote=1
 	) ELSE (
@@ -88,8 +88,9 @@ rem the paths inside the bootstrap file do not already contain double quotes but
 		set tmpline=%%j
 		call :processPath
 	)
-	
-	
+
+	rem remove trailing semicolon, if any
+	if "!LEIN_LIBS:~-1!x" == ";x" SET LEIN_LIBS=!LEIN_LIBS:~0,-1!
 	if not "x%DEBUG%" == "x" echo LEIN_LIBS=!LEIN_LIBS!
 
     if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
@@ -111,6 +112,7 @@ rem the paths inside the bootstrap file do not already contain double quotes but
     )
 
 ) else (
+
     :: Not running from a checkout.
     if not exist "%LEIN_JAR%" goto NO_LEIN_JAR
     set CLASSPATH=%LEIN_JAR%
@@ -353,16 +355,16 @@ goto EOF
 setLocal DisableDelayedExpansion
 
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
-del "%TRAMPOLINE_FILE%" 2>nul
+del "%TRAMPOLINE_FILE%" >nul 2>&1
 
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
+ -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
 
 if not exist "%TRAMPOLINE_FILE%" goto EOF
 call "%TRAMPOLINE_FILE%"
-del "%TRAMPOLINE_FILE%"
+del "%TRAMPOLINE_FILE%" >nul 2>&1
 goto EOF
 
 rem this label must reside here outside of ( ) from the if block, otherwise the ELSE ( ) block is also executed
