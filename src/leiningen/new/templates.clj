@@ -141,8 +141,20 @@
         (if-let [resource (io/resource path)]
           (if data
             (render (slurp-resource resource) data)
-            (io/input-stream resource))
+            (io/reader resource))
           (main/abort (format "Template resource '%s' not found." path)))))))
+
+;; We  provide a hier order function which returns  a function to generate
+;; binary resources such as images placed in `leiningen/new/<template>/` 
+(defn raw-resourcer
+  "Create a renderer function that looks for raw files in the
+  right place given the name of your template."
+  [name]
+  (fn [file]
+    (let [path (string/join "/" ["leiningen" "new" (sanitize name) file])]
+      (if-let [resource (io/resource path)]
+        (io/input-stream resource)
+        (main/abort (format "File '%s' not found." path))))))
 
 ;; Our file-generating function, `->files` is very simple. We'd like
 ;; to keep it that way. Sometimes you need your file paths to be
