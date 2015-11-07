@@ -141,7 +141,7 @@
         (if-let [resource (io/resource path)]
           (if data
             (render (slurp-resource resource) data)
-            (io/reader resource))
+            (io/input-stream resource))
           (main/abort (format "Template resource '%s' not found." path)))))))
 
 ;; Our file-generating function, `->files` is very simple. We'd like
