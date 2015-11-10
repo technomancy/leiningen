@@ -222,20 +222,14 @@ else # Not running from a checkout
     fi
 fi
 
-if [ -z "$JAVA_CMD" ]
-then
-    JAVA_CMD=$(which java)
-fi
-
-if [ ! -x "$JAVA_CMD" ]
+if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
 then
     >&2 echo "Leiningen coundn't find 'java' executable, which is required."
     >&2 echo "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
     exit 1
 fi
 
-export JAVA_CMD
-export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
+export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
 
 if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
     export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
