@@ -372,6 +372,8 @@ setLocal DisableDelayedExpansion
 set "TRAMPOLINE_FILE=%TEMP%\lein-trampoline-%RANDOM%.bat"
 del "%TRAMPOLINE_FILE%" >nul 2>&1
 
+set ERRORLEVEL=
+set RC=0
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
