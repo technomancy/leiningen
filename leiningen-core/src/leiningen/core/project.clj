@@ -27,7 +27,7 @@
     (str baos)))
 
 (defn- warn [& args]
-  ;; TODO: remove me once #1227 is merged
+  ;; TODO: remove with 3.0.0
   (require 'leiningen.core.main)
   ((resolve 'leiningen.core.main/warn) args))
 
@@ -814,10 +814,11 @@
   (let [project (with-meta
                   (:without-profiles (meta project) project)
                   (meta project))
-        include-profiles-meta (expand-profiles-with-meta
-                               project include-profiles)
+        include-profiles-meta (->> (expand-profiles-with-meta
+                                    project include-profiles)
+                                   (utils/last-distinct-by first))
         include-profiles (map first include-profiles-meta)
-        exclude-profiles (expand-profiles project exclude-profiles)
+        exclude-profiles (utils/last-distinct (expand-profiles project exclude-profiles))
         normalize #(if (coll? %) (lookup-profile (:profiles project) %) [%])
         exclude-profiles (mapcat normalize exclude-profiles)
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
@@ -976,4 +977,3 @@ Also initializes the project; see read-raw for a version that skips init."
               checkout-project (read-dependency-project project-file)]
         :when checkout-project]
     checkout-project))
-

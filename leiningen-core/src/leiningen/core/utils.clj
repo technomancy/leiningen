@@ -180,3 +180,27 @@
         (:out git-ref)
         (read-git-head-file git-dir)))
     (catch java.io.IOException e (read-git-head-file git-dir))))
+
+(defn last-distinct
+  "Like distinct, but retains the last version instead of the first version of a
+  duplicate."
+  [coll]
+  (reverse (distinct (reverse coll))))
+
+;; Inspired by distinct-by from medley (https://github.com/weavejester/medley),
+;; also under the EPL 1.0.
+(defn last-distinct-by
+  "Returns a lazy sequence of the elements of coll, removing any
+  elements that return duplicate values when passed to a function f.
+  Only the last element that is a duplicate is preserved."
+  [f coll]
+  (let [step (fn step [xs seen]
+               (lazy-seq
+                ((fn [[x :as xs] seen]
+                   (when-let [s (seq xs)]
+                     (let [fx (f x)]
+                       (if (contains? seen fx)
+                         (recur (rest s) seen)
+                         (cons x (step (rest s) (conj seen fx)))))))
+                 xs seen)))]
+    (reverse (step (reverse coll) #{}))))
