@@ -86,8 +86,8 @@
   (let [{:keys [err exit]} (apply user/gpg (signing-args file opts))]
     (when-not (zero? exit)
       (main/abort "Could not sign"
-                  (str file "\n" err
-                       "\n\nSee `lein help gpg` for how to set up gpg.\n"
+                  (str file "\n" err (if err "\n")
+                       "\nSee `lein help gpg` for how to set up gpg.\n"
                        "If you don't expect people to need to verify the "
                        "authorship of your jar, you\ncan add `:sign-releases "
                        "false` to the relevant `:deploy-repositories` entry.")))

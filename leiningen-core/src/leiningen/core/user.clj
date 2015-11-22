@@ -4,7 +4,8 @@
             [clojure.string :as str]
             [clojure.java.shell :as shell]
             [leiningen.core.utils :as utils])
-  (:import (java.util.regex Pattern)))
+  (:import (com.hypirion.io Pipe)
+           (java.util.regex Pattern)))
 
 (defn getprop
   "Wrap System/getProperty for testing purposes."
@@ -95,17 +96,31 @@
   (let [env (System/getenv)
         keywords (map #(keyword %) (keys env))]
     (merge (zipmap keywords (vals env))
-                {:LANGUAGE "en"})))
+           {:LANGUAGE "en"})))
+
+(defn- as-env-strings
+  [env]
+  (into-array String (map (fn [[k v]] (str (name k) "=" v)) env)))
 
 (defn gpg
   "Shells out to (gpg-program) with the given arguments"
   [& args]
-  (let [env (get-english-env)]
-    (try
-      (shell/with-sh-env env
-        (apply shell/sh (gpg-program) args))
-      (catch java.io.IOException e
-        {:exit 1 :err (.getMessage e)}))))
+  (try
+    (let [proc-env (as-env-strings (get-english-env))
+          proc-args (into-array String (concat [(gpg-program)] args))
+          proc (.exec (Runtime/getRuntime) proc-args proc-env)]
+      (.addShutdownHook (Runtime/getRuntime)
+                        (Thread. (fn [] (.destroy proc))))
+      (with-open [out (.getInputStream proc)
+                  err (.getErrorStream proc)]
+        (let [pump-out (doto (Pipe. out System/out) .start)
+              pump-err (doto (Pipe. err System/err) .start)]
+          (.join pump-out)
+          (.join pump-err)
+          (let [exit-code (.waitFor proc)]
+            {:exit exit-code}))))
+    (catch java.io.IOException e
+      {:exit 1 :err (.getMessage e)})))
 
 (defn gpg-available?
   "Verifies (gpg-program) exists"
