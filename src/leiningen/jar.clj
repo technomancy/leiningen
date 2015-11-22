@@ -2,6 +2,7 @@
   "Package up all the project's files into a jar file."
   (:require [leiningen.pom :as pom]
             [leiningen.clean :as clean]
+            [leiningen.compile :as compile]
             [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
@@ -246,7 +247,9 @@
     (when (and (:main project) (not (:skip-aot (meta (:main project))))
                (not= :all (:aot project))
                (not= [:all] (:aot project))
-               (not (some #{(:main project)} (:aot project))))
+               (not (some #{(:main project)} (:aot project)))
+               (not (some #(re-matches % (str (:main project)))
+                          (filter compile/regex? (:aot project)))))
       (force implicit-aot-warning))))
 
 ;; TODO: remove for 3.0
