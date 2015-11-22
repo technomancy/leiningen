@@ -248,7 +248,8 @@
                (not= :all (:aot project))
                (not= [:all] (:aot project))
                (not (some #{(:main project)} (:aot project)))
-               (not (some #(re-matches % (:main project)) (filter compile/regex? (:aot project)))))
+               (not (some #(re-matches % (str (:main project)))
+                          (filter compile/regex? (:aot project)))))
       (force implicit-aot-warning))))
 
 ;; TODO: remove for 3.0
