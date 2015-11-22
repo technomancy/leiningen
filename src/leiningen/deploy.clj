@@ -100,6 +100,20 @@
            #(str (or % "jar") ".asc")))
    (sign artifact-file opts)})
 
+(defn signatures-for-artifacts
+  "Creates and returns the list of signatures for the artifacts needed to be
+  signed."
+  [artifacts sig-opts]
+  (let [total (count artifacts)]
+    (println "Need to sign" total "files with GPG")
+    (doall
+     (map-indexed
+      (fn [idx [coords artifact-file :as artifact]]
+        (printf "[%d/%d] Signing %s with GPG\n" (inc idx) total artifact-file)
+        (flush)
+        (signature-for-artifact artifact sig-opts))
+      artifacts))))
+
 (defn sign-for-repo?
   "Generally sign artifacts for this repo?"
   [repo]
@@ -118,8 +132,7 @@
                          {[:extension "pom"] (pom/pom project)})
         sig-opts (signing-opts project repo)]
     (if (and signed? (not (.endsWith (:version project) "-SNAPSHOT")))
-      (reduce merge artifacts (map #(signature-for-artifact % sig-opts)
-                                   artifacts))
+      (reduce merge artifacts (signatures-for-artifacts artifacts sig-opts))
       artifacts)))
 
 (defn warn-missing-metadata [project]
