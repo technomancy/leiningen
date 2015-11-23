@@ -95,14 +95,16 @@ this in mind when calling other tasks as functions too.
 
 Most tasks may only be run in the context of another project. If your
 task can be run outside a project directory, add `^:no-project-needed`
-metadata to your task defn to indicate so. Your task should still
+as metadata to your task defn to indicate so. Your task must still
 accept a project as its first argument, but it will be allowed to be
-nil if it's run outside a project directory. If you are inside a
-project, Leiningen should `cd` to the root of that project before
-launching the JVM, but some other tools using the `leiningen-core`
-library (IDE integration, etc) may not behave the same way, so for
-greatest portability check the `:root` key of the project map and work
-from there.
+nil. Leiningen will still pass you the project as first argument, if
+lein is called from within a project. If called outside of a project,
+lein will send in profile information from `$HOME/.lein/profiles.clj`
+and similar sources as a map similar to a project map. Other tools using
+the `leiningen-core` library (IDE integration, etc) may decide to just
+pass in nil. To distinguish between a project and non-project, check for
+the `:root` key. If it's set, then you are in a project, otherwise you
+are not.
 
 ### Documentation and subtasks
 
