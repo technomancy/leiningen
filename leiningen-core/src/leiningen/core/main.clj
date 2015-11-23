@@ -240,11 +240,22 @@
                   " is a Clojure namespace, but not a Leiningen task.")))
   (throw (ex-info "Task not found" {:exit-code 1 :suppress-msg true})))
 
-(defn- drop-partial-args [pargs]
-  #(for [[f & r] %
-         :let [[fixed-args rest-args] (split-with (partial not= '&) r)
-               new-fixed-args (drop (count pargs) fixed-args)]]
-     (cons f (concat new-fixed-args rest-args))))
+(defn- drop-partial-args
+  "Returns a function that returns a new list of arglist, where the
+  args provided have been taken into consideration. All arglists
+  should start with the project argument.
+
+  A special case where the arglist is on the form [& ...] will be passed through
+  without being transformed."
+  [pargs]
+  (let [argcount (count pargs)]
+    (fn [arglists]
+      (for [[project-arg & arglist] arglists
+            :let [[fixed-args varargs] (split-with #(not= '& %) arglist)
+                  new-fixed-args (drop argcount fixed-args)]]
+        (if (= project-arg '&) ;; TODO: Clarify and remove this for 3.0.0
+          (cons project-arg arglist)
+          (cons project-arg (concat new-fixed-args varargs)))))))
 
 (defn- splice-into-args
   "Alias vectors may include :project/key entries.
