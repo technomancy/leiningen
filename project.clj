@@ -24,7 +24,7 @@
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
                  [cheshire "5.5.0"]
-                 [clj-http "0.9.2" :exclusions [crouton potemkin]]
+                 [clj-http "2.0.0"]
                  [potemkin "0.4.1"]
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]]
   ;; checkout-deps don't work with :eval-in :leiningen
