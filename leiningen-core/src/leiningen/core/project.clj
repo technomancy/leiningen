@@ -468,7 +468,8 @@
 (def tiered-jvm-opts
   (if (.contains (or (System/getenv "LEIN_JVM_OPTS") "") "Tiered")
     ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"
-     "-XX:-OmitStackTraceInFastThrow"] []))
+     "-XX:-OmitStackTraceInFastThrow"]
+    ["-XX:-OmitStackTraceInFastThrow"]))
 
 
 (def default-profiles
