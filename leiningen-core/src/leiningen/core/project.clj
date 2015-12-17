@@ -190,9 +190,9 @@
 
 (def defaults
   ;; TODO: move :repositories here in 3.0
-  {:source-paths ^:top-displace ["src"]
-   :resource-paths ^:top-displace ["resources"]
-   :test-paths ^:top-displace ["test"]
+  {:source-paths ^:top-displace ^:default-path/src ["src"]
+   :resource-paths ^:top-displace ^:default-path/resources ["resources"]
+   :test-paths ^:top-displace ^:default-path/test ["test"]
    :native-path "%s/native"
    :compile-path "%s/classes"
    :target-path "target"
@@ -427,10 +427,11 @@
 
 (defn- absolutize-path [{:keys [root] :as project} key]
   (cond (re-find #"-path$" (name key))
-        (update-in project [key] (partial absolutize root))
+        (update project key (partial absolutize root))
 
         (re-find #"-paths$" (name key))
-        (update-in project [key] (partial map (partial absolutize root)))
+        (update project key #(with-meta* (map (partial absolutize root) %)
+                               (meta %)))
 
         :else project))
 
@@ -477,7 +478,7 @@
   profiles are active by default."
   (atom {:default [:leiningen/default]
          :leiningen/default [:base :system :user :provided :dev]
-         :base {:resource-paths ["dev-resources"]
+         :base {:resource-paths ^:default-path/dev-resources ["dev-resources"]
                 :jvm-opts (with-meta tiered-jvm-opts
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
@@ -530,8 +531,7 @@
         (if (or (-> left meta :prepend)
                 (-> right meta :prepend))
           (-> (concat right left)
-              (with-meta (merge (meta left)
-                                (select-keys (meta right) [:displace]))))
+              (with-meta (merge (meta right) (meta left))))
           (concat left right))
 
         (= (class left) (class right)) right

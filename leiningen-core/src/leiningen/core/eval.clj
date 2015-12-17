@@ -53,6 +53,22 @@
 (defonce ^{:doc "Block on this to wait till the project is fully prepped."}
   prep-blocker (atom (promise)))
 
+(defn- remove-default-paths
+  ;; Hack to get around #2010. I'm sorry =(
+  ;; We track down metadata keys on the form :default-path/foo, then absolutize
+  ;; foo and remove it from the list ONCE if we see it.
+  [project paths]
+  (let [paths-to-remove (for [k (keys (meta paths))
+                              :when (and (keyword? k)
+                                         (= "default-path" (namespace k)))]
+                          (str (io/file (:root project) (name k))))]
+    (loop [acc []
+           to-remove (set paths-to-remove)
+           [fst & rst :as ps] paths]
+      (cond (not (seq ps)) acc
+            (to-remove fst) (recur acc (disj to-remove fst) rst)
+            :else (recur (conj acc fst) to-remove rst)))))
+
 (defn prep
   "Before we can run eval-in-project we need to prep the project by running
   javac, compile, and any other tasks the project specifies."
@@ -60,9 +76,9 @@
   ;; These must exist before the project is launched.
   (when (:root project)
     (.mkdirs (io/file (:compile-path project "/tmp")))
-    (doseq [path (concat (:source-paths project)
-                         (:test-paths project)
-                         (:resource-paths project))]
+    ;; hack to not create default projects. For now only.
+    (doseq [path (mapcat #(remove-default-paths project %)
+                         ((juxt :source-paths :test-paths :resource-paths) project))]
       (.mkdirs (io/file path))))
   (write-pom-properties project)
   (classpath/resolve-dependencies :dependencies project)
