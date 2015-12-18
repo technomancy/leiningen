@@ -116,6 +116,22 @@
          (map #(if (string? %) (read-string %) %))
          (sort-by (comp not regex?)))))
 
+(def ^:private thread-factory-form
+  `(let [counter# (atom 0)]
+     (proxy [java.util.concurrent.ThreadFactory] []
+      (newThread [r#]
+        (let [thread-factory# (java.util.concurrent.Executors/defaultThreadFactory)]
+          (doto (.newThread thread-factory# r#)
+            (.setName (str "leiningen-send-off-pool-" (swap! counter# inc)))))))))
+
+(def ^:private set-agent-threadpool-form
+  ;; set-agent-send-off-executor! was introduced in Clojure 1.5
+  `(when-let [set-executor!# (resolve 'clojure.core/set-agent-send-off-executor!)]
+     (set-executor!#
+      (doto ^java.util.concurrent.ThreadPoolExecutor
+          (java.util.concurrent.Executors/newCachedThreadPool ~thread-factory-form)
+        (.setKeepAliveTime 100 java.util.concurrent.TimeUnit/MILLISECONDS)))))
+
 (defn compile
   "Compile Clojure source into .class files.
 
@@ -132,16 +148,18 @@ Code that should run on startup belongs in a -main defn."
   ([project]
      (if-let [namespaces (seq (stale-namespaces project))]
        (let [ns-sym (gensym "namespace")
-             form `(doseq [~ns-sym '~namespaces]
-                     ~(if main/*info*
-                        `(binding [*out* *err*]
-                           (println "Compiling" ~ns-sym)))
-                     (try
-                       (clojure.core/compile ~ns-sym)
-                       (catch Throwable t#
-                         (binding [*out* *err*]
-                           (println (.getMessage t#)))
-                         (throw t#))))
+             form `(do
+                     ~set-agent-threadpool-form
+                     (doseq [~ns-sym '~namespaces]
+                      ~(if main/*info*
+                         `(binding [*out* *err*]
+                            (println "Compiling" ~ns-sym)))
+                      (try
+                        (clojure.core/compile ~ns-sym)
+                        (catch Throwable t#
+                          (binding [*out* *err*]
+                            (println (.getMessage t#)))
+                          (throw t#)))))
              project (update-in project [:prep-tasks]
                                 (partial remove #{"compile"}))]
          (try (eval/eval-in-project project form)
