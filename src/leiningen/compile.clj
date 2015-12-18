@@ -132,16 +132,18 @@ Code that should run on startup belongs in a -main defn."
   ([project]
      (if-let [namespaces (seq (stale-namespaces project))]
        (let [ns-sym (gensym "namespace")
-             form `(doseq [~ns-sym '~namespaces]
-                     ~(if main/*info*
-                        `(binding [*out* *err*]
-                           (println "Compiling" ~ns-sym)))
-                     (try
-                       (clojure.core/compile ~ns-sym)
-                       (catch Throwable t#
-                         (binding [*out* *err*]
-                           (println (.getMessage t#)))
-                         (throw t#))))
+             form `(try
+                     (doseq [~ns-sym '~namespaces]
+                      ~(if main/*info*
+                         `(binding [*out* *err*]
+                            (println "Compiling" ~ns-sym)))
+                      (try
+                        (clojure.core/compile ~ns-sym)
+                        (catch Throwable t#
+                          (binding [*out* *err*]
+                            (println (.getMessage t#)))
+                          (throw t#))))
+                     (finally (shutdown-agents)))
              project (update-in project [:prep-tasks]
                                 (partial remove #{"compile"}))]
          (try (eval/eval-in-project project form)
