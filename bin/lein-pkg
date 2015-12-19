@@ -74,10 +74,24 @@ fi
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
+function command_not_found {
+    >&2 echo "Leiningen coundn't find $1 in your \$PATH ($PATH), which is required."
+    exit 1
+}
+
 if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
     [ -r project.clj ]; then
     INPUTS="$* $(cat project.clj) $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
-    INPUT_CHECKSUM=$(echo "$INPUTS" | shasum - | cut -f 1 -d " ")
+    
+    if command -v shasum >/dev/null 2>&1; then
+        SUM="shasum"
+    elif command -v sha1sum >/dev/null 2>&1; then
+        SUM="sha1sum"
+    else
+        command_not_found "sha1sum or shasum"
+    fi
+
+    INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
     # Just don't change :target-path in project.clj, mkay?
     TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
 else
