@@ -3,8 +3,8 @@
 Leiningen is the most widely-contributed-to Clojure project. We
 welcome potential contributors and do our best to try to make it easy
 to help out. Contributors who have had a single patch accepted may
-request commit rights as well as a free
-[sticker](http://twitpic.com/2e33r1).
+request commit rights as well as two free
+[stickers](http://hypirion.com/imgs/lein-stickers.jpg).
 
 Discussion occurs both in the
 [#leiningen channel on Freenode](irc://chat.freenode.net#leiningen)
@@ -86,8 +86,9 @@ a stable release. If this is annoying and you depend on a recent fix or
 enhancement, you can build an uberjar from master as follows:
 
 ```bash
+# NB! You have to use *bin*/lein to build the uberjar
 $ bin/lein uberjar
-# The last line should contain the location of the standalone.
+# ^ Last line printed from this command will tell the location of the standalone
 $ cp target/leiningen-2.5.2-SNAPSHOT-standalone.jar $HOME/.lein/self-installs
 $ cp bin/lein $HOME/bin/lein-master
 ```
