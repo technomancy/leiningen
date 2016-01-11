@@ -5,7 +5,8 @@
             [clojure.java.shell :as shell]
             [leiningen.core.utils :as utils])
   (:import (com.hypirion.io Pipe)
-           (java.util.regex Pattern)))
+           (java.util.regex Pattern)
+           (java.io InputStreamReader)))
 
 (defn getprop
   "Wrap System/getProperty for testing purposes."
@@ -113,12 +114,10 @@
                         (Thread. (fn [] (.destroy proc))))
       (with-open [out (.getInputStream proc)
                   err (.getErrorStream proc)]
-        (let [pump-out (doto (Pipe. out System/out) .start)
-              pump-err (doto (Pipe. err System/err) .start)]
-          (.join pump-out)
+        (let [pump-err (doto (Pipe. err System/err) .start)]
           (.join pump-err)
           (let [exit-code (.waitFor proc)]
-            {:exit exit-code}))))
+            {:exit exit-code :out (slurp (InputStreamReader. out))}))))
     (catch java.io.IOException e
       {:exit 1 :err (.getMessage e)})))
 
