@@ -242,6 +242,7 @@
   :aot [org.example.sample]
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
+  ;; Note: This code is not executed in jars or uberjars.
   :injections [(require 'clojure.pprint)]
   ;; Java agents can instrument and intercept certain VM features. Include
   ;; :bootclasspath true to place the agent jar on the bootstrap classpath.

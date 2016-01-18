@@ -133,11 +133,31 @@
   only available when running from jar files, but as of 2.4.1 it's
   available during `lein run ...`, etc. You can read it by running
   this code (replace "group" and "artifact" with values appropriate to
-  your project:
+  your project):
 
 ```clj
 (doto (java.util.Properties.)
   (.load (io/reader (io/resource "META-INF/maven/group/artifact/pom.properties"))))
+```
+
+**Q:** How can I read my project map at runtime?  
+**A:** Usually you do not need the complete project map, only a specific subset
+  of some values. If you want different configuration based on different tasks,
+  then [environ](https://github.com/weavejester/environ) is probably a good fit.
+  If you want information like the project's version number or git revision,
+  read the question and answer above.
+
+  Generally those solutions are sufficient, but if you need more than this, you
+  should rather read the `project.clj` yourself. The project map changes based
+  on the task you use, and so different tasks (repl, jar, uberjar to name a few)
+  will make it hard to make the testing- and production project map identical.
+  To add `project.clj` to your classpath, you can add in
+  [lein-shell](https://github.com/hyPiRion/lein-shell) and prepend `:prep-tasks`
+  with `["shell" "cp" "project.clj" "resources/project.clj"]` and read it
+  through e.g.
+
+```clj
+(read-string (slurp (io/resource "project.clj")))
 ```
 
 **Q:** I need to do AOT for an uberjar; can I avoid it during development?  
