@@ -315,15 +315,20 @@ opaqueness. If you can do what you need using profiles inside your
 plugins instead, that is a much more declarative, introspectable way
 to do things which will save a lot of headache down the line.
 
-The following middleware injects the contents of project map into your
-project's resources folder so it can be read from the project code:
+The following middleware injects additional javac options into the project map,
+but only if there are any java source paths in the project:
 
 ```clj
-(ns lein-inject.plugin)
+(ns lein-inject.plugin
+  (:require [leiningen.core.project :as p]))
+
+(def javac-params-profile
+  {:javac-options ^:prepend ["-target" "1.6" "-source" "1.6"]})
 
 (defn middleware [project]
-  (update-in project [:injections] concat
-             `[(spit "resources/project.clj" ~(prn-str project))]))
+  (if (seq (:java-source-paths project))
+    (p/merge-profiles project [javac-params-profile])
+    project))
 ```
 
 
@@ -340,6 +345,14 @@ accomplish this by storing the fresh project map and starting from
 that whenever we call `merge-profiles`, `unmerge-profiles` or
 `set-profiles`. It also means your middleware functions shouldn't have
 any non-idempotent side-effects since they could be called repeatedly.
+
+If you need to include a profile in the project map, please add it as a plugin
+profile and ask your users to add it to the `:base` profile as outlined in the
+"Plugin" subsection of "Other Plugin Contents" in this document. This makes the
+"injection" more explicit and easier to debug. The only times one should use
+middleware to inject values into the project map is if the profiles has to be
+programmatically computed, or if you have to modify the project map in a way
+that is not possible with `merge-profiles`.
 
 ### Maven Wagons
 
