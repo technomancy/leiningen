@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Polyglot (Clojure, Java) Projects With Leiningen](#polyglot-clojure-java-projects-with-leiningen)
+  - [Source Layout](#source-layout)
+  - [Java Source Compilation](#java-source-compilation)
+  - [Setting Java Compiler Options With Leiningen](#setting-java-compiler-options-with-leiningen)
+  - [Interleaving Compilation Steps](#interleaving-compilation-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Polyglot (Clojure, Java) Projects With Leiningen
 
 Clojure is a hosted language that encourages interoperability with its

@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Writing Templates](#writing-templates)
+  - [Structure](#structure)
+  - [Templating System](#templating-system)
+      - [A warning about Mustache tag delimiters](#a-warning-about-mustache-tag-delimiters)
+  - [Distributing your Template](#distributing-your-template)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Writing Templates
 
 Suppose you've written a fabulously popular library, used the world

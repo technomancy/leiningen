@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Using GPG](#using-gpg)
+  - [What is it?](#what-is-it)
+  - [Installing GPG](#installing-gpg)
+    - [Linux](#linux)
+        - [Debian based distributions](#debian-based-distributions)
+      - [Fedora based distributions](#fedora-based-distributions)
+    - [Mac](#mac)
+    - [Windows](#windows)
+  - [Creating a keypair](#creating-a-keypair)
+  - [Listing keys](#listing-keys)
+  - [Publishing your public key](#publishing-your-public-key)
+  - [How Leiningen uses GPG](#how-leiningen-uses-gpg)
+    - [Signing a file](#signing-a-file)
+    - [Overriding the gpg defaults](#overriding-the-gpg-defaults)
+  - [Clojars](#clojars)
+  - [Troubleshooting](#troubleshooting)
+    - [Debian based distributions](#debian-based-distributions-1)
+      - [gpg: can't query passphrase in batch mode](#gpg-cant-query-passphrase-in-batch-mode)
+    - [Mac OSX](#mac-osx)
+      - [Unable to get GPG installed via Homebrew and OSX Keychain to work](#unable-to-get-gpg-installed-via-homebrew-and-osx-keychain-to-work)
+      - [GPG doesn't ask for a passphrase](#gpg-doesnt-ask-for-a-passphrase)
+    - [GPG prompts for passphrase but does not work with Leiningen](#gpg-prompts-for-passphrase-but-does-not-work-with-leiningen)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Using GPG
 
 This is an introduction to setting up and using

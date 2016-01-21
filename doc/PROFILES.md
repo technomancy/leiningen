@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Profiles](#profiles)
+  - [Declaring Profiles](#declaring-profiles)
+  - [Default Profiles](#default-profiles)
+  - [Task Specific Profiles](#task-specific-profiles)
+    - [Replacing Default Repl Dependencies](#replacing-default-repl-dependencies)
+  - [Profile Metadata](#profile-metadata)
+  - [Merging](#merging)
+  - [Activating Profiles](#activating-profiles)
+  - [Composite Profiles](#composite-profiles)
+  - [Dynamic Eval](#dynamic-eval)
+  - [Debugging](#debugging)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Profiles
 
 You can change the configuration of your project by applying various
