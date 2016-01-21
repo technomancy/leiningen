@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Deploying Libraries](#deploying-libraries)
+  - [Private Repositories](#private-repositories)
+    - [Static HTTP](#static-http)
+    - [SCP](#scp)
+    - [S3](#s3)
+    - [Artifactory/Nexus/Archiva](#artifactorynexusarchiva)
+    - [Other Non-standard Repository Protocols](#other-non-standard-repository-protocols)
+  - [Authentication](#authentication)
+    - [GPG](#gpg)
+    - [Full-disk Encryption](#full-disk-encryption)
+    - [Credentials in the Environment](#credentials-in-the-environment)
+  - [Deployment](#deployment)
+  - [Releasing Simplified](#releasing-simplified)
+    - [Overriding the default `:release-tasks`](#overriding-the-default-release-tasks)
+    - [Tagging](#tagging)
+  - [Deploying to Maven Central](#deploying-to-maven-central)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Deploying Libraries
 
 Getting your library into [Clojars](http://clojars.org) is fairly

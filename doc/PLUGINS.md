@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Leiningen Plugins](#leiningen-plugins)
+  - [Writing a Plugin](#writing-a-plugin)
+    - [Local development](#local-development)
+    - [Task Arguments](#task-arguments)
+    - [Documentation and subtasks](#documentation-and-subtasks)
+  - [Code Evaluation](#code-evaluation)
+    - [Evaluating In Project Context](#evaluating-in-project-context)
+  - [Other Plugin Contents](#other-plugin-contents)
+    - [Profiles](#profiles)
+    - [Hooks](#hooks)
+    - [Project Middleware](#project-middleware)
+    - [Maven Wagons](#maven-wagons)
+    - [VCS Methods](#vcs-methods)
+  - [Requiring Plugins](#requiring-plugins)
+  - [Clojure Version](#clojure-version)
+  - [Upgrading Existing Plugins](#upgrading-existing-plugins)
+  - [Projects vs Standalone Execution](#projects-vs-standalone-execution)
+  - [Overriding Built-in Tasks](#overriding-built-in-tasks)
+  - [1.x Compatibility](#1x-compatibility)
+    - [Project-specific Tasks](#project-specific-tasks)
+  - [Have Fun](#have-fun)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 [Japanese](ja/PLUGINS_ja.md)
 
 # Leiningen Plugins

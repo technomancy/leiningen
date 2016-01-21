@@ -1,33 +1,36 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 - [Tutorial](#tutorial)
-	- [What This Tutorial Covers](#what-this-tutorial-covers)
-	- [Getting Help](#getting-help)
-	- [Leiningen Projects](#leiningen-projects)
-	- [Creating a Project](#creating-a-project)
-		- [Directory Layout](#directory-layout)
-		- [Filename-to-Namespace Mapping Convention](#filename-to-namespace-mapping-convention)
-	- [project.clj](#projectclj)
-	- [Dependencies](#dependencies)
-		- [Overview](#overview)
-		- [Artifact IDs, Groups, and Versions](#artifact-ids-groups-and-versions)
-		- [Snapshot Versions](#snapshot-versions)
-		- [Repositories](#repositories)
-		- [Checkout Dependencies](#checkout-dependencies)
-		- [Search](#search)
-	- [Running Code](#running-code)
-	- [Tests](#tests)
-	- [Profiles](#profiles)
-	- [What to do with it](#what-to-do-with-it)
-		- [Uberjar](#uberjar)
-		- [Framework (Uber)jars](#framework-uberjars)
-		- [Server-side Projects](#server-side-projects)
-		- [Publishing Libraries](#publishing-libraries)
-	- [That's It!](#thats-it!)
+  - [What This Tutorial Covers](#what-this-tutorial-covers)
+  - [Getting Help](#getting-help)
+  - [Leiningen Projects](#leiningen-projects)
+  - [Creating a Project](#creating-a-project)
+    - [Directory Layout](#directory-layout)
+    - [Filename-to-Namespace Mapping Convention](#filename-to-namespace-mapping-convention)
+  - [project.clj](#projectclj)
+  - [Dependencies](#dependencies)
+    - [Overview](#overview)
+    - [Artifact IDs, Groups, and Versions](#artifact-ids-groups-and-versions)
+    - [Snapshot Versions](#snapshot-versions)
+    - [Repositories](#repositories)
+    - [Checkout Dependencies](#checkout-dependencies)
+    - [Search](#search)
+  - [Setting JVM Options](#setting-jvm-options)
+  - [Running Code](#running-code)
+  - [Tests](#tests)
+  - [Profiles](#profiles)
+  - [What to do with it](#what-to-do-with-it)
+    - [Uberjar](#uberjar)
+    - [Framework (Uber)jars](#framework-uberjars)
+    - [Server-side Projects](#server-side-projects)
+    - [Publishing Libraries](#publishing-libraries)
+  - [That's It!](#thats-it)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
 
 # Tutorial
 
@@ -354,6 +357,25 @@ These prefixes allow you to execute more advanced queries such as:
 
 `lein search` also accepts a second, optional parameter for fetching
 successive pages, e.g. `lein search clojure 2`.
+
+## Setting JVM Options
+
+To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will override any default JVM opts set by Leiningen.
+
+```clj
+ :jvm-opts ["-Xmx1g"]
+```
+
+If you want to pass [compiler options](http://clojure.org/reference/compilation#_compiler_options) to the Clojure compiler, you also do this here.
+
+```
+:jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
+           "-Dclojure.compiler.elide-meta=[:doc :file :line :added]" 
+           ; notice the array is not quoted like it would be if you passed it directly on the command line.
+           "-Dclojure.compiler.direct-linking=true"]
+```
+
+You can also pass options to Leiningen in the `JVM_OPTS` environment variable. If you want to provide the Leiningen JVM with custom options, set them in `LEIN_JVM_OPTS`.
 
 ## Running Code
 
