@@ -92,7 +92,7 @@
   (let [project (project/merge-profiles sample-failing-project
                                         [{:aot ^:replace []
                                           :dependencies ^:replace
-                                          [['org.clojure/clojure "1.7.0"]]}])]
+                                          [['org.clojure/clojure (clojure-version)]]}])]
     (binding [main/*exit-process?* false]
       (is (= "EOF while reading" (try (test project) false
                                       (catch Exception e

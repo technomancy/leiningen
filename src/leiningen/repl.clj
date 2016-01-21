@@ -266,7 +266,8 @@
   (if (:root project)
     project
     (-> project ;; Ugh, this feels like an ugly hack
-        (project/merge-profiles [{:dependencies '[^:top-displace [org.clojure/clojure "1.7.0"]]}])
+        (project/merge-profiles [{:dependencies [^:top-displace
+                                                 ['org.clojure/clojure (clojure-version)]]}])
         (assoc :eval-in :subprocess))))
 
 (defn ^:no-project-needed repl

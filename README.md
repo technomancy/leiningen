@@ -80,7 +80,7 @@ The `project.clj` file in the project root should look like this:
   :description "A project for doing things."
   :license "Eclipse Public License 1.0"
   :url "http://github.com/technomancy/myproject"
-  :dependencies [[org.clojure/clojure "1.5.1"]]
+  :dependencies [[org.clojure/clojure "1.8.0"]]
   :plugins [[lein-tar "3.2.0"]])
 ```
 
