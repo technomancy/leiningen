@@ -16,7 +16,6 @@
   - [How Leiningen uses GPG](#how-leiningen-uses-gpg)
     - [Signing a file](#signing-a-file)
     - [Overriding the gpg defaults](#overriding-the-gpg-defaults)
-  - [Clojars](#clojars)
   - [Troubleshooting](#troubleshooting)
     - [Debian based distributions](#debian-based-distributions-1)
       - [gpg: can't query passphrase in batch mode](#gpg-cant-query-passphrase-in-batch-mode)
@@ -249,27 +248,6 @@ repository specification in your project definition:
                        :signing {:gpg-key "2ADFB13E"}}]
          ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
        ...)
-       
-## Clojars
-
-Clojars requires that artifacts be signed and verified before being
-promoted to the
-[releases](https://github.com/ato/clojars-web/wiki/Releases)
-repository. In order to verify the signature, it needs a copy of your
-*public* key. To view your public key, use `gpg --export -a` giving it
-the key id. Example:
-
-    $ gpg --export -a 2ADFB13E
-    -----BEGIN PGP PUBLIC KEY BLOCK-----
-    Version: GnuPG v1.4.11 (GNU/Linux)
-    
-    mQENBFE/a/UBCAChmZrZWFFgzzYrhOVx0EiUa3S+0kV6UryqkxPASbHZLml3RlJI
-    <snipped>
-    =EaPb
-    -----END PGP PUBLIC KEY BLOCK-----
-
-Copy the entire output (including the BEGIN and END lines), and paste
-it into the 'PGP public key' field of your Clojars profile.
 
 ## Troubleshooting
 
