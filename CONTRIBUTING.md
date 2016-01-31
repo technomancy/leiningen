@@ -7,10 +7,13 @@ request commit rights as well as two free
 [stickers](http://hypirion.com/imgs/lein-stickers.jpg).
 
 Discussion occurs both in the
-[#leiningen channel on Freenode](irc://chat.freenode.net#leiningen)
-and on the [mailing list](http://librelist.com/browser/leiningen/). To
-join the mailing list, simply email `leiningen@librelist.org`; your
-first message to that address will subscribe you without being posted.
+[#leiningen channel on Freenode](irc://chat.freenode.net#leiningen) and on the
+[mailing list](http://www.freelists.org/list/leiningen). To join the mailing
+list, email
+[`leiningen+request@freelists.org`](mailto:leiningen+request@freelists.org?subject=subscribe)
+with `subscribe` in the Subject field, then follow the instructions in the reply
+you receive. The address `leiningen@freelists.org` is used for posting once
+you've joined.
 
 Please report issues on the
 [GitHub issue tracker](https://github.com/technomancy/leiningen/issues)
