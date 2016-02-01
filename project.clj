@@ -20,7 +20,7 @@
                  [reply "0.3.7" :exclusions [ring/ring-core
                                              org.thnetos/cd-client]]
                  [org.clojure/tools.nrepl "0.2.12"]
-                 [clojure-complete "0.2.3"]
+                 [clojure-complete "0.2.4"]
                  ;; bump versions of various common transitive deps
                  [slingshot "0.10.3"]
                  [cheshire "5.5.0"]
