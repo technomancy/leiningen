@@ -284,6 +284,27 @@ You can test the config with
     
 Leiningen should pick it up automatically when the command above works correctly.
 
+#### gpg: decryption failed: secret key not available
+
+When you run
+
+    gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
+
+you get the error message
+
+    gpg: decryption failed: secret key not available
+
+try running it without `--quiet`
+
+    gpg  --use-agent --decrypt ~/.lein/credentials.clj.gpg
+
+If you get
+
+    gpg: encrypted with RSA key, ID DEAD8F70
+    gpg: decryption failed: secret key not available
+
+run `gpg -k` and check that `DEAD8F70` is in the known keys list. If it isn't, `~/.lein/credentials.clj.gpg` may have been encrypted with a different key.
+
 ### GPG prompts for passphrase but does not work with Leiningen
 
     gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg
