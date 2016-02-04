@@ -245,9 +245,10 @@
                     (io/file (:target-path project) (str checksum "-init.clj"))
                     (File/createTempFile "form-init" ".clj"))]
     (spit init-file
-          (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
-                    `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
-                  form))
+          (binding [*print-dup* true]
+            (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
+                      `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
+                    form)))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
@@ -324,7 +325,8 @@
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (pr-str form)})
+        (message client {:op "eval" :code (binding [*print-dup* true]
+                                            (pr-str form))})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
                 :while (not (done? msg pending))]
@@ -364,6 +366,7 @@
   "Executes form in isolation with the classpath and compile path set correctly
   for the project. If the form depends on any requires, put them in the init arg
   to avoid the Gilardi Scenario: http://technomancy.us/143"
+  ([project form] (eval-in-project project form nil))
   ([project form init]
      (prep project)
      (when (:warn-on-reflection project)
@@ -375,5 +378,4 @@
                    ~@(map (fn [[k v]] `(set! ~k ~v)) (:global-vars project))
                    ~init
                    ~@(:injections project)
-                   ~form)))
-  ([project form] (eval-in-project project form nil)))
+                   ~form))))
