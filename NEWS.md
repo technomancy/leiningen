@@ -1,5 +1,23 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.6.0 / 2016-01-05
+
+* The templates, repl and Leiningen itself now uses Clojure 1.8.
+* Support for Clojure 1.1.0 and older is now dropped.
+* Warn if possibly stale native dependencies end up in `:native-path`. (Jean Niklas L'orange)
+* Speed up restarts after `:dependency` changes. (Jean Niklas L'orange)
+* `lein release` now supports SNAPSHOT on qualifiers. (Chris Price)
+* Synchronise `lein-pkg` and `lein` scripts. (Thu Trang Pham)
+* Decrease timeout for the Clojure compiler agent thread pool. (Ryan Fowler)
+* Fix a bug where implicit resource directories were created by default. (Jean Niklas L'orange)
+* Avoid optimizing away stack traces by default. (solicode)
+* Fix a bug where duplicate profiles were merged when profile merging. (Jean Niklas L'orange)
+* Improved GPG artifact signing feedback. (Jean Niklas L'orange, Andrea Richiardi)
+* Add function to support binary files with `lein-new`. (Sergiy Bondaryev)
+* Show better error message when java is not found on the path. (Pavel Prokopenko, Jürgen Hötzel)
+* Fix a bug with non-GitHub SCM urls in pom files. (Ralf Schmitt)
+* Don't send aot warning if `:aot` contains regex matching the main namespace. (Emlyn Corrin)
+
 ## 2.5.3 / 2015-09-21
 
 * Add CHANGELOG.md to default lein templates. (Daniel Compton)
