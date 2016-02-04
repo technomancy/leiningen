@@ -204,3 +204,11 @@
                          (cons x (step (rest s) (conj seen fx)))))))
                  xs seen)))]
     (reverse (step (reverse coll) #{}))))
+
+(defn ancestor?
+  "Is a an ancestor of b?"
+  [a b]
+  (let [hypothetical-ancestor (.getCanonicalPath (io/file a))
+        hypothetical-descendant (.getCanonicalPath (io/file b))]
+    (and (.startsWith hypothetical-descendant hypothetical-ancestor)
+         (not (= hypothetical-descendant hypothetical-ancestor)))))

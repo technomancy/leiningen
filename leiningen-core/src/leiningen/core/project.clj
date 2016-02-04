@@ -34,7 +34,7 @@
 (defn- update-each-contained [m keys f & args]
   (reduce (fn [m k]
             (if (contains? m k)
-              (apply update-in m [k] f args)
+              (apply update m k f args)
               m)) m keys))
 
 (defn- update-first [coll pred f]

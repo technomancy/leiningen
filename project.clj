@@ -34,9 +34,7 @@
                              cemerick.pomegranate
                              classlojure.core
                              clojure.tools.nrepl
-                             clj-http.core
-                             ;; to avoid compile warnings at runtime:
-                             clj-http.client]}}
+                             clj-http.core]}}
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}

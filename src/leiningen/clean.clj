@@ -25,14 +25,6 @@
     (.setWritable f true)
     (io/delete-file f silently)))
 
-(defn- ancestor?
-  "Is a an ancestor of b?"
-  [a b]
-  (let [hypothetical-ancestor (.getCanonicalPath (io/file a))
-        hypothetical-descendant (.getCanonicalPath (io/file b))]
-    (and (.startsWith hypothetical-descendant hypothetical-ancestor)
-         (not (= hypothetical-descendant hypothetical-ancestor)))))
-
 (defn- protected-paths
   "Returns a set of leiningen project source directories and important files."
   [project]
@@ -52,7 +44,7 @@
   [project path]
   (let [protected-paths (protected-paths project)]
     (or (protected-paths (.getCanonicalPath (io/file path)))
-        (some #(ancestor? % path) protected-paths))))
+        (some #(utils/ancestor? % path) protected-paths))))
 
 (defn- protect-clean-targets?
   "Returns the value of :protect in the metadata map for the :clean-targets
@@ -72,7 +64,7 @@
   [project clean-target]
   (when (and (string? clean-target)
              (protect-clean-targets? project))
-    (cond (not (ancestor? (:root project) clean-target))
+    (cond (not (utils/ancestor? (:root project) clean-target))
           (main/abort (error-msg "Deleting path outside of the project root [\""
                                  clean-target "\"] is not allowed."))
           (protected-path? project clean-target)

@@ -14,11 +14,9 @@
      task+args]))
 
 (defn ^:internal update-project [project keys-vec f args]
-  (let [f #(apply apply (concat (if (seq keys-vec)
-                                  [clj/update-in % keys-vec f]
-                                  [f %])
-                                args
-                                [nil]))]
+  (let [f #(if (seq keys-vec)
+             (apply clj/update-in % keys-vec f args)
+             (apply f % args))]
     (-> (vary-meta (f project) clj/update-in [:without-profiles] f)
         (project/load-plugins)
         (project/activate-middleware))))
