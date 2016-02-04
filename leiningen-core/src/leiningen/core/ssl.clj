@@ -13,7 +13,7 @@
            java.io.FileInputStream
            org.apache.http.config.RegistryBuilder
            org.apache.http.conn.socket.PlainConnectionSocketFactory
-           org.apache.http.conn.ssl.BrowserCompatHostnameVerifier
+           org.apache.http.conn.ssl.DefaultHostnameVerifier
            org.apache.http.conn.ssl.SSLConnectionSocketFactory
            org.apache.http.impl.conn.PoolingHttpClientConnectionManager
            org.apache.maven.wagon.providers.http.HttpWagon))
@@ -84,7 +84,7 @@
 (defn https-registry
   "Constructs a registry map that uses a given SSLContext for https."
   [context]
-  (let [factory (SSLConnectionSocketFactory. context (BrowserCompatHostnameVerifier.))]
+  (let [factory (SSLConnectionSocketFactory. context (DefaultHostnameVerifier.))]
     {"https" factory
      "http" PlainConnectionSocketFactory/INSTANCE}))
 
