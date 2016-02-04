@@ -4,6 +4,7 @@
             [cemerick.pomegranate :as pomegranate]
             [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.set :as set]
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
             [pedantic.core :as pedantic])
@@ -16,7 +17,7 @@
   (require 'leiningen.core.main)
   (apply (resolve 'leiningen.core.main/warn) args))
 
-(defn extract-native-deps [files native-path native-prefixes]
+(defn ^:deprecated extract-native-deps [files native-path native-prefixes]
   (doseq [file files
           :let [native-prefix (get native-prefixes file "native/")
                 jar (try (JarFile. file)
@@ -30,13 +31,155 @@
         (do (.mkdirs (.getParentFile f))
             (io/copy (.getInputStream jar entry) f))))))
 
-(defn when-stale
-  "Call f with args when keys in project.clj have changed since the last
+(defn extract-native-dep!
+  "Extracts native content into the native path. Returns true if at least one
+  file was extracted."
+  [native-path file native-prefix]
+  (let [native? (volatile! false)
+        native-prefix (or native-prefix "native/")
+        jar (try (JarFile. file)
+                 (catch Exception e
+                   (throw (Exception. (format "Problem opening jar %s" file) e))))]
+    (doseq [entry (enumeration-seq (.entries jar))
+            :when (.startsWith (.getName entry) native-prefix)]
+      (vreset! native? true)
+      (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
+        (if (.isDirectory entry)
+          (.mkdirs f)
+          (do (.mkdirs (.getParentFile f))
+              (io/copy (.getInputStream jar entry) f)))))
+    @native?))
+
+(defn- stale-extract-native-deps
+  "Extract native dependencies by comparing what has already been extracted to
+  avoid redoing work. If stale files end up in some native path, new or old, the
+  user will receive a warning -- we cannot delete files as the native path may
+  be used for other things as well (or stuff generated earlier may be put in
+  there)."
+  [{old-deps :dependencies
+    old-native-path :native-path} new-raw-deps relative-native-path native-path]
+  (let [renamed-old-deps (utils/map-vals
+                          old-deps
+                          #(set/rename-keys % {:vsn :old-vsn
+                                               :native-prefix :old-native-prefix
+                                               :native? :old-native?}))
+        renamed-new-raw-deps (utils/map-vals
+                              new-raw-deps
+                              #(set/rename-keys % {:vsn :new-vsn
+                                                   :native-prefix :new-native-prefix
+                                                   :file :new-file}))
+        join (merge-with merge renamed-old-deps renamed-new-raw-deps)
+        new-native-path? (and old-native-path
+                              (not= (io/file old-native-path) (io/file relative-native-path)))
+        maybe-stale (volatile! false)]
+    ;; Why all the warnings? Well, we cannot really delete a directory, as it
+    ;; may be populated by things created by others, either in a prep-step
+    ;; before us OR as manual work (adding some self-made native stuff into
+    ;; said). :native-path does not have to be in :target, which makes this
+    ;; stuff kind of hard to avoid. However, it is likely that this path is in
+    ;; the :target-path, which makes life easier for us. TODO: Fix this up for
+    ;; Lein 3.0 by enforcing native to be inside :target-path and stating that
+    ;; it should only be used by native deps.
+    (when new-native-path?
+      (warn "Warning: You changed :native-path to" (pr-str relative-native-path)
+            ", but old native data is still available at" (pr-str old-native-path))
+      (vreset! maybe-stale true)
+      (doseq [[_ {:keys [native-prefix file]}] new-raw-deps]
+        (extract-native-dep! native-path file native-prefix)))
+    (let [newly-extracted-deps
+          (->>
+           (for [[dep {:keys [old-vsn old-native-prefix old-native?
+                              new-vsn new-native-prefix new-file]}] join]
+             (cond (and (= old-vsn new-vsn) ;; no change, stuff already in directory
+                        (= old-native-prefix new-native-prefix))
+                   [dep {:vsn old-vsn
+                         :native-prefix old-native-prefix
+                         :native? old-native?}]
+
+                   (nil? old-vsn) ;; no old version, attempt to extract
+                   (let [native? (extract-native-dep! native-path new-file new-native-prefix)]
+                     [dep {:vsn new-vsn
+                           :native-prefix new-native-prefix
+                           :native? native?}])
+
+                   (nil? new-vsn) ;; dependency was removed
+                   (when (and (not new-native-path?) old-native?)
+                     (vreset! maybe-stale true)
+                     (warn "Warning:" dep old-vsn "will still have its native content in :native-path"))
+
+                   ;; prefix changed (possibly version as well)
+                   (not= old-native-prefix new-native-prefix)
+                   (let [native? (extract-native-dep! native-path new-file new-native-prefix)]
+                     (when (and (not new-native-path?) old-native?)
+                       (vreset! maybe-stale true)
+                       (warn "Warning:" dep "had its native prefix changed, but content"
+                             "from"  (pr-str old-native-prefix) "is still in :native-path"))
+                     [dep {:vsn new-vsn
+                           :native-prefix new-native-prefix
+                           :native? native?}])
+
+                   ;; version changed (all options are now exhausted)
+                   (not= old-vsn new-vsn)
+                   (let [native? (extract-native-dep! native-path new-file new-native-prefix)]
+                     (when (and (not new-native-path?) old-native?)
+                       (vreset! maybe-stale true)
+                       (warn "Warning: Native dependencies from the old version of"
+                             dep (str "(" old-vsn ") is still in :native-path")))
+                     [dep {:vsn new-vsn
+                           :native-prefix new-native-prefix
+                           :native? native?}])))
+           (filter identity)
+           (into {}))]
+      (when @maybe-stale
+        (warn "  Consider doing `lein clean` to remove potentially stale native files"))
+      {:native-path relative-native-path
+       :dependencies newly-extracted-deps})))
+
+(defn- read-string-or-error
+  "Like read-string, but will return ::error if the reader threw an error."
+  [s]
+  (try
+    (read-string s)
+    (catch Exception e
+       ::error)))
+
+(defn outdated-swap!
+  "Performs f if cmp-val is not equal to the old compare value. f is
+  then called with (f outdated-val args...). If no previous cached
+  result is found, then outdated-val is set to nil.
+
+  The comparison value and cached value is stored
+  in :target-path/stale/`identifier`. Make sure your identifier is
+  unique, e.g. by providing your namespace and function name. The
+  values will be read through read-string and printed with pr-str.
+
+  outdated-swap! will not run outside of projects."
+  [project identifier cmp-val f & args]
+  (when (and (:root project) (:target-path project))
+    (let [file (io/file (:target-path project) "stale" identifier)
+          file-content (if (.exists file)
+                         (read-string-or-error (slurp file)))
+          [old-cmp-val outdated-val] (if (not= ::error file-content)
+                                       file-content)]
+      (when (= ::error file-content)
+        (warn "Could not read the old stale value for" identifier ", rerunning stale task"))
+      (when (or (= ::error file-content)
+                (not= old-cmp-val cmp-val))
+        (.mkdirs (.getParentFile file))
+        (let [result (apply f outdated-val args)]
+          (spit file (pr-str [cmp-val result]))
+          result)))))
+
+(defn ^:deprecated when-stale
+  "DEPRECATED: Use outdated-swap! instead.
+
+  Call f with args when keys in project.clj have changed since the last
   run. Stores value of project keys in stale directory inside :target-path.
   Because multiple callers may check the same keys, you must also provide a
   token to keep your stale value separate. Returns true if the code was executed
   and nil otherwise."
   [token keys project f & args]
+  (warn "leiningen.core.classpath/when-stale is deprecated, use outdated-swap! instead.")
   (let [file (io/file (:target-path project) "stale"
                       (str (name token) "." (str/join "+" (map name keys))))
         current-value (pr-str (map (juxt identity project) keys))
@@ -149,9 +292,6 @@
          (print-failures e)
          (warn "This could be due to a typo in :dependencies or network issues.")
          (warn "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
-         #_(when-not (some #(= "https://clojars.org/repo/" (:url (second %))) repositories)
-             (warn "It's possible the specified jar is in the old Clojars Classic repo.")
-             (warn "If so see https://github.com/ato/clojars-web/wiki/Releases."))
          (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
                                                            :exit-code 1} e)))
        (catch Exception e
@@ -292,21 +432,59 @@
   [[id version & {:as opts}]]
   (get opts :native-prefix))
 
-(defn- get-native-prefixes
-  "Given a dependencies vector (such as :dependencies in project.clj)
-  and a dependencies tree, as returned by get-dependencies, return a
-  mapping from the Files those dependencies entail to
-  the :native-prefix, if any, referenced in the dependencies vector."
+(defn native-dependency-info
+  "Returns the dependency information about a dependency on the form
+  [id version native-prefix] if the dependency is not nil."
+  [dependency]
+  (if dependency
+    (let [[id version & {:as opts}] dependency]
+      [id version (get opts :native-prefix)])))
+
+(defn- native-dependency-map
+  "Given a dependencies vector (such as :dependencies in project.clj) and a
+  dependencies tree, as returned by get-dependencies, return a map from
+  dependency identifier to :vsn, :file and :native-prefix (may be nil) for ALL
+  dependencies this project depends on -- including transitive ones."
   [dependencies dependencies-tree]
-  (let [override-deps (->> (map #(get-original-dependency
-                                  % dependencies)
-                                (keys dependencies-tree))
-                           (map get-native-prefix))]
+  (let [native-dep-info (->> (map #(or (get-original-dependency % dependencies) %)
+                                  (keys dependencies-tree))
+                             (map native-dependency-info))]
     (->> (aether/dependency-files dependencies-tree)
-         (#(map vector % override-deps))
-         (filter second)
+         (#(map vector % native-dep-info))
          (filter #(re-find #"\.(jar|zip)$" (.getName (first %))))
+         (map (fn [[file [id version native-prefix]]]
+                [id {:file file :vsn version :native-prefix native-prefix}]))
          (into {}))))
+
+(defn- extract-native-dependencies
+  "extract-native-dependencies calculates the native dependency map for all
+  dependencies, including transitive ones. It then extracts new native content
+  from native dependencies,"
+  [{:keys [native-path dependencies] :as project} jars dependencies-tree]
+  ;; FIXME: This is a hack for a bug I noticed (issue #2077): Sometimes the
+  ;; project comes through without having an init-profiles call ran on it. This
+  ;; means that native-path is on an uninitialised form. The sane way to fix
+  ;; this up is to check if this is the case, and if so, just ignore it. (Don't
+  ;; worry, this call is done a ton of times)
+  ;; To check this, just check if the path is absolute:
+  (when (and native-path (.isAbsolute (io/file native-path)))
+    (let [relative-native-path (utils/relativize (:root project) native-path)
+          native-dep-map (native-dependency-map dependencies dependencies-tree)
+          snap-deps (utils/filter-vals native-dep-map
+                                       #(.endsWith (:vsn %) "SNAPSHOT"))
+          stale-check {:dependencies (utils/map-vals native-dep-map
+                                                     #(select-keys % [:vsn :native-prefix]))
+                       :native-path relative-native-path}]
+      (or (outdated-swap!
+           project "leiningen.core.classpath.extract-native-dependencies"
+           stale-check
+           stale-extract-native-deps
+           native-dep-map
+           relative-native-path
+           native-path)
+          ;; Always extract native deps from SNAPSHOT deps.
+          (doseq [[_ {:keys [native-prefix file]}] snap-deps]
+            (extract-native-dep! native-path file native-prefix))))))
 
 (defn resolve-dependencies
   "Delegate dependencies to pomegranate. This will ensure they are
@@ -316,20 +494,14 @@
   classpath.
 
   Returns a seq of the dependencies' files."
-  [dependencies-key {:keys [repositories native-path] :as project} & rest]
+  [dependencies-key {:keys [native-path] :as project} & rest]
   (let [dependencies-tree (apply get-dependencies dependencies-key project rest)
         jars (->> dependencies-tree
                   (aether/dependency-files)
-                  (filter #(re-find #"\.(jar|zip)$" (.getName %))))
-        native-prefixes (get-native-prefixes (get project dependencies-key)
-                                             dependencies-tree)]
-    (when-not (= :plugins dependencies-key)
-      (or (when-stale :extract-native [dependencies-key] project
-                      extract-native-deps jars native-path native-prefixes)
-          ;; Always extract native deps from SNAPSHOT jars.
-          (extract-native-deps (filter #(re-find #"SNAPSHOT" (.getName %)) jars)
-                               native-path
-                               native-prefixes)))
+                  (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
+    (when (and (= :dependencies dependencies-key)
+               (:root project))
+      (extract-native-dependencies project jars dependencies-tree))
     jars))
 
 (defn dependency-hierarchy

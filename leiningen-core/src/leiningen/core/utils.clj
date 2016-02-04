@@ -58,6 +58,15 @@
     (not= (.getCanonicalFile canon)
           (.getAbsoluteFile canon))))
 
+(defn relativize
+  "Makes the filepath path relative to base. Assumes base is an ancestor to
+  path, and that the path contains no '..'."
+  [base path]
+  ;; TODO: When moving to Java 1.7, use Path's relativize instead
+  (let [base-uri (.toURI (io/file base))
+        path-uri (.toURI (io/file path))]
+    (.. base-uri (relativize path-uri) (getPath))))
+
 (defn ns-exists? [namespace]
   (some (fn [suffix]
           (-> (#'clojure.core/root-resource namespace)
@@ -123,8 +132,21 @@
              "NUL"
              "/dev/null")))
 
-(defn map-vals [m f & args]
+
+;; The ordering on map-vals and filter-vals may seem strange, but it helps out
+;; if you want to do stuff like (update m :foo map-vals f extra-args)
+
+(defn map-vals
+  "Like 'update', but for all values in a map."
+  [m f & args]
   (zipmap (keys m) (map #(apply f % args) (vals m))))
+
+(defn filter-vals
+  "Like filter, but for values over a map: If pred is satisfied on a value in m,
+  then its entry is preserved, otherwise it is removed."
+  [m pred]
+  (->> (filter #(pred (val %)) m)
+       (into {})))
 
 ;; # Git
 
