@@ -4,7 +4,7 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from a source checkout and self-install/upgrading.
 
-export LEIN_VERSION="2.6.0"
+export LEIN_VERSION="2.6.1-SNAPSHOT"
 
 if [ "$(whoami)" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
     echo "WARNING: You're currently running as root; probably by accident."
