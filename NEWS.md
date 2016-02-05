@@ -1,8 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.6.0 / 2016-01-05
+## 2.6.0 / 2016-02-05
 
-* The templates, repl and Leiningen itself now uses Clojure 1.8.
+* The templates, repl and Leiningen itself now use Clojure 1.8.
 * Support for Clojure 1.1.0 and older is now dropped.
 * Warn if possibly stale native dependencies end up in `:native-path`. (Jean Niklas L'orange)
 * Speed up restarts after `:dependency` changes. (Jean Niklas L'orange)
