@@ -146,26 +146,27 @@ shouldn't need to be manually invoked. See the javac task as well.
 Compiling code loads the namespace, so keep side-effects out of the top level.
 Code that should run on startup belongs in a -main defn."
   ([project]
-     (if-let [namespaces (seq (stale-namespaces project))]
-       (let [ns-sym (gensym "namespace")
-             form `(do
-                     ~set-agent-threadpool-form
-                     (doseq [~ns-sym '~namespaces]
-                      ~(if main/*info*
-                         `(binding [*out* *err*]
-                            (println "Compiling" ~ns-sym)))
-                      (try
-                        (clojure.core/compile ~ns-sym)
-                        (catch Throwable t#
-                          (binding [*out* *err*]
-                            (println (.getMessage t#)))
-                          (throw t#)))))
-             project (update-in project [:prep-tasks]
-                                (partial remove #{"compile"}))]
-         (try (eval/eval-in-project project form)
-              (catch Exception e
-                (main/abort "Compilation failed:" (.getMessage e)))
-              (finally (clean-non-project-classes project))))
-       (main/debug "All namespaces already AOT compiled.")))
+   (if-let [namespaces (seq (stale-namespaces project))]
+     (let [ns-sym (gensym "namespace")
+           form `(do
+                   ~set-agent-threadpool-form
+                   (doseq [~ns-sym '~namespaces]
+                     ~(if main/*info*
+                        `(binding [*out* *err*]
+                           (println "Compiling" ~ns-sym)))
+                     (try
+                       (clojure.core/compile ~ns-sym)
+                       (catch Throwable t#
+                         (binding [*out* *err*]
+                           (println (.getMessage t#)))
+                         (throw t#)))))
+           project (update-in project [:prep-tasks]
+                              (partial remove #{"compile"}))]
+       (try (binding [*print-dup* true]
+              (eval/eval-in-project project form))
+            (catch Exception e
+              (main/abort "Compilation failed:" (.getMessage e)))
+            (finally (clean-non-project-classes project))))
+     (main/debug "All namespaces already AOT compiled.")))
   ([project & args]
-     (compile (assoc project :aot (compilation-specs args)))))
+   (compile (assoc project :aot (compilation-specs args)))))

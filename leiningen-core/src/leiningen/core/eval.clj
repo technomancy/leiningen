@@ -245,10 +245,9 @@
                     (io/file (:target-path project) (str checksum "-init.clj"))
                     (File/createTempFile "form-init" ".clj"))]
     (spit init-file
-          (binding [*print-dup* true]
-            (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
-                      `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
-                    form)))
+          (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
+                    `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
+                  form))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
@@ -325,8 +324,7 @@
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (binding [*print-dup* true]
-                                            (pr-str form))})
+        (message client {:op "eval" :code (pr-str form)})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
                 :while (not (done? msg pending))]
