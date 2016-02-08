@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.6.1 / 2016-02-08
+
+* Fix a bug where some plugins crashed when used. (Jean Niklas L'orange)
+
 ## 2.6.0 / 2016-02-05
 
 * The templates, repl and Leiningen itself now use Clojure 1.8.
