@@ -7,10 +7,10 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "2.6.2-SNAPSHOT"]
-                 [org.clojure/data.xml "0.0.3"]
+                 [org.clojure/data.xml "0.0.8"]
                  [commons-io "2.4"]
                  [bultitude "0.2.8"]
-                 [stencil "0.3.5" :exclusions [org.clojure/core.cache]]
+                 [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
@@ -22,9 +22,9 @@
                  [org.clojure/tools.nrepl "0.2.12"]
                  [clojure-complete "0.2.4"]
                  ;; bump versions of various common transitive deps
-                 [slingshot "0.10.3"]
+                 [slingshot "0.12.2"]
                  [cheshire "5.5.0"]
-                 [clj-http "2.0.0"]
+                 [clj-http "2.0.1"]
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
