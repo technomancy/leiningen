@@ -60,8 +60,7 @@
 
 (defmethod push :git [project & args]
   (binding [eval/*dir* (:root project)]
-    (apply eval/sh-with-exit-code "Couldn't push to the remote" "git" "push" args)
-    (apply eval/sh-with-exit-code "Couldn't push tags to the remote" "git" "push" "--tags" args)))
+    (apply eval/sh-with-exit-code "Couldn't push to the remote" "git" "push" "--follow-tags" args)))
 
 (defmethod commit :git [project]
   (binding [eval/*dir* (:root project)]
