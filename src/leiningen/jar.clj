@@ -3,7 +3,6 @@
   (:require [leiningen.pom :as pom]
             [leiningen.clean :as clean]
             [leiningen.compile :as compile]
-            [leiningen.core.classpath :as classpath]
             [leiningen.core.project :as project]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
@@ -13,8 +12,6 @@
             [clojure.string :as string]
             [clojure.java.io :as io])
   (:import (java.util.jar Manifest JarEntry JarOutputStream)
-           (java.util.regex Pattern)
-           (java.util.jar JarFile)
            (java.io BufferedOutputStream FileOutputStream
                     ByteArrayInputStream)))
 
@@ -220,16 +217,6 @@
         jar-name (format jar-name (:version project))]
     (str (io/file target jar-name))))
 
-(def whitelist-keys
-  "Project keys which don't affect the production of the jar (sans its name)
-  should be propagated to the compilation phase and not stripped out."
-  [:offline? :local-repo :certificates :warn-on-reflection :mirrors :uberjar-name :jar-name])
-
-(defn- retain-whitelisted-keys
-  "Retains the whitelisted keys from the original map in the new one."
-  [new original]
-  (merge new (select-keys original whitelist-keys)))
-
 (defn- compile-main? [{:keys [main source-paths] :as project}]
   (and main (not (:skip-aot (meta main)))
        (some #(or (.exists (io/file % (b/path-for main "clj")))
@@ -271,7 +258,7 @@
   inserted if provided."
   [project main f & args]
   (-> (apply f project args)
-      (retain-whitelisted-keys project)
+      (project/retain-whitelisted-keys project)
       (add-main main)))
 
 (defn- preprocess-project [project & [main]]

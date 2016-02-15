@@ -3,10 +3,11 @@
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [leiningen.core.utils :refer [platform-nullsink]]
-            [leiningen.test.helper :as helper])
+            [leiningen.test.helper :as helper]
+            [robert.hooke :as hooke]
+            [leiningen.javac :as javac])
   (:use [clojure.test]
-        [leiningen.jar])
-  (:import (java.util.jar JarFile)))
+        [leiningen.jar]))
 
 (def long-line
   (apply str (repeat 10000 "a")))
@@ -134,3 +135,23 @@
                                  :bytes ""}]))]
       (is (not (.contains out-str
                           "Warning: The Main-Class specified does not exist"))))))
+
+(deftest javac-launched-with-whitelisted-settings
+  (let [user-profile {:local-repo "foo/bar"
+                      :mirrors {"central" {:name "central"
+                                           :url "http://uk.maven.org/maven2"}}}
+        orig-project (-> (helper/read-test-project-with-user-profiles
+                          "java-main"
+                          {:user user-profile}))
+        javac-project (atom {})
+        javac-project-hook (fn [f proj profile]
+                             (let [new-project (f proj profile)]
+                               (reset! javac-project new-project)
+                               new-project))]
+    (hooke/with-scope
+     (hooke/add-hook #'javac/javac-project-for-subprocess javac-project-hook)
+     (jar orig-project)
+     (is (= (:local-repo orig-project)
+            (:local-repo @javac-project)))
+     (is (= (:mirrors orig-project)
+            (:mirrors @javac-project))))))

@@ -837,6 +837,16 @@
                           :excluded-profiles exclude-profiles
                           :profile-inherited-meta include-profiles-meta}))))
 
+(def whitelist-keys
+  "Project keys which don't affect the production of the jar (sans its name)
+  should be propagated to the compilation phase and not stripped out."
+  [:offline? :local-repo :certificates :warn-on-reflection :mirrors :uberjar-name :jar-name])
+
+(defn retain-whitelisted-keys
+  "Retains the whitelisted keys from the original map in the new one."
+  [new original]
+  (merge new (select-keys original whitelist-keys)))
+
 ;; # High-level profile operations
 
 (defn set-profiles
