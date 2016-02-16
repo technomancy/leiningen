@@ -144,8 +144,9 @@
   your project):
 
 ```clj
-(doto (java.util.Properties.)
-  (.load (io/reader (io/resource "META-INF/maven/group/artifact/pom.properties"))))
+(with-open [pom-properties-reader (io/reader (io/resource "META-INF/maven/group/artifact/pom.properties"))]
+  (doto (java.util.Properties.)
+    (.load pom-properties-reader)))
 ```
 
 **Q:** How can I read my project map at runtime?  
