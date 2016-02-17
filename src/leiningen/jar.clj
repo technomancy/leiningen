@@ -15,6 +15,10 @@
            (java.io BufferedOutputStream FileOutputStream
                     ByteArrayInputStream)))
 
+(def ^:deprecated whitelist-keys
+  "Deprecated: use leiningen.core.project/whitelist-keys instead"
+  project/whitelist-keys)
+
 (defn- unix-path [path]
   (.replace path "\\" "/"))
 

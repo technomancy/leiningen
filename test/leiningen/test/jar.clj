@@ -12,27 +12,30 @@
 (def long-line
   (apply str (repeat 10000 "a")))
 
-(def mock-project-1 {:name "mock-project" :version "1.0"
-                   :main 'foo.one-two.three-four.bar
-                   :manifest [
-                               ["hello" "world"]
-                               [:my-section-1 {"C" "D" "S" "T"}]
-                               ["A" "B"]
-                               [:my-section-2 [["E" "F"] ["X" "Y"]] ]
-                               ["G" "H"]
-                               ["long-line" long-line]
-                             ]})
+(def mock-project-1
+  {:name "mock-project"
+   :version "1.0"
+   :main 'foo.one-two.three-four.bar
+   :manifest [["hello" "world"]
+              [:my-section-1 {"C" "D" "S" "T"}]
+              ["A" "B"]
+              [:my-section-2 [["E" "F"] ["X" "Y"]] ]
+              ["G" "H"]
+              ["long-line" long-line]]})
 
-(def mock-project-2 {:name "mock-project" :version "1.0"
-                   :main 'foo.one-two.three-four.bar
-                   :manifest {
-                               "hello" "world"
-                               :my-section-1 {"C" "D" "S" "T"}
-                               "A" "B"
-                               :my-section-2 [["E" "F"] ["X" "Y"]]
-                               "G" "H"
-                               "long-line" long-line
-                             }})
+(def mock-project-2
+  {:name "mock-project"
+   :version "1.0"
+   :main 'foo.one-two.three-four.bar
+   :manifest {"hello" "world"
+              :my-section-1 {"C" "D" "S" "T"}
+              "A" "B"
+              :my-section-2 [["E" "F"] ["X" "Y"]]
+              "G" "H"
+              "long-line" long-line}})
+
+(deftest has-whitelist
+  (is (= whitelist-keys project/whitelist-keys)))
 
 (deftest test-manifest
   (doseq [mock-project [mock-project-1 mock-project-2]]
