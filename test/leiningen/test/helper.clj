@@ -15,12 +15,15 @@
   (io/file local-repo
            (if (string? n) n (or (namespace n) (name n))) (name n) v))
 
-(defn- read-test-project [name]
-  (with-redefs [user/profiles (constantly {})]
+(defn read-test-project-with-user-profiles [name user-profiles]
+  (with-redefs [user/profiles (constantly user-profiles)]
     (let [project (project/read (format "test_projects/%s/project.clj" name))]
       (project/init-project
        (project/project-with-profiles-meta
-         project (merge @project/default-profiles (:profiles project)))))))
+        project (merge @project/default-profiles (:profiles project)))))))
+
+(defn read-test-project [name]
+  (read-test-project-with-user-profiles name {}))
 
 (def with-resources-project (read-test-project "with-resources"))
 

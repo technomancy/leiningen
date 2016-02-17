@@ -98,6 +98,14 @@
        (abort# "Java compiler not found; Be sure to use java from a JDK\n"
                "rather than a JRE by modifying PATH or setting JAVA_CMD."))))
 
+(defn javac-project-for-subprocess
+  "Merge profiles to create project appropriate for javac subprocess.  This
+  function is mostly extracted to simplify testing, to validate that settings
+  like `:local-repo` and `:mirrors` are respected."
+  [project subprocess-profile]
+  (-> (project/merge-profiles project [subprocess-profile])
+      (project/retain-whitelisted-keys project)))
+
 ;; We can't really control what is printed here. We're just going to
 ;; allow `.run` to attach in, out, and err to the standard streams. This
 ;; should have the effect of compile errors being printed. javac doesn't
@@ -117,7 +125,7 @@
       (try
         (binding [eval/*pump-in* false]
           (eval/eval-in
-           (project/merge-profiles project [subprocess-profile])
+           (javac-project-for-subprocess project subprocess-profile)
            form))
         (catch Exception e
           (if-let [exit-code (:exit-code (ex-data e))]

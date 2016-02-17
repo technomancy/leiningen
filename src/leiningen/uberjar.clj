@@ -168,7 +168,7 @@ be deactivated."
        (with-open [out (-> standalone-filename
                            (FileOutputStream.)
                            (ZipOutputStream.))]
-         (let [whitelisted (select-keys project jar/whitelist-keys)
+         (let [whitelisted (select-keys project project/whitelist-keys)
                project (-> (project/unmerge-profiles project [:default])
                            (merge whitelisted))
                deps (->> (classpath/resolve-dependencies :dependencies project)
