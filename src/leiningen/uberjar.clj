@@ -102,6 +102,11 @@
   (or (->> mergers (filter #(merger-match? % filename)) first second)
       default-merger))
 
+(defn- warn-on-drop [filename]
+  (let [non-code #".*/|project\.clj|META-INF/(MANIFEST\.MF|(NOTICE|LICENSE)(.*\.txt)?|DEPENDENCIES)"]
+    (if-not (re-matches non-code filename)
+      (main/debug "  Dropping" filename))))
+
 ;; TODO: unify with copy-to-jar functionality in jar.clj (for 3.0?)
 (defn- copy-entries
   "Read entries of ZipFile `in` and apply the filename-determined entry-merging
@@ -112,7 +117,8 @@
   (reduce (fn [merged-map file]
             (let [filename (.getName file), prev (get merged-map filename)]
               (if (identical? ::skip prev)
-                merged-map
+                (do (warn-on-drop filename)
+                  merged-map)
                 (let [[read-merge] (select-merger mergers filename)]
                   (assoc merged-map
                     filename (read-merge in out file prev))))))
