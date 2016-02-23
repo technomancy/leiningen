@@ -840,7 +840,7 @@
 (def whitelist-keys
   "Project keys which don't affect the production of the jar (sans its name)
   should be propagated to the compilation phase and not stripped out."
-  [:offline? :local-repo :certificates :warn-on-reflection :mirrors :uberjar-name :jar-name])
+  [:certificates :jar-name :local-repo :mirrors :offline? :repositories :uberjar-name :warn-on-reflection])
 
 (defn retain-whitelisted-keys
   "Retains the whitelisted keys from the original map in the new one."
