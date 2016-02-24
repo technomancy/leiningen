@@ -19,7 +19,9 @@ call :FIND_DIR_CONTAINING_UPWARDS project.clj
 if "%DIR_CONTAINING%" neq "" cd "%DIR_CONTAINING%"
 
 :: LEIN_JAR and LEIN_HOME variables can be set manually.
-:: Only set LEIN_JAR manually if you know what you are doing. Having LEIN_JAR pointing to one version of Leiningen as well as having a different version in PATH has been known to cause problems.
+:: Only set LEIN_JAR manually if you know what you are doing.
+:: Having LEIN_JAR pointing to one version of Leiningen as well as
+:: having a different version in PATH has been known to cause problems.
 
 if "x%LEIN_HOME%" == "x" (
     set LEIN_HOME=!USERPROFILE!\.lein
