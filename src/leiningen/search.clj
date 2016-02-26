@@ -62,10 +62,12 @@
 (defn- ext-printProgress [this]
   (let [state @(.state this)
         total-bytes (:total-bytes state)
-        content-length (:content-length state)
-        progress (/ (* total-bytes 100.0) content-length)
-        ending (if-not (== progress 100) "\r" "\n")]
-    (printf "%.1f%% complete%s" progress ending)
+        content-length (:content-length state)]
+    (if (< 0 content-length)
+      (let [progress (/ (* total-bytes 100.0) content-length)
+            ending (if-not (== progress 100) "\r" "\n")]
+        (printf "%.1f%% complete%s" progress ending))
+      (printf "%d bytes downloaded\r" total-bytes))
     (flush)))
 
 
@@ -99,10 +101,9 @@
       (^java.io.InputStream retrieve [name]
         (println "Downloading" (str @base-url "/" name))
         (let [r (http/get (str @base-url "/" name)
-                                 {:throw-exceptions false :as :stream})
-              s (leiningen.search.extstream.
-                 (:body r)
-                 (Long/parseLong (get (:headers r) "content-length")))]
+                          {:throw-exceptions false :as :stream})
+              l (Long/parseLong (get-in r [:headers "content-length"] "0"))
+              s (leiningen.search.extstream. (:body r) l)]
           (deliver stream s)
           s)))))
 
