@@ -380,7 +380,7 @@ set RC=0
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
+ -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 SET RC=%ERRORLEVEL%
 if not %RC% == 0 goto EXITRC
 
