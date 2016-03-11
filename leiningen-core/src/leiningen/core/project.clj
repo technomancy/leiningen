@@ -981,7 +981,7 @@ Also initializes the project; see read-raw for a version that skips init."
 
 (defn- warn-checkout-version-mismatch [base-project checkout-project]
   (let [checkout-ver (:version checkout-project)
-        project-dep-ver (last (first (filter #(= (first %) (:name checkout-project)) (:dependencies project))))]
+        project-dep-ver (last (first (filter #(= (first %) (:name checkout-project)) (:dependencies base-project))))]
     (when (not= checkout-ver project-dep-ver)
       (warn "Warning: using" (:name checkout-project) "version" (checkout-ver) "from" :path-goes-here ", not the released version."))))
 
@@ -993,5 +993,6 @@ Also initializes the project; see read-raw for a version that skips init."
         :let [project-file (io/file dep "project.clj")
               checkout-project (read-dependency-project project-file)]
         :when checkout-project]
-	(warn-checkout-version-mismatch project checkout-project)
-    checkout-project))
+    (do
+      (warn-checkout-version-mismatch project checkout-project)
+      checkout-project)))
