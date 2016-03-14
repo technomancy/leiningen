@@ -983,7 +983,7 @@ Also initializes the project; see read-raw for a version that skips init."
   (let [checkout-ver (:version checkout-project)
         project-dep-ver (last (first (filter #(= (first %) (:name checkout-project)) (:dependencies base-project))))]
     (when (not= checkout-ver project-dep-ver)
-      (warn "Warning: using" (:name checkout-project) "version" (checkout-ver) "from" :path-goes-here ", not the released version."))))
+      (warn (str "Warning: using" (:name checkout-project) "version" checkout-ver "from" :path-goes-here ", not the released version.")))))
 
 (defn read-checkouts
   "Returns a list of project maps for this project's checkout
