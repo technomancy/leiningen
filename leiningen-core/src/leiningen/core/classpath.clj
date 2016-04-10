@@ -250,10 +250,12 @@
 
 (def ^:private get-dependencies-memoized
   (memoize
-   (fn [dependencies-key {:keys [repositories local-repo offline? update
-                                 checksum mirrors] :as project}
+   (fn [dependencies-key managed-dependencies-key
+        {:keys [repositories local-repo offline? update
+                checksum mirrors] :as project}
         {:keys [add-classpath? repository-session-fn] :as args}]
-     {:pre [(every? vector? (get project dependencies-key))]}
+     {:pre [(every? vector? (get project dependencies-key))
+            (every? vector? (get project managed-dependencies-key))]}
      (try
        ((if add-classpath?
           pomegranate/add-dependencies
@@ -264,6 +266,7 @@
         :repositories (->> repositories
                            (map add-repo-auth)
                            (map (partial update-policies update checksum)))
+        :managed-coordinates (get project managed-dependencies-key)
         :coordinates (get project dependencies-key)
         :mirrors (->> mirrors
                       (map add-repo-auth)
@@ -407,13 +410,17 @@
     #(-> % aether/repository-session
          (pedantic/use-transformer ranges overrides))))
 
-(defn ^:internal get-dependencies [dependencies-key project & args]
+(defn ^:internal get-dependencies [dependencies-key managed-dependencies-key
+                                   project & args]
   (let [ranges (atom []), overrides (atom [])
         session (pedantic-session project ranges overrides)
         args (assoc (apply hash-map args) :repository-session-fn session)
-        trimmed (select-keys project [dependencies-key :repositories :checksum
-                                      :local-repo :offline? :update :mirrors])
-        deps-result (get-dependencies-memoized dependencies-key trimmed args)]
+        trimmed (select-keys project [dependencies-key managed-dependencies-key
+                                      :repositories :checksum :local-repo :offline?
+                                      :update :mirrors])
+        deps-result (get-dependencies-memoized dependencies-key
+                                               managed-dependencies-key
+                                               trimmed args)]
     (pedantic-do (:pedantic? project) @ranges @overrides)
     deps-result))
 
@@ -486,16 +493,11 @@
           (doseq [[_ {:keys [native-prefix file]}] snap-deps]
             (extract-native-dep! native-path file native-prefix))))))
 
-(defn resolve-dependencies
-  "Delegate dependencies to pomegranate. This will ensure they are
-  downloaded into ~/.m2/repository and that native components of
-  dependencies have been extracted to :native-path. If :add-classpath?
-  is logically true, will add the resolved dependencies to Leiningen's
-  classpath.
-
-  Returns a seq of the dependencies' files."
-  [dependencies-key {:keys [native-path] :as project} & rest]
-  (let [dependencies-tree (apply get-dependencies dependencies-key project rest)
+(defn resolve-managed-dependencies
+  "TODO"
+  [dependencies-key managed-dependencies-key project & rest]
+  (let [dependencies-tree (apply get-dependencies dependencies-key
+                                 managed-dependencies-key project rest)
         jars (->> dependencies-tree
                   (aether/dependency-files)
                   (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
@@ -504,13 +506,33 @@
       (extract-native-dependencies project jars dependencies-tree))
     jars))
 
+(defn resolve-dependencies
+  "Delegate dependencies to pomegranate. This will ensure they are
+  downloaded into ~/.m2/repository and that native components of
+  dependencies have been extracted to :native-path. If :add-classpath?
+  is logically true, will add the resolved dependencies to Leiningen's
+  classpath.
+
+  Returns a seq of the dependencies' files."
+  [dependencies-key project & rest]
+  (apply resolve-managed-dependencies dependencies-key nil project rest))
+
+(defn managed-dependency-hierarchy
+  "TODO"
+  [dependencies-key managed-dependencies-key project & options]
+  ;; TODO: explain private call
+  (if-let [deps-list (#'aether/merge-versions-from-managed-coords
+                      (get project dependencies-key)
+                      (get project managed-dependencies-key))]
+    (aether/dependency-hierarchy deps-list
+                                 (apply get-dependencies dependencies-key
+                                        managed-dependencies-key
+                                        project options))))
+
 (defn dependency-hierarchy
   "Returns a graph of the project's dependencies."
   [dependencies-key project & options]
-  (if-let [deps-list (get project dependencies-key)]
-    (aether/dependency-hierarchy deps-list
-                                 (apply get-dependencies dependencies-key
-                                        project options))))
+  (apply managed-dependency-hierarchy dependencies-key nil project options))
 
 (defn- normalize-path [root path]
   (let [f (io/file path) ; http://tinyurl.com/ab5vtqf
@@ -533,7 +555,7 @@
   (seq
    (->> (filter ext-dependency? (:dependencies project))
         (assoc project :dependencies)
-        (resolve-dependencies :dependencies)
+        (resolve-managed-dependencies :dependencies :managed-dependencies)
         (map (memfn getAbsolutePath)))))
 
 (defn ^:internal checkout-deps-paths
@@ -561,7 +583,8 @@
                      (:resource-paths project)
                      [(:compile-path project)]
                      (checkout-deps-paths project)
-                     (for [dep (resolve-dependencies :dependencies project)]
+                     (for [dep (resolve-managed-dependencies
+                                :dependencies :managed-dependencies project)]
                        (.getAbsolutePath dep)))
         :when path]
     (normalize-path (:root project) path)))

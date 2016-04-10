@@ -83,7 +83,7 @@
                          ((juxt :source-paths :test-paths :resource-paths) project))]
       (.mkdirs (io/file path))))
   (write-pom-properties project)
-  (classpath/resolve-dependencies :dependencies project)
+  (classpath/resolve-managed-dependencies :dependencies :managed-dependencies project)
   (run-prep-tasks project)
   (deliver @prep-blocker true)
   (reset! prep-blocker (promise)))
@@ -221,7 +221,7 @@
 (defn ^:internal classpath-arg [project]
   (let [classpath-string (string/join java.io.File/pathSeparatorChar
                                       (classpath/get-classpath project))
-        agent-tree (classpath/get-dependencies :java-agents project)
+        agent-tree (classpath/get-dependencies :java-agents nil project)
         ;; Seems like you'd expect dependency-files to walk the whole tree
         ;; here, but it doesn't, which is what we want. but maybe a bug?
         agent-jars (aether/dependency-files (aether/dependency-hierarchy
@@ -334,7 +334,7 @@
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
   ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
-  (project/load-plugins project :dependencies)
+  (project/load-plugins project :dependencies :managed-dependencies)
   (doseq [path (classpath/get-classpath project)]
     (pomegranate/add-classpath path))
   (doseq [opt (get-jvm-args project)

@@ -2,10 +2,9 @@
   (:use [clojure.test]
         [leiningen.deps]
         [leiningen.test.helper :only [sample-project m2-dir native-project
+                                      managed-deps-project
                                       delete-file-recursively]])
   (:require [clojure.java.io :as io]
-            [leiningen.core.main :as main]
-            [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils]
             [leiningen.core.eval :as eval]))
 
@@ -128,3 +127,11 @@
          (set (for [f (rest (file-seq (io/file (first (eval/native-arch-paths
                                                        native-project)))))]
                 (.getName f))))))
+
+(deftest ^:online test-managed-deps
+  (let [managed-deps [["rome" "0.9"] ["jdom" "1.0"]]]
+    (doseq [[n v] managed-deps]
+      (delete-file-recursively (m2-dir n v) :silently))
+    (deps managed-deps-project)
+    (doseq [[n v] managed-deps]
+      (is (.exists (m2-dir n v)) (str n " was not downloaded.")))))

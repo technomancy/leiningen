@@ -8,7 +8,8 @@
             [leiningen.core.project :as project])
   (:import (java.io File)))
 
-(def project {:dependencies '[[org.clojure/clojure "1.3.0"]]
+(def project {:managed-dependencies '[[org.clojure/clojure "1.3.0"]]
+              :dependencies '[[org.clojure/clojure]]
               :root "/tmp/lein-sample-project"
               :repositories project/default-repositories
               :target-path "/tmp/lein-sample-project/target"

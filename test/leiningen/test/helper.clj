@@ -65,6 +65,8 @@
 
 (def with-classifiers-project (read-test-project "with-classifiers"))
 
+(def managed-deps-project (read-test-project "managed-deps"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."
