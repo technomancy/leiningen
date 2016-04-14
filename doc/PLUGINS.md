@@ -255,7 +255,7 @@ using your plugin, yet for some reason you can't make that
 configuration active by default, you can include profiles inside your
 plugin.
 
-Create a file called `src/myplugin/profiles.clj` in your plugin that
+Create a file called `resources/myplugin/profiles.clj` in your plugin that
 contains a map:
 
 ```clj
