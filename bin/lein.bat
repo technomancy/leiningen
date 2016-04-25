@@ -95,9 +95,9 @@ rem the paths inside the bootstrap file do not already contain double quotes but
     if "x!LEIN_LIBS!" == "x" goto NO_DEPENDENCIES
 
 
-	rem CLASSPATH must contain each path element double quoted and separated by semicolons ie. "c:\some folder";"c:\some other folder";"c:\semicolons;;;;in;name;work okay"
+	rem semicolons in pathes are not supported, spaces are supported by quoting CLASSPATH as a whole
 	rem (no end semicolon required)
-    set CLASSPATH=!LEIN_LIBS!;"!LEIN_ROOT!\src";"!LEIN_ROOT!\resources"
+    set CLASSPATH=!LEIN_LIBS!;!LEIN_ROOT!\src;!LEIN_ROOT!\resources
 
     :: Apply context specific CLASSPATH entries
     if exist "%~dp0..\.lein-classpath" (
@@ -380,7 +380,7 @@ set RC=0
 "%LEIN_JAVA_CMD%" -client %LEIN_JVM_OPTS% ^
  -Dclojure.compile.path="%DIR_CONTAINING%/target/classes" ^
  -Dleiningen.original.pwd="%ORIGINAL_PWD%" ^
- -cp %CLASSPATH% clojure.main -m leiningen.core.main %*
+ -cp "%CLASSPATH%" clojure.main -m leiningen.core.main %*
 SET RC=%ERRORLEVEL%
 if not %RC% == 0 goto EXITRC
 
