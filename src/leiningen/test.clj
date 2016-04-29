@@ -75,6 +75,25 @@
                 selected-namespaces# ~(form-for-nses-selectors-match selectors ns-sym)
                 _# (when ~*monkeypatch?*
                      (leiningen.core.injected/add-hook
+                      #'clojure.test/test-ns
+                      (fn [test-ns# ns#]
+                        (try
+                          (test-ns# ns#)
+                          (catch Throwable t#
+                            (binding [clojure.test/*report-counters*
+                                      (ref clojure.test/*initial-report-counters*)
+                                      clojure.test/*testing-vars*
+                                      (list (with-meta 'test
+                                              {:name ns#
+                                               :ns ns#}))]
+                              (clojure.test/do-report {:type :error
+                                                       :message "Uncaught exception in test fixture"
+                                                       :expected nil
+                                                       :actual t#})
+                              (clojure.test/do-report {:type :end-test-ns
+                                                       :ns (the-ns ns#)})
+                              @clojure.test/*report-counters*)))))
+                     (leiningen.core.injected/add-hook
                       #'clojure.test/report
                       (fn [report# m# & args#]
                         (when (#{:error :fail} (:type m#))
