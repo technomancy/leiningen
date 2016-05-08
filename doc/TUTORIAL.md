@@ -400,7 +400,7 @@ to run in the context of your project. Since we've added `clj-http` to
 `:dependencies`, we are able to load it here along with code from the
 `my-stuff.core` namespace in your project's own `src/` directory:
 
-    user=> (require 'my-stuff.core)
+    user=> (require my-stuff.core)
     nil
     user=> (my-stuff.core/-main)
     Hello, World!
