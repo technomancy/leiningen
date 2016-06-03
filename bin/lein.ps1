@@ -35,11 +35,20 @@ function Set-ParentLocation([string]$file)
 function Initialize-Environment
 {
     $env:LEIN_VERSION = '2.6.2-SNAPSHOT'
-    $env:SNAPSHOT = if($env:LEIN_VERSION -like '*-SNAPSHOT'){'YES'}else{'NO'}
+    $env:SNAPSHOT = if($env:LEIN_VERSION -like '*-SNAPSHOT'){'YES'}else{'NO'} #TODO: Still needed?
     $env:ORIGINAL_PWD = $PWD -replace '\\$','\\'
     Set-ParentLocation project.clj
     if(!$env:LEIN_HOME) {$env:LEIN_HOME = "$env:USERPROFILE\.lein"}
     if(!$env:LEIN_JAR) {$env:LEIN_JAR = "$env:LEIN_HOME\self-installs\leiningen-$env:LEIN_VERSION-standalone.jar"}
+    if(!([Net.WebRequest]::DefaultWebProxy.IsBypassed('https://github.com/')))
+    {
+        $proxy = [Net.WebRequest]::DefaultWebProxy.GetProxy('https://github.com/')
+        Write-Verbose "Using proxy: $proxy"
+        $Script:PSBoundParameters = @{
+            'Invoke-WebRequest:Proxy' = $proxy
+            'Invoke-WebRequest:ProxyUseDefaultCredentials' = $true
+        }
+    }
 }
 
 function Use-ClassPath([string]$Value)
@@ -83,8 +92,7 @@ function Install-Self
     @{ # splatting Invoke-WebRequest due to long URI
         Uri = "https://github.com/technomancy/leiningen/releases/download/$env:LEIN_VERSION/leiningen-$env:LEIN_VERSION-standalone.zip"
         OutFile = $env:LEIN_JAR
-        ProxyUseDefaultCredentials = $true
-    } |% {Write-Progress 'Install-Self' 'Downloading' -CurrentOperation $_.Uri ; Invoke-WebRequest @_}
+    } |% {Write-Progress 'Install-Self' $_.Uri -CurrentOperation "Downloading to $env:LEIN_JAR" ; Invoke-WebRequest @_}
     Write-Progress 'Install-Self' -Completed
 }
 
@@ -95,13 +103,11 @@ function Update-Self
     @{ # splatting Invoke-WebRequest due to long URI
         Uri = "https://github.com/technomancy/leiningen/raw/$targetVersion/bin/lein.cmd"
         OutFile = "$PSScriptRoot\lein.cmd.pending"
-        ProxyUseDefaultCredentials = $true
-    } |% {Write-Progress 'Update-Self' 'Downloading' -CurrentOperation $_.Uri ; Invoke-WebRequest @_}
+    } |% {Write-Progress 'Update-Self' $_.Uri -CurrentOperation "Downloading to $PSScriptRoot\lein.cmd.pending" ; Invoke-WebRequest @_}
     @{ # splatting Invoke-WebRequest due to long URI
         Uri = "https://github.com/technomancy/leiningen/raw/$targetVersion/bin/lein.ps1"
         OutFile = "$PSCommandPath.pending"
-        ProxyUseDefaultCredentials = $true
-    } |% {Write-Progress 'Update-Self' 'Downloading' -CurrentOperation $_.Uri -PercentComplete 50 ; Invoke-WebRequest @_}
+    } |% {Write-Progress 'Update-Self' $_.Uri -CurrentOperation "Downloading to $PSCommandPath.pending" -PercentComplete 50 ; Invoke-WebRequest @_}
     Write-Progress 'Update-Self' -Completed
     Install-Self
     Register-EngineEvent -SourceIdentifier PowerShell.Exiting -SupportEvent -Action {
