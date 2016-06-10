@@ -1,10 +1,9 @@
 (ns leiningen.test.helper
   (:require [leiningen.core.project :as project]
             [leiningen.core.user :as user]
+            [leiningen.core.utils :as utils]
             [leiningen.core.test.helper :as helper]
-            [clojure.java.io :as io])
-  (:import (java.io ByteArrayOutputStream PrintStream FileDescriptor
-                    FileOutputStream)))
+            [clojure.java.io :as io]))
 
 ;; TODO: fix
 (def local-repo (io/file (System/getProperty "user.home") ".m2" "repository"))
@@ -118,24 +117,6 @@
   (binding [*err* (java.io.StringWriter.)]
     (f)))
 
-(defmacro with-system-out-str
-  "Like with-out-str, but for System/out."
-  [& body]
-  `(try (let [o# (ByteArrayOutputStream.)]
-          (System/setOut (PrintStream. o#))
-          ~@body
-          (.toString o#))
-     (finally
-       (System/setOut
-        (-> FileDescriptor/out FileOutputStream. PrintStream.)))))
+(def #^{:macro true} with-system-out-str #'utils/with-system-out-str)
 
-(defmacro with-system-err-str
-  "Like with-out-str, but for System/err."
-  [& body]
-  `(try (let [o# (ByteArrayOutputStream.)]
-          (System/setErr (PrintStream. o#))
-          ~@body
-          (.toString o#))
-     (finally
-       (System/setErr
-        (-> FileDescriptor/err FileOutputStream. PrintStream.)))))
+(def #^{:macro true} with-system-err-str #'utils/with-system-err-str)
