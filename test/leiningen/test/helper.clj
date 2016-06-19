@@ -41,6 +41,8 @@
 
 (def sample-reader-cond-project (read-test-project "sample-reader-cond"))
 
+(def sample-fixture-error-project (read-test-project "sample-fixture-error"))
+
 (def tricky-name-project (read-test-project "tricky-name"))
 
 (def native-project (read-test-project "native"))
