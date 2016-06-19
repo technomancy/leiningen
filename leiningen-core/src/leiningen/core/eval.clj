@@ -110,18 +110,9 @@
 (defn- d-property [[k v]]
   (format "-D%s=%s" (as-str k) v))
 
-;; TODO: this would still screw up with something like this:
-;; export JAVA_OPTS="-Dmain.greeting=\"hello -main\" -Xmx512m"
-(defn- join-broken-arg [args x]
-  (if (= \- (first x))
-    (conj args x)
-    (conj (vec (butlast args))
-          (str (last args) " " x))))
-
 (defn ^:internal get-jvm-opts-from-env [env-opts]
   (and (seq env-opts)
-       (reduce join-broken-arg []
-               (.split (string/trim env-opts) " "))))
+       (re-seq #"(?:[^\s\"']+|\"[^\"]*\"|'[^']*')+" (string/trim env-opts))))
 
 (defn- get-jvm-args
   "Calculate command-line arguments for launching java subprocess."
