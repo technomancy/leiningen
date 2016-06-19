@@ -10,7 +10,9 @@
 (def supported-systems (atom [:git]))
 
 (defn uses-vcs [project vcs]
-  (let [vcs-dir (io/file (:root project) (str "." (name vcs)))]
+  (let [vcs-dir (io/file (:root project)
+                         (get-in project [:scm :dir] "")
+                         (str "." (name vcs)))]
     (and (.exists vcs-dir) vcs)))
 
 (defn which-vcs [project & _]
