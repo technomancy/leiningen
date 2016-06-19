@@ -162,7 +162,7 @@ Code that should run on startup belongs in a -main defn."
                          (throw t#)))))
            project (update-in project [:prep-tasks]
                               (partial remove #{"compile"}))]
-       (try (binding [*print-dup* true]
+       (try (binding [eval/*eval-print-dup* true]
               (eval/eval-in-project project form))
             (catch Exception e
               (main/abort "Compilation failed:" (.getMessage e)))
