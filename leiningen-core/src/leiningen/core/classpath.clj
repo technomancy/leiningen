@@ -531,6 +531,15 @@
                                    :managed-dependencies)]
     (apply resolve-managed-dependencies dependencies-key managed-dependencies-key project rest)))
 
+(defn merge-versions-from-managed-coords
+  [deps managed-deps]
+  ;; NOTE: there is a new function in the 0.3.1 release of pomegranate that
+  ;;  is needed here, but was accidentally marked as private.  Calling it
+  ;;  via the symbol dereference for now, but this can be changed to a
+  ;;  regular function call once https://github.com/cemerick/pomegranate/pull/74
+  ;;  is merged.
+  (#'aether/merge-versions-from-managed-coords deps managed-deps))
+
 (defn managed-dependency-hierarchy
   "Returns a graph of the project's dependencies.
 
@@ -538,12 +547,7 @@
   versions to be specified from an alternate location in the project file, or
   from a parent project file."
   [dependencies-key managed-dependencies-key project & options]
-  ;; NOTE: there is a new function in the 0.3.1 release of pomegranate that
-  ;;  is needed here, but was accidentally marked as private.  Calling it
-  ;;  via the symbol dereference for now, but this can be changed to a
-  ;;  regular function call once https://github.com/cemerick/pomegranate/pull/74
-  ;;  is merged.
-  (if-let [deps-list (#'aether/merge-versions-from-managed-coords
+  (if-let [deps-list (merge-versions-from-managed-coords
                       (get project dependencies-key)
                       (get project managed-dependencies-key))]
     (aether/dependency-hierarchy deps-list

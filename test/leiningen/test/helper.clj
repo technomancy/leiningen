@@ -15,6 +15,9 @@
   (io/file local-repo
            (if (string? n) n (or (namespace n) (name n))) (name n) v))
 
+(defn m2-file [n v classifier]
+  (io/file (m2-dir n v) (str (name n) "-" v "-" classifier ".jar")))
+
 (defn read-test-project-with-user-profiles [name user-profiles]
   (with-redefs [user/profiles (constantly user-profiles)]
     (let [project (project/read (format "test_projects/%s/project.clj" name))]

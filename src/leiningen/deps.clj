@@ -2,13 +2,10 @@
   "Download all dependencies."
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
-            [leiningen.core.eval :as eval]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
-            [cemerick.pomegranate.aether :as aether]
-            [clojure.pprint :as pp]
-            [clojure.java.io :as io])
+            [cemerick.pomegranate.aether :as aether])
   (:import (org.sonatype.aether.resolution DependencyResolutionException)))
 
 (defn- walk-deps
