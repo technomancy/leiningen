@@ -494,7 +494,17 @@
             (extract-native-dep! native-path file native-prefix))))))
 
 (defn resolve-managed-dependencies
-  "TODO"
+  "Delegate dependencies to pomegranate. This will ensure they are
+  downloaded into ~/.m2/repository and that native components of
+  dependencies have been extracted to :native-path. If :add-classpath?
+  is logically true, will add the resolved dependencies to Leiningen's
+  classpath.
+
+  Supports inheriting 'managed' dependencies, e.g. to allow common dependency
+  versions to be specified from an alternate location in the project file, or
+  from a parent project file.
+
+  Returns a seq of the dependencies' files."
   [dependencies-key managed-dependencies-key project & rest]
   (let [dependencies-tree (apply get-dependencies dependencies-key
                                  managed-dependencies-key project rest)
@@ -506,19 +516,27 @@
       (extract-native-dependencies project jars dependencies-tree))
     jars))
 
-(defn resolve-dependencies
+(defn ^:deprecated resolve-dependencies
   "Delegate dependencies to pomegranate. This will ensure they are
   downloaded into ~/.m2/repository and that native components of
   dependencies have been extracted to :native-path. If :add-classpath?
   is logically true, will add the resolved dependencies to Leiningen's
   classpath.
 
-  Returns a seq of the dependencies' files."
+  Returns a seq of the dependencies' files.
+
+  NOTE: deprecated in favor of `resolve-managed-dependencies`."
   [dependencies-key project & rest]
-  (apply resolve-managed-dependencies dependencies-key nil project rest))
+  (let [managed-dependencies-key (if (= dependencies-key :dependencies)
+                                   :managed-dependencies)]
+    (apply resolve-managed-dependencies dependencies-key managed-dependencies-key project rest)))
 
 (defn managed-dependency-hierarchy
-  "TODO"
+  "Returns a graph of the project's dependencies.
+
+  Supports inheriting 'managed' dependencies, e.g. to allow common dependency
+  versions to be specified from an alternate location in the project file, or
+  from a parent project file."
   [dependencies-key managed-dependencies-key project & options]
   ;; TODO: explain private call
   (if-let [deps-list (#'aether/merge-versions-from-managed-coords
