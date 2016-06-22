@@ -11,7 +11,7 @@
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
   (:import (clojure.lang DynamicClassLoader)
-           (java.io PushbackReader)))
+           (java.io PushbackReader Reader)))
 
 (defn make-project-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
@@ -400,10 +400,11 @@
   "The project.clj file must either def a project map or call this macro.
   See `lein help sample` to see what arguments it accepts."
   [project-name version & args]
-  `(let [args# ~(unquote-project (argument-list->argument-map args))
-         root# ~(.getParent (io/file *file*))]
-     (def ~'project
-       (make args# '~project-name ~version root#))))
+  (let [f (io/file *file*)]
+    `(let [args# ~(unquote-project (argument-list->argument-map args))
+           root# ~(if f (.getParent f))]
+       (def ~'project
+         (make args# '~project-name ~version root#)))))
 
 (defn- add-exclusions [exclusions dep]
   (dependency-vec
@@ -947,15 +948,18 @@ Also merges default profiles."
 
 (defn read-raw
   "Read project file without loading certificates, plugins, middleware, etc."
-  [file]
+  [source]
   (locking read-raw
     (binding [*ns* (find-ns 'leiningen.core.project)]
-      (try (load-file file)
-           (catch Exception e
-             (throw (Exception. (format "Error loading %s" file) e)))))
+      (try
+        (if (instance? Reader source)
+          (load-reader source)
+          (load-file source))
+        (catch Exception e
+          (throw (Exception. (format "Error loading %s" source) e)))))
     (let [project (resolve 'leiningen.core.project/project)]
       (when-not project
-        (throw (Exception. (format "%s must define project map" file))))
+        (throw (Exception. (format "%s must define project map" source))))
       ;; return it to original state
       (ns-unmap 'leiningen.core.project 'project)
       @project)))
