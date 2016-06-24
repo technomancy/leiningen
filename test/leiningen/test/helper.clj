@@ -65,6 +65,9 @@
 
 (def with-classifiers-project (read-test-project "with-classifiers"))
 
+(def alternating-language-compilation-project
+  (read-test-project "alternating-language-compilation"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."

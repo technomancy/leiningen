@@ -113,7 +113,6 @@ the default profile:
 ```
 
 This profile can then be compiled using: `lein with-profile precomp compile`
-n
 Once this is done, the default profile can be used in a separate
 invocation of `lein` to perform the `javac` and `compile` steps.
 
@@ -162,6 +161,34 @@ $ lein with-profile precomp compile
 The project is now ready to complete compilation normally. For
 instance, invoking `lein test` or `lein uberjar` will cause `javac`
 and `compile` to run first.
+
+Java and Clojure compilation can be interleaved as many times as necessary.
+This can be accomplished with explicit `compile` and `javac` steps in
+`:prep-tasks`. Each `compile` step will take the namespace(s) to AOT compile
+before any other tasks will be run, and each `javac` step will take the
+directories (relative to the project root) to compile before any other
+tasks will be run. For example,
+
+```clojure
+(defproject example/complicated-compile "0.0.1"
+  :description
+  "Really complicated project where Java depends on Clojure depends on Java..."
+  :min-lein-version "2.6.2"
+  :dependencies [[org.clojure/clojure "1.8.0"]]
+  :source-paths ["src/clojure"]
+  :java-source-paths ["src/java"]
+  :prep-tasks [["compile" "complicated-compile.clojure.firststeps"]
+               ["javac" "src/java/complicated_compile/java/secondsteps"]
+               ["compile" "complicated-compile.clojure.thirdsteps"]
+               ["javac" "src/java/complicated_compile/java/fourthsteps"]
+               ;; ...
+               "javac"
+               "compile"])
+```
+
+Note that this example clobbers the `:prep-tasks` defaults. In these
+scenarios, you'll need to concatenate `"javac"` and `"compile"` to the
+end of your `:prep-tasks` manually.
 
 ## Other Languages
 

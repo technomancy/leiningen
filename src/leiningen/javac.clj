@@ -6,19 +6,151 @@
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as string])
-  (:import java.io.File
+  (:import [java.io BufferedReader File FileReader]
+           java.util.regex.Matcher
            javax.tools.ToolProvider))
+
+(defn- rebuild-line
+  "\"Rebuilds\" a line of Java, so that the comments aren't present."
+  [start-line from-comment-block?]
+  (loop [rest-line                 start-line
+         in-comment?               from-comment-block?
+         ^StringBuilder return-val (StringBuilder.)]
+    (cond (empty? rest-line)
+          [(.toString return-val) in-comment?]
+          in-comment?
+          (if (and (>= (count rest-line) 2)
+                   (= (first rest-line) \*)
+                   (= (first (rest rest-line)) \/))
+            (recur (rest (rest rest-line))
+                   false
+                   return-val)
+            (recur (rest rest-line)
+                   true
+                   return-val))
+          (and (>= (count rest-line) 2)
+               (= (first rest-line) \/)
+               (= (first (rest rest-line)) \/))
+          [(.toString return-val) false]
+          (and (>= (count rest-line) 2)
+               (= (first rest-line) \/)
+               (= (first (rest rest-line)) \*))
+          (recur (rest (rest rest-line)) ;; "eat" the asterisk so that
+                 ;; /*/ doesn't happen
+                 true
+                 return-val)
+          :else
+          (recur (rest rest-line)
+                 false
+                 (.append return-val (first rest-line))))))
+
+(defn uncommented-lines-from-reader
+  "Returns a lazy sequence of lines from a Java character source
+  with the comments stripped out. Closes the reader when there is
+  no more input to read."
+  ([reader] (uncommented-lines-from-reader reader false))
+  ([^BufferedReader reader in-comment-block?]
+   (let [next-line (.readLine reader)]
+     (cond (nil? next-line)
+           (do (.close reader)
+               nil)
+           in-comment-block?
+           (if-not (.contains next-line "*/")
+             (lazy-seq (cons "" (uncommented-lines-from-reader reader true)))
+             (let [[rebuilt-line started-comment-block?]
+                   (rebuild-line next-line true)]
+               (lazy-seq (cons rebuilt-line
+                               (uncommented-lines-from-reader
+                                reader
+                                started-comment-block?)))))
+           :else
+           (if (and (not (.contains next-line "/*"))
+                    (not (.contains next-line "//")))
+             (lazy-seq (cons next-line
+                             (uncommented-lines-from-reader reader false)))
+             (let [[rebuilt-line started-comment-block?]
+                   (rebuild-line next-line false)]
+               (lazy-seq (cons rebuilt-line
+                               (uncommented-lines-from-reader
+                                reader
+                                started-comment-block?)))))))))
+
+(defn- uncommented-lines-from-file
+  "Returns a lazy sequence of lines from a Java file with
+  the comments stripped out."
+  [^File file]
+  ;; uncommented-lines-from-reader has to .close the reader, because
+  ;; it's a lazy-seq.
+  (uncommented-lines-from-reader (-> file (FileReader.) (BufferedReader.))
+                                 false))
+
+(defn extract-package-from-line-seq
+  "Extracts a package declaration from a seq of Java source lines.
+  The seq must be stripped of all comments before being passed
+  to this function; use uncommented-lines-from-* for that."
+  [line-seq]
+  ;; In accordance with the Java specification, package declarations are only
+  ;; legal if they are the first non-comment, non-whitespace element of the
+  ;; file. So, we can speed up processing of large files by only checking the
+  ;; first few tokens.
+  (let [nonempty-seq (filter #(not (empty? %))
+                             (map string/trim line-seq))]
+    (if (empty? nonempty-seq)
+      nil
+      (let [first-line (string/split (first nonempty-seq) #"\s+")]
+        (cond (not= (first first-line) "package")
+              ;; No package declarations
+              nil
+              (second first-line)
+              ;; Package name just after "package" token
+              ;; Usually. If the result is "package ;" then you end up
+              ;; with an empty string.
+              (string/replace (second first-line) ";" "")
+              (nil? (second nonempty-seq))
+              ;; Dangling "package" token in a file
+              nil
+              :else
+              ;; Assume that the immediate successor is the package name
+              (-> (second nonempty-seq)
+                  (string/split #"\s+")
+                  (first)
+                  (string/replace ";" "")))))))
+
+;; For folks who don't follow source directory convention, and also for the
+;; purpose of allowing partial source builds, we have to extract the
+;; child path in the compile-path dir from the package declaration.
+;; This assumes that the Java code is syntactically correct, of course,
+;; but if the code won't even compile in the first place, it won't matter
+;; that you can't find the previous compiled version.
+(defn- extract-compiled-path
+  "Generates an \"effective\" compiled path for a given .java file.
+
+  In order to do this, the passed file is opened, and scanned for the
+  first valid package declaration. The package declaration is then transformed
+  into a relative directory path.
+
+  This function assumes that javac -d has been used, which will generate
+  a directory structure in line with the package declaration. The resulting
+  return value will be relative to the argument to javac -d."
+  [^File file]
+  (let [extracted-package (-> file
+                              (uncommented-lines-from-file)
+                              (extract-package-from-line-seq))]
+    (if (nil? extracted-package)
+      (.replaceFirst (.getName file) "\\.java$" ".class")
+      (str (string/replace extracted-package "." (File/separator))
+           (File/separator)
+           (.replaceFirst (.getName file) "\\.java$" ".class")))))
 
 (defn- stale-java-sources
   "Returns a lazy seq of file paths: every Java source file within dirs modified
   since it was most recently compiled into compile-path."
-  [dirs compile-path]
+  [compile-path dirs]
   (for [dir dirs
         ^File source (filter #(-> ^File % (.getName) (.endsWith ".java"))
                              (file-seq (io/file dir)))
-        :let [rel-source (.substring (.getPath source) (inc (count dir)))
-              rel-compiled (.replaceFirst rel-source "\\.java$" ".class")
-              compiled (io/file compile-path rel-compiled)]
+        :let [rel-compiled (extract-compiled-path source)
+              compiled     (io/file compile-path rel-compiled)]
         :when (>= (.lastModified source) (.lastModified compiled))]
     (.getPath source)))
 
@@ -70,8 +202,20 @@
         (.write (string/join "\n" (map safe-quote files)))))
     (into-array String
                 (concat (normalize-javac-options (:javac-options project))
-                        args
+                        (filter #(or (string/starts-with? % "-")
+                                     (and (string/starts-with? % "@")
+                                          (not (string/starts-with? % "@@"))))
+                                args)
                         [(str "@" options-file)]))))
+
+;; seq the map so that an empty sequence returns nil
+;; we'll use this later to see if we have any source paths in the args
+(defn- source-paths-from-args [args]
+  (seq (map #(if (string/starts-with? % "@@") (.substring 1 %) %)
+            (filter #(or (and (not (string/starts-with? % "-"))
+                              (not (string/starts-with? % "@")))
+                         (string/starts-with? % "@@"))
+                    args))))
 
 ;; Pure java projects will not have Clojure on the classpath. As such, we need
 ;; to add it if it's not already there.
@@ -118,7 +262,16 @@
   bootclasspath."
   [project args]
   (let [compile-path (:compile-path project)
-        files (stale-java-sources (:java-source-paths project) compile-path)
+        ;; :java-source-paths is absoluteized before we get to it
+        ;; but our args aren't, so remember to add the project root
+        ;; to them.
+        files (stale-java-sources compile-path
+                                  (if-let [argfs (source-paths-from-args args)]
+                                    (map #(str (:root project)
+                                               (File/separator)
+                                               %)
+                                         argfs)
+                                    (:java-source-paths project)))
         javac-opts (vec (javac-options project files args))
         form (subprocess-form compile-path files javac-opts)]
     (when (seq files)
@@ -136,8 +289,12 @@
   "Compile Java source files.
 
 Add a :java-source-paths key to project.clj to specify where to find them.
-Options passed in on the command line as well as options from the :javac-opts
-vector in project.clj will be given to the compiler; e.g. `lein javac -verbose`.
+Options passed in on the command line which start with '-' or '@' will be
+treated as arguments to the compiler, and all arguments in the :javac-opts
+vector in project.clj will be directly given to the compiler; e.g.
+`lein javac -verbose`. Otherwise, options will be treated as Java source
+directories (relative to the project root) for the current invocation, 
+overriding the values in the :java-source-path vector.
 
 Like the compile and deps tasks, this should be invoked automatically when
 needed and shouldn't ever need to be run by hand. By default it is called before
