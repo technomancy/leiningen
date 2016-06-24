@@ -211,6 +211,7 @@ specified test. A default :all test-selector is available to run all tests."
             *monkeypatch?* (:monkeypatch-clojure-test project true)]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
+          _ (eval/prep project)
           form (form-for-testing-namespaces nses nil (vec selectors))]
       (try (when-let [n (eval/eval-in-project project form
                                               '(require 'clojure.test))]
