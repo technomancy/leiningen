@@ -55,6 +55,22 @@
                   ;; LWJGL stores natives in the root of the jar; this
                   ;; :native-prefix will extract them.
                   :native-prefix ""]]
+  ;; "Managed Dependencies" are a concept borrowed from maven pom files; see
+  ;;  https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management
+  ;; Managed dependencies allow you to specify a desired version number for a dependency
+  ;;  *if* the dependency exists (often transitively), but a managed dependency
+  ;;  will not actually cause the described artifact to be a dependency on its own.
+  ;; This feature is most useful in combination with some other mechanism for
+  ;;  defining a "parent project"; e.g. you can have a "parent project" that specifies
+  ;;  managed dependencies for common libraries that you use frequently in your other
+  ;;  projects, and then the downstream/child projects can specify a normal dependency on
+  ;;  those libraries *without specifying a version number*, and thus will inherit
+  ;;  the version number from the parent.  This provides a simpler means of keeping
+  ;;  common dependency versions in sync across a large number of clojure libraries.
+  ;; For more info see ./doc/MANAGED_DEPS.md and https://github.com/achin/lein-parent
+  :managed-dependencies [[clj-time "0.12.0"]
+                         [me.raynes/fs "1.4.6"]]
+
   ;; What to do in the case of version issues. Defaults to :ranges, which
   ;; warns when version ranges are present anywhere in the dependency tree,
   ;; but can be set to true to warn for both ranges and overrides, or :abort
