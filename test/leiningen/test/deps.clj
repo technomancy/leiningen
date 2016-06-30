@@ -158,33 +158,48 @@
                       (:dependencies managed-deps-project)
                       (:managed-dependencies managed-deps-project)))
         ;; the list of deps from the managed deps section that aren't used
-        unused-managed-deps (remove
-                             (fn [dep]
-                               (some (partial coordinates-match? dep) merged-deps))
-                             managed-deps)
+        unused-managed-deps (-> (remove
+                                 (fn [dep]
+                                   (or (some (partial coordinates-match? dep) merged-deps)
+                                       ;; special-casing to remove tools.reader, which is a common transitive dep
+                                       ;; of two of our normal dependencies
+                                       (= 'org.clojure/tools.reader (first dep))))
+                                 managed-deps))
         ;; deps that have classifiers
         classified-deps (filter
                          #(some #{:classifier} %)
                          merged-deps)]
     ;; make sure the sample data has some unmanaged deps, some unused managed deps,
     ;; and some classified deps, for completeness
-    (is (not (empty? versioned-unmanaged-deps)))
-    (is (not (empty? unused-managed-deps)))
-    (is (not (empty? classified-deps)))
+    (is (seq versioned-unmanaged-deps))
+    (is (seq unused-managed-deps))
+    (is (seq classified-deps))
     ;; delete all of the existing artifacts for merged deps
     (doseq [[n v] merged-deps]
         (delete-file-recursively (m2-dir n v) :silently))
     ;; delete all of the artifacts for the managed deps too
     (doseq [[n v] managed-deps]
       (delete-file-recursively (m2-dir n v) :silently))
+    ;; delete all copies of tools.reader so we know that the managed dependency
+    ;; for it is taking precedence
+    (delete-file-recursively (m2-dir 'org.clojure/tools.reader) :silently)
     (deps managed-deps-project)
     ;; artifacts should be available for all merged deps
     (doseq [[n v] merged-deps]
-      (is (.exists (m2-dir n v)) (str n " was not downloaded.")))
+      (is (.exists (m2-dir n v)) (str n " was not downloaded (missing dir '" (m2-dir n v) "').")))
     ;; artifacts should *not* have been downloaded for unused managed deps
     (doseq [[n v] unused-managed-deps]
-      (is (not (.exists (m2-dir n v))) (str n " was unexpectedly downloaded.")))
+      (is (not (.exists (m2-dir n v))) (str n " was unexpectedly downloaded (found unexpected dir '" (m2-dir n v) "').")))
     ;; artifacts with classifiers should be available
     (doseq [[n v _ classifier] classified-deps]
       (let [f (m2-file n v classifier)]
-        (is (.exists f) (str f " was not downloaded."))))))
+        (is (.exists f) (str f " was not downloaded."))))
+    ;; check tools.reader explicitly, since it is our special transitive dependency
+    (let [tools-reader-versions (into [] (.listFiles (m2-dir 'org.clojure/tools.reader)))]
+      (is (= 1 (count tools-reader-versions)))
+      (is (= (first tools-reader-versions) (m2-dir 'org.clojure/tools.reader
+                                                   (->> managed-deps
+                                                        (filter
+                                                         (fn [dep] (= 'org.clojure/tools.reader (first dep))))
+                                                        first
+                                                        second)))))))

@@ -2,7 +2,8 @@
   (:require [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.test.helper :as helper]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.string :as str])
   (:import (java.io ByteArrayOutputStream PrintStream FileDescriptor
                     FileOutputStream)))
 
@@ -11,9 +12,13 @@
 
 (def tmp-dir (System/getProperty "java.io.tmpdir"))
 
-(defn m2-dir [n v]
-  (io/file local-repo
-           (if (string? n) n (or (namespace n) (name n))) (name n) v))
+(defn m2-dir
+  ([n]
+   (let [group (-> (if (string? n) n (or (namespace n) (name n)))
+                   (str/replace "." "/"))]
+     (io/file local-repo group (name n))))
+  ([n v]
+   (io/file (m2-dir n) v)))
 
 (defn m2-file [n v classifier]
   (io/file (m2-dir n v) (str (name n) "-" v "-" classifier ".jar")))

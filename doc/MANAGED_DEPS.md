@@ -23,13 +23,14 @@ regular `:dependencies` section, with two exceptions:
 
 1. It does not actually introduce any dependencies to your project.  It only says,
   "hey leiningen, if you encounter one of these dependencies later, here are the
-  versions that you should use."
+  versions that you should fall back to if the version numbers aren't explicitly
+  specified."
 2. It allows the version number to be omitted from the `:dependencies` section,
   for any artifact that you've listed in your `:managed-dependencies` section.
 
 Here's an example:
 
-```clojure
+```clj
 (defproject superfun/happyslide "1.0.0-SNAPSHOT"
   :description "A Clojure project with managed dependencies"
   :min-lein-version  "2.7.0"
@@ -59,7 +60,7 @@ the [`lein-parent` plugin](https://github.com/achin/lein-parent).  This plugin
 will allow you to define a single "parent" project that is inherited by multiple
 "child" projects; e.g.:
 
-```
+```clj
 (defproject superfun/myparent "1.0.0"
    :managed-dependencies [[clj-time "0.12.0"]
                             [me.raynes/fs "1.4.6"]
