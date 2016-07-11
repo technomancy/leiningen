@@ -129,6 +129,21 @@ change the mustache delimiter temporarily, like so:
 <%={{ }}=%>
 ```
 
+## Testing your template
+
+Templates can be tested locally with ease. 
+
+First, make sure you're in your template project directory, then:
+
+```
+lein jar
+cd target
+lein new liquid-cool liquid-cool-app
+```
+
+This will create a new project based off of the local copy of your template.
+
+
 ## Distributing your Template
 
 Templates are just maven artifacts. Particularly, they need only be on
