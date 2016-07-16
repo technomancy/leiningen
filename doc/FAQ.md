@@ -205,3 +205,14 @@
 You can also check things like `(System/getProperty
 "java.specification.version")` to use the JVM version or any other
 property.
+
+**Q:** I get a `java.security.KeyException` or `sun.security.provider.certpath.SunCertPathBuilderException` when running `lein`  
+**A:** The `java.security.KeyException` indicates an ssl error when trying to communicate with the HTTPS server via Java. This could be because you need to update the JDK, or some other package (e.g. with old versions of the nss package).
+
+* On Fedora, you might just try running a `sudo yum update` to update all of your packages or `sudo yum update nss`.
+* On Debian/Ubuntu, `sudo update-ca-certificates -f` might help, or `sudo /var/lib/dpkg/info/ca-certificates-java.postinst configure`
+* You should also check your system clock and make sure the time is accurate; it's possible to run into SSL connection failures if your clock is way out of sync.
+* If it still doesn't work, please see if any of [these 'ssl' labelled issues](https://github.com/technomancy/leiningen/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3Assl%20) might help
+
+**Q:** `lein`/`lein.bat` won't download `leiningen-x.y.z-SNAPSHOT.jar`  
+**A:** You probably downloaded `lein`/`lein.bat` from the [master branch](https://github.com/technomancy/leiningen/tree/master/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)

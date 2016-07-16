@@ -686,13 +686,14 @@
 (def ^:private registered-wagon-files (atom #{}))
 
 (defn load-plugins
-  ([project key]
-     (when (seq (get project key))
+  ([project dependencies-key managed-dependencies-key]
+     (when (seq (get project dependencies-key))
        (ensure-dynamic-classloader)
        (let [repos-project (update-in project [:repositories] meta-merge
                                       (:plugin-repositories project))]
-         (classpath/resolve-dependencies key repos-project
-                                         :add-classpath? true)))
+         (classpath/resolve-managed-dependencies
+          dependencies-key managed-dependencies-key repos-project
+          :add-classpath? true)))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
                             (.getResources "leiningen/wagons.clj")
                             (enumeration-seq))
@@ -701,6 +702,7 @@
        (aether/register-wagon-factory! hint (eval factory))
        (swap! registered-wagon-files conj wagon-file))
      project)
+  ([project dependencies-key] (load-plugins project dependencies-key nil))
   ([project] (load-plugins project :plugins)))
 
 (defn plugin-vars [project type]

@@ -8,7 +8,8 @@
             [leiningen.core.project :as project])
   (:import (java.io File)))
 
-(def project {:dependencies '[[org.clojure/clojure "1.3.0"]]
+(def project {:managed-dependencies '[[org.clojure/clojure "1.3.0"]]
+              :dependencies '[[org.clojure/clojure]]
               :root "/tmp/lein-sample-project"
               :repositories project/default-repositories
               :target-path "/tmp/lein-sample-project/target"
@@ -46,7 +47,14 @@
 (deftest test-jvm-opts
   (is (= ["-Dhello=\"guten tag\"" "-XX:+HeapDumpOnOutOfMemoryError"]
          (get-jvm-opts-from-env (str "-Dhello=\"guten tag\" "
-                                     "-XX:+HeapDumpOnOutOfMemoryError")))))
+                                     "-XX:+HeapDumpOnOutOfMemoryError"))))
+  (is (= ["-Dfoo=bar" "-Dbar=baz"]
+         (get-jvm-opts-from-env (str "    -Dfoo=bar"
+                                     "    -Dbar=baz"))))
+  (is (= ["-Dfoo='ba\"r'" "-Dbar=\"ba\"'z'" "arg"]
+         (get-jvm-opts-from-env (str "    -Dfoo='ba\"r'"
+                                     "    -Dbar=\"ba\"'z'"
+                                     "    arg")))))
 
 (deftest test-file-encoding-in-jvm-args
   (is (contains?

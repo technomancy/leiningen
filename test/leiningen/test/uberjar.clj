@@ -6,7 +6,8 @@
             [clojure.xml :as xml]
             [leiningen.test.helper :refer [sample-no-aot-project
                                            uberjar-merging-project
-                                           provided-project]])
+                                           provided-project
+                                           managed-deps-project]])
   (:import (java.io File FileOutputStream)
            (java.util.zip ZipFile)))
 
@@ -64,3 +65,10 @@
         _ (uberjar provided-project)]
     (is (= 1 (:exit (sh "java" "-jar" filename))))
     (is (= 0 (:exit (sh "java" bootclasspath "-jar" filename))))))
+
+(deftest test-uberjar-managed-dependencies
+  (uberjar managed-deps-project)
+  (let [filename (str "test_projects/managed-deps/target/"
+                      "mgmt-0.99.0-SNAPSHOT-standalone.jar")
+        uberjar-file (File. filename)]
+    (is (= true (.exists uberjar-file)))))

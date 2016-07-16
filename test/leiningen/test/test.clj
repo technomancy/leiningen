@@ -5,6 +5,7 @@
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
                                            sample-reader-cond-project
                                            sample-failing-project
+                                           sample-fixture-error-project
                                            with-system-err-str]]
             [clojure.java.io :as io]
             [leiningen.core.main :as main]
@@ -97,3 +98,7 @@
       (is (= "EOF while reading" (try (test project) false
                                       (catch Exception e
                                         (.getMessage e))))))))
+
+(deftest test-catch-fixture-errors
+  (test sample-fixture-error-project)
+  (is (= (ran?) #{:test-a :test-c})))

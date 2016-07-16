@@ -4,7 +4,8 @@
         [leiningen.pom :only [make-pom pom snapshot?]]
         [leiningen.core.user :as user]
         [leiningen.test.helper
-         :only [sample-project sample-profile-meta-project]
+         :only [sample-project sample-profile-meta-project
+                managed-deps-project]
          :as lthelper])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
@@ -352,3 +353,33 @@
   (testing "Version containing anything else is not a snapshot "
     (is (not (snapshot? {:version "foo"})))
     (is (not (snapshot? nil)))))
+
+(deftest test-managed-dependencies
+  (let [xml (xml/parse-str
+             (make-pom managed-deps-project))]
+    (testing "normal dependencies are written to pom properly"
+      (is (= ["org.clojure" "rome" "ring" "ring" "commons-codec" "commons-math"
+              "org.clojure" "org.clojure"]
+             (map #(first-in % [:dependency :groupId])
+                  (deep-content xml [:project :dependencies]))))
+      (is (= ["clojure" "rome" "ring" "ring-codec" "commons-codec" "commons-math"
+              "tools.emitter.jvm" "tools.namespace"]
+             (map #(first-in % [:dependency :artifactId])
+                  (deep-content xml [:project :dependencies]))))
+      (is (= [nil nil nil nil "1.6" nil "0.1.0-beta5" "0.3.0-alpha3"]
+             (map #(first-in % [:dependency :version])
+                  (deep-content xml [:project :dependencies])))))
+    (testing "managed dependencies are written to pom properly"
+      (is (= ["org.clojure" "rome" "ring" "ring" "commons-math" "ring" "org.clojure"]
+             (map #(first-in % [:dependency :groupId])
+                  (deep-content xml [:project :dependencyManagement :dependencies]))))
+      (is (= ["clojure" "rome" "ring" "ring-codec" "commons-math" "ring-defaults"
+              "tools.reader"]
+             (map #(first-in % [:dependency :artifactId])
+                  (deep-content xml [:project :dependencyManagement :dependencies]))))
+      (is (= ["1.3.0" "0.9" "1.0.0" "1.0.1" "1.2" "0.2.1" "1.0.0-beta3"]
+             (map #(first-in % [:dependency :version])
+                  (deep-content xml [:project :dependencyManagement :dependencies]))))
+      (is (= [nil nil nil nil "sources" nil nil]
+             (map #(first-in % [:dependency :classifier])
+                  (deep-content xml [:project :dependencyManagement :dependencies])))))))
