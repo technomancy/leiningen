@@ -6,7 +6,7 @@ This is a sample of how a simple plugin would work.
 
 ## Usage
 
-Add `[lein-pprint "1.1.1"]` to `:plugins`.
+Add `[lein-pprint "1.1.2"]` to `:plugins`.
 
     $ lein pprint
 
