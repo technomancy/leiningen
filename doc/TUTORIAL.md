@@ -555,7 +555,7 @@ The namespace you specify will need to contain a `-main` function that
 will get called when your standalone jar is run. This namespace should
 have a `(:gen-class)` declaration in the `ns` form at the top. The
 `-main` function will get passed the command-line arguments. Let's try
-something easy in `src/my_stuff/core.clj`:
+something easy in `src/my/stuff/core.clj`:
 
 ```clj
 (ns my-stuff.core
