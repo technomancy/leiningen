@@ -576,7 +576,7 @@ This creates a single jar file that contains the contents of all your
 dependencies. Users can run it with a simple `java` invocation,
 or on some systems just by double-clicking the jar file.
 
-    $ java -jar my-stuff-0.1.0-standalone.jar Hello world.
+    $ java -jar my-stuff-0.1.0-SNAPSHOT-standalone.jar Hello world.
     Welcome to my project! These are your args: (Hello world.)
 
 You can run a regular (non-uber) jar with the `java`
