@@ -881,10 +881,11 @@
                   (remove (set profiles) included-profiles)
                   (concat excluded-profiles profiles))))
 
-(defn- init-lein-classpath
+(defn init-lein-classpath
   "Adds dependencies to Leiningen's classpath if required."
   [project]
   (when (= :leiningen (:eval-in project))
+    (ensure-dynamic-classloader)
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path))))
 

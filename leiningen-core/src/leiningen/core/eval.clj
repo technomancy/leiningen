@@ -3,7 +3,6 @@
   (:require [classlojure.core :as cl]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
@@ -335,8 +334,7 @@
     (System/setProperty "clojure.debug" "true"))
   ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
   (project/load-plugins project :dependencies :managed-dependencies)
-  (doseq [path (classpath/get-classpath project)]
-    (pomegranate/add-classpath path))
+  (project/init-lein-classpath project)
   (doseq [opt (get-jvm-args project)
           :when (.startsWith opt "-D")
           :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
