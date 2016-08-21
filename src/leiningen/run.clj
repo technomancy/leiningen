@@ -124,7 +124,9 @@
   "Loads the project namespaces as well as all its dependencies and then calls
   ns/f, passing it the args."
   [project given prep-type args]
-  (let [prepped-args (map #(prep-arg prep-type %) args)]
+  ;; must convert lazy-seq to list(issue #2091)
+  ;; eval can't handle well a form that contains an evaluated empty lazy-seq
+  (let [prepped-args (apply list (map #(prep-arg prep-type %) args))]
     (try (eval/eval-in-project project (run-form given prepped-args))
          (catch clojure.lang.ExceptionInfo e
            (main/exit (:exit-code (ex-data e) 1))))))
