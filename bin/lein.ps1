@@ -1,6 +1,6 @@
 ﻿<#
 .Synopsis
-    Leinengen bootstrap.
+    Leiningen bootstrap.
 
 .Parameter Command
     The command to pass to leiningen.
@@ -126,8 +126,8 @@ function Invoke-Java
     if(!$env:JVM_OPTS){$env:JVM_OPTS = $env:JAVA_OPTS}
     $JavaArgs = @(
         '-client',$env:LEIN_JVM_OPTS,
-        "-Dclojure.compile.path=$PWD/target/classes", #TODO: is this what lein.bat was going for?
-        "-Dleiningen.original.pwd=`"$env:ORIGINAL_PWD`"",
+        "`"-Dclojure.compile.path=$PWD/target/classes`"", #TODO: Add this line only when we're initializing from source
+        "`"-Dleiningen.original.pwd=$env:ORIGINAL_PWD`"",
         '-cp',$env:CLASSPATH,
         'clojure.main',
         '-m','leiningen.core.main'
