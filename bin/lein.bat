@@ -2,6 +2,9 @@
 
 setLocal EnableExtensions EnableDelayedExpansion
 
+call :CmdExists powershell.exe
+if ERRORLEVEL 1 ( echo PowerShell not found. ) else ( set ps1=%~dpn0.ps1 & shift & powershell -File "%ps1%" %* )
+
 set LEIN_VERSION=2.6.2-SNAPSHOT
 
 if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
@@ -150,25 +153,17 @@ if "x%HTTP_CLIENT%" == "x" goto TRY_POWERSHELL
     SET RC=%ERRORLEVEL%
     goto EXITRC
 
-:TRY_POWERSHELL
-call powershell -? >nul 2>&1
-if NOT ERRORLEVEL 0 goto TRY_WGET
-    set LAST_HTTP_CLIENT=powershell
-    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient;  $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
-    SET RC=%ERRORLEVEL%
-    goto EXITRC
-
 :TRY_WGET
-call wget --help >nul 2>&1
-if NOT ERRORLEVEL 0 goto TRY_CURL
+call :CmdExists wget.exe
+if ERRORLEVEL 1 goto TRY_CURL
     set LAST_HTTP_CLIENT=wget
     call wget -O %1 %2
     SET RC=%ERRORLEVEL%
     goto EXITRC
 
 :TRY_CURL
-call curl --help >nul 2>&1
-if NOT ERRORLEVEL 0 GOTO NO_HTTP_CLIENT
+call :CmdExists curl.exe
+if ERRORLEVEL 1 GOTO NO_HTTP_CLIENT
     rem We set CURL_PROXY to a space character below to pose as a no-op argument
     set LAST_HTTP_CLIENT=curl
     set CURL_PROXY= 
@@ -226,19 +221,6 @@ echo "curl" or "wget"'s inability to retrieve GitHub's security certificate.
 echo The suggestions below do not check certificates, so use this only if
 echo you understand the security implications of not doing so.
 echo.
-
-if "%LAST_HTTP_CLIENT%" == "powershell" (
-  echo The PowerShell failed to download the latest Leiningen version.
-  echo Try to use "curl" or "wget" to download Leiningen by setting up
-  echo the HTTP_CLIENT environment variable with one of the following 
-  echo values:
-  echo.
-  echo   a^) set HTTP_CLIENT=wget --no-check-certificate -O
-  echo   b^) set HTTP_CLIENT=curl -f -L -k -o
-  echo.
-  echo NOTE: Make sure to *not* add double quotes when setting the value
-  echo       of HTTP_CLIENT
-)
 
 if "%LAST_HTTP_CLIENT%" == "curl" (
   echo Curl failed to download the latest Leiningen version.
@@ -389,6 +371,8 @@ call "%TRAMPOLINE_FILE%"
 del "%TRAMPOLINE_FILE%" >nul 2>&1
 goto EOF
 
+:CmdExists
+if exist "%~$PATH:1" ( exit /b 0 ) else ( exit /b 1 )
 
 :PROCESSPATH
 rem will surround each path with double quotes before appending it to LEIN_LIBS
