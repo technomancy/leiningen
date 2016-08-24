@@ -5,7 +5,7 @@ setLocal EnableExtensions EnableDelayedExpansion
 call :CmdExists powershell.exe
 if ERRORLEVEL 1 ( echo PowerShell not found. ) else ( set ps1=%~dpn0.ps1 & shift & powershell -File "%ps1%" %* )
 
-set LEIN_VERSION=2.7.0
+set LEIN_VERSION=2.7.1-SNAPSHOT
 
 if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=YES
