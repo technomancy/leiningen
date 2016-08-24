@@ -14,6 +14,8 @@ if [ ! -x `which lein-stable` ]; then
     exit 1
 fi
 
+(java -version 2>&1 | head -n1 | grep -F '1.6') || (echo "Use java 1.6 to build Leiningen release" && exit 1)
+
 grep $RELEASE_VERSION NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit 1)
 
 lein vcs assert-committed
