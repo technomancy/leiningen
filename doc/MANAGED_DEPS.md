@@ -68,13 +68,13 @@ will allow you to define a single "parent" project that is inherited by multiple
 
 (defproject superfun/kid-a "1.0.0-SNAPSHOT"
    :parent-project [:coords [superfun/myparent "1.0.0"]
-                    :inherits [:managed-dependencies]]
+                    :inherit [:managed-dependencies]]
    :dependencies [[clj-time]
                   [me.raynes/fs]])
 
 (defproject superfun/kid-b "1.0.0-SNAPSHOT"
  :parent-project [:coords [superfun/myparent "1.0.0"]
-                  :inherits [:managed-dependencies]]
+                  :inherit [:managed-dependencies]]
  :dependencies [[clj-time]
                 [ring/ring-codec]])
 ```
