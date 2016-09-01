@@ -53,6 +53,20 @@ directly in the `:dependencies` section.  The feature becomes more powerful
 when your build workflow includes some other way of sharing the `:managed-dependencies`
 section across multiple projects.
 
+## A note on modifiers (`:exclusions`, `:classifier`, etc.)
+
+The managed dependencies support in leiningen *does* work with modifiers such as `:exclusions` and `:classifier`.  However, at present, because of the way that lein and pomegranate process the args in the dependencies vector, you will need to explicitly specify `nil` as the value for the version arg in order to achieve this:
+
+```clj
+(defproject superfun/happyslide "1.0.0-SNAPSHOT"
+  :description "A Clojure project with managed dependencies"
+  :min-lein-version  "2.7.0"
+  :managed-dependencies [[clj-time "0.12.0"]]
+  :dependencies [[clj-time nil :exclusions [foo]]])
+```
+
+Issue #2195 covers the possibility of doing some future work to allow omission of the `nil` in the example above.
+
 ## Lein "parent" projects
 
 One way of leveraging `:managed-dependencies` across multiple projects is to use
