@@ -35,10 +35,11 @@ This is an introduction to setting up and using
 
 There are two versions of GPG available: v1.x and v2.x. For our
 purposes, they are functionally equivalent. Package managers generally
-install v2.x as `gpg2`, and v1.x as `gpg`. By default, Leiningen
+install v2.x as `gpg2`, and v1.x as `gpg`, except for Homebrew which
+installs v2.x as `gpg`, and v1.x as `gpg1`. By default, Leiningen
 expects the GPG command to be `gpg`. You're welcome to use any version
-you like, but this primer will only cover installing v1.x, and has
-only been tested under v1.x.
+you like, but this primer will only cover installing v1.x (except under
+macOS), and has only been tested under v1.x.
 
 ## What is it?
 
@@ -81,8 +82,8 @@ available via:
 There are several options here, depending on which package manager you
 have installed (if any):
 
-1. via [homebrew](http://mxcl.github.com/homebrew/): `brew install gnupg`
-2. via [macports](http://www.macports.org/): `port install gnupg`
+1. via [homebrew](http://mxcl.github.com/homebrew/): `brew install gnupg2`
+2. via [macports](http://www.macports.org/): `port install gnupg2`
 3. via a [binary installer](https://www.gpgtools.org/installer/index.html) 
    (this installs gpg2 as gpg)
 
