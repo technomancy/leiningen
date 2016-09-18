@@ -548,7 +548,7 @@
       ;; it's important to preserve the metadata, because it is used for
       ;; profile merging, etc.
       (with-meta
-       (concat [id version] opts)
+       (into [id version] opts)
        (meta dep)))))
 
 (defn normalize-dep-vectors
