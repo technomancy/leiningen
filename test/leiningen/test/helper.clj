@@ -74,6 +74,8 @@
 
 (def managed-deps-project (read-test-project "managed-deps"))
 
+(def managed-deps-snapshot-project (read-test-project "managed-deps-snapshot"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."

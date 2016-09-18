@@ -7,7 +7,8 @@
             [clojure.set :as set]
             [clojure.string :as s]
             [clojure.java.shell :as sh]
-            [clojure.data.xml :as xml]))
+            [clojure.data.xml :as xml]
+            [leiningen.core.classpath :as classpath]))
 
 (defn- relativize [project]
   (let [root (str (:root project) (System/getProperty "file.separator"))]
@@ -366,11 +367,14 @@
 
 (defn check-for-snapshot-deps [project]
   (when (and (not (snapshot? project))
-             (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE"))
-             (some #(re-find #"SNAPSHOT" (second %)) (:dependencies project)))
-    (main/abort "Release versions may not depend upon snapshots."
-                "\nFreeze snapshots to dated versions or set the"
-                "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))
+             (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE")))
+    (let [merged-deps (classpath/merge-versions-from-managed-coords
+                       (:dependencies project)
+                       (:managed-dependencies project))]
+      (when (some #(re-find #"SNAPSHOT" (second %)) merged-deps)
+        (main/abort "Release versions may not depend upon snapshots."
+                    "\nFreeze snapshots to dated versions or set the"
+                    "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))))
 
 (defn make-pom
   ([project] (make-pom project false))
