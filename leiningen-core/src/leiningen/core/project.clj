@@ -74,7 +74,7 @@
   "Transform a dependency vector into a map that is easier to combine with
   meta-merge. This allows a profile to override specific dependency options."
   [dep]
-  (if-let [[id version & {:as opts}] dep]
+  (if-let [[id version & {:as opts}] (classpath/normalize-dep-vector dep)]
     (-> opts
         (merge (artifact-map id))
         (assoc :version version)

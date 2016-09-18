@@ -55,7 +55,19 @@ section across multiple projects.
 
 ## A note on modifiers (`:exclusions`, `:classifier`, etc.)
 
-The managed dependencies support in leiningen *does* work with modifiers such as `:exclusions` and `:classifier`.  However, at present, because of the way that lein and pomegranate process the args in the dependencies vector, you will need to explicitly specify `nil` as the value for the version arg in order to achieve this:
+The managed dependencies support in leiningen *does* work with modifiers such as
+`:exclusions` and `:classifier`.  There are two legal syntaxes; you can explicitly
+specify a `nil` for the version string, or you can simply omit the version string:
+
+```clj
+(defproject superfun/happyslide "1.0.0-SNAPSHOT"
+  :description "A Clojure project with managed dependencies"
+  :min-lein-version  "2.7.0"
+  :managed-dependencies [[clj-time "0.12.0"]]
+  :dependencies [[clj-time :exclusions [foo]]])
+```
+
+or
 
 ```clj
 (defproject superfun/happyslide "1.0.0-SNAPSHOT"
@@ -65,7 +77,18 @@ The managed dependencies support in leiningen *does* work with modifiers such as
   :dependencies [[clj-time nil :exclusions [foo]]])
 ```
 
-Issue #2195 covers the possibility of doing some future work to allow omission of the `nil` in the example above.
+Note that `:classifier` is actually a part of the maven coordinates for an
+artifact, so for `:classifier` artifacts you will need to specify the `:classifier`
+value in both the `:managed-dependencies` and the normal `:dependencies` section:
+
+
+```clj
+(defproject superfun/happyslide "1.0.0-SNAPSHOT"
+  :description "A Clojure project with managed dependencies"
+  :min-lein-version  "2.7.0"
+  :managed-dependencies [[commons-math "1.2" :classifier "sources"]]
+  :dependencies [[commons-math :classifier "sources"]])
+```
 
 ## Lein "parent" projects
 

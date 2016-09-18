@@ -531,6 +531,36 @@
                                    :managed-dependencies)]
     (apply resolve-managed-dependencies dependencies-key managed-dependencies-key project rest)))
 
+(defn normalize-dep-vector
+  "Normalize the vector for a single dependency, to ensure it is compatible with
+  the format expected by pomegranate.  The main purpose of this function is to
+  to detect the case where the version string for a dependency has been omitted,
+  due to the use of `:managed-dependencies`, and to inject a `nil` into the
+  vector in the place where the version string should be."
+  [dep]
+  (if dep
+    (let [id (first dep)
+          sec (second dep)
+          version (if-not (keyword? sec) sec)
+          opts (if (keyword? sec)
+                 (nthrest dep 1)
+                 (nthrest dep 2))]
+      ;; it's important to preserve the metadata, because it is used for
+      ;; profile merging, etc.
+      (with-meta
+       (into [id version] opts)
+       (meta dep)))))
+
+(defn normalize-dep-vectors
+  "Normalize the vectors for the `:dependencies` section of the project.  This
+  ensures that they are compatible with the format expected by pomegranate.
+  The main purpose of this function is to to detect the case where the version
+  string for a dependency has been omitted, due to the use of `:managed-dependencies`,
+  and to inject a `nil` into the vector in the place where the version string
+  should be."
+  [deps]
+  (map normalize-dep-vector deps))
+
 (defn merge-versions-from-managed-coords
   [deps managed-deps]
   ;; NOTE: there is a new function in the 0.3.1 release of pomegranate that
@@ -538,7 +568,9 @@
   ;;  via the symbol dereference for now, but this can be changed to a
   ;;  regular function call once https://github.com/cemerick/pomegranate/pull/74
   ;;  is merged.
-  (#'aether/merge-versions-from-managed-coords deps managed-deps))
+  (#'aether/merge-versions-from-managed-coords
+   (normalize-dep-vectors deps)
+   managed-deps))
 
 (defn managed-dependency-hierarchy
   "Returns a graph of the project's dependencies.
