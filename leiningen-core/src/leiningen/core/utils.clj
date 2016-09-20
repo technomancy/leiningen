@@ -69,12 +69,13 @@
     (.. base-uri (relativize path-uri) (getPath))))
 
 (defn ns-exists? [namespace]
-  (some (fn [suffix]
-          (-> (#'clojure.core/root-resource namespace)
-              (subs 1)
-              (str suffix)
-              io/resource))
-        [".clj" ".cljc" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
+  (or (find-ns (symbol namespace))
+      (some (fn [suffix]
+              (-> (#'clojure.core/root-resource namespace)
+                 (subs 1)
+                 (str suffix)
+                 io/resource))
+            [".clj" ".cljc" (str clojure.lang.RT/LOADER_SUFFIX ".class")])))
 
 (defn error [& args]
   (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
