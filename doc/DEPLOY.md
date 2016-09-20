@@ -219,6 +219,10 @@ the `ARCHIVA_*` env vars be checked.  This allows you to avoid creating profiles
 just to use different credential sources in e.g. a local development environment
 vs. a centralized build environment.
 
+Note that the forms `:env` and `:env/varname` are only supported within the
+`:repositories` key. Plugins may decide to implement this themselves, but this
+is not default behaviour.
+
 ## Deployment
 
 Once you've set up a private repository and configured project.clj
