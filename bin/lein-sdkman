@@ -1,0 +1,246 @@
+#!/usr/bin/env bash
+
+# This variant of the lein script is meant for consumption by SDKMAN!
+# (i.e. a script which supports all platforms with bash installed)
+export LEIN_VERSION="2.7.1-SNAPSHOT"
+
+if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+    delimiter=";"
+else
+    delimiter=":"
+fi
+
+if [[ "$OSTYPE" == "cygwin" ]]; then
+  cygwin=true
+else
+  cygwin=false
+fi
+
+function command_not_found {
+    >&2 echo "Leiningen coundn't find $1 in your \$PATH ($PATH), which is required."
+    exit 1
+}
+
+function make_native_path {
+    # ensure we have native paths
+    if $cygwin && [[ "$1"  == /* ]]; then
+    echo -n "$(cygpath -wp "$1")"
+    elif [[ "$OSTYPE" == "msys" && "$1"  == /?/* ]]; then
+    echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
+    else
+    echo -n "$1"
+    fi
+}
+
+#  usage : add_path PATH_VAR [PATH]...
+function add_path {
+    local path_var="$1"
+    shift
+    while [ -n "$1" ];do
+        # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
+        if [[ -z ${!path_var} ]]; then
+          export ${path_var}="$(make_native_path "$1")"
+        else
+          export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+        fi
+    shift
+    done
+}
+
+function check_root {
+  local -i user_id
+  # Thank you for the complexity, Solaris
+  if [ `uname` = "SunOS" -a -x /usr/xpg4/bin/id ]; then
+    user_id=$(/usr/xpg4/bin/id -u 2>/dev/null || echo 0)
+  else
+    user_id=$(id -u 2>/dev/null || echo 0)
+  fi
+  [ $user_id -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
+  return 1
+}
+
+if check_root; then
+    echo "WARNING: You're currently running as root; probably by accident."
+    echo "Press control-C to abort or Enter to continue as root."
+    echo "Set LEIN_ROOT to disable this warning."
+    read _
+fi
+
+NOT_FOUND=1
+ORIGINAL_PWD="$PWD"
+while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]
+do
+    cd ..
+    if [ "$(dirname "$PWD")" = "/" ]; then
+        NOT_FOUND=0
+        cd "$ORIGINAL_PWD"
+    fi
+done
+
+export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
+
+for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
+  if [ -e "$f" ]; then
+    source "$f"
+  fi
+done
+
+if $cygwin; then
+    export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+fi
+
+# normalize $0 on certain BSDs
+if [ "$(dirname "$0")" = "." ]; then
+    SCRIPT="$(which "$(basename "$0")")"
+    if [ -z "$SCRIPT" ]; then
+        SCRIPT="$0"
+    fi
+else
+    SCRIPT="$0"
+fi
+
+# resolve symlinks to the script itself portably
+while [ -h "$SCRIPT" ] ; do
+    ls=$(ls -ld "$SCRIPT")
+    link=$(expr "$ls" : '.*-> \(.*\)$')
+    if expr "$link" : '/.*' > /dev/null; then
+        SCRIPT="$link"
+    else
+        SCRIPT="$(dirname "$SCRIPT"$)/$link"
+    fi
+done
+
+BIN_DIR="$(dirname "$SCRIPT")"
+
+# LEIN_JAR is slightly different in sdkman because it's bundled with the jar
+LEIN_JAR="$(dirname "$BIN_DIR")/lib/leiningen-$LEIN_VERSION-standalone.jar"
+
+## echo $LEIN_JAR
+## exit 1
+
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+
+# When :eval-in :classloader we need more memory
+grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
+    export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Xms64m -Xmx512m"
+
+add_path CLASSPATH "$LEIN_JAR"
+
+BOOTCLASSPATH="-Xbootclasspath/a:$LEIN_JAR"
+
+if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
+then
+    >&2 echo "Leiningen coundn't find 'java' executable, which is required."
+    >&2 echo "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
+    exit 1
+fi
+
+export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
+
+if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
+    export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
+    export DRIP_INIT_CLASS="clojure.main"
+fi
+
+# Support $JAVA_OPTS for backwards-compatibility.
+export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+
+# Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
+cygterm=false
+if $cygwin; then
+  case "$TERM" in
+    rxvt* | xterm* | vt*) cygterm=true ;;
+  esac
+fi
+
+if $cygterm; then
+  LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
+  stty -icanon min 1 -echo > /dev/null 2>&1
+fi
+
+if $cygwin; then
+    # When running on Cygwin, use Windows-style paths for java
+    ORIGINAL_PWD=$(cygpath -w "$ORIGINAL_PWD")
+fi
+
+# apply context specific CLASSPATH entries
+if [ -f .lein-classpath ]; then
+    add_path CLASSPATH "$(cat .lein-classpath)"
+fi
+
+if [ -n "$DEBUG" ]; then
+    echo "Leiningen's classpath: $CLASSPATH"
+fi
+
+if [ -r .lein-fast-trampoline ]; then
+    export LEIN_FAST_TRAMPOLINE='y'
+fi
+
+if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
+    INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
+
+    if command -v shasum >/dev/null 2>&1; then
+        SUM="shasum"
+    elif command -v sha1sum >/dev/null 2>&1; then
+        SUM="sha1sum"
+    else
+        command_not_found "sha1sum or shasum"
+    fi
+
+    export INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
+    # Just don't change :target-path in project.clj, mkay?
+    TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
+else
+    if hash mktemp 2>/dev/null; then
+        # Check if mktemp is available before using it
+        TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
+    else
+        TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+    fi
+    trap "rm -f $TRAMPOLINE_FILE" EXIT
+fi
+
+if $cygwin; then
+    TRAMPOLINE_FILE=$(cygpath -w "$TRAMPOLINE_FILE")
+fi
+
+if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
+    if [ -n "$DEBUG" ]; then
+        echo "Fast trampoline with $TRAMPOLINE_FILE."
+    fi
+    exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
+else
+    export TRAMPOLINE_FILE
+    "$LEIN_JAVA_CMD" \
+        "${BOOTCLASSPATH[@]}" \
+        -Dfile.encoding=UTF-8 \
+        -Dmaven.wagon.http.ssl.easy=false \
+        -Dmaven.wagon.rto=10000 \
+        $LEIN_JVM_OPTS \
+        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+        -Dleiningen.script="$SCRIPT" \
+        -classpath "$CLASSPATH" \
+        clojure.main -m leiningen.core.main "$@"
+
+    EXIT_CODE=$?
+
+    if $cygterm ; then
+        stty icanon echo > /dev/null 2>&1
+    fi
+
+    ## TODO: [ -r "$TRAMPOLINE_FILE" ] may be redundant? A trampoline file
+    ## is always generated these days.
+    if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
+        TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
+        if [ "$INPUT_CHECKSUM" = "" ]; then
+            rm "$TRAMPOLINE_FILE"
+        fi
+        if [ "$TRAMPOLINE" = "" ]; then
+            exit $EXIT_CODE
+        else
+            exec sh -c "exec $TRAMPOLINE"
+        fi
+    else
+        exit $EXIT_CODE
+    fi
+fi
