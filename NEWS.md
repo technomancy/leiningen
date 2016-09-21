@@ -1,5 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.7.1 / 2016-09-22
+
+* Add support for SDKMAN! as installation alternative. (Jean Niklas L'orange)
+* Improved explanation in some errors. (Jean Niklas L'orange)
+* Don't require `nil` for version in managed deps. (Chris Price)
+* Fix a bug with snapshot dependencies for managed deps. (Chris Price)
+
 ## 2.7.0 / 2016-08-24
 
 * Add PowerShell script for Windows users. (Brian Lalonde)
