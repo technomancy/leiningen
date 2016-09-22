@@ -107,13 +107,9 @@ function Update-Self
         OutFile = "$PSCommandPath.pending"
     } |% {Write-Progress 'Update-Self' $_.Uri -CurrentOperation "Downloading to $PSCommandPath.pending" -PercentComplete 50 ; Invoke-WebRequest @_}
     Write-Progress 'Update-Self' -Completed
-    Install-Self
-    Register-EngineEvent -SourceIdentifier PowerShell.Exiting -SupportEvent -Action {
-        rm "$PSScriptRoot\lein.cmd"
-        mv "$PSScriptRoot\lein.cmd.pending" "$PSScriptRoot\lein.cmd"
-        rm "$PSCommandPath.pending"
-        mv "$PSCommandPath" "$PSCommandPath.pending"
-    }
+    Move-Item "$PSScriptRoot\lein.cmd.pending" "$PSScriptRoot\lein.cmd" -force
+    Move-Item "$PSCommandPath.pending" "$PSCommandPath" -force
+    . "$PSCommandPath" self-install
 }
 
 function Invoke-Java
