@@ -44,10 +44,8 @@ function Initialize-Environment
     {
         $proxy = [Net.WebRequest]::DefaultWebProxy.GetProxy('https://github.com/')
         Write-Verbose "Using proxy: $proxy"
-        $Script:PSBoundParameters = @{
-            'Invoke-WebRequest:Proxy' = $proxy
-            'Invoke-WebRequest:ProxyUseDefaultCredentials' = $true
-        }
+        $Script:PSBoundParameters.Add('Invoke-WebRequest:Proxy', $proxy)
+        $Script:PSBoundParameters.Add('Invoke-WebRequest:ProxyUseDefaultCredentials', $true)
     }
 }
 
