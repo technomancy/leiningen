@@ -34,7 +34,7 @@ function Set-ParentLocation([string]$file)
 
 function Initialize-Environment
 {
-    $env:LEIN_VERSION = '2.7.1'
+    $env:LEIN_VERSION = '2.7.2-SNAPSHOT'
     $env:SNAPSHOT = if($env:LEIN_VERSION -like '*-SNAPSHOT'){'YES'}else{'NO'} #TODO: Still needed?
     $env:ORIGINAL_PWD = $PWD -replace '\\$','\\'
     Set-ParentLocation project.clj
