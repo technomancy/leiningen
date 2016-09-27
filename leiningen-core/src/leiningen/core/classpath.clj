@@ -531,25 +531,44 @@
                                    :managed-dependencies)]
     (apply resolve-managed-dependencies dependencies-key managed-dependencies-key project rest)))
 
+(defn- extract-dep-options
+  "Get 'options' values from the end of a dependency vector.  This basically just pulls off pairs
+  of values from the end of the vector and then returns a tuple whose first value is those pairs
+  (re-assembled into a single vector), and whose second value is whatever is left from the original
+  dependency vector after all pairs have been removed."
+  [acc dep-rest]
+  (if (<= (count dep-rest) 1)
+    [acc dep-rest]
+    (extract-dep-options
+      (concat (take-last 2 dep-rest) acc)
+      (drop-last 2 dep-rest))))
+
 (defn normalize-dep-vector
   "Normalize the vector for a single dependency, to ensure it is compatible with
   the format expected by pomegranate.  The main purpose of this function is to
   to detect the case where the version string for a dependency has been omitted,
   due to the use of `:managed-dependencies`, and to inject a `nil` into the
-  vector in the place where the version string should be."
+  vector in the place where the version string should be.  Throws IllegalArgumentException
+  if any of the dependencies are invalid (e.g. they don't begin with a symbol for their
+  artifact id, and end with an optional sequence of keyword/value pairs for options)."
   [dep]
   (if dep
     (let [id (first dep)
-          sec (second dep)
-          version (if-not (keyword? sec) sec)
-          opts (if (keyword? sec)
-                 (nthrest dep 1)
-                 (nthrest dep 2))]
+          [opts dep-rest] (extract-dep-options [] (rest dep))
+          version (first dep-rest)]
+      ;; TODO: would be very nice to be able to use clojure.spec to specify the legal forms
+      ;; for a dependency.
+      (when-not (symbol? id)
+        (throw (IllegalArgumentException.
+                 (str "Invalid dependency: artifact id must be a symbol: " (prn-str dep)))))
+      (when-not (every? #(keyword? (first %)) (partition 2 opts))
+        (throw (IllegalArgumentException.
+                 (str "Invalid dependency: options must be keyword->value pairs: " (prn-str dep)))))
       ;; it's important to preserve the metadata, because it is used for
       ;; profile merging, etc.
       (with-meta
-       (into [id version] opts)
-       (meta dep)))))
+        (into [id version] opts)
+        (meta dep)))))
 
 (defn normalize-dep-vectors
   "Normalize the vectors for the `:dependencies` section of the project.  This
