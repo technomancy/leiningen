@@ -538,17 +538,17 @@
   due to the use of `:managed-dependencies`, and to inject a `nil` into the
   vector in the place where the version string should be."
   [dep]
-  (if dep
+  ;; Some plugins may replace a keyword with a version string later on, so
+  ;; assume that even lenght vectors are alright. If not, then they will blow up
+  ;; at a later stage.
+  (if (even? (count dep))
+    dep
     (let [id (first dep)
-          sec (second dep)
-          version (if-not (keyword? sec) sec)
-          opts (if (keyword? sec)
-                 (nthrest dep 1)
-                 (nthrest dep 2))]
+          opts (rest dep)]
       ;; it's important to preserve the metadata, because it is used for
       ;; profile merging, etc.
       (with-meta
-       (into [id version] opts)
+       (into [id nil] opts)
        (meta dep)))))
 
 (defn normalize-dep-vectors
