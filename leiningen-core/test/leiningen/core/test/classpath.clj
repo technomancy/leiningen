@@ -106,3 +106,33 @@
                  ["sonatype" {:url "https://oss.sonatype.org/"}]
                  ["internal" {:url "https://sekrit.info/repo"
                               :username :gpg :password :gpg}]])))))
+
+(deftest test-normalize-dep-vectors
+  (testing "dep vectors with string version"
+    (is (= ['foo/bar "1.0.0"]
+           (normalize-dep-vector ['foo/bar "1.0.0"])))
+    (is (= ['foo/bar "1.0.0" :classifier "test"]
+           (normalize-dep-vector ['foo/bar "1.0.0" :classifier "test"])))
+    (is (= ['foo/bar "1.0.0" :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar "1.0.0" :classifier "test" :exclusions ['foo/baz]]))))
+  (testing "dep vectors with keyword version (e.g., for use with lein-modules)"
+    (is (= ['foo/bar :version]
+           (normalize-dep-vector ['foo/bar :version])))
+    (is (= ['foo/bar :version :classifier "test"]
+           (normalize-dep-vector ['foo/bar :version :classifier "test"])))
+    (is (= ['foo/bar :version :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar :version :classifier "test" :exclusions ['foo/baz]]))))
+  (testing "dep vectors with explicit nils for versions (managed dependencies)"
+    (is (= ['foo/bar nil]
+           (normalize-dep-vector ['foo/bar nil])))
+    (is (= ['foo/bar nil :classifier "test"]
+           (normalize-dep-vector ['foo/bar nil :classifier "test"])))
+    (is (= ['foo/bar nil :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar nil :classifier "test" :exclusions ['foo/baz]]))))
+  (testing "dep vectors with implicit nils for versions (managed dependencies)"
+    (is (= ['foo/bar nil]
+           (normalize-dep-vector ['foo/bar])))
+    (is (= ['foo/bar nil :classifier "test"]
+           (normalize-dep-vector ['foo/bar :classifier "test"])))
+    (is (= ['foo/bar nil :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar :classifier "test" :exclusions ['foo/baz]])))))
