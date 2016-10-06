@@ -8,7 +8,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "2.7.2-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.8"]
-                 [commons-io "2.4"]
+                 [commons-io "2.5"]
                  [bultitude "0.2.8"]
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
                  [org.apache.maven.indexer/indexer-core "4.1.3"
@@ -23,7 +23,7 @@
                  [clojure-complete "0.2.4"]
                  ;; bump versions of various common transitive deps
                  [slingshot "0.12.2"]
-                 [cheshire "5.5.0"]
+                 [cheshire "5.6.3"]
                  [clj-http "2.0.1"]
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]]
   ;; checkout-deps don't work with :eval-in :leiningen
