@@ -336,6 +336,15 @@
          (normalize-values)))
     (meta raw-map)))
 
+(defn- with-normalized-deps
+  [profile]
+  (let [deps (:dependencies profile)]
+    (assoc profile
+      :dependencies
+      (with-meta
+       (classpath/normalize-dep-vectors deps)
+       (meta deps)))))
+
 (defn- setup-profile-with-empty
   "Setup a profile map with empty defaults."
   [raw-profile]
@@ -347,7 +356,9 @@
       (meta raw-profile))
     (let [empty-defaults (select-keys empty-meta-merge-defaults
                                       (keys raw-profile))]
-      (setup-map-defaults raw-profile empty-defaults))))
+      (setup-map-defaults
+       (with-normalized-deps raw-profile)
+       empty-defaults))))
 
 (defn- setup-map-of-profiles
   "Setup a map of profile maps with empty defaults."

@@ -8,7 +8,8 @@
             [leiningen.core.utils :as utils]
             [leiningen.core.eval :as eval]
             [leiningen.core.classpath :as classpath]
-            [cemerick.pomegranate.aether :as aether]))
+            [cemerick.pomegranate.aether :as aether]
+            [leiningen.core.project :as project]))
 
 (deftest ^:online test-deps
   (let [sample-deps [["rome" "0.9"] ["jdom" "1.0"]]]
@@ -203,3 +204,9 @@
                                                          (fn [dep] (= 'org.clojure/tools.reader (first dep))))
                                                         first
                                                         second)))))))
+
+(deftest test-managed-deps-with-profiles
+  (testing "Able to resolve deps when profile omits versions in deps"
+    (deps (project/set-profiles managed-deps-project [:add-deps])))
+  (testing "Able to resolve deps when profile with ^:replace omits versions in deps"
+    (deps (project/set-profiles managed-deps-project [:replace-deps]))))
