@@ -23,4 +23,7 @@
                  [org.apache.commons/commons-csv :classifier "sources"]
                  [org.clojure/tools.emitter.jvm "0.1.0-beta5"] ; depends on tools.reader 0.8.5
                  [org.clojure/tools.namespace "0.3.0-alpha3"] ; depends on tools.reader 0.10.0
-                 ])
+                 ]
+
+  :profiles {:add-deps {:dependencies [[org.clojure/clojure]]}
+             :replace-deps {:dependencies ^:replace [[org.clojure/clojure]]}})

@@ -539,7 +539,7 @@
   vector in the place where the version string should be."
   [dep]
   ;; Some plugins may replace a keyword with a version string later on, so
-  ;; assume that even lenght vectors are alright. If not, then they will blow up
+  ;; assume that even length vectors are alright. If not, then they will blow up
   ;; at a later stage.
   (if (even? (count dep))
     dep
