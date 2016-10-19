@@ -382,7 +382,7 @@
         (doseq [r ranges]
           (warn r)))
       (warn "\nConsider using these exclusions:")
-      (doseq [ex exclusions]
+      (doseq [ex (distinct exclusions)]
         (warn ex))
       (warn))))
 
