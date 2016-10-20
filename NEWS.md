@@ -6,6 +6,7 @@
 * Improved explanation in some errors. (Jean Niklas L'orange)
 * Don't require `nil` for version in managed deps. (Chris Price)
 * Fix a bug with snapshot dependencies for managed deps. (Chris Price)
+* Remove duplicate exclusions in `lein deps` (Emlyn Corrin)
 
 ## 2.7.0 / 2016-08-24
 
