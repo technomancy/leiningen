@@ -68,3 +68,11 @@
     (is (thrown? clojure.lang.ExceptionInfo (deploy nil))))
   (testing "Fail if project data is missing"
     (is (thrown? clojure.lang.ExceptionInfo (deploy nil "snapshots")))))
+
+(deftest classifiying
+  (are [expected version file] (= expected (classifier version file))
+      "fat" "1.2.3"          "some-project-1.2.3-fat.jar"
+      "fat" "1.2.3-alpha6"   "some-project-1.2.3-alpha6-fat.jar"
+      "fat" "1.2.3-SNAPSHOT" "some-project-1.2.3-SNAPSHOT-fat.jar"
+      nil   "1.2.3"          "some-project-1.2.3-.jar"
+      nil   "1.2.3"          "some-project-1.2.3.jar"))

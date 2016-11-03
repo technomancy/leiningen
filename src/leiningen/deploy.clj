@@ -155,6 +155,16 @@
       "pom"
       (last (.split f "\\.")))))
 
+(defn classifier
+  "The classifier is be located between the version and extension name of the artifact.
+
+  See http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html "
+  [version f]
+  (let [pattern (re-pattern (format "%s-(.*)\\.%s" version (extension f)))
+        [_ classifier-of] (re-find pattern f)]
+    (when-not (empty? classifier-of)
+      classifier-of)))
+
 (defn- fail-on-empty-project [project]
   (when-not (:root project)
     (main/abort "Couldn't find project.clj, which is needed for deploy task")))
@@ -213,7 +223,8 @@ be able to depend on jars that are deployed without a pom."
            group-id (namespace identifier)
            repo (repo-for project repository)
            artifacts (for [f files]
-                       [[:extension (extension f)] f])]
+                       [[:extension (extension f)
+                         :classifier (classifier version f)] f])]
        (main/debug "Deploying" files "to" repo)
        (aether/deploy
         :coordinates [(symbol group-id artifact-id) version]
