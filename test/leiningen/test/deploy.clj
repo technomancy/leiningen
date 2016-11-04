@@ -3,7 +3,8 @@
         [clojure.java.io :only [file]]
         [leiningen.deploy]
         [leiningen.test.helper :only [delete-file-recursively
-                                      tmp-dir sample-project]]))
+                                      tmp-dir sample-project
+                                      sample-deploy-project]]))
 
 (defn- repo-path
   [relative-repo-path]
@@ -44,6 +45,21 @@
                         {"snapshots" {:url (-> "deploy-only-repo"
                                                repo-path repo-url)}})
                       "deploy-only-repo")))
+
+(deftest ^:online test-deploy-classifier
+  (testing "deployment with explicit file names uploads classifiers to repo"
+    (let [deploy-dir (repo-path "deploy-classifier")
+          project    (assoc sample-deploy-project
+                            :deploy-repositories
+                            {"snapshots" {:url (repo-url deploy-dir)}})]
+      (delete-file-recursively deploy-dir :silently)
+      (deploy project "snapshots"
+              "deploy-me/deploy-me"
+              (:version project)
+              (str (:root project) "/deploy-me-0.1.0-SNAPSHOT-fat.jarr"))
+      (let [dir (file deploy-dir "deploy-me/deploy-me/0.1.0-SNAPSHOT/")
+            files (.list dir)]
+        (is (seq (filter #(re-find #"deploy-me-0.1.0-[\d.]+-\d+-fat.jarr$" %) files)))))))
 
 (deftest signing
   (testing "GPG invocation"
