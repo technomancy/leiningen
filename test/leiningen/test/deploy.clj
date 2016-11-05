@@ -3,7 +3,8 @@
         [clojure.java.io :only [file]]
         [leiningen.deploy]
         [leiningen.test.helper :only [delete-file-recursively
-                                      tmp-dir sample-project]]))
+                                      tmp-dir sample-project
+                                      sample-deploy-project]]))
 
 (defn- repo-path
   [relative-repo-path]
@@ -45,6 +46,21 @@
                                                repo-path repo-url)}})
                       "deploy-only-repo")))
 
+(deftest ^:online test-deploy-classifier
+  (testing "deployment with explicit file names uploads classifiers to repo"
+    (let [deploy-dir (repo-path "deploy-classifier")
+          project    (assoc sample-deploy-project
+                            :deploy-repositories
+                            {"snapshots" {:url (repo-url deploy-dir)}})]
+      (delete-file-recursively deploy-dir :silently)
+      (deploy project "snapshots"
+              "deploy-me/deploy-me"
+              (:version project)
+              (str (:root project) "/deploy-me-0.1.0-SNAPSHOT-fat.jarr"))
+      (let [dir (file deploy-dir "deploy-me/deploy-me/0.1.0-SNAPSHOT/")
+            files (.list dir)]
+        (is (seq (filter #(re-find #"deploy-me-0.1.0-[\d.]+-\d+-fat.jarr$" %) files)))))))
+
 (deftest signing
   (testing "GPG invocation"
     (is (= (signing-args "foo.jar" nil)
@@ -68,3 +84,11 @@
     (is (thrown? clojure.lang.ExceptionInfo (deploy nil))))
   (testing "Fail if project data is missing"
     (is (thrown? clojure.lang.ExceptionInfo (deploy nil "snapshots")))))
+
+(deftest classifiying
+  (are [expected version file] (= expected (classifier version file))
+      "fat" "1.2.3"          "some-project-1.2.3-fat.jar"
+      "fat" "1.2.3-alpha6"   "some-project-1.2.3-alpha6-fat.jar"
+      "fat" "1.2.3-SNAPSHOT" "some-project-1.2.3-SNAPSHOT-fat.jar"
+      nil   "1.2.3"          "some-project-1.2.3-.jar"
+      nil   "1.2.3"          "some-project-1.2.3.jar"))

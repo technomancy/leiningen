@@ -50,6 +50,8 @@
 
 (def sample-fixture-error-project (read-test-project "sample-fixture-error"))
 
+(def sample-deploy-project (read-test-project "sample-deploy"))
+
 (def tricky-name-project (read-test-project "tricky-name"))
 
 (def native-project (read-test-project "native"))
