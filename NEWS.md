@@ -1,5 +1,34 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.7.2 / ???
+
+* Remove duplicate exclusions in `lein deps` (Emlyn Corrin)
+
+## 2.7.1 / 2016-09-22
+
+* Add support for SDKMAN! as installation alternative. (Jean Niklas L'orange)
+* Improved explanation in some errors. (Jean Niklas L'orange)
+* Don't require `nil` for version in managed deps. (Chris Price)
+* Fix a bug with snapshot dependencies for managed deps. (Chris Price)
+
+## 2.7.0 / 2016-08-24
+
+* Add PowerShell script for Windows users. (Brian Lalonde)
+* Run `:prep-tasks` before `lein test`, so generated test namespaces will be tested. (Martin Reck)
+* Better error message when attempting to do `lein run` without `project.clj`. (Eduardo Seabra Silva)
+* Add support for `:managed-dependencies`. (Chris Price)
+* Provide the current clojars certificate. (Toby Crawley)
+* Add `*eval-print-dup*` to evaluate forms passed to `eval-in-leiningen` with `*print-dup*`. (Eduardo Seabra Silva)
+* Update bash completions. (Zack Dever)
+* Respect `:scm :dir` in `lein vcs` commands. (Ian Kerins)
+* Improve whitespace handling from `JVM_OPTS`. (Stephen Nelson)
+* Catch and handle fixture errors during `lein test`. (Alex Hall)
+* Fix a bug where spaces in directory names on Windows caused crashes. (Leon Mergen, Tobias Kiertscher, Jean Niklas L'orange)
+* Fix a bug where `lein search` would take forever downloading clojars.org. (Paul Dorman)
+* Retain user defined private repositories when building jars, uberjars and deploy. (Rick Moynihan)
+* Honor whitelist settings when `lein javac` is called via `lein jar`. (Chris Price)
+* `lein vsc push` for git will now only push branch-related tags. (Łukasz Klich)
+
 ## 2.6.1 / 2016-02-08
 
 * Fix a bug where some plugins crashed when used. (Jean Niklas L'orange)

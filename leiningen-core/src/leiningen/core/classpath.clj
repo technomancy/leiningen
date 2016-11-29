@@ -250,10 +250,12 @@
 
 (def ^:private get-dependencies-memoized
   (memoize
-   (fn [dependencies-key {:keys [repositories local-repo offline? update
-                                 checksum mirrors] :as project}
+   (fn [dependencies-key managed-dependencies-key
+        {:keys [repositories local-repo offline? update
+                checksum mirrors] :as project}
         {:keys [add-classpath? repository-session-fn] :as args}]
-     {:pre [(every? vector? (get project dependencies-key))]}
+     {:pre [(every? vector? (get project dependencies-key))
+            (every? vector? (get project managed-dependencies-key))]}
      (try
        ((if add-classpath?
           pomegranate/add-dependencies
@@ -264,6 +266,7 @@
         :repositories (->> repositories
                            (map add-repo-auth)
                            (map (partial update-policies update checksum)))
+        :managed-coordinates (get project managed-dependencies-key)
         :coordinates (get project dependencies-key)
         :mirrors (->> mirrors
                       (map add-repo-auth)
@@ -379,7 +382,7 @@
         (doseq [r ranges]
           (warn r)))
       (warn "\nConsider using these exclusions:")
-      (doseq [ex exclusions]
+      (doseq [ex (distinct exclusions)]
         (warn ex))
       (warn))))
 
@@ -407,13 +410,17 @@
     #(-> % aether/repository-session
          (pedantic/use-transformer ranges overrides))))
 
-(defn ^:internal get-dependencies [dependencies-key project & args]
+(defn ^:internal get-dependencies [dependencies-key managed-dependencies-key
+                                   project & args]
   (let [ranges (atom []), overrides (atom [])
         session (pedantic-session project ranges overrides)
         args (assoc (apply hash-map args) :repository-session-fn session)
-        trimmed (select-keys project [dependencies-key :repositories :checksum
-                                      :local-repo :offline? :update :mirrors])
-        deps-result (get-dependencies-memoized dependencies-key trimmed args)]
+        trimmed (select-keys project [dependencies-key managed-dependencies-key
+                                      :repositories :checksum :local-repo :offline?
+                                      :update :mirrors])
+        deps-result (get-dependencies-memoized dependencies-key
+                                               managed-dependencies-key
+                                               trimmed args)]
     (pedantic-do (:pedantic? project) @ranges @overrides)
     deps-result))
 
@@ -486,16 +493,21 @@
           (doseq [[_ {:keys [native-prefix file]}] snap-deps]
             (extract-native-dep! native-path file native-prefix))))))
 
-(defn resolve-dependencies
+(defn resolve-managed-dependencies
   "Delegate dependencies to pomegranate. This will ensure they are
   downloaded into ~/.m2/repository and that native components of
   dependencies have been extracted to :native-path. If :add-classpath?
   is logically true, will add the resolved dependencies to Leiningen's
   classpath.
 
+  Supports inheriting 'managed' dependencies, e.g. to allow common dependency
+  versions to be specified from an alternate location in the project file, or
+  from a parent project file.
+
   Returns a seq of the dependencies' files."
-  [dependencies-key {:keys [native-path] :as project} & rest]
-  (let [dependencies-tree (apply get-dependencies dependencies-key project rest)
+  [dependencies-key managed-dependencies-key project & rest]
+  (let [dependencies-tree (apply get-dependencies dependencies-key
+                                 managed-dependencies-key project rest)
         jars (->> dependencies-tree
                   (aether/dependency-files)
                   (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
@@ -504,13 +516,81 @@
       (extract-native-dependencies project jars dependencies-tree))
     jars))
 
+(defn ^:deprecated resolve-dependencies
+  "Delegate dependencies to pomegranate. This will ensure they are
+  downloaded into ~/.m2/repository and that native components of
+  dependencies have been extracted to :native-path. If :add-classpath?
+  is logically true, will add the resolved dependencies to Leiningen's
+  classpath.
+
+  Returns a seq of the dependencies' files.
+
+  NOTE: deprecated in favor of `resolve-managed-dependencies`."
+  [dependencies-key project & rest]
+  (let [managed-dependencies-key (if (= dependencies-key :dependencies)
+                                   :managed-dependencies)]
+    (apply resolve-managed-dependencies dependencies-key managed-dependencies-key project rest)))
+
+(defn normalize-dep-vector
+  "Normalize the vector for a single dependency, to ensure it is compatible with
+  the format expected by pomegranate.  The main purpose of this function is to
+  to detect the case where the version string for a dependency has been omitted,
+  due to the use of `:managed-dependencies`, and to inject a `nil` into the
+  vector in the place where the version string should be."
+  [dep]
+  ;; Some plugins may replace a keyword with a version string later on, so
+  ;; assume that even length vectors are alright. If not, then they will blow up
+  ;; at a later stage.
+  (if (even? (count dep))
+    dep
+    (let [id (first dep)
+          opts (rest dep)]
+      ;; it's important to preserve the metadata, because it is used for
+      ;; profile merging, etc.
+      (with-meta
+       (into [id nil] opts)
+       (meta dep)))))
+
+(defn normalize-dep-vectors
+  "Normalize the vectors for the `:dependencies` section of the project.  This
+  ensures that they are compatible with the format expected by pomegranate.
+  The main purpose of this function is to to detect the case where the version
+  string for a dependency has been omitted, due to the use of `:managed-dependencies`,
+  and to inject a `nil` into the vector in the place where the version string
+  should be."
+  [deps]
+  (map normalize-dep-vector deps))
+
+(defn merge-versions-from-managed-coords
+  [deps managed-deps]
+  ;; NOTE: there is a new function in the 0.3.1 release of pomegranate that
+  ;;  is needed here, but was accidentally marked as private.  Calling it
+  ;;  via the symbol dereference for now, but this can be changed to a
+  ;;  regular function call once https://github.com/cemerick/pomegranate/pull/74
+  ;;  is merged.
+  (#'aether/merge-versions-from-managed-coords
+   (normalize-dep-vectors deps)
+   managed-deps))
+
+(defn managed-dependency-hierarchy
+  "Returns a graph of the project's dependencies.
+
+  Supports inheriting 'managed' dependencies, e.g. to allow common dependency
+  versions to be specified from an alternate location in the project file, or
+  from a parent project file."
+  [dependencies-key managed-dependencies-key project & options]
+  (if-let [deps-list (merge-versions-from-managed-coords
+                      (get project dependencies-key)
+                      (get project managed-dependencies-key))]
+    (aether/dependency-hierarchy deps-list
+                                 (apply get-dependencies dependencies-key
+                                        managed-dependencies-key
+                                        project options))))
+
 (defn dependency-hierarchy
   "Returns a graph of the project's dependencies."
   [dependencies-key project & options]
-  (if-let [deps-list (get project dependencies-key)]
-    (aether/dependency-hierarchy deps-list
-                                 (apply get-dependencies dependencies-key
-                                        project options))))
+  (apply managed-dependency-hierarchy dependencies-key nil project options))
 
 (defn- normalize-path [root path]
   (let [f (io/file path) ; http://tinyurl.com/ab5vtqf
@@ -533,7 +613,7 @@
   (seq
    (->> (filter ext-dependency? (:dependencies project))
         (assoc project :dependencies)
-        (resolve-dependencies :dependencies)
+        (resolve-managed-dependencies :dependencies :managed-dependencies)
         (map (memfn getAbsolutePath)))))
 
 (defn ^:internal checkout-deps-paths
@@ -561,7 +641,8 @@
                      (:resource-paths project)
                      [(:compile-path project)]
                      (checkout-deps-paths project)
-                     (for [dep (resolve-dependencies :dependencies project)]
+                     (for [dep (resolve-managed-dependencies
+                                :dependencies :managed-dependencies project)]
                        (.getAbsolutePath dep)))
         :when path]
     (normalize-path (:root project) path)))

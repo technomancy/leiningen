@@ -75,6 +75,25 @@
                 selected-namespaces# ~(form-for-nses-selectors-match selectors ns-sym)
                 _# (when ~*monkeypatch?*
                      (leiningen.core.injected/add-hook
+                      #'clojure.test/test-ns
+                      (fn [test-ns# ns#]
+                        (try
+                          (test-ns# ns#)
+                          (catch Throwable t#
+                            (binding [clojure.test/*report-counters*
+                                      (ref clojure.test/*initial-report-counters*)
+                                      clojure.test/*testing-vars*
+                                      (list (with-meta 'test
+                                              {:name ns#
+                                               :ns ns#}))]
+                              (clojure.test/do-report {:type :error
+                                                       :message "Uncaught exception in test fixture"
+                                                       :expected nil
+                                                       :actual t#})
+                              (clojure.test/do-report {:type :end-test-ns
+                                                       :ns (the-ns ns#)})
+                              @clojure.test/*report-counters*)))))
+                     (leiningen.core.injected/add-hook
                       #'clojure.test/report
                       (fn [report# m# & args#]
                         (when (#{:error :fail} (:type m#))
@@ -192,6 +211,7 @@ specified test. A default :all test-selector is available to run all tests."
             *monkeypatch?* (:monkeypatch-clojure-test project true)]
     (let [project (project/merge-profiles project [:leiningen/test :test])
           [nses selectors] (read-args tests project)
+          _ (eval/prep project)
           form (form-for-testing-namespaces nses nil (vec selectors))]
       (try (when-let [n (eval/eval-in-project project form
                                               '(require 'clojure.test))]

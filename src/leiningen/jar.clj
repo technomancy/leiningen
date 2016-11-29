@@ -177,11 +177,12 @@
         (let [main-path (str (-> (string/replace (:main project) "." "/")
                                  (string/replace "-" "_"))
                               ".class")]
-          (if (not (some #{main-path} jar-paths))
+          (when-not (some #{main-path} jar-paths)
             (main/info "Warning: The Main-Class specified does not exist"
                        "within the jar. It may not be executable as expected."
                        "A gen-class directive may be missing in the namespace"
-                       "which contains the main method."))))
+                       "which contains the main method, or the namespace has not"
+                       "been AOT-compiled."))))
       jar-paths)))
 
 ;; TODO: change in 3.0; this is hideous

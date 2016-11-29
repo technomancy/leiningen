@@ -543,8 +543,8 @@ should look like this:
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-http "2.0.0"]]
   :profiles {:dev {:dependencies [[ring/ring-devel "1.4.0"]]}}
-  :main my.stuff
-  :aot [my.stuff])
+  :main my-stuff.core
+  :aot [my-stuff.core])
 ```
 
 We have also added a development dependency, `ring-devel`. `ring-devel` will not
@@ -555,10 +555,10 @@ The namespace you specify will need to contain a `-main` function that
 will get called when your standalone jar is run. This namespace should
 have a `(:gen-class)` declaration in the `ns` form at the top. The
 `-main` function will get passed the command-line arguments. Let's try
-something easy in `src/my_stuff.clj`:
+something easy in `src/my_stuff/core.clj`:
 
 ```clj
-(ns my.stuff
+(ns my-stuff.core
   (:gen-class))
 
 (defn -main [& args]
@@ -568,7 +568,7 @@ something easy in `src/my_stuff.clj`:
 Now we're ready to generate your uberjar:
 
     $ lein uberjar
-    Compiling my.stuff
+    Compiling my-stuff.core
     Created /home/phil/my-stuff/target/uberjar+uberjar/my-stuff-0.1.0-SNAPSHOT.jar
     Created /home/phil/my-stuff/target/uberjar/my-stuff-0.1.0-SNAPSHOT-standalone.jar
 
@@ -576,7 +576,7 @@ This creates a single jar file that contains the contents of all your
 dependencies. Users can run it with a simple `java` invocation,
 or on some systems just by double-clicking the jar file.
 
-    $ java -jar my-stuff-0.1.0-standalone.jar Hello world.
+    $ java -jar my-stuff-0.1.0-SNAPSHOT-standalone.jar Hello world.
     Welcome to my project! These are your args: (Hello world.)
 
 You can run a regular (non-uber) jar with the `java`

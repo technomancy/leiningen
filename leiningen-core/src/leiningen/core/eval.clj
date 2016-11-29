@@ -3,7 +3,6 @@
   (:require [classlojure.core :as cl]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
@@ -29,6 +28,8 @@
   "Returns a file destination that will discard output.  Deprecated, use
   leiningen.core.utils/platform-nullsink instead."
   utils/platform-nullsink)
+
+(def ^:dynamic *eval-print-dup* false)
 
 ;; # Preparing for eval-in-project
 
@@ -81,7 +82,7 @@
                          ((juxt :source-paths :test-paths :resource-paths) project))]
       (.mkdirs (io/file path))))
   (write-pom-properties project)
-  (classpath/resolve-dependencies :dependencies project)
+  (classpath/resolve-managed-dependencies :dependencies :managed-dependencies project)
   (run-prep-tasks project)
   (deliver @prep-blocker true)
   (reset! prep-blocker (promise)))
@@ -110,18 +111,9 @@
 (defn- d-property [[k v]]
   (format "-D%s=%s" (as-str k) v))
 
-;; TODO: this would still screw up with something like this:
-;; export JAVA_OPTS="-Dmain.greeting=\"hello -main\" -Xmx512m"
-(defn- join-broken-arg [args x]
-  (if (= \- (first x))
-    (conj args x)
-    (conj (vec (butlast args))
-          (str (last args) " " x))))
-
 (defn ^:internal get-jvm-opts-from-env [env-opts]
   (and (seq env-opts)
-       (reduce join-broken-arg []
-               (.split (string/trim env-opts) " "))))
+       (re-seq #"(?:[^\s\"']+|\"[^\"]*\"|'[^']*')+" (string/trim env-opts))))
 
 (defn- get-jvm-args
   "Calculate command-line arguments for launching java subprocess."
@@ -228,7 +220,7 @@
 (defn ^:internal classpath-arg [project]
   (let [classpath-string (string/join java.io.File/pathSeparatorChar
                                       (classpath/get-classpath project))
-        agent-tree (classpath/get-dependencies :java-agents project)
+        agent-tree (classpath/get-dependencies :java-agents nil project)
         ;; Seems like you'd expect dependency-files to walk the whole tree
         ;; here, but it doesn't, which is what we want. but maybe a bug?
         agent-jars (aether/dependency-files (aether/dependency-hierarchy
@@ -245,9 +237,10 @@
                     (io/file (:target-path project) (str checksum "-init.clj"))
                     (File/createTempFile "form-init" ".clj"))]
     (spit init-file
-          (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
-                    `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
-                  form))
+          (binding [*print-dup* *eval-print-dup*]
+            (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
+                      `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
+                    form)))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
@@ -324,7 +317,8 @@
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (pr-str form)})
+        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*]
+                                            (pr-str form))})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
                 :while (not (done? msg pending))]
@@ -339,9 +333,8 @@
   (when (:debug project)
     (System/setProperty "clojure.debug" "true"))
   ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
-  (project/load-plugins project :dependencies)
-  (doseq [path (classpath/get-classpath project)]
-    (pomegranate/add-classpath path))
+  (project/load-plugins project :dependencies :managed-dependencies)
+  (project/init-lein-classpath project)
   (doseq [opt (get-jvm-args project)
           :when (.startsWith opt "-D")
           :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]

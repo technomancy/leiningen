@@ -4,7 +4,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.6.1</version>
+  <version>2.7.1</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -17,7 +17,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>645161ad1827e941177ffebec29da6f700d78c25
+    <tag>d2e006f0a17b15b49281ae8c2cde5c55a91c6120
 </tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
@@ -60,6 +60,9 @@
       </releases>
     </repository>
   </repositories>
+  <dependencyManagement>
+    <dependencies/>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
@@ -70,6 +73,12 @@
       <groupId>bultitude</groupId>
       <artifactId>bultitude</artifactId>
       <version>0.2.8</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.tcrawley</groupId>
+          <artifactId>dynapath</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>classlojure</groupId>
@@ -84,7 +93,18 @@
     <dependency>
       <groupId>com.cemerick</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>0.3.0</version>
+      <version>0.3.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.tcrawley</groupId>
+          <artifactId>dynapath</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.tcrawley</groupId>
+      <artifactId>dynapath</artifactId>
+      <version>0.2.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>

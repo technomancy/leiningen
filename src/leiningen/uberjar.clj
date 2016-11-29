@@ -177,7 +177,8 @@ be deactivated."
          (let [whitelisted (select-keys project project/whitelist-keys)
                project (-> (project/unmerge-profiles project [:default])
                            (merge whitelisted))
-               deps (->> (classpath/resolve-dependencies :dependencies project)
+               deps (->> (classpath/resolve-managed-dependencies
+                          :dependencies :managed-dependencies project)
                          (filter #(.endsWith (.getName %) ".jar")))
                jars (cons (io/file jar) deps)]
            (write-components project jars out)))

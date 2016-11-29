@@ -4,9 +4,21 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from a source checkout and self-install/upgrading.
 
-export LEIN_VERSION="2.6.2-SNAPSHOT"
+export LEIN_VERSION="2.7.2-SNAPSHOT"
 
-if [ "$(whoami)" = "root" ] && [ "$LEIN_ROOT" = "" ]; then
+function check_root {
+  local -i user_id
+  # Thank you for the complexity, Solaris
+  if [ `uname` = "SunOS" -a -x /usr/xpg4/bin/id ]; then
+    user_id=$(/usr/xpg4/bin/id -u 2>/dev/null || echo 0)
+  else
+    user_id=$(id -u 2>/dev/null || echo 0)
+  fi
+  [ $user_id -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
+  return 1
+}
+
+if check_root; then
     echo "WARNING: You're currently running as root; probably by accident."
     echo "Press control-C to abort or Enter to continue as root."
     echo "Set LEIN_ROOT to disable this warning."
@@ -24,12 +36,12 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; 
     fi
 done
 
+# User init
+export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
+
 # Support $JAVA_OPTS for backwards-compatibility.
 JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
-
-# User init
-export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
 
 for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
     if [ -e "$f" ]; then

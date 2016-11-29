@@ -64,10 +64,22 @@ call. For examples to follow, have a look inside [the \*.clj files for
 the built-in
 templates](https://github.com/technomancy/leiningen/tree/stable/resources/leiningen/new).
 
-While developing a template, if you're in the template project
-lein-newnew will pick it up and you'll be able to test it. However, if
-you want to use it on your system without putting it on clojars, just
-`lein install` your template.
+## Testing Your Template
+
+While developing a template, if you're in the template project directory, 
+lein-newnew will pick it up and you'll be able to test it.  e.g. from the
+`liquid-cool-template` dir:
+
+    $ lein new liquid-cool myproject
+
+will create a directory called `myproject`, built from your template.
+Alternately, if you want to test your template from another directory on
+your system (without publishing your template to clojars yet), just run:
+
+    $ lein install
+
+You should then be able to run `lein new liquid-cool myproject` from any
+directory on your system.
 
 ## Templating System
 

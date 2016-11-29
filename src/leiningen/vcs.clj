@@ -3,14 +3,17 @@
   (:require [clojure.java.io :as io]
             [bultitude.core :as b]
             [leiningen.core.eval :as eval]
-            [leiningen.core.main :as main]))
+            [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]))
 
 ;; TODO: make pom task use this ns by adding a few more methods
 
 (def supported-systems (atom [:git]))
 
 (defn uses-vcs [project vcs]
-  (let [vcs-dir (io/file (:root project) (str "." (name vcs)))]
+  (let [vcs-dir (io/file (:root project)
+                         (get-in project [:scm :dir] "")
+                         (str "." (name vcs)))]
     (and (.exists vcs-dir) vcs)))
 
 (defn which-vcs [project & _]
@@ -79,10 +82,8 @@
 (defmethod assert-committed :git [project]
   (binding [eval/*dir* (:root project)]
     (when (re-find #"Changes (not staged for commit|to be committed)"
-                   (with-out-str (eval/sh-with-exit-code "Couldn't get status" "git" "status")))
+                   (utils/with-system-out-str (eval/sh-with-exit-code "Couldn't get status" "git" "status")))
        (main/abort "Uncommitted changes in" (:root project) "directory."))))
-
-
 
 (defn- not-found [subtask]
   (partial #'main/task-not-found (str "vcs " subtask)))

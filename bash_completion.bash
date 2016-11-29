@@ -3,10 +3,10 @@ _lein_completion() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    tasks="check classpath clean compile deploy deps help install jar javac new pom repl retest run search swank test trampoline uberjar upgrade version with-profile"
+    tasks="change check classpath clean compile deploy deps do help install jar javac new plugin pom release repl retest run search show-profiles test trampoline uberjar update-in upgrade vcs version with-profile"
 
     case "${prev}" in
-        check | classpath | clean | deploy | deps | install | jar | javac | new | pom | repl | swank | uberjar | version)
+        change | check | classpath | clean | deploy | deps | do | install | jar | javac | new | plugin | pom | release | repl | show-profiles | uberjar | update-in | vcs | version)
             COMPREPLY=()
             ;;
         help)

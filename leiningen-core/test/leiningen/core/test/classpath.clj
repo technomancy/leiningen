@@ -2,7 +2,6 @@
   (:use [clojure.test]
         [leiningen.core.classpath])
   (:require [clojure.java.io :as io]
-            [clojure.set :as set]
             [leiningen.core.user :as user]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.project :as project]))
@@ -17,7 +16,8 @@
 (defn m2-file [f]
   (io/file (System/getProperty "user.home") ".m2" "repository" f))
 
-(def project {:dependencies '[[org.clojure/clojure "1.3.0"]
+(def project {:managed-dependencies '[[org.clojure/clojure "1.3.0"]]
+              :dependencies '[[org.clojure/clojure]
                               [ring/ring-core "1.0.0"
                                :exclusions [commons-codec]]]
               :checkout-deps-shares [:source-paths :resource-paths
@@ -38,7 +38,9 @@
            (m2-file "ring/ring-core/1.0.0/ring-core-1.0.0.jar")
            (m2-file (str "commons-fileupload/commons-fileupload/1.2.1/"
                          "commons-fileupload-1.2.1.jar"))}
-         (set (resolve-dependencies :dependencies project)))))
+         (set (resolve-managed-dependencies :dependencies
+                                            :managed-dependencies
+                                            project)))))
 
 (deftest test-dependency-hierarchy
   (doseq [f (reverse (file-seq (io/file (:root project))))]
@@ -49,7 +51,9 @@
           {[commons-fileupload "1.2.1"] nil
            [commons-io "1.4"] nil
            [javax.servlet/servlet-api "2.5"] nil}}
-         (dependency-hierarchy :dependencies project))))
+         (managed-dependency-hierarchy :dependencies
+                                       :managed-dependencies
+                                       project))))
 
 (def directories
   (vec (map lthelper/pathify
@@ -102,3 +106,33 @@
                  ["sonatype" {:url "https://oss.sonatype.org/"}]
                  ["internal" {:url "https://sekrit.info/repo"
                               :username :gpg :password :gpg}]])))))
+
+(deftest test-normalize-dep-vectors
+  (testing "dep vectors with string version"
+    (is (= ['foo/bar "1.0.0"]
+           (normalize-dep-vector ['foo/bar "1.0.0"])))
+    (is (= ['foo/bar "1.0.0" :classifier "test"]
+           (normalize-dep-vector ['foo/bar "1.0.0" :classifier "test"])))
+    (is (= ['foo/bar "1.0.0" :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar "1.0.0" :classifier "test" :exclusions ['foo/baz]]))))
+  (testing "dep vectors with keyword version (e.g., for use with lein-modules)"
+    (is (= ['foo/bar :version]
+           (normalize-dep-vector ['foo/bar :version])))
+    (is (= ['foo/bar :version :classifier "test"]
+           (normalize-dep-vector ['foo/bar :version :classifier "test"])))
+    (is (= ['foo/bar :version :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar :version :classifier "test" :exclusions ['foo/baz]]))))
+  (testing "dep vectors with explicit nils for versions (managed dependencies)"
+    (is (= ['foo/bar nil]
+           (normalize-dep-vector ['foo/bar nil])))
+    (is (= ['foo/bar nil :classifier "test"]
+           (normalize-dep-vector ['foo/bar nil :classifier "test"])))
+    (is (= ['foo/bar nil :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar nil :classifier "test" :exclusions ['foo/baz]]))))
+  (testing "dep vectors with implicit nils for versions (managed dependencies)"
+    (is (= ['foo/bar nil]
+           (normalize-dep-vector ['foo/bar])))
+    (is (= ['foo/bar nil :classifier "test"]
+           (normalize-dep-vector ['foo/bar :classifier "test"])))
+    (is (= ['foo/bar nil :classifier "test" :exclusions ['foo/baz]]
+           (normalize-dep-vector ['foo/bar :classifier "test" :exclusions ['foo/baz]])))))

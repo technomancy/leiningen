@@ -1,13 +1,15 @@
 (ns leiningen.test.deps
   (:use [clojure.test]
         [leiningen.deps]
-        [leiningen.test.helper :only [sample-project m2-dir native-project
+        [leiningen.test.helper :only [sample-project m2-dir m2-file native-project
+                                      managed-deps-project
                                       delete-file-recursively]])
   (:require [clojure.java.io :as io]
-            [leiningen.core.main :as main]
-            [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils]
-            [leiningen.core.eval :as eval]))
+            [leiningen.core.eval :as eval]
+            [leiningen.core.classpath :as classpath]
+            [cemerick.pomegranate.aether :as aether]
+            [leiningen.core.project :as project]))
 
 (deftest ^:online test-deps
   (let [sample-deps [["rome" "0.9"] ["jdom" "1.0"]]]
@@ -128,3 +130,83 @@
          (set (for [f (rest (file-seq (io/file (first (eval/native-arch-paths
                                                        native-project)))))]
                 (.getName f))))))
+
+(defn coordinates-match?
+  [dep1 dep2]
+  ;; NOTE: there is a new function in the 0.3.1 release of pomegranate that
+  ;;  is useful here, but it is private.  Calling it via the symbol dereference
+  ;;  for now, but might consider making it public upstream.  Haven't done so
+  ;;  yet since it is only used for tests.
+  (#'aether/coordinates-match? dep1 dep2))
+
+(deftest ^:online test-managed-deps
+  (let [is-clojure-dep? #(#{'org.clojure/clojure
+                            'org.clojure/tools.nrepl}
+                          (first %))
+        remove-clojure-deps #(remove is-clojure-dep? %)
+        managed-deps (remove-clojure-deps (:managed-dependencies managed-deps-project))
+        ;; find deps from normal "deps" section which explicitly specify their
+        ;; version number rather than inheriting it from managed-deps
+        versioned-unmanaged-deps (filter
+                                  (fn [dep]
+                                    (and (> (count dep) 1)
+                                         (string? (nth dep 1))
+                                         (not (is-clojure-dep? dep))))
+                                  (:dependencies managed-deps-project))
+        ;; the list of final, used deps w/versions
+        merged-deps (remove-clojure-deps
+                     (classpath/merge-versions-from-managed-coords
+                      (:dependencies managed-deps-project)
+                      (:managed-dependencies managed-deps-project)))
+        ;; the list of deps from the managed deps section that aren't used
+        unused-managed-deps (-> (remove
+                                 (fn [dep]
+                                   (or (some (partial coordinates-match? dep) merged-deps)
+                                       ;; special-casing to remove tools.reader, which is a common transitive dep
+                                       ;; of two of our normal dependencies
+                                       (= 'org.clojure/tools.reader (first dep))))
+                                 managed-deps))
+        ;; deps that have classifiers
+        classified-deps (filter
+                         #(some #{:classifier} %)
+                         merged-deps)]
+    ;; make sure the sample data has some unmanaged deps, some unused managed deps,
+    ;; and some classified deps, for completeness
+    (is (seq versioned-unmanaged-deps))
+    (is (seq unused-managed-deps))
+    (is (seq classified-deps))
+    ;; delete all of the existing artifacts for merged deps
+    (doseq [[n v] merged-deps]
+        (delete-file-recursively (m2-dir n v) :silently))
+    ;; delete all of the artifacts for the managed deps too
+    (doseq [[n v] managed-deps]
+      (delete-file-recursively (m2-dir n v) :silently))
+    ;; delete all copies of tools.reader so we know that the managed dependency
+    ;; for it is taking precedence
+    (delete-file-recursively (m2-dir 'org.clojure/tools.reader) :silently)
+    (deps managed-deps-project)
+    ;; artifacts should be available for all merged deps
+    (doseq [[n v] merged-deps]
+      (is (.exists (m2-dir n v)) (str n " was not downloaded (missing dir '" (m2-dir n v) "').")))
+    ;; artifacts should *not* have been downloaded for unused managed deps
+    (doseq [[n v] unused-managed-deps]
+      (is (not (.exists (m2-dir n v))) (str n " was unexpectedly downloaded (found unexpected dir '" (m2-dir n v) "').")))
+    ;; artifacts with classifiers should be available
+    (doseq [[n v _ classifier] classified-deps]
+      (let [f (m2-file n v classifier)]
+        (is (.exists f) (str f " was not downloaded."))))
+    ;; check tools.reader explicitly, since it is our special transitive dependency
+    (let [tools-reader-versions (into [] (.listFiles (m2-dir 'org.clojure/tools.reader)))]
+      (is (= 1 (count tools-reader-versions)))
+      (is (= (first tools-reader-versions) (m2-dir 'org.clojure/tools.reader
+                                                   (->> managed-deps
+                                                        (filter
+                                                         (fn [dep] (= 'org.clojure/tools.reader (first dep))))
+                                                        first
+                                                        second)))))))
+
+(deftest test-managed-deps-with-profiles
+  (testing "Able to resolve deps when profile omits versions in deps"
+    (deps (project/set-profiles managed-deps-project [:add-deps])))
+  (testing "Able to resolve deps when profile with ^:replace omits versions in deps"
+    (deps (project/set-profiles managed-deps-project [:replace-deps]))))

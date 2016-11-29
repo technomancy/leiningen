@@ -7,7 +7,8 @@
             [clojure.set :as set]
             [clojure.string :as s]
             [clojure.java.shell :as sh]
-            [clojure.data.xml :as xml]))
+            [clojure.data.xml :as xml]
+            [leiningen.core.classpath :as classpath]))
 
 (defn- relativize [project]
   (let [root (str (:root project) (System/getProperty "file.separator"))]
@@ -75,8 +76,8 @@
   [url]
   (if url
     (next
-     (or (re-matches #"(?:[A-Za-z_]{2,}@)?github.com:([^/]+)/([^/]+).git" url)
-         (re-matches #"[^:]+://(?:[A-Za-z_]{2,}@)?github.com/([^/]+)/([^/]+).git" url)))))
+     (or (re-matches #"(?:[A-Za-z-]{2,}@)?github.com:([^/]+)/([^/]+).git" url)
+         (re-matches #"[^:]+://(?:[A-Za-z-]{2,}@)?github.com/([^/]+)/([^/]+).git" url)))))
 
 (defn- github-urls [url]
   (if-let [[user repo] (parse-github-url url)]
@@ -330,6 +331,7 @@
                             (project/unmerge-profiles profile-kws)
                             (project/merge-profiles [:test])
                             relativize)
+           managed-deps (:managed-dependencies test-project)
            deps (:dependencies test-project)]
        (list
         [:project {:xsi:schemaLocation
@@ -354,6 +356,8 @@
          ;; TODO: this results in lots of duplicate entries
          (xml-tags :build [project test-project])
          (xml-tags :repositories (:repositories project))
+         (xml-tags :dependencyManagement
+                   (xml-tags :dependencies (distinct-key dep-key managed-deps)))
          (xml-tags :dependencies (distinct-key dep-key deps))
          (and (:pom-addition project) (:pom-addition project))]))))
 
@@ -363,11 +367,14 @@
 
 (defn check-for-snapshot-deps [project]
   (when (and (not (snapshot? project))
-             (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE"))
-             (some #(re-find #"SNAPSHOT" (second %)) (:dependencies project)))
-    (main/abort "Release versions may not depend upon snapshots."
-                "\nFreeze snapshots to dated versions or set the"
-                "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))
+             (not (System/getenv "LEIN_SNAPSHOTS_IN_RELEASE")))
+    (let [merged-deps (classpath/merge-versions-from-managed-coords
+                       (:dependencies project)
+                       (:managed-dependencies project))]
+      (when (some #(re-find #"SNAPSHOT" (second %)) merged-deps)
+        (main/abort "Release versions may not depend upon snapshots."
+                    "\nFreeze snapshots to dated versions or set the"
+                    "LEIN_SNAPSHOTS_IN_RELEASE environment variable to override.")))))
 
 (defn make-pom
   ([project] (make-pom project false))

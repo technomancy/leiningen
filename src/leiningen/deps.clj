@@ -2,13 +2,10 @@
   "Download all dependencies."
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
-            [leiningen.core.eval :as eval]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
-            [cemerick.pomegranate.aether :as aether]
-            [clojure.pprint :as pp]
-            [clojure.java.io :as io])
+            [cemerick.pomegranate.aether :as aether])
   (:import (org.sonatype.aether.resolution DependencyResolutionException)))
 
 (defn- walk-deps
@@ -69,8 +66,8 @@
 (def tree-command
   "A mapping from the tree-command to the dependency key it should print a tree
   for."
-  {":tree" :dependencies
-   ":plugin-tree" :plugins})
+  {":tree" [:dependencies :managed-dependencies]
+   ":plugin-tree" [:plugins nil]})
 
 
 
@@ -121,16 +118,22 @@ force them to be updated, use `lein -U $TASK`."
              (let [project (project/merge-profiles
                             project
                             [{:pedantic? (quote ^:displace warn)}])
-                   hierarchy (classpath/dependency-hierarchy
-                              (tree-command command)
+                   [dependencies-key managed-dependencies-key] (tree-command command)
+                   hierarchy (classpath/managed-dependency-hierarchy
+                              dependencies-key
+                              managed-dependencies-key
                               project)]
                (walk-deps hierarchy print-dep))
              (= command ":verify")
              (if (user/gpg-available?)
-               (walk-deps (classpath/dependency-hierarchy :dependencies project)
+               (walk-deps (classpath/managed-dependency-hierarchy
+                           :dependencies
+                           :managed-dependencies
+                           project)
                           (partial verify project))
                (main/abort (str "Could not verify - gpg not available.\n"
                                 "See `lein help gpg` for how to setup gpg.")))
-             :else (classpath/resolve-dependencies :dependencies project))
+             :else (classpath/resolve-managed-dependencies
+                    :dependencies :managed-dependencies project))
        (catch DependencyResolutionException e
          (main/abort (.getMessage e))))))

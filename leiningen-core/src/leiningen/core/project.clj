@@ -11,7 +11,7 @@
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath])
   (:import (clojure.lang DynamicClassLoader)
-           (java.io PushbackReader)))
+           (java.io PushbackReader Reader)))
 
 (defn make-project-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
@@ -74,7 +74,7 @@
   "Transform a dependency vector into a map that is easier to combine with
   meta-merge. This allows a profile to override specific dependency options."
   [dep]
-  (if-let [[id version & {:as opts}] dep]
+  (if-let [[id version & {:as opts}] (classpath/normalize-dep-vector dep)]
     (-> opts
         (merge (artifact-map id))
         (assoc :version version)
@@ -336,6 +336,15 @@
          (normalize-values)))
     (meta raw-map)))
 
+(defn- with-normalized-deps
+  [profile]
+  (let [deps (:dependencies profile)]
+    (assoc profile
+      :dependencies
+      (with-meta
+       (classpath/normalize-dep-vectors deps)
+       (meta deps)))))
+
 (defn- setup-profile-with-empty
   "Setup a profile map with empty defaults."
   [raw-profile]
@@ -347,7 +356,9 @@
       (meta raw-profile))
     (let [empty-defaults (select-keys empty-meta-merge-defaults
                                       (keys raw-profile))]
-      (setup-map-defaults raw-profile empty-defaults))))
+      (setup-map-defaults
+       (with-normalized-deps raw-profile)
+       empty-defaults))))
 
 (defn- setup-map-of-profiles
   "Setup a map of profile maps with empty defaults."
@@ -400,10 +411,11 @@
   "The project.clj file must either def a project map or call this macro.
   See `lein help sample` to see what arguments it accepts."
   [project-name version & args]
-  `(let [args# ~(unquote-project (argument-list->argument-map args))
-         root# ~(.getParent (io/file *file*))]
-     (def ~'project
-       (make args# '~project-name ~version root#))))
+  (let [f (io/file *file*)]
+    `(let [args# ~(unquote-project (argument-list->argument-map args))
+           root# ~(if f (.getParent f))]
+       (def ~'project
+         (make args# '~project-name ~version root#)))))
 
 (defn- add-exclusions [exclusions dep]
   (dependency-vec
@@ -686,13 +698,14 @@
 (def ^:private registered-wagon-files (atom #{}))
 
 (defn load-plugins
-  ([project key]
-     (when (seq (get project key))
+  ([project dependencies-key managed-dependencies-key]
+     (when (seq (get project dependencies-key))
        (ensure-dynamic-classloader)
        (let [repos-project (update-in project [:repositories] meta-merge
                                       (:plugin-repositories project))]
-         (classpath/resolve-dependencies key repos-project
-                                         :add-classpath? true)))
+         (classpath/resolve-managed-dependencies
+          dependencies-key managed-dependencies-key repos-project
+          :add-classpath? true)))
      (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
                             (.getResources "leiningen/wagons.clj")
                             (enumeration-seq))
@@ -701,6 +714,7 @@
        (aether/register-wagon-factory! hint (eval factory))
        (swap! registered-wagon-files conj wagon-file))
      project)
+  ([project dependencies-key] (load-plugins project dependencies-key nil))
   ([project] (load-plugins project :plugins)))
 
 (defn plugin-vars [project type]
@@ -878,10 +892,11 @@
                   (remove (set profiles) included-profiles)
                   (concat excluded-profiles profiles))))
 
-(defn- init-lein-classpath
+(defn init-lein-classpath
   "Adds dependencies to Leiningen's classpath if required."
   [project]
   (when (= :leiningen (:eval-in project))
+    (ensure-dynamic-classloader)
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path))))
 
@@ -947,15 +962,18 @@ Also merges default profiles."
 
 (defn read-raw
   "Read project file without loading certificates, plugins, middleware, etc."
-  [file]
+  [source]
   (locking read-raw
     (binding [*ns* (find-ns 'leiningen.core.project)]
-      (try (load-file file)
-           (catch Exception e
-             (throw (Exception. (format "Error loading %s" file) e)))))
+      (try
+        (if (instance? Reader source)
+          (load-reader source)
+          (load-file source))
+        (catch Exception e
+          (throw (Exception. (format "Error loading %s" source) e)))))
     (let [project (resolve 'leiningen.core.project/project)]
       (when-not project
-        (throw (Exception. (format "%s must define project map" file))))
+        (throw (Exception. (format "%s must define project map" source))))
       ;; return it to original state
       (ns-unmap 'leiningen.core.project 'project)
       @project)))

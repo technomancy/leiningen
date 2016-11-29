@@ -3,11 +3,11 @@
   (:use [clojure.test]
         [leiningen.core.project :as project])
   (:require [leiningen.core.user :as user]
-            [leiningen.core.classpath :as classpath]
             [leiningen.core.test.helper :refer [abort-msg]]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.utils :as utils]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import (java.io StringReader)))
 
 (use-fixtures :once
               (fn [f]
@@ -63,6 +63,14 @@
             :when (coll? path)]
       (is (= (for [p path] (lthelper/pathify (str (:root actual) "/" p)))
              (k actual))))))
+
+(deftest test-read-project-from-reader
+  (let [project-string "(defproject foo \"0.0.1-SNAPSHOT\" :description \"foo\")"
+        project-reader (StringReader. project-string)
+        project (read project-reader)]
+    (is (= "foo" (:group project)))
+    (is (= "foo" (:name project)))
+    (is (= "foo" (:description project)))))
 
 ;; TODO: test omit-default
 ;; TODO: test reading project that doesn't def project

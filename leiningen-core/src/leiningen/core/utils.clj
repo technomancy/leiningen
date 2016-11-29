@@ -3,7 +3,8 @@
             [clojure.java.shell :as sh])
   (:import (com.hypirion.io RevivableInputStream)
            (clojure.lang LineNumberingPushbackReader)
-           (java.io File FileDescriptor FileInputStream InputStreamReader)
+           (java.io ByteArrayOutputStream PrintStream File FileDescriptor
+                    FileOutputStream FileInputStream InputStreamReader)
            (java.net URL)))
 
 (def rebound-io? (atom false))
@@ -68,12 +69,13 @@
     (.. base-uri (relativize path-uri) (getPath))))
 
 (defn ns-exists? [namespace]
-  (some (fn [suffix]
-          (-> (#'clojure.core/root-resource namespace)
-              (subs 1)
-              (str suffix)
-              io/resource))
-        [".clj" ".cljc" (str clojure.lang.RT/LOADER_SUFFIX ".class")]))
+  (or (find-ns (symbol namespace))
+      (some (fn [suffix]
+              (-> (#'clojure.core/root-resource namespace)
+                 (subs 1)
+                 (str suffix)
+                 io/resource))
+            [".clj" ".cljc" (str clojure.lang.RT/LOADER_SUFFIX ".class")])))
 
 (defn error [& args]
   (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
@@ -234,3 +236,25 @@
         hypothetical-descendant (.getCanonicalPath (io/file b))]
     (and (.startsWith hypothetical-descendant hypothetical-ancestor)
          (not (= hypothetical-descendant hypothetical-ancestor)))))
+
+(defmacro with-system-out-str
+  "Like with-out-str, but for System/out."
+  [& body]
+  `(try (let [o# (ByteArrayOutputStream.)]
+          (System/setOut (PrintStream. o#))
+          ~@body
+          (.toString o#))
+     (finally
+       (System/setOut
+        (-> FileDescriptor/out FileOutputStream. PrintStream.)))))
+
+(defmacro with-system-err-str
+  "Like with-out-str, but for System/err."
+  [& body]
+  `(try (let [o# (ByteArrayOutputStream.)]
+          (System/setErr (PrintStream. o#))
+          ~@body
+          (.toString o#))
+     (finally
+       (System/setErr
+        (-> FileDescriptor/err FileOutputStream. PrintStream.)))))
