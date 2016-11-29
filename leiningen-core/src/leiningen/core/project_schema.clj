@@ -1115,14 +1115,16 @@ Example:
 
   :validate false")
 
-(defn validate-project [data-to-validate]
+(defn validate-project [data-to-validate file-path]
   (when-not (false? (:validate data-to-validate))
     (let [data-to-validate (fuz/fuzzy-select-keys
                             data-to-validate
                             keys-to-validate)]
       (when-not (s/valid? ::leiningen-project-root data-to-validate)
         (let [first-error (-> (s/explain-data ::leiningen-project-root data-to-validate)
-                              (ssp/prepare-errors data-to-validate nil #_"project.clj")
+                              (ssp/prepare-errors data-to-validate
+                                                  (when (.exists (io/file file-path))
+                                                    file-path))
                               first)
               message (binding [ssp/*explain-header* "Leiningen Configuration Error"]
                         (-> first-error

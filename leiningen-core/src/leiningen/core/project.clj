@@ -414,8 +414,8 @@
                   (clojure.string/join ", " duplicates))))))))
 
 ;; color?
-(defn handle-validation [initial-project-args]
-  (if-let [{:keys [message]} (schema/validate-project initial-project-args)]
+(defn handle-validation [initial-project-args f]
+  (if-let [{:keys [message]} (schema/validate-project initial-project-args f)]
     (do
       (println message)
       (exit 1))
@@ -426,7 +426,8 @@
   See `lein help sample` to see what arguments it accepts."
   [project-name version & args]
   (let [f (io/file *file*)]
-    `(let [args# (handle-validation ~(unquote-project (argument-list->argument-map args)))
+    `(let [args# (handle-validation ~(unquote-project (argument-list->argument-map args))
+                                    ~(str f))
            root# ~(if f (.getParent f))]
        (def ~'project
          (make args# '~project-name ~version root#)))))
