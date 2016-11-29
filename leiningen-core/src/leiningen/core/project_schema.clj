@@ -49,7 +49,7 @@
     ::dependencies
     ::signing
     ::certificates
-    ::profiles
+    ;; ::profiles ;; current imp not complete
     ::hooks
     ::middleware
     ::implicit-middleware
@@ -197,13 +197,17 @@ Example:
 ;; TODO really look at this and see if we can get a better
 ;; path to the erroneous value
 (s/def ::dependency-item
-  (s/and
+  (s/or
+   :short-managed
    (s/cat :lib-name symbol?
-          :version-str non-blank-string?
+          :dependency-item-args ::dependency-item-args)
+   :long
+   (s/cat :lib-name symbol?
+          :version-str (some-fn nil? non-blank-string?)
           :dependency-item-args ::dependency-item-args)))
 
 (def-key ::dependencies
-  (s/every ::dependency-item :min-count 1)
+  (s/every ::dependency-item)
   "Dependencies are listed as [group-id/name version]; in addition
 to keywords supported by Pomegranate, you can use :native-prefix
 to specify a prefix. This prefix is used to extract natives in
@@ -227,7 +231,7 @@ Example:
                   :native-prefix \"\"]]")
 
 (def-key ::managed-dependencies
-  (s/every (s/tuple symbol? non-blank-string?) :min-count 1)
+  (s/every ::dependency-item)
 "'Managed Dependencies' are a concept borrowed from maven pom files; see
 https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Dependency_Management
 
@@ -392,7 +396,7 @@ the key; in this case LEIN_PASSWORD.")
 This would normally be set in a profile for non-public repositories.
 All the options are the same as in the :repositories map.")
 
-(def-key ::mirrors (s/map-of
+(def-key ::mirrors (s/every-kv
                     (some-fn non-blank-string? regex?)
                     (ssp/strict-keys
                      :opt-un
@@ -1118,7 +1122,7 @@ Example:
                             keys-to-validate)]
       (when-not (s/valid? ::leiningen-project-root data-to-validate)
         (let [first-error (-> (s/explain-data ::leiningen-project-root data-to-validate)
-                              (ssp/prepare-errors data-to-validate "project.clj")
+                              (ssp/prepare-errors data-to-validate nil #_"project.clj")
                               first)
               message (binding [ssp/*explain-header* "Leiningen Configuration Error"]
                         (-> first-error
