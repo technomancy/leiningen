@@ -9,7 +9,8 @@
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.utils :as utils]
             [leiningen.core.user :as user]
-            [leiningen.core.classpath :as classpath])
+            [leiningen.core.classpath :as classpath]
+            [leiningen.core.project-schema :as schema])
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader Reader)))
 
@@ -30,6 +31,11 @@
   ;; TODO: remove with 3.0.0
   (require 'leiningen.core.main)
   ((resolve 'leiningen.core.main/warn) args))
+
+(defn- exit [& args]
+  ;; TODO: remove with 3.0.0
+  (require 'leiningen.core.main)
+  (apply (resolve 'leiningen.core.main/exit) args))
 
 (defn- update-each-contained [m keys f & args]
   (reduce (fn [m k]
@@ -407,12 +413,20 @@
           (format "Duplicate keys: %s"
                   (clojure.string/join ", " duplicates))))))))
 
+;; color?
+(defn handle-validation [initial-project-args]
+  (if-let [{:keys [message]} (schema/validate-project initial-project-args)]
+    (do
+      (println message)
+      (exit 1))
+    initial-project-args))
+
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
   See `lein help sample` to see what arguments it accepts."
   [project-name version & args]
   (let [f (io/file *file*)]
-    `(let [args# ~(unquote-project (argument-list->argument-map args))
+    `(let [args# (handle-validation ~(unquote-project (argument-list->argument-map args)))
            root# ~(if f (.getParent f))]
        (def ~'project
          (make args# '~project-name ~version root#)))))

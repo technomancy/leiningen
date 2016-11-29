@@ -11,7 +11,8 @@
                  [org.tcrawley/dynapath "0.2.4"]
                  [org.apache.maven.wagon/wagon-http "2.10"]
                  [com.hypirion/io "0.3.1"]
-                 [pedantic "0.2.0"]]
+                 [pedantic "0.2.0"]
+                 [strictly-specking-standalone "0.1.1"]]
   :scm {:dir ".."}
   :dev-resources-path "dev-resources"
   :aliases {"bootstrap" ["with-profile" "base"
