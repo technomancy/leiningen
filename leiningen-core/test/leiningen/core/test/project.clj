@@ -49,7 +49,7 @@
 
                :repositories [["central" {:url "https://repo1.maven.org/maven2/"
                                           :snapshots false}]
-                              ["clojars" {:url "https://clojars.org/repo/"}]]})
+                              ["clojars" {:url "https://repo.clojars.org/"}]]})
 
 (deftest test-read-project
   (let [actual (read (.getFile (io/resource "p1.clj")))]
