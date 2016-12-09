@@ -8,7 +8,7 @@
                  [classlojure "0.6.6"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.3.1" :exclusions [org.tcrawley/dynapath]]
-                 [org.tcrawley/dynapath "0.2.4"]
+                 [org.tcrawley/dynapath "0.2.5"]
                  [org.apache.maven.wagon/wagon-http "2.10"]
                  [com.hypirion/io "0.3.1"]
                  [pedantic "0.2.0"]]
