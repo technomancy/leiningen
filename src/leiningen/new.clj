@@ -24,7 +24,7 @@
                        (:plugin-repositories user-profiles))]
     (merge {:templates [[template-symbol template-version]]
             :repositories repositories}
-           (select-keys user-profiles [:mirrors]))))
+           (select-keys user-profiles [:mirrors :local-repo]))))
 
 (defn resolve-remote-template [name sym]
   (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
