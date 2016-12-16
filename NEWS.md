@@ -3,6 +3,7 @@
 ## 2.7.2 / ???
 
 * Remove duplicate exclusions in `lein deps` (Emlyn Corrin)
+* Leiningen is now installable again via chocolatey (Florian Anderiasch)
 
 ## 2.7.1 / 2016-09-22
 
