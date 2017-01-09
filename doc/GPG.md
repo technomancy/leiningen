@@ -29,9 +29,9 @@
 # Using GPG
 
 This is an introduction to setting up and using
-[GPG](http://www.gnupg.org/) keys with
-[Leiningen](http://leiningen.org) to sign artifacts for publication to
-[Clojars](http://clojars.org/) and to encrypt repository credentials.
+[GPG](https://www.gnupg.org/) keys with
+[Leiningen](https://leiningen.org) to sign artifacts for publication to
+[Clojars](https://clojars.org/) and to encrypt repository credentials.
 
 There are two versions of GPG available: v1.x and v2.x. For our
 purposes, they are functionally equivalent. Package managers generally
@@ -43,11 +43,11 @@ macOS), and has only been tested under v1.x.
 
 ## What is it?
 
-[GPG](http://www.gnupg.org/) (or Gnu Privacy Guard) is a set of tools
+[GPG](https://www.gnupg.org/) (or Gnu Privacy Guard) is a set of tools
 for cryptographic key creation/management and encryption/signing of
 data. If you are unfamiliar with the concepts of public key
 cryptography, this
-[Wikipedia entry](http://en.wikipedia.org/wiki/Public-key_cryptography)
+[Wikipedia entry](https://en.wikipedia.org/wiki/Public-key_cryptography)
 serves as a good introduction.
 
 An important concept to understand in public key cryptography is that
@@ -82,14 +82,14 @@ available via:
 There are several options here, depending on which package manager you
 have installed (if any):
 
-1. via [homebrew](http://mxcl.github.com/homebrew/): `brew install gnupg2`
-2. via [macports](http://www.macports.org/): `port install gnupg2`
+1. via [homebrew](https://mxcl.github.com/homebrew/): `brew install gnupg2`
+2. via [macports](https://www.macports.org/): `port install gnupg2`
 3. via a [binary installer](https://www.gpgtools.org/installer/index.html) 
    (this installs gpg2 as gpg)
 
 ### Windows
 
-[GPG4Win](http://gpg4win.org/) provides a binary installer that
+[GPG4Win](https://gpg4win.org/) provides a binary installer that
 provides some possibly useful GUI tools in addition to providing the
 `gpg` command.
 
@@ -245,9 +245,9 @@ repository specification in your project definition:
     (defproject ham-biscuit "0.1.0"
        ...
        :deploy-repositories 
-         [["releases" {:url "http://blueant.com/archiva/internal/releases"
+         [["releases" {:url "https://blueant.com/archiva/internal/releases"
                        :signing {:gpg-key "2ADFB13E"}}]
-         ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
+         ["snapshots" "https://blueant.com/archiva/internal/snapshots"]]
        ...)
 
 ## Troubleshooting

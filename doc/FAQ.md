@@ -17,7 +17,9 @@
   for background.
 
 **Q:** How should I pick my version numbers?  
-**A:** Use [semantic versioning](http://semver.org).
+**A:** Use [semantic versioning](http://semver.org) to communicate
+  intentions to downstream users of your library, but don't make
+  assumptions that libraries you use stick with it consistently.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** You will need to get them in a repository. The
@@ -87,7 +89,7 @@
   the proxy. This is a list of patterns separated by `|` and may start or end with
   a `*` for wildcard, e.g. `localhost|*.mydomain.com`.
   For Leiningen 1.x versions, see the instructions for
-  [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html)
+  [configuring a Maven proxy](https://maven.apache.org/guides/mini/guide-proxies.html)
   using `~/.m2/settings.xml`.
 
 **Q:** What can be done to speed up launch?  

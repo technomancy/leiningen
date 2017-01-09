@@ -23,7 +23,7 @@
 
 # Deploying Libraries
 
-Getting your library into [Clojars](http://clojars.org) is fairly
+Getting your library into [Clojars](https://clojars.org) is fairly
 straightforward as is documented near the end of
 [the Leiningen tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md).
 However, deploying elsewhere is not always that straightforward.
@@ -69,14 +69,14 @@ N.B. SCP deploys to Clojars are no longer supported.
 ### S3
 
 If you don't already have a server running,
-[Amazon S3](http://aws.amazon.com/s3/) is a low-maintenance choice;
+[Amazon S3](https://aws.amazon.com/s3/) is a low-maintenance choice;
 you can deploy to S3 buckets using the
 [S3 wagon private](https://github.com/technomancy/s3-wagon-private) plugin.
 
 ### Artifactory/Nexus/Archiva
 
 The most full-featured and complex route is to run a full-fledged
-repository manager. Both [Artifactory](http://www.jfrog.com/open-source/#os-arti), [Archiva](http://archiva.apache.org/) and
+repository manager. Both [Artifactory](https://www.jfrog.com/open-source/#os-arti), [Archiva](https://archiva.apache.org/) and
 [Nexus](http://nexus.sonatype.org/) provide this. They also proxy to
 other repositories, so you can set `^:replace` metadata on
 `:repositories` in project.clj, and dependency downloads will speed up
@@ -88,8 +88,8 @@ listing in project.clj. Artifactory, Archiva and Nexus offer separate repositori
 for snapshots and releases, so you'll want two entries for them:
 
 ```clj
-:repositories [["snapshots" "http://blueant.com/archiva/snapshots"]
-               ["releases" "http://blueant.com/archiva/internal"]]
+:repositories [["snapshots" "https://blueant.com/archiva/snapshots"]
+               ["releases" "https://blueant.com/archiva/internal"]]
 ```
 
 If you are are deploying to a repository that is _only_ used for deployment
@@ -100,13 +100,13 @@ Deployment-only repositories useful across a number of locally developed
 projects may also be specified in the `:user` profile in `~/.lein/profiles.clj`:
 
 ```clj
-{:user {:deploy-repositories [["internal" "http://blueant.com/archiva/internal"]]}}
+{:user {:deploy-repositories [["internal" "https://blueant.com/archiva/internal"]]}}
 ```
 
 ### Other Non-standard Repository Protocols
 
 If you are deploying to a repository that doesn't use one of the
-standard protocols (`file:`, `http:`, `https:`), you may need to
+standard protocols (`file:` or `https:`), you may need to
 provide a wagon factory for that protocol. You can do so by specifying
 the wagon provider as a plugin dependency:
 
@@ -135,7 +135,7 @@ you'll usually need to provide a `:username` and `:password` (for a repository)
 or `:passphrase` (for GPG). Leiningen will prompt you for a password if you
 haven't set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
-[gpg](http://www.gnupg.org/) installed and a key pair configured.  If
+[gpg](https://www.gnupg.org/) installed and a key pair configured.  If
 you need help with either of those, see the
 [GPG guide](https://github.com/technomancy/leiningen/blob/stable/doc/GPG.md).
 
@@ -146,7 +146,7 @@ maps, Leiningen will decrypt `~/.lein/credentials.clj.gpg` and use that to find
 the proper credentials for the given repository.
 
 ```clj
-:repositories [["releases" {:url "http://blueant.com/archiva/internal"
+:repositories [["releases" {:url "https://blueant.com/archiva/internal"
                             :creds :gpg}]]
 ```
 
@@ -171,7 +171,7 @@ launches, but with `gpg-agent` you only have to enter your passphrase
 periodically; it will keep it cached for a given period.
 
 Note to windows users: Be sure to download the full version of 
-[Gpg4win](http://gpg4win.org/download.html) and
+[Gpg4win](https://gpg4win.org/download.html) and
 select GPA for installation. You then need to run 
 `gpg-connect-agent /bye` from the command line before starting lein.
 
@@ -199,7 +199,7 @@ You can control which environment variable is looked up for each value
 by using a namespaced keyword, like so:
 
 ```clj
-:repositories [["releases" {:url "http://blueant.com/archiva/internal"
+:repositories [["releases" {:url "https://blueant.com/archiva/internal"
                             :username :env/archiva_username
                             :password :env/archiva_password}]]
 ```
@@ -208,7 +208,7 @@ Finally, you can opt to load credentials from the environment _or_ GPG credentia
 by using a vector of `:gpg` and `:env/*` values to define the priority of each:
 
 ```clj
-:repositories [["releases" {:url "http://blueant.com/archiva/internal"
+:repositories [["releases" {:url "https://blueant.com/archiva/internal"
                             :username [:gpg :env/archiva_username]
                             :password [:gpg :env/archiva_password]}]]
 ```
@@ -334,7 +334,7 @@ for example: `["vcs" "tag" "v" "--no-sign"]` or `["vcs" "tag" "--no-sign"]`.
 ## Deploying to Maven Central
 
 Deploying your libraries and other artifacts to [Maven
-Central](http://search.maven.org/) is often desirable.  Most tools that
+Central](https://search.maven.org/) is often desirable.  Most tools that
 use the Maven repository format (including Leiningen, Gradle, sbt, and
 Maven itself) include Maven Central or one of its mirrors as a default
 repository for resolving project dependencies.  So deploying your

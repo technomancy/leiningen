@@ -114,8 +114,8 @@ generated project will contain a file named `README.md` where the header is
 `liquid-cool-app`.
 
 [stencil]: https://github.com/davidsantiago/stencil
-[Mustache]: http://mustache.github.io/
-[mustache-manual]: http://mustache.github.io/mustache.5.html
+[Mustache]: https://mustache.github.io/
+[mustache-manual]: https://mustache.github.io/mustache.5.html
 
 #### A warning about Mustache tag delimiters
 Clojure syntax can conflict with the default mustache tag delimiter. For 

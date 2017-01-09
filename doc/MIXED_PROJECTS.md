@@ -79,7 +79,7 @@ sources use features up to JDK 6 and target JVM is also version 6:
   :javac-options     ["-target" "1.6" "-source" "1.6"])
 ```
 
-Leiningen 2 and later versions uses the [JDK compiler API](http://docs.oracle.com/javase/7/docs/technotes/guides/javac/index.html) to compile Java sources.
+Leiningen 2 and later versions uses the [JDK compiler API](https://docs.oracle.com/javase/7/docs/technotes/guides/javac/index.html) to compile Java sources.
 
 Failing to specify the target version will lead JDK compiler to target whatever JDK
 Leiningen is running on. It is a good practice to explicitly specify target JVM
@@ -93,7 +93,7 @@ reference Java sources may also provide Clojure code for the generated
 sources to use.
 
 Any Clojure code referenced by Java sources must be
-[AOT compiled](http://clojure.org/compilation) to make it available to
+[AOT compiled](https://clojure.org/compilation) to make it available to
 the Java compiler. Similarly, the Java classes produced by `javac`
 must be available for Clojure code that depends on it. This results
 in steps of `compile` `javac` `compile`, whereas the default task
