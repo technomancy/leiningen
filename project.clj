@@ -11,7 +11,7 @@
                  [commons-io "2.5"]
                  [bultitude "0.2.8"]
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
-                 [org.apache.maven.indexer/indexer-core "4.1.3"
+                 [org.apache.maven.indexer/indexer-core "5.1.1"
                   :exclusions [org.apache.maven/maven-model
                                org.sonatype.aether/aether-api
                                org.sonatype.aether/aether-util
