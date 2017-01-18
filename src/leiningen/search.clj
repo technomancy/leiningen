@@ -36,6 +36,14 @@
   (let [project (or project (project/make {}))
         repos (into {} (:repositories project))]
     (when (repos "central")
-      (search-central query))
+      (try (search-central query)
+           (catch clojure.lang.ExceptionInfo e
+             (if (= 400 (:status (ex-data e)))
+               (println "Query syntax unsupported by Central.")
+               (throw e)))))
     (when (repos "clojars")
-      (search-clojars query))))
+      (try (search-clojars query)
+           (catch clojure.lang.ExceptionInfo e
+             (if (= 400 (:status (ex-data e)))
+               (println "Query syntax unsupported by Clojars.")
+               (throw e)))))))
