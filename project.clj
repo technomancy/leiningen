@@ -11,12 +11,6 @@
                  [commons-io "2.5"]
                  [bultitude "0.2.8"]
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
-                 [org.apache.maven.indexer/indexer-core "4.1.3"
-                  :exclusions [org.apache.maven/maven-model
-                               org.sonatype.aether/aether-api
-                               org.sonatype.aether/aether-util
-                               org.sonatype.sisu/sisu-inject-plexus
-                               jakarta-regexp]]
                  [reply "0.3.7" :exclusions [ring/ring-core
                                              org.thnetos/cd-client]]
                  [org.clojure/tools.nrepl "0.2.12"]
@@ -39,7 +33,6 @@
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
   :source-paths ["leiningen-core/src" "src"]
-  :aot [leiningen.search]
   ;; work around Clojure bug http://dev.clojure.org/jira/browse/CLJ-1034
   :uberjar-exclusions [#"^data_readers.clj$"]
   :eval-in :leiningen)
