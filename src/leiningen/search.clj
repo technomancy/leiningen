@@ -31,17 +31,7 @@
           (println " " (string/trim (first (string/split desc #"\n")))))))))
 
 (defn ^:no-project-needed search
-  "Search Maven Central and Clojars for published artifacts.
-
-The query is evaluated as a lucene search. You can search for simple string
-matches or do more advanced queries such as this:
-
-  $ lein search clojure
-  $ lein search description:crawl
-  $ lein search group:clojurewerkz
-  $ lein search \"id:clojure version:1.6\"
-  $ lein search \"Riak client\"
-"
+  "Search Maven Central and Clojars for published artifacts."
   [project query]
   (let [project (or project (project/make {}))
         repos (into {} (:repositories project))]
