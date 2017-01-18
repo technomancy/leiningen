@@ -1,16 +1,12 @@
 (ns leiningen.search
-  "Search remote maven repositories for matching jars."
-  (:require [clojure.java.io :as io]
-            [clojure.string :as string]
-            [leiningen.core.user :as user]
-            [leiningen.core.main :as main]
+  "Search Central and Clojars for published artifacts."
+  (:require [clojure.string :as string]
             [leiningen.core.project :as project]
             [clj-http.client :as http]
             [cheshire.core :as json]))
 
 (defn search-central [query]
-  (println "Searching Central...")
-  (let [url (str "http://search.maven.org/solrsearch/select?wt=json&q=" query)]
+  (let [url (str "https://search.maven.org/solrsearch/select?wt=json&q=" query)]
     (doseq [result (get-in (json/decode (:body (http/get url)))
                            ["response" "docs"])]
       (let [dep (if (= (result "a") (result "g"))
@@ -19,7 +15,6 @@
         (println (format "[%s \"%s\"]" dep (result "latestVersion")))))))
 
 (defn search-clojars [query]
-  (println "Searching Clojars...")
   (let [url (str "https://clojars.org/search?format=json&q=" query)]
     (doseq [result (get (json/decode (:body (http/get url))) "results")]
       (let [dep (if (= (result "jar_name") (result "group_name"))
@@ -31,19 +26,18 @@
           (println " " (string/trim (first (string/split desc #"\n")))))))))
 
 (defn ^:no-project-needed search
-  "Search Maven Central and Clojars for published artifacts."
+  "Search Central and Clojars for published artifacts."
   [project query]
   (let [project (or project (project/make {}))
         repos (into {} (:repositories project))]
-    (when (repos "central")
-      (try (search-central query)
-           (catch clojure.lang.ExceptionInfo e
-             (if (= 400 (:status (ex-data e)))
-               (println "Query syntax unsupported by Central.")
-               (throw e)))))
-    (when (repos "clojars")
-      (try (search-clojars query)
-           (catch clojure.lang.ExceptionInfo e
-             (if (= 400 (:status (ex-data e)))
-               (println "Query syntax unsupported by Clojars.")
-               (throw e)))))))
+    (doseq [[repo searcher] [["central" search-central]
+                             ["clojars" search-clojars]]]
+      (when (repos repo)
+        (try (println "Searching" repo "...")
+             (searcher query)
+             (catch clojure.lang.ExceptionInfo e
+               (when-not (re-find #"clj-http" (.getMessage e))
+                 (throw e))
+               (if (= 400 (:status (ex-data e)))
+                 (println "Query syntax unsupported.")
+                 (println "Remote error" (.getMessage e)))))))))
