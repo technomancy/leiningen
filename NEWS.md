@@ -2,6 +2,7 @@
 
 ## 2.7.2 / ???
 
+* The `search` task no longer downloads indices but hits live search APIs. (Phil Hagelberg)
 * Remove duplicate exclusions in `lein deps` (Emlyn Corrin)
 * Leiningen is now installable again via chocolatey (Florian Anderiasch)
 
