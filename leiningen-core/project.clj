@@ -11,7 +11,9 @@
                  [org.tcrawley/dynapath "0.2.5"]
                  [org.apache.maven.wagon/wagon-http "2.10"]
                  [com.hypirion/io "0.3.1"]
-                 [pedantic "0.2.0"]]
+                 [pedantic "0.2.0"]
+                 ;; we pull this in transitively but want a newer version
+                 [org.clojure/tools.macro "0.1.5"]]
   :scm {:dir ".."}
   :dev-resources-path "dev-resources"
   :aliases {"bootstrap" ["with-profile" "base"
