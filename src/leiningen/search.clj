@@ -16,7 +16,7 @@
       (let [dep (if (= (result "a") (result "g"))
                   (result "a")
                   (str (result "g") "/" (result "a")))]
-        (println (format "[%s %s]" dep (result "latestVersion")))))))
+        (println (format "[%s \"%s\"]" dep (result "latestVersion")))))))
 
 (defn search-clojars [query]
   (println "Searching Clojars...")
@@ -25,7 +25,7 @@
       (let [dep (if (= (result "jar_name") (result "group_name"))
                   (result "jar_name")
                   (str (result "group_name") "/" (result "jar_name")))]
-        (println (format "[%s %s]" dep (result "version")))
+        (println (format "[%s \"%s\"]" dep (result "version")))
         (when-let [desc (and (not= (string/trim (result "description" "")) "")
                              (result "description"))]
           (println " " (string/trim (first (string/split desc #"\n")))))))))
