@@ -16,6 +16,7 @@
                  [org.clojure/tools.nrepl "0.2.12"]
                  [clojure-complete "0.2.4"]
                  ;; bump versions of various common transitive deps
+                 [scout "0.1.1"]
                  [slingshot "0.12.2"]
                  [cheshire "5.6.3"]
                  [clj-http "2.0.1"]

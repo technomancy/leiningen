@@ -5,7 +5,7 @@
   :description "Library for core functionality of Leiningen."
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [bultitude "0.2.8" :exclusions [org.tcrawley/dynapath]]
-                 [classlojure "0.6.6"]
+                 [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.3.1" :exclusions [org.tcrawley/dynapath]]
                  [org.tcrawley/dynapath "0.2.5"]
