@@ -11,7 +11,7 @@ dependency across a large number of projects without having to be mindful
 of every common dependency version across all of your libraries.
 
 When using `:pedantic? :abort` in your projects, to ensure that you are producing
-a consistend and predictable build, it can be very cumbersome to play the 
+a consistent and predictable build, it can be very cumbersome to play the 
 "dependency version whack-a-mole" game that arises whenever an upstream library 
 bumps a version of one of its dependencies.  `:managed-dependencies` can help 
 alleviate this issue by allowing you to keep the dependency version numbers 
