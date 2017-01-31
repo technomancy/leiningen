@@ -9,9 +9,10 @@
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "0.3.1" :exclusions [org.tcrawley/dynapath]]
                  [org.tcrawley/dynapath "0.2.5"]
-                 [org.apache.maven.wagon/wagon-http "2.10"]
+                 [org.apache.maven.wagon/wagon-http "2.12"]
                  [com.hypirion/io "0.3.1"]
                  [pedantic "0.2.0"]
+                 [org.slf4j/slf4j-nop "1.7.22"] ;; wagon-http started to use slf4j
                  ;; we pull this in transitively but want a newer version
                  [org.clojure/tools.macro "0.1.5"]]
   :scm {:dir ".."}

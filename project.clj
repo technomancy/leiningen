@@ -9,6 +9,7 @@
   :dependencies [[leiningen-core "2.7.2-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.8"]
                  [commons-io "2.5"]
+                 [commons-lang "2.6"]
                  [bultitude "0.2.8"]
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
                  [reply "0.3.7" :exclusions [ring/ring-core
