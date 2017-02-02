@@ -9,7 +9,8 @@
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.utils :as utils]
             [leiningen.core.user :as user]
-            [leiningen.core.classpath :as classpath])
+            [leiningen.core.classpath :as classpath]
+            [clojure.string :as str])
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader Reader)))
 
@@ -48,10 +49,22 @@
   [profile]
   (vector? profile))
 
+(defn group-id
+  [id]
+  (if (string? id)
+    (first (str/split id #"/"))
+    (or (namespace id) (name id))))
+
+(defn artifact-id
+  [id]
+  (if (string? id)
+    (last (str/split id #"/"))
+    (name id)))
+
 (defn artifact-map
   [id]
-  {:artifact-id (name id)
-   :group-id (or (namespace id) (name id))})
+  {:artifact-id (artifact-id id)
+   :group-id (group-id id)})
 
 (defn exclusion-map
   "Transform an exclusion vector into a map that is easier to combine with

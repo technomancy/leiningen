@@ -218,3 +218,19 @@ property.
 
 **Q:** `lein`/`lein.bat` won't download `leiningen-x.y.z-SNAPSHOT.jar`  
 **A:** You probably downloaded `lein`/`lein.bat` from the [master branch](https://github.com/technomancy/leiningen/tree/master/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)
+
+**Q:** I have a dependency whose group ID and/or artifact ID starts with a
+  number (which is invalid for symbols in Clojure). How can I add it to my
+  project's dependencies?  
+**A:** As of version 2.7.2, Leiningen supports string dependency names like
+  this:
+
+```clj
+:dependencies [["net.3scale/3scale-api" "3.0.2"]]
+```
+
+Prior to version 2.7.2, this is the workaround:
+
+```clj
+:dependencies [[~(symbol "net.3scale" "3scale-api") "3.0.2"]]
+```
