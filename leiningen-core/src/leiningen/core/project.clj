@@ -49,13 +49,13 @@
   [profile]
   (vector? profile))
 
-(defn artifact-namespace
+(defn group-id
   [id]
   (if (string? id)
     (first (str/split id #"/"))
     (or (namespace id) (name id))))
 
-(defn artifact-name
+(defn artifact-id
   [id]
   (if (string? id)
     (last (str/split id #"/"))
@@ -63,8 +63,8 @@
 
 (defn artifact-map
   [id]
-  {:artifact-id (artifact-name id)
-   :group-id (artifact-namespace id)})
+  {:artifact-id (artifact-id id)
+   :group-id (group-id id)})
 
 (defn exclusion-map
   "Transform an exclusion vector into a map that is easier to combine with
