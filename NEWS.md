@@ -5,6 +5,7 @@
 * The `search` task no longer downloads indices but hits live search APIs. (Phil Hagelberg)
 * Remove duplicate exclusions in `lein deps` (Emlyn Corrin)
 * Leiningen is now installable again via chocolatey (Florian Anderiasch)
+* Dependency names can be specified as strings in addition to symbols (Wes Morgan)
 
 ## 2.7.1 / 2016-09-22
 
