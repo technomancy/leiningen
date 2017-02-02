@@ -6,7 +6,9 @@
                  [clucy "0.2.2" :exclusions [org.clojure/clojure]]
                  [lancet "1.0.1"]
                  [robert/hooke "1.1.2"]
-                 [stencil "0.2.0"]]
+                 [stencil "0.2.0"]
+                 ["net.3scale/3scale-api" "3.0.2"]
+                 ["clj-http" "3.4.1"]]
   :twelve ~(+ 6 2 4)
   :disable-implicit-clean true
   :eval-in-leiningen true)
