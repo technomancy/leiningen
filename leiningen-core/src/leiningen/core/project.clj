@@ -467,11 +467,24 @@
   (.toString (BigInteger. 1 (-> (java.security.MessageDigest/getInstance "SHA1")
                                 (.digest (.getBytes content)))) 16))
 
+(defn- keyword-composite-profile? [profile]
+  (and (composite-profile? profile) (every? keyword? profile)))
+
+(defn- normalize-profile-names [project profiles]
+  (reduce
+   (fn [profiles [composite keys]]
+     (if (set/subset? (set keys) (set profiles))
+       (->> profiles (remove (set keys)) (cons composite))
+       profiles))
+   profiles
+   (filter (comp keyword-composite-profile? val)
+           (-> project meta :profiles))))
+
 (defn profile-scope-target-path [project profiles]
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
     (if (:target-path project)
       (update-in project [:target-path] format
-                 (s/join "+" (map n (remove #{:default :provided} profiles))))
+                 (s/join "+" (map n (normalize-profile-names project profiles))))
       project)))
 
 (defn target-path-subdirs [{:keys [target-path] :as project} key]
