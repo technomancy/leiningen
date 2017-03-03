@@ -470,15 +470,26 @@
 (defn- keyword-composite-profile? [profile]
   (and (composite-profile? profile) (every? keyword? profile)))
 
+(defn- keyword-composite-profiles [project]
+  (filter (comp keyword-composite-profile? val)
+          (-> project meta :profiles)))
+
+(defn- longest-matching-composite [profiles composites]
+  (->> composites
+       (sort-by count)
+       (reverse)
+       (filter (fn [[_ v]] (= v (take (count v) profiles))))
+       (first)))
+
 (defn- normalize-profile-names [project profiles]
-  (reduce
-   (fn [profiles [composite keys]]
-     (if (set/subset? (set keys) (set profiles))
-       (->> profiles (remove (set keys)) (cons composite))
-       profiles))
-   profiles
-   (filter (comp keyword-composite-profile? val)
-           (-> project meta :profiles))))
+  (let [composites (keyword-composite-profiles project)]
+    (loop [profiles   profiles
+           normalized ()]
+      (if (seq profiles)
+        (if-let [[k v] (longest-matching-composite profiles composites)]
+          (recur (drop (count v) profiles) (cons k normalized))
+          (recur (rest profiles) (cons (first profiles) normalized)))
+        (reverse normalized)))))
 
 (defn profile-scope-target-path [project profiles]
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]

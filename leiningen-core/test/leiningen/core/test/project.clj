@@ -594,11 +594,19 @@
 (deftest test-profile-scope-target-path
   (let [project (with-meta
                   {:target-path "target/%s"}
-                  {:profiles {:ab [:a :b] :a {} :b {} :c {} :d {}}})]
+                  {:profiles {:ab  [:a :b]
+                              :abc [:a :b :c]
+                              :a   {}
+                              :b   {}
+                              :c   {}
+                              :d   {}}})]
     (are [ps tp] (= (profile-scope-target-path project ps) {:target-path tp})
-      [:a :b]    "target/ab"
-      [:a :b :c] "target/ab+c"
-      [:b :c]    "target/b+c"
-      [:b :a]    "target/ab"
-      [:c :b :a] "target/ab+c"
-      [:a]       "target/a")))
+      [:a :b]       "target/ab"
+      [:a :b :c]    "target/abc"
+      [:b :c]       "target/b+c"
+      [:b :a]       "target/b+a"
+      [:c :b :a]    "target/c+b+a"
+      [:c :a :b]    "target/c+ab"
+      [:a :b :c :d] "target/abc+d"
+      [:c :a :b :d] "target/c+ab+d"
+      [:a]          "target/a")))
