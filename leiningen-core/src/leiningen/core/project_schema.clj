@@ -254,7 +254,7 @@ Example:
                          [me.raynes/fs \"1.4.6\"]]")
 
 
-(def-key ::pedantic? #{true false :ranges :abort}
+(def-key ::pedantic? #{true false :ranges :abort :warn}
 "What to do in the case of version issues. Defaults to :ranges, which
 warns when version ranges are present anywhere in the dependency tree,
 but can be set to true to warn for both ranges and overrides, or :abort
