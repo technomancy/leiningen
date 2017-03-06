@@ -31,6 +31,7 @@
     ::url
     ::name
     ::mailing-list
+    ::mailing-lists
     ::license
     ::licenses
     ::min-lein-version
@@ -122,8 +123,10 @@ Example:
                                   \"http://example.org/sample-list-archive3\"]
                  :post \"list@example.org\"
                  :subscribe \"list-subscribe@example.org\"
-                 :unsubscribe \"list-unsubscribe@example.org\"}"
-  )
+                 :unsubscribe \"list-unsubscribe@example.org\"}")
+
+(def-key ::mailing-lists
+  (s/+ ::mailing-list))
 
 (def-key ::archive non-blank-string?)
 (def-key ::other-archives (s/every non-blank-string? :min-count 1))
