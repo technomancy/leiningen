@@ -199,10 +199,10 @@ Example:
 (s/def ::dependency-item
   (s/or
    :short-managed
-   (s/cat :lib-name symbol?
+   (s/cat :lib-name (s/or :symbol symbol? :string string?)
           :dependency-item-args ::dependency-item-args)
    :long
-   (s/cat :lib-name symbol?
+   (s/cat :lib-name (s/or :symbol symbol? :string string?)
           :version-str (some-fn nil? non-blank-string?)
           :dependency-item-args ::dependency-item-args)))
 
