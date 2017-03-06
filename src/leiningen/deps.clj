@@ -67,6 +67,7 @@
   "A mapping from the tree-command to the dependency key it should print a tree
   for."
   {":tree" [:dependencies :managed-dependencies]
+   ":tree-data" [:dependencies :managed-dependencies]
    ":plugin-tree" [:plugins nil]})
 
 
@@ -123,7 +124,9 @@ force them to be updated, use `lein -U $TASK`."
                               dependencies-key
                               managed-dependencies-key
                               project)]
-               (walk-deps hierarchy print-dep))
+               (case command
+                 ":tree" (walk-deps hierarchy print-dep)
+                 ":tree-data" (println hierarchy)))
              (= command ":verify")
              (if (user/gpg-available?)
                (walk-deps (classpath/managed-dependency-hierarchy
