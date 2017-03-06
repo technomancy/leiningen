@@ -4,7 +4,6 @@
   (:require [clojure.walk :as walk]
             [clojure.java.io :as io]
             [clojure.set :as set]
-            [clojure.string :as s]
             [cemerick.pomegranate :as pomegranate]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.utils :as utils]
@@ -471,7 +470,7 @@
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
     (if (:target-path project)
       (update-in project [:target-path] format
-                 (s/join "+" (map n (remove #{:default :provided} profiles))))
+                 (str/join "+" (map n (remove #{:default :provided} profiles))))
       project)))
 
 (defn target-path-subdirs [{:keys [target-path] :as project} key]
