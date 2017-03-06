@@ -88,8 +88,8 @@
     ::uberjar-exclusions
     ::auto-clean
     ::uberjar-merge-with
-    
-    
+
+
     ::scm
 
     ::validate]))
@@ -143,7 +143,7 @@ Example:
 artifacts. A seq of :licenses is also supported.
 
 Example:
-  
+
   :license {:name \"Eclipse Public License - v 1.0\"
             :url \"http://www.eclipse.org/legal/epl-v10.html\"
             :distribution :repo
@@ -163,7 +163,7 @@ Example:
 
   :min-lein-version \"2.0.0\""  )
 
-(def-key ::optional boolean?) 
+(def-key ::optional boolean?)
 
 (def-key ::scope         ::name-like)
 ;; ??? what values ???
@@ -340,7 +340,8 @@ Example:
     ::update
     :lein.validate.repositories.info/releases
     :lein.validate.repositories.info/username
-    :lein.validate.repositories.info/password]))
+    :lein.validate.repositories.info/password
+    ::creds]))
 
 (def-key :lein.validate.repositories.info/url non-blank-string?)
 
@@ -386,6 +387,8 @@ Example:
   "Using :env as a value here will cause an
 environment variable to be used based on
 the key; in this case LEIN_PASSWORD.")
+
+(def-key ::creds #{:gpg})
 
 
 (def-key ::plugin-repositories
@@ -537,7 +540,7 @@ Example:
   "Load these namespaces from within Leiningen to pick up hooks from them.
 
 Example:
-  
+
   :hooks [leiningen.hooks.difftest]")
 
 (def-key ::middleware (s/every symbol? :min-count 1)
@@ -610,8 +613,8 @@ example, \"lein with-magic run -m hi.core\" would be equivalent to
 considered to be special by argument parsers, they're just part
 of the preceding argument.
 
-Example: 
-  
+Example:
+
   :aliases {\"launch\" [\"run\" \"-m\" \"myproject.main\"]
             ;; Values from the project map can be spliced into the arguments
             ;; using :project/key keywords.
@@ -666,7 +669,7 @@ Example:
 
 (def-key ::aot (s/or :all #{:all}
                      :seq (s/every (some-fn symbol? regex? )
-                                   :min-count 1)) 
+                                   :min-count 1))
 "These namespaces will be AOT-compiled. Needed for gen-class and
 other Java interop functionality. Put a regex here to compile all
 namespaces whose names match. If you only need AOT for an uberjar
@@ -685,7 +688,7 @@ Allows working around the Gilardi Scenario: http://technomancy.us/143
 Note: This code is not executed in jars or uberjars.
 
 Example:
-   
+
   :injections [(require 'clojure.pprint)]")
 
 (def-key ::java-agents
@@ -704,7 +707,7 @@ Example:
 (def-key ::javac-options (s/every non-blank-string? :min-count 1)
   "Options to pass to java compiler for java source,
 exactly the same as command line arguments to javac.
- 
+
 Example:
 
   :javac-options [\"-target\" \"1.6\" \"-source\" \"1.6\" \"-Xlint:-options\"]")
@@ -768,7 +771,7 @@ Example:
   "The source paths to your source files, these will be added to the classpath.
 
 Example:
-  
+
   :source-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::java-source-paths (s/every string? :min-count 1)
@@ -776,21 +779,21 @@ Example:
 Java source is stored seperately.
 
 Example:
-  
+
   :java-source-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::test-paths (s/every string? :min-count 1)
   "The source paths to your test source files, these will be added to the classpath.
 
 Example:
-  
+
   :test-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::resource-paths (s/every string? :min-count 1)
   "The source paths to your test source files, these will be added to the classpath.
 
 Example:
-  
+
   :resource-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::target-path non-blank-string?
@@ -859,8 +862,8 @@ functions that take the target project as argument. Defaults to
 [:source-paths :compile-path :resource-paths], but you could use
 the following to share code from the test suite:
 
-Example: 
-  
+Example:
+
   :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) \"/lib/dev/*\"))]")
 
@@ -1093,7 +1096,7 @@ Example:
   "Files to merge programmatically in uberjars when multiple same-named files
 exist across project and dependencies.  Should be a map of filename strings
 or regular expressions to a sequence of three functions:
- 
+
  1. Takes an input stream; returns a parsed datum.
  2. Takes a new datum and the current result datum; returns a merged datum.
  3. Takes an output stream and a datum; writes the datum to the stream.
