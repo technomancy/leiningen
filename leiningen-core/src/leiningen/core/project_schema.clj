@@ -340,8 +340,7 @@ Example:
     ::update
     :lein.validate.repositories.info/releases
     :lein.validate.repositories.info/username
-    :lein.validate.repositories.info/password
-    ::creds]))
+    :lein.validate.repositories.info/password]))
 
 (def-key :lein.validate.repositories.info/url non-blank-string?)
 
@@ -381,14 +380,21 @@ Example:
 
 (def-key :lein.validate.repositories.info/releases ::repository-data-map)
 
-(def-key :lein.validate.repositories.info/username non-blank-string?)
+(def-key :lein.validate.repositories.info/credential-store
+  (s/or :string-literal non-blank-string?
+        :GPG-store #{:gpg}
+        :environment-variable #{:env}
+        :user-named-environment-variable keyword?)
+  "As defined in https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md#authentication
+:username and :password can be specified either as a string literal,
+stored in GPG or in environment variables.")
 
-(def-key :lein.validate.repositories.info/password (some-fn non-blank-string? #{:env})
-  "Using :env as a value here will cause an
-environment variable to be used based on
-the key; in this case LEIN_PASSWORD.")
+(def-key :lein.validate.repositories.info/username :lein.validate.repositories.info/credential-store)
 
-(def-key ::creds #{:gpg})
+(def-key :lein.validate.repositories.info/password :lein.validate.repositories.info/credential-store
+  "Using :env as a value here will cause an environment variable to be
+used based on the key; in this case LEIN_PASSWORD.")
+
 
 
 (def-key ::plugin-repositories
@@ -596,7 +602,7 @@ with manifest.mf that lacks `Main-Class' property.")
 (def-key ::aliases
   (s/map-of
    non-blank-string?
-   (s/or :comand
+   (s/or :command
          (s/every
           ::command-element
           :min-count 1)
