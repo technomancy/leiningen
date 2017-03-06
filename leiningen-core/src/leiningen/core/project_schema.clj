@@ -773,8 +773,8 @@ Example:
 
   :bootclasspath true")
 
-(def-key ::source-paths (s/every string? :min-count 1)
-  "The source paths to your source files, these will be added to the classpath.
+(def-key ::source-paths (s/every string? :min-count 0)
+  "The source paths to your clojure source files, these will be added to the classpath.
 
 Example:
 
