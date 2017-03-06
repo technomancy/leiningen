@@ -2,6 +2,7 @@
   "Download all dependencies."
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
+            [clojure.pprint :as pprint]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
