@@ -603,8 +603,11 @@ with manifest.mf that lacks `Main-Class' property.")
 (def-key ::aliases
   (s/map-of
    non-blank-string?
-   (s/+ (s/alt :command-element ::command-element
-               :sub-vector (s/every ::command-element :min-count 1))))
+   (s/or :string
+         non-blank-string?
+         :sequence
+         (s/+ (s/alt :command-element ::command-element
+                     :sub-vector (s/every ::command-element :min-count 1)))))
   "Support project-specific task aliases. These are interpreted in
 the same way as command-line arguments to the lein command. If
 the alias points to a vector, it uses partial application. For
