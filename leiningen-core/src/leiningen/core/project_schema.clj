@@ -747,7 +747,7 @@ Example:
 
   :java-cmd \"/home/phil/bin/java1.7\"")
 
-(def-key ::jvm-opts (s/every non-blank-string? :min-count 1)
+(def-key ::jvm-opts (s/every non-blank-string? :min-count 0)
 "You can set JVM-level options here. The :java-opts key is an alias for this.
 
 Example:
