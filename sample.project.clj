@@ -42,6 +42,8 @@
   ;; to specify a prefix. This prefix is used to extract natives in
   ;; jars that don't adhere to the default "<os>/<arch>/" layout that
   ;; Leiningen expects.
+  ;; You can also strings like ["group-id/name" version] for instances
+  ;; where the dependency name isn't a valid symbol literal.
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [org.jclouds/jclouds "1.0" :classifier "jdk15"]
                  [net.sf.ehcache/ehcache "2.3.1" :extension "pom"]
@@ -49,6 +51,7 @@
                                               [javax.jms/jms :classifier "*"]
                                               com.sun.jdmk/jmxtools
                                               com.sun.jmx/jmxri]]
+                 ["net.3scale/3scale-api" "3.0.2"]
                  [org.lwjgl.lwjgl/lwjgl "2.8.5"]
                  [org.lwjgl.lwjgl/lwjgl-platform "2.8.5"
                   :classifier "natives-osx"

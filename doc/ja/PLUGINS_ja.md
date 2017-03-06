@@ -67,7 +67,7 @@ Leiningenのタスクはleiningen.$TASK名前空間にある$TASKという名前
 
 ### プロジェクトコンテクスト内での評価
 
-タスクの多くはプロジェクトのコンテクスト内でコードを実行する必要があります。`leiningen.core.eval/eval-in-project`関数はこの目的で使用されます。この関数はプロジェクト引数、評価するフォーム、そして最後にオプションとして、メインフォームの前に評価される、初期化用のフォームをとることができます。この最後のフォームは[ジラルディシナリオ](http://technomancy.us/143)を防ぐために、名前空間を事前にrequireするために用いることができます。
+タスクの多くはプロジェクトのコンテクスト内でコードを実行する必要があります。`leiningen.core.eval/eval-in-project`関数はこの目的で使用されます。この関数はプロジェクト引数、評価するフォーム、そして最後にオプションとして、メインフォームの前に評価される、初期化用のフォームをとることができます。この最後のフォームは[ジラルディシナリオ](https://technomancy.us/143)を防ぐために、名前空間を事前にrequireするために用いることができます。
 
 `eval-in-project`関数内ではプロジェクトのクラスパスが有効になっており、Leiningen自体の内部関数とプラグインは無効化されています。
 
@@ -212,7 +212,7 @@ Leiningenの以前のバージョンはプラグインの動き方に違いが�
 
 バージョン1.xと2.xの最も大きな違いは`:dev-dependencies`がなくなったことです。Leiningenのプロセスとプロジェクトのプロセスの両方に存在する依存関係はもはや存在しません。Leiningenは`:plugins`だけを参照し、プロジェクトは`:dependencies`だけを参照します。ただしこれらのマップは現在有効化されているプロファイルによって影響を受ける場合があります。
 
-もしあなたのプロジェクトが`eval-in-project`を使用する必要が全くないのであれば、移植は比較的容易です。移動したLeiningen関数への参照を更新するだけで十分です。`leiningen.util.*`名前空間内の関数は全てなくなり、`leiningen.core`は`leiningen.core.main`に移動しました。詳細については[leiningen-coreのドキュメント](http://technomancy.github.com/leiningen/)を参考にしてください。
+もしあなたのプロジェクトが`eval-in-project`を使用する必要が全くないのであれば、移植は比較的容易です。移動したLeiningen関数への参照を更新するだけで十分です。`leiningen.util.*`名前空間内の関数は全てなくなり、`leiningen.core`は`leiningen.core.main`に移動しました。
 
 `eval-in-project`を使用しているプラグインについては、プラグインの依存関係とソースコードがプロジェクト内では利用可能ではなくなるということに気をつけてください。もしあなたのプラグインが、プラグインとプロジェクトの両方のコンテクストで実行する必要のあるコードを含んでいる場合は、複数のプロジェクトに分割し、それぞれを`:plugins`と`:dependencies`に登録する必要があります。`eval-in-project`の呼び出しで`:dependencies`を挿入する方法については上記の`lein-swank`の例を参照してください。
 
@@ -285,7 +285,7 @@ Leiningenタスクを記述する必要があるのは、例えば`eval-in-proje
 
 この例ではプロジェクトマップの`:version`フィールドを引数リストに渡すことで、プロジェクト内で実行される`-main`関数が値にアクセスできるようにしています。
 
-こういった例の多くは[既存のプラグイン](http://wiki.github.com/technomancy/leiningen/plugins)でカバーされているはずですが、もし類似の例が見つからず、何らかの理由で別のブラグインに分離できない場合、`tasks/leiningen/`の下に新しいタスクを定義した`foo.clj`ファイルを作成し、`tasks`を`.lein-classpath`に追加することでこのふるまいを実現することができます。
+こういった例の多くは[既存のプラグイン](https://github.com/technomancy/leiningen/wiki/plugins)でカバーされているはずですが、もし類似の例が見つからず、何らかの理由で別のブラグインに分離できない場合、`tasks/leiningen/`の下に新しいタスクを定義した`foo.clj`ファイルを作成し、`tasks`を`.lein-classpath`に追加することでこのふるまいを実現することができます。
 
 ```
 $ ls
@@ -304,7 +304,7 @@ Hello, Foo!
 
 ## 楽しんでください
 
-あなたのプラグインができあがったら、[Wiki上のリスト](http://wiki.github.com/technomancy/leiningen/plugins)に追加してください。
+あなたのプラグインができあがったら、[Wiki上のリスト](https://github.com/technomancy/leiningen/wiki/plugins)に追加してください。
 
 このプラグインシステムが、あなたの思いのままにLeiningenをカスタマイズするための簡単で、柔軟なシステムを提供していることを願っています。
 
