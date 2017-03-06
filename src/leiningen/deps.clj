@@ -85,58 +85,64 @@
 
     lein deps :tree
 
-Show the full dependency tree for the current project. Each dependency is only
-shown once within a tree.
+  Show the full dependency tree for the current project. Each dependency is only
+  shown once within a tree.
+
+    lein deps :tree-data
+
+  Show the full dependency tree as EDN for the current project. Each dependency 
+  is only shown once within a tree.
 
     lein deps :plugin-tree
 
-Show the full dependency tree for the plugins in the current project.
+  Show the full dependency tree for the plugins in the current project.
 
     lein deps :verify
 
-Check signatures of each dependency. ALPHA: subject to change.
+  Check signatures of each dependency. ALPHA: subject to change.
 
     lein deps :implicits
 
-List the implicit middleware and hooks that will be activated by the current
-set of plugins. Useful for debugging unexplained behaviour.
+  List the implicit middleware and hooks that will be activated by the current
+  set of plugins. Useful for debugging unexplained behaviour.
 
     lein deps
 
-Force Leiningen to download the dependencies it needs. This usage is
-deprecated as it should happen automatically on demand.
+  Force Leiningen to download the dependencies it needs. This usage is
+  deprecated as it should happen automatically on demand.
 
-Normally snapshot dependencies will be checked once every 24 hours; to
-force them to be updated, use `lein -U $TASK`."
+  Normally snapshot dependencies will be checked once every 24 hours; to
+  force them to be updated, use `lein -U $TASK`."
   ([project]
-     (deps project nil))
+   (deps project nil))
   ([project command]
-     (try
-       (cond (= ":implicits" command)
-             (do (print-implicits project :middleware)
-                 (print-implicits project :hooks))
-             (tree-command command)
-             (let [project (project/merge-profiles
-                            project
-                            [{:pedantic? (quote ^:displace warn)}])
-                   [dependencies-key managed-dependencies-key] (tree-command command)
-                   hierarchy (classpath/managed-dependency-hierarchy
-                              dependencies-key
-                              managed-dependencies-key
-                              project)]
-               (case command
-                 ":tree" (walk-deps hierarchy print-dep)
-                 ":tree-data" (println hierarchy)))
-             (= command ":verify")
-             (if (user/gpg-available?)
-               (walk-deps (classpath/managed-dependency-hierarchy
-                           :dependencies
-                           :managed-dependencies
-                           project)
-                          (partial verify project))
-               (main/abort (str "Could not verify - gpg not available.\n"
-                                "See `lein help gpg` for how to setup gpg.")))
-             :else (classpath/resolve-managed-dependencies
-                    :dependencies :managed-dependencies project))
-       (catch DependencyResolutionException e
-         (main/abort (.getMessage e))))))
+   (try
+     (cond (= ":implicits" command)
+           (do (print-implicits project :middleware)
+               (print-implicits project :hooks))
+           (tree-command command)
+           (let [project (project/merge-profiles
+                          project
+                          [{:pedantic? (quote ^:displace warn)}])
+                 [dependencies-key managed-dependencies-key] (tree-command command)
+                 hierarchy (classpath/managed-dependency-hierarchy
+                            dependencies-key
+                            managed-dependencies-key
+                            project)]
+             (case command
+               ":tree" (walk-deps hierarchy print-dep)
+               ":tree-data"  (binding [*print-length* 10000 *print-level* 10000]
+                               (pprint/pprint hierarchy))))
+           (= command ":verify")
+           (if (user/gpg-available?)
+             (walk-deps (classpath/managed-dependency-hierarchy
+                         :dependencies
+                         :managed-dependencies
+                         project)
+                        (partial verify project))
+             (main/abort (str "Could not verify - gpg not available.\n"
+                              "See `lein help gpg` for how to setup gpg.")))
+           :else (classpath/resolve-managed-dependencies
+                  :dependencies :managed-dependencies project))
+     (catch DependencyResolutionException e
+       (main/abort (.getMessage e))))))
