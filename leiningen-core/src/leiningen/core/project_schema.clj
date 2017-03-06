@@ -132,7 +132,7 @@ Example:
 (def-key ::unsubscribe non-blank-string?)
 
 (def-key ::license
-  (ssp/strict-keys
+  (s/keys
    :opt-un
    [::name
     ::url
@@ -340,7 +340,8 @@ Example:
     ::update
     :lein.validate.repositories.info/releases
     :lein.validate.repositories.info/username
-    :lein.validate.repositories.info/password]))
+    :lein.validate.repositories.info/password
+    :lein.validate.repositories.info/creds]))
 
 (def-key :lein.validate.repositories.info/url non-blank-string?)
 
@@ -395,7 +396,7 @@ stored in GPG or in environment variables.")
   "Using :env as a value here will cause an environment variable to be
 used based on the key; in this case LEIN_PASSWORD.")
 
-
+(def-key :lein.validate.repositories.info/creds #{:gpg})
 
 (def-key ::plugin-repositories
   (s/every (s/cat :nm non-blank-string?
