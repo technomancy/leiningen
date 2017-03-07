@@ -92,12 +92,12 @@
   []
   (or (getenv "LEIN_GPG") "gpg"))
 
-(defn- get-english-env []
-  "Returns environment variables as a map with clojure keywords and LANGUAGE set to 'en'"
-  (let [env (System/getenv)
-        keywords (map #(keyword %) (keys env))]
-    (merge (zipmap keywords (vals env))
-           {:LANGUAGE "en"})))
+(defn- get-english-env
+  "Returns env vars as a map with clojure keywords and LANGUAGE set to 'en'"
+  []
+  (let [env (System/getenv)]
+    (assoc (zipmap (map keyword (keys env)) (vals env))
+           :LANGUAGE "en")))
 
 (defn- as-env-strings
   [env]
