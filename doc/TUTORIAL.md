@@ -46,7 +46,7 @@ It offers various project-related tasks and can:
  * run the project (if the project isn't a library)
  * generate a maven-style "pom" file for the project for interop
  * compile and package projects for deployment
- * publish libraries to repositories such as [Clojars](http://clojars.org)
+ * publish libraries to repositories such as [Clojars](https://clojars.org)
  * run custom automation tasks written in Clojure (leiningen plug-ins)
 
 If you come from the Java world, Leiningen could be thought of as
@@ -144,7 +144,7 @@ named with underscores instead since the JVM has trouble loading files
 with dashes in the name. The intricacies of namespaces are a common
 source of confusion for newcomers, and while they are mostly outside
 the scope of this tutorial you can
-[read up on them elsewhere](http://blog.8thlight.com/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
+[read up on them elsewhere](https://8thlight.com/blog/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
 
 ## project.clj
 
@@ -153,9 +153,9 @@ Your `project.clj` file will start off looking something like this:
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :url "https://example.com/FIXME"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :main ^:skip-aot my-stuff.core
   :target-path "target/%s"
@@ -186,7 +186,7 @@ Published JVM libraries have *identifiers* (artifact group, artifact id) and
 
 ### Artifact IDs, Groups, and Versions
 
-You can [search Clojars](http://clojars.org/search?q=clj-http) using
+You can [search Clojars](https://clojars.org/search?q=clj-http) using
 its web interface or via `lein search $TERM`. On the Clojars page for
 `clj-http` at the time of this writing it shows this:
 
@@ -251,11 +251,11 @@ familiar with Perl's CPAN, Python's Cheeseshop (aka PyPi), Ruby's
 rubygems.org, or Node.js's NPM, it's the same thing. Leiningen reuses
 existing JVM repository infrastructure. There are several popular
 open source repositories. Leiningen by default will use two of them:
-[clojars.org](http://clojars.org) and
-[Maven Central](http://search.maven.org/).
+[clojars.org](https://clojars.org) and
+[Maven Central](https://search.maven.org/).
 
 [Clojars](https://clojars.org/) is the Clojure community's centralized
-maven repository, while [Central](http://search.maven.org/) is for the
+maven repository, while [Central](https://search.maven.org/) is for the
 wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
@@ -338,25 +338,8 @@ work without checkouts before you push or merge.
 ### Search
 
 Leiningen supports searching remote Maven repositories for matching
-jars with the command `lein search $TERM`. The first time `lein search`
-is run, a set of indices are downloaded. Once this is finished, the query
-is evaluated as a [Lucene search](http://www.lucenetutorial.com/lucene-query-syntax.html).
-This allows for simple string matching or strings prefixed with one of the
-following operators:
-
-  * `artifact-id`, `artifact\_id`, `id`, `a`
-  * `group-id`, `group\_id`, `group`, `g`
-  * `description`, `desc`, `d`
-
-These prefixes allow you to execute more advanced queries such as:
-
-    $ lein search clojure
-    $ lein search description:crawl
-    $ lein search group:clojurewerkz
-    $ lein search \"Riak client\"
-
-`lein search` also accepts a second, optional parameter for fetching
-successive pages, e.g. `lein search clojure 2`.
+jars with the command `lein search $TERM`. Currently only searching
+Central and Clojars is supported.
 
 ## Setting JVM Options
 
@@ -366,7 +349,7 @@ To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will overri
  :jvm-opts ["-Xmx1g"]
 ```
 
-If you want to pass [compiler options](http://clojure.org/reference/compilation#_compiler_options) to the Clojure compiler, you also do this here.
+If you want to pass [compiler options](https://clojure.org/reference/compilation#_compiler_options) to the Clojure compiler, you also do this here.
 
 ```
 :jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
@@ -407,7 +390,7 @@ to run in the context of your project. Since we've added `clj-http` to
     nil
     user=> (require '[clj-http.client :as http])
     nil
-    user=> (def response (http/get "http://leiningen.org"))
+    user=> (def response (http/get "https://leiningen.org"))
     #'user/response
     user=> (keys response)
     (:status :headers :body :request-time :trace-redirects :orig-content-encoding)
@@ -537,9 +520,9 @@ should look like this:
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :url "https://example.com/FIXME"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-http "2.0.0"]]
   :profiles {:dev {:dependencies [[ring/ring-devel "1.4.0"]]}}
@@ -630,8 +613,8 @@ application. Aside from the obvious uberjar approach, simple
 programs can be packaged up as tarballs with accompanied shell scripts
 using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
 and then deployed using
-[pallet](http://hugoduncan.github.com/pallet/),
-[chef](http://opscode.com/chef/), or other mechanisms.
+[pallet](https://hugoduncan.github.com/pallet/),
+[chef](https://chef.io/), or other mechanisms.
 Web applications may be deployed as uberjars using embedded Jetty with
 `ring-jetty-adapter` or as .war (web application archive) files
 created by the
@@ -654,7 +637,7 @@ Consider including `~/.m2/repository` in your unit of deployment
 (tarball, .deb file, etc) along with your project code. It's
 recommended to use Leiningen to create a deployable artifact in a
 continuous integration setting. For example, you could have a
-[Jenkins](http://jenkins-ci.org) CI server run your project's full
+[Jenkins](https://jenkins-ci.org) CI server run your project's full
 test suite, and if it passes, upload a tarball to S3.  Then deployment
 is just a matter of pulling down and extracting the known-good tarball
 on your production servers. Simply launching Leiningen from a checkout
@@ -681,8 +664,8 @@ If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to
 [maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
-or get it into [Central](http://search.maven.org), the easiest way is
-to publish it at [Clojars](http://clojars.org). Once you have
+or get it into [Central](https://search.maven.org), the easiest way is
+to publish it at [Clojars](https://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
 is easy:
 
@@ -710,7 +693,7 @@ Once that succeeds it will be available as a package on which other
 projects may depend. For instructions on storing your credentials so
 they don't have to be re-entered every time, see `lein help
 deploying`. When deploying a release that's not a snapshot, Leiningen
-will attempt to sign it using [GPG](http://gnupg.org) to prove your
+will attempt to sign it using [GPG](https://gnupg.org) to prove your
 authorship of the release. See the
 [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
 for details of how to set that up. The deploy guide includes

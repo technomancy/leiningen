@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.7.1</version>
+  <version>2.7.2-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -15,11 +14,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>d2e006f0a17b15b49281ae8c2cde5c55a91c6120
+    <tag>bbbead38b2bbf6e4e7bb315b67dbde6948a6eb84
 </tag>
-    <url>https://github.com/technomancy/leiningen</url>
+    <url/>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -81,9 +78,9 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>classlojure</groupId>
+      <groupId>org.flatland</groupId>
       <artifactId>classlojure</artifactId>
-      <version>0.6.6</version>
+      <version>0.7.1</version>
     </dependency>
     <dependency>
       <groupId>robert</groupId>
@@ -104,12 +101,12 @@
     <dependency>
       <groupId>org.tcrawley</groupId>
       <artifactId>dynapath</artifactId>
-      <version>0.2.4</version>
+      <version>0.2.5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
       <artifactId>wagon-http</artifactId>
-      <version>2.10</version>
+      <version>2.12</version>
     </dependency>
     <dependency>
       <groupId>com.hypirion</groupId>
@@ -120,6 +117,16 @@
       <groupId>pedantic</groupId>
       <artifactId>pedantic</artifactId>
       <version>0.2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>1.7.22</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>tools.macro</artifactId>
+      <version>0.1.5</version>
     </dependency>
   </dependencies>
 </project>

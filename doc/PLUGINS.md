@@ -195,7 +195,7 @@ this purpose. It accepts a project argument as well as a form to
 evaluate, and the final (optional) argument is another form called
 `init` that is evaluated up-front before the main form. This may be
 used to require a namespace earlier in order to avoid the
-[Gilardi Scenario](http://technomancy.us/143).
+[Gilardi Scenario](https://technomancy.us/143).
 
 Inside the `eval-in-project` call the project's own classpath will be
 active and Leiningen's own internals and plugins will not be
@@ -453,8 +453,7 @@ If your project doesn't need to use `eval-in-project` at all, it
 should be relatively easy to port; it's just a matter of updating any
 references to Leiningen functions which may have moved. All
 `leiningen.utils.*` namespaces have gone away, and `leiningen.core`
-has become `leiningen.core.main`. For a more thorough overview see the
-[published documentation on leiningen-core](http://technomancy.github.com/leiningen/).
+has become `leiningen.core.main`.
 
 Plugins that do use `eval-in-project` should just be aware that the
 plugin's own dependencies and source will not be available to the
@@ -588,7 +587,7 @@ the argument list so that the `-main` function running inside the
 project code gets access to it.
 
 The vast majority of these cases are already covered by
-[existing plugins](http://wiki.github.com/technomancy/leiningen/plugins),
+[existing plugins](https://github.com/technomancy/leiningen/wiki/plugins),
 but if you have a case that doesn't exist and for some reason can't
 spin it off into its own separate plugin, you can enable this behavior
 by placing the `foo.clj` file defining the new task in
@@ -615,7 +614,7 @@ proper plugin.
 ## Have Fun
 
 Please add your plugin to [the list on the
-wiki](http://wiki.github.com/technomancy/leiningen/plugins) once it's ready.
+wiki](https://github.com/technomancy/leiningen/wiki/plugins) once it's ready.
 
 Hopefully the plugin mechanism is simple and flexible enough to let
 you bend Leiningen to your will.

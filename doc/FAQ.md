@@ -17,7 +17,9 @@
   for background.
 
 **Q:** How should I pick my version numbers?  
-**A:** Use [semantic versioning](http://semver.org).
+**A:** Use [semantic versioning](http://semver.org) to communicate
+  intentions to downstream users of your library, but don't make
+  assumptions that libraries you use stick with it consistently.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** You will need to get them in a repository. The
@@ -87,7 +89,7 @@
   the proxy. This is a list of patterns separated by `|` and may start or end with
   a `*` for wildcard, e.g. `localhost|*.mydomain.com`.
   For Leiningen 1.x versions, see the instructions for
-  [configuring a Maven proxy](http://maven.apache.org/guides/mini/guide-proxies.html)
+  [configuring a Maven proxy](https://maven.apache.org/guides/mini/guide-proxies.html)
   using `~/.m2/settings.xml`.
 
 **Q:** What can be done to speed up launch?  
@@ -216,3 +218,19 @@ property.
 
 **Q:** `lein`/`lein.bat` won't download `leiningen-x.y.z-SNAPSHOT.jar`  
 **A:** You probably downloaded `lein`/`lein.bat` from the [master branch](https://github.com/technomancy/leiningen/tree/master/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)
+
+**Q:** I have a dependency whose group ID and/or artifact ID starts with a
+  number (which is invalid for symbols in Clojure). How can I add it to my
+  project's dependencies?  
+**A:** As of version 2.7.2, Leiningen supports string dependency names like
+  this:
+
+```clj
+:dependencies [["net.3scale/3scale-api" "3.0.2"]]
+```
+
+Prior to version 2.7.2, this is the workaround:
+
+```clj
+:dependencies [[~(symbol "net.3scale" "3scale-api") "3.0.2"]]
+```

@@ -16,7 +16,7 @@
     - Further reduce/simplify/refactor away from batch-file idioms toward idiomatic PowerShell.
 
 .Link
-    http://leiningen.org/
+    https://leiningen.org/
 #>
 
 #require -version 3

@@ -10,7 +10,8 @@
             [leiningen.core.utils :as utils]
             [leiningen.core.user :as user]
             [leiningen.core.classpath :as classpath]
-            [leiningen.core.project-schema :as schema])
+            [leiningen.core.project-schema :as schema]
+            [clojure.string :as str])
   (:import (clojure.lang DynamicClassLoader)
            (java.io PushbackReader Reader)))
 
@@ -54,10 +55,22 @@
   [profile]
   (vector? profile))
 
+(defn group-id
+  [id]
+  (if (string? id)
+    (first (str/split id #"/"))
+    (or (namespace id) (name id))))
+
+(defn artifact-id
+  [id]
+  (if (string? id)
+    (last (str/split id #"/"))
+    (name id)))
+
 (defn artifact-map
   [id]
-  {:artifact-id (name id)
-   :group-id (or (namespace id) (name id))})
+  {:artifact-id (artifact-id id)
+   :group-id (group-id id)})
 
 (defn exclusion-map
   "Transform an exclusion vector into a map that is easier to combine with
@@ -287,7 +300,7 @@
 (def default-repositories
   (with-meta
     [["central" {:url "https://repo1.maven.org/maven2/" :snapshots false}]
-     ["clojars" {:url "https://clojars.org/repo/"}]]
+     ["clojars" {:url "https://repo.clojars.org/"}]]
     {:reduce reduce-repo-step}))
 
 (def deploy-repositories

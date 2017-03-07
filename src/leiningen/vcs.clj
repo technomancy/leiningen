@@ -36,7 +36,7 @@
 (defmulti commit "Commit changes to current repository."
   which-vcs :default :none)
 
-(defmulti tag "Apply a version control tag. Takes an optional tag prefix."
+(defmulti tag "Apply a version control tag. Takes an optional tag prefix. Pass --no-sign option to skip signing"
   which-vcs :default :none)
 
 (defmulti assert-committed "Abort if uncommitted changes exist."

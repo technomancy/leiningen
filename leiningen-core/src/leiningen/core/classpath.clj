@@ -293,7 +293,7 @@
        (catch DependencyResolutionException e
          ;; Cannot recur from catch/finally so have to put this in its own defn
          (print-failures e)
-         (warn "This could be due to a typo in :dependencies or network issues.")
+         (warn "This could be due to a typo in :dependencies, file system permissions, or network issues.")
          (warn "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
          (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
                                                            :exit-code 1} e)))

@@ -1,0 +1,115 @@
+#language en
+~-[[DebianWiki/EditorGuide#translation|Translation(s)]]: English -~
+----
+
+= leiningen =
+
+This page is intended to help the (re-)packaging of [[https://github.com/technomancy/leiningen|leiningen]]
+
+ITP: [[DebianBug:819811]]
+
+We are collaborating with upstream to ensure that upon the release of 2.7.2 we should
+have all transitive deps in the archive.
+
+Here is the current state of first degree deps:
+
+
+ * deps with unstable-version == leiningen 2.7.2-SNAPSHOT
+   * `[org.clojure/data.xml "0.0.8"]`
+     * unstable: https://packages.debian.org/sid/libdata-xml-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L10
+   * `[commons-io "2.5"]`
+     * unstable: https://packages.debian.org/sid/libcommons-io-java
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L11
+   * `[clojure-complete "0.2.4"]`
+     * unstable: https://packages.debian.org/sid/libcomplete-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L17
+     * NOTE: check for old packaging on alioth
+   * `[robert/hooke "1.3.0"]`
+     * unstable: https://packages.debian.org/sid/librobert-hooke-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L9
+   * `[org.tcrawley/dynapath "0.2.5"]`
+     * unstable: https://packages.debian.org/sid/libdynapath-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L11
+   * `[org.apache.maven.wagon/wagon-http "2.10"]`
+     * unstable: https://packages.debian.org/sid/libwagon2-java
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L12
+   * `[com.hypirion/io "0.3.1"]`
+     * unstable: https://packages.debian.org/sid/libcom-hypirion-io-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L13
+     * NOTE: check for old packaging on alioth
+   * `[org.clojure/tools.macro "0.1.5"]`
+     * unstable: https://packages.debian.org/sid/libtools-macro-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L16
+   * `[commons-codec "1.10"]`
+     * unstable: https://packages.debian.org/sid/libcommons-codec-java
+     * leiningen: pulled in transitively from clj-http
+   * `[scout "0.1.1"]`
+     * unstable: https://packages.debian.org/sid/libscout-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L19
+   * `[trptcolin/versioneer "0.1.1"]`
+     * unstable: https://packages.debian.org/sid/libversioneer-clojure
+     * leiningen: pulled in transitively by reply
+
+ * deps with unstable-version < leiningen 2.7.2-SNAPSHOT
+   * `[slingshot "0.12.2"]`
+     * unstable: 0.10.3 https://packages.debian.org/sid/libslingshot-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L19
+     * NOTE: check for old packaging on alioth
+     * NOTE: changes between 0.10.3 and 0.12.2 should not affect Leiningen
+   * `[bultitude "0.2.8"]`
+     * unstable: 0.2.7 https://packages.debian.org/sid/libbultitude-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L7
+     * NOTE: changes in 0.2.8 only affect 3rd-party template code, not Leiningen itself
+   * `[com.cemerick/pomegranate "0.3.1"]`
+     * unstable: 0.2.0 https://packages.debian.org/sid/libpomegranate-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L12
+   * `[jline "2.12.1"]`
+     * unstable: 2.11 https://packages.debian.org/sid/libjline2-java
+     * leiningen: pulled in transitively from reply
+     * differences are unlikely to be relevant
+   * `[org.clojure/tools.cli "0.3.1"]`
+     * unstable: 0.2.4 https://packages.debian.org/sid/libtools-cli-clojure
+     * leiningen: pulled in transitively from reply
+   * `[clj-stacktrace "0.2.7"]`
+     * unstable: 0.2.6 https://packages.debian.org/sid/libclj-stacktrace-clojure
+     * leiningen: pulled in transitively from reply
+   * `[net.cgrand/regex "1.1.0"]`
+     * unstable: 0.0 https://packages.debian.org/sid/libregex-clojure
+     * leiningen: pulled in transitively from parsley
+
+ * deps missing from leiningen 2.7.2-SNAPSHOT
+   * `[clj-http "2.0.1"]`
+     * unstable: https://packages.debian.org/sid/libclj-http-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L21
+     * depends on slightly newer versions of apache HTTP libs than in unstable
+     * needs `[potemkin "0.4.1"]`, `[clj-tuple "0.2.2"]`, and `[riddley "0.1.10"]`
+   * `[org.clojure/tools.nrepl "0.2.12"]`
+     * unstable: https://packages.debian.org/sid/libtools.nrepl-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L16
+   * `[cheshire "5.6.3"]`
+     * unstable: https://packages.debian.org/sid/libcheshire-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L20
+     * depends on slightly newer versions of Jackson libs than in unstable
+     * depends on Tigris 0.1.1, which is a weird hybrid clj/java lib
+   * `[classlojure "0.7.1"]`
+     * unstable: https://packages.debian.org/sid/libclasslojure-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L8
+   * `[pedantic "0.2.0"]`
+     * unstable: https://packages.debian.org/sid/libpedantic-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/leiningen-core/project.clj#L14
+     * NOTE: check for old packaging on alioth
+   * `[net.cgrand/parsley "0.9.3"]`
+     * unstable: https://packages.debian.org/sid/libparsley-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L22
+   * `[reply "0.3.7"]`
+     * unstable: https://packages.debian.org/sid/libreply-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L14
+     * depends on: `[com.cemerick/drawbridge "0.0.6"]` and `[net.cgrand/sjacket "0.1.1"]`
+   * `[stencil "0.5.0"]`
+     * unstable: https://packages.debian.org/sid/libstencil-clojure
+     * leiningen: https://github.com/technomancy/leiningen/blob/master/project.clj#L13
+     * depends on `[quoin "0.1.2"]`
+
+----
+CategoryClojure

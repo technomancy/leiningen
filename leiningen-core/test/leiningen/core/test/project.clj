@@ -36,11 +36,13 @@
                :eval-in :leiningen,
                :license {:name "Eclipse Public License"}
 
-               :dependencies '[[leiningen-core/leiningen-core "2.0.0-SNAPSHOT"]
+               :dependencies `[[leiningen-core/leiningen-core "2.0.0-SNAPSHOT"]
                                [clucy/clucy "0.2.2" :exclusions [[org.clojure/clojure]]]
                                [lancet/lancet "1.0.1"]
                                [robert/hooke "1.1.2"]
                                [stencil/stencil "0.2.0"]
+                               [~(symbol "net.3scale" "3scale-api") "3.0.2"]
+                               [clj-http/clj-http "3.4.1"]
                                [org.clojure/tools.nrepl "0.2.12"
                                 :exclusions [[org.clojure/clojure]]]
                                [clojure-complete/clojure-complete "0.2.4"
@@ -49,7 +51,7 @@
 
                :repositories [["central" {:url "https://repo1.maven.org/maven2/"
                                           :snapshots false}]
-                              ["clojars" {:url "https://clojars.org/repo/"}]]})
+                              ["clojars" {:url "https://repo.clojars.org/"}]]})
 
 (deftest test-read-project
   (let [actual (read (.getFile (io/resource "p1.clj")))]

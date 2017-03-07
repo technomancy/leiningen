@@ -31,6 +31,7 @@
     ::url
     ::name
     ::mailing-list
+    ::mailing-lists
     ::license
     ::licenses
     ::min-lein-version
@@ -88,8 +89,8 @@
     ::uberjar-exclusions
     ::auto-clean
     ::uberjar-merge-with
-    
-    
+
+
     ::scm
 
     ::validate]))
@@ -122,8 +123,10 @@ Example:
                                   \"http://example.org/sample-list-archive3\"]
                  :post \"list@example.org\"
                  :subscribe \"list-subscribe@example.org\"
-                 :unsubscribe \"list-unsubscribe@example.org\"}"
-  )
+                 :unsubscribe \"list-unsubscribe@example.org\"}")
+
+(def-key ::mailing-lists
+  (s/+ ::mailing-list))
 
 (def-key ::archive non-blank-string?)
 (def-key ::other-archives (s/every non-blank-string? :min-count 1))
@@ -132,7 +135,7 @@ Example:
 (def-key ::unsubscribe non-blank-string?)
 
 (def-key ::license
-  (ssp/strict-keys
+  (s/keys
    :opt-un
    [::name
     ::url
@@ -143,7 +146,7 @@ Example:
 artifacts. A seq of :licenses is also supported.
 
 Example:
-  
+
   :license {:name \"Eclipse Public License - v 1.0\"
             :url \"http://www.eclipse.org/legal/epl-v10.html\"
             :distribution :repo
@@ -163,7 +166,7 @@ Example:
 
   :min-lein-version \"2.0.0\""  )
 
-(def-key ::optional boolean?) 
+(def-key ::optional boolean?)
 
 (def-key ::scope         ::name-like)
 ;; ??? what values ???
@@ -198,12 +201,12 @@ Example:
 ;; path to the erroneous value
 (s/def ::dependency-item
   (s/or
-   :short-managed
-   (s/cat :lib-name symbol?
-          :dependency-item-args ::dependency-item-args)
    :long
-   (s/cat :lib-name symbol?
+   (s/cat :lib-name (s/or :symbol symbol? :string string?)
           :version-str (some-fn nil? non-blank-string?)
+          :dependency-item-args ::dependency-item-args)
+   :short-managed
+   (s/cat :lib-name (s/or :symbol symbol? :string string?)
           :dependency-item-args ::dependency-item-args)))
 
 (def-key ::dependencies
@@ -254,7 +257,7 @@ Example:
                          [me.raynes/fs \"1.4.6\"]]")
 
 
-(def-key ::pedantic? #{true false :ranges :abort}
+(def-key ::pedantic? #{true false :ranges :abort :warn}
 "What to do in the case of version issues. Defaults to :ranges, which
 warns when version ranges are present anywhere in the dependency tree,
 but can be set to true to warn for both ranges and overrides, or :abort
@@ -340,7 +343,8 @@ Example:
     ::update
     :lein.validate.repositories.info/releases
     :lein.validate.repositories.info/username
-    :lein.validate.repositories.info/password]))
+    :lein.validate.repositories.info/password
+    :lein.validate.repositories.info/creds]))
 
 (def-key :lein.validate.repositories.info/url non-blank-string?)
 
@@ -380,13 +384,22 @@ Example:
 
 (def-key :lein.validate.repositories.info/releases ::repository-data-map)
 
-(def-key :lein.validate.repositories.info/username non-blank-string?)
+(def-key :lein.validate.repositories.info/credential-store
+  (s/or :string-literal non-blank-string?
+        :GPG-store #{:gpg}
+        :environment-variable #{:env}
+        :user-named-environment-variable keyword?)
+  "As defined in https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md#authentication
+:username and :password can be specified either as a string literal,
+stored in GPG or in environment variables.")
 
-(def-key :lein.validate.repositories.info/password (some-fn non-blank-string? #{:env})
-  "Using :env as a value here will cause an
-environment variable to be used based on
-the key; in this case LEIN_PASSWORD.")
+(def-key :lein.validate.repositories.info/username :lein.validate.repositories.info/credential-store)
 
+(def-key :lein.validate.repositories.info/password :lein.validate.repositories.info/credential-store
+  "Using :env as a value here will cause an environment variable to be
+used based on the key; in this case LEIN_PASSWORD.")
+
+(def-key :lein.validate.repositories.info/creds #{:gpg})
 
 (def-key ::plugin-repositories
   (s/every (s/cat :nm non-blank-string?
@@ -537,7 +550,7 @@ Example:
   "Load these namespaces from within Leiningen to pick up hooks from them.
 
 Example:
-  
+
   :hooks [leiningen.hooks.difftest]")
 
 (def-key ::middleware (s/every symbol? :min-count 1)
@@ -593,15 +606,11 @@ with manifest.mf that lacks `Main-Class' property.")
 (def-key ::aliases
   (s/map-of
    non-blank-string?
-   (s/or :comand
-         (s/every
-          ::command-element
-          :min-count 1)
-         :do-command
-         (s/cat
-          :doo #{"do"}
-          :rest (s/+ (s/alt :com-el ::command-element
-                            :sub-vec (s/every ::command-element :min-count 1))))))
+   (s/or :string
+         non-blank-string?
+         :sequence
+         (s/+ (s/alt :command-element ::command-element
+                     :sub-vector (s/every ::command-element :min-count 1)))))
   "Support project-specific task aliases. These are interpreted in
 the same way as command-line arguments to the lein command. If
 the alias points to a vector, it uses partial application. For
@@ -610,8 +619,8 @@ example, \"lein with-magic run -m hi.core\" would be equivalent to
 considered to be special by argument parsers, they're just part
 of the preceding argument.
 
-Example: 
-  
+Example:
+
   :aliases {\"launch\" [\"run\" \"-m\" \"myproject.main\"]
             ;; Values from the project map can be spliced into the arguments
             ;; using :project/key keywords.
@@ -666,7 +675,7 @@ Example:
 
 (def-key ::aot (s/or :all #{:all}
                      :seq (s/every (some-fn symbol? regex? )
-                                   :min-count 1)) 
+                                   :min-count 1))
 "These namespaces will be AOT-compiled. Needed for gen-class and
 other Java interop functionality. Put a regex here to compile all
 namespaces whose names match. If you only need AOT for an uberjar
@@ -685,7 +694,7 @@ Allows working around the Gilardi Scenario: http://technomancy.us/143
 Note: This code is not executed in jars or uberjars.
 
 Example:
-   
+
   :injections [(require 'clojure.pprint)]")
 
 (def-key ::java-agents
@@ -704,7 +713,7 @@ Example:
 (def-key ::javac-options (s/every non-blank-string? :min-count 1)
   "Options to pass to java compiler for java source,
 exactly the same as command line arguments to javac.
- 
+
 Example:
 
   :javac-options [\"-target\" \"1.6\" \"-source\" \"1.6\" \"-Xlint:-options\"]")
@@ -738,7 +747,7 @@ Example:
 
   :java-cmd \"/home/phil/bin/java1.7\"")
 
-(def-key ::jvm-opts (s/every non-blank-string? :min-count 1)
+(def-key ::jvm-opts (s/every non-blank-string? :min-count 0)
 "You can set JVM-level options here. The :java-opts key is an alias for this.
 
 Example:
@@ -764,11 +773,11 @@ Example:
 
   :bootclasspath true")
 
-(def-key ::source-paths (s/every string? :min-count 1)
-  "The source paths to your source files, these will be added to the classpath.
+(def-key ::source-paths (s/every string? :min-count 0)
+  "The source paths to your clojure source files, these will be added to the classpath.
 
 Example:
-  
+
   :source-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::java-source-paths (s/every string? :min-count 1)
@@ -776,21 +785,21 @@ Example:
 Java source is stored seperately.
 
 Example:
-  
+
   :java-source-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::test-paths (s/every string? :min-count 1)
   "The source paths to your test source files, these will be added to the classpath.
 
 Example:
-  
+
   :test-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::resource-paths (s/every string? :min-count 1)
   "The source paths to your test source files, these will be added to the classpath.
 
 Example:
-  
+
   :resource-paths [\"src\" \"src/main/clojure\"]")
 
 (def-key ::target-path non-blank-string?
@@ -859,8 +868,8 @@ functions that take the target project as argument. Defaults to
 [:source-paths :compile-path :resource-paths], but you could use
 the following to share code from the test suite:
 
-Example: 
-  
+Example:
+
   :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) \"/lib/dev/*\"))]")
 
@@ -1093,7 +1102,7 @@ Example:
   "Files to merge programmatically in uberjars when multiple same-named files
 exist across project and dependencies.  Should be a map of filename strings
 or regular expressions to a sequence of three functions:
- 
+
  1. Takes an input stream; returns a parsed datum.
  2. Takes a new datum and the current result datum; returns a merged datum.
  3. Takes an output stream and a datum; writes the datum to the stream.

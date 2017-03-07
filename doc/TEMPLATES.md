@@ -50,8 +50,8 @@ an artifact-id of "lein-template".
 ## Structure
 
 The files that your template will provide to users are in
-`src/leiningen/new/liquid_cool`. lein-newnew starts you off with just
-one, named "foo.clj". You can see it referenced in
+`src/leiningen/new/liquid_cool`. The template generator starts you off
+with just one, named "foo.clj". You can see it referenced in
 `src/leiningen/new/liquid_cool.clj`, right underneath the
 `->files data` line.
 
@@ -67,7 +67,7 @@ templates](https://github.com/technomancy/leiningen/tree/stable/resources/leinin
 ## Testing Your Template
 
 While developing a template, if you're in the template project directory, 
-lein-newnew will pick it up and you'll be able to test it.  e.g. from the
+leiningen will pick it up and you'll be able to test it.  e.g. from the
 `liquid-cool-template` dir:
 
     $ lein new liquid-cool myproject
@@ -83,7 +83,7 @@ directory on your system.
 
 ## Templating System
 
-lein-newnew uses [stencil][] for templating, which implements the
+The default generated template uses [stencil][] for templating, which implements the
 language-agnostic templating system [Mustache][]. All the available tag types
 can be found in the [Mustache manual][mustache-manual]; we will only go through
 the most common tag type here.
@@ -114,8 +114,8 @@ generated project will contain a file named `README.md` where the header is
 `liquid-cool-app`.
 
 [stencil]: https://github.com/davidsantiago/stencil
-[Mustache]: http://mustache.github.io/
-[mustache-manual]: http://mustache.github.io/mustache.5.html
+[Mustache]: https://mustache.github.io/
+[mustache-manual]: https://mustache.github.io/mustache.5.html
 
 #### A warning about Mustache tag delimiters
 Clojure syntax can conflict with the default mustache tag delimiter. For 
