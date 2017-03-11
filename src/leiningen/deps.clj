@@ -4,6 +4,7 @@
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
+            [clojure.pprint :as pprint]
             [leiningen.core.utils :as utils]
             [cemerick.pomegranate.aether :as aether])
   (:import (org.sonatype.aether.resolution DependencyResolutionException)))
@@ -67,6 +68,7 @@
   "A mapping from the tree-command to the dependency key it should print a tree
   for."
   {":tree" [:dependencies :managed-dependencies]
+   ":tree-data" [:dependencies :managed-dependencies]
    ":plugin-tree" [:plugins nil]})
 
 
@@ -86,6 +88,11 @@
 
 Show the full dependency tree for the current project. Each dependency is only
 shown once within a tree.
+
+    lein deps :tree-data
+
+Show the full dependency tree as EDN for the current project. Each dependency 
+is only shown once within a tree.
 
     lein deps :plugin-tree
 
@@ -123,7 +130,10 @@ force them to be updated, use `lein -U $TASK`."
                               dependencies-key
                               managed-dependencies-key
                               project)]
-               (walk-deps hierarchy print-dep))
+               (case command
+                 ":tree" (walk-deps hierarchy print-dep)
+                 ":tree-data"  (binding [*print-length* 10000 *print-level* 10000]
+                                 (pprint/pprint hierarchy))))
              (= command ":verify")
              (if (user/gpg-available?)
                (walk-deps (classpath/managed-dependency-hierarchy
