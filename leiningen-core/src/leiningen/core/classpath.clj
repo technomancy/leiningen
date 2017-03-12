@@ -298,10 +298,12 @@
          (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
                                                            :exit-code 1} e)))
        (catch Exception e
-         (if (and (instance? java.net.UnknownHostException (root-cause e))
-                  (not offline?))
-           (get-dependencies-memoized dependencies-key (assoc project :offline? true))
-           (throw e)))))))
+         (let [exception-cause (root-cause e)]
+           (if (and (or (instance? java.net.UnknownHostException exception-cause)
+                        (instance? java.net.NoRouteToHostException exception-cause))
+                    (not offline?))
+             (get-dependencies-memoized dependencies-key (assoc project :offline? true))
+             (throw e))))))))
 
 (defn- group-artifact [artifact]
   (if (= (.getGroupId artifact)
