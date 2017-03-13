@@ -595,11 +595,13 @@
   (let [project (with-meta
                   {:target-path "target/%s"}
                   {:profiles {:ab  [:a :b]
-                              :abc [:a :b :c]
+                              :abc [:ab :c]
+                              :bcd [:b :c :d]
                               :a   {}
                               :b   {}
                               :c   {}
-                              :d   {}}})]
+                              :d   {}
+                              :e   {}}})]
     (are [ps tp] (= (profile-scope-target-path project ps) {:target-path tp})
       [:a :b]       "target/ab"
       [:a :b :c]    "target/abc"
@@ -608,5 +610,6 @@
       [:c :b :a]    "target/c+b+a"
       [:c :a :b]    "target/c+ab"
       [:a :b :c :d] "target/abc+d"
+      [:e :b :c :d] "target/e+bcd"
       [:c :a :b :d] "target/c+ab+d"
       [:a]          "target/a")))
