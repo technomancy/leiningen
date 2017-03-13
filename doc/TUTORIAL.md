@@ -261,8 +261,9 @@ wider JVM community.
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
-for examples on how to do so. For example, you may want to add the Sonatype repository in 
-order to get the latest SNAPSHOT development version of a library. 
+for examples on how to do so. This sample also uses additional repositories such as the Sonatype 
+repository which gives access to the latest SNAPSHOT development version of a library (Clojure or Java). 
+It also contains other relevant settings regarding repositories such as update frequency.
 
 ### Checkout Dependencies
 
