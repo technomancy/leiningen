@@ -132,6 +132,7 @@ force them to be updated, use `lein -U $TASK`."
                               project)]
                (case command
                  ":tree" (walk-deps hierarchy print-dep)
+                 ":plugin-tree" (walk-deps hierarchy print-dep)
                  ":tree-data"  (binding [*print-length* 10000 *print-level* 10000]
                                  (pprint/pprint hierarchy))))
              (= command ":verify")
