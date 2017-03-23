@@ -140,7 +140,7 @@
                           "Warning: The Main-Class specified does not exist"))))))
 
 (deftest javac-launched-with-whitelisted-settings
-  (let [user-profile {:local-repo "foo/bar"
+  (let [user-profile {:local-repo "test_projects/jar/foo/bar"
                       :mirrors {"central" {:name "central"
                                            :url "http://uk.maven.org/maven2"}}}
         orig-project (-> (helper/read-test-project-with-user-profiles
