@@ -590,3 +590,26 @@
                 [["central" {:url "https://repo1.maven.org/maven2/"
                              :snapshots false}]
                  ["clojars" {:url "https://clojars.org/repo/"}]]}})))))))
+
+(deftest test-profile-scope-target-path
+  (let [project (with-meta
+                  {:target-path "target/%s"}
+                  {:profiles {:ab  [:a :b]
+                              :abc [:ab :c]
+                              :bcd [:b :c :d]
+                              :a   {}
+                              :b   {}
+                              :c   {}
+                              :d   {}
+                              :e   {}}})]
+    (are [ps tp] (= (profile-scope-target-path project ps) {:target-path tp})
+      [:a :b]       "target/ab"
+      [:a :b :c]    "target/abc"
+      [:b :c]       "target/b+c"
+      [:b :a]       "target/b+a"
+      [:c :b :a]    "target/c+b+a"
+      [:c :a :b]    "target/c+ab"
+      [:a :b :c :d] "target/abc+d"
+      [:e :b :c :d] "target/e+bcd"
+      [:c :a :b :d] "target/c+ab+d"
+      [:a]          "target/a")))
