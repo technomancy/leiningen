@@ -274,7 +274,9 @@ Subcommands:
   key is given, LEIN_REPL_PORT is set, or :port is present under
   :repl-options in the project map, that port will be used for
   the server, otherwise it is chosen randomly. When starting outside
-  of a project, the nREPL server will run internally to Leiningen.
+  of a project, the nREPL server will run internally to Leiningen. When
+  run under trampoline, the client/server step is skipped entirely; use
+  the :headless command to start a trampolined server.
 
 :headless [:host host] [:port port]
   This will launch an nREPL server and wait, rather than connecting
