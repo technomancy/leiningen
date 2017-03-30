@@ -160,11 +160,9 @@
                       [exclusion-spec]
                       exclusion-spec)]]
           [:exclusion (map (partial apply xml-tags)
-                           {:group-id (or (namespace dep)
-                                          (name dep))
-                            :artifact-id (name dep)
-                            :classifier classifier
-                            :type extension})])]))
+                           (merge (project/artifact-map dep)
+                                  {:classifier classifier
+                                   :type extension}))])]))
 
 (defmethod xml-tags ::dependency
   ([_ [dep version & {:keys [optional classifier
