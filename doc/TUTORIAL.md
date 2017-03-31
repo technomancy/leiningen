@@ -34,7 +34,10 @@
 
 # Tutorial
 
-Leiningen is for automating Clojure projects without setting your hair on fire.
+Leiningen is for automating Clojure projects without setting your hair
+on fire. If you experience your hair catching on fire or any other
+frustrations while following this tutorial, please
+[let us know](https://github.com/technomancy/leiningen/issues/new).
 
 It offers various project-related tasks and can:
 
