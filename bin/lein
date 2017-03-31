@@ -215,7 +215,9 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
 
-    BOOTCLASSPATH="-Xbootclasspath/a:$LEIN_JAR"
+    if [ "$LEIN_SKIP_BOOTCLASSPATH" = "" ]; then
+        BOOTCLASSPATH="-Xbootclasspath/a:$LEIN_JAR"
+    fi
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         self_install
