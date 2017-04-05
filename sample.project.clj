@@ -404,7 +404,10 @@
   :omit-source true
   ;; Files with names matching any of these patterns will be excluded from jars.
   :jar-exclusions [#"(?:^|/).svn/"]
-  ;; Same thing, but for uberjars.
+  ;; Files with names matching any of these patterns will included in the jar
+  ;; even if they'd be skipped otherwise.
+  :jar-inclusions ["^\.ebextensions"]
+  ;; Same as :jar-exclusions, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
   ;; By default Leiningen will run a clean before creating jars to prevent
   ;; undeclared AOT from leaking to downstream consumers; this disables
