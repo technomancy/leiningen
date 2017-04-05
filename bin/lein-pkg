@@ -9,7 +9,7 @@ export LEIN_VERSION="2.7.2-SNAPSHOT"
 function check_root {
   local -i user_id
   # Thank you for the complexity, Solaris
-  if [ `uname` = "SunOS" -a -x /usr/xpg4/bin/id ]; then
+  if [ $(uname) = "SunOS" -a -x /usr/xpg4/bin/id ]; then
     user_id=$(/usr/xpg4/bin/id -u 2>/dev/null || echo 0)
   else
     user_id=$(id -u 2>/dev/null || echo 0)
@@ -93,10 +93,13 @@ function command_not_found {
     exit 1
 }
 
-if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
-    [ -r project.clj ]; then
+if [ -r .lein-fast-trampoline ]; then
+    export LEIN_FAST_TRAMPOLINE='y'
+fi
+
+if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
     INPUTS="$* $(cat project.clj) $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
-    
+
     if command -v shasum >/dev/null 2>&1; then
         SUM="shasum"
     elif command -v sha1sum >/dev/null 2>&1; then
@@ -105,11 +108,11 @@ if ([ "$LEIN_FAST_TRAMPOLINE" != "" ] || [ -r .lein-fast-trampoline ]) &&
         command_not_found "sha1sum or shasum"
     fi
 
-    INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
+    export INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
     # Just don't change :target-path in project.clj, mkay?
     TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
 else
-    TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+    TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
     trap "rm -f $TRAMPOLINE_FILE" EXIT
 fi
 
