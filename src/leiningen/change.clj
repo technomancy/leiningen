@@ -185,7 +185,7 @@ first arg or an actual function for the second.
 All the arguments to f are passed through the reader, so double quoting is
 necessary to use strings. Note that this task reads the project.clj file
 from disk rather than honoring the project map, so profile merging or
-`update-in` invocations will not effect it."
+`update-in` invocations will not affect it."
   [project key-or-path f & args]
   ;; cannot work with project map, want to preserve formatting, comments, etc
   (when-not (and (every? string? args)
