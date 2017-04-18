@@ -9,12 +9,14 @@
 ;; TODO: make pom task use this ns by adding a few more methods
 
 (def supported-systems (atom [:git]))
+  
+(defn vcs-dir [project vcs]
+  (io/file (:root project)
+           (get-in project [:scm :dir] "")
+           (str "." (name vcs))))
 
 (defn uses-vcs [project vcs]
-  (let [vcs-dir (io/file (:root project)
-                         (get-in project [:scm :dir] "")
-                         (str "." (name vcs)))]
-    (and (.exists vcs-dir) vcs)))
+  (and (.exists (vcs-dir project vcs)) vcs))
 
 (defn which-vcs [project & _]
   (or (:vcs project) (some (partial uses-vcs project) @supported-systems)))
