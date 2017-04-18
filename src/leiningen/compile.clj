@@ -151,7 +151,7 @@ Code that should run on startup belongs in a -main defn."
            form `(do
                    ~set-agent-threadpool-form
                    (doseq [~ns-sym '~namespaces]
-                     ~(if main/*info*
+                     ~(when main/*info*
                         `(binding [*out* *err*]
                            (println "Compiling" ~ns-sym)))
                      (try
