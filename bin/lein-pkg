@@ -9,12 +9,12 @@ export LEIN_VERSION="2.7.2-SNAPSHOT"
 function check_root {
   local -i user_id
   # Thank you for the complexity, Solaris
-  if [ $(uname) = "SunOS" -a -x /usr/xpg4/bin/id ]; then
+  if [ "$(uname)" = "SunOS" -a -x /usr/xpg4/bin/id ]; then
     user_id=$(/usr/xpg4/bin/id -u 2>/dev/null || echo 0)
   else
     user_id=$(id -u 2>/dev/null || echo 0)
   fi
-  [ $user_id -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
+  [ "$user_id" -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
   return 1
 }
 
@@ -113,7 +113,7 @@ if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
     TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
 else
     TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
-    trap "rm -f $TRAMPOLINE_FILE" EXIT
+    trap 'rm -f $TRAMPOLINE_FILE' EXIT
 fi
 
 if [ "$1" = "upgrade" ]; then
@@ -146,7 +146,7 @@ else
     if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
         TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
         if [ "$INPUT_CHECKSUM" = "" ]; then
-            rm $TRAMPOLINE_FILE
+            rm "$TRAMPOLINE_FILE"
         fi
         exec sh -c "exec $TRAMPOLINE"
     else

@@ -86,12 +86,12 @@ function self_install {
 function check_root {
   local -i user_id
   # Thank you for the complexity, Solaris
-  if [ `uname` = "SunOS" -a -x /usr/xpg4/bin/id ]; then
+  if [ "$(uname)" = "SunOS" -a -x /usr/xpg4/bin/id ]; then
     user_id=$(/usr/xpg4/bin/id -u 2>/dev/null || echo 0)
   else
     user_id=$(id -u 2>/dev/null || echo 0)
   fi
-  [ $user_id -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
+  [ "$user_id" -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
   return 1
 }
 
@@ -287,7 +287,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
             y|Y|"")
                 echo
                 echo "Upgrading..."
-                TARGET="/tmp/lein-$$-upgrade"
+                TARGET="/tmp/lein-${$}-upgrade"
                 if $cygwin; then
                     TARGET=$(cygpath -w "$TARGET")
                 fi
@@ -348,7 +348,7 @@ else
         else
             TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
         fi
-        trap "rm -f $TRAMPOLINE_FILE" EXIT
+        trap 'rm -f $TRAMPOLINE_FILE' EXIT
     fi
 
     if $cygwin; then
