@@ -342,7 +342,7 @@
 
 ;;; Testing
   ;; Predicates to determine whether to run a test or not, take test metadata
-  ;; as argument. See `lein help tutorial` for more information.
+  ;; as argument. See `lein help test` for more information.
   :test-selectors {:default (fn [m] (not (or (:integration m) (:regression m))))
                    :integration :integration
                    :regression :regression}
