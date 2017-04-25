@@ -8,7 +8,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[leiningen-core "2.7.2-SNAPSHOT"]
                  [org.clojure/data.xml "0.0.8"] ; needed for pom
-                 [cheshire "5.7.1"]
                  [bultitude "0.2.8"] ; needed for test
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]] ; needed for new
                  [org.clojure/tools.nrepl "0.2.12"] ; for repl, obviously
