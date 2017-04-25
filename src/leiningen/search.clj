@@ -2,12 +2,12 @@
   "Search Central and Clojars for published artifacts."
   (:require [clojure.string :as string]
             [leiningen.core.project :as project]
-            [clj-http.client :as http]
-            [cheshire.core :as json]))
+            [cheshire.core :as json])
+  (:import (java.net URLEncoder)))
 
 (defn search-central [query]
   (let [url (str "https://search.maven.org/solrsearch/select?wt=json&q=" query)]
-    (doseq [result (get-in (json/decode (:body (http/get url)))
+    (doseq [result (get-in (json/decode (slurp url))
                            ["response" "docs"])]
       (let [dep (if (= (result "a") (result "g"))
                   (result "a")
@@ -16,7 +16,7 @@
 
 (defn search-clojars [query]
   (let [url (str "https://clojars.org/search?format=json&q=" query)]
-    (doseq [result (get (json/decode (:body (http/get url))) "results")]
+    (doseq [result (get (json/decode (slurp url)) "results")]
       (let [dep (if (= (result "jar_name") (result "group_name"))
                   (result "jar_name")
                   (str (result "group_name") "/" (result "jar_name")))]
@@ -34,10 +34,9 @@
                              ["clojars" search-clojars]]]
       (when (repos repo)
         (try (println "Searching" repo "...")
-             (searcher query)
-             (catch clojure.lang.ExceptionInfo e
-               (when-not (re-find #"clj-http" (.getMessage e))
-                 (throw e))
-               (if (= 400 (:status (ex-data e)))
-                 (println "Query syntax unsupported.")
-                 (println "Remote error" (.getMessage e)))))))))
+             (searcher (URLEncoder/encode query "UTF-8"))
+             (catch java.io.IOException e
+               (binding [*out* *err*]
+                 (if (re-find #"HTTP response code: (400|505)" (str e))
+                   (println "Query syntax unsupported.")
+                   (println "Remote error" (.getMessage e))))))))))
