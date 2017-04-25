@@ -263,17 +263,6 @@
   (let [launch (utils/require-resolve 'reply.main/launch-nrepl)]
     (launch (options-for-reply project :attach attach)))  )
 
-(defn- fixup-no-project
-  "fixup-no-project ensures that dependencies within profiles is fetched
-  and loaded, even if we're outside a project."
-  [project]
-  (if (:root project)
-    project
-    (-> project ;; Ugh, this feels like an ugly hack
-        (project/merge-profiles [{:dependencies [^:top-displace
-                                                 ['org.clojure/clojure (clojure-version)]]}])
-        (assoc :eval-in :subprocess))))
-
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
 
@@ -289,7 +278,9 @@ Subcommands:
   key is given, LEIN_REPL_PORT is set, or :port is present under
   :repl-options in the project map, that port will be used for
   the server, otherwise it is chosen randomly. When starting outside
-  of a project, the nREPL server will run internally to Leiningen.
+  of a project, the nREPL server will run internally to Leiningen. When
+  run under trampoline, the client/server step is skipped entirely; use
+  the :headless command to start a trampolined server.
 
 :headless [:host host] [:port port]
   This will launch an nREPL server and wait, rather than connecting
@@ -312,8 +303,7 @@ deactivated, but it can be overridden."
   ([project] (repl project ":start"))
   ([project subcommand & opts]
    (let [repl-profiles (project/profiles-with-matching-meta project :repl)
-         project (-> (project/merge-profiles project repl-profiles)
-                     (fixup-no-project))]
+         project (project/merge-profiles project repl-profiles)]
      (if (= subcommand ":connect")
        (client project (doto (connect-string project opts)
                          (->> (main/info "Connecting to nREPL at"))))

@@ -17,6 +17,8 @@
   (require 'leiningen.core.main)
   (apply (resolve 'leiningen.core.main/warn) args))
 
+(def ^:private warn-once (memoize warn))
+
 (defn ^:deprecated extract-native-deps [files native-path native-prefixes]
   (doseq [file files
           :let [native-prefix (get native-prefixes file "native/")
@@ -495,6 +497,24 @@
           (doseq [[_ {:keys [native-prefix file]}] snap-deps]
             (extract-native-dep! native-path file native-prefix))))))
 
+(def ^:private bootclasspath-deps (-> "leiningen/bootclasspath-deps.clj"
+                                      io/resource slurp read-string))
+
+(defn- warn-conflicts
+  "When using the bootclasspath (for boot speed), resources already on the
+  bootclasspath cannot be overridden by plugins, so notify the user about it."
+  [project dependencies]
+  (let [warned (atom false)]
+    (doseq [[artifact version] dependencies
+            :when (and (bootclasspath-deps artifact)
+                       (not= (bootclasspath-deps artifact) version))]
+      (reset! warned true)
+      (warn-once "Tried to load" artifact "version" version "but"
+                 (bootclasspath-deps artifact) "was already loaded."))
+    (when (and @warned (not (:root project)))
+      (warn-once "You can set :eval-in :subprocess in your :user profile;"
+                 "however this will increase repl load time."))))
+
 (defn resolve-managed-dependencies
   "Delegate dependencies to pomegranate. This will ensure they are
   downloaded into ~/.m2/repository and that native components of
@@ -513,6 +533,9 @@
         jars (->> dependencies-tree
                   (aether/dependency-files)
                   (filter #(re-find #"\.(jar|zip)$" (.getName %))))]
+    (when (some #{:add-classpath?} rest)
+      (warn-conflicts project (concat (keys dependencies-tree)
+                                      (reduce into (vals dependencies-tree)))))
     (when (and (= :dependencies dependencies-key)
                (:root project))
       (extract-native-dependencies project jars dependencies-tree))
