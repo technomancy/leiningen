@@ -12,14 +12,12 @@
                  [commons-lang "2.6"]
                  [bultitude "0.2.8"]
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
-                 [reply "0.3.7" :exclusions [ring/ring-core
-                                             org.thnetos/cd-client]]
                  [org.clojure/tools.nrepl "0.2.12"]
                  [clojure-complete "0.2.4"]
-                 [cheshire "5.6.3"]
+                 [cheshire "5.7.1"]
+                 [net.cgrand/sjacket "0.1.1" :exclusions [org.clojure/clojure]]
                  ;; bump versions of various common transitive deps
                  [scout "0.1.1"]
-                 [slingshot "0.12.2"]
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]

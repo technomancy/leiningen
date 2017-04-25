@@ -6,14 +6,14 @@
             [clojure.java.io :as io]
             [clojure.tools.nrepl.ack :as nrepl.ack]
             [clojure.tools.nrepl.server :as nrepl.server]
+            [cemerick.pomegranate :as pomegranate]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
             [leiningen.core.utils :as utils]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
-            [leiningen.trampoline :as trampoline]
-            [reply.main :as reply]))
+            [leiningen.trampoline :as trampoline]))
 
 (defn- repl-port-file-vector
   "Returns the repl port file for this project as a vector."
@@ -196,9 +196,9 @@
                              (or (.getMessage t#) (type t#))))))
         ~(-> project :repl-options :init))])
 
-(def trampoline-profile
+(def reply-profile
   {:dependencies
-   '[^:displace [reply "0.3.5"
+   '[^:displace [reply "0.3.7"
                  :exclusions [org.clojure/clojure ring/ring-core]]]})
 
 (defn- trampoline-repl [project port]
@@ -210,7 +210,7 @@
                     (assoc :custom-eval init-code)
                     (dissoc :input-stream))
         profile (:leiningen/trampoline-repl (:profiles project)
-                                            trampoline-profile)]
+                                            reply-profile)]
     (eval/eval-in-project
      (project/merge-profiles project [profile])
      `(do (reply.main/launch '~options) (System/exit 0))
@@ -257,7 +257,10 @@
 (defn client [project attach]
   (when (is-uri? attach)
     (require 'cemerick.drawbridge.client))
-  (reply/launch-nrepl (options-for-reply project :attach attach)))
+  (pomegranate/add-dependencies :coordinates (:dependencies reply-profile)
+                                :repositories (:repositories project))
+  (let [launch (utils/require-resolve 'reply.main/launch-nrepl)]
+    (launch (options-for-reply project :attach attach)))  )
 
 (defn- fixup-no-project
   "fixup-no-project ensures that dependencies within profiles is fetched
