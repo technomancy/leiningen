@@ -30,12 +30,9 @@
                              leiningen.core.ssl ; lazy-loaded
                              cemerick.pomegranate
                              classlojure.core
-                             clojure.tools.nrepl
-                             clj-http.core]}}
+                             clojure.tools.nrepl]}}
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
   :source-paths ["leiningen-core/src" "src"]
-  ;; work around Clojure bug http://dev.clojure.org/jira/browse/CLJ-1034
-  :uberjar-exclusions [#"^data_readers.clj$"]
   :eval-in :leiningen)
