@@ -25,7 +25,7 @@ separate install script.  Follow these instructions to install Leiningen manuall
 2. [Download the `lein` script from the `stable` branch](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)
  of this project.
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
-4. Set it to be executable. (`chmod 755 ~/bin/lein`)
+4. Set it to be executable. (`chmod +x ~/bin/lein`)
 5. Run it.
 
 ### Windows
