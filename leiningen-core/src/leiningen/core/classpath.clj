@@ -511,7 +511,9 @@
       (reset! warned true)
       (warn-once "Tried to load" artifact "version" version "but"
                  (bootclasspath-deps artifact) "was already loaded."))
-    (when (and @warned (not (:root project)))
+    (when (and @warned
+               (not (:root project))
+               (not (:suppress-conflict-warnings project)))
       (warn-once "You can set :eval-in :subprocess in your :user profile;"
                  "however this will increase repl load time."))))
 
