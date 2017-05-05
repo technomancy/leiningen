@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/leiningen
+    docker:
+      - image: clojure:lein-2.7.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: << checksum "project.clj" >>
+      - run:
+          working_directory: ~/leiningen/leiningen-core
+          command: lein bootstrap
+      - run: bin/lein test
+      - save_cache:
+          paths:
+            - $HOME/.m2
+            - $HOME/.lein
+          key: << checksum "project.clj" >>
+

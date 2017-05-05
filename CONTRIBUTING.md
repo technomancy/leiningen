@@ -57,10 +57,7 @@ tasks. Assuming you are in Leiningen's project root, you can do that like this:
 
 ```bash
 $ cd leiningen-core
-$ lein bootstrap
-$ cd ..
-$ bin/lein compile
-## or the bat file on Windows.
+$ lein bootstrap # or lein.bat on Windows.
 ```
 
 The `lein` command is a stable release of Leiningen on your `$PATH` – preferably
