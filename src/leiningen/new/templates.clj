@@ -130,7 +130,7 @@
   "Create a renderer function that looks for mustache templates in the
   right place given the name of your template. If no data is passed, the
   file is simply slurped and the content returned unchanged.
-  
+
   render-fn - Optional rendering function that will be used in place of the
               default renderer. This allows rendering templates that contain
               tags that conflic with the Stencil renderer such as {{..}}."
@@ -145,7 +145,7 @@
           (main/abort (format "Template resource '%s' not found." path)))))))
 
 ;; We  provide a hier order function which returns  a function to generate
-;; binary resources such as images placed in `leiningen/new/<template>/` 
+;; binary resources such as images placed in `leiningen/new/<template>/`
 (defn raw-resourcer
   "Create a renderer function that looks for raw files in the
   right place given the name of your template."
