@@ -332,11 +332,11 @@
   ;; compilation artifacts for namespaces that come from dependencies.
   :clean-non-project-classes true
   ;; Paths to include on the classpath from each project in the
-  ;; checkouts/ directory. (See the FAQ in the Readme for more details
-  ;; about checkout dependencies.) Set this to be a vector of
-  ;; functions that take the target project as argument. Defaults to
-  ;; [:source-paths :compile-path :resource-paths], but you could use
-  ;; the following to share code from the test suite:
+  ;; checkouts/ directory. (See the tutorial for more details about
+  ;; checkout dependencies.) Set this to be a vector of functions that
+  ;; take the target project as argument. Defaults to [:source-paths
+  ;; :compile-path :resource-paths], but you could use the following
+  ;; to share code from the test suite:
   :checkout-deps-shares [:source-paths :test-paths
                          ~(fn [p] (str (:root p) "/lib/dev/*"))]
 
@@ -406,7 +406,7 @@
   :jar-exclusions [#"(?:^|/).svn/"]
   ;; Files with names matching any of these patterns will included in the jar
   ;; even if they'd be skipped otherwise.
-  :jar-inclusions ["^\.ebextensions"]
+  :jar-inclusions [#"^\.ebextensions"]
   ;; Same as :jar-exclusions, but for uberjars.
   :uberjar-exclusions [#"META-INF/DUMMY.SF"]
   ;; By default Leiningen will run a clean before creating jars to prevent
