@@ -3,7 +3,7 @@
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
             [clojure.string :as str])
-  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
+  (:import (org.eclipse.aether.resolution DependencyResolutionException)))
 
 (defn get-classpath-string [project]
   (try

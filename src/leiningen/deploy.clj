@@ -10,7 +10,8 @@
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]
             [clojure.java.shell :as sh]
-            [clojure.string :as string]))
+            [clojure.string :as string])
+  (:import (org.eclipse.aether.deployment DeploymentException)))
 
 (defn- abort-message [message]
   (cond (re-find #"Return code is 405" message)
@@ -214,7 +215,7 @@ be able to depend on jars that are deployed without a pom."
           :artifact-map files
           :transfer-listener :stdout
           :repository [repo])
-         (catch org.sonatype.aether.deployment.DeploymentException e
+         (catch DeploymentException e
            (when main/*debug* (.printStackTrace e))
            (main/abort (abort-message (.getMessage e)))))))
   ([project repository identifier version & files]

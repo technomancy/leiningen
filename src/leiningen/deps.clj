@@ -7,7 +7,7 @@
             [clojure.pprint :as pprint]
             [leiningen.core.utils :as utils]
             [cemerick.pomegranate.aether :as aether])
-  (:import (org.sonatype.aether.resolution DependencyResolutionException)))
+  (:import (org.eclipse.aether.resolution DependencyResolutionException)))
 
 (defn- walk-deps
   ([deps f level]

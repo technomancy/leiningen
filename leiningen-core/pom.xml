@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>a441ba12ca9723d99e34da2d4aa3483cdf00331b
+    <tag>e829c12d5147ad9b5f1f50032ac1d763e20932e1
 </tag>
     <url/>
   </scm>
@@ -48,7 +48,7 @@
     </repository>
     <repository>
       <id>clojars</id>
-      <url>https://repo.clojars.org/</url>
+      <url>https://clojars.org/repo/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -72,8 +72,8 @@
       <version>0.2.8</version>
       <exclusions>
         <exclusion>
-          <artifactId>dynapath</artifactId>
           <groupId>org.tcrawley</groupId>
+          <artifactId>dynapath</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -90,33 +90,7 @@
     <dependency>
       <groupId>com.cemerick</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>0.3.1</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>dynapath</artifactId>
-          <groupId>org.tcrawley</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>plexus-utils</artifactId>
-          <groupId>org.codehaus.plexus</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.tcrawley</groupId>
-      <artifactId>dynapath</artifactId>
-      <version>0.2.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.wagon</groupId>
-      <artifactId>wagon-http</artifactId>
-      <version>2.12</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>wagon-provider-api</artifactId>
-          <groupId>org.apache.maven.wagon</groupId>
-        </exclusion>
-      </exclusions>
+      <version>0.4.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.hypirion</groupId>
@@ -126,7 +100,7 @@
     <dependency>
       <groupId>pedantic</groupId>
       <artifactId>pedantic</artifactId>
-      <version>0.2.0</version>
+      <version>0.2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

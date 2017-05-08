@@ -9,8 +9,8 @@
             [leiningen.core.utils :as utils]
             [pedantic.core :as pedantic])
   (:import (java.util.jar JarFile)
-           (org.sonatype.aether.graph Exclusion)
-           (org.sonatype.aether.resolution DependencyResolutionException)))
+           (org.eclipse.aether.graph Exclusion)
+           (org.eclipse.aether.resolution DependencyResolutionException)))
 
 (defn- warn [& args]
   ;; TODO: remove me once #1227 is merged

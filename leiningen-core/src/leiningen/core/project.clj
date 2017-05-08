@@ -750,7 +750,8 @@
                             (enumeration-seq))
              :when (not (@registered-wagon-files wagon-file))
              [hint factory] (read-string (slurp wagon-file))]
-       (aether/register-wagon-factory! hint (eval factory))
+       ;; this disappeared because of reasons?
+       ;; (aether/register-wagon-factory! hint (eval factory))
        (swap! registered-wagon-files conj wagon-file))
      project)
   ([project dependencies-key] (load-plugins project dependencies-key nil))
