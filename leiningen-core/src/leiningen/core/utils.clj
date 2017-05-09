@@ -1,6 +1,7 @@
 (ns leiningen.core.utils
   (:require [clojure.java.io :as io]
-            [clojure.java.shell :as sh])
+            [clojure.java.shell :as sh]
+            [clojure.edn :as edn])
   (:import (com.hypirion.io RevivableInputStream)
            (clojure.lang LineNumberingPushbackReader)
            (java.io ByteArrayOutputStream PrintStream File FileDescriptor
@@ -40,7 +41,7 @@
   "Returns the first Clojure form in a file if it exists."
   [file]
   (if (.exists file)
-    (try (read-string (slurp file))
+    (try (edn/read-string (slurp file))
         (catch Exception e
          (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
            (println "Error reading"
