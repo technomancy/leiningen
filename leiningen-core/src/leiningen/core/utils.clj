@@ -46,8 +46,12 @@
            (println "Error reading"
                    (.getName file)
                    "from"
-                   (.getParent file)))
-         (throw e)))))
+                   (.getParent file))
+           (if (zero? (.length file))
+             (println "File cannot be empty")
+             (if (.contains (.getMessage e) "EOF while reading")
+               (println "Invalid content was found")
+               (println (.getMessage e)))))))))
 
 (defn symlink?
   "Checks if a File is a symbolic link or points to another file."
