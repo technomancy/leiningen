@@ -144,6 +144,20 @@
 
 (def credentials (memoize credentials-fn))
 
+(defn- env-auth-key [settings [k v]]
+  (let [name (if (= :env v) (str "LEIN_" (name k))
+                 (if (and (keyword? v) (= "env" (namespace v))) (name v)))
+        value (if name
+                (System/getenv (str/upper-case (str/replace name "-" "_")))
+                v)]
+    (assoc settings k value)))
+
+(defn env-auth
+  "Replace all :env values in map with LEIN_key environment variable value
+and all :env/my-special-name with MY_SPECIAL_NAME enviroment variable value."
+  [settings]
+  (reduce env-auth-key {} settings))
+
 (defn- match-credentials [settings auth-map]
   (get auth-map (:url settings)
        (first (for [[re? cred] auth-map
