@@ -186,7 +186,7 @@ like this:
 ```clj
 {:user {...}
  :auth {:repository-auth {#"blueant" {:username "milgrim"
-                                      :password "locative1"}}}}
+                                      :passphrase "locative1"}}}}
 ```
 
 ### Credentials in the Environment
