@@ -34,7 +34,7 @@ definition:
   :description "A Clojure project with a little bit of Java sprinkled here and there"
   :min-lein-version  "2.0.0"
   :source-paths      ["src/clojure"]
-  :java-source-paths ["src/java"])
+  :java-source-path  ["src/java"])
 ```
 
 Having one source root contain another (e.g. `src` and `src/java`) can
@@ -75,7 +75,7 @@ sources use features up to JDK 6 and target JVM is also version 6:
   :description "A Clojure project with a little bit of Java sprinkled here and there"
   :min-lein-version "2.0.0"
   :source-paths ["src/clojure"]
-  :java-source-paths ["src/java"]
+  :java-source-path  ["src/java"]
   :javac-options     ["-target" "1.6" "-source" "1.6"])
 ```
 
