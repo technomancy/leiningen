@@ -587,6 +587,8 @@
 
         (= (class left) (class right)) right
 
+        (or (= :all left) (= :all right)) :all
+
         :else
         (do (warn left "and" right "have a type mismatch merging profiles.")
             right)))
