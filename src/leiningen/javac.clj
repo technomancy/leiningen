@@ -9,12 +9,19 @@
   (:import java.io.File
            javax.tools.ToolProvider))
 
+(defn- java-source?
+  [^File f]
+  (and (.isFile f)
+    (-> ^File f
+      (.getName)
+      (.endsWith ".java"))))
+
 (defn- stale-java-sources
   "Returns a lazy seq of file paths: every Java source file within dirs modified
   since it was most recently compiled into compile-path."
   [dirs compile-path]
   (for [dir dirs
-        ^File source (filter #(-> ^File % (.getName) (.endsWith ".java"))
+        ^File source (filter java-source?
                              (file-seq (io/file dir)))
         :let [rel-source (.substring (.getPath source) (inc (count dir)))
               rel-compiled (.replaceFirst rel-source "\\.java$" ".class")
@@ -133,6 +140,20 @@
             (main/exit exit-code)
             (throw e)))))))
 
+(defn- copy-resources
+  "Copy non Java source files into compiled path"
+  [project]
+  (let [compile-path  (:compile-path project)
+        java-src-dirs (:java-source-paths project)]
+    (doseq [dir java-src-dirs
+            ^File resource (filter #(and (.isFile %) (not (java-source? %)))
+                             (file-seq (io/file dir)))]
+      (let [rel-resource (.substring (.getPath resource) (inc (count dir)))
+            compiled (io/file compile-path rel-resource)]
+        (when (>= (.lastModified resource) (.lastModified compiled))
+          (.mkdirs (.getParentFile compiled))
+          (io/copy resource compiled))))))
+
 (defn javac
   "Compile Java source files.
 
@@ -144,4 +165,5 @@ Like the compile and deps tasks, this should be invoked automatically when
 needed and shouldn't ever need to be run by hand. By default it is called before
 compilation of Clojure source; change :prep-tasks to alter this."
   [project & args]
-  (run-javac-subprocess project args))
+  (run-javac-subprocess project args)
+  (copy-resources project))
