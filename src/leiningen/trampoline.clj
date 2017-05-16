@@ -4,6 +4,7 @@
   (:require [clojure.string :as string]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.pprint :as pprint]))
@@ -34,7 +35,7 @@
   (let [command (trampoline-command-string project forms profiles)
         trampoline (trampoline-file)]
     (main/debug "Trampoline command:" command)
-    (.mkdirs (.getParentFile (io/file trampoline)))
+    (utils/mkdirs (.getParentFile (io/file trampoline)))
     (spit trampoline command)))
 
 (defn ^:higher-order trampoline

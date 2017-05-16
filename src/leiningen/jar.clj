@@ -217,7 +217,7 @@
 
 ;; Split out backwards-compatibility. Collapse into get-jar-filename for 3.0
 (defn get-classified-jar-filename [project classifier]
-  (let [target (doto (io/file (:target-path project)) .mkdirs)
+  (let [target (doto (io/file (:target-path project)) utils/mkdirs)
         suffix (if classifier (str "-" (name classifier) ".jar") ".jar")
         name-kw (if (= classifier :standalone) :uberjar-name :jar-name)
         jar-name (or (project name-kw) (str (:name project) "-%s" suffix))

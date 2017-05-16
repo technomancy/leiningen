@@ -29,8 +29,8 @@
           :when (.startsWith (.getName entry) native-prefix)]
     (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
       (if (.isDirectory entry)
-        (.mkdirs f)
-        (do (.mkdirs (.getParentFile f))
+        (utils/mkdirs f)
+        (do (utils/mkdirs (.getParentFile f))
             (io/copy (.getInputStream jar entry) f))))))
 
 (defn extract-native-dep!
@@ -47,8 +47,8 @@
       (vreset! native? true)
       (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
         (if (.isDirectory entry)
-          (.mkdirs f)
-          (do (.mkdirs (.getParentFile f))
+          (utils/mkdirs f)
+          (do (utils/mkdirs (.getParentFile f))
               (io/copy (.getInputStream jar entry) f)))))
     @native?))
 
@@ -167,7 +167,7 @@
         (warn "Could not read the old stale value for" identifier ", rerunning stale task"))
       (when (or (= ::error file-content)
                 (not= old-cmp-val cmp-val))
-        (.mkdirs (.getParentFile file))
+        (utils/mkdirs (.getParentFile file))
         (let [result (apply f outdated-val args)]
           (spit file (pr-str [cmp-val result]))
           result)))))
@@ -189,7 +189,7 @@
     (when (and (:name project) (:target-path project)
                (not= current-value old-value))
       (apply f args)
-      (.mkdirs (.getParentFile file))
+      (utils/mkdirs (.getParentFile file))
       (spit file (doall current-value))
       true)))
 

@@ -3,6 +3,7 @@
   (:require [leiningen.classpath :as classpath]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as string])
@@ -91,7 +92,7 @@
          ~(when main/*info*
             `(binding [*out* *err*]
                (println "Compiling" ~(count files) "source files to" ~compile-path)))
-         (.mkdirs (clojure.java.io/file ~compile-path))
+         (utils/mkdirs (clojure.java.io/file ~compile-path))
          (when-not (zero?
                     (.run compiler# nil nil nil
                           (into-array java.lang.String ~javac-opts)))

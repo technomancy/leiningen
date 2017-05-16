@@ -37,7 +37,7 @@
   (when (and (:root project) (:write-pom-properties project true))
     (let [path (format "%s/META-INF/maven/%s/%s/pom.properties"
                        compile-path group name)]
-      (.mkdirs (.getParentFile (io/file path)))
+      (utils/mkdirs (.getParentFile (io/file path)))
       (spit path (project/make-project-properties project)))))
 
 (defn run-prep-tasks
@@ -76,11 +76,11 @@
   [project]
   ;; These must exist before the project is launched.
   (when (:root project)
-    (.mkdirs (io/file (:compile-path project "/tmp")))
+    (utils/mkdirs (io/file (:compile-path project "/tmp")))
     ;; hack to not create default projects. For now only.
     (doseq [path (mapcat #(remove-default-paths project %)
                          ((juxt :source-paths :test-paths :resource-paths) project))]
-      (.mkdirs (io/file path))))
+      (utils/mkdirs (io/file path))))
   (write-pom-properties project)
   (classpath/resolve-managed-dependencies :dependencies :managed-dependencies project)
   (run-prep-tasks project)

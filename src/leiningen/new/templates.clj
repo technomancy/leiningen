@@ -13,6 +13,7 @@
             [clojure.string :as string]
             [leiningen.core.eval :as eval]
             [leiningen.core.user :as user]
+            [leiningen.core.utils :as utils]
             [leiningen.core.main :as main]
             [stencil.core :as stencil])
   (:import (java.util Calendar)))
@@ -191,11 +192,11 @@
     (if (or (= "." dir) (.mkdir (io/file dir)) *force?*)
       (doseq [path paths]
         (if (string? path)
-          (.mkdirs (template-path dir path data))
+          (utils/mkdirs (template-path dir path data))
           (let [[path content & options] path
                 path (template-path dir path data)
                 options (apply hash-map options)]
-            (.mkdirs (.getParentFile path))
+            (utils/mkdirs (.getParentFile path))
             (io/copy content (io/file path))
             (when (:executable options)
               (.setExecutable path true)))))

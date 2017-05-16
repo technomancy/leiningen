@@ -2,6 +2,7 @@
   "Write a pom.xml file to disk for Maven interoperability."
   (:import java.io.IOException)
   (:require [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.set :as set]
@@ -402,7 +403,7 @@
   ([project pom-location-or-properties]
      (let [pom (make-pom project true)
            pom-file (io/file (:root project) pom-location-or-properties)]
-       (.mkdirs (.getParentFile pom-file))
+       (utils/mkdirs (.getParentFile pom-file))
        (with-open [pom-writer (io/writer pom-file)]
          (.write pom-writer pom))
        (main/info "Wrote" (str pom-file))

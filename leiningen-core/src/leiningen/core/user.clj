@@ -24,7 +24,7 @@
   (let [lein-home (getenv "LEIN_HOME")
         lein-home (or (and lein-home (io/file lein-home))
                       (io/file (System/getProperty "user.home") ".lein"))]
-    (.getAbsolutePath (doto lein-home .mkdirs))))
+    (.getAbsolutePath (doto lein-home utils/mkdirs))))
 
 ;; TODO: move all these memoized fns into delays
 (def init
