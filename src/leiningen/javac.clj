@@ -92,7 +92,7 @@
          ~(when main/*info*
             `(binding [*out* *err*]
                (println "Compiling" ~(count files) "source files to" ~compile-path)))
-         (utils/mkdirs (clojure.java.io/file ~compile-path))
+         (.mkdirs (clojure.java.io/file ~compile-path))
          (when-not (zero?
                     (.run compiler# nil nil nil
                           (into-array java.lang.String ~javac-opts)))
