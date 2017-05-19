@@ -118,7 +118,7 @@ if [ -r "$BIN_DIR/../src/leiningen/core.clj" ]; then
     fi
 else
     # Not running from a checkout
-    CLASSPATH="$CLASSPATH:$LEIN_JAR"
+    CLASSPATH="$LEIN_JAR:$CLASSPATH"
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         "$0" self-install
