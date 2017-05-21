@@ -82,7 +82,7 @@ available via:
 There are several options here, depending on which package manager you
 have installed (if any):
 
-1. via [homebrew](https://mxcl.github.com/homebrew/): `brew install gnupg2`
+1. via [homebrew](https://brew.sh/): `brew install gnupg2`
 2. via [macports](https://www.macports.org/): `port install gnupg2`
 3. via a [binary installer](https://www.gpgtools.org/installer/index.html) 
    (this installs gpg2 as gpg)
