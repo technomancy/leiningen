@@ -295,7 +295,10 @@ Subcommands:
       localhost.
   If no dest is given, resolves the host resolved as described above
   and the port from LEIN_REPL_PORT, :repl-options, or .nrepl-port in
-  the project root, in that order.
+  the project root, in that order. Providing an argument that begins
+  with @ and points to a filename containing a connect string will read
+  that file and use its contents, allowing sensitive credentials to be
+  kept out of the process table and shell history.
 
 Note: the :repl profile is implicitly activated for this task. It cannot be
 deactivated, but it can be overridden."
