@@ -74,10 +74,12 @@
   :managed-dependencies [[clj-time "0.12.0"]
                          [me.raynes/fs "1.4.6"]]
 
-  ;; What to do in the case of version issues. Defaults to :ranges, which
+  ;; What to do in the case of version conflicts. Defaults to :ranges, which
   ;; warns when version ranges are present anywhere in the dependency tree,
   ;; but can be set to true to warn for both ranges and overrides, or :abort
-  ;; to exit in the case of ranges or overrides.
+  ;; to exit in the case of ranges or overrides. Setting this will also warn
+  ;; you when plugins or their dependencies conflict with libraries used by
+  ;; Leiningen itself.
   :pedantic? :abort
   ;; Global exclusions are applied across the board, as an alternative
   ;; to duplication for multiple dependencies with the same excluded libraries.

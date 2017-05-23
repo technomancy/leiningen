@@ -504,18 +504,19 @@
   "When using the bootclasspath (for boot speed), resources already on the
   bootclasspath cannot be overridden by plugins, so notify the user about it."
   [project dependencies]
-  (let [warned (atom false)]
-    (doseq [[artifact version] dependencies
-            :when (and (bootclasspath-deps artifact)
-                       (not= (bootclasspath-deps artifact) version))]
-      (reset! warned true)
-      (warn-once "Tried to load" artifact "version" version "but"
-                 (bootclasspath-deps artifact) "was already loaded."))
-    (when (and @warned
-               (not (:root project))
-               (not (:suppress-conflict-warnings project)))
-      (warn-once "You can set :eval-in :subprocess in your :user profile;"
-                 "however this will increase repl load time."))))
+  (when (:pedantic? project)
+    (let [warned (atom false)]
+      (doseq [[artifact version] dependencies
+              :when (and (bootclasspath-deps artifact)
+                         (not= (bootclasspath-deps artifact) version))]
+        (reset! warned true)
+        (warn-once "Tried to load" artifact "version" version "but"
+                   (bootclasspath-deps artifact) "was already loaded."))
+      (when (and @warned
+                 (not (:root project))
+                 (not (:suppress-conflict-warnings project)))
+        (warn-once "You can set :eval-in :subprocess in your :user profile;"
+                   "however this will increase repl load time.")))))
 
 (defn resolve-managed-dependencies
   "Delegate dependencies to pomegranate. This will ensure they are
