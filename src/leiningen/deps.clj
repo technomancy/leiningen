@@ -28,7 +28,9 @@
 (defn- why-finder [target]
   (let [path (atom [])]
     (fn [[dep version] level]
-      (cond (= target dep) (print-path (conj @path [dep version level]))
+      (cond (= target dep) (do (when (= (count @path) (inc level))
+                                 (swap! path pop))
+                               (print-path (conj @path [dep version level])))
             (< (count @path) (inc level)) (swap! path conj [dep version level])
             (= (count @path) (inc level)) (do (swap! path pop)
                                               (swap! path conj
@@ -105,8 +107,7 @@ shown once within a tree.
 
     lein deps :tree-data
 
-Show the full dependency tree as EDN for the current project. Each dependency 
-is only shown once within a tree.
+Show the full dependency tree as above, but in EDN format.
 
     lein deps :plugin-tree
 
@@ -120,6 +121,11 @@ Check signatures of each dependency. ALPHA: subject to change.
 
 List the implicit middleware and hooks that will be activated by the current
 set of plugins. Useful for debugging unexplained behaviour.
+
+    lein deps :why org.clojure/core.logic
+
+Show just the path in the dependency tree directly relating to why a
+specific dependency has been included.
 
     lein deps
 
@@ -158,13 +164,14 @@ force them to be updated, use `lein -U $TASK`."
                           (partial verify project))
                (main/abort (str "Could not verify - gpg not available.\n"
                                 "See `lein help gpg` for how to setup gpg.")))
-             :else (classpath/resolve-managed-dependencies
-                    :dependencies :managed-dependencies project))
+             (empty? command) (classpath/resolve-managed-dependencies
+                               :dependencies :managed-dependencies project)
+             :else (main/abort "Unknown deps command" command))
        (catch DependencyResolutionException e
          (main/abort (.getMessage e)))))
   ([project command target]
-   (when-not (re-find #":why+" command)
-     (main/abort "Unknown command" command))
+   (when-not (re-find #"^:why+$" command)
+     (main/abort "Unknown deps command" command))
    (walk-deps (classpath/managed-dependency-hierarchy :dependencies
                                                       :managed-dependencies
                                                       project)
