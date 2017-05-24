@@ -21,6 +21,20 @@
 (defn- print-dep [dep level]
   (println (apply str (repeat (* 2 level) \space)) (pr-str dep)))
 
+(defn- print-path [steps]
+  (doseq [[dep version level] steps]
+    (print-dep [dep version] level)))
+
+(defn- why-finder [target]
+  (let [path (atom [])]
+    (fn [[dep version] level]
+      (cond (= target dep) (print-path (conj @path [dep version level]))
+            (< (count @path) (inc level)) (swap! path conj [dep version level])
+            (= (count @path) (inc level)) (do (swap! path pop)
+                                              (swap! path conj
+                                                     [dep version level]))
+            (> (count @path) (inc level)) (swap! path pop)))))
+
 
 
 (declare check-signature)
@@ -147,4 +161,11 @@ force them to be updated, use `lein -U $TASK`."
              :else (classpath/resolve-managed-dependencies
                     :dependencies :managed-dependencies project))
        (catch DependencyResolutionException e
-         (main/abort (.getMessage e))))))
+         (main/abort (.getMessage e)))))
+  ([project command target]
+   (when-not (re-find #":why+" command)
+     (main/abort "Unknown command" command))
+   (walk-deps (classpath/managed-dependency-hierarchy :dependencies
+                                                      :managed-dependencies
+                                                      project)
+              (why-finder (symbol target)))))
