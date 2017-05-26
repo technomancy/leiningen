@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+TAG="technomancy/leiningen:$TRAVIS_TAG"
+
+if [ -z "$TRAVIS_TAG"] && [ "master" != "$TRAVIS_BRANCH" ]
+then
+  exit 0
+fi
+
+if [ -z "$TRAVIS_TAG" ]
+then
+  TAG="technomancy/leiningen"
+  docker build . -t "$TAG"
+else
+  docker build --build-arg LEIN_VERSION="$TRAVIS_TAG" . -t "$TAG"
+fi
+
+docker push "$TAG"
