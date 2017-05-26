@@ -24,3 +24,4 @@
 TAGS
 test_projects/*/target
 pom.xml
+deps.txt

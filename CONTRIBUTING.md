@@ -27,8 +27,8 @@ when sending pull requests rather than committing directly to master
 in order to minimize unnecessary merge commit clutter. Direct pull
 requests towards the master branch, not the stable branch.
 
-Leiningen is [mirrored at Gitorious](https://gitorious.org/leiningen/leiningen)
-and [tested on Travis](http://travis-ci.org/technomancy/leiningen).
+Leiningen is [mirrored at GitLab](https://gitlab.org/technomancy/leiningen)
+and [tested on CircleCI](https://circleci.com/gh/technomancy/leiningen).
 
 ## Codebase
 
@@ -57,10 +57,7 @@ tasks. Assuming you are in Leiningen's project root, you can do that like this:
 
 ```bash
 $ cd leiningen-core
-$ lein bootstrap
-$ cd ..
-$ bin/lein compile
-## or the bat file on Windows.
+$ lein bootstrap # or lein.bat on Windows.
 ```
 
 The `lein` command is a stable release of Leiningen on your `$PATH` – preferably
