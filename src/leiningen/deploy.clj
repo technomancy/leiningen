@@ -214,7 +214,7 @@ be able to depend on jars that are deployed without a pom."
           :artifact-map files
           :transfer-listener :stdout
           :repository [repo])
-         (catch org.sonatype.aether.deployment.DeploymentException e
+         (catch org.eclipse.aether.deployment.DeploymentException e
            (when main/*debug* (.printStackTrace e))
            (main/abort (abort-message (.getMessage e)))))))
   ([project repository identifier version & files]

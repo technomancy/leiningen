@@ -7,10 +7,9 @@
             [clojure.set :as set]
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
-            [pedantic.core :as pedantic])
+            [leiningen.core.pedantic :as pedantic])
   (:import (java.util.jar JarFile)
-           (org.sonatype.aether.graph Exclusion)
-           (org.sonatype.aether.resolution DependencyResolutionException)))
+           (org.eclipse.aether.resolution DependencyResolutionException)))
 
 (defn- warn [& args]
   ;; TODO: remove me once #1227 is merged
@@ -307,117 +306,10 @@
              (get-dependencies-memoized dependencies-key (assoc project :offline? true))
              (throw e))))))))
 
-(defn- group-artifact [artifact]
-  (if (= (.getGroupId artifact)
-         (.getArtifactId artifact))
-    (.getGroupId artifact)
-    (str (.getGroupId artifact)
-         "/"
-         (.getArtifactId artifact))))
-
-(defn- dependency-str [dependency & [version]]
-  (if-let [artifact (and dependency (.getArtifact dependency))]
-    (str "["
-         (group-artifact artifact)
-         " \"" (or version (.getVersion artifact)) "\""
-         (if-let [classifier (.getClassifier artifact)]
-           (if (not (empty? classifier))
-             (str " :classifier \"" classifier "\"")))
-         (if-let [extension (.getExtension artifact)]
-           (if (not= extension "jar")
-             (str " :extension \"" extension "\"")))
-         (if-let [exclusions (seq (.getExclusions dependency))]
-           (str " :exclusions " (mapv (comp symbol group-artifact)
-                                      exclusions)))
-         "]")))
-
-(defn- message-for [path & [show-constraint?]]
-  (->> path
-       (map #(dependency-str (.getDependency %) (.getVersionConstraint %)))
-       (remove nil?)
-       (interpose " -> ")
-       (apply str)))
-
-(defn- message-for-version [{:keys [node parents]}]
-  (message-for (conj parents node)))
-
-(defn- exclusion-for-range [node parents]
-  (if-let [top-level (second parents)]
-    (let [excluded-artifact (.getArtifact (.getDependency node))
-          exclusion (Exclusion. (.getGroupId excluded-artifact)
-                      (.getArtifactId excluded-artifact) "*" "*")
-          exclusion-set (into #{exclusion} (.getExclusions
-                                             (.getDependency top-level)))
-          with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
-      (dependency-str with-exclusion))
-    ""))
-
-(defn- message-for-range [{:keys [node parents]}]
-  (str (message-for (conj parents node) :constraints) "\n"
-       "Consider using "
-       (exclusion-for-range node parents) "."))
-
-(defn- exclusion-for-override [{:keys [node parents]}]
-  (exclusion-for-range node parents))
-
-(defn- message-for-override [{:keys [accepted ignoreds ranges]}]
-  {:accepted (message-for-version accepted)
-   :ignoreds (map message-for-version ignoreds)
-   :ranges (map message-for-range ranges)
-   :exclusions (map exclusion-for-override ignoreds)})
-
-(defn- pedantic-print-ranges [messages]
-  (when-not (empty? messages)
-    (warn "WARNING!!! version ranges found for:")
-    (doseq [dep-string messages]
-      (warn dep-string))
-    (warn)))
-
-(defn- pedantic-print-overrides [messages]
-  (when-not (empty? messages)
-    (warn "Possibly confusing dependencies found:")
-    (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
-      (warn accepted)
-      (warn " overrides")
-      (doseq [ignored (interpose " and" ignoreds)]
-        (warn ignored))
-      (when-not (empty? ranges)
-        (warn " possibly due to a version range in")
-        (doseq [r ranges]
-          (warn r)))
-      (warn "\nConsider using these exclusions:")
-      (doseq [ex (distinct exclusions)]
-        (warn ex))
-      (warn))))
-
-(alter-var-root #'pedantic-print-ranges memoize)
-(alter-var-root #'pedantic-print-overrides memoize)
-
-(defn- pedantic-do [pedantic-setting ranges overrides]
-  ;; Need to turn everything into a string before calling
-  ;; pedantic-print-*, otherwise we can't memoize due to bad equality
-  ;; semantics on aether GraphEdge objects.
-  (let [key (keyword pedantic-setting)
-        abort-or-true (#{true :abort} key)]
-    (when (and key (not= key :overrides))
-      (pedantic-print-ranges (distinct (map message-for-range ranges))))
-    (when (and key (not= key :ranges))
-      (pedantic-print-overrides (map message-for-override overrides)))
-    (when (and abort-or-true
-               (not (empty? (concat ranges overrides))))
-      (require 'leiningen.core.main)
-      ((resolve 'leiningen.core.main/abort) ; cyclic dependency =\
-       "Aborting due to :pedantic? :abort"))))
-
-(defn- pedantic-session [project ranges overrides]
-  (if (:pedantic? project)
-    #(-> % aether/repository-session
-         (pedantic/use-transformer ranges overrides))))
-
 (defn ^:internal get-dependencies [dependencies-key managed-dependencies-key
                                    project & args]
   (let [ranges (atom []), overrides (atom [])
-        session (pedantic-session project ranges overrides)
+        session (pedantic/session project ranges overrides)
         args (assoc (apply hash-map args) :repository-session-fn session)
         trimmed (select-keys project [dependencies-key managed-dependencies-key
                                       :repositories :checksum :local-repo :offline?
@@ -425,7 +317,7 @@
         deps-result (get-dependencies-memoized dependencies-key
                                                managed-dependencies-key
                                                trimmed args)]
-    (pedantic-do (:pedantic? project) @ranges @overrides)
+    (pedantic/do (:pedantic? project) @ranges @overrides)
     deps-result))
 
 (defn- get-original-dependency

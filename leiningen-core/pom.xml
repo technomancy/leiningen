@@ -90,15 +90,15 @@
     <dependency>
       <groupId>com.cemerick</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>0.3.1</version>
+      <version>0.4.0-alpha1</version>
       <exclusions>
         <exclusion>
-          <artifactId>dynapath</artifactId>
           <groupId>org.tcrawley</groupId>
+          <artifactId>dynapath</artifactId>
         </exclusion>
         <exclusion>
-          <artifactId>plexus-utils</artifactId>
           <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-utils</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -113,8 +113,8 @@
       <version>2.12</version>
       <exclusions>
         <exclusion>
-          <artifactId>wagon-provider-api</artifactId>
           <groupId>org.apache.maven.wagon</groupId>
+          <artifactId>wagon-provider-api</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -122,11 +122,6 @@
       <groupId>com.hypirion</groupId>
       <artifactId>io</artifactId>
       <version>0.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>pedantic</groupId>
-      <artifactId>pedantic</artifactId>
-      <version>0.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
