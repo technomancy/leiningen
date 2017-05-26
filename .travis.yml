@@ -2,10 +2,6 @@ language: clojure
 install: cd leiningen-core; lein install; lein classpath | tail -n 1 > .lein-bootstrap; cd ..
 script: bin/lein test
 sudo: false
-notifications:
-  irc: "irc.freenode.org#leiningen"
 jdk:
-  - openjdk6
   - openjdk7
-  - oraclejdk7
   - oraclejdk8
