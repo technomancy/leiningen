@@ -6,25 +6,6 @@
 
 export LEIN_VERSION="2.7.2-SNAPSHOT"
 
-function check_root {
-  local -i user_id
-  # Thank you for the complexity, Solaris
-  if [ "$(uname)" = "SunOS" -a -x /usr/xpg4/bin/id ]; then
-    user_id=$(/usr/xpg4/bin/id -u 2>/dev/null || echo 0)
-  else
-    user_id=$(id -u 2>/dev/null || echo 0)
-  fi
-  [ "$user_id" -eq 0 -a "$LEIN_ROOT" = "" ] && return 0
-  return 1
-}
-
-if check_root; then
-    echo "WARNING: You're currently running as root; probably by accident."
-    echo "Press control-C to abort or Enter to continue as root."
-    echo "Set LEIN_ROOT to disable this warning."
-    read _
-fi
-
 # cd to the project root, if applicable
 NOT_FOUND=1
 ORIGINAL_PWD="$PWD"
