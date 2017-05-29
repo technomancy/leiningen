@@ -5,8 +5,9 @@
             [leiningen.core.utils :as utils]
             [clojure.java.io :as io]
             [clojure.string :as string]
+            [clojure.stacktrace :as stacktrace]
             [bultitude.core :as b]
-            [clojure.stacktrace :as stacktrace]))
+            [cemerick.pomegranate.aether :as aether]))
 
 (def aliases {"-h" "help", "-help" "help", "--help" "help", "-?" "help",
               "-v" "version", "-version" "version", "--version" "version",
@@ -388,10 +389,16 @@ Get the latest version of Leiningen at http://leiningen.org or by executing
                      :test-paths ^:replace []})
       (project/init-project)))
 
+(defn- insecure-http-abort [& _]
+  (abort "Tried to use insecure HTTP repository without TLS.
+This is almost certainly a mistake; however in rare cases where it's
+intentional please see `lein help faq` for details."))
+
 (defn -main
   "Command-line entry point."
   [& raw-args]
   (try
+    (aether/register-wagon-factory! "http" insecure-http-abort)
     (user/init)
     (let [project (if (.exists (io/file *cwd* "project.clj"))
                     (project/read (str (io/file *cwd* "project.clj")))
