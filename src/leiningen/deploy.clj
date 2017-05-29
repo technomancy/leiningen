@@ -76,14 +76,27 @@
 (defn signing-args
   "Produce GPG arguments for signing a file."
   [file opts]
-  (let [key-spec (if-let [key (:gpg-key opts)]
-                   ["--default-key" key])]
-    `["--yes" "-ab" ~@key-spec "--" ~file]))
+  (let [key-args (concat
+                  (if-let [key (:gpg-key opts)]
+                    ["--default-key" key])
+                  (if-let [pass (:gpg-passphrase opts)]
+                    ["--passphrase-fd" "0"
+                     "--pinentry-mode" "loopback"]))]
+    `["--yes" "-ab" ~@key-args "--" ~file]))
+
+(defn signing-passphrase
+  "Produce GPG passphrase if specified in project"
+  [opts]
+  (if-let [pp (:gpg-passphrase opts)]
+    (or (user/resolve-env-keyword :gpg-passphrase pp) 
+        pp)))
 
 (defn sign
   "Create a detached signature and return the signature file name."
   [file opts]
-  (let [{:keys [err exit]} (apply user/gpg (signing-args file opts))]
+  (let [{:keys [err exit]} (apply user/gpg-with-passphrase
+                                  (cons (signing-passphrase opts)
+                                        (signing-args file opts)))]
     (when-not (zero? exit)
       (main/abort "Could not sign"
                   (str file "\n" err (if err "\n")
