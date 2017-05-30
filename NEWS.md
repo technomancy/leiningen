@@ -2,6 +2,9 @@
 
 ## 2.8.0 / ???
 
+* Fix a bug where dependency resolution wasn't cached correctly. (Phil Hagelberg)
+* Warn when `$CLASSPATH` is set. (Phil Hagelberg)
+* Remove warning when running as root. (Phil Hagelberg)
 * Add `why` subtask to `deps` for tracing individual deps. (Phil Hagelberg)
 * Remove clj-http and cheshire dependencies, reducing likelihood of conflict (Phil Hagelberg)
 * Warn when plugin dependencies conflict with Leiningen's own. (Phil Hagelberg)

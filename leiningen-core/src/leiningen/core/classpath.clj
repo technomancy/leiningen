@@ -249,19 +249,22 @@
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
 
+(def ^:private ^:dynamic *dependencies-session*
+  "This is dynamic in order to avoid memoization issues.")
+
 (def ^:private get-dependencies-memoized
   (memoize
    (fn [dependencies-key managed-dependencies-key
         {:keys [repositories local-repo offline? update
                 checksum mirrors] :as project}
-        {:keys [add-classpath? repository-session-fn] :as args}]
+        {:keys [add-classpath?] :as args}]
      {:pre [(every? vector? (get project dependencies-key))
             (every? vector? (get project managed-dependencies-key))]}
      (try
        ((if add-classpath?
           pomegranate/add-dependencies
           aether/resolve-dependencies)
-        :repository-session-fn repository-session-fn
+        :repository-session-fn *dependencies-session*
         :local-repo local-repo
         :offline? offline?
         :repositories (->> repositories
@@ -310,14 +313,14 @@
 (defn ^:internal get-dependencies [dependencies-key managed-dependencies-key
                                    project & args]
   (let [ranges (atom []), overrides (atom [])
-        session (pedantic/session project ranges overrides)
-        args (assoc (apply hash-map args) :repository-session-fn session)
         trimmed (select-keys project [dependencies-key managed-dependencies-key
-                                      :repositories :checksum :local-repo :offline?
-                                      :update :mirrors])
-        deps-result (get-dependencies-memoized dependencies-key
-                                               managed-dependencies-key
-                                               trimmed args)]
+                                      :repositories :checksum :local-repo
+                                      :offline? :update :mirrors])
+        deps-result (binding [*dependencies-session* (pedantic/session
+                                                      project ranges overrides)]
+                      (get-dependencies-memoized dependencies-key
+                                                 managed-dependencies-key
+                                                 trimmed (apply hash-map args)))]
     (pedantic/do (:pedantic? project) @ranges @overrides)
     deps-result))
 
