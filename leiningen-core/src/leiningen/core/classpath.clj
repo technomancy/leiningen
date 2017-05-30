@@ -303,7 +303,8 @@
            (if (and (or (instance? java.net.UnknownHostException exception-cause)
                         (instance? java.net.NoRouteToHostException exception-cause))
                     (not offline?))
-             (get-dependencies-memoized dependencies-key (assoc project :offline? true))
+             (get-dependencies-memoized dependencies-key managed-dependencies-key
+                                        (assoc project :offline? true) args)
              (throw e))))))))
 
 (defn ^:internal get-dependencies [dependencies-key managed-dependencies-key
