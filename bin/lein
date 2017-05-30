@@ -11,6 +11,11 @@ case $LEIN_VERSION in
     *) SNAPSHOT="NO" ;;
 esac
 
+if [[ "$CLASSPATH" != "" ]]; then
+    echo "WARNING: You have \$CLASSPATH set, probably by accident."
+    echo "It is strongly recommended to unset this before proceeding."
+fi
+
 if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
     delimiter=";"
 else

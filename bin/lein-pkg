@@ -17,6 +17,11 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; 
     fi
 done
 
+if [[ "$CLASSPATH" != "" ]]; then
+    echo "WARNING: You have \$CLASSPATH set, probably by accident."
+    echo "It is strongly recommended to unset this before proceeding."
+fi
+
 # User init
 export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
 
