@@ -11,7 +11,9 @@
             [leiningen.core.classpath :as classpath]
             [clojure.string :as str])
   (:import (clojure.lang DynamicClassLoader)
-           (java.io PushbackReader Reader)))
+           (java.io PushbackReader Reader)
+           (java.text SimpleDateFormat)
+           (java.util Date TimeZone)))
 
 (defn make-project-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
@@ -419,11 +421,17 @@
           (format "Duplicate keys: %s"
                   (clojure.string/join ", " duplicates))))))))
 
+(def timestamp (SimpleDateFormat. "yyyyMMdd.HHmmss"))
+(.setTimeZone timestamp (TimeZone/getTimeZone "UTC"))
+
 (defmacro defproject
   "The project.clj file must either def a project map or call this macro.
   See `lein help sample` to see what arguments it accepts."
-  [project-name version & args]
-  (let [f (io/file *file*)]
+  [project-name & args]
+  (let [[version args] (if (odd? (count args))
+                         [(first args) (rest args)]
+                         [(.format timestamp (Date.)) args])
+        f (io/file *file*)]
     `(let [args# ~(unquote-project (argument-list->argument-map args))
            root# ~(if f (.getParent f))]
        (def ~'project
