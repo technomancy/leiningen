@@ -28,6 +28,39 @@ separate install script.  Follow these instructions to install Leiningen manuall
 4. Set it to be executable. (`chmod +x ~/bin/lein`)
 5. Run it.
 
+### Ubuntu commands
+#### Java
+Make sure you have the oracle java
+```
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ sudo apt-get install oracle-java7-installer
+```
+
+You'll need to accept the terms when the installer runs.
+
+#### Install Leiningen
+
+Go to Bin
+```
+$ cd /bin
+```
+We'll download the lein script to bin.
+
+```
+$ wget https://raw.github.com/technomancy/leiningen/stable/bin/lein -P ~/bin/
+```
+
+Next, we'll make it executable.
+
+```
+$ chmod a+x /bin/lein
+```
+Open a new terminal to source lein and try calling it
+```
+$ lein
+```
+
 ### Windows
 
 There is
