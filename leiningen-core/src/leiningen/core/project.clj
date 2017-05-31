@@ -906,10 +906,12 @@
   "Compute a fresh version of the project map, with middleware applied,
   including and excluding the specified profiles."
   [project include-profiles & [exclude-profiles]]
-  (-> project
-      (init-profiles include-profiles exclude-profiles)
-      (load-plugins)
-      (activate-middleware)))
+  (let [keep-info (select-keys project [:local-repo :mirrors])]
+    (-> project
+        (init-profiles include-profiles exclude-profiles)
+        (merge keep-info)
+        (load-plugins)
+        (activate-middleware))))
 
 (defn merge-profiles
   "Compute a fresh version of the project map with the given profiles merged
@@ -943,13 +945,13 @@
   "Initializes a project by loading certificates, plugins, middleware, etc.
 Also merges default profiles."
   ([project default-profiles]
-     (-> (project-with-profiles (doto project
-                                  (load-certificates)
-                                  (init-lein-classpath)
-                                  (load-plugins)))
-         (init-profiles default-profiles)
-         (load-plugins)
-         (activate-middleware)))
+   (-> (project-with-profiles project)
+       (init-profiles default-profiles)
+       (doto
+         (load-certificates)
+         (init-lein-classpath)
+         (load-plugins))
+       (activate-middleware)))
   ([project] (init-project project [:default])))
 
 (defn add-profiles
