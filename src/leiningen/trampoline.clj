@@ -12,7 +12,7 @@
 (def ^:dynamic *trampoline?* false)
 
 (defn- trampoline-file []
-  (System/getenv "TRAMPOLINE_FILE"))
+  (or (System/getenv "TRAMPOLINE_FILE") ".trampoline"))
 
 (defn- win-batch? []
   (if-let [t (trampoline-file)]
