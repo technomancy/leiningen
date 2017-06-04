@@ -96,8 +96,8 @@
   ;; :plugins and will also be available to deploy to.
   ;; Add ^:replace (:repositories ^:replace [...]) to only use repositories you
   ;; list below.
-  :repositories [["java.net" "http://download.java.net/maven/2"]
-                 ["sonatype" {:url "http://oss.sonatype.org/content/repositories/releases"
+  :repositories [["java.net" "https://download.java.net/maven/2"]
+                 ["sonatype" {:url "https://oss.sonatype.org/content/repositories/releases"
                               ;; If a repository contains releases only setting
                               ;; :snapshots to false will speed up dependencies.
                               :snapshots false
@@ -117,8 +117,8 @@
                  ;; Credentials for repositories should *not* be stored
                  ;; in project.clj but in ~/.lein/credentials.clj.gpg instead,
                  ;; see `lein help deploying` under "Authentication".
-                 ["snapshots" "http://blueant.com/archiva/snapshots"]
-                 ["releases" {:url "http://blueant.com/archiva/internal"
+                 ["snapshots" "https://blueant.com/archiva/snapshots"]
+                 ["releases" {:url "https://blueant.com/archiva/internal"
                               ;; Using :env as a value here will cause an
                               ;; environment variable to be used based on
                               ;; the key; in this case LEIN_PASSWORD.

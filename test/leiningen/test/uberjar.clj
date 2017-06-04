@@ -4,7 +4,8 @@
             [clojure.java.io :refer [delete-file]]
             [clojure.java.shell :refer [sh]]
             [clojure.xml :as xml]
-            [leiningen.test.helper :refer [sample-no-aot-project
+            [leiningen.test.helper :refer [unmemoize
+                                           sample-no-aot-project
                                            uberjar-merging-project
                                            provided-project
                                            managed-deps-project
@@ -68,6 +69,8 @@
     (is (= 0 (:exit (sh "java" bootclasspath "-jar" filename))))))
 
 (deftest test-uberjar-managed-dependencies
+  (unmemoize #'leiningen.core.classpath/get-dependencies-memoized
+             #'leiningen.core.classpath/get-dependencies*)
   (doseq [[proj jarfile] [[managed-deps-snapshot-project
                            (str "test_projects/managed-deps-snapshot/target/"
                                 "mgmt-0.99.0-SNAPSHOT-standalone.jar")]

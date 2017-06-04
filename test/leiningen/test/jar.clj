@@ -5,7 +5,8 @@
             [leiningen.core.utils :refer [platform-nullsink]]
             [leiningen.test.helper :as helper]
             [robert.hooke :as hooke]
-            [leiningen.javac :as javac])
+            [leiningen.javac :as javac]
+            [leiningen.test.helper :refer [unmemoize]])
   (:use [clojure.test]
         [leiningen.jar]))
 
@@ -92,6 +93,8 @@
         "jar produces two jar files")))
 
 (deftest ^:online test-no-deps-jar
+  (unmemoize #'leiningen.core.classpath/get-dependencies-memoized
+             #'leiningen.core.classpath/get-dependencies*)
   (let [[coord jar-file] (first
                           (jar (dissoc helper/sample-project
                                        :dependencies :main)))]

@@ -6,11 +6,11 @@
         [clojure.java.io :only [file]]))
 
 (deftest ^:online test-install
+  (unmemoize #'leiningen.core.classpath/get-dependencies-memoized
+             #'leiningen.core.classpath/get-dependencies*)
   (delete-file-recursively (m2-dir "nomnomnom" "0.5.0-SNAPSHOT") true)
   (install sample-project)
   (is (not (empty? (.listFiles (m2-dir "nomnomnom" "0.5.0-SNAPSHOT"))))))
-
-(def jdom-dir (file local-repo "jdom" "jdom" "1.0"))
 
 (def tricky-m2-dir (file local-repo "org" "domain" "tricky-name" "1.0"))
 

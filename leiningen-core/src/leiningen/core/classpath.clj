@@ -252,70 +252,71 @@
 (def ^:private ^:dynamic *dependencies-session*
   "This is dynamic in order to avoid memoization issues.")
 
-(def ^:private get-dependencies-memoized
-  (memoize
-   (fn [dependencies-key managed-dependencies-key
-        {:keys [repositories local-repo offline? update
-                checksum mirrors] :as project}
-        {:keys [add-classpath?] :as args}]
-     {:pre [(every? vector? (get project dependencies-key))
-            (every? vector? (get project managed-dependencies-key))]}
-     (try
-       ((if add-classpath?
-          pomegranate/add-dependencies
-          aether/resolve-dependencies)
-        :repository-session-fn *dependencies-session*
-        :local-repo local-repo
-        :offline? offline?
-        :repositories (->> repositories
-                           (map add-repo-auth)
-                           (map (partial update-policies update checksum)))
-        :managed-coordinates (get project managed-dependencies-key)
-        :coordinates (get project dependencies-key)
-        :mirrors (->> mirrors
-                      (map add-repo-auth)
-                      (map (partial update-policies update checksum)))
-        :transfer-listener
-        (bound-fn [e]
-          (let [{:keys [type resource error]} e]
-            (let [{:keys [repository name size trace]} resource]
-              (let [aether-repos (if trace (.getRepositories (.getData trace)))]
-                (case type
-                  :started
-                  (if-let [repo (first (filter
-                                        #(or (= (.getUrl %) repository)
-                                             ;; sometimes the "base" url
-                                             ;; doesn't have a slash on it
-                                             (= (str (.getUrl %) "/") repository))
-                                        aether-repos))]
-                    (locking *err*
-                      (warn "Retrieving" name "from" (.getId repo)))
-                    ;; else case happens for metadata files
-                    )
-                  nil)))))
-        :proxy (get-proxy-settings))
-       (catch DependencyResolutionException e
-         ;; Cannot recur from catch/finally so have to put this in its own defn
-         (print-failures e)
-         (warn "This could be due to a typo in :dependencies, file system permissions, or network issues.")
-         (warn "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
-         (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
-                                                           :exit-code 1} e)))
-       (catch Exception e
-         (let [exception-cause (root-cause e)]
-           (if (and (or (instance? java.net.UnknownHostException exception-cause)
-                        (instance? java.net.NoRouteToHostException exception-cause))
-                    (not offline?))
-             (get-dependencies-memoized dependencies-key managed-dependencies-key
-                                        (assoc project :offline? true) args)
-             (throw e))))))))
+(defn- get-dependencies*
+  [dependencies-key managed-dependencies-key
+   {:keys [repositories local-repo offline? update
+           checksum mirrors] :as project}
+   {:keys [add-classpath?] :as args}]
+  {:pre [(every? vector? (get project dependencies-key))
+         (every? vector? (get project managed-dependencies-key))]}
+  (try
+    ((if add-classpath?
+       pomegranate/add-dependencies
+       aether/resolve-dependencies)
+     :repository-session-fn *dependencies-session*
+     :local-repo local-repo
+     :offline? offline?
+     :repositories (->> repositories
+                        (map add-repo-auth)
+                        (map (partial update-policies update checksum)))
+     :managed-coordinates (get project managed-dependencies-key)
+     :coordinates (get project dependencies-key)
+     :mirrors (->> mirrors
+                   (map add-repo-auth)
+                   (map (partial update-policies update checksum)))
+     :transfer-listener
+     (bound-fn [e]
+       (let [{:keys [type resource error]} e]
+         (let [{:keys [repository name size trace]} resource]
+           (let [aether-repos (if trace (.getRepositories (.getData trace)))]
+             (case type
+               :started
+               (if-let [repo (first (filter
+                                     #(or (= (.getUrl %) repository)
+                                          ;; sometimes the "base" url
+                                          ;; doesn't have a slash on it
+                                          (= (str (.getUrl %) "/") repository))
+                                     aether-repos))]
+                 (locking *err*
+                   (warn "Retrieving" name "from" (.getId repo)))
+                 ;; else case happens for metadata files
+                 )
+               nil)))))
+     :proxy (get-proxy-settings))
+    (catch DependencyResolutionException e
+      ;; Cannot recur from catch/finally so have to put this in its own defn
+      (print-failures e)
+      (warn "This could be due to a typo in :dependencies, file system permissions, or network issues.")
+      (warn "If you are behind a proxy, try setting the 'http_proxy' environment variable.")
+      (throw (ex-info "Could not resolve dependencies" {:suppress-msg true
+                                                        :exit-code 1} e)))
+    (catch Exception e
+      (let [exception-cause (root-cause e)]
+        (if (and (or (instance? java.net.UnknownHostException exception-cause)
+                     (instance? java.net.NoRouteToHostException exception-cause))
+                 (not offline?))
+          (get-dependencies* dependencies-key managed-dependencies-key
+                             (assoc project :offline? true) args)
+          (throw e))))))
+
+(def ^:private get-dependencies-memoized (memoize get-dependencies*))
 
 (defn ^:internal get-dependencies [dependencies-key managed-dependencies-key
                                    project & args]
   (let [ranges (atom []), overrides (atom [])
         trimmed (select-keys project [dependencies-key managed-dependencies-key
                                       :repositories :checksum :local-repo
-                                      :offline? :update :mirrors])
+                                      :offline? :update :mirrors :memoize-buster])
         deps-result (binding [*dependencies-session* (pedantic/session
                                                       project ranges overrides)]
                       (get-dependencies-memoized dependencies-key

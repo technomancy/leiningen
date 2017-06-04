@@ -136,3 +136,6 @@
 (def #^{:macro true} with-system-out-str #'utils/with-system-out-str)
 
 (def #^{:macro true} with-system-err-str #'utils/with-system-err-str)
+
+(defn unmemoize [v underlying]
+  (alter-var-root v (constantly underlying)))
