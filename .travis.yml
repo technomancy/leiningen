@@ -1,7 +1,0 @@
-language: clojure
-install: cd leiningen-core; lein install; lein classpath | tail -n 1 > .lein-bootstrap; cd ..
-script: bin/lein test
-sudo: false
-jdk:
-  - openjdk7
-  - oraclejdk8
