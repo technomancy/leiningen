@@ -25,17 +25,16 @@
   (doseq [[dep version level] steps]
     (print-dep [dep version] level)))
 
-(defn- why-finder [target]
-  (let [path (atom [])]
-    (fn [[dep version] level]
-      (cond (= target dep) (do (when (= (count @path) (inc level))
-                                 (swap! path pop))
-                               (print-path (conj @path [dep version level])))
-            (< (count @path) (inc level)) (swap! path conj [dep version level])
-            (= (count @path) (inc level)) (do (swap! path pop)
-                                              (swap! path conj
-                                                     [dep version level]))
-            (> (count @path) (inc level)) (swap! path pop)))))
+(defn- why-deps
+  ([deps target path]
+   (doseq [[[dep version] subdeps] deps]
+     (when (= target dep)
+       (doall (map-indexed #(println (apply str (repeat %1 "  ")) %2)
+                           (conj path [dep version]))))
+     (when subdeps
+       (why-deps subdeps target (conj path [dep version])))))
+  ([deps target]
+   (why-deps deps target [])))
 
 
 
@@ -172,7 +171,7 @@ force them to be updated, use `lein -U $TASK`."
   ([project command target]
    (when-not (re-find #"^:why+$" command)
      (main/abort "Unknown deps command" command))
-   (walk-deps (classpath/managed-dependency-hierarchy :dependencies
+   (why-deps (classpath/managed-dependency-hierarchy :dependencies
                                                       :managed-dependencies
                                                       project)
-              (why-finder (symbol target)))))
+             (symbol target))))
