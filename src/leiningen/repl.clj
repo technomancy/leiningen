@@ -259,7 +259,8 @@
   (when (is-uri? attach)
     (require 'cemerick.drawbridge.client))
   (pomegranate/add-dependencies :coordinates (:dependencies reply-profile)
-                                :repositories (:repositories project))
+                                :repositories (map classpath/add-repo-auth
+                                                   (:repositories project)))
   (let [launch (utils/require-resolve 'reply.main/launch-nrepl)]
     (launch (options-for-reply project :attach attach)))  )
 
