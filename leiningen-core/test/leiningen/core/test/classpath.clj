@@ -4,7 +4,8 @@
   (:require [clojure.java.io :as io]
             [leiningen.core.user :as user]
             [leiningen.test.helper :as lthelper]
-            [leiningen.core.project :as project]))
+            [leiningen.core.project :as project])
+  (:import (java.io File)))
 
 (use-fixtures :once
               (fn [f]
@@ -74,19 +75,64 @@
     (is (= directories (take 3 classpath)))
     (is (= libs (set (drop 3 classpath))))))
 
+(defn canonical [& args]
+  (.getCanonicalPath ^File (apply io/file args)))
+
 (deftest test-checkout-deps
   (let [d1 (io/file (:root project) "checkouts" "d1")]
     (try
       (.mkdirs d1)
       (spit (io/file d1 "project.clj")
             (pr-str '(defproject hello "1.0")))
-      (is (= (for [path ["src" "dev-resources" "resources"
-                         "target/classes" "foo"]]
-               (lthelper/pathify (format "/tmp/lein-sample-project/checkouts/d1/%s" path)))
+      (is (= (for [path ["src" "dev-resources" "resources" "target/classes" "foo"]]
+               (lthelper/pathify (canonical "/tmp/lein-sample-project/checkouts/d1" path)))
              (#'leiningen.core.classpath/checkout-deps-paths project)))
       (finally
-       ;; can't recur from finally
-       (dorun (map #(.delete %) (reverse (file-seq d1))))))))
+        ;; can't recur from finally
+        (dorun (map #(.delete ^File %) (reverse (file-seq d1))))))))
+
+(try
+  ;; nio is required for symlinks but requires Java 7
+  (import (java.nio.file Files Paths)
+          (java.nio.file.attribute FileAttribute))
+  (deftest test-checkout-symlink-unification
+    (let [link! (fn link! [from to]
+                  (java.nio.file.Files/createSymbolicLink (.toPath (io/file from))
+                                            (.toPath (io/file to))
+                                            (into-array java.nio.file.attribute.FileAttribute nil)))
+          d1    (io/file (:root project) "deps" "d1")
+          d2    (io/file (:root project) "deps" "d2")
+          l1    (io/file (:root project) "checkouts" "d1")
+          l2a   (io/file (:root project) "checkouts" "d2")
+          l2b   (io/file d1 "checkouts" "d2")]
+      (try
+        (.mkdirs d1)
+        (.mkdirs d2)
+        (.mkdirs (io/file (:root project) "checkouts"))
+        (.mkdirs (io/file d1 "checkouts"))
+        (link! l1 d1)
+        (link! l2a d1)
+        (link! l2b (io/file "../../d2"))
+        (spit (io/file d1 "project.clj")
+              (str "(defproject p1 \"1.0\" :dependencies [[p2 \"1.0\"]] "
+                   ":checkout-deps-shares ^:replace "
+                   "[:source-paths #=(eval leiningen.core.classpath/checkout-deps-paths)])"))
+        (spit (io/file d2 "project.clj")
+              "(defproject p2 \"1.0\")")
+        (is (= (for [dep  ["d1" "d2"]
+                     path ["src"]]
+                 (canonical (:root project) "deps" dep path))
+               (#'leiningen.core.classpath/checkout-deps-paths
+                 (assoc project :checkout-deps-shares
+                                [:source-paths #'leiningen.core.classpath/checkout-deps-paths]))))
+        (finally
+          ;; can't recur from finally
+          (doseq [d [d1 d2 l1 l2a l2b]
+                  f (reverse (file-seq d))]
+            (.delete ^File f)))
+        )))
+  (catch ClassNotFoundException ex
+    nil))
 
 (deftest test-add-auth
   (with-redefs [user/credentials (constantly

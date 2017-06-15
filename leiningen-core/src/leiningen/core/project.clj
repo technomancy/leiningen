@@ -1041,7 +1041,7 @@ Also initializes the project; see read-raw for a version that skips init."
   dependencies."
   [project]
   (for [dep (.listFiles (io/file (:root project) "checkouts"))
-        :let [project-file (io/file dep "project.clj")
+        :let [project-file (.getCanonicalFile (io/file dep "project.clj"))
               checkout-project (read-dependency-project project-file)]
         :when checkout-project]
     checkout-project))

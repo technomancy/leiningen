@@ -541,20 +541,38 @@
         (resolve-managed-dependencies :dependencies :managed-dependencies)
         (map (memfn getAbsolutePath)))))
 
+(defn- visit-project!
+  "Records a visit to a project into the volatile `seen`, returning nil if the project has already been visited."
+  [seen {:keys [root] :as project}]
+  (when-not (@seen root)
+    (vswap! seen conj root)
+    project))
+
+(defn- project-paths
+  "Returns a function that applies each function in checkout-paths to a given project and returns a flattened list of
+  classpath entries."
+  [checkout-paths]
+  (if (seq checkout-paths)
+    (comp flatten (apply juxt checkout-paths))
+    (constantly nil)))
+
+(def ^:internal ^:dynamic *seen* nil)
+
 (defn ^:internal checkout-deps-paths
   "Checkout dependencies are used to place source for a dependency
   project directly on the classpath rather than having to install the
   dependency and restart the dependent project."
-  [project]
+  [{:keys [checkout-deps-shares root] :as project}]
   (require 'leiningen.core.project)
   (try
-    (let [checkout-paths (:checkout-deps-shares project)
-          checkouts ((resolve 'leiningen.core.project/read-checkouts) project)]
-      (mapcat (fn [checkout]
-                ;; can't mapcat here since :checkout-deps-shares points to
-                ;; vectors and strings
-                (flatten (map #(% checkout) checkout-paths)))
-              checkouts))
+    ;; This function needs to be re-entrant as it is one of the default members of `:checkout-deps-shares`.
+    ;; Use *seen* to communicate visit state between invocations.
+    (binding [*seen* (or *seen* (volatile! #{root}))]
+      ;; Visit each project and accumulate classpaths into a vector. This cannot be lazy as *seen* must be bound.
+      (into []
+            (comp (keep (partial visit-project! *seen*))
+                  (mapcat (project-paths checkout-deps-shares)))
+            ((resolve 'leiningen.core.project/read-checkouts) project)))
     (catch Exception e
       (throw (Exception. (format "Problem loading %s checkouts" project) e)))))
 
