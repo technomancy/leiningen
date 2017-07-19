@@ -340,6 +340,8 @@ Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
 work without checkouts before you push or merge.
 
+Make sure not to override the `base` profile while using checkouts. In practice that usually means using `lein with-profile +foo run` rather than `lein with-profile foo run`.
+
 ### Search
 
 Leiningen supports searching remote Maven repositories for matching
