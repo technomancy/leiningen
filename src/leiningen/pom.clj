@@ -55,7 +55,7 @@
   (try
     (let [git-ref (sh/sh "git" "rev-parse" "HEAD" :dir git-dir)]
       (if (= (:exit git-ref) 0)
-        (:out git-ref)
+        (.trim (:out git-ref))
         (read-git-head-file git-dir)))
     (catch IOException e (read-git-head-file git-dir))))
 
