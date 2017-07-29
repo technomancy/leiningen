@@ -162,13 +162,13 @@
   should rather read the `project.clj` yourself. The project map changes based
   on the task you use, and so different tasks (repl, jar, uberjar to name a few)
   will make it hard to make the testing- and production project map identical.
-  To add `project.clj` to your classpath, you can add in
-  [lein-shell](https://github.com/hyPiRion/lein-shell) and prepend `:prep-tasks`
-  with `["shell" "cp" "project.clj" "resources/project.clj"]` and read it
-  through e.g.
+  `project.clj` is added as a resource in
+  `META-INF/leiningen/group/artifact/project.clj` (replace "group" and
+  "artifact" with values appropriate to your project). You can read it as
+  follows:
 
 ```clj
-(read-string (slurp (io/resource "project.clj")))
+(read-string (slurp (io/resource "META-INF/leiningen/group/artifact/project.clj")))
 ```
 
 **Q:** I need to do AOT for an uberjar; can I avoid it during development?  
