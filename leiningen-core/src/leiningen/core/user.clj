@@ -5,8 +5,9 @@
             [clojure.java.shell :as shell]
             [leiningen.core.utils :as utils])
   (:import (com.hypirion.io Pipe)
+           (org.apache.commons.io.output TeeOutputStream)
            (java.util.regex Pattern)
-           (java.io InputStreamReader)))
+           (java.io ByteArrayOutputStream)))
 
 (defn getprop
   "Wrap System/getProperty for testing purposes."
@@ -113,13 +114,17 @@
       (.addShutdownHook (Runtime/getRuntime)
                         (Thread. (fn [] (.destroy proc))))
       (with-open [out (.getInputStream proc)
-                  err (.getErrorStream proc)]
-        (let [pump-err (doto (Pipe. err System/err) .start)]
+                  err-output (ByteArrayOutputStream.)]
+        (let [pump-err (doto (Pipe. (.getErrorStream proc)
+                                    (TeeOutputStream. System/err err-output))
+                         .start)]
           (.join pump-err)
           (let [exit-code (.waitFor proc)]
-            {:exit exit-code :out (slurp (InputStreamReader. out))}))))
+            {:exit exit-code
+             :out (slurp (io/reader out))
+             :err (slurp (io/reader (.toByteArray err-output)))}))))
     (catch java.io.IOException e
-      {:exit 1 :err (.getMessage e)})))
+      {:exit 1 :out "" :err (.getMessage e)})))
 
 (defn gpg-available?
   "Verifies (gpg-program) exists"
