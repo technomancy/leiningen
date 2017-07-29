@@ -199,8 +199,6 @@
                             (:group project) (:name project))
               :bytes (.getBytes (pom/make-pom project))}
              {:type :bytes :path (scope "project.clj")
-              :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}
-             {:type :bytes :path "project.clj"
               :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
             (for [doc (map (partial io/file (:root project))
                         (concat readmes licenses))
