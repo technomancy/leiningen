@@ -43,7 +43,7 @@ able to use the shell script above rather than the batch file.
 N.B.: Avoid using a LEIN_JAR environment variable.
 If you have one instance of Leiningen on your PATH as well as a LEIN_JAR
 pointing to a different instance, there is a known problem where `lein -v` and
-`lein update` will refer to the first instance, while usage of Leiningen, such
+`lein upgrade` will refer to the first instance, while usage of Leiningen, such
 as `lein new foobar`, will refer to the latter.
 
 ## Basic Usage
