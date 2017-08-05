@@ -117,9 +117,10 @@
             (spit ".lein-failures" (if ~*monkeypatch?*
                                      (pr-str @failures#)
                                      "#<disabled :monkeypatch-clojure-test>"))
-            (if ~*exit-after-tests*
-              (System/exit (+ (:error summary#) (:fail summary#)))
-              (+ (:error summary#) (:fail summary#))))))))
+            (let [total# (+ (int (:error summary#)) (int (:fail summary#)))]
+              (if ~*exit-after-tests*
+                (System/exit total#)
+                total#)))))))
 
 (defn- split-selectors [args]
   (let [[nses selectors] (split-with (complement keyword?) args)]
