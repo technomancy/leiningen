@@ -33,28 +33,43 @@
 (deftest test-resolve-deps
   (doseq [f (reverse (file-seq (io/file (:root project))))]
     (when (.exists f) (io/delete-file f)))
-  (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
-           (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")
-           (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar")
-           (m2-file "ring/ring-core/1.0.0/ring-core-1.0.0.jar")
-           (m2-file (str "commons-fileupload/commons-fileupload/1.2.1/"
-                         "commons-fileupload-1.2.1.jar"))}
-         (set (resolve-managed-dependencies :dependencies
-                                            :managed-dependencies
-                                            project)))))
+  (is (= [(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
+          (m2-file "ring/ring-core/1.0.0/ring-core-1.0.0.jar")
+          (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")
+          (m2-file (str "commons-fileupload/commons-fileupload/1.2.1/"
+                        "commons-fileupload-1.2.1.jar"))
+          (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar")]
+         (resolve-managed-dependencies :dependencies
+                                       :managed-dependencies
+                                       project))))
 
 (deftest test-dependency-hierarchy
   (doseq [f (reverse (file-seq (io/file (:root project))))]
     (when (.exists f) (io/delete-file f)))
-  (is (= '{[org.clojure/clojure "1.3.0"] nil
-          [ring/ring-core "1.0.0"
-           :exclusions [[commons-codec]]]
-          {[commons-fileupload "1.2.1"] nil
-           [commons-io "1.4"] nil
-           [javax.servlet/servlet-api "2.5"] nil}}
-         (managed-dependency-hierarchy :dependencies
-                                       :managed-dependencies
-                                       project))))
+  (let [hierarchy (managed-dependency-hierarchy :dependencies
+                                                :managed-dependencies
+                                                project)]
+    (testing "map data structure"
+      (is (= '{[org.clojure/clojure "1.3.0"] nil
+               [ring/ring-core "1.0.0"
+                :exclusions [[commons-codec]]]
+               {[commons-fileupload "1.2.1"] nil
+                [commons-io "1.4"] nil
+                [javax.servlet/servlet-api "2.5"] nil}}
+             hierarchy)))
+    (testing "ordering metadata"
+      (is (= '[[org.clojure/clojure "1.3.0"]
+               [ring/ring-core "1.0.0"
+                :exclusions [[commons-codec]]]]
+             (-> hierarchy meta :ordered-keys)))
+      (is (= '[[commons-io "1.4"]
+               [commons-fileupload "1.2.1"]
+               [javax.servlet/servlet-api "2.5"]]
+             (-> hierarchy
+                 (get '[ring/ring-core "1.0.0"
+                        :exclusions [[commons-codec]]])
+                 meta
+                 :ordered-keys))))))
 
 (def directories
   (vec (map lthelper/pathify
@@ -63,17 +78,17 @@
    "/tmp/lein-sample-project/resources"])))
 
 (def libs
-  #{(str (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar"))
-    (str (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"))
-    (str (m2-file "ring/ring-core/1.0.0/ring-core-1.0.0.jar"))
-    (str (m2-file "commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar"))
-    (str (m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar"))})
+  [(str (m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar"))
+   (str (m2-file "ring/ring-core/1.0.0/ring-core-1.0.0.jar"))
+   (str (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar"))
+   (str (m2-file "commons-fileupload/commons-fileupload/1.2.1/commons-fileupload-1.2.1.jar"))
+   (str (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar"))])
 
 (deftest test-classpath
   (let [classpath (get-classpath project)]
-    (is (= (set classpath) (into libs directories)))
+    (is (= classpath (into directories libs)))
     (is (= directories (take 3 classpath)))
-    (is (= libs (set (drop 3 classpath))))))
+    (is (= libs (drop 3 classpath)))))
 
 (defn canonical [& args]
   (.getCanonicalPath ^File (apply io/file args)))

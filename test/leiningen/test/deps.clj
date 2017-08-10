@@ -5,6 +5,7 @@
                                       managed-deps-project
                                       delete-file-recursively]])
   (:require [clojure.java.io :as io]
+            [clojure.string :as str]
             [leiningen.core.utils :as utils]
             [leiningen.core.eval :as eval]
             [leiningen.core.classpath :as classpath]
@@ -21,45 +22,50 @@
     (doseq [[n v] sample-deps]
       (is (.exists (m2-dir n v)) (str n " was not downloaded.")))))
 
+(defn- includes-in-order? [s substrs]
+  (->> substrs
+       (map #(str/index-of s %))
+       (apply <)))
+
 (deftest ^:online test-dependency-hierarchy
   (let [sample-deps [["ring" "1.0.0"] ["rome" "0.9"] ["jdom" "1.0"]]]
     (doseq [[n v] sample-deps]
       (delete-file-recursively (m2-dir n v) :silently))
-    (let [out (with-out-str (deps sample-project ":tree"))]
-      (doseq [dep '[[org.clojure/clojure "1.3.0"]
-                    [ring "1.0.0"]
-                    [ring/ring-core "1.0.0"]
-                    [commons-codec "1.4"]
-                    [commons-fileupload "1.2.1"]
-                    [commons-io "1.4"]
-                    [javax.servlet/servlet-api "2.5"]
-                    [ring/ring-devel "1.0.0"]
-                    [clj-stacktrace "0.2.2"]
-                    [hiccup "0.3.7"]
-                    [ns-tracker "0.1.1"]
-                    [org.clojure/tools.namespace "0.1.0"]
-                    [org.clojure/java.classpath "0.1.0"]
-                    [ring/ring-jetty-adapter "1.0.0"]
-                    [org.mortbay.jetty/jetty-util "6.1.25"]
-                    [org.mortbay.jetty/jetty "6.1.25"]
-                    [org.mortbay.jetty/servlet-api "2.5-20081211"]
-                    [ring/ring-servlet "1.0.0"]
-                    [rome "0.9"]
-                    [jdom "1.0"]]]
-        (is (.contains out (pr-str dep)))))))
+    (let [out (with-out-str (deps sample-project ":tree"))
+          deps '[[org.clojure/clojure "1.3.0"]
+                 [rome "0.9"]
+                 [jdom "1.0"]
+                 [ring "1.0.0"]
+                 [ring/ring-core "1.0.0"]
+                 [commons-codec "1.4"]
+                 [commons-io "1.4"]
+                 [commons-fileupload "1.2.1"]
+                 [javax.servlet/servlet-api "2.5"]
+                 [ring/ring-devel "1.0.0"]
+                 [hiccup "0.3.7"]
+                 [clj-stacktrace "0.2.2"]
+                 [ns-tracker "0.1.1"]
+                 [org.clojure/tools.namespace "0.1.0"]
+                 [org.clojure/java.classpath "0.1.0"]
+                 [ring/ring-jetty-adapter "1.0.0"]
+                 [org.mortbay.jetty/jetty "6.1.25"]
+                 [org.mortbay.jetty/servlet-api "2.5-20081211"]
+                 [org.mortbay.jetty/jetty-util "6.1.25"]
+                 [ring/ring-servlet "1.0.0"]]]
+      (is (includes-in-order? out (map pr-str deps))))))
 
 (deftest ^:online test-plugin-dependency-hierarchy
   (let [sample-plugin-deps [["codox" "0.6.4"]]]
     (doseq [[n v] sample-plugin-deps]
       (delete-file-recursively (m2-dir n v) :silently))
-    (let [out (with-out-str (deps sample-project ":plugin-tree"))]
-      (doseq [plugin-dep '[[codox "0.6.4"]
-                           [codox/codox.leiningen "0.6.4"]
-                           [leinjacker "0.4.1"]
-                           [org.clojure/core.contracts "0.0.1"]
-                           [org.clojure/clojure "1.4.0"]
-                           [org.clojure/core.unify "0.5.3"]]]
-        (is (.contains out (pr-str plugin-dep)))))))
+    (let [out (with-out-str (deps sample-project ":plugin-tree"))
+          plugin-deps '[[codox "0.6.4"]
+                        [codox/codox.leiningen "0.6.4"]
+                        [leinjacker "0.4.1"]
+                        [org.clojure/core.contracts "0.0.1"]
+                        [org.clojure/core.unify "0.5.3"]
+                        [org.clojure/clojure "1.4.0"]]]
+      (is (includes-in-order? out (map pr-str plugin-deps))))))
 
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project
