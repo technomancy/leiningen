@@ -1,12 +1,18 @@
 .\"to render: groff -Tascii -man doc/lein.1 > lein.man"
-.TH LEININGEN 1 "2011 June 30"
+.TH LEININGEN 1 "2017 August 10"
 .SH NAME
 lein \- Automate Clojure projects
 
 .SH SYNOPSIS
 
 .B lein
-[\fITASK\fR [\fIARGS\fR]
+[\fB\-o\fR] [\fB\-U\fR] [\fITASK\fR [\fIARGS\fR]]
+.br
+.B lein
+[\fB\-h\fR|\fB\-\-help\fR]
+.br
+.B lein
+[\fB\-v\fR|\fB\-\-version\fR]
 
 .SH DESCRIPTION
 
@@ -27,24 +33,129 @@ shows usage for a specific one.
 has a detailed walk-through of the various tasks, but the most
 commonly-used are:
 
+.RS
 .TP
-\fBlein new NAME\fR
+.B lein new NAME
 generate a new project skeleton
 .TP
-\fBlein test [TESTS]\fR
+.B lein test [TESTS]
 run the tests in the TESTS namespaces, or all tests
 .TP
-\fBlein repl\fR
+.B lein repl
 launch an interactive REPL session in a networked REPL server
 .TP
-\fBlein uberjar\fR
+.B lein uberjar
 package up the project and its dependencies as a standalone .jar file
 .TP
-\fBlein install\fR
+.B lein install
 install a project into your local repository
 .TP
-\fBlein deploy [REPOSITORY]\fR
+.B lein deploy [REPOSITORY]
 deploy a library to a remote repository
+.RE
+
+.TP
+Other tasks available include:
+
+.RS
+.TP
+.B lein change
+Rewrite project.clj by applying a function.
+
+.TP
+.B lein check
+Check syntax and warn on reflection.
+
+.TP
+.B lein classpath
+Print the classpath of the current project.
+
+.TP
+.B lein clean
+Remove all files from project's target-path.
+
+.TP
+.B lein compile
+Compile Clojure source into .class files.
+
+.TP
+.B lein deps
+Download all dependencies.
+
+.TP
+.B lein do [TASK], ...
+Higher-order task to perform other tasks in succession.
+
+.TP
+.B lein jar
+Package up all the project's files into a jar file.
+
+.TP
+.B lein javac
+Compile Java source files.
+
+.TP
+.B lein pom
+Write a pom.xml file to disk for Maven interoperability.
+
+.TP
+.B lein release
+Perform :release-tasks.
+
+.TP
+.B lein retest
+Run only the test namespaces which failed last time around.
+
+.TP
+.B lein run
+Run a -main function with optional command-line arguments.
+
+.TP
+.B lein search
+Search remote maven repositories for matching jars.
+
+.TP
+.B lein show-profiles
+List all available profiles or display one if given an argument.
+
+.TP
+.B lein trampoline [TASK]
+Run a task without nesting the project's JVM inside Leiningen's.
+
+.TP
+.B lein update-in
+Perform arbitrary transformations on your project map.
+
+.TP
+.B lein vcs
+Interact with the version control system.
+
+.TP
+.B lein version
+Print version for Leiningen and the current JVM.
+
+.TP
+.B lein with-profile [PROFILE] [TASK]
+Apply the given task with the profile(s) specified.
+.RE
+
+.SH OPTIONS
+
+.TP
+.BI \-o
+Run a task offline.
+
+.TP
+.BI \-U
+Run a task after forcing update of snapshots.
+
+.TP
+.BR \-h ", " \-\-help
+Print this help or help for a specific task.
+
+.TP
+.BR \-v ", " \-\-version
+Print Leiningen's version.
 
 .SH CONFIGURATION
 
@@ -54,10 +165,10 @@ file in your project root. Either use
 .B lein new
 to create a fresh project from which to work, or see the exhaustive
 list of configuration options with
-.B lein help sample.
+\fBlein help sample\fR.
 
 You can customize your project map further with profiles; see
-.B lein help profiles
+\fBlein help profiles\fR.
 
 .SH BUGS
 
@@ -75,7 +186,7 @@ file and as much of the relevant code from your project as possible.
 Copyright
 .if t \(co
 .if n (C)
-2009-2013 Phil Hagelberg and contributors.
+2009-2017 Phil Hagelberg and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file /usr/share/doc/leiningen/copyright.
