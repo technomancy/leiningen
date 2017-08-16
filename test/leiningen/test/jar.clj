@@ -145,7 +145,7 @@
 (deftest javac-launched-with-whitelisted-settings
   (let [user-profile {:local-repo "test_projects/jar/foo/bar"
                       :mirrors {"central" {:name "central"
-                                           :url "https://maven-central.storage.googleapis.com"}}}
+                                           :url "https://maven-central.storage-download.googleapis.com/repos/central/data/"}}}
         orig-project (-> (helper/read-test-project-with-user-profiles
                           "java-main"
                           {:user user-profile}))
