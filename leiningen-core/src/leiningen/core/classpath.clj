@@ -192,6 +192,16 @@
       (spit file (doall current-value))
       true)))
 
+;; The new version of aether (lein 2.8.0+) is more strict about authentication
+;; settings; it will ignore :passphrase if :private-key-file is not set.
+;; s3-wagon-private uses :passphrase, so if you've got a private s3 repo, we'll
+;; set :private-key-file to an empty string here so that aether will allow the
+;; wagon to see it instead of silently discarding it.
+(defn- hack-private-key [repo]
+  (if-not (re-find #"^s3p" (:url repo ""))
+    repo
+    (update repo :private-key-file #(or % ""))))
+
 (defn add-repo-auth
   "Repository credentials (a map containing some of
   #{:username :password :passphrase :private-key-file}) are discovered
@@ -208,7 +218,7 @@
   would be applied to all repositories with URLs matching the regex key
   that didn't have an explicit entry."
   [[id repo]]
-  [id (-> repo user/profile-auth user/resolve-credentials)])
+  [id (-> repo user/profile-auth user/resolve-credentials hack-private-key)])
 
 (defn get-non-proxy-hosts []
   (let [system-no-proxy (System/getenv "no_proxy")
