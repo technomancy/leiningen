@@ -9,9 +9,13 @@
             [cemerick.pomegranate.aether :as aether])
   (:import (org.eclipse.aether.resolution DependencyResolutionException)))
 
+(defn- ordered-deps [deps]
+  (->> (or (:ordered-keys (meta deps)) (keys deps))
+       (map #(find deps %))))
+
 (defn- walk-deps
   ([deps f level]
-     (doseq [[dep subdeps] deps]
+     (doseq [[dep subdeps] (ordered-deps deps)]
        (f dep level)
        (when subdeps
          (walk-deps subdeps f (inc level)))))
@@ -27,7 +31,7 @@
 
 (defn- why-deps
   ([deps target path]
-   (doseq [[[dep version] subdeps] deps]
+   (doseq [[[dep version] subdeps] (ordered-deps deps)]
      (when (= target dep)
        (doall (map-indexed #(println (apply str (repeat %1 "  ")) %2)
                            (conj path [dep version]))))

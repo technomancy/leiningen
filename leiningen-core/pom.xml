@@ -90,7 +90,7 @@
     <dependency>
       <groupId>com.cemerick</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>0.4.0-alpha1</version>
+      <version>0.4.0-alpha2-SNAPSHOT</version>
       <exclusions>
         <exclusion>
           <groupId>org.tcrawley</groupId>
