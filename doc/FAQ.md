@@ -19,7 +19,9 @@
 **Q:** How should I pick my version numbers?  
 **A:** Use [semantic versioning](http://semver.org) to communicate
   intentions to downstream users of your library, but don't make
-  assumptions that libraries you use stick with it consistently.
+  assumptions that libraries you use stick with it consistently. Remember
+  that the difference between a breaking change and a bug fix is often
+  subjective.
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** You will need to get them in a repository. The
@@ -98,7 +100,7 @@
   use a development cycle that involves keeping a single project REPL
   process running for as long as they're working on that project.
   Depending on your editor you may be able to do this via its Clojure
-  integration. (See [nrepl.el](https://github.com/clojure-emacs/cider) or
+  integration. (See [cider](https://github.com/clojure-emacs/cider) or
   [fireplace](https://github.com/tpope/vim-fireplace), for example.)
   Otherwise you can use the basic `lein repl`.
 
@@ -112,12 +114,6 @@
   negatively affect performance in the long run, or lead to inaccurate
   benchmarking results.  If want the JVM to fully optimize, you can
   you can switch profiles with `lein with-profiles production run ...`.
-
-**Q:** What does "Unrecognized VM option 'TieredStopAtLevel=1'" mean?  
-**A:** Old versions of the JVM do not support the directives Leiningen
-  uses for tiered compilation which allow the JVM to boot more
-  quickly. You can disable this behaviour with `export LEIN_JVM_OPTS=`
-  or upgrade your JVM to something more recent. (newer than b25 of Java 6)
 
 **Q:** I'm attempting to run a project as a background process (`lein run &`),
   but the process suspends until it is in the foreground. How do I run a program
@@ -172,14 +168,10 @@
 ```
 
 **Q:** I need to do AOT for an uberjar; can I avoid it during development?  
-**A:** A reasonable request. Leiningen supports isolating different
-  profiles by their target directory. Simply specify `:target-path
-  "target/%s"` in order to have each profile set use a different
-  directory for generated files. Then you can put your `:aot`
-  settings in the `:uberjar` profile, and the .class files created
-  from the AOT process will not affect normal development use. You can
-  specify the profile-isolated `:target-path` in your `:user` profile if
-  you want it applied across all the projects you work on.
+**A:** Yes, it is strongly recommended to do AOT only in the uberjar task
+  if possible. But by default the AOT'd files will still be visible during 
+  development unless you also change `:target-path` to something like
+  `"target/uberjar"` in the `:uberjar` profile as well.
 
 **Q:** Is there a way to use an uberjar without AOT?  
 **A:** As of Leiningen 2.4.0, if you omit `:main` in `project.clj`,
@@ -188,10 +180,11 @@
   arg1 arg2 [...]` without any AOT, but it will take longer to launch.
 
 **Q:** Why does `lein jar` package some namespaces from dependencies into my jar?  
-**A:** This is likely because you want to AOT-compile namespaces. Any
+**A:** This is likely because you have AOT-compiled its namespaces. An
   AOT-compiled namespace can only depend on AOT-compiled namespaces. Therefore,
   if you depend on a namespace in a dependency that is not AOT-compiled, it will
-  be AOT-compiled and bundled with the jar.
+  be AOT-compiled and bundled with the jar. It is strongly recommended not to
+  perform AOT other than during the creation of an uberjar.
 
 **Q:** I'd like to have certain config active only on a certain OS.  
 **A:** You can do this by using unquote in the `:dev` profile:
