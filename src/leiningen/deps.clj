@@ -96,6 +96,13 @@
 
 
 
+(defn query [project artifact version-string]
+  (->> (assoc project :query [[(symbol artifact) version-string]])
+       (classpath/get-dependencies :query nil)
+       keys first second println))
+
+
+
 (defn deps
   "Show details about dependencies.
 
@@ -125,6 +132,12 @@ set of plugins. Useful for debugging unexplained behaviour.
 
 Show just the path in the dependency tree directly relating to why a
 specific dependency has been included.
+
+    lein deps :query circleci/circleci.test 0.3.0-SNAPSHOT
+
+Look up the version number for a dependency in the remote repositories and
+print a resolved version. If omitted, the version defaults to \"RELEASE\". Can
+resolve SNAPSHOT versions to timestamps.
 
     lein deps
 
@@ -169,9 +182,15 @@ force them to be updated, use `lein -U $TASK`."
        (catch DependencyResolutionException e
          (main/abort (.getMessage e)))))
   ([project command target]
-   (when-not (re-find #"^:why+$" command)
+   (cond (= command ":query")
+         (deps project command target "RELEASE")
+         (re-find #"^:why+$" command)
+         (why-deps (classpath/managed-dependency-hierarchy :dependencies
+                                                           :managed-dependencies
+                                                           project)
+                   (symbol target))
+         :else (main/abort "Unknown deps command" command)))
+  ([project command artifact version-string]
+   (when (not= ":query" command)
      (main/abort "Unknown deps command" command))
-   (why-deps (classpath/managed-dependency-hierarchy :dependencies
-                                                      :managed-dependencies
-                                                      project)
-             (symbol target))))
+   (query project artifact version-string)))
