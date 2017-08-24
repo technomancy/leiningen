@@ -16,12 +16,14 @@
   - [How Leiningen uses GPG](#how-leiningen-uses-gpg)
     - [Signing a file](#signing-a-file)
     - [Overriding the gpg defaults](#overriding-the-gpg-defaults)
+    - [Setting the gpg passphrase for unattended deploys](#setting-the-gpg-passphrase-for-unattended-deploys)
   - [Troubleshooting](#troubleshooting)
     - [Debian based distributions](#debian-based-distributions-1)
       - [gpg: can't query passphrase in batch mode](#gpg-cant-query-passphrase-in-batch-mode)
     - [Mac OSX](#mac-osx)
       - [Unable to get GPG installed via Homebrew and OSX Keychain to work](#unable-to-get-gpg-installed-via-homebrew-and-osx-keychain-to-work)
       - [GPG doesn't ask for a passphrase](#gpg-doesnt-ask-for-a-passphrase)
+      - [gpg: decryption failed: secret key not available](#gpg-decryption-failed-secret-key-not-available)
     - [GPG prompts for passphrase but does not work with Leiningen](#gpg-prompts-for-passphrase-but-does-not-work-with-leiningen)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -248,6 +250,33 @@ repository specification in your project definition:
          [["releases" {:url "https://blueant.com/archiva/internal/releases"
                        :signing {:gpg-key "2ADFB13E"}}]
          ["snapshots" "https://blueant.com/archiva/internal/snapshots"]]
+       ...)
+
+### Setting the gpg passphrase for unattended deploys
+
+It's also possible to provide the passphrase required to unlock your
+keyring. This is meant only for unattended deploys, for example in a
+continuous integration system like Travis CI or CircleCI or Jenkins. 
+
+Passphrase can be configured in the environment: 
+
+    (defproject ham-biscuit "0.1.0"
+       ...
+       :signing {:gpg-key "bob@bobsons.net"
+                 :gpg-passphrase :env/gpgpass} ;; looks up GPGPASS from env
+       ...)
+
+In your CI service your gpg keyring will need to be encrypted and
+injected into the build, and the passphrase likewise encrypted such that
+the environment variable is visible only to the build.
+
+For testing purposes the pasphrase can also be set as a string literal
+but this is strongly discouraged in any production usage.
+
+    (defproject ham-biscuit "0.1.0"
+       ...
+       :signing {:gpg-key "bob@bobsons.net"
+                 :gpg-passphrase "my-passphrase-in-the-clear"}
        ...)
 
 ## Troubleshooting
