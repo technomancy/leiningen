@@ -145,6 +145,16 @@
   []
   (zero? (:exit (gpg "--version"))))
 
+(defn gpg-version
+  "parse and return the version of gpg available"
+  []
+  (let [pattern #"gpg\s+\(GnuPG\)\s+(\d+)\.(\d+)\.(\d+)"]
+    (if-let [[_ major minor patch]
+             (re-find pattern (:out (gpg "--version")))]
+      {:major (Integer/parseInt major)
+       :minor (Integer/parseInt minor)
+       :patch (Integer/parseInt patch)})))
+
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."
   ([] (let [cred-file (io/file (leiningen-home) "credentials.clj.gpg")]

@@ -74,14 +74,21 @@
         (add-auth-interactively))))
 
 (defn signing-args
-  "Produce GPG arguments for signing a file."
+  "Produce GPG arguments for signing a file, taking the version of gpg
+  into account as necessary."
   [file opts]
   (let [key-args (concat
                   (if-let [key (:gpg-key opts)]
                     ["--default-key" key])
-                  (if-let [pass (:gpg-passphrase opts)]
-                    ["--passphrase-fd" "0"
-                     "--pinentry-mode" "loopback"]))]
+                  (if (:gpg-passphrase opts)
+                    (let [{:keys [major minor patch]} (user/gpg-version)
+                          version (+ major (/ minor 10.))]
+                      (if (> version 2.0)
+                        ; gpg 2.1 and newer
+                        ["--passphrase-fd" "0"
+                         "--pinentry-mode" "loopback"]
+                        ; gpg 2.0 and older
+                        ["--passphrase-fd" "0" "--batch"]))))]
     `["--yes" "-ab" ~@key-args "--" ~file]))
 
 (defn signing-passphrase
@@ -94,9 +101,10 @@
 (defn sign
   "Create a detached signature and return the signature file name."
   [file opts]
-  (let [{:keys [err exit]} (apply user/gpg-with-passphrase
-                                  (cons (signing-passphrase opts)
-                                        (signing-args file opts)))]
+  (let [pass (signing-passphrase opts)
+        args (signing-args file opts)
+        _    (main/info "Signing: gpg " args)
+        {:keys [err exit]} (apply user/gpg-with-passphrase (cons pass args))]
     (when-not (zero? exit)
       (main/abort "Could not sign"
                   (str file "\n" err (if err "\n")
