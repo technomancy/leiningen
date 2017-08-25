@@ -68,14 +68,24 @@
            ["--yes" "-ab" "--" "foo.jar"]))
     (is (= (signing-args "foo.jar" {:gpg-key "123456"})
            ["--yes" "-ab" "--default-key" "123456" "--" "foo.jar"]))
-    (is (= (signing-args "foo.jar" {:gpg-key "123456" :gpg-passphrase "abc"})
-           ["--yes" "-ab" "--default-key" "123456"
-            "--passphrase-fd" "0" "--pinentry-mode" "loopback"
-            "--" "foo.jar"]))
-    (is (= (signing-args "foo.jar" {:gpg-passphrase "abc"})
-           ["--yes" "-ab"
-            "--passphrase-fd" "0" "--pinentry-mode" "loopback"
-            "--" "foo.jar"]))
+    (with-redefs [user/gpg-version (fn [] {:major 2 :minor 1 :patch 0})]
+      (is (= (signing-args "foo.jar" {:gpg-key "123456" :gpg-passphrase "abc"})
+             ["--yes" "-ab" "--default-key" "123456"
+              "--passphrase-fd" "0" "--pinentry-mode" "loopback"
+              "--" "foo.jar"]))
+      (is (= (signing-args "foo.jar" {:gpg-passphrase "abc"})
+             ["--yes" "-ab"
+              "--passphrase-fd" "0" "--pinentry-mode" "loopback"
+              "--" "foo.jar"])))
+    (with-redefs [user/gpg-version (fn [] {:major 1 :minor 4 :patch 0})]
+      (is (= (signing-args "foo.jar" {:gpg-key "123456" :gpg-passphrase "abc"})
+             ["--yes" "-ab" "--default-key" "123456"
+              "--passphrase-fd" "0" "--batch"
+              "--" "foo.jar"]))
+      (is (= (signing-args "foo.jar" {:gpg-passphrase "abc"})
+             ["--yes" "-ab"
+              "--passphrase-fd" "0" "--batch"
+              "--" "foo.jar"])))
     (is (= (signing-passphrase {}) nil))
     (is (= (signing-passphrase {:gpg-passphrase "abc"}) "abc"))
     (with-redefs [user/getenv (fn [v] (if (= v "LEIN_GPG_PASSPHRASE") "abc" nil))]
