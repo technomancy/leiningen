@@ -541,7 +541,9 @@
   (atom {:default [:leiningen/default]
          :leiningen/default [:base :system :user :provided :dev]
          :base {:resource-paths ^:default-path/dev-resources ["dev-resources"]
-                :jvm-opts (with-meta (into default-jvm-opts tiered-jvm-opts cgroups-jvm-opts)
+                :jvm-opts (with-meta `[~@default-jvm-opts
+                                       ~@tiered-jvm-opts
+                                       ~@cgroups-jvm-opts]
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
