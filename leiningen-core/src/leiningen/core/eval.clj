@@ -237,7 +237,8 @@
                     (io/file (:target-path project) (str checksum "-init.clj"))
                     (File/createTempFile "form-init" ".clj"))]
     (spit init-file
-          (binding [*print-dup* *eval-print-dup*]
+          (binding [*print-dup* *eval-print-dup*
+                    *print-meta* true]
             (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                     form)))
