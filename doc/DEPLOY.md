@@ -324,6 +324,12 @@ libraries using Leiningen. Applications will have different requirements
 that are varied enough that Leiningen doesn't attempt to support them
 out of the box.
 
+### Committing
+
+By default, `["vcs" "commit"]` will commit with the message `"Version
+<version>"`. You can override that by passing a `format`-ready string
+to the task, like so: `["vcs" "commit" "Version %s [skip ci]"]`.
+
 ### Tagging
 
 By default `["vcs" "tag"]` will create a GPG signed tag with your project version

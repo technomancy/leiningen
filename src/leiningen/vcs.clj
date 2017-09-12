@@ -28,12 +28,16 @@
       nil parsed-args                                       ;; We're finished and can exit
       (recur (assoc parsed-args :prefix (first args)) (rest args)))))
 
+(def default-commit-message "Version %s")
+
 ;;; Methods
 
 (defmulti push "Push to your remote repository."
   which-vcs :default :none)
 
-(defmulti commit "Commit changes to current repository."
+(defmulti commit
+  "Commit changes to current repository. Takes an optional format
+  string for the commit message that will be provided the version."
   which-vcs :default :none)
 
 (defmulti tag "Apply a version control tag. Takes an optional tag prefix. Pass --no-sign option to skip signing"
@@ -52,7 +56,7 @@
 
 (defmethod push :none [project & [args]] (unknown-vcs "push"))
 
-(defmethod commit :none [project] (unknown-vcs "commit"))
+(defmethod commit :none [project & _] (unknown-vcs "commit"))
 
 (defmethod tag :none [project] (unknown-vcs "tag"))
 
@@ -65,9 +69,13 @@
   (binding [eval/*dir* (:root project)]
     (apply eval/sh-with-exit-code "Couldn't push to the remote" "git" "push" "--follow-tags" args)))
 
-(defmethod commit :git [project]
-  (binding [eval/*dir* (:root project)]
-    (eval/sh-with-exit-code "Couldn't commit" "git" "commit" "-a" "-m" (str "Version " (:version project)))))
+(defmethod commit :git
+  ([project]
+   (commit project default-commit-message))
+  ([project message-template]
+   (binding [eval/*dir* (:root project)]
+     (let [message (format message-template (:version project))]
+       (eval/sh-with-exit-code "Couldn't commit" "git" "commit" "-a" "-m" message)))))
 
 (defmethod tag :git [{:keys [root version]} & args]
   (binding [eval/*dir* root]
