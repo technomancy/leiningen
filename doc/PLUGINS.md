@@ -448,30 +448,6 @@ use `eval-in-project` with a dummy project argument:
                  '(println "hello from" *clojure-version*))
 ```
 
-## Upgrading Existing Plugins
-
-Earlier versions of Leiningen had a few differences in the way plugins
-worked, but upgrading shouldn't be too difficult.
-
-The biggest difference between 1.x and 2.x is that `:dev-dependencies`
-have been done away with. There are no longer any dependencies that
-exist both in Leiningen's process and the project's process; Leiningen
-only sees `:plugins` and the project only sees `:dependencies`, though
-both these maps can be affected by the currently-active profiles.
-
-If your project doesn't need to use `eval-in-project` at all, it
-should be relatively easy to port; it's just a matter of updating any
-references to Leiningen functions which may have moved. All
-`leiningen.utils.*` namespaces have gone away, and `leiningen.core`
-has become `leiningen.core.main`.
-
-Plugins that do use `eval-in-project` should just be aware that the
-plugin's own dependencies and source will not be available to the
-project. If your plugin currently has code that needs to run in both
-contexts it must be split into multiple projects, one for `:plugins`
-and one for `:dependencies`. See the example of `lein-swank` above to
-see how to inject `:dependencies` in `eval-in-project` calls.
-
 ## Projects vs Standalone Execution
 
 Some Leiningen tasks can be executed from any directory (e.g. `lein repl`).
@@ -508,62 +484,7 @@ task will override it. If you'd like to shadow a built-in task, you
 can either create an alias or put it in the `leiningen.plugin.compile`
 namespace.
 
-## 1.x Compatibility
-
-Once you've identified the changes necessary to achieve compatibility
-with 2.x, you can decide whether you'd like to support 1.x and 2.x in
-the same codebase. In some cases it may be easier to simply keep them
-in separate branches, but sometimes it's better to support both.
-Luckily the strategy of using `:plugins` and adding in `:dependencies`
-just for calls to `eval-in-project` works fine in Leiningen 1.7.
-
-If you use functions that moved in 2.x, you can try requiring and
-resolving at runtime rather than compile time and falling back to the
-1.x versions of the function if it's not found. Again the `lein-swank`
-plugin provides an example of a compatibility shim:
-
-```clj
-(defn eval-in-project
-  "Support eval-in-project in both Leiningen 1.x and 2.x."
-  [project form init]
-  (let [[eip two?] (or (try (require 'leiningen.core.eval)
-                            [(resolve 'leiningen.core.eval/eval-in-project)
-                             true]
-                            (catch java.io.FileNotFoundException _))
-                       (try (require 'leiningen.compile)
-                            [(resolve 'leiningen.compile/eval-in-project)]
-                            (catch java.io.FileNotFoundException _)))]
-    (if two?
-      (eip project form init)
-      (eip project form nil nil init))))
-```
-
-Of course if the function has changed arities or has disappeared
-entirely this may not be feasible, but it should suffice in most
-cases.
-
-Most widely-used functions which have changed in 2.x can be used from
-the [leinjacker](https://github.com/sattvik/leinjacker) project, which
-provides a compatibility shim supporting both 1.x and 2.x.
-
-Another key change is that `:source-path`, `:resources-path`,
-`:java-source-path`, and `:test-path` have changed to
-`:source-paths`, `:resource-paths`, `:java-source-paths`, and
-`:test-paths`, and they should be vectors now instead of single
-strings. The old `:dev-resources` key is now just another entry to the
-`:resource-paths` vector that's only present when the `:dev` profile
-is active.
-
-Allowing the task to run outside a project directory is tricky to do
-in a backwards-compatible way since 1.x is overly-clever and actually
-inspects your argument list to figure out if it should pass in a
-project argument, while 2.x simply always passes it in and just allows
-it to be nil if it's not present. You can try checking the first
-argument to see if it's a project map, but if you have more than two
-arities this can get very tricky; it may just be better to maintain
-separate branches of your codebase in this situation.
-
-### Project-specific Tasks
+## Project-specific Tasks
 
 Occasionally, the need arises for a task to be included in a project's
 codebase. However, this is much less common than people think. If you
