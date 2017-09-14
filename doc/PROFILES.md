@@ -121,7 +121,9 @@ default when running lein tasks.  If not overridden, this is set to
 
 Some tasks automatically merge a profile if specified.  Examples of
 these are the `:test` profile, when running the `test` task, and the
-`:repl` profile, when running the `repl` task.
+`:repl` profile, when running the `repl` task. Please note that
+putting things in the `:test` profile is strongly advised against as
+it can result in tests which can't be run from the repl.
 
 ### Replacing Default Repl Dependencies
 

@@ -30,7 +30,7 @@
 
 # Leiningen Plugins
 
-Leiningen tasks are simply functions named $TASK in a leiningen.$TASK
+Leiningen tasks are simply functions named `$TASK` in a `leiningen.$TASK`
 namespace. So writing a Leiningen plugin is just a matter of creating
 a project that contains such a function, but much of this
 documentation applies equally to the tasks that ship with Leiningen
@@ -121,11 +121,11 @@ still passed in as strings; it's up to your function to call `read-string`
 on the arguments if you want keywords, symbols, integers, etc. Keep
 this in mind when calling other tasks as functions too.
 
-Most tasks may only be run in the context of another project. If your
+Most tasks may only be run in the context of a project. If your
 task can be run outside a project directory, add `^:no-project-needed`
 as metadata to your task defn to indicate so. Your task must still
 accept a project as its first argument, but it will be allowed to be
-nil. Leiningen will still pass you the project as first argument, if
+nil. Leiningen will still pass you the project as first argument if
 lein is called from within a project. If called outside of a project,
 lein will send in profile information from `$HOME/.lein/profiles.clj`
 and similar sources as a map similar to a project map. Other tools using
@@ -282,6 +282,11 @@ downstream artifacts, like `jar`, `uberjar`, and `pom`.
 
 ### Hooks
 
+**Note**: Leiningen supports loading hooks from plugins; however this
+mechanism is extremely error-prone and difficult to debug. It should
+be considered deprecated as of 2.8.0 onward and will continue to work
+until version 3.0 but is strongly advised against.
+
 You can modify the behaviour of built-in Leiningen tasks to a degree
 using hooks. Hook functionality is provided by the
 [Robert Hooke](https://github.com/technomancy/robert-hooke) library,
@@ -334,6 +339,11 @@ function in that namespace will be called. Note: automatic hooks are activated
 before manually specified hooks.
 
 ### Project Middleware
+
+**Note**: Leiningen supports project middleware in plugins;
+however this mechanism is extremely error-prone and difficult to
+debug. It should be considered deprecated as of 2.8.0 onward and will
+continue to work until version 3.0 but is strongly advised against.
 
 Project middleware is just a function that is called on a project map
 returning a new project map. Middleware gives a plugin the power to do
@@ -429,7 +439,7 @@ middleware.
 
 ## Clojure Version
 
-Leiningen 2.5.2 and on uses Clojure 1.7.0. If you need to use a
+Leiningen 2.7.0 and on uses Clojure 1.8.0. If you need to use a
 different version of Clojure from within a Leiningen plugin, you can
 use `eval-in-project` with a dummy project argument:
 

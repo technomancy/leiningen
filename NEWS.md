@@ -2,6 +2,7 @@
 
 ## 2.8.0 / ???
 
+* Project middleware, hooks, and the `:test` profile are considered deprecated. (Phil Hagelberg)
 * JVMs on 8u131 and newer will default to using cgroups settings for memory limits. (Phil Hagelberg)
 * Add `:query` subcommand to `deps` to quickly find latest versions. (Phil Hagelberg)
 * Fix a bug where dependency resolution wasn't cached correctly. (Phil Hagelberg)
