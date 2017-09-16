@@ -66,9 +66,18 @@
     (some #(if (= (symbol subtask-name) (:name (meta %))) %)
           (:subtasks (meta task)))))
 
+(defn- clean-static-help
+  "Returns a string containing help content. Removes doctoc comments if they
+  are present."
+  [help-text]
+   (let [doctoc-text #"<!-- END doctoc generated TOC please keep comment here to allow auto update -->"]
+     (if (boolean (re-find doctoc-text help-text))
+       (string/triml (second (string/split help-text doctoc-text))))
+       help-text))
+
 (defn- static-help [name]
   (if-let [resource (io/resource (format "leiningen/help/%s" name))]
-    (slurp resource)))
+    (clean-static-help (slurp resource))))
 
 (declare help-for)
 
