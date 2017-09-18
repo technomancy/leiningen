@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.8.0 / ???
+## 2.8.0-RC1 / 2017-09-18
 
 * Project middleware, hooks, and the `:test` profile are considered deprecated. (Phil Hagelberg)
 * JVMs on 8u131 and newer will default to using cgroups settings for memory limits. (Phil Hagelberg)

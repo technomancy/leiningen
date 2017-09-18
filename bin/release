@@ -2,8 +2,8 @@
 
 set -e -u
 
-RELEASE_VERSION=$1
-CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
+RELEASE_VERSION=2.8.0-RC1
+CURRENT_VERSION=2.8.0-SNAPSHOT
 
 # Would like to use `lein release` here, but we don't have a way to
 # update the bash scripts or watch for boot slowdowns that way. Maybe
@@ -13,8 +13,6 @@ if [ ! -x `which lein-stable` ]; then
     echo "Install a stable version of Leiningen as lein-stable."
     exit 1
 fi
-
-(java -version 2>&1 | head -n1 | grep -F '1.6') || (echo "Use java 1.6 to build Leiningen release" && exit 1)
 
 grep $RELEASE_VERSION NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit 1)
 
@@ -54,6 +52,7 @@ time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 
 echo "Check that these are about the same boot times as with the last version."
 echo "Run this in a project: time lein-stable run -m clojure.main/main -e nil"
+echo "Proceeding here will publish the new version to the git repo."
 echo "Are these acceptable times? (~3s) [Y\n]"
 read CONTINUE
 case "$CONTINUE" in
@@ -68,7 +67,7 @@ cd $LEIN_ROOT
 
 git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
-git push && git push --tags && git push origin master:stable
+git push && git push --tags # && git push origin master:stable
 
 echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION."
 echo "Copy this version's section of NEWS.md to the GitHub release description."
