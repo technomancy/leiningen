@@ -1,12 +1,12 @@
 ;; This is Leiningen's own project configuration. See doc/TUTORIAL.md
 ;; file as well as sample.project.clj for help writing your own.
 
-(defproject leiningen "2.8.0-SNAPSHOT"
+(defproject leiningen "2.8.0-RC1"
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[leiningen-core "2.8.0-SNAPSHOT"]
+  :dependencies [[leiningen-core "2.8.0-RC1"]
                  ;; needed for pom
                  [org.clojure/data.xml "0.0.8"]
                  ;; needed for test
