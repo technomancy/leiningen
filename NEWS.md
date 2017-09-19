@@ -3,10 +3,13 @@
 ## 2.8.0-RC1 / 2017-09-18
 
 * Project middleware, hooks, and the `:test` profile are considered deprecated. (Phil Hagelberg)
+* Help output no longer includes TOC output. (Irina Renteria)
+* The `vcs` task allows the commit message to be customized. (Toby Crawley)
 * JVMs on 8u131 and newer will default to using cgroups settings for memory limits. (Phil Hagelberg)
 * Add `:query` subcommand to `deps` to quickly find latest versions. (Phil Hagelberg)
 * Fix a bug where dependency resolution wasn't cached correctly. (Phil Hagelberg)
 * Warn when `$CLASSPATH` is set. (Phil Hagelberg)
+* Default to requiring TLS for remote repositories. (Phil Hagelberg)
 * Remove warning when running as root. (Phil Hagelberg)
 * Add `:why` subtask to `deps` for tracing individual deps. (Phil Hagelberg)
 * Remove clj-http and cheshire dependencies, reducing likelihood of conflict (Phil Hagelberg)
