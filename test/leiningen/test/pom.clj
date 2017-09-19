@@ -79,6 +79,24 @@
       (is (= "https://github.com/this-is-not/ignored" (first-in xml [:project :scm :url])))
       (is (= "the git head" (first-in xml [:project :scm :tag]))))))
 
+(deftest test-pom-scm-git-with-empty-values
+  (with-redefs [pom/parse-github-url (constantly ["techno" "lein"])
+                pom/read-git-head (constantly "the git head")]
+    (let [project (with-profile-merged sample-project
+                  ^:leaky {:scm {:name "git"
+                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                 :connection ""
+                                 :developerConnection nil
+                                 :url "https://github.com/this-is-not/ignored"}})
+        pom (make-pom project)
+        xml (xml/parse-str pom)]
+      (is (nil? (first-in xml [:project :scm :connection]))
+          ":connection is not present because the project defines an empty value for it")
+      (is (nil? (first-in xml [:project :scm :developerConnection]))
+          ":developerConnection is not present because the project defines an empty value for it")
+      (is (= "https://github.com/this-is-not/ignored" (first-in xml [:project :scm :url])))
+      (is (= "the git head" (first-in xml [:project :scm :tag]))))))
+
 (deftest test-pom-default-values
   (let [xml (xml/parse-str (make-pom sample-project))]
     (is (= "nomnomnom" (first-in xml [:project :groupId]))
