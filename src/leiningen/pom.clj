@@ -86,19 +86,15 @@
      :dev-clone (str "ssh://git@github.com/" user "/" repo ".git")
      :browse (str "https://github.com/" user "/" repo)}))
 
-(defn- make-git-scm [git-dir]
+(defn- make-git-scm-map [git-dir]
   (try
     (let [origin (read-git-origin git-dir)
           head (read-git-head git-dir)
           urls (github-urls origin)]
-      [:scm
-       (and (:public-clone urls)
-            [:connection (str "scm:git:" (:public-clone urls))])
-       (and (:dev-clone urls)
-            [:developerConnection (str "scm:git:" (:dev-clone urls))])
-       (and head
-            [:tag head])
-       [:url (:browse urls)]])
+      (cond-> {:url (:browse urls)}
+        (:public-clone urls) (assoc :connection (str "scm:git:" (:public-clone urls)))
+        (:dev-clone urls)    (assoc :developerConnection (str "scm:git:" (:dev-clone urls)))
+        head                 (assoc :tag head)))
     (catch java.io.FileNotFoundException _)))
 
 (def disclaimer
@@ -128,15 +124,20 @@
   [scm]
   (map #(xml-tags (first %) (second %)) scm))
 
+(defn- make-project-scm-map [project]
+  (select-keys (:scm project) [:url :connection
+                               :tag :developerConnection]))
+
 (defn- write-scm-tag
   "Write the <scm> tag for pom.xml.
   Retains backwards compatibility without an :scm map."
   [scm project]
-  (if (= "auto" scm)
-    (make-git-scm (resolve-git-dir project))
-    (xml-tags :scm (xmlify (select-keys (:scm project)
-                                        [:url :connection
-                                         :tag :developerConnection])))))
+  (->> (case scm
+         "auto" (make-git-scm-map (resolve-git-dir project))
+         ; else
+         (make-project-scm-map project))
+       xmlify
+       (xml-tags :scm)))
 
 (defmethod xml-tags :default
   ([tag value]
