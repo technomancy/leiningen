@@ -64,6 +64,21 @@
       (is (= "https://github.com/techno/lein" (first-in xml [:project :scm :url])))
       (is (= "the git head" (first-in xml [:project :scm :tag]))))))
 
+(deftest test-pom-scm-git
+  (with-redefs [pom/parse-github-url (constantly ["techno" "lein"])
+                pom/read-git-head (constantly "the git head")]
+    (let [project (with-profile-merged sample-project
+                  ^:leaky {:scm {:name "git"
+                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                 :connection ":connection is not ignored in :scm :git"
+                                 :url "https://github.com/this-is-not/ignored"}})
+        pom (make-pom project)
+        xml (xml/parse-str pom)]
+      (is (= ":connection is not ignored in :scm :git" (first-in xml [:project :scm :connection])))
+      (is (= "scm:git:ssh://git@github.com/techno/lein.git" (first-in xml [:project :scm :developerConnection])))
+      (is (= "https://github.com/this-is-not/ignored" (first-in xml [:project :scm :url])))
+      (is (= "the git head" (first-in xml [:project :scm :tag]))))))
+
 (deftest test-pom-default-values
   (let [xml (xml/parse-str (make-pom sample-project))]
     (is (= "nomnomnom" (first-in xml [:project :groupId]))

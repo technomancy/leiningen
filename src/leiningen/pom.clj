@@ -134,6 +134,8 @@
   [scm project]
   (->> (case scm
          "auto" (make-git-scm-map (resolve-git-dir project))
+         "git" (merge (make-git-scm-map (resolve-git-dir project))
+                      (make-project-scm-map project))
          ; else
          (make-project-scm-map project))
        xmlify
