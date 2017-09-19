@@ -2,8 +2,8 @@
 
 set -e -u
 
-RELEASE_VERSION=2.8.0-RC1
-CURRENT_VERSION=2.8.0-SNAPSHOT
+RELEASE_VERSION=$1
+CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
 
 # Would like to use `lein release` here, but we don't have a way to
 # update the bash scripts or watch for boot slowdowns that way. Maybe
@@ -18,7 +18,7 @@ grep $RELEASE_VERSION NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit
 
 lein vcs assert-committed
 
-for f in bin/lein bin/lein-pkg bin/lein.bat bin/lein.ps1 project.clj leiningen-core/project.clj; do
+for f in bin/lein bin/lein-pkg bin/lein-sdkman bin/lein.bat bin/lein.ps1 project.clj leiningen-core/project.clj; do
     sed -i s/$CURRENT_VERSION/$RELEASE_VERSION/ $f
 done
 
@@ -67,7 +67,7 @@ cd $LEIN_ROOT
 
 git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
-git push && git push --tags # && git push origin master:stable
+git push && git push --tags && git push origin master:stable
 
 echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION."
 echo "Copy this version's section of NEWS.md to the GitHub release description."
