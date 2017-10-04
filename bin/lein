@@ -201,8 +201,6 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
 
-    BOOTCLASSPATH="-Xbootclasspath/a:$LEIN_JAR"
-
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         self_install
     fi
@@ -347,7 +345,6 @@ else
     else
         export TRAMPOLINE_FILE
         "$LEIN_JAVA_CMD" \
-            "${BOOTCLASSPATH[@]}" \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
