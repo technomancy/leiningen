@@ -1,5 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.8.0 / ???
+
+* Disable bytecode verification in Leiningen's own JVM for Java 9 compatibility. (Ghadi Shayban)
+* Infer values for pom `<scm>` tag from `.git` directory. (Nicolas Berger)
+
 ## 2.8.0-RC1 / 2017-09-18
 
 * Project middleware, hooks, and the `:test` profile are considered deprecated. (Phil Hagelberg)
@@ -12,16 +17,16 @@
 * Default to requiring TLS for remote repositories. (Phil Hagelberg)
 * Remove warning when running as root. (Phil Hagelberg)
 * Add `:why` subtask to `deps` for tracing individual deps. (Phil Hagelberg)
-* Remove clj-http and cheshire dependencies, reducing likelihood of conflict (Phil Hagelberg)
+* Remove clj-http and cheshire dependencies, reducing likelihood of conflict. (Phil Hagelberg)
 * Warn when plugin dependencies conflict with Leiningen's own. (Phil Hagelberg)
 * Fix a bug where repls outside a project were not run in Leiningen's own process. (Phil Hagelberg)
 * Add `:plugin-tree` and `:tree-data` subtasks to `deps`. (Ken Restivo)
 * Support skipping bootclasspath for Java 9 compatibility. (Phil Hagelberg)
 * Allow `vcs` task to skip signing tags. (Nicolas Berger)
 * The `search` task no longer downloads indices but hits live search APIs. (Phil Hagelberg)
-* Remove duplicate exclusions in `lein deps` (Emlyn Corrin)
-* Leiningen is now installable again via chocolatey (Florian Anderiasch)
-* Dependency names can be specified as strings in addition to symbols (Wes Morgan)
+* Remove duplicate exclusions in `lein deps`. (Emlyn Corrin)
+* Leiningen is now installable again via chocolatey. (Florian Anderiasch)
+* Dependency names can be specified as strings in addition to symbols. (Wes Morgan)
 
 ## 2.7.1 / 2016-09-22
 
