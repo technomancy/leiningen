@@ -42,6 +42,42 @@ than a requirement for running the project, users should place the
 plugin declaration in the `:user` profile in `~/.lein/profiles.clj`
 instead of directly in the `project.clj` file.
 
+## Not Writing a Plugin (无为)
+
+The first thing to do when writing a plugin is to try to accomplish
+what you're doing without a plugin.
+
+Early on in the days of Leiningen many plugins were written which did
+nothing but provide a short command to run a specific function using
+`eval-in-project`. Once Leiningen added the support for
+partially-applied aliases these became largely redundant, because you
+can add an alias to the `run` task:
+
+    :aliases {"mytest" ["run" "-m" "mylib.test/go"]}
+
+Not only does this allow `lein mytest` to run the `mylib.test/go`
+function inside the context of your project, it also passes additional
+arguments (such as in the case of `lein run mytest :integration`) on
+to the function specified. However, for some plugins this wasn't
+enough as they needed access to values in the project map. For
+instance, a test runner would need to know the value of `:test-paths`
+to know which directory to scan for tests.
+
+As of Leiningen 2.4.0 it's possible to get this data from an alias,
+removing the need for a plugin.
+
+    :aliases {"mytest" ["run" "-m" "mylib.test/go" :project/test-paths]}
+
+This will load the `:test-paths` value from the project map and pass a
+string representation of it as the first argument to the function
+specified in the alias, followed by any command-line arguments given
+to the `mytest` alias. It's up to the function to call `read-string`
+on that argument.
+
+However, if you need to call other Leiningen functions or have no need
+to run anything inside the context of the project's own process,
+making a plugin might be the right choice if one doesn't [exist already](https://github.com/technomancy/leiningen/wiki/plugins),
+
 ## Writing a Plugin
 
 Start by generating a new project with `lein new plugin
@@ -63,6 +99,7 @@ When emitting output, please use `leiningen.core.main/info`,
 `println` since these will respect the user's output settings.
 
 ### Local development
+
 When you're ready to test your plugin in a separate project you can include it via the following (example a plugin named sample-plugin):
 
 ```
