@@ -136,7 +136,7 @@ done
 
 BIN_DIR="$(dirname "$SCRIPT")"
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-Xverify:none -XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
 
 # This needs to be defined before we call HTTP_CLIENT below
 if [ "$HTTP_CLIENT" = "" ]; then
@@ -200,10 +200,6 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     fi
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
-
-    if [ "$LEIN_SKIP_BOOTCLASSPATH" = "" ]; then
-        BOOTCLASSPATH="-Xbootclasspath/a:$LEIN_JAR"
-    fi
 
     if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
         self_install
@@ -349,7 +345,6 @@ else
     else
         export TRAMPOLINE_FILE
         "$LEIN_JAVA_CMD" \
-            "${BOOTCLASSPATH[@]}" \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
