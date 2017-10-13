@@ -6,6 +6,7 @@
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[leiningen-core "2.8.0-SNAPSHOT"]
                  ;; needed for pom
                  [org.clojure/data.xml "0.0.8"]

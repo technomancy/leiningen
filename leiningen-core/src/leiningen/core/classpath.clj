@@ -411,7 +411,7 @@
   "When using the bootclasspath (for boot speed), resources already on the
   bootclasspath cannot be overridden by plugins, so notify the user about it."
   [project dependencies]
-  (when (:pedantic? project)
+  (when (#{:warn :abort} (:pedantic? project))
     (let [warned (atom false)]
       (doseq [[artifact version] dependencies
               :when (and (bootclasspath-deps artifact)
