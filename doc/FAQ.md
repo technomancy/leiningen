@@ -104,6 +104,19 @@
   [fireplace](https://github.com/tpope/vim-fireplace), for example.)
   Otherwise you can use the basic `lein repl`.
 
+**Q:** Version 2.8.0 seems a bit slower; why is that?  
+**A:** We have long used a hack of putting Leiningen on the JVM's
+  bootclasspath to speed up boot time, but the module system in Java 9
+  breaks this. We have switched to another method of speeding it up
+  (`-Xverify:none`) which gives anywhere from 95% to 70% of the same
+  speed boost depending on the machine on which you're running it. So
+  some users will notice a performance regression. We hope to go back
+  to the old method once Clojure 1.9.0 is released with a workaround,
+  but in the mean time if you are not using Java 9, you can go back to
+  the bootclasspath hack with this setting:
+
+    export LEIN_USE_BOOTCLASSPATH=y
+
 **Q:** Still too slow; what else can make startup faster?  
 **A:** The wiki has a page covering
   [ways to improve startup time](https://github.com/technomancy/leiningen/wiki/Faster).
