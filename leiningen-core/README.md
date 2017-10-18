@@ -5,7 +5,7 @@ consists of the task execution implementation, project configuration,
 and helper functions. The built-in tasks and the launcher scripts are
 kept in the main `leiningen` project.
 
-More detailed [API reference](http://leiningen.org/reference.html) is
+More detailed [API reference](https://leiningen.org/reference.html) is
 available.
 
 ## Namespaces

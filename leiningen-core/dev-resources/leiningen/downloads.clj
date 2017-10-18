@@ -3,7 +3,7 @@
 (add-dependencies :coordinates '[[clj-aws-s3 "0.3.6"]
                                  [tentacles "0.2.4"]]
                   :repositories (merge cemerick.pomegranate.aether/maven-central
-                                       {"clojars" "http://clojars.org/repo"}))
+                                       {"clojars" "https://clojars.org/repo"}))
 
 (ns leiningen.downloads
   "Calculate download statistics from logs."

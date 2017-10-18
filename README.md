@@ -1,6 +1,6 @@
 # Leiningen
 
-<img src="http://leiningen.org/img/leiningen.jpg"
+<img src="https://leiningen.org/img/leiningen.jpg"
  alt="Leiningen logo" title="The man himself" align="right" />
 
 > "Leiningen!" he shouted. "You're insane! They're not creatures you can
@@ -15,13 +15,12 @@ Leiningen is for automating Clojure projects without setting your hair on fire.
 
 If your preferred
 [package manager](https://github.com/technomancy/leiningen/wiki/Packaging)
-offers a recent version of Leiningen, try that first.  Many package managers still
-include version 1.x, which is rather outdated, so you may be better off installing manually.
+offers a recent version of Leiningen, try that first as long as it has version 2.x.
 
 Leiningen installs itself on the first run of the `lein` shell script; there is no
 separate install script.  Follow these instructions to install Leiningen manually:
 
-1. Make sure you have a Java JDK version 6 or later.
+1. Make sure you have Java installed; version 8 is recommended at this time.
 2. [Download the `lein` script from the `stable` branch](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)
  of this project.
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
@@ -121,8 +120,7 @@ Leiningen documentation is organized as a number of guides:
 
 ## Plugins
 
-Leiningen supports plugins which may contain both new tasks and hooks
-that modify behaviour of existing tasks. See
+Leiningen supports plugins which may introduce new tasks. See
 [the plugins wiki page](https://github.com/technomancy/leiningen/wiki/Plugins)
 for a full list. If a plugin is needed for successful test or build
 runs, (such as `lein-tar`) then it should be added to `:plugins` in
@@ -146,5 +144,5 @@ me that good builds are important.
 
 Images Copyright © 2010 Phil Hagelberg. Distributed under the Creative
 Commons Attribution + ShareAlike
-License. [Full-size version](http://leiningen.org/img/leiningen-full.jpg)
+License. [Full-size version](https://leiningen.org/img/leiningen-full.jpg)
 available.

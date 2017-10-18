@@ -351,7 +351,7 @@ These get replaced with the corresponding values from the project map."
 (def ^:private min-version-warning
   "*** Warning: This project requires Leiningen %s, but you have %s ***
 
-Get the latest version of Leiningen at http://leiningen.org or by executing
+Get the latest version of Leiningen at https://leiningen.org or by executing
 \"lein upgrade\".")
 
 (defn- verify-min-version
