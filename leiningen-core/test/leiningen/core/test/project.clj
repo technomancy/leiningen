@@ -613,3 +613,9 @@
       [:e :b :c :d] "target/e+bcd"
       [:c :a :b :d] "target/c+ab+d"
       [:a]          "target/a")))
+
+(deftest cgroups-applied-properly
+  (is (use-cgroups-memory-limit-for-heap? "1.8.0_144-b01"))
+  (is (use-cgroups-memory-limit-for-heap? "1.9.0_12-b06"))
+  (is (not (use-cgroups-memory-limit-for-heap? "1.8.0_111-internal")))
+  (is (not (use-cgroups-memory-limit-for-heap? "1.7.0_103"))))
