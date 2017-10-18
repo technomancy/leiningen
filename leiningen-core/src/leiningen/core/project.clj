@@ -524,15 +524,12 @@
 ;; give reasonable -Xmx defaults when containerized, if JVM is new enough
 ;; https://blogs.oracle.com/java-platform-group/java-se-support-for-docker-cpu-and-memory-limits
 (defn use-cgroups-memory-limit-for-heap? [version]
-  (let [[v u] (re-seq #"[^-_]+" version)
-        v' (Integer. (apply str (re-seq #"\d" v)))
-        u' (Integer. u)]
-    (or (and (>= v' 180) (>= u' 131))
-        (> v' 180))))
+  (let [[v u] (re-seq #"[^-_]+" version)]
+    (and (= v "1.8.0") (>= (Integer. u) 131))))
 
 (def ^:private cgroups-jvm-opts
   ;; this assumes the JVM version Leiningen is run under matches the project
-  (when (use-cgroups-memory-limit-for-heap? (System/getProperty "java.runtime.version"))
+  (if (use-cgroups-memory-limit-for-heap? (System/getProperty "java.runtime.version"))
     ["-XX:+UnlockExperimentalVMOptions" "-XX:+UseCGroupMemoryLimitForHeap"]))
 
 (def default-jvm-opts
