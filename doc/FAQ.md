@@ -254,14 +254,14 @@ cannot for some reason and don't care about security, you can add
 **Q:** I have a dependency whose group ID and/or artifact ID starts with a
   number (which is invalid for symbols in Clojure). How can I add it to my
   project's dependencies?  
-**A:** As of version 2.7.2, Leiningen supports string dependency names like
+**A:** As of version 2.8.0, Leiningen supports string dependency names like
   this:
 
 ```clj
 :dependencies [["net.3scale/3scale-api" "3.0.2"]]
 ```
 
-Prior to version 2.7.2, this is the workaround:
+Prior to version 2.8.0, this is the workaround:
 
 ```clj
 :dependencies [[~(symbol "net.3scale" "3scale-api") "3.0.2"]]
