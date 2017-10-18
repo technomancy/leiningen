@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.8.0 / ???
+## 2.8.0 / 2017-10-17
 
 * Support `LEIN_USE_BOOTCLASSPATH` for users on Java 8. (Phil Hagelberg)
 * Disable bytecode verification in Leiningen's own JVM for Java 9 compatibility. (Ghadi Shayban)
