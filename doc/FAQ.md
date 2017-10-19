@@ -233,7 +233,7 @@ by putting this in your `project.clj` file:
     ;; never do this
     (require 'cemerick.pomegranate.aether)
     (cemerick.pomegranate.aether/register-wagon-factory!
-     "http "#(org.apache.maven.wagon.providers.http.HttpWagon.))
+     "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
 
 It's also possible you have a dependency which includes a reference to
 an insecure repository for retrieving its own dependencies. If this
