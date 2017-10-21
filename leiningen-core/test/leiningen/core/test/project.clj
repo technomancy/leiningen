@@ -623,14 +623,14 @@
 
 (deftest cgroups-applied-properly-windows
   (let [os "Windows 7"]
-    (is (use-cgroups-memory-limit-for-heap? "1.8.0_144-b01" os))
+    (is (not (use-cgroups-memory-limit-for-heap? "1.8.0_144-b01" os)))
     (is (not (use-cgroups-memory-limit-for-heap? "1.8.0_111-internal" os)))
     (is (not (use-cgroups-memory-limit-for-heap? "1.7.0_103" os)))
     (is (not (use-cgroups-memory-limit-for-heap? "1.9.0_12-b06" os)))))
 
 (deftest cgroups-applied-properly-osx
   (let [os "Mac OS X"]
-    (is (use-cgroups-memory-limit-for-heap? "1.8.0_144-b01" os))
+    (is (not (use-cgroups-memory-limit-for-heap? "1.8.0_144-b01" os)))
     (is (not (use-cgroups-memory-limit-for-heap? "1.8.0_111-internal" os)))
     (is (not (use-cgroups-memory-limit-for-heap? "1.7.0_103" os)))
     (is (not (use-cgroups-memory-limit-for-heap? "1.9.0_12-b06" os)))))
