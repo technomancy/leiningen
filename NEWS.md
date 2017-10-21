@@ -1,7 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.8.1 / ---
+## 2.8.1 / ???
 
+* Fix a bug where launching project subprocesses would encounter unreadable forms (Phil Hagelberg)
+* Suppress a warning around cgroups memory limits outside Linux (Florian Anderiasch)
 * Fix cgroups memory limit JVM option (Antony Woods)
 
 ## 2.8.0 / 2017-10-17
