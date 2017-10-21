@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.8.1 / ---
+
+* Fix cgroups memory limit JVM option (Antony Woods)
+
 ## 2.8.0 / 2017-10-17
 
 * Support `LEIN_USE_BOOTCLASSPATH` for users on Java 8. (Phil Hagelberg)
