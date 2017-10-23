@@ -77,7 +77,7 @@ fi
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
 function command_not_found {
-    >&2 echo "Leiningen coundn't find $1 in your \$PATH ($PATH), which is required."
+    >&2 echo "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
     exit 1
 }
 
