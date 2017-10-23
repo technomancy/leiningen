@@ -8,7 +8,7 @@
                  [bultitude "0.2.8" :exclusions [org.tcrawley/dynapath]]
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
-                 [com.cemerick/pomegranate "0.4.0-alpha1"
+                 [com.cemerick/pomegranate "0.4.0"
                   :exclusions [org.tcrawley/dynapath
                                org.codehaus.plexus/plexus-utils]]
                  [org.tcrawley/dynapath "0.2.5"]
