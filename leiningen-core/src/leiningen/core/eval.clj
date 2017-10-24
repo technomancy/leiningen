@@ -238,7 +238,7 @@
                     (File/createTempFile "form-init" ".clj"))]
     (spit init-file
           (binding [*print-dup* *eval-print-dup*]
-            (pr-str (if-not (System/getenv "LEIN_FAST_TRAMPOLINE")
+            (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                     form)))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")

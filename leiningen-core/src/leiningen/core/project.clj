@@ -745,8 +745,10 @@
 
 (defn ensure-dynamic-classloader []
   (let [thread (Thread/currentThread)
-        cl (.getContextClassLoader thread)]
-    (when-not (pomegranate/modifiable-classloader? cl)
+        cl (.getContextClassLoader thread)
+        java-version (Float. (System/getProperty "java.specification.version"))]
+    (when-not (and (pomegranate/modifiable-classloader? cl)
+                   (< java-version 1.9))
       (.setContextClassLoader thread (DynamicClassLoader. cl)))))
 
 (def ^:private registered-wagon-files (atom #{}))
