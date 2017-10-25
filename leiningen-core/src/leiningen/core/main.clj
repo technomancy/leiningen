@@ -398,6 +398,7 @@ intentional please see `lein help faq` for details."))
   "Command-line entry point."
   [& raw-args]
   (try
+    (project/ensure-dynamic-classloader)
     (aether/register-wagon-factory! "http" insecure-http-abort)
     (user/init)
     (let [project (if (.exists (io/file *cwd* "project.clj"))

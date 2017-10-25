@@ -754,7 +754,6 @@
 (defn load-plugins
   ([project dependencies-key managed-dependencies-key]
      (when (seq (get project dependencies-key))
-       (ensure-dynamic-classloader)
        (let [repos-project (update-in project [:repositories] meta-merge
                                       (:plugin-repositories project))]
          (classpath/resolve-managed-dependencies
@@ -950,7 +949,6 @@
   "Adds dependencies to Leiningen's classpath if required."
   [project]
   (when (= :leiningen (:eval-in project))
-    (ensure-dynamic-classloader)
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path))))
 
