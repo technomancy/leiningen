@@ -521,18 +521,6 @@
   (if (.contains (or (System/getenv "LEIN_JVM_OPTS") "") "Tiered")
     ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]))
 
-;; give reasonable -Xmx defaults when containerized, if JVM is new enough
-;; https://blogs.oracle.com/java-platform-group/java-se-support-for-docker-cpu-and-memory-limits
-(defn use-cgroups-memory-limit-for-heap? [version os]
-  (let [[base] (re-seq #"[^-]+" version)]
-    (let [[v u] (re-seq #"[^_]+" base)]
-      (and (= os "Linux") (= v "1.8.0") (not (empty? u)) (>= (Integer. u) 131)))))
-
-(def ^:private cgroups-jvm-opts
-  ;; this assumes the JVM version Leiningen is run under matches the project
-  (if (use-cgroups-memory-limit-for-heap? (System/getProperty "java.runtime.version") (System/getProperty "os.name"))
-    ["-XX:+UnlockExperimentalVMOptions" "-XX:+UseCGroupMemoryLimitForHeap"]))
-
 (def default-jvm-opts
   [;; actually does the opposite; omits trace unless this is set
    "-XX:-OmitStackTraceInFastThrow"])
@@ -544,8 +532,7 @@
          :leiningen/default [:base :system :user :provided :dev]
          :base {:resource-paths ^:default-path/dev-resources ["dev-resources"]
                 :jvm-opts (with-meta `[~@default-jvm-opts
-                                       ~@tiered-jvm-opts
-                                       ~@cgroups-jvm-opts]
+                                       ~@tiered-jvm-opts]
                             {:displace true})
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
