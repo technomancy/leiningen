@@ -526,7 +526,10 @@
 (defn use-cgroups-memory-limit-for-heap? [version os]
   (let [[base] (re-seq #"[^-]+" version)]
     (let [[v u] (re-seq #"[^_]+" base)]
-      (and (= os "Linux") (= v "1.8.0") (not (empty? u)) (>= (Integer. u) 131)))))
+      (and (= os "Linux")
+           (or (str/starts-with? v "9")
+               (str/starts-with? v "1.9.")
+               (and (str/starts-with? v "1.8") (not (empty? u)) (>= (Integer. u) 131)))))))
 
 (def ^:private cgroups-jvm-opts
   ;; this assumes the JVM version Leiningen is run under matches the project
