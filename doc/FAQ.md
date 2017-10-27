@@ -243,14 +243,6 @@ bug with the dependency which does this.
 **Q:** `lein`/`lein.bat` won't download `leiningen-x.y.z-SNAPSHOT.jar`  
 **A:** You probably downloaded `lein`/`lein.bat` from the [master branch](https://github.com/technomancy/leiningen/tree/master/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)
 
-**Q:** What does `Unrecognized VM option 'UseCGroupMemoryLimitForHeap'` mean?  
-**A:** Leiningen 2.8.0 and up use this Java flag which provides better default
-memory settings when running in containerization. Older versions of Java do not
-support this flag. If you see this, it is *strongly* recommended that you upgrade
-Java, since the older versions have a large number of security flaws. If you
-cannot for some reason and don't care about security, you can add
-`:jvm-opts ^:replace []` to your `project.clj` file.
-
 **Q:** I have a dependency whose group ID and/or artifact ID starts with a
   number (which is invalid for symbols in Clojure). How can I add it to my
   project's dependencies?  
