@@ -1,10 +1,13 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.8.1 / ???
+## 2.8.1 / 2017-10-27
 
-* Fix a bug where launching project subprocesses would encounter unreadable forms (Phil Hagelberg)
-* Suppress a warning around cgroups memory limits outside Linux (Florian Anderiasch)
-* Fix cgroups memory limit JVM option (Antony Woods)
+* Fix a bug where `lein help` couldn't list built-in tasks on Java 9. (Phil Hagelberg)
+* Fix a bug where `lein` installed from package managers would obscure exit code. (Phil Hagelberg)
+* Fix an errant reflection warning on Java 9. (Toby Crawley)
+* Fix an error when no `:plugins` are specified. (Phil Hagelberg)
+* Fix a bug where launching project subprocesses would encounter unreadable forms. (Phil Hagelberg)
+* Remove auto-setting of cgroups memory limit. (Florian Anderiasch)
 
 ## 2.8.0 / 2017-10-17
 
