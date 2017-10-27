@@ -130,13 +130,10 @@ else
 
     EXIT_CODE=$?
 
-    if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
-        TRAMPOLINE="$(cat $TRAMPOLINE_FILE)"
-        if [ "$INPUT_CHECKSUM" = "" ]; then
-            rm "$TRAMPOLINE_FILE"
-        fi
-        exec sh -c "exec $TRAMPOLINE"
-    else
+    TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
+    if [ "$TRAMPOLINE" = "" ]; then
         exit $EXIT_CODE
+    else
+        exec sh -c "exec $TRAMPOLINE"
     fi
 fi

@@ -364,20 +364,11 @@ else
           stty icanon echo > /dev/null 2>&1
         fi
 
-        ## TODO: [ -r "$TRAMPOLINE_FILE" ] may be redundant? A trampoline file
-        ## is always generated these days.
-        if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
-            TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
-            if [ "$INPUT_CHECKSUM" = "" ]; then
-                rm "$TRAMPOLINE_FILE"
-            fi
-            if [ "$TRAMPOLINE" = "" ]; then
-                exit $EXIT_CODE
-            else
-                exec sh -c "exec $TRAMPOLINE"
-            fi
-        else
+        TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
+        if [ "$TRAMPOLINE" = "" ]; then
             exit $EXIT_CODE
+        else
+            exec sh -c "exec $TRAMPOLINE"
         fi
     fi
 fi
