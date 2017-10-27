@@ -364,11 +364,18 @@ else
           stty icanon echo > /dev/null 2>&1
         fi
 
-        TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
-        if [ "$TRAMPOLINE" = "" ]; then
-            exit $EXIT_CODE
+        if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
+            TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
+            if [ "$INPUT_CHECKSUM" = "" ]; then # not using fast trampoline
+                rm "$TRAMPOLINE_FILE"
+            fi
+            if [ "$TRAMPOLINE" = "" ]; then
+                exit $EXIT_CODE
+            else
+                exec sh -c "exec $TRAMPOLINE"
+            fi
         else
-            exec sh -c "exec $TRAMPOLINE"
+            exit $EXIT_CODE
         fi
     fi
 fi
