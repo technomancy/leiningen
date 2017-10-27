@@ -11,7 +11,7 @@
                  [com.cemerick/pomegranate "0.4.0"
                   :exclusions [org.tcrawley/dynapath
                                org.codehaus.plexus/plexus-utils]]
-                 [org.tcrawley/dynapath "0.2.5"]
+                 [org.tcrawley/dynapath "1.0.0"]
                  [org.apache.maven.wagon/wagon-http "2.12"
                   :exclusions [org.apache.maven.wagon/wagon-provider-api]]
                  [com.hypirion/io "0.3.1"]
