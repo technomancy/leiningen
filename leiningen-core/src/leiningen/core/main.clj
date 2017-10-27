@@ -206,10 +206,21 @@
                        (range s-len))]
     (peek (peek matrix))))
 
+;; workaround for #2345; need to update this list if a new task is added
+(def ^:private stock-tasks
+  '[leiningen.change leiningen.check leiningen.classpath leiningen.clean
+    leiningen.compile leiningen.deploy leiningen.deps leiningen.do
+    leiningen.help leiningen.install leiningen.jar leiningen.javac leiningen.new
+    leiningen.plugin leiningen.pom leiningen.release leiningen.repl
+    leiningen.retest leiningen.run leiningen.search leiningen.show-profiles
+    leiningen.test leiningen.trampoline leiningen.uberjar leiningen.update-in
+    leiningen.upgrade leiningen.vcs leiningen.version leiningen.with-profile])
+
 (defn tasks
   "Return a list of symbols naming all visible tasks."
   []
   (->> (b/namespaces-on-classpath :prefix "leiningen")
+       (into stock-tasks)
        (filter #(re-find #"^leiningen\.(?!core|main|util)[^\.]+$" (name %)))
        (distinct)
        (sort)))
