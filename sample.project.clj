@@ -83,8 +83,8 @@
   ;; warns when version ranges are present anywhere in the dependency tree,
   ;; but can be set to true to warn for both ranges and overrides, or :abort
   ;; to exit in the case of ranges or overrides. Setting this to :warn or
-  ; :abort will also warn you when plugins or their dependencies
-  ; conflict with libraries used by Leiningen itself.
+  ;; :abort will also warn you when plugins or their dependencies
+  ;; conflict with libraries used by Leiningen itself.
   :pedantic? :abort
   ;; Global exclusions are applied across the board, as an alternative
   ;; to duplication for multiple dependencies with the same excluded libraries.
