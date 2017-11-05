@@ -6,7 +6,7 @@ This is a sample of how a simple plugin would work.
 
 ## Usage
 
-Add `[lein-pprint "1.1.2"]` to `:plugins`.
+Add `[lein-pprint "1.2.0"]` to `:plugins`.
 
     $ lein pprint
 
@@ -36,6 +36,6 @@ Add `[lein-pprint "1.1.2"]` to `:plugins`.
 
 ## License
 
-Copyright © 2012 Phil Hagelberg
+Copyright © 2012-2017 Phil Hagelberg and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.
