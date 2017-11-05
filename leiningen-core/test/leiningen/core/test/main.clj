@@ -91,6 +91,18 @@
        ["one-or-two" "clojure" "2"] ["3"]
        ["fixed-and-var-args" "one"] []))
 
+(deftest test-versions-match
+  (is (versions-match? "1.2.12" "1.2.12"))
+  (is (versions-match? "3.0" "3.0"))
+  (is (versions-match? " 12.1.2" "12.1.2 "))
+  (is (not (versions-match? "1.2" "1.3")))
+  (is (not (versions-match? "1.2.0" "1.2")))
+  (is (not (versions-match? "1.2" "1.2.0")))
+  (is (versions-match? "2.1.3-SNAPSHOT" "2.1.3"))
+  (is (versions-match? "  2.1.3-SNAPSHOT" "2.1.3"))
+  (is (versions-match? "2.1.3" "2.1.3-FOO"))
+  (is (not (versions-match? "3.0.0" "3.0.1-BAR"))))
+
 (deftest test-version-satisfies
   (is (version-satisfies? "1.5.0" "1.4.2"))
   (is (not (version-satisfies? "1.4.2" "1.5.0")))

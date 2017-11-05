@@ -348,6 +348,21 @@ These get replaced with the corresponding values from the project map."
               (.load reader))
             (.getProperty "version")))))
 
+(def ^:private exact-version-error
+  "This project has :exact-lein-version set to \"%s\", while you have %s.")
+
+(defn versions-match? [v1 v2]
+  (let [v1 (string/trim (first (string/split v1 #"-" 2)))
+        v2 (string/trim (first (string/split v2 #"-" 2)))]
+    (= v1 v2)))
+
+(defn- verify-exact-version
+  [{:keys [exact-lein-version]}]
+  (when-not (versions-match? exact-lein-version (leiningen-version))
+    (abort (format exact-version-error
+                   exact-lein-version
+                   (leiningen-version)))))
+
 (defn version-satisfies? [v1 v2]
   (let [v1 (map #(Integer. %) (re-seq #"\d+" (first (string/split v1 #"-" 2))))
         v2 (map #(Integer. %) (re-seq #"\d+" (first (string/split v2 #"-" 2))))]
@@ -415,6 +430,7 @@ intentional please see `lein help faq` for details."))
     (let [project (if (.exists (io/file *cwd* "project.clj"))
                     (project/read (str (io/file *cwd* "project.clj")))
                     (default-project))]
+      (when (:exact-lein-version project) (verify-exact-version project))
       (when (:min-lein-version project) (verify-min-version project))
       (configure-http)
       (resolve-and-apply project raw-args))

@@ -36,6 +36,11 @@
   ;; relies on features only found in newer Leiningen versions.
   :min-lein-version "2.0.0"
 
+  ;; You can require a specific version of Leiningen. In case of mismatch
+  ;; execution will abort. When versions are compared, suffixes such as
+  ;; "-SNAPSHOT" are dropped.
+  ;; :exact-lein-version "2.8.2"
+
 ;;; Dependencies, Plugins, and Repositories
   ;; Dependencies are listed as [group-id/name version]; in addition
   ;; to keywords supported by Pomegranate, you can use :native-prefix
