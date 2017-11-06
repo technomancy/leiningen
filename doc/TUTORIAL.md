@@ -348,6 +348,17 @@ Leiningen supports searching remote Maven repositories for matching
 jars with the command `lein search $TERM`. Currently only searching
 Central and Clojars is supported.
 
+### Maven Read Timeout
+
+The underlying Maven Wagon transport reads the `maven.wagon.rto` system property to determine the timeout used
+when downloading artifacts from a repository. The `lein` script sets that property to be 10000. 
+If that timeout isn't long enough (for example, when using a slow corporate mirror), 
+it can be overridden via LEIN_JVM_OPTS:
+
+```bash
+export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
+``` 
+
 ## Setting JVM Options
 
 To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will override any default JVM opts set by Leiningen.
