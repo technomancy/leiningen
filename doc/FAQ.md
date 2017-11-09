@@ -126,7 +126,7 @@
   compilation (which only benefits long-running processes).  This can
   negatively affect performance in the long run, or lead to inaccurate
   benchmarking results.  If want the JVM to fully optimize, you can
-  you can switch profiles with `lein with-profiles production run ...`.
+  switch profiles with `lein with-profiles production run ...`.
 
 **Q:** I'm attempting to run a project as a background process (`lein run &`),
   but the process suspends until it is in the foreground. How do I run a program
@@ -147,7 +147,7 @@
 
 **Q:** How do I determine my project's version at runtime?  
 **A:** Leiningen writes a file called `pom.properties` into
-  `target/classes` which contains a the version number and current git
+  `target/classes` which contains the version number and current git
   revision of the project. In previous versions of Leiningen this was
   only available when running from jar files, but as of 2.4.1 it's
   available during `lein run ...`, etc. You can read it by running
@@ -193,7 +193,7 @@
   arg1 arg2 [...]` without any AOT, but it will take longer to launch.
 
 **Q:** Why does `lein jar` package some namespaces from dependencies into my jar?  
-**A:** This is likely because you have AOT-compiled its namespaces. An
+**A:** This is likely because you have AOT-compiled namespaces. An
   AOT-compiled namespace can only depend on AOT-compiled namespaces. Therefore,
   if you depend on a namespace in a dependency that is not AOT-compiled, it will
   be AOT-compiled and bundled with the jar. It is strongly recommended not to
