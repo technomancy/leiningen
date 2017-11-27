@@ -285,6 +285,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                         echo "Leiningen is already up-to-date."
                     fi
                     mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
+                    unset CLASSPATH
                     exec "$SCRIPT" version
                 else
                     download_failed_message "$LEIN_SCRIPT_URL"
