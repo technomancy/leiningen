@@ -10,6 +10,11 @@ if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=NO
 )
 
+if not "x%CLASSPATH%" == "x" (
+    echo WARNING: You have %%CLASSPATH%% set, probably by accident.
+    echo It is strongly recommended to unset this before proceeding.
+)
+
 set ORIGINAL_PWD=%CD%
 :: If ORIGINAL_PWD ends with a backslash (such as C:\),
 :: we need to escape it with a second backslash.
@@ -308,6 +313,8 @@ call "%TEMP_BAT%" self-install
    rem This way, script execution does not depend on whether the replacement script
    rem has that command at the *very same* file position as the calling batch file.
    move /y "%TEMP_BAT%" "%LEIN_BAT%" >nul 2>&1
+   set CLASSPATH=
+   call "%LEIN_BAT%" version
    exit /B %ERRORLEVEL%
 )
 
