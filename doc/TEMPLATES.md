@@ -32,11 +32,14 @@ Your new template would look like:
     ├── LICENSE
     ├── project.clj
     ├── README.md
+    ├── resources
+    |   └── leiningen
+    |       └── new
+    |           └── liquid_cool
+    |               └── foo.clj
     └── src
         └── leiningen
             └── new
-                ├── liquid_cool
-                │   └── foo.clj
                 └── liquid_cool.clj
 
 Note that you'll now have a new and separate project named
@@ -50,14 +53,14 @@ an artifact-id of "lein-template".
 ## Structure
 
 The files that your template will provide to users are in
-`src/leiningen/new/liquid_cool`. The template generator starts you off
+`resources/leiningen/new/liquid_cool`. The template generator starts you off
 with just one, named "foo.clj". You can see it referenced in
 `src/leiningen/new/liquid_cool.clj`, right underneath the
 `->files data` line.
 
 You can delete `foo.clj` if you like (and its corresponding line in
 `liquid_cool.clj`), and start populating that
-`src/leiningen/new/liquid_cool` directory with the files you wish to be
+`resources/leiningen/new/liquid_cool` directory with the files you wish to be
 part of your template. For everything you add, make sure the
 `liquid_cool.clj` file receives corresponding entries in that `->files`
 call. For examples to follow, have a look inside [the \*.clj files for
@@ -95,7 +98,7 @@ and that we have a template file which looks up the key X by wrapping it in
 double mustaches like so: `{{X}}`. As for our input name, `data` already
 contains the line `:name name`, which means we can lookup the input name by
 writing `{{name}}` in the template file. To try it out, save the following
-contents in the file `src/leiningen/new/liquid_cool/README.md`:
+contents in the file `resources/leiningen/new/liquid_cool/README.md`:
 
 ```markdown
 # {{name}}
