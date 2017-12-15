@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/leiningen
     docker:
-      - image: clojure:lein-2.7.1
+      - image: clojure:lein-2.8.1
     steps:
       - checkout
       - restore_cache:

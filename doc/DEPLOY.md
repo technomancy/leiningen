@@ -324,6 +324,13 @@ libraries using Leiningen. Applications will have different requirements
 that are varied enough that Leiningen doesn't attempt to support them
 out of the box.
 
+If you just want to change the `deploy` step so it goes to Clojars, you don't
+have to replace the whole `:release-tasks` vector, just set this:
+
+```clojure
+:deploy-repositories {"releases" {:url "https://repo.clojars.org" :creds :gpg}}
+```
+
 ### Committing
 
 By default, `["vcs" "commit"]` will commit with the message `"Version

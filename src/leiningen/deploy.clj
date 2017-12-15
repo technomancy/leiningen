@@ -37,7 +37,7 @@
     [id settings]
     (do
       (when @utils/rebound-io?
-        (main/abort "No credentials found for" id "(did you mean `lein deploy"
+        (main/abort "No credentials found for " id "(did you mean `lein deploy"
                     "clojars`?)\nPassword prompts are not supported when ran"
                     "after other (potentially)\ninteractive tasks.\nSee `lein"
                     "help deploy` for an explanation of how to specify"
