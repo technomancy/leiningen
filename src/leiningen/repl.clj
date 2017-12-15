@@ -289,7 +289,6 @@ Subcommands:
 
 :connect [dest]
   Connects to an already running nREPL server. Dest can be:
-  - an HTTP(S) URL -- connects to an HTTP(S) nREPL endpoint;
   - host:port -- connects to the specified host and port;
   - port -- resolves host from the LEIN_REPL_HOST environment
       variable or :repl-options, in that order, and defaults to
@@ -300,6 +299,9 @@ Subcommands:
   with @ and points to a filename containing a connect string will read
   that file and use its contents, allowing sensitive credentials to be
   kept out of the process table and shell history.
+
+For connecting to HTTPS repl servers add [com.cemerick/drawbridge \"0.0.7\"]
+to your :plugins list.
 
 Note: the :repl profile is implicitly activated for this task. It cannot be
 deactivated, but it can be overridden."
