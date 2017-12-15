@@ -404,8 +404,10 @@
           (doseq [[_ {:keys [native-prefix file]}] snap-deps]
             (extract-native-dep! native-path file native-prefix))))))
 
-(def ^:private bootclasspath-deps (-> "leiningen/bootclasspath-deps.clj"
-                                      io/resource slurp read-string))
+(def ^:private bootclasspath-deps
+  (if-let [deps-file (io/resource "leiningen/bootclasspath-deps.clj")]
+    (slurp (read-string deps-file))
+    []))
 
 (defn- warn-conflicts
   "When using the bootclasspath (for boot speed), resources already on the
