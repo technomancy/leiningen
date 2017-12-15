@@ -406,8 +406,8 @@
 
 (def ^:private bootclasspath-deps
   (if-let [deps-file (io/resource "leiningen/bootclasspath-deps.clj")]
-    (slurp (read-string deps-file))
-    []))
+    (read-string (slurp deps-file))
+    {}))
 
 (defn- warn-conflicts
   "When using the bootclasspath (for boot speed), resources already on the
