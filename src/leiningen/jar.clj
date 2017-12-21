@@ -22,10 +22,13 @@
 (defn- unix-path [path]
   (.replace path "\\" "/"))
 
-(def ^:private default-manifest
+(defn- default-manifest [project]
   {"Created-By" (str "Leiningen " (main/leiningen-version))
    "Built-By" (System/getProperty "user.name")
-   "Build-Jdk" (System/getProperty "java.version")})
+   "Build-Jdk" (System/getProperty "java.version")
+   "Leiningen-Project-ArtifactId" (:name project)
+   "Leiningen-Project-GroupId" (:group project)
+   "Leiningen-Project-Version" (:version project)})
 
 (declare ^:private manifest-entry)
 
@@ -55,7 +58,7 @@
 
 (defn ^:internal make-manifest [project]
   (let [project-manifest (into {} (:manifest project))
-        default-manifest' (cond-> default-manifest
+        default-manifest' (cond-> (default-manifest project)
                             ;; Add default "Main-Class" only if :main is not
                             ;; explicitly set to nil
                             (:main project :not-found)

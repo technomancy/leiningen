@@ -15,6 +15,7 @@
 
 (def mock-project-1
   {:name "mock-project"
+   :group "mock-group"
    :version "1.0"
    :main 'foo.one-two.three-four.bar
    :manifest [["hello" "world"]
@@ -26,6 +27,7 @@
 
 (def mock-project-2
   {:name "mock-project"
+   :group "mock-group"
    :version "1.0"
    :main 'foo.one-two.three-four.bar
    :manifest {"hello" "world"
@@ -45,9 +47,14 @@
                  manifest-map)]
       (is (= {"Main-Class" "foo.one_two.three_four.bar", "hello" "world"}
              (select-keys mm ["hello" "Main-Class"])))
-      (is (= #{"Manifest-Version" "Main-Class" "hello" "A" "G" "Created-By" "Built-By"
-               "Build-Jdk" "long-line"}
+      (is (= #{"A" "Build-Jdk" "Built-By" "Created-By" "G"
+               "Leiningen-Project-ArtifactId" "Leiningen-Project-GroupId"
+               "Leiningen-Project-Version" "Main-Class" "Manifest-Version"
+               "hello" "long-line"}
              (-> mm keys set)))
+      (is (= (get mm "Leiningen-Project-ArtifactId") "mock-project"))
+      (is (= (get mm "Leiningen-Project-GroupId") "mock-group"))
+      (is (= (get mm "Leiningen-Project-Version") "1.0"))
       (is (= (get mm "long-line") long-line))
       (is (=  #{"my-section-1" "my-section-2"}
              (-> mock-project
