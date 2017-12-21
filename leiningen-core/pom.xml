@@ -17,13 +17,15 @@
     <tag>2261906d9dd7b8381baf8af3090363c66a91ca79</tag>
   </scm>
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>test</testSourceDirectory>
     <resources>
+      <resource>
+        <directory>src</directory>
+      </resource>
       <resource>
         <directory>resources</directory>
       </resource>
     </resources>
+    <testSourceDirectory>test</testSourceDirectory>
     <testResources>
       <testResource>
         <directory>resources</directory>
