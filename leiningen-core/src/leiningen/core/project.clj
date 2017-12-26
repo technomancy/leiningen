@@ -343,7 +343,8 @@
          (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
          (assoc :eval-in (or (:eval-in raw-map)
                              (if (:eval-in-leiningen raw-map)
-                               :leiningen)))
+                               :leiningen
+                               :default)))
          (dissoc :eval-in-leiningen :java-opts)
          (normalize-values)))
     (meta raw-map)))
