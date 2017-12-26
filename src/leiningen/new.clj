@@ -67,9 +67,9 @@
    (abort "Sorry, names such as cleaxure or *eaxure are not allowed."
           "\nIf you intend to use this name ironically, please set the"
           "\nLEIN_IRONIC_EAXURE environment variable and try again.")
-   (= name "clojure")
-   (abort "Sorry, clojure can't be used as a project name."
-          "\nIt will confuse Clojure compiler and cause obscure issues.")
+   (or (= name "clojure") (= name "cljs"))
+   (abort "Sorry, clojure and cljs can't be used as project names."
+          "\nIt will confuse the compiler and cause obscure issues.")
    (and (re-find #"[A-Z]" name)
         (not (System/getenv "LEIN_BREAK_CONVENTION")))
    (abort "Project names containing uppercase letters are not recommended"
