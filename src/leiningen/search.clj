@@ -2,16 +2,25 @@
   "Search Central and Clojars for published artifacts."
   (:require [clojure.string :as string]
             [clojure.xml :as xml]
-            [leiningen.core.project :as project])
+            [leiningen.core.project :as project]
+            [leiningen.core.main :as main])
   (:import (java.net URLEncoder)))
 
 (defn- decruft-central-xml [content]
   (zipmap (map #(get-in % [:attrs :name]) content)
           (map #(get-in % [:content 0]) content)))
 
+(defn parse [url]
+  (try (xml/parse url)
+       (catch Exception e
+         (main/warn "Could not retrieve search results from" url "because of"
+                    (class e))
+         (when main/*debug*
+           (.printStackTrace e)))))
+
 (defn search-central [query]
   (let [url (str "https://search.maven.org/solrsearch/select?wt=xml&q=" query)]
-    (doseq [doc (get-in (xml/parse url) [:content 1 :content])]
+    (doseq [doc (get-in (parse url) [:content 1 :content])]
       (let [result (decruft-central-xml (:content doc))
             dep (if (= (result "a") (result "g"))
                   (result "a")
@@ -20,7 +29,7 @@
 
 (defn search-clojars [query]
   (let [url (str "https://clojars.org/search?format=xml&q=" query)]
-    (doseq [{result :attrs} (:content (xml/parse url))]
+    (doseq [{result :attrs} (:content (parse url))]
       (let [dep (if (= (result :jar_name) (result :group_name))
                   (result :jar_name)
                   (str (result :group_name) "/" (result :jar_name)))]
