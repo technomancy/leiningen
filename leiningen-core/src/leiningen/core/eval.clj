@@ -36,7 +36,7 @@
 (defn- write-pom-properties [{:keys [compile-path group name] :as project}]
   (when (and (:root project) (:write-pom-properties project true))
     (let [path (format "%s/META-INF/maven/%s/%s/pom.properties"
-                       compile-path group name)]
+                       (or compile-path "target/classes") group name)]
       (utils/mkdirs (.getParentFile (io/file path)))
       (spit path (project/make-project-properties project)))))
 
