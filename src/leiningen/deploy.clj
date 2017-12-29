@@ -190,6 +190,9 @@ You can also deploy arbitrary artifacts from disk:
 
     $ lein deploy myrepo com.blueant/fancypants 1.0.1 fancypants.jar pom.xml
 
+The repository can be defined in defproject or a profile, or it can be a URL.
+Use file://$HOME/.m2/repository to install in the local repo.
+
 While this works with any arbitrary files on disk, downstream projects will not
 be able to depend on jars that are deployed without a pom."
   ([project]

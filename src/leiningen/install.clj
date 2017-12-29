@@ -10,7 +10,9 @@
            (java.util UUID)))
 
 (defn install
-  "Install jar and pom to the local repository; typically ~/.m2."
+  "Install jar and pom to the local repository; typically ~/.m2.
+
+In order to install arbitrary files into a repository see the deploy task."
   [project]
   (when (not (or (:install-releases? project true)
                  (pom/snapshot? project)))
