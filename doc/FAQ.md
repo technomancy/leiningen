@@ -214,6 +214,13 @@ You can also check things like `(System/getProperty
 "java.specification.version")` to use the JVM version or any other
 property.
 
+**Q:** What does `Received fatal alert: protocol_version` mean when
+  trying to access Clojars?  
+**A:** This usually means your JVM is not configured to use TLSv1.2, which is
+  used by Clojars' CDN. It's strongly recommended to upgrade to at least Java 8,
+  but if this is not feasible, you can fix it by exporting
+  `LEIN_JVM_OPTS=-Dhttps.protocols=TLSv1.2` as an environment variable.
+
 **Q:** I get a `java.security.KeyException` or `sun.security.provider.certpath.SunCertPathBuilderException` when running `lein`  
 **A:** The `java.security.KeyException` indicates an ssl error when trying to communicate with the HTTPS server via Java. This could be because you need to update the JDK, or some other package (e.g. with old versions of the nss package).
 
@@ -226,14 +233,6 @@ property.
 **A:** This means your project was configured to download dependencies
 from a repository that does not use TLS encryption. This is very
 insecure and exposes you to trivially-executed man-in-the-middle attacks.
-In the rare event that you don't care about the security of the machines
-running your project, you can re-enable support for unprotected repositories
-by putting this in your `project.clj` file:
-
-    ;; never do this
-    (require 'cemerick.pomegranate.aether)
-    (cemerick.pomegranate.aether/register-wagon-factory!
-     "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
 
 It's also possible you have a dependency which includes a reference to
 an insecure repository for retrieving its own dependencies. If this
