@@ -27,7 +27,7 @@ when sending pull requests rather than committing directly to master
 in order to minimize unnecessary merge commit clutter. Direct pull
 requests towards the master branch, not the stable branch.
 
-Leiningen is [mirrored at GitLab](https://gitlab.org/technomancy/leiningen)
+Leiningen is [mirrored at GitLab](https://gitlab.com/technomancy/leiningen)
 and [tested on CircleCI](https://circleci.com/gh/technomancy/leiningen).
 
 ## Codebase
