@@ -224,6 +224,7 @@
                                   ["vcs" "push"]]
    :pedantic? (quote ^:top-displace ranges)
    :jar-exclusions [#"^\."]
+   :eval-in :default
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
    :uberjar-merge-with {"META-INF/plexus/components.xml"
@@ -343,8 +344,7 @@
          (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
          (assoc :eval-in (or (:eval-in raw-map)
                              (if (:eval-in-leiningen raw-map)
-                               :leiningen
-                               :default)))
+                               :leiningen)))
          (dissoc :eval-in-leiningen :java-opts)
          (normalize-values)))
     (meta raw-map)))
