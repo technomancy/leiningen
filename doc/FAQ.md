@@ -232,7 +232,16 @@ property.
 **Q:** I got `Tried to use insecure HTTP repository without TLS`, what is that about?  
 **A:** This means your project was configured to download dependencies
 from a repository that does not use TLS encryption. This is very
-insecure and exposes you to trivially-executed man-in-the-middle attacks.
+insecure and exposes you to trivially-executed man-in-the-middle
+attacks.  In the rare event that you don't care about the security of
+the machines running your project or can ensure that the only http
+traffic is going out over a trusted network, you can re-enable support
+for unsafe repositories by putting this in your `project.clj` file:
+
+    ;; never do this
+    (require 'cemerick.pomegranate.aether)
+    (cemerick.pomegranate.aether/register-wagon-factory!
+     "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
 
 It's also possible you have a dependency which includes a reference to
 an insecure repository for retrieving its own dependencies. If this
