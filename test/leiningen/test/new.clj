@@ -7,7 +7,7 @@
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
   (is (= #{"README.md" "project.clj" "resources" "src" "core.clj" "test"
-           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore" 
+           "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"
            ".hgignore" "LICENSE" "CHANGELOG.md"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-proj")))))))
   (delete-file-recursively (file "test-new-proj") :silently))
@@ -39,7 +39,8 @@
 
 (deftest test-new-with-plugin-template
   (leiningen.new/new nil "plugin" "test-new-plugin")
-  (is (= #{"README.md" "project.clj" "src" "leiningen" "test_new_plugin.clj" ".gitignore"
+  (is (= #{"README.md" "project.clj" "src" "leiningen"
+           "test_new_plugin.clj" ".gitignore"
            "LICENSE" ".hgignore" "CHANGELOG.md"}
          (set (map (memfn getName) (rest (file-seq (file "test-new-plugin")))))))
   (delete-file-recursively (file "test-new-plugin") :silently))
@@ -78,7 +79,7 @@
 
 (deftest test-new-with-clojure-project-name
   (is (re-find
-       #"clojure can't be used as a project name"
+       #"clojure.*can't be used as a project name"
        (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
          (abort-msg leiningen.new/new nil "clojure")))))
 
@@ -130,6 +131,7 @@
     (is (= #{"README.md" "project.clj" "src" "core.clj" "test" "resources"
              "doc" "intro.md" "test_new_proj" "core_test.clj" ".gitignore"
              "LICENSE" ".hgignore" "CHANGELOG.md"}
-           (set (map (memfn getName) (rest (file-seq (file new-pwd "test-new-proj")))))))
+           (set (map (memfn getName)
+                     (rest (file-seq (file new-pwd "test-new-proj")))))))
     (System/setProperty "leiningen.original.pwd" original-pwd)
     (delete-file-recursively (file new-pwd) :silently)))
