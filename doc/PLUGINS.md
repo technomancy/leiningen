@@ -377,11 +377,6 @@ before manually specified hooks.
 
 ### Project Middleware
 
-**Note**: Leiningen supports project middleware in plugins;
-however this mechanism is extremely error-prone and difficult to
-debug. It should be considered deprecated as of 2.8.0 onward and will
-continue to work until version 3.0 but is strongly advised against.
-
 Project middleware is just a function that is called on a project map
 returning a new project map. Middleware gives a plugin the power to do
 any kind of transformation on the project map. However, problems with
@@ -394,7 +389,7 @@ The following middleware injects additional javac options into the project map,
 but only if there are any java source paths in the project:
 
 ```clj
-(ns lein-inject.plugin
+(ns leiningen.inject
   (:require [leiningen.core.project :as p]))
 
 (def javac-params-profile
@@ -406,12 +401,12 @@ but only if there are any java source paths in the project:
     project))
 ```
 
+Projects use middleware by adding `:middleware` as a vector of var
+names into their `project.clj`:
 
-Like hooks, middleware will be applied automatically for plugins if you put it
-in `plugin-name.plugin/middleware`. You can also load middleware manually by
-setting the `:middleware` key in project.clj to a seq of vars to call to
-transform your project map. Note that automatic middleware is applied before
-manually specified middleware.
+```clj
+  :middleware [leiningen.inject/middleware]
+```
 
 Also note that the currently active middleware depends on which
 profiles are active. This means we need to reapply the middleware
@@ -428,6 +423,12 @@ profile and ask your users to add it to the `:base` profile as outlined in the
 middleware to inject values into the project map is if the profiles has to be
 programmatically computed, or if you have to modify the project map in a way
 that is not possible with `merge-profiles`.
+
+**Note**: Leiningen supports loading middleware implicitly when the
+middleware is named `plugin-name.plugin/middleware`; however this
+mechanism is even more difficult to debug than regular middleware. It
+should be considered deprecated as of 2.8.0 onward and will continue
+to work until version 3.0 but is strongly advised against.
 
 ### Maven Wagons
 

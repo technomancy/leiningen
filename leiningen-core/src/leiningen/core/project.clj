@@ -29,7 +29,9 @@
 (defn- warn [& args]
   ;; TODO: remove with 3.0.0
   (require 'leiningen.core.main)
-  ((resolve 'leiningen.core.main/warn) args))
+  (apply (resolve 'leiningen.core.main/warn) args))
+
+(def ^:private warn-once (memoize warn))
 
 (defn- update-each-contained [m keys f & args]
   (reduce (fn [m k]
@@ -389,9 +391,9 @@
              (meta project))))
   ([project]
      (let [repos (if (:omit-default-repositories project)
-                   (do (warn "WARNING:"
-                             ":omit-default-repositories is deprecated;"
-                             "use :repositories ^:replace [...] instead.")
+                   (do (warn-once "WARNING:"
+                                  ":omit-default-repositories is deprecated;"
+                                  "use :repositories ^:replace [...] instead.")
                        empty-repositories)
                    default-repositories)]
        (setup-map-defaults
@@ -675,17 +677,13 @@
                               profiles)]
     (when (and (seq repo-profiles)
                (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
-      (warn ":repositories detected in user-level profiles!"
-            (vec (map first repo-profiles)) "\nSee"
-            "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
-
-(alter-var-root #'warn-user-repos memoize)
+      (warn-once ":repositories detected in user-level profiles!"
+                 (vec (map first repo-profiles)) "\nSee"
+                 "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
 
 (defn- warn-user-profile [root profiles]
   (when (and root (contains? profiles :user))
     (warn "WARNING: user-level profile defined in project files.")))
-
-(alter-var-root #'warn-user-profile memoize)
 
 (defn- system-profiles []
   (let [sys-profile-dir (if (= :windows (utils/get-os))
@@ -772,11 +770,14 @@
 
 (defn- load-hook [hook-name]
   (if-let [hook (try (utils/require-resolve hook-name)
-                     (catch Throwable e
+                     (catch Exception e
                        (utils/error "problem requiring" hook-name "hook")
                        (throw e)))]
-    (try (hook)
-         (catch Throwable e
+    (try (warn-once "Warning: implicit hook found:" hook-name
+                    "\nHooks are deprecated and will be removed"
+                    "in a future version.")
+         (hook)
+         (catch Exception e
            (utils/error "problem activating" hook-name "hook")
            (throw e)))
     (when-not (:optional (meta hook-name))
@@ -799,7 +800,11 @@
   ([project middleware-name]
      (if (and (:implicits project true) (:implicit-middleware project true))
        (if-let [middleware (utils/require-resolve middleware-name)]
-         (middleware project)
+         (do (when-not (some #{middleware-name} (:middleware project))
+               (warn-once "Warning: implicit middleware found:" middleware-name
+                          "\nPlease declare all middleware in :middleware"
+                          "as implicit loading is deprecated."))
+             (middleware project))
          (do (when-not (:optional (meta middleware-name))
                (utils/error "cannot resolve" middleware-name "middleware"))
              project))

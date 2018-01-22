@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## ??? / ???
+
+* Add project coordinate data to jar metadata. (Conor McDermottroe)
+
 ## 2.8.1 / 2017-10-27
 
 * Fix a bug where `lein help` couldn't list built-in tasks on Java 9. (Phil Hagelberg)

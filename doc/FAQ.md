@@ -252,10 +252,10 @@ bug with the dependency which does this.
 **A:** You probably downloaded `lein`/`lein.bat` from the [master branch](https://github.com/technomancy/leiningen/tree/master/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)
 
 **Q:** I have a dependency whose group ID and/or artifact ID starts with a
-  number (which is invalid for symbols in Clojure). How can I add it to my
-  project's dependencies?  
+number (which is invalid for symbols in Clojure). How can I add it to my
+project's dependencies?  
 **A:** As of version 2.8.0, Leiningen supports string dependency names like
-  this:
+this:
 
 ```clj
 :dependencies [["net.3scale/3scale-api" "3.0.2"]]
@@ -266,3 +266,15 @@ Prior to version 2.8.0, this is the workaround:
 ```clj
 :dependencies [[~(symbol "net.3scale" "3scale-api") "3.0.2"]]
 ```
+
+**Q:** I'm getting warnings for implicit hooks or implicit middleware.  
+**A:** Hooks are a deprecated feature where plugins can modify the
+behavior of built-in Leiningen functionality; they result in
+situations which can be very difficult to debug and usually point
+to situations in which the original API is not flexible enough.
+
+Leiningen also has a deprecated feature for implicitly loading
+middleware. Middleware is not deprecated but should now be declared using
+`:middleware` instead of being auto-detected from plugins.
+
+Adding `:implicits false` to `project.clj` will disable all implicit features.
