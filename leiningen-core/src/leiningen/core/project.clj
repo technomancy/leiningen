@@ -683,7 +683,7 @@
 
 (defn- warn-user-profile [root profiles]
   (when (and root (contains? profiles :user))
-    (warn "WARNING: user-level profile defined in project files.")))
+    (warn-once "WARNING: user-level profile defined in project files.")))
 
 (defn- system-profiles []
   (let [sys-profile-dir (if (= :windows (utils/get-os))
