@@ -13,7 +13,8 @@
               (fn [f]
                 ;; Can't have user-level profiles interfering!
                 (with-redefs [user/profiles (constantly {})
-                              user/credentials (constantly nil)]
+                              user/credentials (constantly nil)
+                              project/warn-once #'project/warn]
                   (f))))
 
 (defn make-project
