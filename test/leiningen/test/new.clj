@@ -79,7 +79,7 @@
 
 (deftest test-new-with-clojure-project-name
   (is (re-find
-       #"clojure.*can't be used as a project name"
+       #"clojure.*can't be used as project name"
        (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
          (abort-msg leiningen.new/new nil "clojure")))))
 
