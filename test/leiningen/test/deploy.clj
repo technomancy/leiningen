@@ -2,6 +2,7 @@
   (:use [clojure.test]
         [clojure.java.io :only [file]]
         [leiningen.deploy]
+        [leiningen.core.user :as user]
         [leiningen.test.helper :only [delete-file-recursively
                                       tmp-dir sample-project
                                       sample-deploy-project]]))
@@ -66,7 +67,31 @@
     (is (= (signing-args "foo.jar" nil)
            ["--yes" "-ab" "--" "foo.jar"]))
     (is (= (signing-args "foo.jar" {:gpg-key "123456"})
-           ["--yes" "-ab" "--default-key" "123456" "--" "foo.jar"])))
+           ["--yes" "-ab" "--default-key" "123456" "--" "foo.jar"]))
+    (with-redefs [user/gpg-version (fn [] {:major 2 :minor 1 :patch 0})]
+      (is (= (signing-args "foo.jar" {:gpg-key "123456" :gpg-passphrase "abc"})
+             ["--yes" "-ab" "--default-key" "123456"
+              "--passphrase-fd" "0" "--pinentry-mode" "loopback"
+              "--" "foo.jar"]))
+      (is (= (signing-args "foo.jar" {:gpg-passphrase "abc"})
+             ["--yes" "-ab"
+              "--passphrase-fd" "0" "--pinentry-mode" "loopback"
+              "--" "foo.jar"])))
+    (with-redefs [user/gpg-version (fn [] {:major 1 :minor 4 :patch 0})]
+      (is (= (signing-args "foo.jar" {:gpg-key "123456" :gpg-passphrase "abc"})
+             ["--yes" "-ab" "--default-key" "123456"
+              "--passphrase-fd" "0" "--batch"
+              "--" "foo.jar"]))
+      (is (= (signing-args "foo.jar" {:gpg-passphrase "abc"})
+             ["--yes" "-ab"
+              "--passphrase-fd" "0" "--batch"
+              "--" "foo.jar"])))
+    (is (= (signing-passphrase {}) nil))
+    (is (= (signing-passphrase {:gpg-passphrase "abc"}) "abc"))
+    (with-redefs [user/getenv (fn [v] (if (= v "LEIN_GPG_PASSPHRASE") "abc" nil))]
+      (is (= (signing-passphrase {:gpg-passphrase :env}) "abc")))
+    (with-redefs [user/getenv (fn [v] (if (= v "MYPASS") "abc" nil))]
+      (is (= (signing-passphrase {:gpg-passphrase :env/mypass}) "abc"))))
   (testing "Key selection"
     (is (= (:gpg-key (signing-opts {:signing {:gpg-key "key-project"}}
                                    ["repo" {:signing {:gpg-key "key-repo"}}]))
