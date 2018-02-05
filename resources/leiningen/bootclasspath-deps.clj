@@ -21,7 +21,7 @@
             (pp/pprint))))
 {
  bultitude "0.2.8"
- clojure-complete "0.2.4"
+ clojure-complete "0.2.5"
  com.cemerick/pomegranate "0.4.0-alpha1"
  com.google.guava/guava "20.0"
  com.hypirion/io "0.3.1"

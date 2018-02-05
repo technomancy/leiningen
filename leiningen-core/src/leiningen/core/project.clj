@@ -542,7 +542,7 @@
                 ;; bump deps in leiningen's own project.clj with these
                 :dependencies '[^:displace [org.clojure/tools.nrepl "0.2.12"
                                             :exclusions [org.clojure/clojure]]
-                                ^:displace [clojure-complete "0.2.4"
+                                ^:displace [clojure-complete "0.2.5"
                                             :exclusions [org.clojure/clojure]]]
                 :checkout-deps-shares [:source-paths
                                        :test-paths
