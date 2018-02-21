@@ -416,9 +416,22 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
       (project/init-project)))
 
 (defn- insecure-http-abort [& _]
-  (abort "Tried to use insecure HTTP repository without TLS.
-This is almost certainly a mistake; however in rare cases where it's
-intentional please see `lein help faq` for details."))
+  (let [repo (promise)]
+    (reify org.apache.maven.wagon.Wagon
+      (getRepository [this])
+      (setTimeout [this _])
+      (setInteractive [this _])
+      (addTransferListener [this _])
+      (^void connect [this
+                      ^org.apache.maven.wagon.repository.Repository the-repo
+                      ^org.apache.maven.wagon.authentication.AuthenticationInfo _
+                      ^org.apache.maven.wagon.proxy.ProxyInfoProvider _]
+       (deliver repo the-repo) nil)
+      (get [this resource _]
+        (abort "Tried to use insecure HTTP repository without TLS:\n"
+               (str (.getId @repo) ": " (.getUrl @repo) "\n " resource) "\n"
+               "\nThis is almost certainly a mistake; for details see"
+               "\nhttps://github.com/technomancy/leiningen/blob/master/doc/FAQ.md")))))
 
 (defn -main
   "Command-line entry point."
