@@ -138,7 +138,7 @@
   "Compile Java source files.
 
 Add a :java-source-paths key to project.clj to specify where to find them.
-Options passed in on the command line as well as options from the :javac-opts
+Options passed in on the command line as well as options from the :javac-options
 vector in project.clj will be given to the compiler; e.g. `lein javac -verbose`.
 
 Like the compile and deps tasks, this should be invoked automatically when
