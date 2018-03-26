@@ -154,7 +154,7 @@ First write your credentials map to `~/.lein/credentials.clj` like so:
 
 ```clj
 {#"blueant" {:password "locative1"}
- #"https://clojars.org/repo"
+ #"https://repo.clojars.org"
  {:username "milgrim" :password "locative1"}
  "s3p://s3-repo-bucket/releases"
  {:username "AKIAIN..." :passphrase "1TChrGK4s..."}}
