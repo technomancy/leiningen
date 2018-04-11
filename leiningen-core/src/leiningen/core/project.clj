@@ -124,6 +124,15 @@
     (with-meta obj m)
     obj))
 
+(defn- vary-meta*
+  "Returns an object of the same type and value as obj, with
+  (apply f (meta obj) args) as its metadata, if the object can hold
+  metadata."
+  [obj f & args]
+  (if (instance? clojure.lang.IObj obj)
+    (apply vary-meta obj f args)
+    obj))
+
 (defn- displace?
   "Returns true if the object is marked as displaceable"
   [obj]
@@ -305,6 +314,9 @@
                  :password :gpg :username :gpg}]]
     {:reduce reduce-repo-step}))
 
+(defn- mark-with-replace [obj]
+  (vary-meta* obj assoc :replace true))
+
 (defn normalize-values
   "Transform values within a project or profile map to normalized values, such
   that internal functions can assume that the values are already normalized."
@@ -313,6 +325,7 @@
       (update-each-contained [:repositories :deploy-repositories
                               :mirrors :plugin-repositories] normalize-repos)
       (update-each-contained [:profiles] utils/map-vals normalize-values)
+      (update-each-contained [:aliases] utils/map-vals mark-with-replace)
       (normalize-aot)))
 
 (def ^:private empty-meta-merge-defaults
