@@ -23,7 +23,7 @@
                  ;; bump versions of various common transitive deps
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]
                  [scout "0.1.1"]
-                 [commons-io "2.5"]]
+                 [commons-io "2.6"]]
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
