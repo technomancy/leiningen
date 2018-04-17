@@ -26,7 +26,7 @@
  com.google.guava/guava "20.0"
  com.hypirion/io "0.3.1"
  commons-codec "1.9"
- commons-io "2.5"
+ commons-io "2.6"
  commons-lang "2.6"
  commons-logging "1.2"
  net.cgrand/parsley "0.9.3"
