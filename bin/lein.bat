@@ -154,7 +154,7 @@ if "x%HTTP_CLIENT%" == "x" goto TRY_POWERSHELL
 call powershell -? >nul 2>&1
 if NOT ERRORLEVEL 0 goto TRY_WGET
     set LAST_HTTP_CLIENT=powershell
-    powershell -Command "& {param($a,$f) $client = New-Object System.Net.WebClient; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $client.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}" ""%2"" ""%1""
+    powershell -Command "& {param($a,$f) if (($PSVersionTable.PSVersion | Select-Object -ExpandProperty Major) -lt 4)  { Write-Host \"`nYou seem to be using an old version of PowerShell that`ncan't download files via TLS 1.2.`nPlease upgrade your powershell version to at least 4.0, e.g. via`nhttps://www.microsoft.com/en-us/download/details.aspx?id=50395`n`nAlternatively you can download curl for Windows at`nhttps://curl.haxx.se/download.html#Win32`nand set %HTTP_CLIENT% to its complete path before rerunning lein.bat.\" } else { $client = New-Object System.Net.WebClient; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $client.Proxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials; $client.DownloadFile($a, $f)}}" ""%2"" ""%1""
     SET RC=%ERRORLEVEL%
     goto EXITRC
 
