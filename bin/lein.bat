@@ -229,6 +229,15 @@ if "%ERRORLEVEL%" == "111" (
     echo %LEIN_JAR_URL%
     echo and save it as
     echo %LEIN_JAR%
+    echo.
+    echo If you have "curl" or "wget" you can try setting the HTTP_CLIENT
+    echo variable, but the TLS problem might still persist.
+    echo.
+    echo   a^) set HTTP_CLIENT=wget -O
+    echo   b^) set HTTP_CLIENT=curl -f -L -o
+    echo.
+    echo NOTE: Make sure to *not* add double quotes when setting the value
+    echo       of HTTP_CLIENT
     goto EXITRC
 )
 SET RC=3
