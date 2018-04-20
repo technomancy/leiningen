@@ -90,7 +90,7 @@ function Install-Self
     @{ # splatting Invoke-WebRequest due to long URI
         Uri = "https://github.com/technomancy/leiningen/releases/download/$env:LEIN_VERSION/leiningen-$env:LEIN_VERSION-standalone.zip"
         OutFile = $env:LEIN_JAR
-    } |% {Write-Progress 'Install-Self' $_.Uri -CurrentOperation "Downloading to $env:LEIN_JAR" ; Invoke-WebRequest @_}
+    } |% {Write-Progress 'Install-Self' $_.Uri -CurrentOperation "Downloading to $env:LEIN_JAR" ; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest @_}
     Write-Progress 'Install-Self' -Completed
 }
 
