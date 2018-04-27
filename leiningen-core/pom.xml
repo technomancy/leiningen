@@ -88,12 +88,8 @@
     <dependency>
       <groupId>com.cemerick</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>0.4.0</version>
+      <version>1.0.0</version>
       <exclusions>
-        <exclusion>
-          <artifactId>dynapath</artifactId>
-          <groupId>org.tcrawley</groupId>
-        </exclusion>
         <exclusion>
           <artifactId>plexus-utils</artifactId>
           <groupId>org.codehaus.plexus</groupId>
@@ -111,6 +107,10 @@
       <version>2.12</version>
       <exclusions>
         <exclusion>
+          <artifactId>httpcore</artifactId>
+          <groupId>org.apache.httpcomponents</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>wagon-provider-api</artifactId>
           <groupId>org.apache.maven.wagon</groupId>
         </exclusion>
@@ -124,7 +124,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-nop</artifactId>
-      <version>1.7.22</version>
+      <version>1.7.25</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
