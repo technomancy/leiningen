@@ -197,23 +197,24 @@
 (defn- resolve-gpg-keyword
   "Resolve usage of :gpg in project.clj"
   [source-settings k v]
-  (cond (= :gpg v)
-        (get (match-credentials source-settings (credentials)) k)))
+  (if (= :gpg v)
+    (get (match-credentials source-settings (credentials)) k)))
+
+(defn- resolve-kv [source-settings k v]
+  (or (resolve-env-keyword k v)
+      (resolve-gpg-keyword source-settings k v)
+      (if (coll? v) ;; collection of places to look
+        (->> (map (partial resolve-kv source-settings k) v)
+             (filter string?)
+             first))
+      v))
 
 (defn- resolve-credential
   "Resolve key-value pair from result into a credential, updating result."
   [source-settings result [k v]]
-  (letfn [(resolve [v]
-            (or (resolve-env-keyword k v)
-                (resolve-gpg-keyword source-settings k v)
-                (if (coll? v) ;; collection of places to look
-                  (->> (map resolve v)
-                       (remove nil?)
-                       first))
-                v))]
-    (if (#{:username :password :passphrase :private-key-file} k)
-      (assoc result k (resolve v))
-      (assoc result k v))))
+  (if (#{:username :password :passphrase :private-key-file} k)
+    (assoc result k (resolve-kv source-settings k v))
+    (assoc result k v)))
 
 (defn resolve-credentials
   "Applies credentials from the environment or ~/.lein/credentials.clj.gpg

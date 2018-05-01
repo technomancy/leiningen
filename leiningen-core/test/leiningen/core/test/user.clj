@@ -35,4 +35,9 @@
              {:url "https://clojars.org/repo"
               :username "u" :password "p"
               :passphrase "looooong" :private-key-file "./somewhere"
-              :foo [:gpg "0x00D85767"]})))))
+              :foo [:gpg "0x00D85767"]})))
+    (testing "Pulls string out when env/gpg are absent"
+      (let [settings {:url "https://clojars.private"
+                      :username [:gpg :env/circle_jars_username "ACTUAL"]}]
+        (is (= "ACTUAL" (:username (resolve-credentials settings))))))))
+
