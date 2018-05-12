@@ -12,3 +12,4 @@ syntax: regexp
 ^target/
 ^classes/
 ^checkouts/
+profiles.clj
