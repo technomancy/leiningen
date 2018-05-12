@@ -173,7 +173,7 @@ well as turning string args into Clojure data; this function handles the rest."
 The first argument should be a keyword (or mashed-together keywords for
 nested values indicating which value to change). The second argument
 should name a function var which will be called with the current value
-as its first argument and the remaining task aruments as the rest.
+as its first argument and the remaining task arguments as the rest.
 
 This will append \"-SNAPSHOT\" to the current version:
 
@@ -181,6 +181,11 @@ This will append \"-SNAPSHOT\" to the current version:
 
 When called programmatically, you may pass a coll of keywords for the
 first arg or an actual function for the second.
+
+Using set as the function argument will set the key directly, rather than
+applying a function to the original value:
+
+    $ lein change version set '\"1.0.0\"'
 
 All the arguments to f are passed through the reader, so double quoting is
 necessary to use strings. Note that this task reads the project.clj file
