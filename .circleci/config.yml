@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test8:
     working_directory: ~/leiningen
     docker:
       - image: clojure:lein-2.8.1
@@ -16,5 +16,24 @@ jobs:
           paths:
             - $HOME/.m2
             - $HOME/.lein
+            - $HOME/leiningen/leiningen-core/.lein-bootstrap
           key: << checksum "project.clj" >>
 
+  test11:
+    working_directory: ~/leiningen
+    docker:
+      - image: openjdk:11-ea-jdk
+    steps:
+      - checkout
+      - restore_cache:
+          key: << checksum "project.clj" >>
+      - run: bin/lein test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test8
+      - test11:
+          requires: # this needs the bootstrapped classpath from test8
+            - test8
