@@ -48,8 +48,9 @@ Use the `show-profiles` task to list the project's profiles.
 
 In addition to `project.clj`, profiles also can be specified in `profiles.clj`
 within the project root. Profiles specified in `profiles.clj` will override
-profiles in `project.clj`, so this can be used for project-specific overrides
-that you don't want committed in version control.
+profiles in `project.clj` (via [merging](#merging) logic described below), so
+this can be used for project-specific overrides that you don't want committed
+in version control.
 
 User-wide profiles can also be specified in
 `~/.lein/profiles.clj`. These will be available in all projects
