@@ -9,6 +9,6 @@
         "If this fails, yell at technomancy to generate a new key!")))
 
 (deftest clojars-ssl-cert
-  (let [month-before-cert-expiry (.parse df "2017-05-17")]
+  (let [month-before-cert-expiry (.parse df "2020-05-17")]
     (is (< (System/currentTimeMillis) (.getTime month-before-cert-expiry))
         "If this fails, yell at tcrawley to update the clojars.pem for use by lein as a client cert.")))
