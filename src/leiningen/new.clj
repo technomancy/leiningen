@@ -62,11 +62,11 @@
    (abort "Sorry, names such as clojure or *jure are not allowed."
           "\nIf you intend to use this name ironically, please set the"
           "\nLEIN_IRONIC_JURE environment variable and try again.")
-   (and (re-find #"(?i)(?<!(cl|comp))eaxure" name)
-        (not (System/getenv "LEIN_IRONIC_EAXURE")))
-   (abort "Sorry, names such as cleaxure or *eaxure are not allowed."
+   (and (re-find #"(?i)(?<!(cl|comp))eauxure" name)
+        (not (System/getenv "LEIN_IRONIC_EAUXURE")))
+   (abort "Sorry, names such as cleauxure or *eauxure are not allowed."
           "\nIf you intend to use this name ironically, please set the"
-          "\nLEIN_IRONIC_EAXURE environment variable and try again.")
+          "\nLEIN_IRONIC_EAUXURE environment variable and try again.")
    (or (= name "clojure") (= name "cljs"))
    (abort "Sorry, clojure and cljs can't be used as project names."
           "\nIt will confuse the compiler and cause obscure issues.")
