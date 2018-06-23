@@ -4,6 +4,10 @@
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
+function msg {
+    echo "$@" 1>&2
+}
+
 export LEIN_VERSION="2.8.2-SNAPSHOT"
 
 case $LEIN_VERSION in
@@ -12,8 +16,10 @@ case $LEIN_VERSION in
 esac
 
 if [[ "$CLASSPATH" != "" ]]; then
-    echo "WARNING: You have \$CLASSPATH set, probably by accident."
-    echo "It is strongly recommended to unset this before proceeding."
+    cat <<-'EOS' 1>&2
+	WARNING: You have $CLASSPATH set, probably by accident.
+	It is strongly recommended to unset this before proceeding.
+	EOS
 fi
 
 if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
@@ -29,7 +35,7 @@ else
 fi
 
 function command_not_found {
-    >&2 echo "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
+    msg "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
     exit 1
 }
 
@@ -60,20 +66,24 @@ function add_path {
 }
 
 function download_failed_message {
-    echo "Failed to download $1 (exit code $2)"
-    echo "It's possible your HTTP client's certificate store does not have the"
-    echo "correct certificate authority needed. This is often caused by an"
-    echo "out-of-date version of libssl. It's also possible that you're behind a"
-    echo "firewall and haven't set HTTP_PROXY and HTTPS_PROXY."
+    cat <<-EOS 1>&2
+	Failed to download $1 (exit code $2)
+	It's possible your HTTP client's certificate store does not have the
+	correct certificate authority needed. This is often caused by an
+	out-of-date version of libssl. It's also possible that you're behind a
+	firewall and haven't set HTTP_PROXY and HTTPS_PROXY.
+	EOS
 }
 
 function self_install {
   if [ -r "$LEIN_JAR" ]; then
-    echo "The self-install jar already exists at $LEIN_JAR."
-    echo "If you wish to re-download, delete it and rerun \"$0 self-install\"."
+    cat <<-EOS 1>&2
+	The self-install jar already exists at $LEIN_JAR.
+	If you wish to re-download, delete it and rerun "$0 self-install".
+	EOS
     exit 1
   fi
-  echo "Downloading Leiningen to $LEIN_JAR now..."
+  msg "Downloading Leiningen to $LEIN_JAR now..."
   mkdir -p "$(dirname "$LEIN_JAR")"
   LEIN_URL="https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.zip"
   $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
@@ -161,9 +171,11 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
     if [ ! -r "$LEIN_DIR/leiningen-core/.lein-bootstrap" ]; then
-        echo "Leiningen is missing its dependencies."
-        echo "Please run \"lein bootstrap\" in the leiningen-core/ directory"
-        echo "with a stable release of Leiningen. See CONTRIBUTING.md for details."
+        cat <<-'EOS' 1>&2
+	Leiningen is missing its dependencies.
+	Please run "lein bootstrap" in the leiningen-core/ directory
+	with a stable release of Leiningen. See CONTRIBUTING.md for details.
+	EOS
         exit 1
     fi
 
@@ -178,7 +190,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 
     # Use bin/lein to calculate its own classpath.
     if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ "$1" != "classpath" ]; then
-        echo "Recalculating Leiningen's classpath."
+        msg "Recalculating Leiningen's classpath."
         ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
 
@@ -212,8 +224,8 @@ fi
 
 if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
 then
-    >&2 echo "Leiningen couldn't find 'java' executable, which is required."
-    >&2 echo "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
+    msg "Leiningen couldn't find 'java' executable, which is required."
+    msg "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
     exit 1
 fi
 
@@ -245,24 +257,28 @@ fi
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
 if [ "$1" = "self-install" ]; then
     if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
-        echo "Running self-install from a checkout is not supported."
-        echo "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
+        cat <<-'EOS' 1>&2
+	Running self-install from a checkout is not supported.
+	See CONTRIBUTING.md for SNAPSHOT-specific build instructions.
+	EOS
         exit 1
     fi
-    echo "Manual self-install is deprecated; it will run automatically when necessary."
+    msg "Manual self-install is deprecated; it will run automatically when necessary."
     self_install
 elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
     if [ "$LEIN_DIR" != "" ]; then
-        echo "The upgrade task is not meant to be run from a checkout."
+        msg "The upgrade task is not meant to be run from a checkout."
         exit 1
     fi
     if [ $SNAPSHOT = "YES" ]; then
-        echo "The upgrade task is only meant for stable releases."
-        echo "See the \"Bootstrapping\" section of CONTRIBUTING.md."
+        cat <<-'EOS' 1>&2
+	The upgrade task is only meant for stable releases.
+	See the "Bootstrapping" section of CONTRIBUTING.md.
+	EOS
         exit 1
     fi
     if [ ! -w "$SCRIPT" ]; then
-        echo "You do not have permission to upgrade the installation in $SCRIPT"
+        msg "You do not have permission to upgrade the installation in $SCRIPT"
         exit 1
     else
         TARGET_VERSION="${2:-stable}"
@@ -272,7 +288,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
         case "$RESP" in
             y|Y|"")
                 echo
-                echo "Upgrading..."
+                msg "Upgrading..."
                 TARGET="/tmp/lein-${$}-upgrade"
                 if $cygwin; then
                     TARGET=$(cygpath -w "$TARGET")
@@ -282,7 +298,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                 if [ $? == 0 ]; then
                     cmp -s "$TARGET" "$SCRIPT"
                     if [ $? == 0 ]; then
-                        echo "Leiningen is already up-to-date."
+                        msg "Leiningen is already up-to-date."
                     fi
                     mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
                     unset CLASSPATH
@@ -291,7 +307,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                     download_failed_message "$LEIN_SCRIPT_URL"
                 fi;;
             *)
-                echo "Aborted."
+                msg "Aborted."
                 exit 1;;
         esac
     fi
@@ -307,7 +323,7 @@ else
     fi
 
     if [ -n "$DEBUG" ]; then
-        echo "Leiningen's classpath: $CLASSPATH"
+        msg "Leiningen's classpath: $CLASSPATH"
     fi
 
     if [ -r .lein-fast-trampoline ]; then
@@ -344,7 +360,7 @@ else
 
     if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
         if [ -n "$DEBUG" ]; then
-            echo "Fast trampoline with $TRAMPOLINE_FILE."
+            msg "Fast trampoline with $TRAMPOLINE_FILE."
         fi
         exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
     else
