@@ -44,7 +44,7 @@
                                [stencil/stencil "0.2.0"]
                                [~(symbol "net.3scale" "3scale-api") "3.0.2"]
                                [clj-http/clj-http "3.4.1"]
-                               [org.clojure/tools.nrepl "0.2.12"
+                               [nrepl/nrepl "0.4.1"
                                 :exclusions [[org.clojure/clojure]]]
                                [clojure-complete/clojure-complete "0.2.5"
                                 :exclusions [[org.clojure/clojure]]]],
@@ -286,7 +286,7 @@
 (def test-profiles (atom {:qa {:resource-paths ["/etc/myapp"]}
                           :test {:resource-paths ["test/hi"]}
                           :repl {:dependencies
-                                 '[[org.clojure/tools.nrepl "0.2.0-beta6"
+                                 '[[nrepl/nrepl "0.4.1"
                                     :exclusions [org.clojure/clojure]]
                                    [org.thnetos/cd-client "0.3.4"
                                     :exclusions [org.clojure/clojure]]]}

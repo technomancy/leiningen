@@ -4,8 +4,8 @@
             [clojure.main]
             [clojure.string :as s]
             [clojure.java.io :as io]
-            [clojure.tools.nrepl.ack :as nrepl.ack]
-            [clojure.tools.nrepl.server :as nrepl.server]
+            [nrepl.ack :as nrepl.ack]
+            [nrepl.server :as nrepl.server]
             [cemerick.pomegranate :as pomegranate]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
@@ -132,8 +132,8 @@
                          init-ns-sentinel# true))
                 (h# msg#))))]
        (doto wrap-init-ns#
-         (clojure.tools.nrepl.middleware/set-descriptor!
-          {:requires #{(var clojure.tools.nrepl.middleware.session/session)}
+         (nrepl.middleware/set-descriptor!
+          {:requires #{(var nrepl.middleware.session/session)}
            :expects #{"eval"}})
          (alter-var-root (constantly @wrap-init-ns#))))))
 
@@ -144,12 +144,12 @@
   (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)]
                                               nrepl-middleware))]
     (or nrepl-handler
-        `(clojure.tools.nrepl.server/default-handler
+        `(nrepl.server/default-handler
            ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware)))))
 
 (defn- init-requires [{{:keys [nrepl-middleware nrepl-handler caught]}
                        :repl-options :as project} & nses]
-  (let [defaults '[clojure.tools.nrepl.server complete.core]
+  (let [defaults '[nrepl.server complete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                         (filter symbol?)
                         (map namespace)
@@ -169,7 +169,7 @@
        (catch Throwable e#))))
 
 (defn- server-forms [project cfg ack-port start-msg?]
-  [`(let [server# (clojure.tools.nrepl.server/start-server
+  [`(let [server# (nrepl.server/start-server
                    :bind ~(:host cfg) :port ~(:port cfg)
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
@@ -225,7 +225,7 @@
           :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
 
 (defn nrepl-dependency? [{:keys [dependencies]}]
-  (some (fn [[d]] (re-find #"tools.nrepl" (str d))) dependencies))
+  (some (fn [[d]] (re-find #"nrepl" (str d))) dependencies))
 
 ;; NB: This function cannot happen in parallel (or be recursive) because of race
 ;; conditions in nrepl.ack.
@@ -233,7 +233,7 @@
   (nrepl.ack/reset-ack-port!)
   (when-not (nrepl-dependency? project)
     (main/info "Warning: no nREPL dependency detected.")
-    (main/info "Be sure to include org.clojure/tools.nrepl in :dependencies"
+    (main/info "Be sure to include nrepl/nrepl in :dependencies"
                "of your profile."))
   (let [prep-blocker @eval/prep-blocker
         ack-port (:port @ack-server)]
@@ -257,7 +257,7 @@
 
 (defn client [project attach]
   (when (is-uri? attach)
-    (require 'cemerick.drawbridge.client))
+    (require 'drawbridge.client))
   (pomegranate/add-dependencies :coordinates (:dependencies reply-profile)
                                 :repositories (map classpath/add-repo-auth
                                                    (:repositories project)))

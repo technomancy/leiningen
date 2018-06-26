@@ -367,19 +367,19 @@
   (testing "leaky explicit profile"
     (let [p (make-pom (with-profile-merged sample-project
                         ^:leaky
-                        {:dependencies [['org.clojure/tools.nrepl "0.2.2"]]}))
+                        {:dependencies [['nrepl/nrepl "0.4.1"]]}))
           deps (deep-content (xml/parse-str p) [:project :dependencies])
           nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
           versions (map #(deep-content % [:dependency :version]) nrepls)]
-      (is (= [["0.2.2"]] versions))))
+      (is (= [["0.4.1"]] versions))))
   (testing "pom-scope"
     (let [p (make-pom (with-profile-merged sample-project
                         ^{:pom-scope :test}
-                        {:dependencies [['org.clojure/tools.nrepl "0.2.2"]]}))
+                        {:dependencies [['nrepl/nrepl "0.4.1"]]}))
           deps (deep-content (xml/parse-str p) [:project :dependencies])
           nrepls (filter #(re-find #"nrepl" (pr-str %)) deps)
           versions (map #(deep-content % [:dependency :version]) nrepls)]
-      (is (= [["0.2.2"]] versions)))))
+      (is (= [["0.4.1"]] versions)))))
 
 (deftest test-leaky-profile
   (let [p (make-pom sample-profile-meta-project)
