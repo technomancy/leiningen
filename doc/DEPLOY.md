@@ -236,7 +236,8 @@ order to make `lein deploy` with no argument target Clojars, include this in
 your `project.clj`:
 
 ```clj
-{:deploy-repositories [["releases" :clojars]]}
+{:deploy-repositories [["releases" :clojars]
+                       ["snapshots" :clojars]]}
 ```
 
 You can use this to alias any `:repositories` entry; Clojars is just the most
