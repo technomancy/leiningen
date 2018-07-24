@@ -958,17 +958,35 @@
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path))))
 
+(defn- load-repository-overrides
+  "Loads any network-centric overrides specified in repository-overrides.clj.
+  This feature allows certain features to be defined outside of the project
+  file, but before the profiles are loaded.  This is necessary because network
+  operations are needed to complete the profile merging themselves and therefore
+  they are not suited to defining network configuration items."
+  [project]
+  (let [overrides (-> (io/file (:root project) "repository-overrides.clj")
+                      (utils/read-file)
+                      (select-keys [:repositories
+                                    :plugin-repositories
+                                    :mirrors
+                                    :certificates
+                                    :local-repo]))]
+    (merge project overrides)))
+
 (defn init-project
   "Initializes a project by loading certificates, plugins, middleware, etc.
 Also merges default profiles."
   ([project default-profiles]
-     (-> (project-with-profiles (doto project
-                                  (load-certificates)
-                                  (init-lein-classpath)
-                                  (load-plugins)))
-         (init-profiles default-profiles)
-         (load-plugins)
-         (activate-middleware)))
+   (-> (load-repository-overrides project)
+       (doto
+             (load-certificates)
+             (init-lein-classpath)
+             (load-plugins))
+       (project-with-profiles)
+       (init-profiles default-profiles)
+       (load-plugins)
+       (activate-middleware)))
   ([project] (init-project project [:default])))
 
 (defn add-profiles
