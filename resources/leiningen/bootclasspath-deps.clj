@@ -54,7 +54,7 @@
  org.apache.maven/maven-resolver-provider "3.5.0"
  org.clojure/data.xml "0.0.8"
  org.clojure/tools.macro "0.1.5"
- nrepl "0.4.1g"
+ nrepl "0.4.1"
  org.codehaus.plexus/plexus-component-annotations "1.7.1"
  org.codehaus.plexus/plexus-interpolation "1.24"
  org.codehaus.plexus/plexus-utils "3.0.24"
