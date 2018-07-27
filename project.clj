@@ -17,7 +17,7 @@
                  ;; needed for uberjar
                  [commons-lang "2.6"]
                  ;; needed for repl
-                 [org.clojure/tools.nrepl "0.2.13"]
+                 [nrepl "0.4.3"]
                  ;; needed for change
                  [net.cgrand/sjacket "0.1.1" :exclusions [org.clojure/clojure]]
                  ;; bump versions of various common transitive deps
@@ -31,7 +31,7 @@
                              leiningen.core.ssl ; lazy-loaded
                              cemerick.pomegranate
                              classlojure.core
-                             clojure.tools.nrepl]}}
+                             nrepl.core]}}
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}

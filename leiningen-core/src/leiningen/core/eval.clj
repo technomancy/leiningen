@@ -305,13 +305,13 @@
     (and (not pending?) (some #{"done" "interrupted" "error"} status))))
 
 (defmethod eval-in :nrepl [project form]
-  (require 'clojure.tools.nrepl)
+  (require 'nrepl.core)
   (let [port-file (io/file (:target-path project) "repl-port")
-        connect (resolve 'clojure.tools.nrepl/connect)
-        client (resolve 'clojure.tools.nrepl/client)
-        client-session (resolve 'clojure.tools.nrepl/client-session)
-        message (resolve 'clojure.tools.nrepl/message)
-        recv (resolve 'clojure.tools.nrepl.transport/recv)]
+        connect (resolve 'nrepl/connect)
+        client (resolve 'nrepl/client)
+        client-session (resolve 'nrepl/client-session)
+        message (resolve 'nrepl/message)
+        recv (resolve 'nrepl.transport/recv)]
     (if (.exists port-file)
       (let [transport (connect :host "localhost"
                                :port (Integer. (slurp port-file)))

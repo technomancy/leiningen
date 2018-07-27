@@ -141,7 +141,7 @@
 
 (deftest ^:online test-managed-deps
   (let [is-clojure-dep? #(#{'org.clojure/clojure
-                            'org.clojure/tools.nrepl}
+                            'nrepl/nrepl}
                           (first %))
         remove-clojure-deps #(remove is-clojure-dep? %)
         managed-deps (remove-clojure-deps (:managed-dependencies managed-deps-project))

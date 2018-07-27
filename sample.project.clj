@@ -387,12 +387,12 @@
                  ;; Only one of #{:nrepl-handler :nrepl-middleware}
                  ;; may be used at a time.
                  ;; Use a different server-side nREPL handler.
-                 :nrepl-handler (clojure.tools.nrepl.server/default-handler)
+                 :nrepl-handler (nrepl.server/default-handler)
                  ;; Add server-side middleware to nREPL stack.
                  :nrepl-middleware [my.nrepl.thing/wrap-amazingness
                                     ;; TODO: link to more detailed documentation.
                                     ;; Middleware without appropriate metadata
-                                    ;; (see clojure.tools.nrepl.middleware/set-descriptor!
+                                    ;; (see nrepl.middleware/set-descriptor!
                                     ;; for details) will simply be appended to the stack
                                     ;; of middleware (rather than ordered based on its
                                     ;; expectations and requirements).
