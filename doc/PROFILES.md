@@ -70,7 +70,7 @@ user-wide profile in both `~/.lein/profiles.clj` and in
 ## Default Profiles
 
 Certain profiles are active by default unless you specify another set
-of profiles using the `with-profiles` task. Each of the default
+of profiles using the `with-profile` task. Each of the default
 profiles have different semantics:
 
 If you want to access dependencies or plugins during development time
