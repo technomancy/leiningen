@@ -1,5 +1,7 @@
 # Leiningen
 
+[![CircleCI](https://circleci.com/gh/technomancy/leiningen.svg?style=svg)](https://circleci.com/gh/technomancy/leiningen)
+
 <img src="https://leiningen.org/img/leiningen.jpg"
  alt="Leiningen logo" title="The man himself" align="right" />
 
