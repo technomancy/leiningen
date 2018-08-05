@@ -9,7 +9,7 @@
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[leiningen-core "2.8.2-SNAPSHOT"]
                  ;; needed for pom
-                 [org.clojure/data.xml "0.0.8"]
+                 [org.clojure/data.xml "0.2.0-alpha5"]
                  ;; needed for test
                  [bultitude "0.2.8"]
                  ;; needed for new

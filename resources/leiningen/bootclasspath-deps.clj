@@ -52,7 +52,7 @@
  org.apache.maven/maven-model-builder "3.5.0"
  org.apache.maven/maven-repository-metadata "3.5.0"
  org.apache.maven/maven-resolver-provider "3.5.0"
- org.clojure/data.xml "0.0.8"
+ org.clojure/data.xml "0.2.0-alpha5"
  org.clojure/tools.macro "0.1.5"
  org.clojure/tools.nrepl "0.2.12"
  org.codehaus.plexus/plexus-component-annotations "1.7.1"
