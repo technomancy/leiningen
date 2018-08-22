@@ -42,10 +42,12 @@
         (.transformGraph node context))))
 
 (defn- range?
-  "Does the path point to a DependencyNode asking for a version range?"
+  "Does the path point to a DependencyNode asking for a version range that includes more than one possible version?"
   [{:keys [node]}]
   (when-let [vc (.getVersionConstraint node)]
-    (not (nil? (.getRange vc)))))
+    (when-let [r (.getRange vc)]
+      (or (nil? (.getUpperBound r))
+          (not= (.getLowerBound r) (.getUpperBound r))))))
 
 (defn- set-ranges!
   "Set ranges to contain all paths that asks for a version range"
