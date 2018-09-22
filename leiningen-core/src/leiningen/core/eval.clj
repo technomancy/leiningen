@@ -233,9 +233,10 @@
 (defn shell-command
   "Calculate vector of strings needed to evaluate form in a project subprocess."
   [project form]
-  (let [init-file (if-let [checksum (System/getProperty "leiningen.input-checksum")]
-                    (io/file (:target-path project) (str checksum "-init.clj"))
-                    (File/createTempFile "form-init" ".clj"))]
+  (let [checksum (System/getProperty "leiningen.input-checksum")
+        init-file (if (empty? checksum)
+                    (File/createTempFile "form-init" ".clj")
+                    (io/file (:target-path project) (str checksum "-init.clj")))]
     (spit init-file
           (binding [*print-dup* *eval-print-dup*]
             (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
