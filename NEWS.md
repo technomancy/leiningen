@@ -1,7 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
-## ??? / ???
+## 2.8.2 / ???
 
+* Fix TLS errors in self-install on Windows. (Florian Anderiasch)
+* Templates use EPL-2.0 with GPL secondary license. (Yegor Timoshenko)
+* Allow GPG to be invoked unattended with passphrase. (Neil Okamoto)
+* Add pprint `--not-pretty` argument that prints instead of pprinting. (Rob Browning)
+* Always send diagnostic messages to standard error. (Rob Browning)
 * Add project coordinate data to jar metadata. (Conor McDermottroe)
 
 ## 2.8.1 / 2017-10-27
