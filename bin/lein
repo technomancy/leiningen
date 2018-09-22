@@ -341,7 +341,7 @@ else
             command_not_found "sha1sum or shasum"
         fi
 
-        export INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
+        INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
     else
@@ -370,6 +370,7 @@ else
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
             $LEIN_JVM_OPTS \
+            -Dleiningen.input-checksum="$INPUT_CHECKSUM" \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.script="$SCRIPT" \
             -classpath "$CLASSPATH" \
