@@ -11,7 +11,10 @@
                  [com.cemerick/pomegranate "1.0.0"
                   :exclusions [org.codehaus.plexus/plexus-utils]]
                  [org.tcrawley/dynapath "1.0.0"]
-                 [org.apache.maven.wagon/wagon-http "2.12"
+                 ;; Bumping this here until we get it fixed in pomegranate;
+                 ;; see https://github.com/cemerick/pomegranate/pull/103
+                 [org.apache.maven.wagon/wagon-provider-api "3.1.0"]
+                 [org.apache.maven.wagon/wagon-http "3.1.0"
                   :exclusions [org.apache.httpcomponents/httpcore
                                org.apache.maven.wagon/wagon-provider-api]]
                  [com.hypirion/io "0.3.1"]

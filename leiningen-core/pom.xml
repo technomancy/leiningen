@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>2261906d9dd7b8381baf8af3090363c66a91ca79</tag>
+    <tag>0a8e45b66bf19dabef61f1529b0f1e8d776de437</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -103,8 +103,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-provider-api</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
       <artifactId>wagon-http</artifactId>
-      <version>2.12</version>
+      <version>3.1.0</version>
       <exclusions>
         <exclusion>
           <artifactId>httpcore</artifactId>
