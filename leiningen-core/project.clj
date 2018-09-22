@@ -21,9 +21,9 @@
                  [org.apache.maven.wagon/wagon-http "3.1.0"
                   :exclusions [org.apache.httpcomponents/httpcore
                                org.apache.maven.wagon/wagon-provider-api]]
-                 [org.apache.maven/maven-model-builder "3.5.4"]
-                 [org.apache.maven/maven-model "3.5.4"]
-                 [org.apache.maven/maven-repository-metadata "3.5.4"]
+                 [org.apache.maven/maven-model-builder "3.5.3"]
+                 [org.apache.maven/maven-model "3.5.3"]
+                 [org.apache.maven/maven-repository-metadata "3.5.3"]
                  [com.hypirion/io "0.3.1"]
                  [org.slf4j/slf4j-nop "1.7.25"] ; wagon-http uses slf4j
                  ;; we pull this in transitively but want a newer version
