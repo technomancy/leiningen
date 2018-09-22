@@ -9,7 +9,11 @@
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "1.0.0"
-                  :exclusions [org.codehaus.plexus/plexus-utils]]
+                  :exclusions [org.codehaus.plexus/plexus-utils
+                               org.apache.maven.wagon/wagon-provider-api
+                               org.apache.maven.wagon/wagon-http
+                               org.apache.httpcomponents/httpclient
+                               commons-codec]]
                  [org.tcrawley/dynapath "1.0.0"]
                  ;; Bumping this here until we get it fixed in pomegranate;
                  ;; see https://github.com/cemerick/pomegranate/pull/103
@@ -17,6 +21,9 @@
                  [org.apache.maven.wagon/wagon-http "3.1.0"
                   :exclusions [org.apache.httpcomponents/httpcore
                                org.apache.maven.wagon/wagon-provider-api]]
+                 [org.apache.maven/maven-model-builder "3.5.4"]
+                 [org.apache.maven/maven-model "3.5.4"]
+                 [org.apache.maven/maven-repository-metadata "3.5.4"]
                  [com.hypirion/io "0.3.1"]
                  [org.slf4j/slf4j-nop "1.7.25"] ; wagon-http uses slf4j
                  ;; we pull this in transitively but want a newer version

@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>0a8e45b66bf19dabef61f1529b0f1e8d776de437</tag>
+    <tag>85bc28496ef7281a89024673f50191fe76966d11</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -94,6 +94,22 @@
           <artifactId>plexus-utils</artifactId>
           <groupId>org.codehaus.plexus</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>wagon-provider-api</artifactId>
+          <groupId>org.apache.maven.wagon</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>wagon-http</artifactId>
+          <groupId>org.apache.maven.wagon</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>httpclient</artifactId>
+          <groupId>org.apache.httpcomponents</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-codec</artifactId>
+          <groupId>commons-codec</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -120,6 +136,21 @@
           <groupId>org.apache.maven.wagon</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model-builder</artifactId>
+      <version>3.5.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <version>3.5.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-repository-metadata</artifactId>
+      <version>3.5.4</version>
     </dependency>
     <dependency>
       <groupId>com.hypirion</groupId>
