@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>2261906d9dd7b8381baf8af3090363c66a91ca79</tag>
+    <tag>2cd92f412108040010db012a38cd2d4bdd26ea95</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>com.cemerick</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
       <exclusions>
         <exclusion>
           <artifactId>plexus-utils</artifactId>
