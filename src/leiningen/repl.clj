@@ -198,8 +198,7 @@
 
 (def reply-profile
   {:dependencies
-   '[^:displace [reply "0.3.8"
-                 :exclusions [org.clojure/clojure ring/ring-core]]
+   '[^:displace [reply "0.4.1" :exclusions [org.clojure/clojure ring/ring-core]]
      [clojure-complete "0.2.5"]]})
 
 (defn- trampoline-repl [project port]
