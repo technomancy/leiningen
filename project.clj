@@ -11,7 +11,7 @@
                  ;; needed for pom
                  [org.clojure/data.xml "0.0.8"]
                  ;; needed for test
-                 [bultitude "0.2.8"]
+                 [timofreiberg/bultitude "0.3.0"]
                  ;; needed for new
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
                  ;; needed for uberjar

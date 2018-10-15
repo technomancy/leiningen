@@ -20,7 +20,7 @@
             (dissoc 'leiningen-core)
             (pp/pprint))))
 {
- bultitude "0.2.8"
+ timofreiberg/bultitude "0.3.0"
  clojure-complete "0.2.5"
  com.cemerick/pomegranate "1.1.0"
  com.google.guava/guava "20.0"
