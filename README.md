@@ -29,23 +29,10 @@ separate install script.  Follow these instructions to install Leiningen manuall
 4. Set it to be executable. (`chmod +x ~/bin/lein`)
 5. Run it.
 
-### Windows
-
-There is
-[an installer](http://leiningen-win-installer.djpowell.net/) which
-will handle downloading and placing Leiningen and its dependencies.
-
-The manual method of putting
-[the batch file](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat).
-on your `PATH` and running `lein self-install` should still work for
-most users. If you have [Cygwin](http://www.cygwin.com/) you should be
-able to use the shell script above rather than the batch file.
-
-N.B.: Avoid using a LEIN_JAR environment variable.
-If you have one instance of Leiningen on your PATH as well as a LEIN_JAR
-pointing to a different instance, there is a known problem where `lein -v` and
-`lein upgrade` will refer to the first instance, while usage of Leiningen, such
-as `lein new foobar`, will refer to the latter.
+Windows users can use
+[the batch file](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat) or
+[Powershell version](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.ps1)
+instead.
 
 ## Basic Usage
 
