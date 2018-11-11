@@ -5,7 +5,7 @@
   :description "Library for core functionality of Leiningen."
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [bultitude "0.2.8" :exclusions [org.tcrawley/dynapath]]
+                 [timofreiberg/bultitude "0.3.0" :exclusions [org.tcrawley/dynapath]]
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
                  [com.cemerick/pomegranate "1.1.0"
