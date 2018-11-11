@@ -11,7 +11,8 @@
             [leiningen.core.classpath :as classpath]
             [clojure.string :as str])
   (:import (clojure.lang DynamicClassLoader)
-           (java.io PushbackReader Reader)))
+           (java.io PushbackReader Reader File)
+           (java.util.regex Pattern)))
 
 (defn make-project-properties [project]
   (with-open [baos (java.io.ByteArrayOutputStream.)]
@@ -234,7 +235,7 @@
                                   ["vcs" "commit"]
                                   ["vcs" "push"]]
    :pedantic? (quote ^:top-displace ranges)
-   :jar-exclusions [#"^\."]
+   :jar-exclusions [#"^\." (re-pattern (Pattern/quote (str File/separator ".")))]
    :eval-in :default
    :offline? (not (nil? (System/getenv "LEIN_OFFLINE")))
    :uberjar-exclusions [#"(?i)^META-INF/[^/]*\.(SF|RSA|DSA)$"]
