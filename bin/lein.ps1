@@ -40,12 +40,26 @@ function Initialize-Environment
     Set-ParentLocation project.clj
     if(!$env:LEIN_HOME) {$env:LEIN_HOME = "$env:USERPROFILE\.lein"}
     if(!$env:LEIN_JAR) {$env:LEIN_JAR = "$env:LEIN_HOME\self-installs\leiningen-$env:LEIN_VERSION-standalone.jar"}
-    if(!([Net.WebRequest]::DefaultWebProxy.IsBypassed('https://github.com/')))
-    {
-        $proxy = [Net.WebRequest]::DefaultWebProxy.GetProxy('https://github.com/')
-        Write-Verbose "Using proxy: $proxy"
-        $Script:PSBoundParameters.Add('Invoke-WebRequest:Proxy', $proxy)
-        $Script:PSBoundParameters.Add('Invoke-WebRequest:ProxyUseDefaultCredentials', $true)
+    if($PSVersionTable.PSVersion.Major -gt 5) {
+        if(!($([System.Net.WebProxy]::new()).IsBypassed('https://github.com/')))
+        {
+            $proxy = $([System.Net.WebProxy]::new()).GetProxy('https://github.com/')
+            Write-Verbose "Using proxy: $proxy"
+            $Script:PSBoundParameters = @{
+                'Invoke-WebRequest:Proxy' = $proxy
+                'Invoke-WebRequest:ProxyUseDefaultCredentials' = $true
+            }
+        }
+    } else {
+        if(!([Net.WebRequest]::DefaultWebProxy.IsBypassed('https://github.com/')))
+        {
+            $proxy = [Net.WebRequest]::DefaultWebProxy.GetProxy('https://github.com/')
+            Write-Verbose "Using proxy: $proxy"
+            $Script:PSBoundParameters = @{
+                'Invoke-WebRequest:Proxy' = $proxy
+                'Invoke-WebRequest:ProxyUseDefaultCredentials' = $true
+            }
+        }
     }
 }
 
