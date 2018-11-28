@@ -41,7 +41,9 @@
       (with-open [zf (ZipFile. uberjar-file)]
         (is (= '{nomnomnom/identity clojure.core/identity
                  mf/i nomnomnom/override
-                 mf/s method.fn/static}
+                 mf/s method.fn/static
+                 ordered/set flatland.ordered.set/into-ordered-set
+                 ordered/map flatland.ordered.map/ordered-map}
                (->> (.getEntry zf "data_readers.clj")
                     (.getInputStream zf)
                     slurp read-string)))))))
