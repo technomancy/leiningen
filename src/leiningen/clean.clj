@@ -69,7 +69,7 @@
                                  clean-target "\"] is not allowed."))
           (protected-path? project clean-target)
           (main/abort (error-msg "Deleting non-target project paths [\""
-                                 clean-target "%s\"] is not allowed.")))))
+                                 clean-target "\"] is not allowed.")))))
 
 (defn- with-parent-target-path
   "Assoc the :target-path sans the profile suffix, if any format
