@@ -22,14 +22,14 @@ offers a recent version of Leiningen, try that first as long as it has version 2
 Leiningen installs itself on the first run of the `lein` shell script; there is no
 separate install script.  Follow these instructions to install Leiningen manually:
 
-1. Make sure you have Java installed; version 8 is recommended at this time.
+1. Make sure you have Java installed; OpenJDK version 8 is recommended at this time.
 2. [Download the `lein` script from the `stable` branch](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)
  of this project.
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
 4. Set it to be executable. (`chmod +x ~/bin/lein`)
 5. Run it.
 
-Windows users can use
+Windows users can use the above script in the Linux subsystem or try
 [the batch file](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat) or
 [Powershell version](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.ps1)
 instead.
@@ -123,7 +123,7 @@ explains how to write plugins.
 
 ## License
 
-Source Copyright © 2009-2017 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+Source Copyright © 2009-2018 Phil Hagelberg, Alex Osborne, Dan Larkin, and
 [contributors](https://github.com/technomancy/leiningen/contributors).
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.

@@ -2,13 +2,16 @@
 
 ## 2.8.2 / ???
 
+* Add support for repository-overrides.clj to bootstrap repository info. (Greg Haskins)
+* Use stderr consistently for diagnostics. (Rob Browning)
+* Fix a bug in aliases that come from profiles. (Arnout Roemers)
 * Fix TLS errors in self-install on Windows. (Florian Anderiasch)
 * Templates use EPL-2.0 with GPL secondary license. (Yegor Timoshenko)
 * Allow GPG to be invoked unattended with passphrase. (Neil Okamoto)
 * Add pprint `--not-pretty` argument that prints instead of pprinting. (Rob Browning)
 * Always send diagnostic messages to standard error. (Rob Browning)
 * Add project coordinate data to jar metadata. (Conor McDermottroe)
-
+S
 ## 2.8.1 / 2017-10-27
 
 * Fix a bug where `lein help` couldn't list built-in tasks on Java 9. (Phil Hagelberg)
