@@ -113,9 +113,7 @@
         (if (:port opts) (update-in opts [:port] str) opts)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
-  (or init-ns (if main
-                (symbol (namespace main))
-                'user)))
+  (or init-ns (if main (symbol (namespace main)))))
 
 (defn- wrap-init-ns [project]
   (if-let [init-ns (init-ns project)]
