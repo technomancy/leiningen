@@ -143,8 +143,8 @@
      [:port 3 :attach "xy"]          {:attach "xy"})))
 
 (deftest test-init-ns
-  (let [main {:main 'main}
+  (let [main {:main 'some.ns/main}
         repl-opts (merge main {:repl-options {:init-ns 'init-ns}})]
     (are [in exp] (= exp (init-ns in))
-         main 'main
+         main 'some.ns
          repl-opts 'init-ns)))
