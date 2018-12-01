@@ -11,7 +11,8 @@
 * Add pprint `--not-pretty` argument that prints instead of pprinting. (Rob Browning)
 * Always send diagnostic messages to standard error. (Rob Browning)
 * Add project coordinate data to jar metadata. (Conor McDermottroe)
-S
+* Allow freeform `:pom-plugin` configuration. (Hannu Hartikainen)
+
 ## 2.8.1 / 2017-10-27
 
 * Fix a bug where `lein help` couldn't list built-in tasks on Java 9. (Phil Hagelberg)
