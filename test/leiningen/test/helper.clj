@@ -78,6 +78,8 @@
 
 (def managed-deps-snapshot-project (read-test-project "managed-deps-snapshot"))
 
+(def with-pom-plugins-project (read-test-project "with-pom-plugins"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."

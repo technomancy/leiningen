@@ -5,7 +5,8 @@
         [leiningen.core.user :as user]
         [leiningen.test.helper
          :only [sample-project sample-profile-meta-project
-                managed-deps-project managed-deps-snapshot-project]
+                managed-deps-project managed-deps-snapshot-project
+                with-pom-plugins-project]
          :as lthelper])
   (:require [clojure.data.xml :as xml]
             [leiningen.core.project :as project]
@@ -465,3 +466,50 @@
         (is (= [nil nil nil nil nil "sources" "sources" nil nil]
                (map #(first-in % [:dependency :classifier])
                     (deep-content xml [:project :dependencyManagement :dependencies]))))))))
+
+(deftest test-pom-plugins
+  (let [xml              (xml/parse-str (make-pom with-pom-plugins-project))
+        plugins          (deep-content xml [:project :build :plugins])
+        get-plugin       (fn [re]
+                           (first (filter #(re-find re (pr-str %)) plugins)))
+        simple-plugin    (get-plugin #"simple-plugin")
+        plugin-with-vec  (get-plugin #"with-vec")
+        plugin-with-map  (get-plugin #"with-map")
+        plugin-with-list (get-plugin #"with-list")]
+    (testing "two-parameter version adds maven plugin"
+      (is (= simple-plugin
+             (xml/sexp-as-element
+               [:plugin
+                [:groupId "two.parameter"]
+                [:artifactId "simple-plugin"]
+                [:version "1.0.0"]]))))
+    (testing "vector as third parameter is interpreted as a mapping"
+      (is (= plugin-with-vec
+             (xml/sexp-as-element
+               [:plugin
+                [:groupId "three.parameter"]
+                [:artifactId "with-vec"]
+                [:version "1.0.1"]
+                [:a 3]]))))
+    (testing "hashmap as third parameter is converted to tags"
+      (is (= plugin-with-map
+             (xml/sexp-as-element
+               [:plugin
+                [:groupId "three.parameter"]
+                [:artifactId "with-map"]
+                [:version "1.0.2"]
+                [:a 1]
+                [:b 2]
+                [:c 3]]))))
+    (testing "list as third parameter keeps structure"
+      (is (= plugin-with-list
+             (xml/sexp-as-element
+               [:plugin
+                [:groupId "three.parameter"]
+                [:artifactId "with-list"]
+                [:version "1.0.3"]
+                [:root
+                 [:a 1]
+                 [:b
+                  [:c 2]
+                  [:d 3]]]]))))))

@@ -472,7 +472,12 @@
                   :executions ([:execution [:id "echodir"]
                                 [:goals ([:goal "run"])]
                                 [:phase "verify"]])}]
-                [org.apache.tomcat.maven/tomcat7-maven-plugin "2.1"]]
+                [org.apache.tomcat.maven/tomcat7-maven-plugin "2.1"]
+                [com.google.appengine/appengine-maven-plugin "1.9.68"
+                 ;; Use a list to pass any structure unaltered
+                 (:configuration
+                  [:project "foo"]
+                  [:version "bar"])]]
   ;; Include <scm> tag in generated pom.xml file. All key/value pairs
   ;; appear exactly as configured. If absent, Leiningen will try to
   ;; use information from a .git directory.

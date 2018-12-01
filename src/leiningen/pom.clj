@@ -253,6 +253,7 @@
                               [:version version]
                               (if (map? plugin-addition) (seq plugin-addition))
                               (if (vector? plugin-addition) (seq (apply hash-map plugin-addition)))
+                              (if (list? plugin-addition) (vec plugin-addition))
                            ]
                           ))
         (if (or (seq extra-src) (seq extra-test))
