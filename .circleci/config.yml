@@ -3,7 +3,9 @@ jobs:
   build:
     working_directory: ~/leiningen
     docker:
-      - image: clojure:lein-2.8.1
+      # somehow docker hub deleted the 2.8.1 image?!
+      # https://circleci.com/gh/technomancy/leiningen/1584
+      - image: clojure:lein-2.8.0
     steps:
       - checkout
       - restore_cache:
