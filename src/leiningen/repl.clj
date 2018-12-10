@@ -224,7 +224,9 @@
                               (io/file ~(:target-path project) "repl-port"))]
       (when ~start-msg?
         (println "nREPL server started on port" port# "on host" ~(:host cfg)
-                 (str "- nrepl://" ~(:host cfg) ":" port#)))
+                 (str "- "
+                      (nrepl.transport/uri-scheme ~(or (:transport cfg) #'nrepl.transport/bencode))
+                      "://" ~(:host cfg) ":" port#)))
       (spit (doto repl-port-file# .deleteOnExit) port#)
       (when legacy-repl-port#
         (spit (doto legacy-repl-port# .deleteOnExit) port#))
@@ -294,7 +296,9 @@
                         (get-in project [:repl-options :timeout] 60000))]
       (do (main/info "nREPL server started on port"
                      repl-port "on host" (:host cfg)
-                     (str "- nrepl://" (:host cfg) ":" repl-port))
+                     (str "- "
+                          (nrepl.transport/uri-scheme (or (:transport cfg) #'nrepl.transport/bencode))
+                          "://" (:host cfg) ":" repl-port))
           repl-port)
       (main/abort "REPL server launch timed out."))))
 
