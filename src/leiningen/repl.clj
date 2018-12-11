@@ -17,19 +17,6 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.trampoline :as trampoline]))
 
-(defn- require-and-resolve
-  "Attempts to resolve the config `key`'s `value` as a namespaced symbol
-  and returns the related var if successful.  Otherwise calls `abort`."
-  [key sym]
-  (when-not (symbol? sym)
-    (main/abort (format "%s is not a symbol\n" (name key) (pr-str sym))))
-  (let [space (some-> (namespace sym) symbol)]
-    (when-not space
-      (main/abort (format "%s has no namespace\n" (name key) sym)))
-    (require space)
-    (or (ns-resolve space (-> sym name symbol))
-        (main/abort (format "unable to resolve %s\n" (name key) sym)))))
-
 (defn- repl-port-file-vector
   "Returns the repl port file for this project as a vector."
   [project]
@@ -54,11 +41,11 @@
 
 (defn opt-transport [opts]
   (if-let [transport (lookup-opt ":transport" opts)]
-    (require-and-resolve transport)))
+    (utils/require-resolve transport)))
 
 (defn opt-greeting-fn [opts]
   (if-let [greeting-fn (lookup-opt ":greeting-fn" opts)]
-    (require-and-resolve greeting-fn)))
+    (utils/require-resolve greeting-fn)))
 
 (defn ack-port [project]
   (if-let [p (or (user/getenv "LEIN_REPL_ACK_PORT")
@@ -83,13 +70,13 @@
   (if-let [transport (or (user/getenv "LEIN_REPL_TRANSPORT")
                          (-> project :repl-options :transport)
                          (:transport nrepl.config/config))]
-    (require-and-resolve transport)))
+    (utils/require-resolve transport)))
 
 (defn repl-greeting-fn [project]
   (if-let [greeting-fn (or (user/getenv "LEIN_REPL_GREETING_FN")
                            (-> project :repl-options :greeting-fn)
                            (:greeting-fn nrepl.config/config))]
-    (require-and-resolve greeting-fn)))
+    (utils/require-resolve greeting-fn)))
 
 (defn client-repl-port [project]
   (let [port (repl-port project)]
