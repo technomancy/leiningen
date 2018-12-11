@@ -4,8 +4,10 @@
             [clojure.main]
             [clojure.string :as s]
             [clojure.java.io :as io]
-            [nrepl.ack :as nrepl.ack]
-            [nrepl.server :as nrepl.server]
+            nrepl.ack
+            nrepl.config
+            nrepl.server
+            nrepl.transport
             [cemerick.pomegranate :as pomegranate]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
@@ -14,6 +16,19 @@
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
             [leiningen.trampoline :as trampoline]))
+
+(defn- require-and-resolve
+  "Attempts to resolve the config `key`'s `value` as a namespaced symbol
+  and returns the related var if successful.  Otherwise calls `abort`."
+  [key sym]
+  (when-not (symbol? sym)
+    (main/abort (format "%s is not a symbol\n" (name key) (pr-str sym))))
+  (let [space (some-> (namespace sym) symbol)]
+    (when-not space
+      (main/abort (format "%s has no namespace\n" (name key) sym)))
+    (require space)
+    (or (ns-resolve space (-> sym name symbol))
+        (main/abort (format "unable to resolve %s\n" (name key) sym)))))
 
 (defn- repl-port-file-vector
   "Returns the repl port file for this project as a vector."
@@ -37,20 +52,44 @@
   (if-let [port (lookup-opt ":port" opts)]
     (Integer/valueOf port)))
 
+(defn opt-transport [opts]
+  (if-let [transport (lookup-opt ":transport" opts)]
+    (require-and-resolve transport)))
+
+(defn opt-greeting-fn [opts]
+  (if-let [greeting-fn (lookup-opt ":greeting-fn" opts)]
+    (require-and-resolve greeting-fn)))
+
 (defn ack-port [project]
   (if-let [p (or (user/getenv "LEIN_REPL_ACK_PORT")
-                 (-> project :repl-options :ack-port))]
+                 (-> project :repl-options :ack-port)
+                 (:ack-port nrepl.config/config))]
     (Integer/valueOf p)))
 
 (defn repl-port [project]
   (Integer/valueOf (or (user/getenv "LEIN_REPL_PORT")
                        (-> project :repl-options :port)
+                       (:port nrepl.config/config)
                        0)))
 
 (defn repl-host [project]
   (or (user/getenv "LEIN_REPL_HOST")
       (-> project :repl-options :host)
+      (:host nrepl.config/config)
+      (:bind nrepl.config/config)
       "127.0.0.1"))
+
+(defn repl-transport [project]
+  (if-let [transport (or (user/getenv "LEIN_REPL_TRANSPORT")
+                         (-> project :repl-options :transport)
+                         (:transport nrepl.config/config))]
+    (require-and-resolve transport)))
+
+(defn repl-greeting-fn [project]
+  (if-let [greeting-fn (or (user/getenv "LEIN_REPL_GREETING_FN")
+                           (-> project :repl-options :greeting-fn)
+                           (:greeting-fn nrepl.config/config))]
+    (require-and-resolve greeting-fn)))
 
 (defn client-repl-port [project]
   (let [port (repl-port project)]
@@ -142,8 +181,10 @@
   (when (and nrepl-middleware nrepl-handler)
     (main/abort "Can only use one of" :nrepl-handler "or" :nrepl-middleware))
   (let [nrepl-middleware (remove nil? (concat [(wrap-init-ns project)]
-                                              nrepl-middleware))]
+                                              (or nrepl-middleware
+                                                  (:middleware nrepl.config/config))))]
     (or nrepl-handler
+        (:handler nrepl.config/config)
         `(nrepl.server/default-handler
            ~@(map #(if (symbol? %) (list 'var %) %) nrepl-middleware)))))
 
@@ -170,7 +211,10 @@
 
 (defn- server-forms [project cfg ack-port start-msg?]
   [`(let [server# (nrepl.server/start-server
-                   :bind ~(:host cfg) :port ~(:port cfg)
+                   :bind ~(:host cfg)
+                   :port ~(:port cfg)
+                   :transport-fn ~(:transport cfg)
+                   :greeting-fn ~(:greeting-fn cfg)
                    :ack-port ~ack-port
                    :handler ~(handler-for project))
           port# (:port server#)
@@ -180,7 +224,9 @@
                               (io/file ~(:target-path project) "repl-port"))]
       (when ~start-msg?
         (println "nREPL server started on port" port# "on host" ~(:host cfg)
-                 (str "- nrepl://" ~(:host cfg) ":" port#)))
+                 (str "- "
+                      (nrepl.transport/uri-scheme ~(or (:transport cfg) #'nrepl.transport/bencode))
+                      "://" ~(:host cfg) ":" port#)))
       (spit (doto repl-port-file# .deleteOnExit) port#)
       (when legacy-repl-port#
         (spit (doto legacy-repl-port# .deleteOnExit) port#))
@@ -250,7 +296,9 @@
                         (get-in project [:repl-options :timeout] 60000))]
       (do (main/info "nREPL server started on port"
                      repl-port "on host" (:host cfg)
-                     (str "- nrepl://" (:host cfg) ":" repl-port))
+                     (str "- "
+                          (nrepl.transport/uri-scheme (or (:transport cfg) #'nrepl.transport/bencode))
+                          "://" (:host cfg) ":" repl-port))
           repl-port)
       (main/abort "REPL server launch timed out."))))
 
@@ -299,7 +347,23 @@ Subcommands:
   that file and use its contents, allowing sensitive credentials to be
   kept out of the process table and shell history.
 
-For connecting to HTTPS repl servers add [com.cemerick/drawbridge \"0.0.7\"]
+:transport [transport]
+  Start nREPL using the transport referenced here, instead of using the
+  default bencode transport. Useful is you want to leverage a client
+  that can't handle bencode.
+  If no transport is given then it will be inferred by checking
+  LEIN_REPL_TRANSPORT, :repl-options, or .nrepl.edn (global one or in
+  the project root), in that order.
+
+:greeting-fn [greeting-fn]
+  Function used to generate the greeting message in the REPL after the
+  nREPL server has started. Useful for \"dumb\" transports like TTY, or
+  when you want to send some custom message to clients on connect.
+  If no greeting-fn is given then it will be inferred by checking
+  LEIN_REPL_GREETING_FN, :repl-options, or .nrepl.edn (global one or in
+  the project root), in that order.
+
+For connecting to HTTPS repl servers add [nrepl/drawbridge \"0.1.5\"]
 to your :plugins list.
 
 Note: the :repl profile is implicitly activated for this task. It cannot be
@@ -313,7 +377,9 @@ deactivated, but it can be overridden."
        (client project (doto (connect-string project opts)
                          (->> (main/info "Connecting to nREPL at"))))
        (let [cfg {:host (or (opt-host opts) (repl-host project))
-                  :port (or (opt-port opts) (repl-port project))}]
+                  :port (or (opt-port opts) (repl-port project))
+                  :transport (or (opt-transport opts) (repl-transport project))
+                  :greeting-fn (or (opt-greeting-fn opts) (repl-greeting-fn project))}]
          (utils/with-write-permissions (repl-port-file-path project)
            (case subcommand
              ":start" (if trampoline/*trampoline?*
