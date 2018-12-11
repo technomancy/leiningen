@@ -181,7 +181,7 @@
 
   See http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html "
   [version f]
-  (let [pattern (re-pattern (format "%s-(.*)\\.%s" version (extension f)))
+  (let [pattern (re-pattern (format "%s-(\\p{Alnum}*)\\.%s" version (extension f)))
         [_ classifier-of] (re-find pattern f)]
     (when-not (empty? classifier-of)
       classifier-of)))

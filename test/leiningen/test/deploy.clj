@@ -116,4 +116,6 @@
       "fat" "1.2.3-alpha6"   "some-project-1.2.3-alpha6-fat.jar"
       "fat" "1.2.3-SNAPSHOT" "some-project-1.2.3-SNAPSHOT-fat.jar"
       nil   "1.2.3"          "some-project-1.2.3-.jar"
-      nil   "1.2.3"          "some-project-1.2.3.jar"))
+      nil   "1.2.3"          "some-project-1.2.3.jar"
+      nil   "0.1.0"          "/opt/workspace/mylib-0.1.0-builddir/target/mylib-0.1.0.jar"
+      "RC2" "0.1.0"          "\\opt\\workspace\\mylib-0.1.0-builddir\\target\\mylib-0.1.0-RC2.jar"))
