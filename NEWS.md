@@ -1,7 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.8.2 / ???
+## 2.8.2 / 2018-12-11
 
+* Fix a bug where hidden files would be included in jars. (James Elliott)
 * Add support for repository-overrides.clj to bootstrap repository info. (Greg Haskins)
 * Use stderr consistently for diagnostics. (Rob Browning)
 * Fix a bug in aliases that come from profiles. (Arnout Roemers)
