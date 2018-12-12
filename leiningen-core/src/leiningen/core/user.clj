@@ -2,6 +2,7 @@
   "Functions exposing user-level configuration."
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.java.shell :as shell]
             [leiningen.core.utils :as utils])
   (:import (com.hypirion.io Pipe)
            (org.apache.commons.io.output TeeOutputStream)
@@ -103,14 +104,9 @@
   [env]
   (into-array String (map (fn [[k v]] (str (name k) "=" v)) env)))
 
-(defn gpg-with-passphrase
-  "Shells out to (gpg-program) with the given arguments and, if
-  passphrase is not nil, sends the passphrase on stdin for unattended
-  operations such as signing artifacts for deployment. When a passphrase
-  is provided the caller must include the following args
-  [\"--passphrase-fd\" \"0\" \"--pinentry-mode\" \"loopback\"]
-  along with whatever other args are needed for the gpg command."
-  [passphrase & args]
+(defn gpg
+  "Shells out to (gpg-program) with the given arguments"
+  [& args]
   (try
     (let [proc-env (as-env-strings (get-english-env))
           proc-args (into-array String (concat [(gpg-program)] args))
@@ -118,15 +114,10 @@
       (.addShutdownHook (Runtime/getRuntime)
                         (Thread. (fn [] (.destroy proc))))
       (with-open [out (.getInputStream proc)
-                  err (.getErrorStream proc)
                   err-output (ByteArrayOutputStream.)]
-        (if passphrase
-          (with-open [in (.getOutputStream proc)]
-            (io/copy passphrase in)))
-        (let [pump-err (doto (Pipe. err
-                                    (TeeOutputStream. System/err
-                                                      err-output))
-                        .start)]
+        (let [pump-err (doto (Pipe. (.getErrorStream proc)
+                                    (TeeOutputStream. System/err err-output))
+                         .start)]
           (.join pump-err)
           (let [exit-code (.waitFor proc)]
             {:exit exit-code
@@ -135,25 +126,10 @@
     (catch java.io.IOException e
       {:exit 1 :out "" :err (.getMessage e)})))
 
-(defn gpg
-  "Shells out to (gpg-program) with the given arguments"
-  [& args]
-  (apply gpg-with-passphrase nil args))
-
 (defn gpg-available?
   "Verifies (gpg-program) exists"
   []
   (zero? (:exit (gpg "--version"))))
-
-(defn gpg-version
-  "parse and return the version of gpg available"
-  []
-  (let [pattern #"gpg\s+\(GnuPG\)\s+(\d+)\.(\d+)\.(\d+)"]
-    (if-let [[_ major minor patch]
-             (re-find pattern (:out (gpg "--version")))]
-      {:major (Integer/parseInt major)
-       :minor (Integer/parseInt minor)
-       :patch (Integer/parseInt patch)})))
 
 (defn credentials-fn
   "Decrypt map from credentials.clj.gpg in Leiningen home if present."
@@ -180,41 +156,28 @@
                                (re-find re? (:url settings)))]
                 cred))))
 
-(defn resolve-env-keyword
-  "Resolve usage of :env and :env/foo in project.clj"
-  [k v]
-  (cond (= :env v)
-        (getenv (str "LEIN_"
-                     (-> (name k)
-                         (str/upper-case)
-                         (str/replace "-" "_"))))
-
-        (and (keyword? v) (= "env" (namespace v)))
-        (getenv (str/upper-case (name v)))
-
-        :else nil))
-
-(defn- resolve-gpg-keyword
-  "Resolve usage of :gpg in project.clj"
-  [source-settings k v]
-  (if (= :gpg v)
-    (get (match-credentials source-settings (credentials)) k)))
-
-(defn- resolve-kv [source-settings k v]
-  (or (resolve-env-keyword k v)
-      (resolve-gpg-keyword source-settings k v)
-      (if (coll? v) ;; collection of places to look
-        (->> (map (partial resolve-kv source-settings k) v)
-             (filter string?)
-             first))
-      v))
-
 (defn- resolve-credential
   "Resolve key-value pair from result into a credential, updating result."
   [source-settings result [k v]]
-  (if (#{:username :password :passphrase :private-key-file} k)
-    (assoc result k (resolve-kv source-settings k v))
-    (assoc result k v)))
+  (letfn [(resolve [v]
+            (cond (= :env v)
+                  (getenv (str "LEIN_" (str/upper-case (name k))))
+
+                  (and (keyword? v) (= "env" (namespace v)))
+                  (getenv (str/upper-case (name v)))
+
+                  (= :gpg v)
+                  (get (match-credentials source-settings (credentials)) k)
+
+                  (coll? v) ;; collection of places to look
+                  (->> (map resolve v)
+                       (remove nil?)
+                       first)
+
+                  :else v))]
+    (if (#{:username :password :passphrase :private-key-file} k)
+      (assoc result k (resolve v))
+      (assoc result k v))))
 
 (defn resolve-credentials
   "Applies credentials from the environment or ~/.lein/credentials.clj.gpg
