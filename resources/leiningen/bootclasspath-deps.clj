@@ -33,7 +33,7 @@
  net.cgrand/parsley "0.9.3"
  net.cgrand/regex "1.1.0"
  net.cgrand/sjacket "0.1.1"
- nrepl "0.5.2"
+ nrepl "0.5.3"
  org.apache.commons/commons-lang3 "3.5"
  org.apache.httpcomponents/httpclient "4.5.3"
  org.apache.httpcomponents/httpcore "4.4.6"
