@@ -28,7 +28,7 @@ function Set-ParentLocation([string]$file)
 {
     for($dir = [IO.DirectoryInfo]"$PWD"; $dir.Parent; $dir = $dir.Parent)
     {
-        if(Test-Path (Join-Path $dir.FullName $file) -PathType Leaf) { cd $dir }
+        if(Test-Path (Join-Path $dir.FullName $file) -PathType Leaf) { cd $dir.FullName; break }
     }
 }
 
