@@ -1,5 +1,12 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.8.3 / 2018-12-14
+
+* Fix a warning in the powershell script. (Florian Anderiasch)
+* Fix a bug where the repl wouldn't launch. (Bozhidar Batsov)
+* Remove broken unattended GPG deploy feature.
+* Fix a bug where the repl didn't use `:main` as the initial ns. (Phil Hagelberg)
+
 ## 2.8.2 / 2018-12-11
 
 * Fix a bug where hidden files would be included in jars. (James Elliott)
