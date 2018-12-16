@@ -8,12 +8,7 @@
                  [timofreiberg/bultitude "0.3.0" :exclusions [org.tcrawley/dynapath]]
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
-                 [com.cemerick/pomegranate "1.1.0"
-                  :exclusions [org.codehaus.plexus/plexus-utils]]
-                 [org.tcrawley/dynapath "1.0.0"]
-                 [org.apache.maven.wagon/wagon-http "2.12"
-                  :exclusions [org.apache.httpcomponents/httpcore
-                               org.apache.maven.wagon/wagon-provider-api]]
+                 [com.cemerick/pomegranate "1.1.0"]
                  [com.hypirion/io "0.3.1"]
                  [org.slf4j/slf4j-nop "1.7.25"] ; wagon-http uses slf4j
                  ;; we pull this in transitively but want a newer version
