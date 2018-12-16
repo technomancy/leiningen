@@ -2,7 +2,7 @@
 
 setLocal EnableExtensions EnableDelayedExpansion
 
-set LEIN_VERSION=2.8.3
+set LEIN_VERSION=2.8.4-SNAPSHOT
 
 if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=YES
@@ -345,7 +345,7 @@ rem echo Wget:       "http://users.ugent.be/~bpuype/wget/"
 rem Note: Stale URL. HTTP 404.
 rem Alternative: wget64.exe compiled by J. Simoncic, rename to wget.exe
 rem MD5 1750c130c5daca8b347d3f7e34824c9b
-rem Check: https://www.virustotal.com/en/file/abf507f8240ed41aac74c9df6de558c88c2f11d7770f0298135f1cc544b9c08b/analysis/
+rem Check: https://www.virustotal.com/en/file/abf507f8240ed41aac74c9df6de558c88c2f11d7770f02.8.4-SNAPSHOT5f1cc544b9c08b/analysis/
 echo Wget:       "https://eternallybored.org/misc/wget/"
 
 echo Curl:       "http://curl.haxx.se/dlwiz/?type=bin&os=Win32&flav=-&ver=2000/XP"
