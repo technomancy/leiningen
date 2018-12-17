@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>607ad2c3553a3f5412b2b9180667e0f45959aadd</tag>
+    <tag>eedfbd673fa8fed03edd6a081f3ba8825ba2bf63</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -91,27 +91,8 @@
       <version>1.1.0</version>
       <exclusions>
         <exclusion>
-          <artifactId>wagon-http</artifactId>
-          <groupId>org.apache.maven.wagon</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>plexus-utils</artifactId>
-          <groupId>org.codehaus.plexus</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.wagon</groupId>
-      <artifactId>wagon-http</artifactId>
-      <version>2.12</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>httpcore</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>wagon-provider-api</artifactId>
-          <groupId>org.apache.maven.wagon</groupId>
+          <artifactId>jcl-over-slf4j</artifactId>
+          <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
     </dependency>
