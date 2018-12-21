@@ -224,6 +224,13 @@
    `(do ~(when-let [init-ns (init-ns project)]
            `(try (doto '~init-ns require in-ns)
                  (catch Exception e# (println e#) (ns ~init-ns))))
+        (when-not (resolve 'when-some)
+          (binding [*out* *err*]
+            (println "As of 2.8.2, the repl task is incompatible with"
+                     "Clojure versions older than 1.7.0."
+                     "\nYou can downgrade to 2.8.1 or use `lein trampoline run"
+                     "-m clojure.main` for a simpler fallback repl."))
+          (System/exit 1))
         ~@(for [n (init-requires project)]
             `(try (require ~n)
                   (catch Throwable t#
@@ -275,9 +282,13 @@
           (binding [eval/*pump-in* false]
             (let [[evals requires]
                   (server-forms project cfg ack-port headless?)]
-              (eval/eval-in-project project
-                                    `(do ~(ignore-sigint-form) ~evals)
-                                    requires))))
+              (try
+                (eval/eval-in-project project
+                                      `(do ~(ignore-sigint-form) ~evals)
+                                      requires)
+                (catch Exception e
+                  (when main/*debug* (throw e))
+                  (main/warn (.getMessage e)))))))
         (Thread.) (.start))
     (when project @prep-blocker)
     (when headless? @(promise))
