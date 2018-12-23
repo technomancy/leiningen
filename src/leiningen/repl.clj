@@ -199,27 +199,29 @@
        (catch Throwable e#))))
 
 (defn- server-forms [project cfg ack-port start-msg?]
-  [`(let [server# (nrepl.server/start-server
-                   :bind ~(:host cfg)
-                   :port ~(:port cfg)
-                   :transport-fn ~(:transport cfg)
-                   :greeting-fn ~(:greeting-fn cfg)
-                   :ack-port ~ack-port
-                   :handler ~(handler-for project))
-          port# (:port server#)
-          repl-port-file# (apply io/file ~(repl-port-file-vector project))
-          ;; TODO 3.0: remove legacy repl port support.
-          legacy-repl-port# (if (.exists (io/file ~(:target-path project "")))
-                              (io/file ~(:target-path project) "repl-port"))]
-      (when ~start-msg?
-        (println "nREPL server started on port" port# "on host" ~(:host cfg)
-                 (str "- "
-                      (nrepl.transport/uri-scheme ~(or (:transport cfg) #'nrepl.transport/bencode))
-                      "://" ~(:host cfg) ":" port#)))
-      (spit (doto repl-port-file# .deleteOnExit) port#)
-      (when legacy-repl-port#
-        (spit (doto legacy-repl-port# .deleteOnExit) port#))
-      @(promise))
+  [`(do (if ~(some-> (:transport cfg) meta :ns str)
+          (require (symbol ~(-> (:transport cfg) meta :ns str))))
+        (let [server# (nrepl.server/start-server
+                       :bind ~(:host cfg)
+                       :port ~(:port cfg)
+                       :transport-fn ~(:transport cfg)
+                       :greeting-fn ~(:greeting-fn cfg)
+                       :ack-port ~ack-port
+                       :handler ~(handler-for project))
+              port# (:port server#)
+              repl-port-file# (apply io/file ~(repl-port-file-vector project))
+              ;; TODO 3.0: remove legacy repl port support.
+              legacy-repl-port# (if (.exists (io/file ~(:target-path project "")))
+                                  (io/file ~(:target-path project) "repl-port"))]
+          (when ~start-msg?
+            (println "nREPL server started on port" port# "on host" ~(:host cfg)
+                     (str "- "
+                          (nrepl.transport/uri-scheme ~(or (:transport cfg) #'nrepl.transport/bencode))
+                          "://" ~(:host cfg) ":" port#)))
+          (spit (doto repl-port-file# .deleteOnExit) port#)
+          (when legacy-repl-port#
+            (spit (doto legacy-repl-port# .deleteOnExit) port#))
+          @(promise)))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
            `(try (doto '~init-ns require in-ns)
