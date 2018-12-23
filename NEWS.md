@@ -20,6 +20,7 @@
 * Always send diagnostic messages to standard error. (Rob Browning)
 * Add project coordinate data to jar metadata. (Conor McDermottroe)
 * Allow freeform `:pom-plugin` configuration. (Hannu Hartikainen)
+* **(Breaking)** Switch to [nREPL 0.5](https://metaredux.com/posts/2018/10/29/nrepl-redux.html). See the [upgrade notes](https://nrepl.org/nrepl/installation.html#upgrading) if you experience any problems with the `lein repl` task. (Bozhidar Batsov)
 
 ## 2.8.1 / 2017-10-27
 
