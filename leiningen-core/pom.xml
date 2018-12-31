@@ -16,7 +16,7 @@
   <scm>
     <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>8584ea670627528a2c67ba1c8d3236608ad4fa3e
+    <tag>352ba0e0601f8aa41428297ae72201970e2d0a14
 </tag>
     <url>https://github.com/technomancy/leiningen</url>
   </scm>
