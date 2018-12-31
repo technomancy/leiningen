@@ -34,7 +34,6 @@
                      "classes" "nom" "nom" "nom.class"))))
 
 (deftest test-compile-order-sorted
-  (print (str "Count for compile: " (count (compilable-namespaces sample-ordered-aot-project))))
   (is (= 0
     (compare 
       (vec (compilable-namespaces sample-ordered-aot-project))
