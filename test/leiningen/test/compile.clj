@@ -4,7 +4,9 @@
         [clojure.java.io :only [file]]
         [clojure.java.shell :only [with-sh-dir]]
         [leiningen.compile]
-        [leiningen.test.helper :only [sample-project delete-file-recursively
+        [leiningen.test.helper :only [sample-project 
+                                      delete-file-recursively
+                                      sample-ordered-aot-project
                                       sample-failing-project
                                       sample-reader-cond-project
                                       tricky-name-project
@@ -30,6 +32,13 @@
   (compile sample-project ":all")
   (is (.exists (file "test_projects" "sample" "target"
                      "classes" "nom" "nom" "nom.class"))))
+
+(deftest test-compile-order-sorted
+  (print (str "Count for compile: " (count (compilable-namespaces sample-ordered-aot-project))))
+  (is (= 0
+    (compare 
+      (vec (compilable-namespaces sample-ordered-aot-project))
+      (vec (sort (compilable-namespaces sample-ordered-aot-project)))))))
 
 (deftest test-compile-regex
   (compile more-gen-classes-project "#\"\\.ba.$\"")

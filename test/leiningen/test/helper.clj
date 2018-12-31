@@ -44,6 +44,8 @@
 
 (def sample-no-aot-project (read-test-project "sample-no-aot"))
 
+(def sample-ordered-aot-project (read-test-project "sample-ordered-aot"))
+
 (def sample-profile-meta-project (read-test-project "sample-profile-meta"))
 
 (def sample-reader-cond-project (read-test-project "sample-reader-cond"))

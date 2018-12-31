@@ -33,7 +33,7 @@
   "Return a seq of namespaces that are both compilable and that have missing or
   out-of-date class files."
   [project]
-  (for [namespace (compilable-namespaces project)
+  (for [namespace (sort (compilable-namespaces project))
         :let [[rel-source source]
               (or (first (for [source-path (:source-paths project)
                                rel-source (map (partial b/path-for namespace) ["clj" "cljc"])
