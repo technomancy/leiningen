@@ -26,8 +26,8 @@
   their class files are present and up-to-date."
   [{:keys [aot source-paths] :as project}]
   (if (or (= :all aot) (= [:all] aot))
-    (b/namespaces-on-classpath :classpath (map io/file source-paths))
-    (find-namespaces-by-regex project aot)))
+    (sort (b/namespaces-on-classpath :classpath (map io/file source-paths)))
+    (sort (find-namespaces-by-regex project aot))))
 
 (defn stale-namespaces
   "Return a seq of namespaces that are both compilable and that have missing or
