@@ -814,11 +814,7 @@
   ([project middleware-name]
      (if (and (:implicits project true) (:implicit-middleware project true))
        (if-let [middleware (utils/require-resolve middleware-name)]
-         (do (when-not (some #{middleware-name} (:middleware project))
-               (warn-once "Warning: implicit middleware found:" middleware-name
-                          "\nPlease declare all middleware in :middleware"
-                          "as implicit loading is deprecated."))
-             (middleware project))
+         (middleware project)
          (do (when-not (:optional (meta middleware-name))
                (utils/error "cannot resolve" middleware-name "middleware"))
              project))
