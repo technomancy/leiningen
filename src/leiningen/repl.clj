@@ -7,7 +7,7 @@
             nrepl.ack
             nrepl.config
             nrepl.server
-            nrepl.transport
+            [nrepl.transport :as transport]
             [cemerick.pomegranate :as pomegranate]
             [leiningen.core.eval :as eval]
             [leiningen.core.main :as main]
@@ -118,7 +118,7 @@
               (s/join ":" x)
               (ensure-port x))))))
 
-(defn options-for-reply [project & {:keys [attach port]}]
+(defn options-for-reply [project & {:keys [attach port scheme]}]
   (as-> (:repl-options project) opts
         (merge {:history-file (->> (if-let [root (:root project)]
                                      [root ".lein-repl-history"]
@@ -136,7 +136,8 @@
                           :else {}))
         (clojure.set/rename-keys opts {:prompt :custom-prompt
                                        :welcome :custom-help})
-        (if (:port opts) (update-in opts [:port] str) opts)))
+        (if (:port opts) (update-in opts [:port] str) opts)
+        (if scheme (assoc opts :scheme scheme) opts)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns (if main (if (namespace main)
@@ -198,6 +199,10 @@
          (proxy [sun.misc.SignalHandler] [] (handle [signal#])))
        (catch Throwable e#))))
 
+(defn- cfg->transport-uri-scheme
+  [cfg]
+  (transport/uri-scheme (or (:transport cfg) #'transport/bencode)))
+
 (defn- server-forms [project cfg ack-port start-msg?]
   [`(do (if ~(some-> (:transport cfg) meta :ns str)
           (require (symbol ~(-> (:transport cfg) meta :ns str))))
@@ -216,7 +221,7 @@
           (when ~start-msg?
             (println "nREPL server started on port" port# "on host" ~(:host cfg)
                      (str "- "
-                          (nrepl.transport/uri-scheme ~(or (:transport cfg) #'nrepl.transport/bencode))
+                          (transport/uri-scheme ~(or (:transport cfg) #'transport/bencode))
                           "://" ~(:host cfg) ":" port#)))
           (spit (doto repl-port-file# .deleteOnExit) port#)
           (when legacy-repl-port#
@@ -264,11 +269,13 @@
      `(do (try (require '~(init-ns project)) (catch Exception t#))
           (require ~@(init-requires project 'reply.main))))))
 
-(def ack-server
+(defn- ack-server
   "The server which handles ack replies."
-  (delay (nrepl.server/start-server
-          :bind (repl-host nil)
-          :handler (nrepl.ack/handle-ack nrepl.server/unknown-op))))
+  [transport]
+  (nrepl.server/start-server
+   :bind (repl-host nil)
+   :handler (nrepl.ack/handle-ack nrepl.server/unknown-op)
+   :transport-fn transport))
 
 (defn nrepl-dependency? [{:keys [dependencies]}]
   (some (fn [[d]] (re-find #"nrepl" (str d))) dependencies))
@@ -282,7 +289,7 @@
     (main/info "Be sure to include nrepl/nrepl in :dependencies"
                "of your profile."))
   (let [prep-blocker @eval/prep-blocker
-        ack-port (:port @ack-server)]
+        ack-port (:port (ack-server (or (:transport cfg) #'transport/bencode)))]
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
             (let [[evals requires]
@@ -302,19 +309,28 @@
       (do (main/info "nREPL server started on port"
                      repl-port "on host" (:host cfg)
                      (str "- "
-                          (nrepl.transport/uri-scheme (or (:transport cfg) #'nrepl.transport/bencode))
+                          (cfg->transport-uri-scheme cfg)
                           "://" (:host cfg) ":" repl-port))
           repl-port)
       (main/abort "REPL server launch timed out."))))
 
-(defn client [project attach]
-  (when (is-uri? attach)
-    (require 'drawbridge.client))
-  (pomegranate/add-dependencies :coordinates (:dependencies reply-profile)
-                                :repositories (map classpath/add-repo-auth
-                                                   (:repositories project)))
-  (let [launch (utils/require-resolve 'reply.main/launch-nrepl)]
-    (launch (options-for-reply project :attach attach)))  )
+(defn resolve-reply-launch-nrepl
+  []
+  (utils/require-resolve 'reply.main/launch-nrepl))
+
+(defn client
+  ([project attach]
+   (client project attach {}))
+  ([project attach cfg]
+   (when (is-uri? attach)
+     (require 'drawbridge.client))
+   (pomegranate/add-dependencies :coordinates (:dependencies reply-profile)
+                                 :repositories (map classpath/add-repo-auth
+                                                    (:repositories project)))
+   (let [launch (resolve-reply-launch-nrepl)]
+     (launch (options-for-reply project
+                                :attach attach
+                                :scheme (cfg->transport-uri-scheme cfg))))))
 
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.
@@ -389,7 +405,7 @@ deactivated, but it can be overridden."
            (case subcommand
              ":start" (if trampoline/*trampoline?*
                         (trampoline-repl project (:port cfg))
-                        (->> (server project cfg false) (client project)))
+                        (client project (server project cfg false) cfg))
              ":headless" (apply eval/eval-in-project project
                                 (server-forms project cfg (ack-port project)
                                               true))

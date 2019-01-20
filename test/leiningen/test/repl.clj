@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [leiningen.repl :refer :all]
             [leiningen.test.helper :as lthelper]
-            (leiningen.core [user :as user] [project :as project])))
+            (leiningen.core [user :as user] [project :as project])
+            [nrepl.ack :as ack]))
 
 (deftest test-merge-repl-profile
   (is (= (-> {:repl-options {:ack-port 4}}
@@ -140,7 +141,9 @@
      [:port 2]                       {:port "2"}
      [:port 2 :port 1]               {:port "1"}
      [:host "prj-host" :attach "xy"] {:attach "xy"}
-     [:port 3 :attach "xy"]          {:attach "xy"})))
+     [:port 3 :attach "xy"]          {:attach "xy"}
+     [:attach "xy" :scheme "nrepl"]  {:attach "xy" :scheme "nrepl"}
+     [:scheme "nrepl+edn"]           {:scheme "nrepl+edn"})))
 
 (deftest test-init-ns
   (let [main {:main 'some.ns/main}
@@ -148,3 +151,22 @@
     (are [in exp] (= exp (init-ns in))
          main 'some.ns
          repl-opts 'init-ns)))
+
+(defn- mocked-repl
+  [& args]
+  (with-redefs [ack/wait-for-ack (constantly 9999)
+                resolve-reply-launch-nrepl (constantly identity)]
+    (apply repl args)))
+
+(deftest test-scheme
+  (is (= {:attach "9999" :scheme "nrepl"}
+         (-> (mocked-repl lthelper/sample-project)
+             (select-keys [:attach :scheme]))))
+  (is (= {:attach "9999" :scheme "nrepl"}
+         (-> (mocked-repl lthelper/sample-project ":start"
+                          ":transport" 'nrepl.transport/bencode)
+             (select-keys [:attach :scheme]))))
+  (is (= {:attach "9999" :scheme "nrepl+edn"}
+         (-> (mocked-repl lthelper/sample-project ":start"
+                          ":transport" 'nrepl.transport/edn)
+             (select-keys [:attach :scheme])))))
