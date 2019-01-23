@@ -3,7 +3,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.8.4-SNAPSHOT</version>
+  <version>2.9.0-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -14,11 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:git:git://github.com/technomancy/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/technomancy/leiningen.git</developerConnection>
-    <tag>352ba0e0601f8aa41428297ae72201970e2d0a14
-</tag>
-    <url>https://github.com/technomancy/leiningen</url>
+    <tag>9791484a9be46005c39cf3e51be44cad497b5586</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -66,7 +62,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.8.0</version>
+      <version>1.10.0</version>
     </dependency>
     <dependency>
       <groupId>timofreiberg</groupId>

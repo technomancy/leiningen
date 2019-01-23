@@ -1,10 +1,10 @@
-(defproject leiningen-core "2.8.4-SNAPSHOT"
+(defproject leiningen-core "2.9.0-SNAPSHOT"
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
                  [timofreiberg/bultitude "0.3.0"
                   :exclusions [org.clojure/clojure]]
                  [org.flatland/classlojure "0.7.1"]
