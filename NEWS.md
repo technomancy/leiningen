@@ -1,5 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.0 / ???
+
+* Sort namespace order consistently during AOT. (Logan Girard)
+* Use Clojure 1.10.0 for plugins and new templates projects. (Alex Miller, Phil Hagelberg)
+
 ## 2.8.3 / 2018-12-14
 
 * Fix a warning in the powershell script. (Florian Anderiasch)
