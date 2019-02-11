@@ -8,7 +8,7 @@ function msg {
     echo "$@" 1>&2
 }
 
-export LEIN_VERSION="2.9.0-SNAPSHOT"
+export LEIN_VERSION="2.9.0"
 
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;

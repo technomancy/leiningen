@@ -2,7 +2,7 @@
 
 # This variant of the lein script is meant for consumption by SDKMAN!
 # (i.e. a script which supports all platforms with bash installed)
-export LEIN_VERSION="2.9.0-SNAPSHOT"
+export LEIN_VERSION="2.9.0"
 
 if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
     delimiter=";"
