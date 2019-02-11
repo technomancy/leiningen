@@ -4,7 +4,7 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from a source checkout and self-install/upgrading.
 
-export LEIN_VERSION="2.8.4-SNAPSHOT"
+export LEIN_VERSION="2.9.0-SNAPSHOT"
 
 # cd to the project root, if applicable
 NOT_FOUND=1

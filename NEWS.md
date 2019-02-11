@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.0 / ???
+## 2.9.0 / 2019-02-10
 
 * Sort namespace order consistently during AOT. (Logan Girard)
 * Use Clojure 1.10.0 for plugins and new templates projects. (Alex Miller, Phil Hagelberg)
