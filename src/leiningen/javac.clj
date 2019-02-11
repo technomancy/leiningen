@@ -7,8 +7,7 @@
             [leiningen.core.project :as project]
             [clojure.java.io :as io]
             [clojure.string :as string])
-  (:import java.io.File
-           javax.tools.ToolProvider))
+  (:import java.io.File))
 
 (defn- stale-java-sources
   "Returns a lazy seq of file paths: every Java source file within dirs modified
