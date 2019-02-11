@@ -50,7 +50,7 @@ if ! { [ "$1" = "compile" ] &&
         grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
             project.clj ;}; then
     CLASSPATH="$CLASSPATH":"$LEIN_JAR"
-    if [ "$LEIN_USE_BOOTCLASSPATH" != "" ]; then
+    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 fi

@@ -213,7 +213,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
 else # Not running from a checkout
     add_path CLASSPATH "$LEIN_JAR"
 
-    if [ "$LEIN_USE_BOOTCLASSPATH" != "" ]; then
+    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 

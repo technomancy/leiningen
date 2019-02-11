@@ -2,6 +2,7 @@
 
 ## 2.9.0 / 2019-02-10
 
+* Re-enable bootclasspath optimization by default. (Phil Hagelberg)
 * Sort namespace order consistently during AOT. (Logan Girard)
 * Use Clojure 1.10.0 for plugins and new templates projects. (Alex Miller, Phil Hagelberg)
 
