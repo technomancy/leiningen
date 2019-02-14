@@ -53,10 +53,16 @@
   "Project `:uberjar-merge-with` merger for components.xml files."
   [components-read into components-write])
 
+(defn- pr-str-backwards-compatibly
+  "Produce EDN that should work with older clojure versions."
+  [val]
+  (binding [*print-namespace-maps* false]
+    (pr-str val)))
+
 (def clj-map-merger
   "Project `:uberjar-merge-with` for files containing a single map
   read with `clojure.core/read`, such as data_readers.clj."
-  [(comp read-string slurp) merge #(spit %1 (pr-str %2))])
+  [(comp read-string slurp) merge #(spit %1 (pr-str-backwards-compatibly %2))])
 
 (defn- merger-match? [[pattern] filename]
   (boolean

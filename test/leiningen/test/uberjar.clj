@@ -7,6 +7,7 @@
             [leiningen.test.helper :refer [unmemoize
                                            sample-no-aot-project
                                            uberjar-merging-project
+                                           data-readers-backwards-compatibility-project
                                            provided-project
                                            managed-deps-project
                                            managed-deps-snapshot-project]])
@@ -47,6 +48,23 @@
                (->> (.getEntry zf "data_readers.clj")
                     (.getInputStream zf)
                     slurp read-string)))))))
+
+(deftest test-uberjar-data-readers-backwards-compatibility
+  (uberjar data-readers-backwards-compatibility-project)
+  (let [filename (str "test_projects/data-readers-backwards-compatibility/"
+                      "target/bug-bug-standalone.jar")
+        uberjar-file (File. filename)]
+    (is (= true (.exists uberjar-file)))
+    (when (.exists uberjar-file)
+      (.deleteOnExit uberjar-file)
+      (with-open [zf (ZipFile. uberjar-file)]
+        (let [contents (->> (.getEntry zf "data_readers.clj")
+                            (.getInputStream zf)
+                            slurp)]
+          (is (.startsWith contents "{")) ;; not a namespaced map
+          (is (= '{ordered/set flatland.ordered.set/into-ordered-set
+                   ordered/map flatland.ordered.map/ordered-map}
+                 (read-string contents))))))))
 
 (deftest test-components-merger
   (let [file1 (str "test_projects/uberjar-components-merging/components1.xml")
