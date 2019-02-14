@@ -191,13 +191,12 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Use bin/lein to calculate its own classpath.
     if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ "$1" != "classpath" ]; then
         msg "Recalculating Leiningen's classpath."
-        ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
 
         LEIN_NO_USER_PROFILES=1 "$LEIN_DIR/bin/lein" classpath .lein-classpath
         sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj" > \
             .lein-project-checksum
-        cd "$ORIG_PWD"
+        cd -
     fi
 
     mkdir -p "$LEIN_DIR/target/classes"
