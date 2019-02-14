@@ -167,7 +167,7 @@ grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
 
 if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
-    LEIN_DIR="$(dirname "$BIN_DIR")"
+    LEIN_DIR="$(cd $(dirname "$BIN_DIR");pwd -P)"
 
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
     if [ ! -r "$LEIN_DIR/leiningen-core/.lein-bootstrap" ]; then
@@ -194,7 +194,7 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
         ORIG_PWD="$PWD"
         cd "$LEIN_DIR"
 
-        LEIN_NO_USER_PROFILES=1 $0 classpath .lein-classpath
+        LEIN_NO_USER_PROFILES=1 "$LEIN_DIR/bin/lein" classpath .lein-classpath
         sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj" > \
             .lein-project-checksum
         cd "$ORIG_PWD"
