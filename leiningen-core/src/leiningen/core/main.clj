@@ -337,7 +337,10 @@ These get replaced with the corresponding values from the project map."
   "Entry point for tasks run other tasks as if they were called from the CLI."
   [project args]
   (let [[task-name args] (task-args args project)]
-    (apply-task task-name project args)))
+    ;; See https://github.com/technomancy/leiningen/issues/2530
+    ;; We can't assume the project uses the same clojure version as lein does.
+    (binding [*print-namespace-maps* false]
+      (apply-task task-name project args))))
 
 (defn leiningen-version []
   (or (System/getenv "LEIN_VERSION")
