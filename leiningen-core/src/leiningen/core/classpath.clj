@@ -233,7 +233,8 @@
   "Returns a map of the JVM proxy settings"
   ([] (get-proxy-settings "http_proxy"))
   ([key]
-     (if-let [proxy (System/getenv key)]
+   (let [proxy (System/getenv key)]
+     (when-not (str/blank? proxy)
        (let [url (utils/build-url proxy)
              user-info (.getUserInfo url)
              [username password] (and user-info (.split user-info ":"))]
@@ -241,7 +242,7 @@
           :port (.getPort url)
           :username username
           :password password
-          :non-proxy-hosts (get-non-proxy-hosts)}))))
+          :non-proxy-hosts (get-non-proxy-hosts)})))))
 
 (defn- update-policies [update checksum [repo-name opts]]
   [repo-name (merge {:update (or update :daily)
