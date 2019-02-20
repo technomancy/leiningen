@@ -18,7 +18,8 @@
 (defn- find-namespaces-by-regex [project nses]
   (let [avail-nses (->> (:source-paths project)
                         (map io/file)
-                        (b/namespaces-on-classpath :classpath))]
+                        (b/namespaces-on-classpath :classpath)
+                        (sort))]
     (mapcat #(matching-nses % avail-nses) nses)))
 
 (defn compilable-namespaces
@@ -27,7 +28,7 @@
   [{:keys [aot source-paths] :as project}]
   (if (or (= :all aot) (= [:all] aot))
     (sort (b/namespaces-on-classpath :classpath (map io/file source-paths)))
-    (sort (find-namespaces-by-regex project aot))))
+    (find-namespaces-by-regex project aot)))
 
 (defn stale-namespaces
   "Return a seq of namespaces that are both compilable and that have missing or
