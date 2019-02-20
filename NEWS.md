@@ -1,5 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.1 / ???
+
+* Fix a bug where provided namespace compilation order was overridden. (Phil Hagelberg)
+* Don't emit namespaced maps when merging data readers for uberjar. (Joel Kaasinen)
+
 ## 2.9.0 / 2019-02-10
 
 * Re-enable bootclasspath optimization by default. (Phil Hagelberg)
