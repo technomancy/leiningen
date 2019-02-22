@@ -6,7 +6,7 @@ about: Create a report to help us improve
 **Initial debugging steps**
 Before creating a report, _especially_ around exceptions being thrown when running Leiningen, please check if the error still occurs after:
 
-- [ ] Updating to using the latest released version of Leiningen.
+- [ ] Updating to using the latest released version of Leiningen (`lein upgrade`).
 - [ ] Moving your `~/.lein/profiles.clj` (if present) out of the way. This contains third-party dependencies and plugins that can cause problems inside Leiningen.
 - [ ] Updating any old versions of plugins in your `project.clj`. Old versions of plugins like nREPL and CIDER can cause problems with newer versions of Leiningen.
 - [ ] (If you are using Java 9 or newer), updating your dependencies to their most recent versions. Recent JDK's have introduced changes which can break some Clojure libraries.
@@ -34,8 +34,9 @@ If applicable, add logs to help explain your problem, including the command that
 
 **Environment**
 - Leiningen Version: [e.g. 2.9.0]. Get this by running `lein version`.
+- Leiningen installation method: [e.g. Homebrew, apt, manual].
 - JDK Version: [e.g. openjdk version "11.0.1"]. Get this by running `java -version`.
-- OS: [e.g. Linux, macOS].
+- OS: [e.g. Ubuntu 18.04, macOS 10.14].
 - Anything else that might be relevant to your problem?
 
 **Additional context**
