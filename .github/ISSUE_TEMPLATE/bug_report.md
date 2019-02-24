@@ -8,7 +8,7 @@ Before creating a report, _especially_ around exceptions being thrown when runni
 
 - [ ] Updating to using the latest released version of Leiningen (`lein upgrade`).
 - [ ] Moving your `~/.lein/profiles.clj` (if present) out of the way. This contains third-party dependencies and plugins that can cause problems inside Leiningen.
-- [ ] Updating any old versions of plugins in your `project.clj`. Old versions of plugins like nREPL and CIDER can cause problems with newer versions of Leiningen.
+- [ ] Updating any old versions of plugins in your `project.clj`, especially if the problem is with a plugin not working. Old versions of plugins like nREPL and CIDER (as well as others) can cause problems with newer versions of Leiningen.
 - [ ] (If you are using Java 9 or newer), updating your dependencies to their most recent versions. Recent JDK's have introduced changes which can break some Clojure libraries.
 
 **Describe the bug**
