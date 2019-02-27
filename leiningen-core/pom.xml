@@ -3,7 +3,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.1-SNAPSHOT</version>
+  <version>2.9.1</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>c0eb388176be79167fae736491ffae9ce57bed68
+    <tag>0dee13d1b339cf7163c512827ee939c264d64378
 </tag>
     <url/>
   </scm>
