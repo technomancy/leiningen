@@ -255,7 +255,8 @@
                   project)]
     (if (and (compile-main? project)
              (not= :all (:aot project))
-             (not= [:all] (:aot project)))
+             (not= [:all] (:aot project))
+             (not (some #(= % (:main project)) (:aot project))))
       (update-in project [:aot] conj (:main project))
       project)))
 
