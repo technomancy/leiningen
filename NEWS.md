@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.1 / ???
+## 2.9.1 / 2019-02-26
 
 * Fix a bug where provided namespace compilation order was overridden. (Phil Hagelberg)
 * Don't emit namespaced maps when merging data readers for uberjar. (Joel Kaasinen)
