@@ -9,6 +9,8 @@ function msg {
 }
 
 export LEIN_VERSION="2.9.1"
+# Must be sha256sum, will be replaced by bin/release
+export LEIN_CHECKSUM='ea7c831a4f5c38b6fc3926c6ad32d1d4b9b91bf830a715ecff5a70a18bda55f8'
 
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
@@ -75,6 +77,16 @@ function download_failed_message {
 	EOS
 }
 
+function checksum_failed_message {
+    cat <<-EOS 1>&2
+	Failed to properly download $1
+	The checksum was mismatched. and we could not verify the downloaded
+	file. We expected a sha256 of
+	$2 and actually had
+	$3.
+	EOS
+}
+
 function self_install {
   if [ -r "$LEIN_JAR" ]; then
     cat <<-EOS 1>&2
@@ -89,8 +101,16 @@ function self_install {
   $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
   local exit_code=$?
   if [ $exit_code == 0 ]; then
-      # TODO: checksum
-      mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+      printf "$LEIN_CHECKSUM $LEIN_JAR.pending\n" >> "$LEIN_JAR.pending.shasum"
+      $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"
+      if [ $? == 0 ]; then
+        mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+      else
+        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending.shasum" | awk '{ print $1 }')"
+        checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum"
+        rm "$LEIN_JAR.pending" 2> /dev/null
+        exit 1
+      fi
   else
       rm "$LEIN_JAR.pending" 2> /dev/null
       download_failed_message "$LEIN_URL" "$exit_code"
@@ -160,6 +180,16 @@ if [ "$HTTP_CLIENT" = "" ]; then
     fi
 fi
 
+# This needs to be defined before we call SHASUM_CMD below
+if [ "$SHASUM_CMD" = "" ]; then
+    if type -p sha256sum >/dev/null 2>&1; then
+        export SHASUM_CMD="sha256sum"
+    elif type -p shasum >/dev/null 2>&1; then
+        export SHASUM_CMD="shasum --algorithm 256"
+    else
+        command_not_found sha256sum
+    fi
+fi
 
 # When :eval-in :classloader we need more memory
 grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
