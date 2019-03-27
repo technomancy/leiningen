@@ -226,7 +226,7 @@
    `(do ~(when-let [init-ns (init-ns project)]
            `(try (doto '~init-ns require in-ns)
                  (catch Exception e#
-                   (when-not (= (str '~init-ns) "user")
+                   (when-not (= '~init-ns '~'user)
                      (println e#))
                    (ns ~init-ns))))
         (when-not (resolve 'when-some)
