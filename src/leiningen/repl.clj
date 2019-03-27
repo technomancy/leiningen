@@ -225,7 +225,10 @@
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
            `(try (doto '~init-ns require in-ns)
-                 (catch Exception e# (println e#) (ns ~init-ns))))
+                 (catch Exception e#
+                   (when-not (= (str '~init-ns) "user")
+                     (println e#))
+                   (ns ~init-ns))))
         (when-not (resolve 'when-some)
           (binding [*out* *err*]
             (println "As of 2.8.2, the repl task is incompatible with"
