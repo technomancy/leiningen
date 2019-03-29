@@ -9,6 +9,7 @@
                   :exclusions [org.clojure/clojure]]
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
+                 [com.google.guava/guava "27.1-jre"]
                  [com.cemerick/pomegranate "1.1.0"
                   :exclusions [org.slf4j/jcl-over-slf4j]]
                  [com.hypirion/io "0.3.1"]
