@@ -32,82 +32,89 @@
 
 
 
-# Tutorial
+# チュートリアル
 
-Leiningen is for automating Clojure projects without setting your hair
-on fire. If you experience your hair catching on fire or any other
-frustrations while following this tutorial, please
-[let us know](https://github.com/technomancy/leiningen/issues/new).
+Leiningen は Clojure プロジェクトを、髪の毛が燃え上がるような思いをせずに、
+自動化するためのものです。もしこのチュートリアルにしたがっていて、
+髪の毛が燃え上がるような思いをしたり何かイライラするようなことがあった場合は、
+ぜひ[私達に知らせてください](https://github.com/technomancy/leiningen/issues/new)。
 
-It offers various project-related tasks and can:
+Leiningen は様々なプロジェクトに関連するタスクを提案します:
 
- * create new projects
- * fetch dependencies for your project
- * run tests
- * run a fully-configured REPL
- * compile Java sources (if any)
- * run the project (if the project isn't a library)
- * generate a maven-style "pom" file for the project for interop
- * compile and package projects for deployment
- * publish libraries to repositories such as [Clojars](https://clojars.org)
- * run custom automation tasks written in Clojure (leiningen plug-ins)
+ * 新しいプロジェクトを作成する
+ * プロジェクトの依存関係をダウンロードする
+ * テストを実行する
+ * 完全に設定された REPL の実行
+ * Java ソースコード(もしあれば)のコンパイル
+ * プロジェクトの実行(もしプロジェクトがライブラリでなければ)
+ * プロジェクト相互運用のための maven スタイルの pom ファイルの生成
+ * 開発時のプロジェクトのコンパイルとパッケージ
+ * [Clojars](https://clojars.org)などのレポジトリを使ったライブラリの公開
+ * Clojure で書かれたカスタム自動化タスクの実行(leiningen のプラグイン)
 
-If you come from the Java world, Leiningen could be thought of as
-"Maven meets Ant without the pain". For Ruby and Python folks,
-Leiningen combines RubyGems/Bundler/Rake and pip/Fabric in a single
-tool.
-
-
-## What This Tutorial Covers
-
-This tutorial will briefly cover project structure, dependency
-management, running tests, the REPL, and topics related to deployment.
-
-For those of you new to the JVM who have never touched Ant or Maven in
-anger: don't panic. Leiningen is designed with you in mind. This
-tutorial will help you get started and explain Leiningen's take on
-project automation and JVM-land dependency management.
+もしあなたが Java の世界からやってきたのであれば、
+「Leiningen は Maven と Ant のいい感じのあいのこ」と考えればよいでしょう。
+Ruby や Python の仲間たちにとっては、 Leiningen は
+RubyGems と Bundler と Rake
+もしくは pip と Fabric を一つのツールに組み合わせたものです。
 
 
-## Getting Help
+## このチュートリアルの取り扱い範囲
 
-Also keep in mind that Leiningen ships with fairly comprehensive help;
-`lein help` gives a list of tasks while `lein help $TASK` provides
-details. Further documentation such as the readme, sample
-configuration, and even this tutorial are also provided.
+このチュートリアルはプロジェクトの構造、依存関係の管理、
+テストの実行、 REPL 、及び開発に関するトピックを簡単に説明します。
+
+JVM は完全に初めての人たち、 Ant や Maven に怒りを感じたことのない人も
+慌てないでください。 Leiningen はあなたたちのために設計されています。
+このチュートリアルはあなたが Leiningen を使い始めるのを助けて、
+プロジェクト自動化と JVM の世界での依存関係管理の
+Leiningen の取り組みについて説明します。
 
 
-## Leiningen Projects
+## ヘルプを読むには
 
-Leiningen works with *projects*. A project is a directory containing a
-group of Clojure (and possibly Java) source files, along with a bit of
-metadata about them. The metadata is stored in a file named
-`project.clj` in the project's root directory, which is how you tell
-Leiningen about things like
+Leiningen はかなり包括的なヘルプと、
+一緒に配布されていることに留意してください:
+`lein help` はタスクの一覧を出してくれますし、
+`lein help $TASK` は詳細を提供します。
+さらに色々なドキュメント、 readme や サンプルの設定、
+このチュートリアルなども同様に提供されています。
 
- * Project name
- * Project description
- * What libraries the project depends on
- * What Clojure version to use
- * Where to find source files
- * What's the main namespace of the app
 
-and more.
+## Leiningen プロジェクト
 
-Most Leiningen tasks only make sense in the context of a project. Some
-(for example, `repl` or `help`) can also be called from any directory.
+Leiningen は*プロジェクト*とともに動作します。
+一つのプロジェクトは、
+一連の Clojure (Java であることもあるかもしれません)ソースファイルと、
+それらに関するメタデータを格納するディレクトリです。
+メタデータは `project.clj` という名前の、
+プロジェクトのルートディレクトリにあるファイルに格納されています。
+これは Leiningen に以下のような情報を提供します:
 
-Next let's take a look at how projects are created.
+ * プロジェクトの名前
+ * プロジェクトの説明
+ * プロジェクトが依存するライブラリはどれか
+ * どのクロージャのバージョンを使うか
+ * ソースファイルはどこを探せばよいか
+ * アプリケーションのメインの名前空間は何か
 
-## Creating a Project
+などなど
 
-We'll assume you've got Leiningen installed as per the
-[README](https://github.com/technomancy/leiningen/blob/stable/README.md).
-Generating a new project is easy:
+多くの Leiningen タスクはプロジェクトの文脈でのみ理解できるものです。
+いくつか(たとえば、 `repl` や `help`)などは任意のディレクトリから呼ぶこともできます。
+
+続いてプロジェクトがどのように作られるのか見てみましょう。
+
+## プロジェクトの作成
+
+わたしたちは、あなたが
+[README](https://github.com/technomancy/leiningen/blob/stable/README.md)
+にしたがって Leiningen をインストールしたと仮定します。
+この時新しいプロジェクトを生成することは簡単です:
 
     $ lein new app my-stuff
 
-    Generating a project called my-stuff based on the 'app' template.
+	my-stuff という名前のプロジェクトを 'app' テンプレートに基づいて生成
 
     $ cd my-stuff
     $ find .
@@ -126,10 +133,11 @@ Generating a new project is easy:
     ./test/my_stuff
     ./test/my_stuff/core_test.clj
 
-In this example we're using the `app` template, which is intended for
-an application project rather than a library. Omitting the `app`
-argument will use the `default` template, which is suitable for
-libraries.
+この例では `app` テンプレートを使用しています。
+このテンプレートはライブラリではなく
+アプリケーションのプロジェクトのためのものです。
+引数の `app` を省略すると `default` テンプレートが使用されますが、
+これはライブラリに適したテンプレートです。
 
 ### Directory Layout
 
@@ -151,7 +159,7 @@ the scope of this tutorial you can
 
 ## project.clj
 
-Your `project.clj` file will start off looking something like this:
+あなたの `project.clj` ファイルは以下のような見た目で始まっているでしょう:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
@@ -165,108 +173,116 @@ Your `project.clj` file will start off looking something like this:
   :profiles {:uberjar {:aot :all}})
 ```
 
-If you don't fill in the `:description` with a short sentence, your
-project will be harder to find in search results, so start there. Be
-sure to fix the `:url` as well. At some point you'll need to flesh out
-the `README.md` file too, but for now let's skip ahead to setting
-`:dependencies`. Note that Clojure is just another dependency here.
-Unlike most languages, it's easy to swap out any version of Clojure.
+もしあなたが `:description` に簡単な一文を記入しないと、
+あなたのプロジェクトを検索結果から見つける事は難しくなるので、
+ここから初めましょう。同様に `:url` も間違いなく修正するようにしましょう。
+`README.md` ファイルも同様です。しかし今は飛ばして前に進み、
+`:dependencies` を設定しましょう。
+Clojure はここでは単に依存関係の一つでしかないことに留意してください。
+多くの言語とはちがい、 Clojure のどのバージョンにも簡単に差し替えられます。
 
-## Dependencies
+## 依存関係
 
-### Overview
+### 概要
 
-Clojure is a hosted language and Clojure libraries are distributed the same
-way as in other JVM languages: as jar files.
+Clojure はホスト言語であり Clojure ライブラリは
+その他の JVM 言語と同じ方法で配布されます: jar ファイルとして。
 
-Jar files are basically just `.zip` files with a little extra JVM-specific
-metadata. They usually contain `.class` files (JVM bytecode) and `.clj` source
-files, but they can also contain other things like config
-files, JavaScript files or text files with static data.
+Jar ファイルは基本的には `.zip` ファイルに
+JVM 特有のメタデータを追加したものです。
+Jar ファイルは通常 `.class` ファイル(JVM のバイトコード)と
+`.clj` ソースを格納しており、また設定ファイルや JavaScript ファイルや、
+静的データのテキストファイルなども同様に格納しています。
 
-Published JVM libraries have *identifiers* (artifact group, artifact id) and
-*versions*.
+配布されている JVM ライブラリは*識別子*(アーティファクトグループ、アーティファクト ID)と、*バージョン*を持っています。
 
-### Artifact IDs, Groups, and Versions
+### アーティファクト ID 、アーティファクトグループ、バージョン
 
-You can [search Clojars](https://clojars.org/search?q=clj-http) using
-its web interface or via `lein search $TERM`. On the Clojars page for
-`clj-http` at the time of this writing it shows this:
+あなたは
+[Clojars を Web インターフェースから検索したり](https://clojars.org/search?q=clj-http)
+`lein search $TERM` によって検索することが出来ます。
+このチュートリアルを書いている時点での
+`clj-http` についての Clojars ページは以下のようになっています:
 
 ```clj
 [clj-http "2.0.0"]
 ```
 
-It also shows the Maven and Gradle syntax for dependencies. You can copy the
-Leiningen version directly into the `:dependencies` vector in
-`project.clj`.  So for instance, if you change the `:dependencies`
-line in the example `project.clj` above to
+依存関係は Maven や Gradle の文法でも表示されます。
+Leiningen の出したバージョンは、
+そのまま `project.clj` の `:dependencies` 配列にコピーできます。
+なのでたとえば、前の例の `project.clj` の
+`:dependencies` 行を変更する場合以下のようになります:
 
 ```clj
 :dependencies [[org.clojure/clojure "1.8.0"]
                [clj-http "2.0.0"]]
 ```
 
-Leiningen will automatically download the `clj-http` jar and make sure
-it is on your classpath. If you want to explicitly tell lein to
-download new dependencies, you can do so with `lein deps`, but it will
-happen on-demand if you don't.
+Leiningen は `clj-http` の jar を自動的にダウンロードし、
+あなたのクラスパスに存在するようにする。
+lein で明示的に依存関係をダウンロードしたい場合は
+`lein deps` を実行すればよいですが、
+これはわざわざ実行せずとも必要に応じて実行されます。
 
-Within the vector, "clj-http" is referred to as the "artifact id".
-"2.0.0" is the version. Some libraries will also have "group ids",
-which are displayed like this:
+配列中で  "clj-http" は "アーティファクト ID" として参照されます。
+"2.0.0" はバージョンです。いくつかのライブラリは "グループ ID" を持っており、
+これは以下のように表示されます。
 
 ```clj
 [com.cedarsoft.utils.legacy/hibernate "1.3.7"]
 ```
 
-The group id is the part before the slash. Especially for Java
-libraries, it's often a reversed domain name. Clojure libraries often
-use the same group-id and artifact-id (as with clj-http), in which case
-you can omit the group-id. If there is a library that's part of a
-larger group (such as `ring-jetty-adapter` being part of the `ring`
-project), the group-id is often the same across all the sub-projects.
+グループ ID はスラッシュの前の部分です。
+特に Java ライブラリでは、しばしばドメイン名として予約されています。
+Clojure ライブラリはしばしば同じグループ ID とアーティファクト ID を使い
+(clj-http のように)、その場合にはグループID を省略できます。
+より大きのグループの一部分であるライブラリ
+(たとえば `ring-jetty-adapter` は `ring` プロジェクトの一部です)
+がある場合、グループ ID はしばしば全てのサブプロジェクトで同じになります。
 
-### Snapshot Versions
+### スナップショットのバージョン
 
-Sometimes versions will end in "-SNAPSHOT". This means that it is not
-an official release but a development build. Relying on snapshot
-dependencies is discouraged but is sometimes necessary if you need bug
-fixes, etc. that have not made their way into a release yet. However,
-snapshot versions are not guaranteed to stick around, so it's
-important that non-development releases never depend upon snapshot versions that
-you don't control. Adding a snapshot dependency to your project will
-cause Leiningen to actively go seek out the latest version of the
-dependency daily (whereas normal release versions are cached in the local
-repository) so if you have a lot of snapshots it will slow things
-down.
+バージョンは "-SNAPSHOT" で終わることがあります。
+これの意味するところは、それは正式なリリースではなく、
+開発ビルドだということです。スナップショットの依存関係に頼ることは
+おすすめできませんが、リリース前にバグを修正する必要があるときなど、
+必要な場合もあります。しかしスナップショットバージョンが
+stick around であることは保証されないので、
+開発リリース以外のケースで自分の管理下にないスナップショットバージョンに
+依存しないようにすることが重要です。
+スナップショットの依存関係をプロジェクトに追加すると、
+Leiningen がよりアクティブに毎日最新の依存関係のバージョンを
+取得するようになるので
+(一方で通常のリリースバージョンはローカルレポジトリにキャッシュされます)、
+多くのスナップショットを抱えている場合は色々と時間がかかるようになります。
 
-Note that some libraries make their group-id and artifact-id
-correspond with the namespace they provide inside the jar, but this is
-just a convention. There is no guarantee they will match up at all, so
-consult the library's documentation before writing your `:require`
-and `:import` clauses.
+注意点として、いくつかのライブラリは、グループ ID とアーティファクト ID と
+それらが jar で提供する名前空間の対応をづけるということです。
+これは単なる慣習です。全ての場合に当てはまるという保証はありません。
+そのため `:require` 節と `:import` を記述する前に
+ライブラリのドキュメントを熟読してください。
 
-### Repositories
+### レポジトリ
 
-Dependencies are stored in *artifact repositories*. If you are
-familiar with Perl's CPAN, Python's Cheeseshop (aka PyPi), Ruby's
-rubygems.org, or Node.js's NPM, it's the same thing. Leiningen reuses
-existing JVM repository infrastructure. There are several popular
-open source repositories. Leiningen by default will use two of them:
-[clojars.org](https://clojars.org) and
-[Maven Central](https://search.maven.org/).
+依存関係は*アーティファクトレポジトリ*に格納されています。
+Perl で言えば CPAN 、 Python で言えば Cheeseshop (PyPi ともいいます)、
+Ruby であれば rubygems.org 、 Node.js であれば NPM などと、
+同じものです。 Leiningen は既存の JVM レポジトリのインフラを再利用します。
+いくつかのよく知られたオープンソースのレポジトリがあります。
+Leiningen はデフォルトでそれらを使います:
+[clojars.org](https://clojars.org) と [Maven Central](https://search.maven.org/) です。
 
-[Clojars](https://clojars.org/) is the Clojure community's centralized
-maven repository, while [Central](https://search.maven.org/) is for the
-wider JVM community.
+[Clojars](https://clojars.org/) は Clojure コミュニティの集約的な
+maven レポジトリで、 [Central](https://search.maven.org/) は
+より幅広い JVM コミュにエィのレポジトリです。
 
-You can add third-party repositories by setting the `:repositories` key
-in project.clj. See the
+サードパーティのレポジトリは `:repositories` キーを project.clj に指定することで追加出来ます。
+どのようにすれば良いのか
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
-for examples on how to do so. This sample uses additional repositories such as the Sonatype 
-repository which gives access to the latest SNAPSHOT development version of a library (Clojure or Java). 
-It also contains other relevant settings regarding repositories such as update frequency.
+を見てみましょう。このサンプルは追加のレポジトリとして Sonatype レポジトリを使っていますが、
+これは(Clojure や Java の)ライブラリの、最新のスナップショット開発バージョンへのアクセスを提供します。
+このサンプルには同様に、レポジトリに関連する更新頻度などの設定が含まれています。
 
 ### Checkout Dependencies
 
