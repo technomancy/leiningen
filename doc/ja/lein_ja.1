@@ -1,9 +1,9 @@
-.\"to render: groff -Tascii -man doc/lein.1 > lein.man"
+.\"to render: groff -Dutf8 -Tutf8 -man doc/ja/lein_ja.1 > lein_ja.man"
 .TH LEININGEN 1 "2017 August 10"
-.SH NAME
-lein \- Automate Clojure projects
+.SH 名前
+lein \- Clojure プロジェクトの自動化
 
-.SH SYNOPSIS
+.SH 書式
 
 .B lein
 [\fB\-o\fR] [\fB\-U\fR] [\fITASK\fR [\fIARGS\fR]]
@@ -14,174 +14,177 @@ lein \- Automate Clojure projects
 .B lein
 [\fB\-v\fR|\fB\-\-version\fR]
 
-.SH DESCRIPTION
+.SH 説明
 
-Leiningen is for automating Clojure projects without setting your hair
-on fire.
+Leiningen は Clojure プロジェクトを、髪の毛が燃え上がるような思いをせずに、
+自動化するためのものです。
 
-Working on Clojure projects with tools designed for Java can be an
-exercise in frustration. With Leiningen, you just write Clojure.
+Java のために設計されたツールを使って Clojure プロジェクトの仕事をすると、
+非常に大変な思いをしてイライラすることがあります。
+Leiningen を使うことで、あなたは Clojure を書くだけでよくなります。
 
-.SH TASKS
+.SH タスク
 
 .B lein help
-will show the complete list of tasks, while
+は、完全なタスクのリストを表示します。また、
 .B lein help TASK
-shows usage for a specific one.
+は、特定の一つのタスクの使用方法を表示します。
 
 .B lein help tutorial
-has a detailed walk-through of the various tasks, but the most
-commonly-used are:
+は、色々なタスクの通しでの使い方を詳細に説明します。
+最もよく使われるのは以下のタスクです:
 
 .RS
 .TP
 .B lein new NAME
-generate a new project skeleton
+新しい空のプロジェクトを生成します。
 .TP
 .B lein test [TESTS]
-run the tests in the TESTS namespaces, or all tests
+TESTS 名前空間のテスト、もしくは全てのテストを実行します。
 .TP
 .B lein repl
-launch an interactive REPL session in a networked REPL server
+ネットワーク REPL サーバで対話的 REPL セッションを開始します。
 .TP
 .B lein uberjar
-package up the project and its dependencies as a standalone .jar file
+プロジェクトとその依存関係をスタンドアロンの .jar ファイルとしてパッケージ化します。
 .TP
 .B lein install
-install a project into your local repository
+あなたのローカルレポジトリにプロジェクトをインストールします。
 .TP
 .B lein deploy [REPOSITORY]
-deploy a library to a remote repository
+リモートレポジトリにライブラリをデプロイします。
 .RE
 
 .TP
-Other tasks available include:
+更に以下のようなタスクが利用可能です:
 
 .RS
 .TP
 .B lein change
-Rewrite project.clj by applying a function.
+関数を適用して project.clj を書き換えます。
 
 .TP
 .B lein check
-Check syntax and warn on reflection.
+構文をチェックしてリフレクションについて警告します。
 
 .TP
 .B lein classpath
-Print the classpath of the current project.
+現在のプロジェクトのクラスパスを印字します。
 
 .TP
 .B lein clean
-Remove all files from project's target-path.
+プロジェクトのターゲットパスから全てのファイルを取り除きます。
 
 .TP
 .B lein compile
-Compile Clojure source into .class files.
+Clojure ソースコードを .class ファイルにコンパイルします。
 
 .TP
 .B lein deps
-Download all dependencies.
+全ての依存関係をダウンロードします。
 
 .TP
 .B lein do [TASK], ...
-Higher-order task to perform other tasks in succession.
+他のタスクを連続して起動する、高階タスクです。
 
 .TP
 .B lein jar
-Package up all the project's files into a jar file.
+プロジェクトの全てのファイルを jar ファイルにパッケージ化します。
 
 .TP
 .B lein javac
-Compile Java source files.
+Java ソースファイルをコンパイルします。
 
 .TP
 .B lein pom
-Write a pom.xml file to disk for Maven interoperability.
+Maven を使ったインターオペラビリティのために、pom.xml ファイルをディスクに書き出します。
 
 .TP
 .B lein release
-Perform :release-tasks.
+:release-tasks を実行します。
 
 .TP
 .B lein retest
-Run only the test namespaces which failed last time around.
+前回失敗したテスト名前空間のみを実行します。
 
 .TP
 .B lein run
-Run a -main function with optional command-line arguments.
+オプションのコマンドライン引数を付けて、-main 関数を実行します。
 
 .TP
 .B lein search
-Search remote maven repositories for matching jars.
+リモートの maven レポジトリから一致するjar ファイルを探し出します。
 
 .TP
 .B lein show-profiles
-List all available profiles or display one if given an argument.
+全ての利用可能なプロファイルを一覧表示するか、引数で与えられたプロファイルを表示します。
 
 .TP
 .B lein trampoline [TASK]
-Run a task without nesting the project's JVM inside Leiningen's.
+Leiningen 内部でプロジェクトの JVM をネストさせずにタスクを実行します。
 
 .TP
 .B lein update-in
-Perform arbitrary transformations on your project map.
+プロジェクトマップに任意の変換を行います。
 
 .TP
 .B lein vcs
-Interact with the version control system.
+バージョンコントロールシステムと対話します。
 
 .TP
 .B lein version
-Print version for Leiningen and the current JVM.
+Leiningen と現在の JVM のバージョンを印字します。
 
 .TP
 .B lein with-profile [PROFILE] [TASK]
-Apply the given task with the profile(s) specified.
+指定されたプロファイルで指定されたタスクを適用します。
 .RE
 
-.SH OPTIONS
+.SH オプション
 
 .TP
 .BI \-o
-Run a task offline.
+オフラインでタスクを実行する。
 
 .TP
 .BI \-U
-Run a task after forcing update of snapshots.
+スナップショットのアップデートを強制した後タスクを実行する。
 
 .TP
 .BR \-h ", " \-\-help
-Print this help or help for a specific task.
+このヘルプか指定されたタスクのヘルプを印字する。
 
 .TP
 .BR \-v ", " \-\-version
-Print Leiningen's version.
+Leiningen のバージョンを印字する。
 
-.SH CONFIGURATION
+.SH 設定
 
-Leiningen reads its configuration from the
+Leiningen はその設定ファイルとして、プロジェクトのルートディレクトリにある
 .B project.clj
-file in your project root. Either use
+を読み込みます。もしこのファイルがなければ、
 .B lein new
-to create a fresh project from which to work, or see the exhaustive
-list of configuration options with
+を実行して起点となる新しいプロジェクトを作成するか、そうでなければ
 \fBlein help sample\fR.
+を実行して設定項目の完全なリストを読んでください。
 
-You can customize your project map further with profiles; see
+プロファイルを使用することで何時でもプロジェクトマップをカスタマイズできます。以下を参考にしてください:
 \fBlein help profiles\fR.
 
-.SH BUGS
+.SH バグ
 
-Check https://github.com/technomancy/leiningen/issues to see if your
-problem is a known issue. If not, please open a new issue on that site
-or join the mailing list at
-https://www.freelists.org/list/leiningen. Please include the output of
+https://github.com/technomancy/leiningen/issues を見て、
+あなたの問題が既知のものかどうか確認してください。
+既知のものでない場合、前述のサイトか、メーリングリスト、
+https://www.freelists.org/list/leiningen から新しい issue を起こしてください。
+その際には、
 .B lein version
-as well as your
+のアウトプットとあなたの
 .B project.clj
-file and as much of the relevant code from your project as possible.
+ファイルを含めてください、
+また可能な限りあなたのプロジェクトの関連するコードも含めてください。
 
-.SH COPYING
+.SH 著作権
 
 Copyright
 .if t \(co
@@ -191,5 +194,6 @@ Copyright
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file /usr/share/doc/leiningen/copyright.
 
-.SH AUTHOR
-This manpage is written by Phil Hagelberg <technomancy@gmail.com>
+.SH 著者
+この manpage は Phil Hagelberg <technomancy@gmail.com> によって書かれました。
+この manpage は Kazutaka Nakamura <kaznak.at.work@gmail.com> によって、日本語に翻訳されました。
