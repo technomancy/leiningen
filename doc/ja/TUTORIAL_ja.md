@@ -358,32 +358,35 @@ work without checkouts before you push or merge.
 
 Make sure not to override the `base` profile while using checkouts. In practice that usually means using `lein with-profile +foo run` rather than `lein with-profile foo run`.
 
-### Search
+### 検索
 
-Leiningen supports searching remote Maven repositories for matching
-jars with the command `lein search $TERM`. Currently only searching
-Central and Clojars is supported.
+Leiningen はリモートの Maven の検索をサポートしています。
+一致する jar を `lein search $TERM` で検索できます。
+現時点では Central と Clojars のみがサポートされています。
 
-### Maven Read Timeout
+### Maven 読み込みタイムアウト
 
-The underlying Maven Wagon transport reads the `maven.wagon.rto` system property to determine the timeout used
-when downloading artifacts from a repository. The `lein` script sets that property to be 10000. 
-If that timeout isn't long enough (for example, when using a slow corporate mirror), 
-it can be overridden via LEIN_JVM_OPTS:
+Leiningen の使用している Maven Wagon 転送はシステムプロパティ  `maven.wagon.rto` を読み込み、
+アーティファクトをレポジトリからダウンロードする際のタイムアウト値を決定します。
+`lein` スクリプトはそのプロパティを 10000 に設定しています。
+もしタイムアウトの長さが十分でない場合(例えば企業の遅いミラーサイトをつかている場合)、
+LEIN_JVM_OPTS を通してオーバーライドすることが出来ます:
 
 ```bash
 export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
 ``` 
 
-## Setting JVM Options
+## JVM オプションの設定
 
-To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will override any default JVM opts set by Leiningen.
+JVM に追加の引数を渡すには、配列  `:jvm-opts`  をセットします。
+これにより Leiningen が任意の JVM オプションのデフォルト値を上書きします。
 
 ```clj
  :jvm-opts ["-Xmx1g"]
 ```
 
-If you want to pass [compiler options](https://clojure.org/reference/compilation#_compiler_options) to the Clojure compiler, you also do this here.
+もし　Clojure コンパイラに[コンパイラオプション](https://clojure.org/reference/compilation#_compiler_options)を渡したいのであれば、
+このときに同じようにして渡すことが出来ます。
 
 ```
 :jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
@@ -392,12 +395,13 @@ If you want to pass [compiler options](https://clojure.org/reference/compilation
            "-Dclojure.compiler.direct-linking=true"]
 ```
 
-You can also pass options to Leiningen in the `JVM_OPTS` environment variable. If you want to provide the Leiningen JVM with custom options, set them in `LEIN_JVM_OPTS`.
+同様にして `JVM_OPTS` 環境変数を通じて、 Leiningen にオプションを渡すことが出来ます。
+カスタムオプションつきの Leiningen JVM を起動したいのであれば、 `LEIN_JVM_OPTS` に設定してください。
 
-## Running Code
+## コードの実行
 
-Enough setup; let's see some code running. Start with a REPL
-(read-eval-print loop):
+十分セットアップをしました。いよいよコードが実行されるのを見てみましょう。
+REPL(read-eval-print loop)を起動します:
 
     $ lein repl
     nREPL server started on port 55568 on host 127.0.0.1 - nrepl://127.0.0.1:55568
@@ -412,10 +416,10 @@ Enough setup; let's see some code running. Start with a REPL
 
     user=>
 
-The REPL is an interactive prompt where you can enter arbitrary code
-to run in the context of your project. Since we've added `clj-http` to
-`:dependencies`, we are able to load it here along with code from the
-`my-stuff.core` namespace in your project's own `src/` directory:
+REPL は対話的インターフェースで、任意のコードを入力してプロジェクトの文脈で実行出来ます。
+`clj-http` を `:dependencies` に追加したので、
+ここでプロジェクトの `src/` ディレクトリにあるコードの
+名前空間 `my-stuff.core` からロードすることが出来ます:
 
     user=> (require 'my-stuff.core)
     nil
@@ -429,11 +433,11 @@ to run in the context of your project. Since we've added `clj-http` to
     user=> (keys response)
     (:status :headers :body :request-time :trace-redirects :orig-content-encoding)
 
-The call to `-main` shows both println output ("Hello, World!") and
-the return value (nil) together.
+`-main` の呼び出しは println の出力("Hello, World!")と、
+返り値(nil)の両方を表示しています。
 
-Built-in documentation is available via `doc`, and you can examine the
-source of functions with `source`:
+ビルトインのドキュメントは `doc` を通じて利用可能です。
+関数のソースコードは `source` で確認することが出来ます:
 
     user=> (source my-stuff.core/-main)
     (defn -main
@@ -443,31 +447,31 @@ source of functions with `source`:
 
     user=> ; use control+d to exit
 
-If you already have code in a `-main` function ready to go and don't
-need to enter code interactively, the `run` task is simpler:
+すでに `-main` 関数に実行出来るだけのコードを実装しているなら、
+対話的にコードを入力するひつようはなく、 `run` タスクを実行するのが簡単です:
 
     $ lein run
     Hello, World!
 
-Providing a `-m` argument will tell Leiningen to look for
-the `-main` function in another namespace. Setting a default `:main` in
-`project.clj` lets you omit `-m`.
+`-m` 引数を与えると、 Leiningen は `-main` 関数を他の名前空間から探します。
+`project.clj` でデフォルトの `:main` を指定する事で、  `-m` を省略することができます。
 
-For long-running `lein run` processes, you may wish to save memory
-with the higher-order trampoline task, which allows the Leiningen JVM
-process to exit before launching your project's JVM.
+`lein run` で実行するプロセスが非常に長時間に渡る場合、
+高次のトランポリンタスクによりメモリを節約したいと思うかもしれません。
+このタスクはプロジェクトの JVM が起動する前に、
+Leiningen JVM のプロセスが終了出来るようにするものです。
 
     $ lein trampoline run -m my-stuff.server 5000
 
-If you have any Java to be compiled in `:java-source-paths` or Clojure
-namespaces listed in `:aot`, they will always be compiled before
-Leiningen runs any other code, via any `run`, `repl`,
-etc. invocations.
+なにかコンパイルされるべき Java コードが、
+`:java-source-paths` や `:aot` で列挙された Clojure 名前空間にあった場合、
+Leiningen は `run` や `repl` などのタスクにより他のコードを実行する前に、
+それらをコンパイルします。
 
-## Tests
+## テスト
 
-We haven't written any tests yet, but we can run the failing tests
-included from the project template:
+まだ一行もテストを書いて居ませんでした。
+しかし必ず失敗するテストがプロジェクトのテンプレートに含まれています:
 
     $ lein test
 
@@ -484,45 +488,54 @@ included from the project template:
     1 failures, 0 errors.
     Tests failed.
 
-Once we fill it in the test suite will become more useful. Sometimes
-if you've got a large test suite you'll want to run just one or two
-namespaces at a time; `lein test my-stuff.core-test` will do that. You
-also might want to break up your tests using test selectors; see `lein
-help test` for more details.
+これを埋めるとテストスィートはより便利になります。
+大きなテストスィートの場合には、
+一度に一つか２つの名前空間を実行したいこともあるでしょう。
+`lein test my-stuff.core-test` により可能です。
+同様にテストセレクタを使ってテストを分割したいと思うかもしれません。
+`lein help test` で詳細を確認してください。
 
-Running `lein test` from the command-line is suitable for regression
-testing, but the slow startup time of the JVM makes it a poor fit for
-testing styles that require tighter feedback loops. In these cases,
-either keep a repl open for running the appropriate call to
+コマンドラインから `lein test` を実行することは、
+リグレッションテストに最適です。
+しかし JVM の起動時間の遅さは、
+よりタイトなフィードバックループを要求するテストスタイルには、
+あまり合いません。
+そのような場合は、 REPL を開けたままにしておき、
 [clojure.test/run-tests](https://clojuredocs.org/clojure.test/run-tests)
-or look into editor integration such as
-[clojure-test-mode](https://github.com/technomancy/clojure-mode).
+を呼び出すか、エディタに統合された、
+[clojure-test-mode](https://github.com/technomancy/clojure-mode)
+を確認するなどしましょう。
 
-Keep in mind that while keeping a running process around is convenient,
-it's easy for that process to get into a state that doesn't reflect
-the files on disk—functions that are loaded and then deleted from the
-file will remain in memory, making it easy to miss problems arising
-from missing functions (often referred to as "getting
-slimed"). Because of this it's advised to do a `lein test` run with a
-fresh instance periodically in any case, perhaps before you commit.
+走行中のプロセスをそのままにしておくことは便利ですが、
+そのプロセスはディスク上のファイルを反映していない状態に
+簡単になってしまいます。
+関数がロードされた後にファイルから削除してもメモリに残るので、
+存在しない関数の引き起こす問題を見逃しやすくなります
+(よく「スライム化する」などと呼ばれます)。
+このため、コミット前などに `lein test` をかならず定期的に
+新しいインスタンスで実行することが推奨されます。
 
-## Profiles
+## プロファイル
 
-Profiles are used to add various things into your project map in
-different contexts. For instance, during `lein test` runs, the
-contents of the `:test` profile, if present, will be merged into your
-project map. You can use this to enable configuration that should only
-be applied during test runs, either by adding directories containing
-config files to your classpath via `:resource-paths` or by other
-means. See `lein help profiles` for more details.
+プロファイルは異なる文脈でプロジェクトマップに
+色々な要素を追加するために使われます。たとえば、
+`:test` プロファイルの内容は、それがもし存在するなら、
+`lein test` で実行されているあいだは、
+プロジェクトマップにマージされます。
+`:resource-paths` を通じてクラスパスに
+設定ファイルを含むディレクトリを追加するなどの方法で、
+テストが実行される間にだけ適用される設定を有効にするために
+これを使う事が出来ます。 `lein help profiles` で詳細を確認してください。
 
-Unless you tell it otherwise, Leiningen will merge the default set of
-profiles into the project map. This includes user-wide settings from
-your `:user` profile, the `:dev` profile from `project.clj` if
-present, and the built-in `:base` profile which contains dev tools
-like nREPL and optimizations which help startup time at the expense of
-runtime performance. Never benchmark with the default profiles. (See
-the FAQ entry for "tiered compilation")
+特に明言しない限り、 Leiningen はデフォルトのプロファイルセットを
+プロジェクトマップにマージします。
+これには
+`:user` プロファイルのなかのユーザ全体の設定や、
+もしあるなら `project.clj` の `:dev` プロファイル、
+nREPL などの開発ツールとランタイム性能を犠牲にした
+起動時間の最適化などが含まれた組み込みの `:base` プロファイルを含みます。
+デフォルトのプロファイルでベンチマークを実行しないでください。
+(「段階的コンパイル」に関する FAQ の項目を参考にしてください)
 
 ## What to do with it
 
@@ -733,6 +746,6 @@ authorship of the release. See the
 for details of how to set that up. The deploy guide includes
 instructions for deploying to other repositories as well.
 
-## That's It!
+## おわり!
 
-Now go start coding your next project!
+さあ、次のあなたのプロジェクトのコーディングをはじめましょう!
