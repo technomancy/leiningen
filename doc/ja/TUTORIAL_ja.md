@@ -139,23 +139,25 @@ Leiningen は*プロジェクト*とともに動作します。
 引数の `app` を省略すると `default` テンプレートが使用されますが、
 これはライブラリに適したテンプレートです。
 
-### Directory Layout
+### ディレクトリのレイアウト
 
-Here we've got your project's README, a `src/` directory containing the
-code, a `test/` directory, and a `project.clj` file which describes your
-project to Leiningen. The `src/my_stuff/core.clj` file corresponds to
-the `my-stuff.core` namespace.
+ここで、プロジェクトの README 、コードの入った `src/` ディレクトリ、
+`test/` ディレクトリ、 Leiningen のためにプロジェクトについて記述された
+`project.clj` ファイルが得られます。 `src/my_stuff/core.clj` は
+名前空間 `my-stuff.core` に対応します。
 
-### Filename-to-Namespace Mapping Convention
+### ファイル名から名前空間への対応づけの変換
 
-Note that we use `my-stuff.core` instead of just `my-stuff` since
-single-segment namespaces are discouraged in Clojure. Also note that
-namespaces with dashes in the name will have the corresponding file
-named with underscores instead since the JVM has trouble loading files
-with dashes in the name. The intricacies of namespaces are a common
-source of confusion for newcomers, and while they are mostly outside
-the scope of this tutorial you can
-[read up on them elsewhere](https://8thlight.com/blog/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
+ここで、ただの `my-stuff` ではなく、
+`my-stuff.core` を使ったことに注意してください。
+これは Clojure では単一セグメントの名前空間は非推奨であるためです。
+同様に名前にダッシュの入った名前空間は、
+アンダースコアの入ったファイル名に対応することに注意してください。
+これは JVM は名前にダッシュの入ったファイルをロードしようとすると
+トラブルを引き起こすためです。
+名前空間の複雑さは新しくはじめた人たちにとってよくある混乱の元です。
+そういった話題についてはほとんどがこのチュートリアルの範囲外で、
+[別の場所で読むことが出来ます](https://8thlight.com/blog/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html)。
 
 ## project.clj
 
@@ -284,7 +286,7 @@ maven レポジトリで、 [Central](https://search.maven.org/) は
 これは(Clojure や Java の)ライブラリの、最新のスナップショット開発バージョンへのアクセスを提供します。
 このサンプルには同様に、レポジトリに関連する更新頻度などの設定が含まれています。
 
-### Checkout Dependencies
+### 依存関係のチェックアウト
 
 Sometimes it is necessary to develop two projects in parallel but it
 is very inconvenient to run `lein install` and restart your repl all
@@ -537,23 +539,25 @@ nREPL などの開発ツールとランタイム性能を犠牲にした
 デフォルトのプロファイルでベンチマークを実行しないでください。
 (「段階的コンパイル」に関する FAQ の項目を参考にしてください)
 
-## What to do with it
+## Leiningen で何をするか
 
-Generally speaking, there are three different goals that are typical
-of Leiningen projects:
+一般的に言って、Leiningen を使ったプロジェクトでは
+以下の 3 つのゴールが一般的です:
 
-* An application you can distribute to end-users
-* A server-side application
-* A library for other Clojure projects to consume
+* エンドユーザに配布するアプリケーション
+* サーバサイドアプリケーション
+* 他の Clojure プロジェクトが利用するライブラリ
 
-For the first, you typically build an uberjar. For libraries, you will
-want to have them published to a repository like Clojars or a private
-repository. For server-side applications it varies as described below.
-Generating a project with `lein new app myapp` will start you out with
-a few extra defaults suitable for non-library projects, or you can
-browse the
-[available templates on Clojars](https://clojars.org/search?q=lein-template)
-for things like specific web technologies or other project types.
+最初のケースでは、 uberjar をビルドするのが一般的でしょう。
+ライブラリを開発する場合、 Clojars や
+プライベートレポジトリといったレポジトリでそれを公開したいとことでしょう。
+サーバサイドアプリケーションの場合は以下に述べるような
+いくつかの場合があります。 `lein new app myapp` でプロジェクトを生成すると、
+ライブラリの開発ではないプロジェクトに適した、
+いくつかの追加のデフォルトとともにプロジェクトを開始することが出来ます。
+[利用可能なテンプレートは Clojars で閲覧可能で](https://clojars.org/search?q=lein-template)、
+特定の Web テクノロジーを利用するためのものや、
+そのほかのタイプのプロジェクトのためのテンプレートがあります。
 
 ### Uberjar
 
