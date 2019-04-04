@@ -561,12 +561,13 @@ nREPL などの開発ツールとランタイム性能を犠牲にした
 
 ### Uberjar
 
-The simplest thing to do is to distribute an uberjar. This is a single
-standalone executable jar file most suitable for giving to
-nontechnical users. For this to work you'll need to specify a
-namespace as your `:main` in `project.clj` and ensure it's also AOT (Ahead Of Time)
-compiled by adding it to `:aot`. By this point, our `project.clj` file
-should look like this:
+uberjar ファイルを配布することは非常に簡単です。
+これは単一のスタンドアロンで実行可能な jar ファイルで、
+非技術者のユーザに配布するのに適しています。
+uberjar ファイルを配布するには、
+`project.clj` の `:main` に名前空間を指定し、`:aot` にも追加することで、
+その名前空間が真っ先にコンパイルされるようにします。
+この時点で `project.clj` ファイルは以下のようになっているはずです:
 
 ```clj
 (defproject my-stuff "0.1.0-SNAPSHOT"
@@ -581,15 +582,16 @@ should look like this:
   :aot [my-stuff.core])
 ```
 
-We have also added a development dependency, `ring-devel`. `ring-devel` will not
-be available in uberjars, and will not be considered a dependency if you publish
-this project to a repository.
+同様に開発時の依存関係、 `ring-devel` を追加しています。
+`ring-devel` はコンパイルされた uberjars では使えません。
+レポジトリにこのプロジェクトを公開する時には依存関係ではないとみなされます。
 
-The namespace you specify will need to contain a `-main` function that
-will get called when your standalone jar is run. This namespace should
-have a `(:gen-class)` declaration in the `ns` form at the top. The
-`-main` function will get passed the command-line arguments. Let's try
-something easy in `src/my_stuff/core.clj`:
+指定された名前空間は `-main` 関数を含む必要がでてきます。
+`-main` 関数は、スタンドアロンの jar が実行されるときに呼ばれます。
+この名前空間は、ファイルの一番上の、 `ns` フォームの中に
+`(:gen-class)` 宣言が書かれていなければなりません。
+`-main` 関数には、コマンドライン引数が渡されます。
+`src/my_stuff/core.clj` で何か簡単な事を試してみましょう:
 
 ```clj
 (ns my-stuff.core
@@ -599,40 +601,43 @@ something easy in `src/my_stuff/core.clj`:
   (println "Welcome to my project! These are your args:" args))
 ```
 
-Now we're ready to generate your uberjar:
+これで uberjar を生成する準備ができました:
 
     $ lein uberjar
     Compiling my-stuff.core
     Created /home/phil/my-stuff/target/uberjar+uberjar/my-stuff-0.1.0-SNAPSHOT.jar
     Created /home/phil/my-stuff/target/uberjar/my-stuff-0.1.0-SNAPSHOT-standalone.jar
 
-This creates a single jar file that contains the contents of all your
-dependencies. Users can run it with a simple `java` invocation,
-or on some systems just by double-clicking the jar file.
+この操作は一つの jar ファイルを生成します。
+生成された jar ファイルには全ての依存関係のファイルが含まれます。
+ユーザは jar ファイルを単純に `java` を起動して実行できます。
+いくつかのシステムではダブルクリックで jar ファイルを実行できます。
 
     $ java -jar my-stuff-0.1.0-SNAPSHOT-standalone.jar Hello world.
     Welcome to my project! These are your args: (Hello world.)
 
-You can run a regular (non-uber) jar with the `java`
-command-line tool, but that requires constructing the classpath
-yourself, so it's not a good solution for end-users.
+通常の(uber ではない) jar ファイルは、
+コマンドラインツールの `java` を使って実行できます。
+しかしこの方法はクラスパスの組み立てが必要であり、
+エンドユーザが対象のばあい、良い解決策ではありません。
 
-Of course if your users already have Leiningen installed, you can
-instruct them to use `lein run` as described above.
+もちろん、ユーザがすでに Leiningen をインストールしている場合は、
+上で述べたようにユーザに `lein run` を使うように言うのも一つでしょう。
 
-### Framework (Uber)jars
+### フレームワークの(Uber)jars
 
-Many Java frameworks expect deployment of a jar file or derived archive
-sub-format containing a subset of the application's necessary
-dependencies.  The framework expects to provide the missing dependencies
-itself at run-time.  Dependencies which are provided by a framework in
-this fashion may be specified in the `:provided` profile.  Such
-dependencies will be available during compilation, testing, etc., but
-won't be included by default by the `uberjar` task or plugin tasks
-intended to produce stable deployment artifacts.
+多くの Java フレームワークはデプロイは、jar ファイルか、
+もしくはアプリケーションが必要とする依存関係の部分集合を含んだ派生の
+圧縮ファイルの形式によるという前提に立っています。
+そういったフレームワークは足りない依存関係は
+実行時に提供されるものと期待しています。
+そういった依存関係はコンパイルやテストの際には利用可能ですが、
+`uberjar` タスクやプラグインタスクのような
+安定したデプロイメントアーティファクトを作成することが目的の場合は、
+デフォルトで含まれることはありません。
 
-For example, Hadoop job jars may be just regular (uber)jar files
-containing all dependencies except the Hadoop libraries themselves:
+例えば Hadoop のジョブの jar は通常の(uber)jar ファイルで、
+Hadoop ライブラリそれ自体を除く全ての依存関係を含んでいます:
 
 ```clj
 (project example.hadoop "0.1.0"
@@ -652,12 +657,12 @@ containing all dependencies except the Hadoop libraries themselves:
     12/08/24 08:28:30 INFO flow.MultiMapReducePlanner: using application jar: /home/xmpl/src/example.hadoop/./example.hadoop-0.1.0-standalone.jar
     ...
 
-Plugins are required to generate framework deployment jar derivatives
-(such as WAR files) which include additional metadata, but the
-`:provided` profile provides a general mechanism for handling the
-framework dependencies.
+プラグインはフレームワークの jar 派生のデプロイファイル(WAR ファイルなど)を
+生成することを必要とします。これは追加のメタデータを含みます。
+ただし `:provided` プロファイルがフレームワークの依存関係を取り扱うための
+一般的なメカニズムを提供しています。
 
-### Server-side Projects
+### サーバサイドプロジェクト
 
 There are many ways to get your project deployed as a server-side
 application. Aside from the obvious uberjar approach, simple
@@ -709,16 +714,16 @@ at all from the version that was tested in the CI environment.
 
 Given these pitfalls, it's best to use an uberjar if possible.
 
-### Publishing Libraries
+### ライブラリの公開
 
-If your project is a library and you would like others to be able to
-use it as a dependency in their projects, you will need to get it into
-a public repository. While it's possible to
-[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
-or get it into [Central](https://search.maven.org), the easiest way is
-to publish it at [Clojars](https://clojars.org). Once you have
-[created an account](https://clojars.org/register) there, publishing
-is easy:
+もしプロジェクトがライブラリで、他の人がプロジェクトの中で
+依存関係としてそのライブラリを使えるようにしたいときは、
+そのライブラリをパブリックレポジトリに置く必要が出てきます。
+自分自身の[プライベートレポジトリを運用する](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+こともできますし、
+[Central](https://search.maven.org)に置くことも出来ますが、
+最も簡単なのは[Clojars](https://clojars.org)で公開する方法でしょう。
+一度[アカウントを作れば](https://clojars.org/register)、公開は容易です:
 
     $ lein deploy clojars
     Created ~/src/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
