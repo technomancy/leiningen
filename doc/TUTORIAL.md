@@ -146,7 +146,7 @@ namespaces with dashes in the name will have the corresponding file
 named with underscores instead since the JVM has trouble loading files
 with dashes in the name. The intricacies of namespaces are a common
 source of confusion for newcomers, and while they are mostly outside
-the scope of this tutorial you can
+the scope of this tutorial, you can
 [read up on them elsewhere](https://8thlight.com/blog/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
 
 ## project.clj
