@@ -270,11 +270,12 @@ It also contains other relevant settings regarding repositories such as update f
 
 ### Checkout Dependencies
 
-Sometimes it is necessary to develop two projects in parallel but it
-is very inconvenient to run `lein install` and restart your repl all
-the time to get your changes picked up. Leiningen provides a solution
-called *checkout dependencies* (or just *checkouts*). To use it,
-create a directory called `checkouts` in the project root, like so:
+Sometimes it is necessary to develop two or more projects in parallel,
+the main project and its dependencies, but it is very inconvenient to
+run `lein install` and restart your repl all the time to get your
+changes picked up. Leiningen provides a solution called *checkout
+dependencies* (or just *checkouts*). To use it, create a directory
+called `checkouts` in the project root, like so:
 
     .
     |-- project.clj
