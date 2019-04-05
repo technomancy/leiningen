@@ -745,15 +745,15 @@ Given these pitfalls, it's best to use an uberjar if possible.
     Sending my-stuff/my-stuff/maven-metadata.xml (1k)
         to https://clojars.org/repo/
 
-Once that succeeds it will be available as a package on which other
-projects may depend. For instructions on storing your credentials so
-they don't have to be re-entered every time, see `lein help
-deploying`. When deploying a release that's not a snapshot, Leiningen
-will attempt to sign it using [GPG](https://gnupg.org) to prove your
-authorship of the release. See the
-[deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md).
-for details of how to set that up. The deploy guide includes
-instructions for deploying to other repositories as well.
+一度このプロセスが成功すると、
+他のプロジェクトが依存できるパッケージとして利用出来るようになります。
+クレデンシャルを保存することで、毎回入力せずとも良くする方法があります。
+`lein help deploying` を参考にしてください。
+スナップショット版ではなくリリース版をデプロイするときは、
+Leiningen は [GPG](https://gnupg.org) を使って署名を行い、
+リリースの著作権を証明します。どのように設定を行うかの詳細については、
+[デプロイガイド](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)を参考にしてください。
+デプロイガイドでは他のレポジトリへのデプロイ方法の説明もしています。
 
 ## おわり!
 
