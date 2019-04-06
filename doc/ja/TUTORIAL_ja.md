@@ -288,11 +288,12 @@ maven レポジトリで、 [Central](https://search.maven.org/) は
 
 ### 依存関係のチェックアウト
 
-Sometimes it is necessary to develop two projects in parallel but it
-is very inconvenient to run `lein install` and restart your repl all
-the time to get your changes picked up. Leiningen provides a solution
-called *checkout dependencies* (or just *checkouts*). To use it,
-create a directory called `checkouts` in the project root, like so:
+時には複数のプロジェクト、メインのプロジェクトとそれが依存するプロジェクトを、
+並行して開発する必要もあるでしょう。そんな場合、何か変更を反映しようとするたびに、
+`lein install` を実行して REPL を再起動するのは、とても不便です。
+Leiningen は*依存関係のチェックアウト*(もしくは単に *チェックアウト*)
+という解決策を提供しています。この機能を使うためには、 `checkouts`
+というディレクトリを、以下のようにプロジェクトのルートディレクトリに作成します:
 
     .
     |-- project.clj
@@ -305,9 +306,10 @@ create a directory called `checkouts` in the project root, like so:
         `-- my_stuff
             `-- core_test.clj
 
-Then, under the checkouts directory, create symlinks to the root directories of projects you need.
-The names of the symlinks don't matter: Leiningen just follows all of them to find
-`project.clj` files to use. Traditionally, they have the same name as the directory they point to.
+そして、 checkouts ディレクトリの下に、必要なプロジェクトのルートディレクトリへの
+シンボリックリンクを作成します。シンボリックリンクの名前は重要ではありません。
+Leiningen はそれらの全てを辿って `project.clj` ファイルを探します。
+習慣的には、シンボリックリンクはそれが指すディレクトリと同じ名前にします。
 
     .
     |-- project.clj
@@ -322,11 +324,12 @@ The names of the symlinks don't matter: Leiningen just follows all of them to fi
         `-- my_stuff
             `-- core_test.clj
 
-Libraries located under the `checkouts` directory take precedence
-over libraries pulled from repositories, but this is not a replacement
-for listing the project in your main project's `:dependencies`; it
-simply supplements that for convenience. That is, given the above directory hierarchy,
-`project.clj` should contain something like:
+`checkouts` ディレクトリ以下に配置されたライブラリは、
+レポジトリからプルするライブラリより優先されるようになりますが、
+メインのプロジェクトの `:dependencies` にそのプロジェクトを
+記述することの代わりにはなりません。チェックアウト機能は、
+単に利便性のために、依存関係の探索場所を追加するものです。
+したがって、上述のディレクトリ構造では、 `project.clj` は以下のような内容を含むべきです:
 
       :dependencies [[org.clojure/clojure "1.9.0"]
                      ...
@@ -335,30 +338,36 @@ simply supplements that for convenience. That is, given the above directory hier
                      ...]
                  
 
-Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
-The `suchwow` and `commons` links look the same in `checkouts`, and the groupid
-hierarchy doesn't need to appear in the way `commons` is actually laid out on disk.
+Maven のグループ ID の `com.megacorp` はチェックアウトの挙動にはなんの影響も無いことに注意してください。
+`suchwow` と `commons` の２つのリンクは、 `checkouts` のなかでは同じものとして扱われるので、
+グループ ID の階層構造が、 `commons` がディスク上に実際の配置の仕方で表現される必要はありません。
 
-After you've updated `:dependencies`, `lein` will still need to be able
-to find the library in some repository like clojars or your `~/.m2`
-directory.  If `lein` complains with a message like "Could not find artifact suchwow:jar:0.3.9",
-it's possible that `project.clj` and `suchwow/project.clj` use different version numbers.
-It's also possible that you're working on the main project and `suchwow` at the same time,
-have bumped the version number in both project files, but still have the old version in your
-local Maven repository. Run `lein install` in the `suchwow` directory. That is: the `suchwow`
-version number must be the same in *three* places:
-in suchwow's `project.clj`, in the main project's `project.clj`, *and in some repository the main project uses*. 
+`:dependencies` を更新したときには、 `lein` が、 clojars や
+`~/.m2` ディレクトリといったいくつかのレポジトリに、
+ライブラリを見つけることが出来る必要があります。
+`lein` が "Could not find artifact suchwow:jar:0.3.9"
+(アーティファクト suchwow:jar:0.3.9 が見つかりません)などと言い出したときは、
+`project.clj` と `suchwow/project.clj` が異なるバージョン番号を使っている可能性があります。
+別の可能性として、メインのプロジェクトと  `suchwow` で同時に作業をしていて、
+両方のプロジェクトファイルでバージョン番号を上げても、
+古いバージョンがローカルの Maven レポジトリに残っていることもあります。
+`suchwow` ディレクトリで `lein install` を実行してください。
+つまり、 `suchwow` のバージョン番号は*３つ*の場所で同じでなければなりません。
+まず suchwow の `project.clj` 、メインのプロジェクトの `project.clj` 、
+*そしてメインのレポジトリが使っている使っているいくつかのレポジトリ*です。
 
-If you change the
-dependencies of a checkout project you will still have to run `lein
-install` and restart your repl; it's just that source changes will be
-picked up immediately.
+チェックアウトプロジェクトの依存関係を変えるときには、
+やはり同様に `lein install` を実行し REPL を再起動する必要があります。
+ソースの変更が直ちに取り込まれるでしょう。
 
-Checkouts are an opt-in feature; not everyone who is working on the
-project will have the same set of checkouts, so your project should
-work without checkouts before you push or merge.
+チェックアウトはオプトインの機能です。あるプロジェクトで作業をする全ての人が
+同じプロジェクト群をチェックアウトしているひつようはありません。
+ですので、プロジェクトはプッシュしたりマージする前に、
+チェックアウトなしでも動くようにすべきです。
 
-Make sure not to override the `base` profile while using checkouts. In practice that usually means using `lein with-profile +foo run` rather than `lein with-profile foo run`.
+チェックアウトを使っていても `base` プロファイルが上書きしないよう注意してください。
+実際には、これは `lein with-profile foo run` ではなく、
+`lein with-profile +foo run` を使うという事を通常は意味します。
 
 ### 検索
 
@@ -664,55 +673,42 @@ Hadoop ライブラリそれ自体を除く全ての依存関係を含んでい�
 
 ### サーバサイドプロジェクト
 
-There are many ways to get your project deployed as a server-side
-application. Aside from the obvious uberjar approach, simple
-programs can be packaged up as tarballs with accompanied shell scripts
-using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
-and then deployed using
-[pallet](https://hugoduncan.github.com/pallet/),
-[chef](https://chef.io/), or other mechanisms.
-Web applications may be deployed as uberjars using embedded Jetty with
-`ring-jetty-adapter` or as .war (web application archive) files
-created by the
-[lein-ring plugin](https://github.com/weavejester/lein-ring). For
-things beyond uberjars, server-side deployments are so varied that they
-are better-handled using plugins rather than tasks that are built-in
-to Leiningen itself.
+サーバサードアプリケーションとしてプロジェクトをデプロイする方法は沢山あります。
+明らかな uberjar のアプローチをべつにすると、
+単純なプログラムは、 [lein-tar プラグイン](https://github.com/technomancy/lein-tar)を使ってシェルスクリプトつきの tar ファイルとしてパッケージ化して、
+[pallet](https://hugoduncan.github.com/pallet/) や [chef](https://chef.io/) などの仕組みをつかってデプロイします。
+Web アプリケーションは、 `ring-jetty-adapter` で組み込みの Jetty を使った uberjar としてデプロイするか、
+[lein-ring プラグイン](https://github.com/weavejester/lein-ring)によって作られた
+.war (web アプリケーションアーカイブ)ファイルとしてデプロイされます。
+uberjar 以上のことをしようとした場合、サーバサイドデプロイは多様であり、
+プラグインによって取り扱うほうが、 Leiningen 組み込みのタスクよりも良いのです。
 
-It's possible to involve Leiningen during production, but there are
-many subtle gotchas to that approach; it's strongly recommended to use
-an uberjar if you can. If you need to launch with the `run` task, you
-should use `lein trampoline run` in order to save memory, otherwise
-Leiningen's own JVM will stay up and consume unnecessary memory.
+プロダクション環境で Leiningen を実行することも可能ですが、それには沢山の微妙な問題があります。
+可能であれば uberjar を使うことが強く推奨されます。 `run` タスクを立ち上げる必要があるときは、
+メモリを節約するために `lein trampoline run` を使うべきです。そうでなければ、
+Leiningen の自分自身の JVM は実行され続け、不必要なメモリを消費します。
 
-In addition it's very important to ensure you take steps to freeze all
-the dependencies before deploying, otherwise it could be easy to end
-up with
-[unrepeatable deployments](https://github.com/technomancy/leiningen/wiki/Repeatability).
-Consider including `~/.m2/repository` in your unit of deployment
-(tarball, .deb file, etc) along with your project code. It's
-recommended to use Leiningen to create a deployable artifact in a
-continuous integration setting. For example, you could have a
-[Jenkins](https://jenkins-ci.org) CI server run your project's full
-test suite, and if it passes, upload a tarball to S3.  Then deployment
-is just a matter of pulling down and extracting the known-good tarball
-on your production servers. Simply launching Leiningen from a checkout
-on the server will work for the most basic deployments, but as soon as
-you get a number of servers you run the risk of running with a
-heterogeneous cluster since you're not guaranteed that each machine
-will be running with the exact same codebase.
+加えて非常に重要なこととして、デプロイする前に全ての依存関係を凍結するステップを踏まなければなりません。
+そうしなければ[繰り返せないデプロイ](https://github.com/technomancy/leiningen/wiki/Repeatability)
+問題によって止まってしまいます。一つのデプロイ(tar ファイル, .deb ファイルなど)にプロジェクトのコードに加えて、
+`~/.m2/repository` を含むことを検討すべきです。継続インテグレーションを設定する際には、
+デプロイ可能なアーティファクトを作るために Leiningen を使う事が推奨されます。
+たとえば [Jenkins](https://jenkins-ci.org) CI サーバを持っていて、プロジェクトの完全なテストスィートを実行しており、
+テストを全て通るなら、 tar ファイルを S3 にアップロードするというような具合です。
+この場合デプロイはプロダクションサーバに、便利だとよく知られた tar ファイルを取得して抽出するだけのことです。
+サーバ上でチェックアウトから単純に Leiningen を起動することは、最も基本的なデプロイの役に立ちます。
+しかしサーバの数が増えてくると、異種混合クラスタを動作させるリスクが出てきます。
+これは各マシンが全く同じコードベースで実行されるという保証がないからです。
 
-Also remember that the default profiles are included unless you
-specify otherwise, which is not suitable for production. Using `lein
-trampoline with-profile production run -m myapp.main` is
-recommended. By default the production profile is empty, but if your
-deployment includes the `~/.m2/repository` directory from the CI run
-that generated the tarball, then you should add its path as
-`:local-repo` along with `:offline? true` to the `:production`
-profile. Staying offline prevents the deployed project from diverging
-at all from the version that was tested in the CI environment.
+特に指定しない限り、デフォルトのプロファイルが含まれることに注意してください。
+デフォルトのプロファイルはプロダクションに適しています。
+`lein trampoline with-profile production run -m myapp.main` の使用が推奨されます。
+デフォルトではプロダクションプロファイルは空です。しかし、tar ファイルを生成する CI の実行により、
+デプロイに `~/.m2/repository` ディレクトリが含まれるなら、`:local-repo` という形でそのパスを追加し、
+`:offline? true` を、 `:production` プロファイルに追加します。オフラインのままにしておくと、
+デプロイされたプロジェクトが CI 環境でテストされたバージョンから、完全に逸脱することを防ぎます。
 
-Given these pitfalls, it's best to use an uberjar if possible.
+こういった落とし穴があるので、可能な限り urberjar を使う事が最善です。
 
 ### ライブラリの公開
 
