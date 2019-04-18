@@ -1,0 +1,199 @@
+.\"to render: groff -Dutf8 -Tutf8 -man doc/ja/lein_ja.1 > lein_ja.man"
+.TH LEININGEN 1 "2017 August 10"
+.SH 名前
+lein \- Clojure プロジェクトの自動化
+
+.SH 書式
+
+.B lein
+[\fB\-o\fR] [\fB\-U\fR] [\fITASK\fR [\fIARGS\fR]]
+.br
+.B lein
+[\fB\-h\fR|\fB\-\-help\fR]
+.br
+.B lein
+[\fB\-v\fR|\fB\-\-version\fR]
+
+.SH 説明
+
+Leiningen は Clojure プロジェクトを、髪の毛が燃え上がるような思いをせずに、
+自動化するためのものです。
+
+Java のために設計されたツールを使って Clojure プロジェクトの仕事をすると、
+非常に大変な思いをしてイライラすることがあります。
+Leiningen を使うことで、あなたは Clojure を書くだけでよくなります。
+
+.SH タスク
+
+.B lein help
+は、完全なタスクのリストを表示します。また、
+.B lein help TASK
+は、特定の一つのタスクの使用方法を表示します。
+
+.B lein help tutorial
+は、色々なタスクの通しでの使い方を詳細に説明します。
+最もよく使われるのは以下のタスクです:
+
+.RS
+.TP
+.B lein new NAME
+新しい空のプロジェクトを生成します。
+.TP
+.B lein test [TESTS]
+TESTS 名前空間のテスト、もしくは全てのテストを実行します。
+.TP
+.B lein repl
+ネットワーク REPL サーバで対話的 REPL セッションを開始します。
+.TP
+.B lein uberjar
+プロジェクトとその依存関係をスタンドアロンの .jar ファイルとしてパッケージ化します。
+.TP
+.B lein install
+あなたのローカルレポジトリにプロジェクトをインストールします。
+.TP
+.B lein deploy [REPOSITORY]
+リモートレポジトリにライブラリをデプロイします。
+.RE
+
+.TP
+更に以下のようなタスクが利用可能です:
+
+.RS
+.TP
+.B lein change
+関数を適用して project.clj を書き換えます。
+
+.TP
+.B lein check
+構文をチェックしてリフレクションについて警告します。
+
+.TP
+.B lein classpath
+現在のプロジェクトのクラスパスを印字します。
+
+.TP
+.B lein clean
+プロジェクトのターゲットパスから全てのファイルを取り除きます。
+
+.TP
+.B lein compile
+Clojure ソースコードを .class ファイルにコンパイルします。
+
+.TP
+.B lein deps
+全ての依存関係をダウンロードします。
+
+.TP
+.B lein do [TASK], ...
+他のタスクを連続して起動する、高階タスクです。
+
+.TP
+.B lein jar
+プロジェクトの全てのファイルを jar ファイルにパッケージ化します。
+
+.TP
+.B lein javac
+Java ソースファイルをコンパイルします。
+
+.TP
+.B lein pom
+Maven を使ったインターオペラビリティのために、pom.xml ファイルをディスクに書き出します。
+
+.TP
+.B lein release
+:release-tasks を実行します。
+
+.TP
+.B lein retest
+前回失敗したテスト名前空間のみを実行します。
+
+.TP
+.B lein run
+オプションのコマンドライン引数を付けて、-main 関数を実行します。
+
+.TP
+.B lein search
+リモートの maven レポジトリから一致するjar ファイルを探し出します。
+
+.TP
+.B lein show-profiles
+全ての利用可能なプロファイルを一覧表示するか、引数で与えられたプロファイルを表示します。
+
+.TP
+.B lein trampoline [TASK]
+Leiningen 内部でプロジェクトの JVM をネストさせずにタスクを実行します。
+
+.TP
+.B lein update-in
+プロジェクトマップに任意の変換を行います。
+
+.TP
+.B lein vcs
+バージョンコントロールシステムと対話します。
+
+.TP
+.B lein version
+Leiningen と現在の JVM のバージョンを印字します。
+
+.TP
+.B lein with-profile [PROFILE] [TASK]
+指定されたプロファイルで指定されたタスクを適用します。
+.RE
+
+.SH オプション
+
+.TP
+.BI \-o
+オフラインでタスクを実行する。
+
+.TP
+.BI \-U
+スナップショットのアップデートを強制した後タスクを実行する。
+
+.TP
+.BR \-h ", " \-\-help
+このヘルプか指定されたタスクのヘルプを印字する。
+
+.TP
+.BR \-v ", " \-\-version
+Leiningen のバージョンを印字する。
+
+.SH 設定
+
+Leiningen はその設定ファイルとして、プロジェクトのルートディレクトリにある
+.B project.clj
+を読み込みます。もしこのファイルがなければ、
+.B lein new
+を実行して起点となる新しいプロジェクトを作成するか、そうでなければ
+\fBlein help sample\fR.
+を実行して設定項目の完全なリストを読んでください。
+
+プロファイルを使用することで何時でもプロジェクトマップをカスタマイズできます。以下を参考にしてください:
+\fBlein help profiles\fR.
+
+.SH バグ
+
+https://github.com/technomancy/leiningen/issues を見て、
+あなたの問題が既知のものかどうか確認してください。
+既知のものでない場合、前述のサイトか、メーリングリスト、
+https://www.freelists.org/list/leiningen から新しい issue を起こしてください。
+その際には、
+.B lein version
+のアウトプットとあなたの
+.B project.clj
+ファイルを含めてください、
+また可能な限りあなたのプロジェクトの関連するコードも含めてください。
+
+.SH 著作権
+
+Copyright
+.if t \(co
+.if n (C)
+2009-2017 Phil Hagelberg and contributors.
+
+Distributed under the Eclipse Public License, the same as Clojure
+uses. See the file /usr/share/doc/leiningen/copyright.
+
+.SH 著者
+この manpage は Phil Hagelberg <technomancy@gmail.com> によって書かれました。
+この manpage は Kazutaka Nakamura <kaznak.at.work@gmail.com> によって、日本語に翻訳されました。
