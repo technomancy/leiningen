@@ -9,6 +9,7 @@
             [clojure.string :as s]
             [clojure.java.shell :as sh]
             [clojure.data.xml :as xml]
+            [clojure.data.xml.name :as name]
             [leiningen.core.classpath :as classpath]))
 
 (def pom-uri "http://maven.apache.org/POM/4.0.0")
@@ -119,10 +120,11 @@
 
 (defn- pomify-sexp [x]
   (cond
-    (vector? x) (let [[tag & [attrs & content :as all-content]] x]
+    (vector? x) (let [[tag & [attrs & content :as all-content]] x
+                      tag (cond-> tag (not (name/namespaced? tag)) pomify)]
                   (if (map? attrs)
-                    (into [(pomify tag) attrs] (map pomify-sexp) content)
-                    (into [(pomify tag)] (map pomify-sexp) all-content)))
+                    (into [tag attrs] (map pomify-sexp) content)
+                    (into [tag] (map pomify-sexp) all-content)))
     (seq? x) (map pomify-sexp x)
     :else x))
 
