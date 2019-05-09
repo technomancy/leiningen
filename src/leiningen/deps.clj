@@ -43,7 +43,7 @@
 (defn- fetch-key [signature err]
   (if (or (re-find #"Can't check signature: public key not found" err)
           (re-find #"Can't check signature: No public key" err))
-    (let [key (second (re-find #"using \w+ key ID (.+)" err))
+    (let [key (second (re-find #"using \w+ key(?: ID)? (.+)" err))
           {:keys [exit]} (user/gpg "--recv-keys" "--" key)]
       (if (zero? exit)
         (check-signature signature)
