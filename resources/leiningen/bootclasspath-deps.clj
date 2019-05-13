@@ -54,6 +54,7 @@
  org.apache.maven/maven-repository-metadata "3.5.3"
  org.apache.maven/maven-resolver-provider "3.5.3"
  org.clojure/core.specs.alpha "0.2.44"
+ org.clojure/data.codec "0.1.0"
  org.clojure/data.xml "0.2.0-alpha5"
  org.clojure/spec.alpha "0.2.176"
  org.clojure/tools.macro "0.1.5"
