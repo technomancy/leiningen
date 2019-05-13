@@ -787,10 +787,7 @@
                      (catch Exception e
                        (utils/error "problem requiring" hook-name "hook")
                        (throw e)))]
-    (try (warn-once "Warning: implicit hook found:" hook-name
-                    "\nHooks are deprecated and will be removed"
-                    "in a future version.")
-         (hook)
+    (try (hook)
          (catch Exception e
            (utils/error "problem activating" hook-name "hook")
            (throw e)))
