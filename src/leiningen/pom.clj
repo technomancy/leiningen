@@ -9,7 +9,15 @@
             [clojure.string :as s]
             [clojure.java.shell :as sh]
             [clojure.data.xml :as xml]
+            [clojure.data.xml.name :as name]
             [leiningen.core.classpath :as classpath]))
+
+(def pom-uri "http://maven.apache.org/POM/4.0.0")
+
+(def ^:private xsi-uri "http://www.w3.org/2001/XMLSchema-instance")
+
+(xml/alias-uri 'pom pom-uri
+               'xsi xsi-uri)
 
 (defn- relativize [project]
   (let [root (str (:root project) (System/getProperty "file.separator"))]
@@ -108,7 +116,17 @@
   (s/replace string #"[-_](\w)" (comp s/upper-case second)))
 
 (defn- pomify [key]
-  (->> key name camelize keyword))
+  (->> key name camelize (xml/qname pom-uri)))
+
+(defn- pomify-sexp [x]
+  (cond
+    (vector? x) (let [[tag & [attrs & content :as all-content]] x
+                      tag (cond-> tag (not (name/namespaced? tag)) pomify)]
+                  (if (map? attrs)
+                    (into [tag attrs] (map pomify-sexp) content)
+                    (into [tag] (map pomify-sexp) all-content)))
+    (seq? x) (map pomify-sexp x)
+    :else x))
 
 (defmulti ^:private xml-tags
   (fn [tag value] (keyword "leiningen.pom" (name tag))))
@@ -157,22 +175,22 @@
 (defmethod xml-tags ::exclusions
   [tag values]
   (and (seq values)
-       [:exclusions
+       [::pom/exclusions
         (for [exclusion-spec values
               :let [[dep & {:keys [classifier extension]}]
                     (if (symbol? exclusion-spec)
                       [exclusion-spec]
                       exclusion-spec)]]
-          [:exclusion (map (partial apply xml-tags)
-                           (merge (project/artifact-map dep)
-                                  {:classifier classifier
-                                   :type extension}))])]))
+          [::pom/exclusion (map (partial apply xml-tags)
+                                (merge (project/artifact-map dep)
+                                       {:classifier classifier
+                                        :type extension}))])]))
 
 (defmethod xml-tags ::dependency
   ([_ [dep version & {:keys [optional classifier
                              exclusions scope
                              extension]}]]
-     [:dependency
+     [::pom/dependency
       (map (partial apply xml-tags)
            {:group-id (or (namespace dep) (name dep))
             :artifact-id (name dep)
@@ -185,7 +203,7 @@
 
 (defmethod xml-tags ::repository
   ([_ [id opts]]
-     [:repository
+     [::pom/repository
       (map (partial apply xml-tags)
            {:id id
             :url (:url opts)
@@ -204,11 +222,11 @@
   ([_ opts]
      (and opts
           (if-let [tags (if (string? opts)
-                          [:name opts]
+                          [::pom/name opts]
                           (seq (for [key [:name :url :distribution :comments]
                                      :let [val (opts key)] :when val]
-                                 [key (name val)])))]
-            [:license tags]))))
+                                 [(pomify key) (name val)])))]
+            [::pom/license tags]))))
 
 (defn- license-tags [project]
   (seq (concat (for [k [:license :licence]
@@ -220,88 +238,90 @@
 
 (defn- resource-tags [project type]
   (if-let [resources (seq (:resource-paths project))]
-    (let [types (keyword (str (name type) "s"))]
+    (let [types (pomify (str (name type) "s"))]
       (vec (concat [types]
                    (for [resource resources]
-                     [type [:directory resource]]))))))
+                     [(pomify type) [::pom/directory resource]]))))))
 
 (defmethod xml-tags ::build
   ([_ [project test-project]]
      (let [[src & extra-src] (concat (:source-paths project)
                                      (:java-source-paths project))
            [test & extra-test] (:test-paths test-project)]
-       [:build
-        [:sourceDirectory src]
+       [::pom/build
+        [::pom/sourceDirectory src]
         (xml-tags :testSourceDirectory test)
         (resource-tags project :resource)
         (resource-tags test-project :testResource)
         (if-let [extensions (seq (:extensions project))]
-          (vec (concat [:extensions]
+          (vec (concat [::pom/extensions]
                        (for [[dep version] extensions]
-                         [:extension
-                          [:artifactId (name dep)]
-                          [:groupId (or (namespace dep) (name dep))]
-                          [:version version]]))))
-        [:directory (:target-path project)]
-        [:outputDirectory (:compile-path project)]
-        [:plugins
+                         [::pom/extension
+                          [::pom/artifactId (name dep)]
+                          [::pom/groupId (or (namespace dep) (name dep))]
+                          [::pom/version version]]))))
+        [::pom/directory (:target-path project)]
+        [::pom/outputDirectory (:compile-path project)]
+        [::pom/plugins
             (if-let [plugins (seq (:pom-plugins project))]
                            (for [[dep version plugin-addition] plugins]
-                             [:plugin
-                              [:groupId (or (namespace dep) (name dep))]
-                              [:artifactId (name dep)]
-                              [:version version]
-                              (if (map? plugin-addition) (seq plugin-addition))
-                              (if (vector? plugin-addition) (seq (apply hash-map plugin-addition)))
-                              (if (list? plugin-addition) (vec plugin-addition))
+                             [::pom/plugin
+                              [::pom/groupId (or (namespace dep) (name dep))]
+                              [::pom/artifactId (name dep)]
+                              [::pom/version version]
+                              (pomify-sexp
+                                (cond
+                                  (map? plugin-addition) (seq plugin-addition)
+                                  (vector? plugin-addition) (seq (apply hash-map plugin-addition))
+                                  (list? plugin-addition) (vec plugin-addition)))
                            ]
                           ))
         (if (or (seq extra-src) (seq extra-test))
-           [:plugin
-            [:groupId "org.codehaus.mojo"]
-            [:artifactId "build-helper-maven-plugin"]
-            [:version "1.7"]
-            [:executions
+           [::pom/plugin
+            [::pom/groupId "org.codehaus.mojo"]
+            [::pom/artifactId "build-helper-maven-plugin"]
+            [::pom/version "1.7"]
+            [::pom/executions
              (if (seq extra-src)
-               [:execution
-                [:id "add-source"]
-                [:phase "generate-sources"]
-                [:goals [:goal "add-source"]]
-                [:configuration
-                 (vec (concat [:sources]
-                              (map (fn [x] [:source x]) extra-src)))]])
+               [::pom/execution
+                [::pom/id "add-source"]
+                [::pom/phase "generate-sources"]
+                [::pom/goals [::pom/goal "add-source"]]
+                [::pom/configuration
+                 (vec (concat [::pom/sources]
+                              (map (fn [x] [::pom/source x]) extra-src)))]])
              (if (seq extra-test)
-               [:execution
-                [:id "add-test-source"]
-                [:phase "generate-test-sources"]
-                [:goals [:goal "add-test-source"]]
-                [:configuration
-                 (vec (concat [:sources]
-                              (map (fn [x] [:source x]) extra-test)))]])]])]])))
+               [::pom/execution
+                [::pom/id "add-test-source"]
+                [::pom/phase "generate-test-sources"]
+                [::pom/goals [::pom/goal "add-test-source"]]
+                [::pom/configuration
+                 (vec (concat [::pom/sources]
+                              (map (fn [x] [::pom/source x]) extra-test)))]])]])]])))
 
 (defmethod xml-tags ::parent
   ([_ [dep version & opts]]
      (let [opts (apply hash-map opts)]
-       [:parent
-        [:artifactId (name dep)]
-        [:groupId (or (namespace dep) (name dep))]
-        [:version version]
-        [:relativePath (:relative-path opts)]])))
+       [::pom/parent
+        [::pom/artifactId (name dep)]
+        [::pom/groupId (or (namespace dep) (name dep))]
+        [::pom/version version]
+        [::pom/relativePath (:relative-path opts)]])))
 
 (defmethod xml-tags ::mailing-list
   ([_ opts]
      (if opts
-       [:mailingLists
-        [:mailingList
-         [:name (:name opts)]
-         [:subscribe (:subscribe opts)]
-         [:unsubscribe (:unsubscribe opts)]
-         [:post (:post opts)]
-         [:archive (:archive opts)]
+       [::pom/mailingLists
+        [::pom/mailingList
+         [::pom/name (:name opts)]
+         [::pom/subscribe (:subscribe opts)]
+         [::pom/unsubscribe (:unsubscribe opts)]
+         [::pom/post (:post opts)]
+         [::pom/archive (:archive opts)]
          (if-let [other-archives (:other-archives opts)]
-           (vec (concat [:otherArchives]
+           (vec (concat [::pom/otherArchives]
                         (for [other other-archives]
-                          [:otherArchive other]))))]])))
+                          [::pom/otherArchive other]))))]])))
 
 (defn- distinct-key [k xs]
   ((fn step [seen xs]
@@ -337,23 +357,22 @@
            managed-deps (:managed-dependencies test-project)
            deps (:dependencies test-project)]
        (list
-        [:project {:xsi:schemaLocation
-                   (str "http://maven.apache.org/POM/4.0.0"
-                        " http://maven.apache.org/xsd/maven-4.0.0.xsd")
-                   :xmlns "http://maven.apache.org/POM/4.0.0"
-                   :xmlns:xsi "http://www.w3.org/2001/XMLSchema-instance"}
-         [:modelVersion "4.0.0"]
+        [::pom/project {:xmlns pom-uri
+                        :xmlns/xsi xsi-uri
+                        ::xsi/schemaLocation
+                        (str pom-uri " http://maven.apache.org/xsd/maven-4.0.0.xsd")}
+         [::pom/modelVersion "4.0.0"]
          (and (:parent project) (xml-tags :parent (:parent project)))
-         [:groupId (:group project)]
-         [:artifactId (:name project)]
-         [:packaging (:packaging project "jar")]
-         [:version (:version project)]
-         (and (:classifier project) [:classifier (:classifier project)])
-         [:name (:name project)]
-         [:description (:description project)]
+         [::pom/groupId (:group project)]
+         [::pom/artifactId (:name project)]
+         [::pom/packaging (:packaging project "jar")]
+         [::pom/version (:version project)]
+         (and (:classifier project) [::pom/classifier (:classifier project)])
+         [::pom/name (:name project)]
+         [::pom/description (:description project)]
          (xml-tags :url (:url project))
          (if-let [licenses (license-tags project)]
-           [:licenses licenses])
+           [::pom/licenses licenses])
          (xml-tags :mailing-list (:mailing-list project))
          (write-scm-tag (guess-scm project) project)
          ;; TODO: this results in lots of duplicate entries
@@ -362,7 +381,7 @@
          (xml-tags :dependencyManagement
                    (xml-tags :dependencies (distinct-key dep-key managed-deps)))
          (xml-tags :dependencies (distinct-key dep-key deps))
-         (and (:pom-addition project) (:pom-addition project))]))))
+         (and (:pom-addition project) (pomify-sexp (:pom-addition project)))]))))
 
 (defn snapshot? [project]
   (and (:version project)
