@@ -210,3 +210,18 @@
     (deps (project/set-profiles managed-deps-project [:add-deps])))
   (testing "Able to resolve deps when profile with ^:replace omits versions in deps"
     (deps (project/set-profiles managed-deps-project [:replace-deps]))))
+
+(deftest ^:online test-verify
+  (let [project (-> sample-project
+                    (update :repositories (fn [repos]
+                                            (keep (fn [[repo opts]]
+                                                    (when (not= repo "other")
+                                                      [repo (assoc opts :checksum :ignore)]))
+                                                  repos)))
+                    (update :dependencies #(take 2 %)))
+        _ (deps project)
+        out (with-out-str (deps project ":verify"))]
+    (doseq [[dep signed] '{[org.clojure/clojure "1.3.0"] :signed
+                           [rome "0.9"] :unsigned
+                           [jdom "1.0"] :unsigned}]
+      (is (.contains out (pr-str signed dep))))))
