@@ -172,6 +172,14 @@
            (map #(first-in % [::pom/repository ::pom/releases ::pom/enabled])
                 (deep-content xml [::pom/project ::pom/repositories])))
         "releases are enabled")
+    (is (= [nil nil "always"]
+           (map #(first-in % [::pom/repository ::pom/snapshots ::pom/updatePolicy])
+                (deep-content xml [::pom/project ::pom/repositories])))
+        "snapshots update policy is included")
+    (is (= [nil nil "warn"]
+           (map #(first-in % [::pom/repository ::pom/releases ::pom/checksumPolicy])
+                (deep-content xml [::pom/project ::pom/repositories])))
+        "releases checksum policy is included")
     (is (= "src" (first-in xml [::pom/project ::pom/build ::pom/sourceDirectory]))
         "source directory is included")
     (is (= "test" (first-in xml [::pom/project ::pom/build ::pom/testSourceDirectory]))
