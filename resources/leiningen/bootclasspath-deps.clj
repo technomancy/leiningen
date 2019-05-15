@@ -22,7 +22,7 @@
 {
  clojure-complete "0.2.5"
  com.cemerick/pomegranate "1.1.0"
- com.google.guava/guava "20.0"
+ com.google.guava/guava "27.1-jre"
  com.hypirion/io "0.3.1"
  commons-codec "1.9"
  commons-io "2.6"
