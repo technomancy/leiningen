@@ -54,7 +54,10 @@
   (is (= ["-Dfoo='ba\"r'" "-Dbar=\"ba\"'z'" "arg"]
          (get-jvm-opts-from-env (str "    -Dfoo='ba\"r'"
                                      "    -Dbar=\"ba\"'z'"
-                                     "    arg")))))
+                                     "    arg"))))
+  (is (nil? (parse-d-property "-Xmx1g")))
+  (is (= ["line.separator" "\n"]
+         (parse-d-property "-Dline.separator=\n"))))
 
 (deftest test-file-encoding-in-jvm-args
   (is (contains?
