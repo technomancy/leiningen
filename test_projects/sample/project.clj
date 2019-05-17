@@ -23,6 +23,8 @@
   :test-selectors {:integration :integration
                    :default (complement :integration)
                    :random (fn [_] (> (rand) ~(float 1/2)))}
-  :repositories {"other" "http://example.com/repo"}
+  :repositories [["other" {:url "http://example.com/repo"
+                           :update :always
+                           :releases {:checksum :warn}}]]
   :deploy-repositories {"snapshots" ~(format "file://%s/lein-repo"
                                              (System/getProperty "java.io.tmpdir"))})

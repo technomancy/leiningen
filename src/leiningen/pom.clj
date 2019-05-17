@@ -201,22 +201,25 @@
             :exclusions exclusions
             :scope scope})]))
 
+(defn- policy-tags [type opts]
+  (seq (keep (partial apply xml-tags)
+             {:enabled (str (if (nil? (type opts))
+                              true
+                              (boolean
+                               (type opts))))
+              :update-policy (or (some-> opts type :update name)
+                                 (some-> opts :update name))
+              :checksum-policy (or (some-> opts type :checksum name)
+                                   (some-> opts :checksum name))})))
+
 (defmethod xml-tags ::repository
   ([_ [id opts]]
      [::pom/repository
       (map (partial apply xml-tags)
            {:id id
             :url (:url opts)
-            :snapshots (xml-tags :enabled
-                                 (str (if (nil? (:snapshots opts))
-                                        true
-                                        (boolean
-                                         (:snapshots opts)))))
-            :releases (xml-tags :enabled
-                                (str (if (nil? (:releases opts))
-                                       true
-                                       (boolean
-                                        (:releases opts)))))})]))
+            :snapshots (policy-tags :snapshots opts)
+            :releases (policy-tags :releases opts)})]))
 
 (defmethod xml-tags ::license
   ([_ opts]
