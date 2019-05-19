@@ -275,14 +275,16 @@
                                                [:dependencies :source-paths
                                                 :resource-paths :test-paths])))
 
+(defn ^:internal parse-d-property [jvm-arg]
+  (if-let [[_ k v] (re-matches #"-D(.*?)=(?s)(.*)" jvm-arg)]
+    [k v]))
+
 (defmethod eval-in :classloader [project form]
   (when-let [classpath (map io/file (classpath/ext-classpath project))]
     (cl/wrap-ext-classloader classpath))
   (let [classpath   (map io/file (classpath/get-classpath project))
         classloader (cl/classlojure classpath)]
-    (doseq [opt (get-jvm-args project)
-            :when (.startsWith opt "-D")
-            :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
+    (doseq [[k v] (keep parse-d-property (get-jvm-args project))]
       (if (= k "java.library.path")
         (cl/alter-java-library-path!
          (constantly (string/split v (re-pattern java.io.File/pathSeparator))))
@@ -336,9 +338,7 @@
   ;; :dependencies are loaded the same way as plugins in eval-in-leiningen
   (project/load-plugins project :dependencies :managed-dependencies)
   (project/init-lein-classpath project)
-  (doseq [opt (get-jvm-args project)
-          :when (.startsWith opt "-D")
-          :let [[_ k v] (re-find #"^-D(.*?)=(.*)$" opt)]]
+  (doseq [[k v] (keep parse-d-property (get-jvm-args project))]
     (System/setProperty k v))
   (eval form))
 
