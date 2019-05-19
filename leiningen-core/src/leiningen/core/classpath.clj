@@ -245,8 +245,10 @@
           :non-proxy-hosts (get-non-proxy-hosts)})))))
 
 (defn- update-policies [update checksum [repo-name opts]]
-  [repo-name (merge {:update (or update :daily)
-                     :checksum (or checksum :fail)} opts)])
+  (let [project-policies (cond-> {}
+                           update (assoc :update update)
+                           checksum (assoc :checksum checksum))]
+    [repo-name (merge project-policies opts)]))
 
 (defn- print-failures [e]
   (doseq [result (.getArtifactResults (.getResult e))
