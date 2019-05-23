@@ -13,8 +13,6 @@ jobs:
       - run:
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
-      # Disable IPv6 for GnuPG tests as we experienced flaky key servers in CI.
-      - run: mkdir -p ~/.gnupg && echo disable-ipv6 >> ~/.gnupg/dirmngr.conf
       - run: bin/lein test
       - save_cache:
           paths:
