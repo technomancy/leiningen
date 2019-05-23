@@ -511,12 +511,7 @@
 
 (defn merge-versions-from-managed-coords
   [deps managed-deps]
-  ;; NOTE: there is a new function in the 0.3.1 release of pomegranate that
-  ;;  is needed here, but was accidentally marked as private.  Calling it
-  ;;  via the symbol dereference for now, but this can be changed to a
-  ;;  regular function call once https://github.com/cemerick/pomegranate/pull/74
-  ;;  is merged.
-  (#'aether/merge-versions-from-managed-coords
+  (aether/merge-versions-from-managed-coords
    (normalize-dep-vectors deps)
    managed-deps))
 
