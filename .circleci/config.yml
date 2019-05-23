@@ -18,5 +18,6 @@ jobs:
           paths:
             - $HOME/.m2
             - $HOME/.lein
+            - $HOME/.gnupg
           key: << checksum "project.clj" >>
 
