@@ -61,10 +61,9 @@
                   ;; TODO: check pom signature too
                   :extension "jar.asc")
         dep (into (vec (take 2 dep)) (apply concat dep-map))]
-    (try (->> (aether/resolve-dependencies
-               :repositories (:repositories project)
-               :mirrors (:mirrors project)
-               :coordinates [dep])
+    (try (->> (apply aether/resolve-dependencies
+                (apply concat
+                  (assoc (classpath/default-aether-args project) :coordinates [dep])))
               (aether/dependency-files)
               (filter #(.endsWith (.getName %) ".asc"))
               (first))

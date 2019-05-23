@@ -250,6 +250,20 @@
                            checksum (assoc :checksum checksum))]
     [repo-name (merge project-policies opts)]))
 
+(defn ^:internal default-aether-args
+  "Returns a map of keyword arguments to be used with Pomegranate Aether
+  dependency resolution for the given project."
+  [{:keys [repositories local-repo offline? update checksum mirrors] :as project}]
+  {:local-repo local-repo
+   :offline? offline?
+   :repositories (->> repositories
+                      (map add-repo-auth)
+                      (map (partial update-policies update checksum)))
+   :mirrors (->> mirrors
+                 (map add-repo-auth)
+                 (map (partial update-policies update checksum)))
+   :proxy (get-proxy-settings)})
+
 (defn- print-failures [e]
   (doseq [result (.getArtifactResults (.getResult e))
           :when (not (.isResolved result))
@@ -267,45 +281,39 @@
 
 (defn- get-dependencies*
   [dependencies-key managed-dependencies-key
-   {:keys [repositories local-repo offline? update
-           checksum mirrors] :as project}
+   {:keys [offline?] :as project}
    {:keys [add-classpath?] :as args}]
   {:pre [(every? vector? (get project dependencies-key))
          (every? vector? (get project managed-dependencies-key))]}
   (try
-    ((if add-classpath?
-       pomegranate/add-dependencies
-       aether/resolve-dependencies)
-     :repository-session-fn *dependencies-session*
-     :local-repo local-repo
-     :offline? offline?
-     :repositories (->> repositories
-                        (map add-repo-auth)
-                        (map (partial update-policies update checksum)))
-     :managed-coordinates (get project managed-dependencies-key)
-     :coordinates (get project dependencies-key)
-     :mirrors (->> mirrors
-                   (map add-repo-auth)
-                   (map (partial update-policies update checksum)))
-     :transfer-listener
-     (bound-fn [e]
-       (let [{:keys [type resource error]} e]
-         (let [{:keys [repository name size trace]} resource]
-           (let [aether-repos (if trace (.getRepositories (.getData trace)))]
-             (case type
-               :started
-               (if-let [repo (first (filter
-                                     #(or (= (.getUrl %) repository)
-                                          ;; sometimes the "base" url
-                                          ;; doesn't have a slash on it
-                                          (= (str (.getUrl %) "/") repository))
-                                     aether-repos))]
-                 (locking *err*
-                   (warn "Retrieving" name "from" (.getId repo)))
-                 ;; else case happens for metadata files
-                 )
-               nil)))))
-     :proxy (get-proxy-settings))
+    (apply
+      (if add-classpath?
+        pomegranate/add-dependencies
+        aether/resolve-dependencies)
+      (apply concat
+        (merge
+          (default-aether-args project)
+          {:managed-coordinates (get project managed-dependencies-key)
+           :coordinates (get project dependencies-key)
+           :repository-session-fn *dependencies-session*
+           :transfer-listener
+           (bound-fn [e]
+             (let [{:keys [type resource error]} e]
+               (let [{:keys [repository name size trace]} resource]
+                 (let [aether-repos (if trace (.getRepositories (.getData trace)))]
+                   (case type
+                     :started
+                     (if-let [repo (first (filter
+                                           #(or (= (.getUrl %) repository)
+                                                ;; sometimes the "base" url
+                                                ;; doesn't have a slash on it
+                                                (= (str (.getUrl %) "/") repository))
+                                           aether-repos))]
+                       (locking *err*
+                         (warn "Retrieving" name "from" (.getId repo)))
+                       ;; else case happens for metadata files
+                       )
+                     nil)))))})))
     (catch DependencyResolutionException e
       ;; Cannot recur from catch/finally so have to put this in its own defn
       (print-failures e)
