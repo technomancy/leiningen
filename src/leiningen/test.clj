@@ -183,14 +183,14 @@
                                             {:only only-form}
                                             (:test-selectors project))
                                      given-selectors)
-        selectors (if (and (empty? selectors)
-                           (:default (:test-selectors project)))
-                    [[(:default (:test-selectors project)) ()]]
-                    selectors)]
+        selectors-or-default (if (and (empty? selectors)
+                                      (:default (:test-selectors project)))
+                               [[(:default (:test-selectors project)) ()]]
+                               selectors)]
     (when (and (empty? selectors)
                (seq given-selectors))
       (main/abort "Please specify :test-selectors in project.clj"))
-    [nses selectors]))
+    [nses selectors-or-default]))
 
 (defn test
   "Run the project's tests.
