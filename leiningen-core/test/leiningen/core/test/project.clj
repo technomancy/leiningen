@@ -494,6 +494,17 @@
              (merge-profiles [:a])
              (dissoc :profiles)))))
 
+(deftest test-profiles-default-meta
+  (is (= [:repl]
+         (-> (init-project
+              {:profiles {:repl {:a {:A 1}}}})
+             (profiles-with-matching-meta :repl))))
+  (is (= [:repl]
+         (-> (init-project
+              {:profiles {:a {:A 1}
+                          :repl [:a]}})
+             (profiles-with-matching-meta :repl)))))
+
 (deftest test-override-default
   (is (= {:A 1, :B 2, :C 3}
          (-> (make-project
