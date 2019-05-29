@@ -13,6 +13,8 @@ jobs:
       - run:
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
+      # Use port 80 keyserver pool to work around fragile connectivity in GPG tests.
+      - run: mkdir -p ~/.gnupg && echo 'keyserver hkp://p80.pool.sks-keyservers.net:80' >> ~/.gnupg/dirmngr.conf
       - run: bin/lein test
       - save_cache:
           paths:
