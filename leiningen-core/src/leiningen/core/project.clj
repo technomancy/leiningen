@@ -887,8 +887,6 @@
                                    (utils/last-distinct-by first))
         include-profiles (map first include-profiles-meta)
         exclude-profiles (utils/last-distinct (expand-profiles project exclude-profiles))
-        normalize #(if (coll? %) (lookup-profile (:profiles project) %) [%])
-        exclude-profiles (mapcat normalize exclude-profiles)
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
         profiles (map (partial lookup-profile profile-map) include-profiles)
         normalized-profiles (map normalize-values profiles)]
