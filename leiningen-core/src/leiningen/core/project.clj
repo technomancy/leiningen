@@ -311,7 +311,7 @@
 
 (def deploy-repositories
   (with-meta
-    [["clojars" {:url "https://clojars.org/repo/"
+    [["clojars" {:url "https://repo.clojars.org/"
                  :password :gpg :username :gpg}]]
     {:reduce reduce-repo-step}))
 

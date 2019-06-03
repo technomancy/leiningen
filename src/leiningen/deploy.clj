@@ -217,7 +217,8 @@ be able to depend on jars that are deployed without a pom."
                         (:version project)]
           :artifact-map files
           :transfer-listener :stdout
-          :repository [repo])
+          :repository [repo]
+          :proxy (classpath/get-proxy-settings))
          (catch org.eclipse.aether.deployment.DeploymentException e
            (when main/*debug* (.printStackTrace e))
            (main/abort (abort-message (.getMessage e)))))))
@@ -236,4 +237,5 @@ be able to depend on jars that are deployed without a pom."
         :artifact-map (into {} artifacts)
         :transfer-listener :stdout
         :repository [repo]
-        :local-repo (:local-repo project)))))
+        :local-repo (:local-repo project)
+        :proxy (classpath/get-proxy-settings)))))
