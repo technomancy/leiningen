@@ -848,22 +848,26 @@
   (vary-meta project assoc
              :profiles profiles))
 
-(defn- apply-profile-meta [default-meta profile]
-  (if (map? profile)
-    (let [profile (vary-meta profile (fn [m] (merge default-meta m)))]
-      (if-let [scope (:pom-scope (meta profile))]
-        (with-meta
-          (update-in profile [:dependencies]
-                     (fn [deps]
-                       (map
-                        (fn [dep]
-                          (if (some #(= :scope %) dep)
-                            dep
-                            (-> dep (conj :scope) (conj (name scope)))))
-                        deps)))
-          (meta profile))
-        profile))
+(defn- set-dependencies-pom-scope [profile]
+  (if-let [scope (:pom-scope (meta profile))]
+    (with-meta
+      (update-in profile [:dependencies]
+                 (fn [deps]
+                   (map
+                    (fn [dep]
+                      (if (some #(= :scope %) dep)
+                        dep
+                        (-> dep (conj :scope) (conj (name scope)))))
+                    deps)))
+      (meta profile))
     profile))
+
+(defn- apply-profile-meta [default-meta profile]
+  (cond-> profile
+    (or (map? profile)
+        (composite-profile? profile))
+    (vary-meta (fn [m] (merge default-meta m)))
+    (map? profile) set-dependencies-pom-scope))
 
 (defn project-with-profiles [project]
   (let [profiles (merge (read-plugin-profiles project)
