@@ -380,8 +380,7 @@
   (if (composite-profile? raw-profile)
     ;; TODO: drop support for partially-composite profiles in 3.0
     (with-meta
-      (mapv #(cond-> % (composite-profile? %) setup-profile-with-empty)
-            raw-profile)
+      (mapv #(cond-> % (map? %) setup-profile-with-empty) raw-profile)
       (meta raw-profile))
     (let [empty-defaults (select-keys empty-meta-merge-defaults
                                       (keys raw-profile))]
