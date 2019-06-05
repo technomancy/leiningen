@@ -357,22 +357,23 @@
                 (dissoc (meta right) :top-displace))))
      empty-defaults
      (-> raw-map
-         (assoc :jvm-opts (or (:jvm-opts raw-map) (:java-opts raw-map)))
-         (assoc :eval-in (or (:eval-in raw-map)
-                             (if (:eval-in-leiningen raw-map)
-                               :leiningen)))
+         (cond-> (and (:java-opts raw-map) (not (:jvm-opts raw-map)))
+                 (assoc :jvm-opts (:java-opts raw-map))
+                 (and (:eval-in-leiningen raw-map) (not (:eval-in raw-map)))
+                 (assoc :eval-in :leiningen))
          (dissoc :eval-in-leiningen :java-opts)
          (normalize-values)))
     (meta raw-map)))
 
 (defn- with-normalized-deps
   [profile]
-  (let [deps (:dependencies profile)]
+  (if-let [deps (:dependencies profile)]
     (assoc profile
       :dependencies
       (with-meta
        (classpath/normalize-dep-vectors deps)
-       (meta deps)))))
+       (meta deps)))
+    profile))
 
 (defn- setup-profile-with-empty
   "Setup a profile map with empty defaults."
