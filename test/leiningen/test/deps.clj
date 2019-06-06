@@ -63,10 +63,10 @@
 
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project
-                  :repositories ^:replace {"clojars" {:url "https://clojars.org/repo/"
+                  :repositories ^:replace {"clojars" {:url "https://repo.clojars.org/"
                                             :snapshots false}})
         ps (assoc sample-project
-                  :repositories ^:replace {"clojars" {:url "https://clojars.org/repo/"
+                  :repositories ^:replace {"clojars" {:url "https://repo.clojars.org/"
                                             :releases false}})
         slamhound ['slamhound "1.1.0-SNAPSHOT"]
         hooke ['robert/hooke "1.0.1"]
