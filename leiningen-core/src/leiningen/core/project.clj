@@ -602,7 +602,8 @@
                 (-> right meta :prepend))
           (-> (concat right left)
               (with-meta (merge (meta right) (meta left))))
-          (concat left right))
+          (-> (concat left right)
+              (with-meta (merge (meta left) (meta right)))))
 
         (= (class left) (class right)) right
 
