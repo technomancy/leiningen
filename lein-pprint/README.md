@@ -23,7 +23,7 @@ Add `[lein-pprint "1.2.0"]` to `:plugins`.
  :test-path ("/home/phil/src/leiningen/lein-pprint/test"),
  :repositories
  (["central" {:url "https://repo1.maven.org/maven2"}]
-  ["clojars" {:url "http://clojars.org/repo/"}]),
+  ["clojars" {:url "https://repo.clojars.org/"}]),
  :uberjar-exclusions [#"^META-INF/DUMMY.SF"],
  :eval-in :leiningen,
  :plugins [[lein-swank "1.4.0-SNAPSHOT"]],

@@ -689,24 +689,24 @@ to publish it at [Clojars](https://clojars.org). Once you have
 is easy:
 
     $ lein deploy clojars
-    Created ~/src/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
-    Wrote ~/src/my-stuff/pom.xml
     No credentials found for clojars
-    See `lein help deploying` for how to configure credentials.
+    See `lein help deploying` for how to configure credentials to avoid prompts.
     Username: me
     Password:
-    Retrieving my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
-        from https://clojars.org/repo/
-    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20120531.032047-14.jar (5k)
-        to https://clojars.org/repo/
-    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20120531.032047-14.pom (3k)
-        to https://clojars.org/repo/
-    Retrieving my-stuff/my-stuff/maven-metadata.xml (1k)
-        from https://clojars.org/repo/
+    Created ~/src/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
+    Wrote ~/src/my-stuff/pom.xml
+    Retrieving my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml
+        from https://repo.clojars.org/
+    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20190525.161117-2.jar (9k)
+        to https://repo.clojars.org/
+    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20190525.161117-2.pom (2k)
+        to https://repo.clojars.org/
+    Retrieving my-stuff/my-stuff/maven-metadata.xml
+        from https://repo.clojars.org/
     Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
-        to https://clojars.org/repo/
+        to https://repo.clojars.org/
     Sending my-stuff/my-stuff/maven-metadata.xml (1k)
-        to https://clojars.org/repo/
+        to https://repo.clojars.org/
 
 Once that succeeds it will be available as a package on which other
 projects may depend. For instructions on storing your credentials so
