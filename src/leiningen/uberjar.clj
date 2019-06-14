@@ -16,6 +16,11 @@
            (org.apache.commons.io.output CloseShieldOutputStream)
            (org.apache.commons.lang StringEscapeUtils)))
 
+(defn- check-for-snapshot-deps [project]
+  (->> (project/non-leaky-profiles project)
+       (project/unmerge-profiles project)
+       pom/check-for-snapshot-deps))
+
 (defn- tree-edit
   "Walk the componment xml dom looking for description tag"
   [zipper editor]
@@ -160,8 +165,9 @@ be deactivated."
            provided-profiles (remove
                               (set/difference default-profiles scoped-profiles)
                               (-> project meta :included-profiles))
-           project (project/merge-profiles (project/merge-profiles project [:uberjar]) provided-profiles)
-           _ #_ (bail early if snapshot) (pom/check-for-snapshot-deps project)
+           project (->> (into [:uberjar] provided-profiles)
+                        (project/merge-profiles project))
+           _ (check-for-snapshot-deps project)
            project (update-in project [:jar-inclusions]
                               concat (:uberjar-inclusions project))
            [_ jar] (try (first (jar/jar project main))
