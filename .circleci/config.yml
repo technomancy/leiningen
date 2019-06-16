@@ -13,6 +13,7 @@ jobs:
       - run:
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
+      - run: cp -a .gnupg ~/.gnupg
       - run: bin/lein test
       - save_cache:
           paths:
