@@ -543,6 +543,16 @@
                (unmerge-profiles [:foo])
                (dissoc :profiles))))))
 
+(deftest test-merge-coll-with-metadata
+  (let [project
+        (-> (make-project
+             {:profiles
+              {:shared {:clean-targets ^{:protect false} ["resources/a.txt"]}
+               :prod [:shared {:clean-targets ^{:protect false} ["resources/b.txt"]}]}})
+            (merge-profiles [:prod]))]
+    (is (= (:clean-targets project) ["resources/a.txt" "resources/b.txt"]))
+    (is (false? (-> project :clean-targets meta :protect)))))
+
 (deftest test-dedupe-deps
   (is (= '[[org.clojure/clojure "1.3.0"]
            [org.clojure/clojure "1.3.0" :classifier "sources"]]
