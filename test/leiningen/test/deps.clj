@@ -214,11 +214,9 @@
 (deftest ^:online test-verify
   (let [project (-> sample-project
                     (update :repositories (fn [repos]
-                                            (keep (fn [[repo opts]]
-                                                    (when (not= repo "other")
-                                                      [repo (assoc opts :checksum :ignore)]))
-                                                  repos)))
-                    (update :dependencies #(take 2 %)))
+                                            (remove #(= "other" (first %)) repos)))
+                    (update :dependencies #(take 2 %))
+                    (assoc :checksum :ignore))
         _ (deps project)
         out (with-out-str (deps project ":verify"))]
     (doseq [[dep signed] '{[org.clojure/clojure "1.3.0"] :signed
