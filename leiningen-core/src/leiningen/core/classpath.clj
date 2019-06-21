@@ -298,22 +298,17 @@
            :repository-session-fn *dependencies-session*
            :transfer-listener
            (bound-fn [e]
-             (let [{:keys [type resource error]} e]
-               (let [{:keys [repository name size trace]} resource]
-                 (let [aether-repos (if trace (.getRepositories (.getData trace)))]
-                   (case type
-                     :started
-                     (if-let [repo (first (filter
-                                           #(or (= (.getUrl %) repository)
-                                                ;; sometimes the "base" url
-                                                ;; doesn't have a slash on it
-                                                (= (str (.getUrl %) "/") repository))
-                                           aether-repos))]
-                       (locking *err*
-                         (warn "Retrieving" name "from" (.getId repo)))
-                       ;; else case happens for metadata files
-                       )
-                     nil)))))})))
+             (let [{:keys [type resource error]} e
+                   {:keys [repository name size trace]} resource
+                   aether-repos (if trace (.getRepositories (.getData trace)))
+                   find-repo #(or (= (.getUrl %) repository)
+                                  ;; sometimes the "base" url
+                                  ;; doesn't have a slash on it
+                                  (= (str (.getUrl %) "/") repository))]
+               (when-let [repo (and (= type :started)
+                                    (first (filter find-repo aether-repos)))]
+                 (locking *err*
+                   (warn "Retrieving" name "from" (.getId repo))))))})))
     (catch DependencyResolutionException e
       ;; Cannot recur from catch/finally so have to put this in its own defn
       (print-failures e)
