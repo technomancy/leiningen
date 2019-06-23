@@ -362,15 +362,7 @@ else
     if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
         INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
 
-        if command -v shasum >/dev/null 2>&1; then
-            SUM="shasum"
-        elif command -v sha1sum >/dev/null 2>&1; then
-            SUM="sha1sum"
-        else
-            command_not_found "sha1sum or shasum"
-        fi
-
-        INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
+        INPUT_CHECKSUM=$(echo "$INPUTS" | $SHASUM_CMD | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
         TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
     else
