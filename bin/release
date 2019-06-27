@@ -33,8 +33,10 @@ cd ..
 
 bin/lein uberjar
 RELEASE_JAR=$PWD/target/leiningen-$RELEASE_VERSION-standalone.jar
+RELEASE_JAR_CHECKSUM="$(sha256sum $RELEASE_JAR | awk '{ print $1 }')"
 cp $RELEASE_JAR $HOME/.lein/self-installs
 
+sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM='$RELEASE_JAR_CHECKSUM'/" bin/lein
 cp bin/lein /tmp/lein-$RELEASE_VERSION
 cd /tmp
 
