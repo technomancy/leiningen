@@ -261,10 +261,13 @@ No third-party beneficiary rights are created under this Agreement.
 
 Exhibit A - Form of Secondary Licenses Notice
 
-"This Source Code may also be made available under the following 
-Secondary Licenses when the conditions for such availability set forth 
-in the Eclipse Public License, v. 2.0 are satisfied: {name license(s),
-version(s), and exceptions or additional permissions here}."
+"This Source Code may also be made available under the following
+Secondary Licenses when the conditions for such availability set forth
+in the Eclipse Public License, v. 2.0 are satisfied: GNU General Public
+License as published by the Free Software Foundation, either version 2
+of the License, or (at your option) any later version, with the GNU
+Classpath Exception which is available at
+https://www.gnu.org/software/classpath/license.html."
 
   Simply including a copy of this Agreement, including this Exhibit A
   is not sufficient to license the Source Code under Secondary Licenses.
