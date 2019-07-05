@@ -408,7 +408,7 @@ to run in the context of your project. Since we've added `clj-http` to
     nil
     user=> (require '[clj-http.client :as http])
     nil
-    user=> (def response (http/get "https://leiningen.org"))
+    user=> (def response (http/get "https://leiningen.org" {:insecure? true}))
     #'user/response
     user=> (keys response)
     (:status :headers :body :request-time :trace-redirects :orig-content-encoding)
