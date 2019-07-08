@@ -279,6 +279,9 @@ middleware. Middleware is not deprecated but should now be declared using
 
 Adding `:implicits false` to `project.clj` will disable all implicit features.
 
-**Q:**  "WARNING: An illegal reflective access operation has occurred
-**A:** For an explanation, look [here](https://clojure.org/guides/faq#illegal_access).
-You can add `{:user {:jvm-opts ["--illegal-access=deny"]}}` to your `~/.lein/profile.clj`.
+**Q:** What causes "WARNING: An illegal reflective access operation has occurred"?  
+**A:** This is due to changes introduced in Java 9. At the time of
+this writing, it's recommended to use Java 8 if possible. Otherwise
+you can [use workarounds](https://clojure.org/guides/faq#illegal_access)
+including adding `{:user {:jvm-opts ["--illegal-access=deny"]}}` to your
+`~/.lein/profile.clj`.
