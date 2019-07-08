@@ -278,3 +278,7 @@ middleware. Middleware is not deprecated but should now be declared using
 `:middleware` instead of being auto-detected from plugins.
 
 Adding `:implicits false` to `project.clj` will disable all implicit features.
+
+**Q:**  "WARNING: An illegal reflective access operation has occurred
+**A:** For an explanation, look [here](https://clojure.org/guides/faq#illegal_access).
+You can add `{:user {:jvm-opts ["--illegal-access=deny"]}}` to your `~/.lein/profile.clj`.
