@@ -129,9 +129,12 @@ bump. If none is given, it defaults to :patch."
   ([project] (release project *level*))
   ([project level]
      (binding [*level* (if level (read-string level))]
-       (doseq [task (:release-tasks project)]
-         (let [current-project (project/init-project (project/read))]
-           (main/resolve-and-apply current-project task))))))
+       (let [release-tasks (:release-tasks project)
+             task-count (count release-tasks)]
+         (doseq [[i task] (map vector (range 1 (inc task-count)) release-tasks)]
+           (apply main/info "[" i "/" task-count "] Running lein" task)
+           (let [current-project (project/init-project (project/read))]
+             (main/resolve-and-apply current-project task)))))))
 
 ;; support existing release plugin:
 ;; https://github.com/technomancy/leiningen/issues/1544
