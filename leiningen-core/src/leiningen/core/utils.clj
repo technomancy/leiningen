@@ -1,6 +1,7 @@
 (ns leiningen.core.utils
   (:require [clojure.java.io :as io]
-            [clojure.java.shell :as sh])
+            [clojure.java.shell :as sh]
+            [clojure.string :as str])
   (:import (com.hypirion.io RevivableInputStream)
            (clojure.lang LineNumberingPushbackReader)
            (java.io ByteArrayOutputStream PrintStream File FileDescriptor
@@ -269,3 +270,9 @@
      (finally
        (System/setErr
         (-> FileDescriptor/err FileOutputStream. PrintStream.)))))
+
+(defn strip-properties-comments
+  "Takes a string containing serialized java.util.Properties
+  and removes all the comment lines (those beginning with #)"
+  [s]
+  (str/replace s #"(\A|\R)(#.+(\R|\z))+" "$1"))
