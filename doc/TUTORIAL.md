@@ -63,10 +63,10 @@ tool.
 This tutorial will briefly cover project structure, dependency
 management, running tests, the REPL, and topics related to deployment.
 
-For those of you new to the JVM who have never touched Ant or Maven in
-anger: don't panic. Leiningen is designed with you in mind. This
-tutorial will help you get started and explain Leiningen's take on
-project automation and JVM-land dependency management.
+For those of you new to the JVM who have never touched [Ant](http://ant.apache.org/)
+or [Maven](https://maven.apache.org/) in anger: don't panic. Leiningen is designed
+with you in mind. This tutorial will help you get started and explain Leiningen's 
+take on project automation and JVM-land dependency management.
 
 
 ## Getting Help
@@ -106,25 +106,27 @@ We'll assume you've got Leiningen installed as per the
 Generating a new project is easy:
 
     $ lein new app my-stuff
-
     Generating a project called my-stuff based on the 'app' template.
 
-    $ cd my-stuff
-    $ find .
-    .
-    ./.gitignore
-    ./doc
-    ./doc/intro.md
-    ./LICENSE
-    ./project.clj
-    ./README.md
-    ./resources
-    ./src
-    ./src/my_stuff
-    ./src/my_stuff/core.clj
-    ./test
-    ./test/my_stuff
-    ./test/my_stuff/core_test.clj
+    $ # see how it looks like using the "tree" command
+    $ tree -F -a --dirsfirst my-stuff/
+    
+    my-stuff/
+    ├── doc/
+    │   └── intro.md
+    ├── resources/
+    ├── src/
+    │   └── my_stuff/
+    │       └── core.clj
+    ├── test/
+    │   └── my_stuff/
+    │       └── core_test.clj
+    ├── CHANGELOG.md
+    ├── .gitignore
+    ├── .hgignore
+    ├── LICENSE
+    ├── project.clj
+    └── README.md
 
 In this example we're using the `app` template, which is intended for
 an application project rather than a library. Omitting the `app`
@@ -141,13 +143,19 @@ the `my-stuff.core` namespace.
 ### Filename-to-Namespace Mapping Convention
 
 Note that we use `my-stuff.core` instead of just `my-stuff` since
-single-segment namespaces are discouraged in Clojure. Also note that
-namespaces with dashes in the name will have the corresponding file
-named with underscores instead since the JVM has trouble loading files
-with dashes in the name. The intricacies of namespaces are a common
-source of confusion for newcomers, and while they are mostly outside
-the scope of this tutorial you can
-[read up on them elsewhere](https://8thlight.com/blog/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html).
+[single-segment namespaces are discouraged in Clojure](https://stackoverflow.com/questions/13567078/whats-wrong-with-single-segment-namespaces) as using those would imply classes are being assigned
+to the default (no-name) package. 
+
+Also note that if a Clojure namespaces segment contains a a dash (`-`), the
+corresponding path/filename will contain an underscore (`_`) instead. This is due to the fact that
+[Java disallows dashes in identifiers](https://docs.oracle.com/javase/specs/jls/se12/html/jls-3.html#jls-3.8),
+in particular in package and class names. A Clojure "dash-adorned" namespace identifier is thus mapped
+to a Java-compatible "underscore-adorned" package identifier. This change is reflected in pathnames
+as these must match the package and class names.
+
+The intricacies of namespaces are a common source of confusion for newcomers, and while they are
+mostly outside the scope of this tutorial you can
+read up on them elsewhere, for example [here](https://8thlight.com/blog/colin-jones/2010/12/05/clojure-libs-and-namespaces-require-use-import-and-ns.html) and [here](https://stuartsierra.com/2016/clojure-how-to-ns.html).
 
 ## project.clj
 
@@ -177,7 +185,7 @@ Unlike most languages, it's easy to swap out any version of Clojure.
 ### Overview
 
 Clojure is a hosted language and Clojure libraries are distributed the same
-way as in other JVM languages: as jar files.
+way as in other JVM languages: as [jar](https://en.wikipedia.org/wiki/JAR_(file_format)) files.
 
 Jar files are basically just `.zip` files with a little extra JVM-specific
 metadata. They usually contain `.class` files (JVM bytecode) and `.clj` source
@@ -185,7 +193,7 @@ files, but they can also contain other things like config
 files, JavaScript files or text files with static data.
 
 Published JVM libraries have *identifiers* (artifact group, artifact id) and
-*versions*.
+*versions* based on [Maven naming conventions](https://maven.apache.org/guides/mini/guide-naming-conventions.html).
 
 ### Artifact IDs, Groups, and Versions
 
@@ -207,8 +215,8 @@ line in the example `project.clj` above to
                [clj-http "2.0.0"]]
 ```
 
-Leiningen will automatically download the `clj-http` jar and make sure
-it is on your classpath. If you want to explicitly tell lein to
+Leiningen will automatically download the `clj-http` jar file and make sure
+it is on your classpath. If you want to explicitly tell `lein` to
 download new dependencies, you can do so with `lein deps`, but it will
 happen on-demand if you don't.
 
@@ -258,7 +266,7 @@ open source repositories. Leiningen by default will use two of them:
 [Maven Central](https://search.maven.org/).
 
 [Clojars](https://clojars.org/) is the Clojure community's centralized
-maven repository, while [Central](https://search.maven.org/) is for the
+Maven repository, while [Central](https://search.maven.org/) is for the
 wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
@@ -276,33 +284,35 @@ the time to get your changes picked up. Leiningen provides a solution
 called *checkout dependencies* (or just *checkouts*). To use it,
 create a directory called `checkouts` in the project root, like so:
 
-    .
-    |-- project.clj
-    |-- README.md
-    |-- checkouts
-    |-- src
-    |   `-- my_stuff
-    |       `-- core.clj
-    `-- test
-        `-- my_stuff
-            `-- core_test.clj
+    my-stuff/
+    │
+    ├── checkouts/    <--- here
+    │
+    ├── doc/
+    │   └── intro.md
+    ├── resources/
+    ├── src/
+    │   └── my_stuff/
+    │       └── core.clj
+    ├── test/
+    │   └── my_stuff/
+    │       └── core_test.clj
+    ├── CHANGELOG.md
+    ├── .gitignore
+    ├── .hgignore
+    ├── LICENSE
+    ├── project.clj
+    └── README.md
 
 Then, under the checkouts directory, create symlinks to the root directories of projects you need.
 The names of the symlinks don't matter: Leiningen just follows all of them to find
 `project.clj` files to use. Traditionally, they have the same name as the directory they point to.
 
+    my-stuff/
+    ├── checkouts/
+    │   ├── commons -> [link to /code/company/commons]
+    │   └── suchwow -> [link to /code/oss/suchwow]
     .
-    |-- project.clj
-    |-- README.md
-    |-- checkouts
-    |   `-- suchwow [link to ~/code/oss/suchwow]
-    |   `-- commons [link to ~/code/company/commons]
-    |-- src
-    |   `-- my_stuff
-    |       `-- core.clj
-    `-- test
-        `-- my_stuff
-            `-- core_test.clj
 
 Libraries located under the `checkouts` directory take precedence
 over libraries pulled from repositories, but this is not a replacement
@@ -340,7 +350,9 @@ Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
 work without checkouts before you push or merge.
 
-Make sure not to override the `base` profile while using checkouts. In practice that usually means using `lein with-profile +foo run` rather than `lein with-profile foo run`.
+Make sure not to override the `base` profile while using checkouts. In 
+practice that usually means using `lein with-profile +foo run` rather
+than `lein with-profile foo run`.
 
 ### Search
 
@@ -350,10 +362,11 @@ Central and Clojars is supported.
 
 ### Maven Read Timeout
 
-The underlying Maven Wagon transport reads the `maven.wagon.rto` system property to determine the timeout used
+The underlying [Maven Wagon](https://maven.apache.org/wagon/) transport
+reads the `maven.wagon.rto` system property to determine the timeout used
 when downloading artifacts from a repository. The `lein` script sets that property to be 10000. 
 If that timeout isn't long enough (for example, when using a slow corporate mirror), 
-it can be overridden via LEIN_JVM_OPTS:
+it can be overridden via `LEIN_JVM_OPTS`:
 
 ```bash
 export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
@@ -361,13 +374,15 @@ export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
 
 ## Setting JVM Options
 
-To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will override any default JVM opts set by Leiningen.
+To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will override
+any default JVM opts set by Leiningen.
 
 ```clj
  :jvm-opts ["-Xmx1g"]
 ```
 
-If you want to pass [compiler options](https://clojure.org/reference/compilation#_compiler_options) to the Clojure compiler, you also do this here.
+If you want to pass [compiler options](https://clojure.org/reference/compilation#_compiler_options)
+to the Clojure compiler, you also do this here.
 
 ```
 :jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
@@ -376,17 +391,20 @@ If you want to pass [compiler options](https://clojure.org/reference/compilation
            "-Dclojure.compiler.direct-linking=true"]
 ```
 
-You can also pass options to Leiningen in the `JVM_OPTS` environment variable. If you want to provide the Leiningen JVM with custom options, set them in `LEIN_JVM_OPTS`.
+You can also pass options to Leiningen in the `JVM_OPTS` environment variable. If you
+want to provide the Leiningen JVM with custom options, set them in `LEIN_JVM_OPTS`.
 
 ## Running Code
 
 Enough setup; let's see some code running. Start with a REPL
 (read-eval-print loop):
 
+    $ cd my-stuff
     $ lein repl
     nREPL server started on port 55568 on host 127.0.0.1 - nrepl://127.0.0.1:55568
-    REPL-y 0.3.0
-    Clojure 1.5.1
+    REPL-y 0.4.3, nREPL 0.6.0
+    Clojure 1.10.0
+    OpenJDK 64-Bit Server VM 1.8.0_222-b10
         Docs: (doc function-name-here)
               (find-doc "part-of-name-here")
       Source: (source function-name-here)
@@ -394,23 +412,23 @@ Enough setup; let's see some code running. Start with a REPL
         Exit: Control+D or (exit) or (quit)
      Results: Stored in vars *1, *2, *3, an exception in *e
 
-    user=>
+    my-stuff.core=>
 
 The REPL is an interactive prompt where you can enter arbitrary code
 to run in the context of your project. Since we've added `clj-http` to
-`:dependencies`, we are able to load it here along with code from the
+`:dependencies` earlier, we are able to load it here along with code from the
 `my-stuff.core` namespace in your project's own `src/` directory:
 
-    user=> (require 'my-stuff.core)
+    my-stuff.core=> (require 'my-stuff.core)
     nil
-    user=> (my-stuff.core/-main)
+    my-stuff.core=> (my-stuff.core/-main)
     Hello, World!
     nil
-    user=> (require '[clj-http.client :as http])
+    my-stuff.core=> (require '[clj-http.client :as http])
     nil
-    user=> (def response (http/get "https://leiningen.org"))
-    #'user/response
-    user=> (keys response)
+    my-stuff.core=> (def response (http/get "https://leiningen.org"))
+    #'my-stuff.core/response
+    my-stuff.core=> (keys response)
     (:status :headers :body :request-time :trace-redirects :orig-content-encoding)
 
 The call to `-main` shows both println output ("Hello, World!") and
@@ -419,13 +437,14 @@ the return value (nil) together.
 Built-in documentation is available via `doc`, and you can examine the
 source of functions with `source`:
 
-    user=> (source my-stuff.core/-main)
+    my-stuff.core=> (source -main)
     (defn -main
-      "I don't do a whole lot."
+      "I don't do a whole lot ... yet."
       [& args]
       (println "Hello, World!"))
+    nil
 
-    user=> ; use control+d to exit
+    my-stuff.core=> ; use control+d to exit
 
 If you already have code in a `-main` function ready to go and don't
 need to enter code interactively, the `run` task is simpler:
@@ -484,7 +503,7 @@ or look into editor integration such as
 
 Keep in mind that while keeping a running process around is convenient,
 it's easy for that process to get into a state that doesn't reflect
-the files on disk—functions that are loaded and then deleted from the
+the files on disk: functions that are loaded and then deleted from the
 file will remain in memory, making it easy to miss problems arising
 from missing functions (often referred to as "getting
 slimed"). Because of this it's advised to do a `lein test` run with a
@@ -528,7 +547,8 @@ for things like specific web technologies or other project types.
 
 ### Uberjar
 
-The simplest thing to do is to distribute an uberjar. This is a single
+The simplest thing to do is to distribute an
+[uberjar](https://stackoverflow.com/questions/11947037/what-is-an-uber-jar). This is a single
 standalone executable jar file most suitable for giving to
 nontechnical users. For this to work you'll need to specify a
 namespace as your `:main` in `project.clj` and ensure it's also AOT (Ahead Of Time)
@@ -620,23 +640,22 @@ containing all dependencies except the Hadoop libraries themselves:
     ...
 
 Plugins are required to generate framework deployment jar derivatives
-(such as WAR files) which include additional metadata, but the
+(such as [war files](https://en.wikipedia.org/wiki/WAR_(file_format))) which include additional metadata, but the
 `:provided` profile provides a general mechanism for handling the
 framework dependencies.
 
 ### Server-side Projects
 
 There are many ways to get your project deployed as a server-side
-application. Aside from the obvious uberjar approach, simple
-programs can be packaged up as tarballs with accompanied shell scripts
-using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
-and then deployed using
-[pallet](https://hugoduncan.github.com/pallet/),
-[chef](https://chef.io/), or other mechanisms.
+application. Aside from the obvious uberjar approach, simple programs can be
+packaged up as [tarballs](https://en.wikipedia.org/wiki/Tar_(computing)) with 
+accompanied shell scripts using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
+and then deployed using [pallet](http://palletops.com/), [chef](https://chef.io/),
+or other mechanisms.
+
 Web applications may be deployed as uberjars using embedded Jetty with
-`ring-jetty-adapter` or as .war (web application archive) files
-created by the
-[lein-ring plugin](https://github.com/weavejester/lein-ring). For
+`ring-jetty-adapter` or as [war (web application archive) files](https://en.wikipedia.org/wiki/WAR_(file_format))
+created by the [lein-ring plugin](https://github.com/weavejester/lein-ring). For
 things beyond uberjars, server-side deployments are so varied that they
 are better-handled using plugins rather than tasks that are built-in
 to Leiningen itself.
@@ -656,7 +675,7 @@ Consider including `~/.m2/repository` in your unit of deployment
 recommended to use Leiningen to create a deployable artifact in a
 continuous integration setting. For example, you could have a
 [Jenkins](https://jenkins-ci.org) CI server run your project's full
-test suite, and if it passes, upload a tarball to S3.  Then deployment
+test suite, and if it passes, upload a tarball to S3. Then deployment
 is just a matter of pulling down and extracting the known-good tarball
 on your production servers. Simply launching Leiningen from a checkout
 on the server will work for the most basic deployments, but as soon as
