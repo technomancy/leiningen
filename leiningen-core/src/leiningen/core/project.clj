@@ -24,8 +24,11 @@
       (when (.exists git-head)
         (if-let [revision (utils/read-git-head git-head)]
           (.setProperty properties "revision" revision)))
-      (.store properties baos "Leiningen"))
-    (str baos)))
+      (.store properties baos nil))
+    (-> baos
+        str
+        ;; Strip off all the comments printed by java.util.Properties: by default the timestamp is printed
+        utils/strip-properties-comments)))
 
 (defn- warn [& args]
   ;; TODO: remove with 3.0.0

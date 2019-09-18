@@ -12,3 +12,16 @@
     (is (nil? (utils/read-file (io/file (str profiles "profiles-empty.clj"))))))
   (testing "Non-empty profile file"
     (is (= (utils/read-file (io/file (str profiles "profiles.clj"))) sample-profile))))
+
+(deftest properties-strip-comments
+  (with-open [baos (java.io.ByteArrayOutputStream.)]
+    (let [properties (doto (java.util.Properties.)
+                       (.setProperty "version" "0.1.0-SNAPSHOT")
+                       (.setProperty "groupId" "groupId")
+                       (.setProperty "artifactId" "(:name project)"))]
+      (.store properties baos "Extra comment")
+      (let [str (-> baos
+                    str
+                    utils/strip-properties-comments)]
+        (with-open [input-stream (io/input-stream (.getBytes str))]
+          (is (= properties (doto (java.util.Properties.) (.load input-stream)))))))))
