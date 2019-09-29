@@ -13,8 +13,8 @@
   :global-vars {*warn-on-reflection* true}
   :jar-exclusions [#"^META-INF"]
   :filespecs [{:type :fn :fn (fn [p] {:type :bytes :path "bytes.clj"
-                                     :bytes (str "[:bytes \"are\" "
-                                                 (:name p) "]")})}]
+                                      :bytes (str "[:bytes \"are\" "
+                                                  (:name p) "]")})}]
   :test-selectors {:integration :integration
                    :default (complement :integration)
                    :random (fn [_] (> (rand) ~(float 1/2)))}

@@ -4,7 +4,7 @@
         [clojure.java.io :only [file]]
         [clojure.java.shell :only [with-sh-dir]]
         [leiningen.compile]
-        [leiningen.test.helper :only [sample-project 
+        [leiningen.test.helper :only [sample-project
                                       delete-file-recursively
                                       sample-ordered-aot-project
                                       sample-failing-project
@@ -35,9 +35,9 @@
 
 (deftest test-compile-order-sorted
   (is (= 0
-    (compare 
-      (vec (compilable-namespaces sample-ordered-aot-project))
-      (vec (sort (compilable-namespaces sample-ordered-aot-project)))))))
+         (compare
+          (vec (compilable-namespaces sample-ordered-aot-project))
+          (vec (sort (compilable-namespaces sample-ordered-aot-project)))))))
 
 (deftest test-compile-regex
   (compile more-gen-classes-project "#\"\\.ba.$\"")
@@ -60,9 +60,9 @@
 (deftest ^:online test-plugin
   (reset! eip-check false)
   (eval/eval-in-project (assoc sample-project
-                          :eval-in :leiningen
-                          :skip-shutdown-agents true
-                          :main nil)
+                               :eval-in :leiningen
+                               :skip-shutdown-agents true
+                               :main nil)
                         `(reset! eip-check true))
   (is @eip-check))
 
@@ -94,8 +94,8 @@
 
 (deftest ^:online test-injection
   (eval/eval-in-project (assoc sample-project
-                          :injections ['(do (ns inject.stuff)
-                                            (def beef :hot))])
+                               :injections ['(do (ns inject.stuff)
+                                                 (def beef :hot))])
                         '#'inject.stuff/beef))
 
 ;; (deftest test-compile-java-main

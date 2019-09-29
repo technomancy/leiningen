@@ -49,6 +49,7 @@
 
 ;;; VCS not found
 
+
 (defn- unknown-vcs [task]
   (binding [*out* *err*]
     (println (str "Unknown VCS detected for 'vcs " task "'")))
@@ -64,6 +65,7 @@
 
 
 ;;; Git
+
 
 (defmethod push :git [project & args]
   (binding [eval/*dir* (:root project)]
@@ -91,7 +93,7 @@
   (binding [eval/*dir* (:root project)]
     (when (re-find #"Changes (not staged for commit|to be committed)"
                    (utils/with-system-out-str (eval/sh-with-exit-code "Couldn't get status" "git" "status")))
-       (main/abort "Uncommitted changes in" (:root project) "directory."))))
+      (main/abort "Uncommitted changes in" (:root project) "directory."))))
 
 (defn- not-found [subtask]
   (partial #'main/task-not-found (str "vcs " subtask)))

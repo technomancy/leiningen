@@ -67,10 +67,9 @@
   "Load profiles.clj from dir if present. Tags all profiles with its origin."
   (memoize
    (fn [dir]
-       (if-let [contents (utils/read-file (io/file dir "profiles.clj"))]
-         (utils/map-vals contents vary-meta merge
-                         {:origin (str (io/file dir "profiles.clj"))})))))
-
+     (if-let [contents (utils/read-file (io/file dir "profiles.clj"))]
+       (utils/map-vals contents vary-meta merge
+                       {:origin (str (io/file dir "profiles.clj"))})))))
 
 (def profiles
   "Load profiles.clj from your Leiningen home and profiles.d if present."
@@ -137,15 +136,15 @@
         (if (.exists cred-file)
           (credentials-fn cred-file))))
   ([file]
-     (let [{:keys [out err exit]} (gpg "--quiet" "--batch"
-                                       "--decrypt" "--" (str file))]
-       (if (pos? exit)
-         (binding [*out* *err*]
-           (println "Could not decrypt credentials from" (str file))
-           (println err)
-           (println "See `lein help gpg` for how to install gpg."))
-         (binding [*read-eval* false]
-           (read-string out))))))
+   (let [{:keys [out err exit]} (gpg "--quiet" "--batch"
+                                     "--decrypt" "--" (str file))]
+     (if (pos? exit)
+       (binding [*out* *err*]
+         (println "Could not decrypt credentials from" (str file))
+         (println err)
+         (println "See `lein help gpg` for how to install gpg."))
+       (binding [*read-eval* false]
+         (read-string out))))))
 
 (def credentials (memoize credentials-fn))
 

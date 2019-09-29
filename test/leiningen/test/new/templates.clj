@@ -33,8 +33,8 @@
   (testing "that one can override the normal system newline"
     (with-redefs [user/getprop (constantly "\r\n")
                   user/getenv (fn [s] (if (= s "LEIN_NEW_UNIX_NEWLINES")
-                                      "y"
-                                      (getenv s)))]
+                                        "y"
+                                        (getenv s)))]
       (is (= (fix-line-separators "foo") "foo"))
       (is (= (fix-line-separators "bar\nbaz") "bar\nbaz"))
       (is (= (fix-line-separators "quux\n\n\nsycorax") "quux\n\n\nsycorax")))))
@@ -63,7 +63,6 @@
 (deftest slurp-resource-compatibility ; can be removed in 3.0.0
   (is (= (slurp-resource "leiningen/new/template/temp.clj")
          (slurp-resource (io/resource "leiningen/new/template/temp.clj")))))
-
 
 (deftest files
   (testing "that files marked as executable are set executable"

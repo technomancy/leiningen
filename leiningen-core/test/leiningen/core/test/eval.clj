@@ -61,14 +61,14 @@
 
 (deftest test-file-encoding-in-jvm-args
   (is (contains?
-          (set (#'leiningen.core.eval/get-jvm-args project))
-          (str "-Dfile.encoding=" (System/getProperty "file.encoding")))))
+       (set (#'leiningen.core.eval/get-jvm-args project))
+       (str "-Dfile.encoding=" (System/getProperty "file.encoding")))))
 
 (deftest test-get-jvm-args-with-proxy-settings
   ;; Mock get-proxy-settings to return test values
   (with-redefs [classpath/get-proxy-settings
                 (fn ([] {:host "foo.com" :port 8080})
-                    ([https] {:host "secure-foo.com", :port 443}))]
+                  ([https] {:host "secure-foo.com", :port 443}))]
     (let [args (set (shell-command project 'repl))]
       (is (and (contains? args "-Dhttp.proxyHost=foo.com")
                (contains? args "-Dhttp.proxyPort=8080")
@@ -83,8 +83,8 @@
            :repositories project/default-repositories}
         [newrelic newrelic-bootcp nodisassemble] (classpath-arg p)]
     (is (.endsWith newrelic (lthelper/fix-path-delimiters
-                              (str "/com/newrelic/agent/java/newrelic-agent"
-                                   "/2.18.0/newrelic-agent-2.18.0.jar"))))
+                             (str "/com/newrelic/agent/java/newrelic-agent"
+                                  "/2.18.0/newrelic-agent-2.18.0.jar"))))
     (is (re-find #"bootclasspath.*newrelic.*jar" newrelic-bootcp))
     (is (re-find #"-javaagent:.*nodisassemble-0.1.2.jar=hello" nodisassemble))))
 

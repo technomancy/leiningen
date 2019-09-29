@@ -33,8 +33,8 @@
   [version-map]
   (let [{:keys [major minor patch qualifier snapshot]} version-map]
     (cond-> (str major "." minor "." patch)
-            qualifier (str "-" qualifier)
-            snapshot (str "-" snapshot))))
+      qualifier (str "-" qualifier)
+      snapshot (str "-" snapshot))))
 
 (defn next-qualifier
   "Increments and returns the qualifier.  If an explicit `sublevel`
@@ -44,7 +44,7 @@
   is effectively a BuildNumber."
   ([qualifier]
    (if-let [[_ sublevel] (re-matches #"([^\d]+)?(?:\d+)?"
-                                         (or qualifier ""))]
+                                     (or qualifier ""))]
      (next-qualifier sublevel qualifier)
      "1"))
   ([sublevel qualifier]
@@ -92,8 +92,6 @@
       (bump-version-map (or level *level*))
       (version-map->string)))
 
-
-
 (defn ^{:subtasks []} release
   "Perform release tasks.
 
@@ -128,13 +126,13 @@ The release task takes a single argument which should be one of :major,
 bump. If none is given, it defaults to :patch."
   ([project] (release project *level*))
   ([project level]
-     (binding [*level* (if level (read-string level))]
-       (let [release-tasks (:release-tasks project)
-             task-count (count release-tasks)]
-         (doseq [[i task] (map vector (range 1 (inc task-count)) release-tasks)]
-           (apply main/info "[" i "/" task-count "] Running lein" task)
-           (let [current-project (project/init-project (project/read))]
-             (main/resolve-and-apply current-project task)))))))
+   (binding [*level* (if level (read-string level))]
+     (let [release-tasks (:release-tasks project)
+           task-count (count release-tasks)]
+       (doseq [[i task] (map vector (range 1 (inc task-count)) release-tasks)]
+         (apply main/info "[" i "/" task-count "] Running lein" task)
+         (let [current-project (project/init-project (project/read))]
+           (main/resolve-and-apply current-project task)))))))
 
 ;; support existing release plugin:
 ;; https://github.com/technomancy/leiningen/issues/1544

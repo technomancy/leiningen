@@ -12,18 +12,18 @@
       ["-deprecation" "-g"]))
   (testing "conversion of Leiningen 1 style options that are supported"
     (are [old new] (= new (normalize-javac-options old))
-         {:debug false}                ["-g:none"]
-         {:debug "off"}                ["-g:none"]
+      {:debug false}                ["-g:none"]
+      {:debug "off"}                ["-g:none"]
          ;; overriden by :compile-path
-         {:destdir "clazzez"}          []
-         {:encoding "utf8"}            ["-encoding" "utf8"]
-         {:debugLevel "source,lines"}  ["-g:source,lines"]))
+      {:destdir "clazzez"}          []
+      {:encoding "utf8"}            ["-encoding" "utf8"]
+      {:debugLevel "source,lines"}  ["-g:source,lines"]))
   (testing "conversion of multiple Leiningen 1 style options"
     ;; Cannot assume argument order from hash maps
     (are [old new] (= new
                       (apply hash-map (normalize-javac-options old)))
-         {:source "1.5" :target "1.5"} {"-target" "1.5" "-source" "1.5"}
-         {:source 1.5   "target" 1.5}  {"-target" "1.5" "-source" "1.5"})))
+      {:source "1.5" :target "1.5"} {"-target" "1.5" "-source" "1.5"}
+      {:source 1.5   "target" 1.5}  {"-target" "1.5" "-source" "1.5"})))
 
 (deftest ^:disabled ; not really; need to fix this
   test-javac

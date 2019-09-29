@@ -8,11 +8,11 @@
   (:import (java.io File)))
 
 (use-fixtures :once
-              (fn [f]
+  (fn [f]
                 ;; Can't have user-level profiles interfering!
-                (with-redefs [user/profiles (constantly {})
-                              user/credentials (constantly nil)]
-                  (f))))
+    (with-redefs [user/profiles (constantly {})
+                  user/credentials (constantly nil)]
+      (f))))
 
 (defn m2-file [f]
   (io/file (System/getProperty "user.home") ".m2" "repository" f))
@@ -47,20 +47,20 @@
   (doseq [f (reverse (file-seq (io/file (:root project))))]
     (when (.exists f) (io/delete-file f)))
   (is (= '{[org.clojure/clojure "1.3.0"] nil
-          [ring/ring-core "1.0.0"
-           :exclusions [[commons-codec]]]
-          {[commons-fileupload "1.2.1"] nil
-           [commons-io "1.4"] nil
-           [javax.servlet/servlet-api "2.5"] nil}}
+           [ring/ring-core "1.0.0"
+            :exclusions [[commons-codec]]]
+           {[commons-fileupload "1.2.1"] nil
+            [commons-io "1.4"] nil
+            [javax.servlet/servlet-api "2.5"] nil}}
          (managed-dependency-hierarchy :dependencies
                                        :managed-dependencies
                                        project))))
 
 (def directories
   (vec (map lthelper/pathify
-  ["/tmp/lein-sample-project/test"
-   "/tmp/lein-sample-project/src"
-   "/tmp/lein-sample-project/resources"])))
+            ["/tmp/lein-sample-project/test"
+             "/tmp/lein-sample-project/src"
+             "/tmp/lein-sample-project/resources"])))
 
 (def libs
   #{(str (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar"))
@@ -98,8 +98,8 @@
   (deftest test-checkout-symlink-unification
     (let [link! (fn link! [from to]
                   (java.nio.file.Files/createSymbolicLink (.toPath (io/file from))
-                                            (.toPath (io/file to))
-                                            (into-array java.nio.file.attribute.FileAttribute nil)))
+                                                          (.toPath (io/file to))
+                                                          (into-array java.nio.file.attribute.FileAttribute nil)))
           d1    (io/file (:root project) "deps" "d1")
           d2    (io/file (:root project) "deps" "d2")
           l1    (io/file (:root project) "checkouts" "d1")
@@ -123,14 +123,13 @@
                      path ["src"]]
                  (canonical (:root project) "deps" dep path))
                (#'leiningen.core.classpath/checkout-deps-paths
-                 (assoc project :checkout-deps-shares
-                                [:source-paths #'leiningen.core.classpath/checkout-deps-paths]))))
+                (assoc project :checkout-deps-shares
+                       [:source-paths #'leiningen.core.classpath/checkout-deps-paths]))))
         (finally
           ;; can't recur from finally
           (doseq [d [d1 d2 l1 l2a l2b]
                   f (reverse (file-seq d))]
-            (.delete ^File f)))
-        )))
+            (.delete ^File f))))))
   (catch ClassNotFoundException ex
     nil))
 

@@ -35,24 +35,24 @@
              (and (not (.exists f#)) (some-> f# .getParentFile .canWrite)))
        (do ~@body)
        (throw (java.io.IOException.
-         (str "Permission denied. Please check your access rights for " p#))))))
+               (str "Permission denied. Please check your access rights for " p#))))))
 
 (defn read-file
   "Returns the first Clojure form in a file if it exists."
   [file]
   (if (.exists file)
     (try (read-string (slurp file))
-        (catch Exception e
-         (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
-           (println "Error reading"
-                   (.getName file)
-                   "from"
-                   (.getParent file))
-           (if (zero? (.length file))
-             (println "File cannot be empty")
-             (if (.contains (.getMessage e) "EOF while reading")
-               (println "Invalid content was found")
-               (println (.getMessage e)))))))))
+         (catch Exception e
+           (binding [*out* *err*] ;; TODO: use main/warn for this in 3.0
+             (println "Error reading"
+                      (.getName file)
+                      "from"
+                      (.getParent file))
+             (if (zero? (.length file))
+               (println "File cannot be empty")
+               (if (.contains (.getMessage e) "EOF while reading")
+                 (println "Invalid content was found")
+                 (println (.getMessage e)))))))))
 
 (defn symlink?
   "Checks if a File is a symbolic link or points to another file."
@@ -84,9 +84,9 @@
   (or (find-ns (symbol namespace))
       (some (fn [suffix]
               (-> (#'clojure.core/root-resource namespace)
-                 (subs 1)
-                 (str suffix)
-                 io/resource))
+                  (subs 1)
+                  (str suffix)
+                  io/resource))
             [".clj" ".cljc" (str clojure.lang.RT/LOADER_SUFFIX ".class")])))
 
 (defn error [& args]
@@ -96,13 +96,13 @@
 (defn require-resolve
   "Resolve a fully qualified symbol by first requiring its namespace."
   ([sym]
-     (if-let [ns (namespace sym)]
-       (when (ns-exists? ns)
-         (let [ns (symbol ns)]
-           (when-not (find-ns ns)
-             (require ns)))
-         (resolve sym))
-       (resolve sym)))
+   (if-let [ns (namespace sym)]
+     (when (ns-exists? ns)
+       (let [ns (symbol ns)]
+         (when-not (find-ns ns)
+           (require ns)))
+       (resolve sym))
+     (resolve sym)))
   ([ns sym] (require-resolve (symbol ns sym))))
 
 ;; # OS detection
@@ -149,6 +149,7 @@
 
 ;; The ordering on map-vals and filter-vals may seem strange, but it helps out
 ;; if you want to do stuff like (update m :foo map-vals f extra-args)
+
 
 (defn map-vals
   "Like 'update', but for all values in a map."
@@ -256,9 +257,9 @@
           (System/setOut (PrintStream. o#))
           ~@body
           (.toString o#))
-     (finally
-       (System/setOut
-        (-> FileDescriptor/out FileOutputStream. PrintStream.)))))
+        (finally
+          (System/setOut
+           (-> FileDescriptor/out FileOutputStream. PrintStream.)))))
 
 (defmacro with-system-err-str
   "Like with-out-str, but for System/err."
@@ -267,9 +268,9 @@
           (System/setErr (PrintStream. o#))
           ~@body
           (.toString o#))
-     (finally
-       (System/setErr
-        (-> FileDescriptor/err FileOutputStream. PrintStream.)))))
+        (finally
+          (System/setErr
+           (-> FileDescriptor/err FileOutputStream. PrintStream.)))))
 
 (defn strip-properties-comments
   "Takes a string containing serialized java.util.Properties

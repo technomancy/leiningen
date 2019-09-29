@@ -12,9 +12,9 @@
             [leiningen.core.project :as project]))
 
 (use-fixtures :each
-              (fn [f]
-                (f)
-                (.delete (java.io.File. tmp-dir "lein-test-ran"))))
+  (fn [f]
+    (f)
+    (.delete (java.io.File. tmp-dir "lein-test-ran"))))
 
 (defn runs []
   (let [ran-file (io/file tmp-dir "lein-test-ran")]

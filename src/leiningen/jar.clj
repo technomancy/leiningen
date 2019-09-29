@@ -131,7 +131,7 @@
   "Adds a jar entry to the Jar output stream."
   [jar-os file path]
   (.putNextEntry jar-os (doto (JarEntry. path)
-                       (.setTime (.lastModified file))))
+                          (.setTime (.lastModified file))))
   (when-not (.isDirectory file)
     (io/copy file jar-os)))
 
@@ -140,8 +140,8 @@
         root-dir-path (unix-path (dir-string root-file))
         paths (for [child (file-seq root-file)
                     :let [path (relativize-path
-                                 (full-path child (unix-path (str child)))
-                                 root-dir-path)]]
+                                (full-path child (unix-path (str child)))
+                                root-dir-path)]]
                 (when-not (or (skip-file? child path root-file
                                           (:jar-exclusions project)
                                           (:jar-inclusions project))
@@ -181,7 +181,7 @@
       (if (:main project)
         (let [main-path (str (-> (string/replace (:main project) "." "/")
                                  (string/replace "-" "_"))
-                              ".class")]
+                             ".class")]
           (when-not (some #{main-path} jar-paths)
             (main/info "Warning: The Main-Class specified does not exist"
                        "within the jar. It may not be executable as expected."
@@ -204,7 +204,7 @@
              {:type :bytes :path (scope "project.clj")
               :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
             (for [doc (map (partial io/file (:root project))
-                        (concat readmes licenses))
+                           (concat readmes licenses))
                   :when (.isFile doc)]
               {:type :bytes :path (scope (.getName doc))
                :bytes (.getBytes (slurp doc))})
@@ -335,15 +335,15 @@ function in that namespace will be used as the main-class for executable jar.
 
 With an argument, the jar will be built with an alternate main."
   ([project main]
-     (utils/with-write-permissions (:root project)
-       (when (:auto-clean project true)
-         (clean/clean project))
-       (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
-             default-profiles (set (project/expand-profile project :default))
-             provided-profiles (remove
-                                (set/difference default-profiles scoped-profiles)
-                                (-> project meta :included-profiles))
-             project (preprocess-project project main)]
-         (merge (main-jar project provided-profiles main)
-                (classifier-jars project provided-profiles)))))
+   (utils/with-write-permissions (:root project)
+     (when (:auto-clean project true)
+       (clean/clean project))
+     (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
+           default-profiles (set (project/expand-profile project :default))
+           provided-profiles (remove
+                              (set/difference default-profiles scoped-profiles)
+                              (-> project meta :included-profiles))
+           project (preprocess-project project main)]
+       (merge (main-jar project provided-profiles main)
+              (classifier-jars project provided-profiles)))))
   ([project] (jar project nil)))

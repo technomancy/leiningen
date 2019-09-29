@@ -9,8 +9,8 @@
 (defn- repo-path
   [relative-repo-path]
   (clojure.string/replace
-    (format "%s/%s" tmp-dir relative-repo-path)
-    "\\" "/")) ;make path delimiters look the same / even under Windows
+   (format "%s/%s" tmp-dir relative-repo-path)
+   "\\" "/")) ;make path delimiters look the same / even under Windows
 
 (defn- repo-url
   [absolute-repo-path]
@@ -41,9 +41,9 @@
 (deftest ^:online test-deploy-repositories-key
   (testing "preferring repository in :deploy-repositories over :repositories"
     (deploy-snapshots (assoc sample-project
-                        :deploy-repositories
-                        {"snapshots" {:url (-> "deploy-only-repo"
-                                               repo-path repo-url)}})
+                             :deploy-repositories
+                             {"snapshots" {:url (-> "deploy-only-repo"
+                                                    repo-path repo-url)}})
                       "deploy-only-repo")))
 
 (deftest ^:online test-deploy-classifier
@@ -87,10 +87,10 @@
 
 (deftest classifiying
   (are [expected version file] (= expected (classifier version file))
-      "fat" "1.2.3"          "some-project-1.2.3-fat.jar"
-      "fat" "1.2.3-alpha6"   "some-project-1.2.3-alpha6-fat.jar"
-      "fat" "1.2.3-SNAPSHOT" "some-project-1.2.3-SNAPSHOT-fat.jar"
-      nil   "1.2.3"          "some-project-1.2.3-.jar"
-      nil   "1.2.3"          "some-project-1.2.3.jar"
-      nil   "0.1.0"          "/opt/workspace/mylib-0.1.0-builddir/target/mylib-0.1.0.jar"
-      "RC2" "0.1.0"          "\\opt\\workspace\\mylib-0.1.0-builddir\\target\\mylib-0.1.0-RC2.jar"))
+    "fat" "1.2.3"          "some-project-1.2.3-fat.jar"
+    "fat" "1.2.3-alpha6"   "some-project-1.2.3-alpha6-fat.jar"
+    "fat" "1.2.3-SNAPSHOT" "some-project-1.2.3-SNAPSHOT-fat.jar"
+    nil   "1.2.3"          "some-project-1.2.3-.jar"
+    nil   "1.2.3"          "some-project-1.2.3.jar"
+    nil   "0.1.0"          "/opt/workspace/mylib-0.1.0-builddir/target/mylib-0.1.0.jar"
+    "RC2" "0.1.0"          "\\opt\\workspace\\mylib-0.1.0-builddir\\target\\mylib-0.1.0-RC2.jar"))

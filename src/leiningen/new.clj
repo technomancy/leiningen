@@ -19,9 +19,9 @@
                                :else              "RELEASE")
         user-profiles (:user (user/profiles))
         repositories (reduce
-                       (:reduce (meta project/default-repositories))
-                       project/default-repositories
-                       (:plugin-repositories user-profiles))]
+                      (:reduce (meta project/default-repositories))
+                      project/default-repositories
+                      (:plugin-repositories user-profiles))]
     (merge {:templates [[template-symbol template-version]]
             :repositories repositories}
            (select-keys user-profiles [:mirrors]))))
@@ -57,28 +57,28 @@
 (defn create
   [template name & args]
   (cond
-   (and (re-find #"(?i)(?<!(clo|compo))jure" name)
-        (not (System/getenv "LEIN_IRONIC_JURE")))
-   (abort "Sorry, names such as clojure or *jure are not allowed."
-          "\nIf you intend to use this name ironically, please set the"
-          "\nLEIN_IRONIC_JURE environment variable and try again.")
-   (and (re-find #"(?i)(?<!(cl|comp))eauxure" name)
-        (not (System/getenv "LEIN_IRONIC_EAUXURE")))
-   (abort "Sorry, names such as cleauxure or *eauxure are not allowed."
-          "\nIf you intend to use this name ironically, please set the"
-          "\nLEIN_IRONIC_EAUXURE environment variable and try again.")
-   (or (= name "clojure") (= name "cljs"))
-   (abort "Sorry, clojure and cljs can't be used as project names."
-          "\nIt will confuse the compiler and cause obscure issues.")
-   (and (re-find #"[A-Z]" name)
-        (not (System/getenv "LEIN_BREAK_CONVENTION")))
-   (abort "Project names containing uppercase letters are not recommended"
-          "\nand will be rejected by repositories like Clojars and Central."
-          "\nIf you're truly unable to use a lowercase name, please set the"
-          "\nLEIN_BREAK_CONVENTION environment variable and try again.")
-   (not (symbol? (try (read-string name) (catch Exception _))))
-   (abort "Project names must be valid Clojure symbols.")
-   :else (apply (resolve-template template) name args)))
+    (and (re-find #"(?i)(?<!(clo|compo))jure" name)
+         (not (System/getenv "LEIN_IRONIC_JURE")))
+    (abort "Sorry, names such as clojure or *jure are not allowed."
+           "\nIf you intend to use this name ironically, please set the"
+           "\nLEIN_IRONIC_JURE environment variable and try again.")
+    (and (re-find #"(?i)(?<!(cl|comp))eauxure" name)
+         (not (System/getenv "LEIN_IRONIC_EAUXURE")))
+    (abort "Sorry, names such as cleauxure or *eauxure are not allowed."
+           "\nIf you intend to use this name ironically, please set the"
+           "\nLEIN_IRONIC_EAUXURE environment variable and try again.")
+    (or (= name "clojure") (= name "cljs"))
+    (abort "Sorry, clojure and cljs can't be used as project names."
+           "\nIt will confuse the compiler and cause obscure issues.")
+    (and (re-find #"[A-Z]" name)
+         (not (System/getenv "LEIN_BREAK_CONVENTION")))
+    (abort "Project names containing uppercase letters are not recommended"
+           "\nand will be rejected by repositories like Clojars and Central."
+           "\nIf you're truly unable to use a lowercase name, please set the"
+           "\nLEIN_BREAK_CONVENTION environment variable and try again.")
+    (not (symbol? (try (read-string name) (catch Exception _))))
+    (abort "Project names must be valid Clojure symbols.")
+    :else (apply (resolve-template template) name args)))
 
 ;; Since we have our convention of templates always being at
 ;; `leiningen.new.<template>`, we can easily search the classpath

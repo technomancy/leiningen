@@ -5,83 +5,83 @@
 
 (def invalid-semver-version-values
   [["1.0" "1.0"]
-    ["derpin" "derpin"]])
+   ["derpin" "derpin"]])
 
 (def valid-semver-version-values
   [["1.0.0"
-   {:major 1
-    :minor 0
-    :patch 0
-    :qualifier nil
-    :snapshot nil}
-   {:major "2.0.0-SNAPSHOT"
-    :minor "1.1.0-SNAPSHOT"
-    :patch "1.0.1-SNAPSHOT"
-    :release "1.0.0"
-    :alpha "1.0.0-alpha1-SNAPSHOT"
-    :beta "1.0.0-beta1-SNAPSHOT"
-    :rc "1.0.0-RC1-SNAPSHOT"
-    :qualifier "1.0.0-1-SNAPSHOT"}]
+    {:major 1
+     :minor 0
+     :patch 0
+     :qualifier nil
+     :snapshot nil}
+    {:major "2.0.0-SNAPSHOT"
+     :minor "1.1.0-SNAPSHOT"
+     :patch "1.0.1-SNAPSHOT"
+     :release "1.0.0"
+     :alpha "1.0.0-alpha1-SNAPSHOT"
+     :beta "1.0.0-beta1-SNAPSHOT"
+     :rc "1.0.0-RC1-SNAPSHOT"
+     :qualifier "1.0.0-1-SNAPSHOT"}]
 
    ["1.2.3"
-   {:major 1
-    :minor 2
-    :patch 3
-    :qualifier nil
-    :snapshot nil}
-   {:major "2.0.0-SNAPSHOT"
-    :minor "1.3.0-SNAPSHOT"
-    :patch "1.2.4-SNAPSHOT"
-    :release "1.2.3"
-    :alpha "1.2.3-alpha1-SNAPSHOT"
-    :beta "1.2.3-beta1-SNAPSHOT"
-    :rc "1.2.3-RC1-SNAPSHOT"
-    :qualifier "1.2.3-1-SNAPSHOT"}]
+    {:major 1
+     :minor 2
+     :patch 3
+     :qualifier nil
+     :snapshot nil}
+    {:major "2.0.0-SNAPSHOT"
+     :minor "1.3.0-SNAPSHOT"
+     :patch "1.2.4-SNAPSHOT"
+     :release "1.2.3"
+     :alpha "1.2.3-alpha1-SNAPSHOT"
+     :beta "1.2.3-beta1-SNAPSHOT"
+     :rc "1.2.3-RC1-SNAPSHOT"
+     :qualifier "1.2.3-1-SNAPSHOT"}]
 
    ["1.2.3-herp"
-   {:major 1
-    :minor 2
-    :patch 3
-    :qualifier "herp"
-    :snapshot nil}
-   {:major "2.0.0-SNAPSHOT"
-    :minor "1.3.0-SNAPSHOT"
-    :patch "1.2.4-SNAPSHOT"
-    :release "1.2.3"
-    :alpha "1.2.3-alpha1-SNAPSHOT"
-    :beta "1.2.3-beta1-SNAPSHOT"
-    :rc "1.2.3-RC1-SNAPSHOT"
-    :qualifier "1.2.3-herp1-SNAPSHOT"}]
+    {:major 1
+     :minor 2
+     :patch 3
+     :qualifier "herp"
+     :snapshot nil}
+    {:major "2.0.0-SNAPSHOT"
+     :minor "1.3.0-SNAPSHOT"
+     :patch "1.2.4-SNAPSHOT"
+     :release "1.2.3"
+     :alpha "1.2.3-alpha1-SNAPSHOT"
+     :beta "1.2.3-beta1-SNAPSHOT"
+     :rc "1.2.3-RC1-SNAPSHOT"
+     :qualifier "1.2.3-herp1-SNAPSHOT"}]
 
    ["1.0.0-SNAPSHOT"
-   {:major 1
-    :minor 0
-    :patch 0
-    :qualifier nil
-    :snapshot "SNAPSHOT"}
-   {:major "2.0.0-SNAPSHOT"
-    :minor "1.1.0-SNAPSHOT"
-    :patch "1.0.1-SNAPSHOT"
-    :release "1.0.0"
-    :alpha "1.0.0-alpha1-SNAPSHOT"
-    :beta "1.0.0-beta1-SNAPSHOT"
-    :rc "1.0.0-RC1-SNAPSHOT"
-    :qualifier "1.0.0-1-SNAPSHOT"}]
+    {:major 1
+     :minor 0
+     :patch 0
+     :qualifier nil
+     :snapshot "SNAPSHOT"}
+    {:major "2.0.0-SNAPSHOT"
+     :minor "1.1.0-SNAPSHOT"
+     :patch "1.0.1-SNAPSHOT"
+     :release "1.0.0"
+     :alpha "1.0.0-alpha1-SNAPSHOT"
+     :beta "1.0.0-beta1-SNAPSHOT"
+     :rc "1.0.0-RC1-SNAPSHOT"
+     :qualifier "1.0.0-1-SNAPSHOT"}]
 
    ["1.0.0-alpha1"
-   {:major 1
-    :minor 0
-    :patch 0
-    :qualifier "alpha1"
-    :snapshot nil}
-   {:major "2.0.0-SNAPSHOT"
-    :minor "1.1.0-SNAPSHOT"
-    :patch "1.0.1-SNAPSHOT"
-    :release "1.0.0"
-    :alpha "1.0.0-alpha2-SNAPSHOT"
-    :beta "1.0.0-beta1-SNAPSHOT"
-    :rc "1.0.0-RC1-SNAPSHOT"
-    :qualifier "1.0.0-alpha2-SNAPSHOT"}]
+    {:major 1
+     :minor 0
+     :patch 0
+     :qualifier "alpha1"
+     :snapshot nil}
+    {:major "2.0.0-SNAPSHOT"
+     :minor "1.1.0-SNAPSHOT"
+     :patch "1.0.1-SNAPSHOT"
+     :release "1.0.0"
+     :alpha "1.0.0-alpha2-SNAPSHOT"
+     :beta "1.0.0-beta1-SNAPSHOT"
+     :rc "1.0.0-RC1-SNAPSHOT"
+     :qualifier "1.0.0-alpha2-SNAPSHOT"}]
 
    ["1.0.0-alpha1-SNAPSHOT"
     {:major 1

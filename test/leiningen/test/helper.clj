@@ -102,7 +102,6 @@
         (delete-file-recursively child silently)))
     (io/delete-file f silently)))
 
-
 (defn fix-path-delimiters [input-str]
   (clojure.string/replace input-str "/" java.io.File/separator))
 
@@ -113,15 +112,15 @@
   not absolute, then .getAbsolutePath will resolve them relative to current
   directory." [in-str-or-file]
   (cond (or
-          (nil? in-str-or-file)
-          (not (or
-                 (.startsWith in-str-or-file "/")
-                 (and
-                   (>= (.length in-str-or-file) 3)
-                   (= ":\\" (.substring in-str-or-file 1 3))))))
-    (throw (RuntimeException. (str "Bad usage, passed: `" in-str-or-file "`.")))
-    :else
-    (.getAbsolutePath (io/as-file in-str-or-file))))
+         (nil? in-str-or-file)
+         (not (or
+               (.startsWith in-str-or-file "/")
+               (and
+                (>= (.length in-str-or-file) 3)
+                (= ":\\" (.substring in-str-or-file 1 3))))))
+        (throw (RuntimeException. (str "Bad usage, passed: `" in-str-or-file "`.")))
+        :else
+        (.getAbsolutePath (io/as-file in-str-or-file))))
 
 (defn entries
   "Returns a lazy seq of all the entries in a zipfile."

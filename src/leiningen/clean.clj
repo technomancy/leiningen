@@ -87,8 +87,8 @@
   (let [project (with-parent-target-path project)]
     (doseq [target-key (:clean-targets project)]
       (when-let [target (cond (vector? target-key)  (get-in project target-key)
-                          (keyword? target-key) (target-key project)
-                          (string? target-key)  target-key)]
+                              (keyword? target-key) (target-key project)
+                              (string? target-key)  target-key)]
         (doseq [f (flatten [target])]
           (sanity-check project f)
           (delete-file-recursively f :silently))))))

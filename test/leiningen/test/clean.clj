@@ -46,25 +46,25 @@
 (deftest test-explicit-clean-targets-with-keywords
   (let [modified-project
         (assoc sample-project
-          :target-path-2 target-2
-          :clean-targets [:target-path :target-path-2])]
+               :target-path-2 target-2
+               :clean-targets [:target-path :target-path-2])]
     (clean modified-project)
     (assert-cleaned target-1)
     (assert-cleaned target-2)))
 
 (deftest test-explicit-clean-targets-with-vector-of-keywords
   (testing "clean targets that are deeply nested in the project map"
-   (let [modified-project
-         (assoc sample-project
-           :nest-1 {:nest-2 {:target-path-3 target-3}}
-           :clean-targets [[:nest-1 :nest-2 :target-path-3]])]
-     (clean modified-project)
-     (assert-cleaned target-3))))
+    (let [modified-project
+          (assoc sample-project
+                 :nest-1 {:nest-2 {:target-path-3 target-3}}
+                 :clean-targets [[:nest-1 :nest-2 :target-path-3]])]
+      (clean modified-project)
+      (assert-cleaned target-3))))
 
 (deftest test-explicit-clean-targets-with-valid-string-paths
   (let [modified-project
         (assoc sample-project
-          :clean-targets [target-2 target-3])]
+               :clean-targets [target-2 target-3])]
     (clean modified-project)
     (assert-cleaned target-2)
     (assert-cleaned target-3)))
@@ -77,7 +77,7 @@
     (doseq [test-dir ["../../xyz" "/xyz"]]
       (let [modified-project
             (assoc sample-project
-              :clean-targets [test-dir])]
+                   :clean-targets [test-dir])]
         (is (thrown-with-msg? clojure.lang.ExceptionInfo #"project root"
                               (clean modified-project))))))
 
@@ -86,22 +86,22 @@
       (let [test-path (relative-to-absolute-project-path "test-path")
             modified-project
             (assoc sample-project
-              path-key [test-path]
-              :clean-targets [test-path])]
+                   path-key [test-path]
+                   :clean-targets [test-path])]
         (is (thrown-with-msg? clojure.lang.ExceptionInfo #"non-target"
                               (clean modified-project))))))
 
   (testing "should not delete project.clj"
     (let [modified-project
           (assoc sample-project
-            :clean-targets [(relative-to-absolute-project-path "project.clj")])]
+                 :clean-targets [(relative-to-absolute-project-path "project.clj")])]
       (is (thrown-with-msg? clojure.lang.ExceptionInfo #"non-target"
                             (clean modified-project)))))
 
   (testing "should not delete docs"
     (let [modified-project
           (assoc sample-project
-            :clean-targets [(relative-to-absolute-project-path "doc/stuff.doc")])]
+                 :clean-targets [(relative-to-absolute-project-path "doc/stuff.doc")])]
       (is (thrown-with-msg? clojure.lang.ExceptionInfo #"non-target"
                             (clean modified-project))))))
 
@@ -119,16 +119,16 @@
                           "doc/foo" "project.clj"]))]
       (let [modified-project
             (assoc sample-project
-              :test-paths [(relative-to-absolute-project-path "xtest")]
-              :resource-paths [(relative-to-absolute-project-path "xresources")]
-              :source-paths [(relative-to-absolute-project-path "xsrc")]
-              :clean-targets ^{:protect false} [test-dir])]
+                   :test-paths [(relative-to-absolute-project-path "xtest")]
+                   :resource-paths [(relative-to-absolute-project-path "xresources")]
+                   :source-paths [(relative-to-absolute-project-path "xsrc")]
+                   :clean-targets ^{:protect false} [test-dir])]
         (clean modified-project)
         (assert-cleaned test-dir)))))
 
 (deftest spliced-target-paths
   (let [p (-> (project/make {:root "/a/b/c" :target-path "foo/bar/%s"})
-            (project/set-profiles [:dev]))]
+              (project/set-profiles [:dev]))]
     (is (= "/a/b/c/foo/bar/dev" (:target-path p)))
     (clean p)
     (assert-cleaned "/a/b/c/foo/bar/dev")))
@@ -137,7 +137,7 @@
   (let [p (-> (project/make {:root "/a/b/c"
                              :target-path "/foo/bar/%s"
                              :clean-targets ^{:protect false} [:target-path]})
-            (project/set-profiles [:dev]))]
+              (project/set-profiles [:dev]))]
     (is (= "/foo/bar/dev" (:target-path p)))
     (clean p)
     (assert-cleaned "/foo/bar/dev")))

@@ -80,10 +80,10 @@
 
 (defn- find-right [loc pred]
   (->> loc
-      (iterate zip/right)
-      (take-while (comp not nil?))
-      (filter (comp pred zip/node))
-      first))
+       (iterate zip/right)
+       (take-while (comp not nil?))
+       (filter (comp pred zip/node))
+       first))
 
 (defn- find-key [loc key]
   (->> loc
@@ -130,7 +130,7 @@
       zip/right
       (find-right (comp #{:symbol} :tag))
       (or (fail-argument! "Project name not found"))
-      (zip/edit (comp clj->sjacket symbol fn str sjacket->clj ))
+      (zip/edit (comp clj->sjacket symbol fn str sjacket->clj))
       zip/root))
 
 (defn- update-setting [proj [p & ath] fn]

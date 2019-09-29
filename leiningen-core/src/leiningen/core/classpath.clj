@@ -22,8 +22,8 @@
   (doseq [file files
           :let [native-prefix (get native-prefixes file "native/")
                 jar (try (JarFile. file)
-                      (catch Exception e
-                        (throw (Exception. (format "Problem opening jar %s" file) e))))]
+                         (catch Exception e
+                           (throw (Exception. (format "Problem opening jar %s" file) e))))]
           entry (enumeration-seq (.entries jar))
           :when (.startsWith (.getName entry) native-prefix)]
     (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
@@ -142,7 +142,7 @@
   (try
     (read-string s)
     (catch Exception e
-       ::error)))
+      ::error)))
 
 (defn outdated-swap!
   "Performs f if cmp-val is not equal to the old compare value. f is
@@ -287,28 +287,28 @@
          (every? vector? (get project managed-dependencies-key))]}
   (try
     (apply
-      (if add-classpath?
-        pomegranate/add-dependencies
-        aether/resolve-dependencies)
-      (apply concat
-        (merge
-          (default-aether-args project)
-          {:managed-coordinates (get project managed-dependencies-key)
-           :coordinates (get project dependencies-key)
-           :repository-session-fn *dependencies-session*
-           :transfer-listener
-           (bound-fn [e]
-             (let [{:keys [type resource error]} e
-                   {:keys [repository name size trace]} resource
-                   aether-repos (if trace (.getRepositories (.getData trace)))
-                   find-repo #(or (= (.getUrl %) repository)
+     (if add-classpath?
+       pomegranate/add-dependencies
+       aether/resolve-dependencies)
+     (apply concat
+            (merge
+             (default-aether-args project)
+             {:managed-coordinates (get project managed-dependencies-key)
+              :coordinates (get project dependencies-key)
+              :repository-session-fn *dependencies-session*
+              :transfer-listener
+              (bound-fn [e]
+                (let [{:keys [type resource error]} e
+                      {:keys [repository name size trace]} resource
+                      aether-repos (if trace (.getRepositories (.getData trace)))
+                      find-repo #(or (= (.getUrl %) repository)
                                   ;; sometimes the "base" url
                                   ;; doesn't have a slash on it
-                                  (= (str (.getUrl %) "/") repository))]
-               (when-let [repo (and (= type :started)
-                                    (first (filter find-repo aether-repos)))]
-                 (locking *err*
-                   (warn "Retrieving" name "from" (.getId repo))))))})))
+                                     (= (str (.getUrl %) "/") repository))]
+                  (when-let [repo (and (= type :started)
+                                       (first (filter find-repo aether-repos)))]
+                    (locking *err*
+                      (warn "Retrieving" name "from" (.getId repo))))))})))
     (catch DependencyResolutionException e
       ;; Cannot recur from catch/finally so have to put this in its own defn
       (print-failures e)
@@ -348,7 +348,7 @@
   and version."
   [dep dependencies]
   (some (fn [v] ; not certain if this is the best matching fn
-          (when (= (subvec dep 0 2) (subvec v 0 2 )) v))
+          (when (= (subvec dep 0 2) (subvec v 0 2)) v))
         dependencies))
 
 (defn get-native-prefix
@@ -491,8 +491,8 @@
       ;; it's important to preserve the metadata, because it is used for
       ;; profile merging, etc.
       (with-meta
-       (into [id nil] opts)
-       (meta dep)))))
+        (into [id nil] opts)
+        (meta dep)))))
 
 (defn normalize-dep-vectors
   "Normalize the vectors for the `:dependencies` section of the project.  This

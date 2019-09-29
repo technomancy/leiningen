@@ -6,20 +6,20 @@
 
 (deftest test-update-in
   (doseq
-      [[in-args task-form]
-       (->> [[(prj-map {:version "1.0.0"})
-              ":" "assoc" ":version" "\"2.0.0\"" "--" "jar"]
-             ["jar" (prj-map {:version "2.0.0"})]
+   [[in-args task-form]
+    (->> [[(prj-map {:version "1.0.0"})
+           ":" "assoc" ":version" "\"2.0.0\"" "--" "jar"]
+          ["jar" (prj-map {:version "2.0.0"})]
 
-             [(prj-map {:repl-options {:port 1}})
-              ":repl-options:port" "inc" "--" "repl" ":headless"]
-             ["repl" (prj-map {:repl-options {:port 2}}) ":headless"]
+          [(prj-map {:repl-options {:port 1}})
+           ":repl-options:port" "inc" "--" "repl" ":headless"]
+          ["repl" (prj-map {:repl-options {:port 2}}) ":headless"]
 
-             [(prj-map {:dependencies [['clojure.core (clojure-version)]]})
-              ":dependencies" "conj" "[slamhound \"1.1.3\"]" "--" "repl"]
-             ["repl" (prj-map {:dependencies [['clojure.core (clojure-version)]
-                                             ['slamhound "1.1.3"]]})]]
-            (partition 2))]
+          [(prj-map {:dependencies [['clojure.core (clojure-version)]]})
+           ":dependencies" "conj" "[slamhound \"1.1.3\"]" "--" "repl"]
+          ["repl" (prj-map {:dependencies [['clojure.core (clojure-version)]
+                                           ['slamhound "1.1.3"]]})]]
+         (partition 2))]
     (let [[in-prj key-path f & args] in-args
           [keys-vec f f-args [task-name & task-args]]
           (parse-args key-path f args)

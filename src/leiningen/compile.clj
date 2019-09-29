@@ -120,17 +120,17 @@
 (def ^:private thread-factory-form
   `(let [counter# (atom 0)]
      (proxy [java.util.concurrent.ThreadFactory] []
-      (newThread [r#]
-        (let [thread-factory# (java.util.concurrent.Executors/defaultThreadFactory)]
-          (doto (.newThread thread-factory# r#)
-            (.setName (str "leiningen-send-off-pool-" (swap! counter# inc)))))))))
+       (newThread [r#]
+         (let [thread-factory# (java.util.concurrent.Executors/defaultThreadFactory)]
+           (doto (.newThread thread-factory# r#)
+             (.setName (str "leiningen-send-off-pool-" (swap! counter# inc)))))))))
 
 (def ^:private set-agent-threadpool-form
   ;; set-agent-send-off-executor! was introduced in Clojure 1.5
   `(when-let [set-executor!# (resolve 'clojure.core/set-agent-send-off-executor!)]
      (set-executor!#
       (doto ^java.util.concurrent.ThreadPoolExecutor
-          (java.util.concurrent.Executors/newCachedThreadPool ~thread-factory-form)
+       (java.util.concurrent.Executors/newCachedThreadPool ~thread-factory-form)
         (.setKeepAliveTime 100 java.util.concurrent.TimeUnit/MILLISECONDS)))))
 
 (defn compile

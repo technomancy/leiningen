@@ -29,15 +29,15 @@
   (is (= "This is an
               AWESOME command
             For real!"
-      (formatted-docstring
-        "install"
-        "This is an\n  AWESOME command\nFor real!" 5))))
+         (formatted-docstring
+          "install"
+          "This is an\n  AWESOME command\nFor real!" 5))))
 
 (deftest test-formatted-help
   (is (= "install           This is an
                   AWESOME command
                   For real!"
-      (formatted-help "install" "This is an\nAWESOME command\nFor real!" 15))))
+         (formatted-help "install" "This is an\nAWESOME command\nFor real!" 15))))
 
 (deftest ^:disabled test-get-subtasks
   (let [m (get-subtasks-and-docstrings-for (second (resolve-task "plugin")))]
@@ -51,7 +51,7 @@
     (is (re-find #"not found" (help-for {} "not-a-task"))))
   (testing "own alias docstrings"
     (let [custom-aliases {:aliases {"foobar" ^{:doc "Foos the bar."}
-                                              ["foo" "bar"],
+                                    ["foo" "bar"],
                                     "vsn" "version"
                                     "multipart" ["multi" "part"]}}]
       (is (re-find #"is an alias for" (help-for custom-aliases "vsn")))

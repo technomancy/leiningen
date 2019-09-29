@@ -18,6 +18,6 @@ With no arguments, print the classpath to stdout.
 
 Suitable for java's -cp option."
   ([project]
-     (println (get-classpath-string project)))
+   (println (get-classpath-string project)))
   ([project output-file]
-     (spit output-file (get-classpath-string project))))
+   (spit output-file (get-classpath-string project))))

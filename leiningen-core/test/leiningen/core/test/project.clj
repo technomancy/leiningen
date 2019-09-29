@@ -10,12 +10,12 @@
   (:import (java.io StringReader)))
 
 (use-fixtures :once
-              (fn [f]
+  (fn [f]
                 ;; Can't have user-level profiles interfering!
-                (with-redefs [user/profiles (constantly {})
-                              user/credentials (constantly nil)
-                              project/warn-once #'project/warn]
-                  (f))))
+    (with-redefs [user/profiles (constantly {})
+                  user/credentials (constantly nil)
+                  project/warn-once #'project/warn]
+      (f))))
 
 (defn make-project
   "Make put a project map's :profiles on it's metadata"
@@ -107,8 +107,8 @@
                        :jader {:foo ^:replace [7 8]}}
         test-project (fn [p]
                        (project-with-profiles-meta
-                         p
-                         (merge test-profiles (:profiles p))))]
+                        p
+                        (merge test-profiles (:profiles p))))]
     (testing "that :^displace throws away the value if another exist"
       (is (= [1 2]
              (-> (make (test-project {:foo [1 2]}))
@@ -296,8 +296,8 @@
 (deftest test-merge-profile-paths
   (let [test-project (fn [p]
                        (project-with-profiles-meta
-                         p
-                         (merge @test-profiles (:profiles p))))]
+                        p
+                        (merge @test-profiles (:profiles p))))]
     (is (= (vec (map lthelper/fix-path-delimiters ["/etc/myapp" "test/hi" "blue-resources" "resources"]))
            (-> (make
                 (test-project
@@ -402,9 +402,9 @@
   (let [profiles (into {} (map #(vector (-> % str keyword) {:foo [%]}) (range 10)))
         project (make {:profiles profiles})]
     (is (= (range 10)
-          (-> (make-project project)
-            (merge-profiles [:0 :1 :2 :3 :4 :5 :6 :7 :8 :9])
-            :foo)))))
+           (-> (make-project project)
+               (merge-profiles [:0 :1 :2 :3 :4 :5 :6 :7 :8 :9])
+               :foo)))))
 
 (deftest test-global-exclusions
   (let [project {:dependencies
@@ -441,17 +441,17 @@
 (deftest test-plugin-vars
   (are [project hooks middleware] (= (list hooks middleware)
                                      (map (partial plugin-vars project) [:hooks :middleware]))
-       {:plugins '[[lein-foo "1.2.3"]]}
-       '(lein-foo.plugin/hooks) '(lein-foo.plugin/middleware)
+    {:plugins '[[lein-foo "1.2.3"]]}
+    '(lein-foo.plugin/hooks) '(lein-foo.plugin/middleware)
 
-       {:plugins '[[lein-foo "1.2.3" :hooks false]]}
-       '() '(lein-foo.plugin/middleware)
+    {:plugins '[[lein-foo "1.2.3" :hooks false]]}
+    '() '(lein-foo.plugin/middleware)
 
-       {:plugins '[[lein-foo "1.2.3" :middleware false]]}
-       '(lein-foo.plugin/hooks) '()
+    {:plugins '[[lein-foo "1.2.3" :middleware false]]}
+    '(lein-foo.plugin/hooks) '()
 
-       {:plugins '[[lein-foo "1.2.3" :hooks false :middleware false]]}
-       '() '()))
+    {:plugins '[[lein-foo "1.2.3" :hooks false :middleware false]]}
+    '() '()))
 
 (deftest test-add-profiles
   (let [expected-result {:dependencies [] :profiles {:a1 {:src-paths ["a1/"]}
@@ -508,10 +508,10 @@
 (deftest test-override-default
   (is (= {:A 1, :B 2, :C 3}
          (-> (make-project
-               {:profiles {:a {:A 1 :B 2}
-                           :b {:B 2 :C 2}
-                           :c {:C 3}
-                           :default [:a :b :c]}})
+              {:profiles {:a {:A 1 :B 2}
+                          :b {:B 2 :C 2}
+                          :c {:C 3}
+                          :default [:a :b :c]}})
              (merge-profiles [:default])
              (dissoc :profiles)))))
 
@@ -564,12 +564,12 @@
 
 (deftest test-dedupe-non-group-deps
   (is (= '[[foo/foo "1.1"]]
-        (-> (make-project
+         (-> (make-project
               {:dependencies empty-dependencies
                :profiles {:a {:dependencies '[[foo "1.0"]]}
                           :b {:dependencies '[[foo "1.1"]]}}})
-          (merge-profiles [:a :b])
-          (:dependencies)))))
+             (merge-profiles [:a :b])
+             (:dependencies)))))
 
 (deftest test-warn-user-repos
   (if (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")

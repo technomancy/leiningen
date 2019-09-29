@@ -18,29 +18,28 @@
   (let [profiles (.split profile-group ",")
         prefixes (map first profiles)]
     (cond
-     (every? #{\+ \-} prefixes)
-     (distinct
-      (reduce (fn [result profile]
-                (let [pm (first profile), profile (keyword (subs profile 1))
-                      profiles (project/expand-profile project profile)]
-                  (if (= \+ pm)
-                    (concat result profiles)
-                    (remove (set profiles) result))))
-              (mapcat (partial project/expand-profile project)
-                      (:active-profiles (meta project)))
-              profiles))
+      (every? #{\+ \-} prefixes)
+      (distinct
+       (reduce (fn [result profile]
+                 (let [pm (first profile), profile (keyword (subs profile 1))
+                       profiles (project/expand-profile project profile)]
+                   (if (= \+ pm)
+                     (concat result profiles)
+                     (remove (set profiles) result))))
+               (mapcat (partial project/expand-profile project)
+                       (:active-profiles (meta project)))
+               profiles))
 
-     (not-any? #{\+ \-} prefixes)
-     (distinct
-      (mapcat (comp #(project/expand-profile project %) keyword)
-              profiles))
+      (not-any? #{\+ \-} prefixes)
+      (distinct
+       (mapcat (comp #(project/expand-profile project %) keyword)
+               profiles))
 
-     :else
-     (throw
-      (ex-info
-       "Profiles in with-profile must either all be qualified, or none qualified"
-       {:exit-code 1})))))
-
+      :else
+      (throw
+       (ex-info
+        "Profiles in with-profile must either all be qualified, or none qualified"
+        {:exit-code 1})))))
 
 (defn- apply-task-with-profiles
   [project profiles task-name args failures multi-group]

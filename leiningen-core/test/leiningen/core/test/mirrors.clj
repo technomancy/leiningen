@@ -5,6 +5,8 @@
 
 
 ;; Regression test for Issue #1555
+
+
 (defproject mirrors-work-ok-with-plugins-project "0.0.0"
   ;; we need to use a sequence of pairs rather than a map to
   ;; reproduce the bug; IRL maps got converted to seqs somehow or

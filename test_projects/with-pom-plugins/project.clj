@@ -8,7 +8,7 @@
                   :c 3}]
                 [three.parameter/with-list "1.0.3"
                  (:root
-                   [:a 1]
-                   [:b
-                    [:c 2]
-                    [:d 3]])]])
+                  [:a 1]
+                  [:b
+                   [:c 2]
+                   [:d 3]])]])

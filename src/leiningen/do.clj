@@ -22,12 +22,12 @@
   ([args]  (-> (reduce group-args [[]] args)
                (pop-if-last empty?)))
   ([groups arg]
-     (cond (coll? arg) (-> (pop-if-last groups empty?)
-                           (conj arg []))
-           (.endsWith arg ",") (-> groups
-                                   (conj-to-last (butlast-char arg))
-                                   (conj []))
-           :else (conj-to-last groups arg))))
+   (cond (coll? arg) (-> (pop-if-last groups empty?)
+                         (conj arg []))
+         (.endsWith arg ",") (-> groups
+                                 (conj-to-last (butlast-char arg))
+                                 (conj []))
+         :else (conj-to-last groups arg))))
 
 (defn ^:no-project-needed ^:higher-order do
   "Higher-order task to perform other tasks in succession.

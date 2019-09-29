@@ -62,11 +62,11 @@
 (deftest test-new-with-nonexistent-template-in-mirrors
   (is (nil?
        (with-redefs
-         [leiningen.core.user/profiles
-          (constantly {:user
-                        {:mirrors
-                          {"clojars" "https://clojars.example.com"
-                           "central" "http://central.exmaple.com"}}})]
+        [leiningen.core.user/profiles
+         (constantly {:user
+                      {:mirrors
+                       {"clojars" "https://clojars.example.com"
+                        "central" "http://central.exmaple.com"}}})]
          (let [name "luminus"
                sym (symbol (str "leiningen.new." name))]
            (leiningen.new/resolve-remote-template name sym))))))

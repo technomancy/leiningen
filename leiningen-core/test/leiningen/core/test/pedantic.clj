@@ -12,7 +12,7 @@
   (when (.isDirectory dir)
     (doseq [file (.listFiles dir)]
       (delete-recursive file)))
-    (.delete dir))
+  (.delete dir))
 
 (defn clear-tmp
   [f]
@@ -31,18 +31,18 @@
   <packaging>jar</packaging>
   <version>" version "</version>
   <name>" name "</name>"
-  (if-not (empty? deps)
-    (apply str
-           "<dependencies>"
-           (clojure.string/join "\n"
-                                (for [[n v] deps]
-                                  (str "<dependency>
+       (if-not (empty? deps)
+         (apply str
+                "<dependencies>"
+                (clojure.string/join "\n"
+                                     (for [[n v] deps]
+                                       (str "<dependency>
                    <groupId>" n "</groupId>
-                   <artifactId>"n"</artifactId>
-                   <version>"v"</version>
+                   <artifactId>" n "</artifactId>
+                   <version>" v "</version>
                    </dependency>")))
-           "</dependencies>"))
-  " </project>"))
+                "</dependencies>"))
+       " </project>"))
 
 (defn make-metadata [name versions]
   (str "<metadata>
@@ -50,10 +50,10 @@
   <artifactId>" name "</artifactId>
   <versioning>
   <versions>"
-  (clojure.string/join "\n"
-                       (for [v versions]
-                         (str "<version>"v"</version>")))
-    "</versions>
+       (clojure.string/join "\n"
+                            (for [v versions]
+                              (str "<version>" v "</version>")))
+       "</versions>
     <lastUpdated>20120810193549</lastUpdated>
   </versioning>
   </metadata>"))
@@ -134,7 +134,6 @@
 (use-fixtures :each clear-tmp)
 (use-fixtures :each reset-state)
 
-
 (deftest top-level-overrides-transative-later
   (resolve-deps '[[a "1"]
                   [aa "2"]])
@@ -149,9 +148,9 @@
 (deftest ranges-are-found
   (resolve-deps '[[range "1"]])
   (is (= (translate @ranges) '[{:node [a "1"]
-                               :parents [[range "1"]]}
+                                :parents [[range "1"]]}
                                {:node [a "2"]
-                               :parents [[range "1"]]}]))
+                                :parents [[range "1"]]}]))
   (is (= @overrides
          [])))
 

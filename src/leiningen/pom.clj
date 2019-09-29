@@ -53,8 +53,8 @@
   the SHA1 or nil if none exists."
   [git-dir]
   (let [head (.trim (slurp (str (io/file git-dir "HEAD"))))]
-                           (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
-                             (read-git-ref git-dir ref-path))))
+    (if-let [ref-path (second (re-find #"ref: (\S+)" head))]
+      (read-git-ref git-dir ref-path))))
 
 (defn- read-git-head
   "Reads the value of HEAD and returns a commit SHA1, or nil if no commit
@@ -161,13 +161,13 @@
 
 (defmethod xml-tags :default
   ([tag value]
-     (and value [(pomify tag) value])))
+   (and value [(pomify tag) value])))
 
 (defmethod xml-tags ::list
   ([tag values]
-     [(pomify tag) (map (partial xml-tags
-                                 (-> tag name (s/replace #"ies$" "y") keyword))
-                        values)]))
+   [(pomify tag) (map (partial xml-tags
+                               (-> tag name (s/replace #"ies$" "y") keyword))
+                      values)]))
 
 (doseq [c [::dependencies ::repositories]]
   (derive c ::list))
@@ -190,16 +190,16 @@
   ([_ [dep version & {:keys [optional classifier
                              exclusions scope
                              extension]}]]
-     [::pom/dependency
-      (map (partial apply xml-tags)
-           {:group-id (or (namespace dep) (name dep))
-            :artifact-id (name dep)
-            :version version
-            :optional optional
-            :classifier classifier
-            :type extension
-            :exclusions exclusions
-            :scope scope})]))
+   [::pom/dependency
+    (map (partial apply xml-tags)
+         {:group-id (or (namespace dep) (name dep))
+          :artifact-id (name dep)
+          :version version
+          :optional optional
+          :classifier classifier
+          :type extension
+          :exclusions exclusions
+          :scope scope})]))
 
 (defn- policy-tags [type opts]
   (seq (keep (partial apply xml-tags)
@@ -214,22 +214,22 @@
 
 (defmethod xml-tags ::repository
   ([_ [id opts]]
-     [::pom/repository
-      (map (partial apply xml-tags)
-           {:id id
-            :url (:url opts)
-            :snapshots (policy-tags :snapshots opts)
-            :releases (policy-tags :releases opts)})]))
+   [::pom/repository
+    (map (partial apply xml-tags)
+         {:id id
+          :url (:url opts)
+          :snapshots (policy-tags :snapshots opts)
+          :releases (policy-tags :releases opts)})]))
 
 (defmethod xml-tags ::license
   ([_ opts]
-     (and opts
-          (if-let [tags (if (string? opts)
-                          [::pom/name opts]
-                          (seq (for [key [:name :url :distribution :comments]
-                                     :let [val (opts key)] :when val]
-                                 [(pomify key) (name val)])))]
-            [::pom/license tags]))))
+   (and opts
+        (if-let [tags (if (string? opts)
+                        [::pom/name opts]
+                        (seq (for [key [:name :url :distribution :comments]
+                                   :let [val (opts key)] :when val]
+                               [(pomify key) (name val)])))]
+          [::pom/license tags]))))
 
 (defn- license-tags [project]
   (seq (concat (for [k [:license :licence]
@@ -248,83 +248,82 @@
 
 (defmethod xml-tags ::build
   ([_ [project test-project]]
-     (let [[src & extra-src] (concat (:source-paths project)
-                                     (:java-source-paths project))
-           [test & extra-test] (:test-paths test-project)]
-       [::pom/build
-        [::pom/sourceDirectory src]
-        (xml-tags :testSourceDirectory test)
-        (resource-tags project :resource)
-        (resource-tags test-project :testResource)
-        (if-let [extensions (seq (:extensions project))]
-          (vec (concat [::pom/extensions]
-                       (for [[dep version] extensions]
-                         [::pom/extension
-                          [::pom/artifactId (name dep)]
-                          [::pom/groupId (or (namespace dep) (name dep))]
-                          [::pom/version version]]))))
-        [::pom/directory (:target-path project)]
-        [::pom/outputDirectory (:compile-path project)]
-        [::pom/plugins
-            (if-let [plugins (seq (:pom-plugins project))]
-                           (for [[dep version plugin-addition] plugins]
-                             [::pom/plugin
-                              [::pom/groupId (or (namespace dep) (name dep))]
-                              [::pom/artifactId (name dep)]
-                              [::pom/version version]
-                              (pomify-sexp
-                                (cond
-                                  (map? plugin-addition) (seq plugin-addition)
-                                  (vector? plugin-addition) (seq (apply hash-map plugin-addition))
-                                  (list? plugin-addition) (vec plugin-addition)))
-                           ]
-                          ))
-        (if (or (seq extra-src) (seq extra-test))
+   (let [[src & extra-src] (concat (:source-paths project)
+                                   (:java-source-paths project))
+         [test & extra-test] (:test-paths test-project)]
+     [::pom/build
+      [::pom/sourceDirectory src]
+      (xml-tags :testSourceDirectory test)
+      (resource-tags project :resource)
+      (resource-tags test-project :testResource)
+      (if-let [extensions (seq (:extensions project))]
+        (vec (concat [::pom/extensions]
+                     (for [[dep version] extensions]
+                       [::pom/extension
+                        [::pom/artifactId (name dep)]
+                        [::pom/groupId (or (namespace dep) (name dep))]
+                        [::pom/version version]]))))
+      [::pom/directory (:target-path project)]
+      [::pom/outputDirectory (:compile-path project)]
+      [::pom/plugins
+       (if-let [plugins (seq (:pom-plugins project))]
+         (for [[dep version plugin-addition] plugins]
            [::pom/plugin
-            [::pom/groupId "org.codehaus.mojo"]
-            [::pom/artifactId "build-helper-maven-plugin"]
-            [::pom/version "1.7"]
-            [::pom/executions
-             (if (seq extra-src)
-               [::pom/execution
-                [::pom/id "add-source"]
-                [::pom/phase "generate-sources"]
-                [::pom/goals [::pom/goal "add-source"]]
-                [::pom/configuration
-                 (vec (concat [::pom/sources]
-                              (map (fn [x] [::pom/source x]) extra-src)))]])
-             (if (seq extra-test)
-               [::pom/execution
-                [::pom/id "add-test-source"]
-                [::pom/phase "generate-test-sources"]
-                [::pom/goals [::pom/goal "add-test-source"]]
-                [::pom/configuration
-                 (vec (concat [::pom/sources]
-                              (map (fn [x] [::pom/source x]) extra-test)))]])]])]])))
+            [::pom/groupId (or (namespace dep) (name dep))]
+            [::pom/artifactId (name dep)]
+            [::pom/version version]
+            (pomify-sexp
+             (cond
+               (map? plugin-addition) (seq plugin-addition)
+               (vector? plugin-addition) (seq (apply hash-map plugin-addition))
+               (list? plugin-addition) (vec plugin-addition)))]))
+
+       (if (or (seq extra-src) (seq extra-test))
+         [::pom/plugin
+          [::pom/groupId "org.codehaus.mojo"]
+          [::pom/artifactId "build-helper-maven-plugin"]
+          [::pom/version "1.7"]
+          [::pom/executions
+           (if (seq extra-src)
+             [::pom/execution
+              [::pom/id "add-source"]
+              [::pom/phase "generate-sources"]
+              [::pom/goals [::pom/goal "add-source"]]
+              [::pom/configuration
+               (vec (concat [::pom/sources]
+                            (map (fn [x] [::pom/source x]) extra-src)))]])
+           (if (seq extra-test)
+             [::pom/execution
+              [::pom/id "add-test-source"]
+              [::pom/phase "generate-test-sources"]
+              [::pom/goals [::pom/goal "add-test-source"]]
+              [::pom/configuration
+               (vec (concat [::pom/sources]
+                            (map (fn [x] [::pom/source x]) extra-test)))]])]])]])))
 
 (defmethod xml-tags ::parent
   ([_ [dep version & opts]]
-     (let [opts (apply hash-map opts)]
-       [::pom/parent
-        [::pom/artifactId (name dep)]
-        [::pom/groupId (or (namespace dep) (name dep))]
-        [::pom/version version]
-        [::pom/relativePath (:relative-path opts)]])))
+   (let [opts (apply hash-map opts)]
+     [::pom/parent
+      [::pom/artifactId (name dep)]
+      [::pom/groupId (or (namespace dep) (name dep))]
+      [::pom/version version]
+      [::pom/relativePath (:relative-path opts)]])))
 
 (defmethod xml-tags ::mailing-list
   ([_ opts]
-     (if opts
-       [::pom/mailingLists
-        [::pom/mailingList
-         [::pom/name (:name opts)]
-         [::pom/subscribe (:subscribe opts)]
-         [::pom/unsubscribe (:unsubscribe opts)]
-         [::pom/post (:post opts)]
-         [::pom/archive (:archive opts)]
-         (if-let [other-archives (:other-archives opts)]
-           (vec (concat [::pom/otherArchives]
-                        (for [other other-archives]
-                          [::pom/otherArchive other]))))]])))
+   (if opts
+     [::pom/mailingLists
+      [::pom/mailingList
+       [::pom/name (:name opts)]
+       [::pom/subscribe (:subscribe opts)]
+       [::pom/unsubscribe (:unsubscribe opts)]
+       [::pom/post (:post opts)]
+       [::pom/archive (:archive opts)]
+       (if-let [other-archives (:other-archives opts)]
+         (vec (concat [::pom/otherArchives]
+                      (for [other other-archives]
+                        [::pom/otherArchive other]))))]])))
 
 (defn- distinct-key [k xs]
   ((fn step [seen xs]
@@ -345,46 +344,46 @@
 
 (defmethod xml-tags ::project
   ([_ project]
-     (let [original-project (-> project meta ::original-project)
-           profile-kws (concat
-                        (set/difference
-                         (set (project/non-leaky-profiles original-project))
-                         (set (project/pom-scope-profiles
-                               original-project :provided))
-                         (set (project/pom-scope-profiles
-                               original-project :test))))
-           test-project (-> original-project
-                            (project/unmerge-profiles profile-kws)
-                            (project/merge-profiles [:test])
-                            relativize)
-           managed-deps (:managed-dependencies test-project)
-           deps (:dependencies test-project)]
-       (list
-        [::pom/project {:xmlns pom-uri
-                        :xmlns/xsi xsi-uri
-                        ::xsi/schemaLocation
-                        (str pom-uri " http://maven.apache.org/xsd/maven-4.0.0.xsd")}
-         [::pom/modelVersion "4.0.0"]
-         (and (:parent project) (xml-tags :parent (:parent project)))
-         [::pom/groupId (:group project)]
-         [::pom/artifactId (:name project)]
-         [::pom/packaging (:packaging project "jar")]
-         [::pom/version (:version project)]
-         (and (:classifier project) [::pom/classifier (:classifier project)])
-         [::pom/name (:name project)]
-         [::pom/description (:description project)]
-         (xml-tags :url (:url project))
-         (if-let [licenses (license-tags project)]
-           [::pom/licenses licenses])
-         (xml-tags :mailing-list (:mailing-list project))
-         (write-scm-tag (guess-scm project) project)
+   (let [original-project (-> project meta ::original-project)
+         profile-kws (concat
+                      (set/difference
+                       (set (project/non-leaky-profiles original-project))
+                       (set (project/pom-scope-profiles
+                             original-project :provided))
+                       (set (project/pom-scope-profiles
+                             original-project :test))))
+         test-project (-> original-project
+                          (project/unmerge-profiles profile-kws)
+                          (project/merge-profiles [:test])
+                          relativize)
+         managed-deps (:managed-dependencies test-project)
+         deps (:dependencies test-project)]
+     (list
+      [::pom/project {:xmlns pom-uri
+                      :xmlns/xsi xsi-uri
+                      ::xsi/schemaLocation
+                      (str pom-uri " http://maven.apache.org/xsd/maven-4.0.0.xsd")}
+       [::pom/modelVersion "4.0.0"]
+       (and (:parent project) (xml-tags :parent (:parent project)))
+       [::pom/groupId (:group project)]
+       [::pom/artifactId (:name project)]
+       [::pom/packaging (:packaging project "jar")]
+       [::pom/version (:version project)]
+       (and (:classifier project) [::pom/classifier (:classifier project)])
+       [::pom/name (:name project)]
+       [::pom/description (:description project)]
+       (xml-tags :url (:url project))
+       (if-let [licenses (license-tags project)]
+         [::pom/licenses licenses])
+       (xml-tags :mailing-list (:mailing-list project))
+       (write-scm-tag (guess-scm project) project)
          ;; TODO: this results in lots of duplicate entries
-         (xml-tags :build [project test-project])
-         (xml-tags :repositories (:repositories project))
-         (xml-tags :dependencyManagement
-                   (xml-tags :dependencies (distinct-key dep-key managed-deps)))
-         (xml-tags :dependencies (distinct-key dep-key deps))
-         (and (:pom-addition project) (pomify-sexp (:pom-addition project)))]))))
+       (xml-tags :build [project test-project])
+       (xml-tags :repositories (:repositories project))
+       (xml-tags :dependencyManagement
+                 (xml-tags :dependencies (distinct-key dep-key managed-deps)))
+       (xml-tags :dependencies (distinct-key dep-key deps))
+       (and (:pom-addition project) (pomify-sexp (:pom-addition project)))]))))
 
 (defn snapshot? [project]
   (and (:version project)
@@ -404,16 +403,16 @@
 (defn make-pom
   ([project] (make-pom project false))
   ([project disclaimer?]
-     (let [profile-kws (project/non-leaky-profiles project)
-           project (-> project
-                       (project/unmerge-profiles profile-kws)
-                       (vary-meta assoc ::original-project project))]
-       (check-for-snapshot-deps project)
-       (str
-        (xml/indent-str
-         (xml/sexp-as-element
-          (xml-tags :project (relativize project))))
-        (if disclaimer? disclaimer)))))
+   (let [profile-kws (project/non-leaky-profiles project)
+         project (-> project
+                     (project/unmerge-profiles profile-kws)
+                     (vary-meta assoc ::original-project project))]
+     (check-for-snapshot-deps project)
+     (str
+      (xml/indent-str
+       (xml/sexp-as-element
+        (xml-tags :project (relativize project))))
+      (if disclaimer? disclaimer)))))
 
 (def ^:private warning
   (delay
@@ -427,11 +426,11 @@
 (defn ^{:help-arglists '([])} pom
   "Write a pom.xml file to disk for Maven interoperability."
   ([project pom-location-or-properties]
-     (let [pom (make-pom project true)
-           pom-file (io/file (:root project) pom-location-or-properties)]
-       (utils/mkdirs (.getParentFile pom-file))
-       (with-open [pom-writer (io/writer pom-file)]
-         (.write pom-writer pom))
-       (main/info "Wrote" (str pom-file))
-       (.getAbsolutePath pom-file)))
+   (let [pom (make-pom project true)
+         pom-file (io/file (:root project) pom-location-or-properties)]
+     (utils/mkdirs (.getParentFile pom-file))
+     (with-open [pom-writer (io/writer pom-file)]
+       (.write pom-writer pom))
+     (main/info "Wrote" (str pom-file))
+     (.getAbsolutePath pom-file)))
   ([project] (pom project (io/file (:pom-location project) "pom.xml"))))

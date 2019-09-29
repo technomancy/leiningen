@@ -1,4 +1,4 @@
-(ns leiningen.{{unprefixed-name}})
+(ns leiningen. {{unprefixed-name}})
 
 (defn {{unprefixed-name}}
   "I don't do a lot."

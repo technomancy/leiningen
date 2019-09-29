@@ -1,6 +1,6 @@
-(ns {{namespace}}-test
-  (:require [clojure.test :refer :all]
-            [{{namespace}} :refer :all]))
+(ns {{namespace}} -test
+    (:require [clojure.test :refer :all]
+              [{{namespace}} :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

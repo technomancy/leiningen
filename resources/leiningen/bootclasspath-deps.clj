@@ -19,8 +19,7 @@
             (dissoc 'org.clojure/clojure)
             (dissoc 'leiningen-core)
             (pp/pprint))))
-{
- clojure-complete "0.2.5"
+{clojure-complete "0.2.5"
  com.cemerick/pomegranate "1.1.0"
  com.google.guava/guava "27.1-jre"
  com.hypirion/io "0.3.1"
@@ -70,5 +69,4 @@
  robert/hooke "1.3.0"
  scout "0.1.1"
  stencil "0.5.0"
- timofreiberg/bultitude "0.3.0"
- }
+ timofreiberg/bultitude "0.3.0"}

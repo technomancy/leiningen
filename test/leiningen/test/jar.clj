@@ -21,7 +21,7 @@
    :manifest [["hello" "world"]
               [:my-section-1 {"C" "D" "S" "T"}]
               ["A" "B"]
-              [:my-section-2 [["E" "F"] ["X" "Y"]] ]
+              [:my-section-2 [["E" "F"] ["X" "Y"]]]
               ["G" "H"]
               ["long-line" long-line]]})
 
@@ -57,11 +57,11 @@
       (is (= (get mm "Leiningen-Project-Version") "1.0"))
       (is (= (get mm "long-line") long-line))
       (is (=  #{"my-section-1" "my-section-2"}
-             (-> mock-project
-                 make-manifest
-                 .getEntries
-                 keys
-                 set))))))
+              (-> mock-project
+                  make-manifest
+                  .getEntries
+                  keys
+                  set))))))
 
 (deftest test-jar-fails
   (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
@@ -162,9 +162,9 @@
                                (reset! javac-project new-project)
                                new-project))]
     (hooke/with-scope
-     (hooke/add-hook #'javac/javac-project-for-subprocess javac-project-hook)
-     (jar orig-project)
-     (is (= (:local-repo orig-project)
-            (:local-repo @javac-project)))
-     (is (= (:mirrors orig-project)
-            (:mirrors @javac-project))))))
+      (hooke/add-hook #'javac/javac-project-for-subprocess javac-project-hook)
+      (jar orig-project)
+      (is (= (:local-repo orig-project)
+             (:local-repo @javac-project)))
+      (is (= (:mirrors orig-project)
+             (:mirrors @javac-project))))))

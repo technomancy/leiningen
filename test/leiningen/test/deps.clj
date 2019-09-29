@@ -64,10 +64,10 @@
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project
                   :repositories ^:replace {"clojars" {:url "https://repo.clojars.org/"
-                                            :snapshots false}})
+                                                      :snapshots false}})
         ps (assoc sample-project
                   :repositories ^:replace {"clojars" {:url "https://repo.clojars.org/"
-                                            :releases false}})
+                                                      :releases false}})
         slamhound ['slamhound "1.1.0-SNAPSHOT"]
         hooke ['robert/hooke "1.0.1"]
         deps (fn [project]
@@ -83,7 +83,7 @@
       (is (not (.exists (m2-dir :robert/hooke "1.0.1")))))
     (let [rel-repo-snaps-dep (assoc pr :dependencies [slamhound])]
       (is (thrown? Exception (deps rel-repo-snaps-dep)))
-      (is (not (.exists (m2-dir "slamhound" "1.1.0-SNAPSHOT"))))) ))
+      (is (not (.exists (m2-dir "slamhound" "1.1.0-SNAPSHOT")))))))
 
 (def native-lib-files-map
   {:linux {:x86 #{"libjri.so" "libjinput-linux.so" "liblwjgl.so" "libopenal.so"
@@ -177,7 +177,7 @@
     (is (seq classified-deps))
     ;; delete all of the existing artifacts for merged deps
     (doseq [[n v] merged-deps]
-        (delete-file-recursively (m2-dir n v) :silently))
+      (delete-file-recursively (m2-dir n v) :silently))
     ;; delete all of the artifacts for the managed deps too
     (doseq [[n v] managed-deps]
       (delete-file-recursively (m2-dir n v) :silently))

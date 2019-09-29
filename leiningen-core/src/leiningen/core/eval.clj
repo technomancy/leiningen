@@ -360,14 +360,14 @@
   to avoid the Gilardi Scenario: http://technomancy.us/143"
   ([project form] (eval-in-project project form nil))
   ([project form init]
-     (prep project)
-     (when (:warn-on-reflection project)
-       (main/warn "WARNING: :warn-on-reflection is deprecated in project.clj;"
-                  "use :global-vars."))
-     (eval-in project
-              `(do (set! ~'*warn-on-reflection*
-                         ~(:warn-on-reflection project))
-                   ~@(map (fn [[k v]] `(set! ~k ~v)) (:global-vars project))
-                   ~init
-                   ~@(:injections project)
-                   ~form))))
+   (prep project)
+   (when (:warn-on-reflection project)
+     (main/warn "WARNING: :warn-on-reflection is deprecated in project.clj;"
+                "use :global-vars."))
+   (eval-in project
+            `(do (set! ~'*warn-on-reflection*
+                       ~(:warn-on-reflection project))
+                 ~@(map (fn [[k v]] `(set! ~k ~v)) (:global-vars project))
+                 ~init
+                 ~@(:injections project)
+                 ~form))))

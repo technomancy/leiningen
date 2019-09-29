@@ -154,13 +154,13 @@
   exits for tools which may want to continue operating. Never call
   System/exit directly in Leiningen's own process."
   ([exit-code & msg]
-     (if *exit-process?*
-       (do (shutdown-agents)
-           (System/exit exit-code))
-       (throw (ex-info (if (seq msg)
-                         (apply print-str msg)
-                         "Suppressed exit")
-                       {:exit-code exit-code :suppress-msg (empty? msg)}))))
+   (if *exit-process?*
+     (do (shutdown-agents)
+         (System/exit exit-code))
+     (throw (ex-info (if (seq msg)
+                       (apply print-str msg)
+                       "Suppressed exit")
+                     {:exit-code exit-code :suppress-msg (empty? msg)}))))
   ([] (exit 0)))
 
 (defn abort
@@ -181,12 +181,12 @@
                      (min (inc (peek row)) ;; addition cost
                           (inc (get prev y)) ;; deletion cost
                           (cond-> (get prev (dec y)) ;; substitution cost
-                                  (not (eq-chars x y)) inc))
-                     (and (pos? x) (pos? (dec y)) ;; check for transposition
-                          (eq-chars x (dec y))
-                          (eq-chars (dec x) y)
-                          (not (eq-chars x y)))
-                     (min (inc (get pprev (- y 2)))))] ;; transposition cost
+                            (not (eq-chars x y)) inc))
+                      (and (pos? x) (pos? (dec y)) ;; check for transposition
+                           (eq-chars x (dec y))
+                           (eq-chars (dec x) y)
+                           (not (eq-chars x y)))
+                      (min (inc (get pprev (- y 2)))))] ;; transposition cost
                 (conj row min-step)))
             [(inc x)]
             (range 1 (inc t-len)))))
@@ -287,14 +287,14 @@ These get replaced with the corresponding values from the project map."
 (defn resolve-task
   "Look up task function and perform partial application if applicable."
   ([task not-found]
-     (let [[task & pargs] (if (coll? task) task [task])]
-       (if-let [task-var (lookup-task-var task)]
-         (partial-task task-var pargs)
-         (not-found task))))
+   (let [[task & pargs] (if (coll? task) task [task])]
+     (if-let [task-var (lookup-task-var task)]
+       (partial-task task-var pargs)
+       (not-found task))))
   ([task]
-     (resolve-task task (if (find-ns (symbol (str "leiningen." task)))
-                          #'function-not-found
-                          #'task-not-found))))
+   (resolve-task task (if (find-ns (symbol (str "leiningen." task)))
+                        #'function-not-found
+                        #'task-not-found))))
 
 (defn ^:internal matching-arity? [task args]
   (some (fn [parameters]
@@ -429,7 +429,7 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
                       ^org.apache.maven.wagon.repository.Repository the-repo
                       ^org.apache.maven.wagon.authentication.AuthenticationInfo _
                       ^org.apache.maven.wagon.proxy.ProxyInfoProvider _]
-       (deliver repo the-repo) nil)
+        (deliver repo the-repo) nil)
       (get [this resource _]
         (abort "Tried to use insecure HTTP repository without TLS:\n"
                (str (.getId @repo) ": " (.getUrl @repo) "\n " resource) "\n"

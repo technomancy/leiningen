@@ -4,14 +4,14 @@
   :description "A test project"
 
   :managed-dependencies [[~(symbol "org.clojure" "clojure") ~clj-version]
-                 [rome ~(str "0." "9")]
-                 [ring/ring "1.0.0"]
-                 [ring/ring-codec "1.0.1"]
-                 [ring/ring-headers "0.2.0"]
-                 [commons-math/commons-math "1.2" :classifier "sources"]
-                 [org.apache.commons/commons-csv "1.4" :classifier "sources"]
-                 [ring/ring-defaults "0.2.1"]
-                 [org.clojure/tools.reader "1.0.0-beta3"]]
+                         [rome ~(str "0." "9")]
+                         [ring/ring "1.0.0"]
+                         [ring/ring-codec "1.0.1"]
+                         [ring/ring-headers "0.2.0"]
+                         [commons-math/commons-math "1.2" :classifier "sources"]
+                         [org.apache.commons/commons-csv "1.4" :classifier "sources"]
+                         [ring/ring-defaults "0.2.1"]
+                         [org.clojure/tools.reader "1.0.0-beta3"]]
 
   :dependencies [[org.clojure/clojure]
                  [rome/rome nil]

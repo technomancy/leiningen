@@ -100,10 +100,10 @@
           errmsg (str "The file '" filename "' can't be read.")]
       (if-let [content (try (slurp filename)
                             (catch Exception e
-                            (main/abort errmsg)))]
+                              (main/abort errmsg)))]
         (s/trim content)
         (main/abort errmsg)))
-      false))
+    false))
 
 (defn connect-string [project opts]
   (let [opt (str (first opts))]
@@ -112,31 +112,31 @@
       (if (is-uri? opt)
         opt
         (as-> (s/split opt #":") x
-              (remove s/blank? x)
-              (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
-                  (concat x))
-              (s/join ":" x)
-              (ensure-port x))))))
+          (remove s/blank? x)
+          (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
+              (concat x))
+          (s/join ":" x)
+          (ensure-port x))))))
 
 (defn options-for-reply [project & {:keys [attach port]}]
   (as-> (:repl-options project) opts
-        (merge {:history-file (->> (if-let [root (:root project)]
-                                     [root ".lein-repl-history"]
-                                     [(user/leiningen-home) "repl-history"])
-                                   (apply io/file)
-                                   str)
-                :input-stream System/in
+    (merge {:history-file (->> (if-let [root (:root project)]
+                                 [root ".lein-repl-history"]
+                                 [(user/leiningen-home) "repl-history"])
+                               (apply io/file)
+                               str)
+            :input-stream System/in
                 ;; TODO: once reply/#114 is fixed; add (user/help) back in and
                 ;; move other source/javadoc/etc references into longer help.
-                :welcome (list 'println (slurp (io/resource "repl-welcome")))}
-               opts)
-        (apply dissoc opts :init (if attach [:host :port]))
-        (merge opts (cond attach {:attach (str attach)}
-                          port {:port port}
-                          :else {}))
-        (clojure.set/rename-keys opts {:prompt :custom-prompt
-                                       :welcome :custom-help})
-        (if (:port opts) (update-in opts [:port] str) opts)))
+            :welcome (list 'println (slurp (io/resource "repl-welcome")))}
+           opts)
+    (apply dissoc opts :init (if attach [:host :port]))
+    (merge opts (cond attach {:attach (str attach)}
+                      port {:port port}
+                      :else {}))
+    (clojure.set/rename-keys opts {:prompt :custom-prompt
+                                   :welcome :custom-help})
+    (if (:port opts) (update-in opts [:port] str) opts)))
 
 (defn init-ns [{{:keys [init-ns]} :repl-options, :keys [main]}]
   (or init-ns (if main (if (namespace main)
@@ -147,18 +147,18 @@
   (if-let [init-ns (init-ns project)]
     ;; set-descriptor! currently nREPL only accepts a var
     `(with-local-vars
-         [wrap-init-ns#
-          (fn [h#]
+      [wrap-init-ns#
+       (fn [h#]
             ;; this needs to be a var, since it's in the nREPL session
-            (with-local-vars [init-ns-sentinel# nil]
-              (fn [{:keys [~'session] :as msg#}]
-                (when-not (@~'session init-ns-sentinel#)
-                  (swap! ~'session assoc
-                         (var *ns*)
-                         (try (require '~init-ns) (create-ns '~init-ns)
-                              (catch Throwable t# (create-ns '~'user)))
-                         init-ns-sentinel# true))
-                (h# msg#))))]
+         (with-local-vars [init-ns-sentinel# nil]
+           (fn [{:keys [~'session] :as msg#}]
+             (when-not (@~'session init-ns-sentinel#)
+               (swap! ~'session assoc
+                      (var *ns*)
+                      (try (require '~init-ns) (create-ns '~init-ns)
+                           (catch Throwable t# (create-ns '~'user)))
+                      init-ns-sentinel# true))
+             (h# msg#))))]
        (doto wrap-init-ns#
          (nrepl.middleware/set-descriptor!
           {:requires #{(var nrepl.middleware.session/session)}
@@ -194,8 +194,8 @@
               (catch ClassNotFoundException e#))
      (try
        (sun.misc.Signal/handle
-         (sun.misc.Signal. "INT")
-         (proxy [sun.misc.SignalHandler] [] (handle [signal#])))
+        (sun.misc.Signal. "INT")
+        (proxy [sun.misc.SignalHandler] [] (handle [signal#])))
        (catch Throwable e#))))
 
 (defn- server-forms [project cfg ack-port start-msg?]
@@ -314,7 +314,7 @@
                                 :repositories (map classpath/add-repo-auth
                                                    (:repositories project)))
   (let [launch (utils/require-resolve 'reply.main/launch-nrepl)]
-    (launch (options-for-reply project :attach attach)))  )
+    (launch (options-for-reply project :attach attach))))
 
 (defn ^:no-project-needed repl
   "Start a repl session either with the current project or standalone.

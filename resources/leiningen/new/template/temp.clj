@@ -1,6 +1,6 @@
-(ns leiningen.new.{{name}}
-  (:require [leiningen.new.templates :refer [renderer name-to-path ->files]]
-            [leiningen.core.main :as main]))
+(ns leiningen.new. {{name}}
+    (:require [leiningen.new.templates :refer [renderer name-to-path ->files]]
+              [leiningen.core.main :as main]))
 
 (def render (renderer "{{name}}"))
 

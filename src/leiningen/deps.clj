@@ -11,12 +11,12 @@
 
 (defn- walk-deps
   ([deps f level]
-     (doseq [[dep subdeps] deps]
-       (f dep level)
-       (when subdeps
-         (walk-deps subdeps f (inc level)))))
+   (doseq [[dep subdeps] deps]
+     (f dep level)
+     (when subdeps
+       (walk-deps subdeps f (inc level)))))
   ([deps f]
-     (walk-deps deps f 0)))
+   (walk-deps deps f 0)))
 
 (defn- print-dep [dep level]
   (println (apply str (repeat (* 2 level) \space)) (pr-str dep)))
@@ -35,8 +35,6 @@
        (why-deps subdeps target (conj path [dep version])))))
   ([deps target]
    (why-deps deps target [])))
-
-
 
 (declare check-signature)
 
@@ -59,11 +57,11 @@
 (defn- get-signature [project dep]
   (let [dep-map (assoc (apply hash-map (drop 2 dep))
                   ;; TODO: check pom signature too
-                  :extension "jar.asc")
+                       :extension "jar.asc")
         dep (into (vec (take 2 dep)) (apply concat dep-map))]
     (try (->> (apply aether/resolve-dependencies
-                (apply concat
-                  (assoc (classpath/default-aether-args project) :coordinates [dep])))
+                     (apply concat
+                            (assoc (classpath/default-aether-args project) :coordinates [dep])))
               (aether/dependency-files)
               (filter #(.endsWith (.getName %) ".asc"))
               (first))
@@ -76,7 +74,6 @@
                  :unsigned)]
     ;; TODO: support successful exit code only on fully-signed deps
     (println status (pr-str dep))))
-
 
 (def tree-command
   "A mapping from the tree-command to the dependency key it should print a tree
@@ -85,22 +82,16 @@
    ":tree-data" [:dependencies :managed-dependencies]
    ":plugin-tree" [:plugins nil]})
 
-
-
 (defn print-implicits [project type]
   (when-let [implicits (seq (filter utils/require-resolve
                                     (project/plugin-vars project type)))]
     (println (str "Implicit " (name type) ":"))
     (doseq [i implicits] (println " " i))))
 
-
-
 (defn query [project artifact version-string]
   (->> (assoc project :query [[(symbol artifact) version-string]])
        (classpath/get-dependencies :query nil)
        keys first second println))
-
-
 
 (defn deps
   "Show details about dependencies.
@@ -146,40 +137,40 @@ deprecated as it should happen automatically on demand.
 Normally snapshot dependencies will be checked once every 24 hours; to
 force them to be updated, use `lein -U $TASK`."
   ([project]
-     (deps project nil))
+   (deps project nil))
   ([project command]
-     (try
-       (cond (= ":implicits" command)
-             (do (print-implicits project :middleware)
-                 (print-implicits project :hooks))
-             (tree-command command)
-             (let [project (project/merge-profiles
-                            project
-                            [{:pedantic? (quote ^:displace warn)}])
-                   [dependencies-key managed-dependencies-key] (tree-command command)
-                   hierarchy (classpath/managed-dependency-hierarchy
-                              dependencies-key
-                              managed-dependencies-key
-                              project)]
-               (case command
-                 ":tree" (walk-deps hierarchy print-dep)
-                 ":plugin-tree" (walk-deps hierarchy print-dep)
-                 ":tree-data"  (binding [*print-length* 10000 *print-level* 10000]
-                                 (pprint/pprint hierarchy))))
-             (= command ":verify")
-             (if (user/gpg-available?)
-               (walk-deps (classpath/managed-dependency-hierarchy
-                           :dependencies
-                           :managed-dependencies
-                           project)
-                          (partial verify project))
-               (main/abort (str "Could not verify - gpg not available.\n"
-                                "See `lein help gpg` for how to setup gpg.")))
-             (empty? command) (classpath/resolve-managed-dependencies
-                               :dependencies :managed-dependencies project)
-             :else (main/abort "Unknown deps command" command))
-       (catch DependencyResolutionException e
-         (main/abort (.getMessage e)))))
+   (try
+     (cond (= ":implicits" command)
+           (do (print-implicits project :middleware)
+               (print-implicits project :hooks))
+           (tree-command command)
+           (let [project (project/merge-profiles
+                          project
+                          [{:pedantic? (quote ^:displace warn)}])
+                 [dependencies-key managed-dependencies-key] (tree-command command)
+                 hierarchy (classpath/managed-dependency-hierarchy
+                            dependencies-key
+                            managed-dependencies-key
+                            project)]
+             (case command
+               ":tree" (walk-deps hierarchy print-dep)
+               ":plugin-tree" (walk-deps hierarchy print-dep)
+               ":tree-data"  (binding [*print-length* 10000 *print-level* 10000]
+                               (pprint/pprint hierarchy))))
+           (= command ":verify")
+           (if (user/gpg-available?)
+             (walk-deps (classpath/managed-dependency-hierarchy
+                         :dependencies
+                         :managed-dependencies
+                         project)
+                        (partial verify project))
+             (main/abort (str "Could not verify - gpg not available.\n"
+                              "See `lein help gpg` for how to setup gpg.")))
+           (empty? command) (classpath/resolve-managed-dependencies
+                             :dependencies :managed-dependencies project)
+           :else (main/abort "Unknown deps command" command))
+     (catch DependencyResolutionException e
+       (main/abort (.getMessage e)))))
   ([project command target]
    (cond (= command ":query")
          (deps project command target "RELEASE")

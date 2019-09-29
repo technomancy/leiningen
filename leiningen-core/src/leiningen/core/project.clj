@@ -361,9 +361,9 @@
      empty-defaults
      (-> raw-map
          (cond-> (and (:java-opts raw-map) (not (:jvm-opts raw-map)))
-                 (assoc :jvm-opts (:java-opts raw-map))
-                 (and (:eval-in-leiningen raw-map) (not (:eval-in raw-map)))
-                 (assoc :eval-in :leiningen))
+           (assoc :jvm-opts (:java-opts raw-map))
+           (and (:eval-in-leiningen raw-map) (not (:eval-in raw-map)))
+           (assoc :eval-in :leiningen))
          (dissoc :eval-in-leiningen :java-opts)
          (normalize-values)))
     (meta raw-map)))
@@ -372,10 +372,10 @@
   [profile]
   (if-let [deps (:dependencies profile)]
     (assoc profile
-      :dependencies
-      (with-meta
-       (classpath/normalize-dep-vectors deps)
-       (meta deps)))
+           :dependencies
+           (with-meta
+             (classpath/normalize-dep-vectors deps)
+             (meta deps)))
     profile))
 
 (defn- setup-profile-with-empty
@@ -399,31 +399,31 @@
 
 (defn make
   ([project project-name version root]
-     (make (with-meta (assoc project
-                        :name (name project-name)
-                        :group (or (namespace project-name)
-                                   (name project-name))
-                        :version version
-                        :root root)
-             (meta project))))
+   (make (with-meta (assoc project
+                           :name (name project-name)
+                           :group (or (namespace project-name)
+                                      (name project-name))
+                           :version version
+                           :root root)
+           (meta project))))
   ([project]
-     (let [repos (if (:omit-default-repositories project)
-                   (do (warn-once "WARNING:"
-                                  ":omit-default-repositories is deprecated;"
-                                  "use :repositories ^:replace [...] instead.")
-                       empty-repositories)
-                   default-repositories)]
-       (setup-map-defaults
-        (-> (meta-merge defaults project)
-            (dissoc :eval-in-leiningen :omit-default-repositories)
-            (assoc :eval-in (or (:eval-in project)
-                                (if (:eval-in-leiningen project)
-                                  :leiningen, :subprocess)))
-            (update-each-contained [:profiles] setup-map-of-profiles)
-            (with-meta (meta project)))
-        (assoc empty-meta-merge-defaults
-          :repositories repos
-          :plugin-repositories repos)))))
+   (let [repos (if (:omit-default-repositories project)
+                 (do (warn-once "WARNING:"
+                                ":omit-default-repositories is deprecated;"
+                                "use :repositories ^:replace [...] instead.")
+                     empty-repositories)
+                 default-repositories)]
+     (setup-map-defaults
+      (-> (meta-merge defaults project)
+          (dissoc :eval-in-leiningen :omit-default-repositories)
+          (assoc :eval-in (or (:eval-in project)
+                              (if (:eval-in-leiningen project)
+                                :leiningen, :subprocess)))
+          (update-each-contained [:profiles] setup-map-of-profiles)
+          (with-meta (meta project)))
+      (assoc empty-meta-merge-defaults
+             :repositories repos
+             :plugin-repositories repos)))))
 
 (defn- argument-list->argument-map
   [args]
@@ -458,10 +458,10 @@
   (let [{:keys [dependencies exclusions]} project]
     (if-let [exclusions (and (seq dependencies) (seq exclusions))]
       (assoc project
-        :dependencies (with-meta
-                        (mapv (partial add-exclusions exclusions)
-                              dependencies)
-                        (meta dependencies)))
+             :dependencies (with-meta
+                             (mapv (partial add-exclusions exclusions)
+                                   dependencies)
+                             (meta dependencies)))
       project)))
 
 (defn- absolutize [root path]
@@ -645,8 +645,8 @@
   as an active profile in the profile metadata if the profile is a keyword."
   [profiles profile]
   (cond-> (lookup-profile* profiles profile)
-          (keyword? profile)
-          (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
+    (keyword? profile)
+    (vary-meta update-in [:active-profiles] (fnil conj []) profile)))
 
 (defn- expand-profile* [profiles profile-meta profile]
   (let [content (or (get profiles profile) (get @default-profiles profile))]
@@ -757,20 +757,20 @@
 
 (defn load-plugins
   ([project dependencies-key managed-dependencies-key]
-     (when (seq (get project dependencies-key))
-       (let [repos-project (update-in project [:repositories] meta-merge
-                                      (:plugin-repositories project))]
-         (classpath/resolve-managed-dependencies
-          dependencies-key managed-dependencies-key repos-project
-          :add-classpath? true)))
-     (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
-                            (.getResources "leiningen/wagons.clj")
-                            (enumeration-seq))
-             :when (not (@registered-wagon-files wagon-file))
-             [hint factory] (read-string (slurp wagon-file))]
-       (aether/register-wagon-factory! hint (eval factory))
-       (swap! registered-wagon-files conj wagon-file))
-     project)
+   (when (seq (get project dependencies-key))
+     (let [repos-project (update-in project [:repositories] meta-merge
+                                    (:plugin-repositories project))]
+       (classpath/resolve-managed-dependencies
+        dependencies-key managed-dependencies-key repos-project
+        :add-classpath? true)))
+   (doseq [wagon-file (-> (.getContextClassLoader (Thread/currentThread))
+                          (.getResources "leiningen/wagons.clj")
+                          (enumeration-seq))
+           :when (not (@registered-wagon-files wagon-file))
+           [hint factory] (read-string (slurp wagon-file))]
+     (aether/register-wagon-factory! hint (eval factory))
+     (swap! registered-wagon-files conj wagon-file))
+   project)
   ([project dependencies-key] (load-plugins project dependencies-key nil))
   ([project] (load-plugins project :plugins)))
 
@@ -810,16 +810,16 @@
 
 (defn apply-middleware
   ([project]
-     (reduce apply-middleware project
-             (concat (plugin-middleware project) (:middleware project))))
+   (reduce apply-middleware project
+           (concat (plugin-middleware project) (:middleware project))))
   ([project middleware-name]
-     (if (and (:implicits project true) (:implicit-middleware project true))
-       (if-let [middleware (utils/require-resolve middleware-name)]
-         (middleware project)
-         (do (when-not (:optional (meta middleware-name))
-               (utils/error "cannot resolve" middleware-name "middleware"))
-             project))
-       project)))
+   (if (and (:implicits project true) (:implicit-middleware project true))
+     (if-let [middleware (utils/require-resolve middleware-name)]
+       (middleware project)
+       (do (when-not (:optional (meta middleware-name))
+             (utils/error "cannot resolve" middleware-name "middleware"))
+           project))
+     project)))
 
 (defn load-certificates
   "Load the SSL certificates specified by the project and register
@@ -980,9 +980,9 @@ Also merges default profiles."
   ([project default-profiles]
    (-> (load-repository-overrides project)
        (doto
-             (load-certificates)
-             (init-lein-classpath)
-             (load-plugins))
+        (load-certificates)
+         (init-lein-classpath)
+         (load-plugins))
        (project-with-profiles)
        (init-profiles default-profiles)
        (load-plugins)
@@ -1069,7 +1069,7 @@ Also initializes the project; see read-raw for a version that skips init."
            (catch Exception e
              (throw (Exception. (format "Problem loading %s" project) e)))))
     (warn "WARN ignoring checkouts directory" (.getParent project-file)
-             "as it does not contain a project.clj file.")))
+          "as it does not contain a project.clj file.")))
 
 (alter-var-root #'read-dependency-project memoize)
 

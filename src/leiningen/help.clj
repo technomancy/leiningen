@@ -70,10 +70,10 @@
   "Returns a string containing help content. Removes doctoc comments if they
   are present."
   [help-text]
-   (let [doctoc-text "<!-- END doctoc generated TOC please keep comment here to allow auto update -->"]
-     (if (string/includes? help-text doctoc-text)
-       (string/triml (second (string/split help-text (re-pattern doctoc-text))))
-       help-text)))
+  (let [doctoc-text "<!-- END doctoc generated TOC please keep comment here to allow auto update -->"]
+    (if (string/includes? help-text doctoc-text)
+      (string/triml (second (string/split help-text (re-pattern doctoc-text))))
+      help-text)))
 
 (defn- static-help [name]
   (if-let [resource (io/resource (format "leiningen/help/%s" name))]
@@ -103,38 +103,38 @@
   Looks for a function named 'help' in the subtask's namespace, then a docstring
   on the task, then a docstring on the task ns."
   ([task-name]
-     (let [[task-ns task] (resolve-task task-name)]
-       (if task
-         (let [help-fn (ns-resolve task-ns 'help)]
-           (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
-                    (:doc (meta task))
-                    (:doc (meta (find-ns task-ns))))
-                (subtask-help-for task-ns task)
-                (if (some seq (get-arglists task))
-                  (str "\n\nArguments: " (pr-str (get-arglists task))))))
-         (format "Task: '%s' not found" task-name))))
+   (let [[task-ns task] (resolve-task task-name)]
+     (if task
+       (let [help-fn (ns-resolve task-ns 'help)]
+         (str (or (and (not= task-ns 'leiningen.help) help-fn (help-fn))
+                  (:doc (meta task))
+                  (:doc (meta (find-ns task-ns))))
+              (subtask-help-for task-ns task)
+              (if (some seq (get-arglists task))
+                (str "\n\nArguments: " (pr-str (get-arglists task))))))
+       (format "Task: '%s' not found" task-name))))
   ([project task-name]
-     (let [aliases (merge main/aliases (:aliases project))]
-       (or (alias-help aliases task-name)
-           (help-for task-name)))))
+   (let [aliases (merge main/aliases (:aliases project))]
+     (or (alias-help aliases task-name)
+         (help-for task-name)))))
 
 (defn help-for-subtask
   "Returns a string containing help for a subtask.
   Looks for a function named 'help-<subtask>' in the subtask's namespace,
   using the subtask's docstring if the help function is not found."
   ([task-name subtask-name]
-     (if-let [subtask (resolve-subtask task-name subtask-name)]
-       (let [subtask-meta (meta subtask)
-             help-fn (ns-resolve (:ns subtask-meta)
-                                 (symbol (str "help-" subtask-name)))
-             arglists (get-arglists subtask)]
-         (str (or (and help-fn (help-fn)) (:doc subtask-meta))
-              (if (some seq arglists)
-                (str "\n\nArguments: " (pr-str arglists)))))
-       (format "Subtask: '%s %s' not found" task-name subtask-name)))
+   (if-let [subtask (resolve-subtask task-name subtask-name)]
+     (let [subtask-meta (meta subtask)
+           help-fn (ns-resolve (:ns subtask-meta)
+                               (symbol (str "help-" subtask-name)))
+           arglists (get-arglists subtask)]
+       (str (or (and help-fn (help-fn)) (:doc subtask-meta))
+            (if (some seq arglists)
+              (str "\n\nArguments: " (pr-str arglists)))))
+     (format "Subtask: '%s %s' not found" task-name subtask-name)))
   ([project task-name subtask-name]
-     (let [aliases (merge main/aliases (:aliases project))]
-       (help-for-subtask (aliases task-name task-name) subtask-name))))
+   (let [aliases (merge main/aliases (:aliases project))]
+     (help-for-subtask (aliases task-name task-name) subtask-name))))
 
 (defn help-summary-for [task-ns]
   (try (let [task-name (last (.split (name task-ns) "\\."))]
@@ -156,21 +156,21 @@ deploying, mixed-source, templates, and copying info."
                                        (help-for-subtask project task subtask))))
   ([project task] (println (or (static-help task) (help-for project task))))
   ([project]
-     (println "Leiningen is a tool for working with Clojure projects.\n")
-     (println "Several tasks are available:")
-     (doseq [task-ns (main/tasks)]
-       (println (help-summary-for task-ns)))
-     (println "\nRun `lein help $TASK` for details.")
-     (println "\nGlobal Options:")
-     (println "  -o             Run a task offline.")
-     (println "  -U             Run a task after forcing update of snapshots.")
-     (println "  -h, --help     Print this help or help for a specific task.")
-     (println "  -v, --version  Print Leiningen's version.")
-     (when-let [aliases (:aliases project)]
-       (println "\nThese aliases are available:")
-       (doseq [[k v] aliases]
-         (if-let [explanation (-> v meta :doc)]
-           (println (str k ": " explanation))
-           (println (str k  ", expands to " v)))))
-     (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
-              "deploying, gpg,\nmixed-source, templates, and copying.")))
+   (println "Leiningen is a tool for working with Clojure projects.\n")
+   (println "Several tasks are available:")
+   (doseq [task-ns (main/tasks)]
+     (println (help-summary-for task-ns)))
+   (println "\nRun `lein help $TASK` for details.")
+   (println "\nGlobal Options:")
+   (println "  -o             Run a task offline.")
+   (println "  -U             Run a task after forcing update of snapshots.")
+   (println "  -h, --help     Print this help or help for a specific task.")
+   (println "  -v, --version  Print Leiningen's version.")
+   (when-let [aliases (:aliases project)]
+     (println "\nThese aliases are available:")
+     (doseq [[k v] aliases]
+       (if-let [explanation (-> v meta :doc)]
+         (println (str k ": " explanation))
+         (println (str k  ", expands to " v)))))
+   (println "\nSee also: readme, faq, tutorial, news, sample, profiles,"
+            "deploying, gpg,\nmixed-source, templates, and copying.")))

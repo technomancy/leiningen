@@ -123,10 +123,10 @@
             (let [filename (.getName file), prev (get merged-map filename)]
               (if (identical? ::skip prev)
                 (do (warn-on-drop filename)
-                  merged-map)
+                    merged-map)
                 (let [[read-merge] (select-merger mergers filename)]
                   (assoc merged-map
-                    filename (read-merge in out file prev))))))
+                         filename (read-merge in out file prev))))))
           merged-map (enumeration-seq (.entries in))))
 
 (defn- include-dep [out mergers merged-map dep]
@@ -160,34 +160,34 @@ Note: The :uberjar profile is implicitly activated for this task, and cannot
 be deactivated."
 
   ([project main]
-     (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
-           default-profiles (set (project/expand-profile project :default))
-           provided-profiles (remove
-                              (set/difference default-profiles scoped-profiles)
-                              (-> project meta :included-profiles))
-           project (->> (into [:uberjar] provided-profiles)
-                        (project/merge-profiles project))
-           _ (check-for-snapshot-deps project)
-           project (update-in project [:jar-inclusions]
-                              concat (:uberjar-inclusions project))
-           [_ jar] (try (first (jar/jar project main))
-                        (catch Exception e
-                          (when main/*debug*
-                            (.printStackTrace e))
-                          (main/abort "Uberjar aborting because jar failed:"
-                                      (.getMessage e))))
-           standalone-filename (jar/get-jar-filename project :standalone)]
-       (with-open [out (-> standalone-filename
-                           (FileOutputStream.)
-                           (ZipOutputStream.))]
-         (let [whitelisted (select-keys project project/whitelist-keys)
-               project (-> (project/unmerge-profiles project [:default])
-                           (merge whitelisted))
-               deps (->> (classpath/resolve-managed-dependencies
-                          :dependencies :managed-dependencies project)
-                         (filter #(.endsWith (.getName %) ".jar")))
-               jars (cons (io/file jar) deps)]
-           (write-components project jars out)))
-       (main/info "Created" standalone-filename)
-       standalone-filename))
+   (let [scoped-profiles (set (project/pom-scope-profiles project :provided))
+         default-profiles (set (project/expand-profile project :default))
+         provided-profiles (remove
+                            (set/difference default-profiles scoped-profiles)
+                            (-> project meta :included-profiles))
+         project (->> (into [:uberjar] provided-profiles)
+                      (project/merge-profiles project))
+         _ (check-for-snapshot-deps project)
+         project (update-in project [:jar-inclusions]
+                            concat (:uberjar-inclusions project))
+         [_ jar] (try (first (jar/jar project main))
+                      (catch Exception e
+                        (when main/*debug*
+                          (.printStackTrace e))
+                        (main/abort "Uberjar aborting because jar failed:"
+                                    (.getMessage e))))
+         standalone-filename (jar/get-jar-filename project :standalone)]
+     (with-open [out (-> standalone-filename
+                         (FileOutputStream.)
+                         (ZipOutputStream.))]
+       (let [whitelisted (select-keys project project/whitelist-keys)
+             project (-> (project/unmerge-profiles project [:default])
+                         (merge whitelisted))
+             deps (->> (classpath/resolve-managed-dependencies
+                        :dependencies :managed-dependencies project)
+                       (filter #(.endsWith (.getName %) ".jar")))
+             jars (cons (io/file jar) deps)]
+         (write-components project jars out)))
+     (main/info "Created" standalone-filename)
+     standalone-filename))
   ([project] (uberjar project nil)))

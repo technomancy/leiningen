@@ -18,7 +18,7 @@
 (deftest test-logs-sent-to-*err*
   (testing "main/warn sent to *err*"
     (is (= "Warning message\n" (with-err-str
-                                     (warn "Warning message"))))))
+                                 (warn "Warning message"))))))
 
 (deftest test-lookup-alias
   (testing "meta merging"
@@ -27,10 +27,10 @@
                              "c" ^{:pass-through-help false :doc "Yo"} ["b"]
                              "d" ^:pass-through-help ["c"]}}]
       (are [task m] (= (meta (lookup-alias task project)) m)
-           "a" {:foo true}
-           "b" {:bar true}
-           "c" {:doc "Yo" :pass-through-help false}
-           "d" {:pass-through-help true}))))
+        "a" {:foo true}
+        "b" {:bar true}
+        "c" {:doc "Yo" :pass-through-help false}
+        "d" {:pass-through-help true}))))
 
 (deftest test-task-args-help-pass-through
   (let [project {:aliases {"sirius-p" ["sirius" "partial"]
@@ -45,29 +45,29 @@
     (testing "with :pass-through-help meta"
       (testing "on a var"
         (are [res arg] (= res (task-args arg project))
-             ["help" ["sirius"]] ["help" "sirius"]
-             ["sirius" ["-h"]] ["sirius" "-h"]
-             ["sirius" ["-?"]] ["sirius" "-?"]
-             ["sirius" ["--help"]] ["sirius" "--help"]
-             ["sirius" []] ["sirius"]))
+          ["help" ["sirius"]] ["help" "sirius"]
+          ["sirius" ["-h"]] ["sirius" "-h"]
+          ["sirius" ["-?"]] ["sirius" "-?"]
+          ["sirius" ["--help"]] ["sirius" "--help"]
+          ["sirius" []] ["sirius"]))
       (testing "on an alias"
         (are [res arg] (= res (task-args arg project))
-             ["help" ["sirius-p"]] ["help" "sirius-p"]
-             ["help" ["s"]] ["help" "s"]
-             ["sirius" ["-h"]] ["s" "-h"]
-             [["sirius" "partial"] ["-?"]] ["sirius-p" "-?"]
-             ["sirius" ["--help"]] ["s" "--help"]
-             [["sirius" "partial"] []] ["sirius-p"]
-             [["sirius" "partial"] []] ["s-p"]
-             [["sirius" "partial"] []] ["sp"]
-             [["sirius" "partial" "foo"] ["bar"]] ["sirius-pp" "bar"]
-             ["test" []] ["test"]
-             ["sirius" []] ["s"]
-             [["run" "-m" "o.hai"] ["-h"]] ["ohai" "-h"]
-             [["run" "-m" "o.hai"] ["-h"]] ["aliaso" "-h"]
-             [["run" "-m" "o.hai"] ["-h"]] ["aliaso2" "-h"]
-             [["run" "-m" "o.hai"] ["--help"]] ["ohai" "--help"]
-             [["run" "-m" "o.hai"] ["help"]] ["ohai" "help"])))))
+          ["help" ["sirius-p"]] ["help" "sirius-p"]
+          ["help" ["s"]] ["help" "s"]
+          ["sirius" ["-h"]] ["s" "-h"]
+          [["sirius" "partial"] ["-?"]] ["sirius-p" "-?"]
+          ["sirius" ["--help"]] ["s" "--help"]
+          [["sirius" "partial"] []] ["sirius-p"]
+          [["sirius" "partial"] []] ["s-p"]
+          [["sirius" "partial"] []] ["sp"]
+          [["sirius" "partial" "foo"] ["bar"]] ["sirius-pp" "bar"]
+          ["test" []] ["test"]
+          ["sirius" []] ["s"]
+          [["run" "-m" "o.hai"] ["-h"]] ["ohai" "-h"]
+          [["run" "-m" "o.hai"] ["-h"]] ["aliaso" "-h"]
+          [["run" "-m" "o.hai"] ["-h"]] ["aliaso2" "-h"]
+          [["run" "-m" "o.hai"] ["--help"]] ["ohai" "--help"]
+          [["run" "-m" "o.hai"] ["help"]] ["ohai" "help"])))))
 
 (deftest test-matching-arity
   (is (not (matching-arity? (resolve-task "bluuugh") ["bogus" "arg" "s"])))
@@ -81,15 +81,15 @@
 
 (deftest partial-tasks
   (are [task args] (matching-arity? (resolve-task task) args)
-       ["one-or-two" "clojure"] ["2"]
-       ["one-or-two" "clojure" "2"] []
-       ["fixed-and-var-args" "one"] ["two"]
-       ["fixed-and-var-args" "one" "two"] []
-       ["fixed-and-var-args" "one" "two"] ["more"])
+    ["one-or-two" "clojure"] ["2"]
+    ["one-or-two" "clojure" "2"] []
+    ["fixed-and-var-args" "one"] ["two"]
+    ["fixed-and-var-args" "one" "two"] []
+    ["fixed-and-var-args" "one" "two"] ["more"])
   (are [task args] (not (matching-arity? (resolve-task task) args))
-       ["one-or-two" "clojure"] ["2" "3"]
-       ["one-or-two" "clojure" "2"] ["3"]
-       ["fixed-and-var-args" "one"] []))
+    ["one-or-two" "clojure"] ["2" "3"]
+    ["one-or-two" "clojure" "2"] ["3"]
+    ["fixed-and-var-args" "one"] []))
 
 (deftest test-versions-match
   (is (versions-match? "1.2.12" "1.2.12"))

@@ -206,9 +206,9 @@
   (if-let [top-level (second parents)]
     (let [excluded-artifact (.getArtifact (.getDependency node))
           exclusion (Exclusion. (.getGroupId excluded-artifact)
-                      (.getArtifactId excluded-artifact) "*" "*")
+                                (.getArtifactId excluded-artifact) "*" "*")
           exclusion-set (into #{exclusion} (.getExclusions
-                                             (.getDependency top-level)))
+                                            (.getDependency top-level)))
           with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
       (dependency-str with-exclusion))
     ""))

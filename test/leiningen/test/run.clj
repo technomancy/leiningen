@@ -70,13 +70,13 @@
   (leiningen.javac/javac java-main-project)
   (let [out-result (with-system-out-str (run java-main-project))]
     (is (= (.trim out-result) ;; To avoid os-specific newline handling
-            "Hello from Java!"))))
+           "Hello from Java!"))))
 
 ;; Regression test for https://github.com/technomancy/leiningen/issues/1469
 (deftest file-not-found-exception-test
   (let [s (with-system-err-str
             (try (run file-not-found-thrower-project
-                   "-m" "file-not-found-thrower.core")
+                      "-m" "file-not-found-thrower.core")
                  (catch clojure.lang.ExceptionInfo e nil)))]
     ;; testing that the true exception is printed immediately and
     ;; the inappropriate error message "Can't find

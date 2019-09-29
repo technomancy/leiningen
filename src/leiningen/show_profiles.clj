@@ -7,14 +7,14 @@
 (defn ^:no-project-needed show-profiles
   "List all available profiles or display one if given an argument."
   ([project]
-     (->> (project/read-profiles project)
-          (keys)
-          (map (comp #(subs % 1) str))
-          (sort)
-          (clojure.string/join "\n")
-          (println)))
+   (->> (project/read-profiles project)
+        (keys)
+        (map (comp #(subs % 1) str))
+        (sort)
+        (clojure.string/join "\n")
+        (println)))
   ([project profile]
-     (-> (project/read-profiles project)
-         (get (keyword profile))
-         (pprint/pprint))
-     (flush)))
+   (-> (project/read-profiles project)
+       (get (keyword profile))
+       (pprint/pprint))
+   (flush)))

@@ -10,10 +10,10 @@
 (defn- prj-map
   ([p] (prj-map p [:default]))
   ([p a]
-     (let [p {:profiles p}
-           m {:without-profiles p, :active-profiles a
-              :profiles (:profiles p)}]
-       (with-meta p m))))
+   (let [p {:profiles p}
+         m {:without-profiles p, :active-profiles a
+            :profiles (:profiles p)}]
+     (with-meta p m))))
 
 (deftest test-profiles-in-group
   (doseq [[project pgroup expected]
@@ -78,7 +78,6 @@
                   with-aliases-project ["with-profile" "a2" "projecta"]))
           "recursive full alias"))
 
-
     (testing "with-profile added in alias"
       (is (= [2]
              (main/resolve-and-apply with-aliases-project ["pa2project" "a"]))
@@ -93,7 +92,6 @@
           "recursive partial alias")
       (is (= [2] (main/resolve-and-apply with-aliases-project ["a2projecta"]))
           "recursive full alias"))
-
 
     (testing "with alias in profile"
       (is (= [2] (main/resolve-and-apply

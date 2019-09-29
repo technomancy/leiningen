@@ -76,9 +76,9 @@
         expected-xml (xml/parse "test_projects/uberjar-components-merging/expected-components.xml")
         result-file "test_projects/uberjar-components-merging/result-components.xml"
         out-file (FileOutputStream. (File. result-file))]
-      (writexml out-file combined-xml)
-      (is (= expected-xml (xml/parse result-file)))
-      (delete-file result-file true)))
+    (writexml out-file combined-xml)
+    (is (= expected-xml (xml/parse result-file)))
+    (delete-file result-file true)))
 
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided

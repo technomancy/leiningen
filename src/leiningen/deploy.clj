@@ -196,46 +196,46 @@ Use file://$HOME/.m2/repository to install in the local repo.
 While this works with any arbitrary files on disk, downstream projects will not
 be able to depend on jars that are deployed without a pom."
   ([project]
-     (deploy project (if (pom/snapshot? project)
-                       "snapshots"
-                       "releases")))
+   (deploy project (if (pom/snapshot? project)
+                     "snapshots"
+                     "releases")))
   ([project repository]
-     (fail-on-empty-project project)
-     (let [branches (set (:deploy-branches project))]
-       (when (and (seq branches)
-                  (in-branches branches))
-         (apply main/abort "Can only deploy from branches listed in"
-                ":deploy-branches:" branches)))
-     (warn-missing-metadata project)
-     (let [repo (repo-for project repository)
-           files (files-for project repo)]
-       (try
-         (java.lang.System/setProperty "aether.checksums.forSignature" "true")
-         (main/debug "Deploying" files "to" repo)
-         (aether/deploy
-          :coordinates [(symbol (:group project) (:name project))
-                        (:version project)]
-          :artifact-map files
-          :transfer-listener :stdout
-          :repository [repo]
-          :proxy (classpath/get-proxy-settings))
-         (catch org.eclipse.aether.deployment.DeploymentException e
-           (when main/*debug* (.printStackTrace e))
-           (main/abort (abort-message (.getMessage e)))))))
-  ([project repository identifier version & files]
-     (let [identifier (symbol identifier)
-           artifact-id (name identifier)
-           group-id (namespace identifier)
-           repo (repo-for project repository)
-           artifacts (for [f files]
-                       [[:extension (extension f)
-                         :classifier (classifier version f)] f])]
+   (fail-on-empty-project project)
+   (let [branches (set (:deploy-branches project))]
+     (when (and (seq branches)
+                (in-branches branches))
+       (apply main/abort "Can only deploy from branches listed in"
+              ":deploy-branches:" branches)))
+   (warn-missing-metadata project)
+   (let [repo (repo-for project repository)
+         files (files-for project repo)]
+     (try
        (java.lang.System/setProperty "aether.checksums.forSignature" "true")
        (main/debug "Deploying" files "to" repo)
        (aether/deploy
-        :coordinates [(symbol group-id artifact-id) version]
-        :artifact-map (into {} artifacts)
+        :coordinates [(symbol (:group project) (:name project))
+                      (:version project)]
+        :artifact-map files
         :transfer-listener :stdout
         :repository [repo]
-        :local-repo (:local-repo project)
-        :proxy (classpath/get-proxy-settings)))))
+        :proxy (classpath/get-proxy-settings))
+       (catch org.eclipse.aether.deployment.DeploymentException e
+         (when main/*debug* (.printStackTrace e))
+         (main/abort (abort-message (.getMessage e)))))))
+  ([project repository identifier version & files]
+   (let [identifier (symbol identifier)
+         artifact-id (name identifier)
+         group-id (namespace identifier)
+         repo (repo-for project repository)
+         artifacts (for [f files]
+                     [[:extension (extension f)
+                       :classifier (classifier version f)] f])]
+     (java.lang.System/setProperty "aether.checksums.forSignature" "true")
+     (main/debug "Deploying" files "to" repo)
+     (aether/deploy
+      :coordinates [(symbol group-id artifact-id) version]
+      :artifact-map (into {} artifacts)
+      :transfer-listener :stdout
+      :repository [repo]
+      :local-repo (:local-repo project)
+      :proxy (classpath/get-proxy-settings)))))

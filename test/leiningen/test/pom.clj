@@ -29,9 +29,9 @@
 
 (defn deep-content [xml tags]
   (reduce #(->> %1
-               (filter (fn [xml] (= (:tag xml) %2)))
-               first
-               :content)
+                (filter (fn [xml] (= (:tag xml) %2)))
+                first
+                :content)
           (if (seq? xml)
             xml
             [xml])
@@ -51,20 +51,20 @@
 
 (defn with-profile-merged
   ([project profile]
-     (with-profile-merged project :testy profile))
+   (with-profile-merged project :testy profile))
   ([project name profile]
-      (project/merge-profiles (with-profile project name profile) [name])))
+   (project/merge-profiles (with-profile project name profile) [name])))
 
 (deftest test-pom-scm-auto
   (with-redefs [lein-pom/parse-github-url (constantly ["techno" "lein"])
                 lein-pom/read-git-head (constantly "the git head")]
     (let [project (with-profile-merged sample-project
-                  ^:leaky {:scm {:name "auto"
-                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
-                                 :connection "https://example.org/ignored-url"
-                                 :url "https://github.com/this-is/ignored"}})
-        pom (make-pom project)
-        xml (parse-xml pom)]
+                    ^:leaky {:scm {:name "auto"
+                                   :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                   :connection "https://example.org/ignored-url"
+                                   :url "https://github.com/this-is/ignored"}})
+          pom (make-pom project)
+          xml (parse-xml pom)]
       (is (= "scm:git:git://github.com/techno/lein.git" (first-in xml [::pom/project ::pom/scm ::pom/connection])))
       (is (= "scm:git:ssh://git@github.com/techno/lein.git" (first-in xml [::pom/project ::pom/scm ::pom/developerConnection])))
       (is (= "https://github.com/techno/lein" (first-in xml [::pom/project ::pom/scm ::pom/url])))
@@ -74,12 +74,12 @@
   (with-redefs [lein-pom/read-git-origin (constantly "git@github.com:techno/lein.git")
                 lein-pom/read-git-head (constantly "the git head")]
     (let [project (with-profile-merged sample-project
-                  ^:leaky {:scm {:name "git"
-                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
-                                 :connection ":connection is not ignored in :scm :git"
-                                 :url "https://github.com/this-is-not/ignored"}})
-        pom (make-pom project)
-        xml (parse-xml pom)]
+                    ^:leaky {:scm {:name "git"
+                                   :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                   :connection ":connection is not ignored in :scm :git"
+                                   :url "https://github.com/this-is-not/ignored"}})
+          pom (make-pom project)
+          xml (parse-xml pom)]
       (is (= ":connection is not ignored in :scm :git" (first-in xml [::pom/project ::pom/scm ::pom/connection])))
       (is (= "scm:git:ssh://git@github.com/techno/lein.git" (first-in xml [::pom/project ::pom/scm ::pom/developerConnection])))
       (is (= "https://github.com/this-is-not/ignored" (first-in xml [::pom/project ::pom/scm ::pom/url])))
@@ -89,13 +89,13 @@
   (with-redefs [lein-pom/parse-github-url (constantly ["techno" "lein"])
                 lein-pom/read-git-head (constantly "the git head")]
     (let [project (with-profile-merged sample-project
-                  ^:leaky {:scm {:name "git"
-                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
-                                 :connection ""
-                                 :developerConnection nil
-                                 :url "https://github.com/this-is-not/ignored"}})
-        pom (make-pom project)
-        xml (parse-xml pom)]
+                    ^:leaky {:scm {:name "git"
+                                   :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                   :connection ""
+                                   :developerConnection nil
+                                   :url "https://github.com/this-is-not/ignored"}})
+          pom (make-pom project)
+          xml (parse-xml pom)]
       (is (nil? (first-in xml [::pom/project ::pom/scm ::pom/connection]))
           ":connection is not present because the project defines an empty value for it")
       (is (nil? (first-in xml [::pom/project ::pom/scm ::pom/developerConnection]))
@@ -107,12 +107,12 @@
   (with-redefs [lein-pom/read-git-origin (constantly "https://github.com/techno/lein.git")
                 lein-pom/read-git-head (constantly "the git head")]
     (let [project (with-profile-merged sample-project
-                  ^:leaky {:scm {:name "git"
-                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
-                                 :connection ":connection is not ignored in :scm :git"
-                                 :url "https://github.com/this-is-not/ignored"}})
-        pom (make-pom project)
-        xml (parse-xml pom)]
+                    ^:leaky {:scm {:name "git"
+                                   :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                   :connection ":connection is not ignored in :scm :git"
+                                   :url "https://github.com/this-is-not/ignored"}})
+          pom (make-pom project)
+          xml (parse-xml pom)]
       (is (= ":connection is not ignored in :scm :git" (first-in xml [::pom/project ::pom/scm ::pom/connection])))
       (is (= "scm:git:ssh://git@github.com/techno/lein.git" (first-in xml [::pom/project ::pom/scm ::pom/developerConnection])))
       (is (= "https://github.com/this-is-not/ignored" (first-in xml [::pom/project ::pom/scm ::pom/url])))
@@ -122,12 +122,12 @@
   (with-redefs [lein-pom/read-git-origin (constantly "https://github.com/techno/lein")
                 lein-pom/read-git-head (constantly "the git head")]
     (let [project (with-profile-merged sample-project
-                  ^:leaky {:scm {:name "git"
-                                 :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
-                                 :connection ":connection is not ignored in :scm :git"
-                                 :url "https://github.com/this-is-not/ignored"}})
-        pom (make-pom project)
-        xml (parse-xml pom)]
+                    ^:leaky {:scm {:name "git"
+                                   :dir "." ;; so resolve-git-dir looks for lein project .git dir, not the sample
+                                   :connection ":connection is not ignored in :scm :git"
+                                   :url "https://github.com/this-is-not/ignored"}})
+          pom (make-pom project)
+          xml (parse-xml pom)]
       (is (= ":connection is not ignored in :scm :git" (first-in xml [::pom/project ::pom/scm ::pom/connection])))
       (is (= "scm:git:ssh://git@github.com/techno/lein.git" (first-in xml [::pom/project ::pom/scm ::pom/developerConnection])))
       (is (= "https://github.com/this-is-not/ignored" (first-in xml [::pom/project ::pom/scm ::pom/url])))
@@ -365,8 +365,8 @@
          (-> (make-pom (with-profile-merged
                          sample-project
                          ^:leaky {:classifier "stuff"}))
-              parse-xml
-              (first-in [::pom/project ::pom/classifier])))))
+             parse-xml
+             (first-in [::pom/project ::pom/classifier])))))
 
 (deftest test-pom-adds-java-source-paths
   (is (= (vec (map lthelper/fix-path-delimiters ["java/src" "java/another"]))
@@ -493,37 +493,37 @@
     (testing "two-parameter version adds maven plugin"
       (is (= simple-plugin
              (xml/sexp-as-element
-               [::pom/plugin
-                [::pom/groupId "two.parameter"]
-                [::pom/artifactId "simple-plugin"]
-                [::pom/version "1.0.0"]]))))
+              [::pom/plugin
+               [::pom/groupId "two.parameter"]
+               [::pom/artifactId "simple-plugin"]
+               [::pom/version "1.0.0"]]))))
     (testing "vector as third parameter is interpreted as a mapping"
       (is (= plugin-with-vec
              (xml/sexp-as-element
-               [::pom/plugin
-                [::pom/groupId "three.parameter"]
-                [::pom/artifactId "with-vec"]
-                [::pom/version "1.0.1"]
-                [::pom/a 3]]))))
+              [::pom/plugin
+               [::pom/groupId "three.parameter"]
+               [::pom/artifactId "with-vec"]
+               [::pom/version "1.0.1"]
+               [::pom/a 3]]))))
     (testing "hashmap as third parameter is converted to tags"
       (is (= plugin-with-map
              (xml/sexp-as-element
-               [::pom/plugin
-                [::pom/groupId "three.parameter"]
-                [::pom/artifactId "with-map"]
-                [::pom/version "1.0.2"]
-                [::pom/a 1]
-                [::pom/b 2]
-                [::pom/c 3]]))))
+              [::pom/plugin
+               [::pom/groupId "three.parameter"]
+               [::pom/artifactId "with-map"]
+               [::pom/version "1.0.2"]
+               [::pom/a 1]
+               [::pom/b 2]
+               [::pom/c 3]]))))
     (testing "list as third parameter keeps structure"
       (is (= plugin-with-list
              (xml/sexp-as-element
-               [::pom/plugin
-                [::pom/groupId "three.parameter"]
-                [::pom/artifactId "with-list"]
-                [::pom/version "1.0.3"]
-                [::pom/root
-                 [::pom/a 1]
-                 [::pom/b
-                  [::pom/c 2]
-                  [::pom/d 3]]]]))))))
+              [::pom/plugin
+               [::pom/groupId "three.parameter"]
+               [::pom/artifactId "with-list"]
+               [::pom/version "1.0.3"]
+               [::pom/root
+                [::pom/a 1]
+                [::pom/b
+                 [::pom/c 2]
+                 [::pom/d 3]]]]))))))

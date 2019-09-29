@@ -21,7 +21,7 @@
   (is (= [["help" "help"] ["help" "version"] ["version"]
           ["test" "test-compile"]]
          (group-args '("help" "help," "help" "version," "version,"
-                       "test" "test-compile")))))
+                              "test" "test-compile")))))
 
 (deftest test-group-existing-collections
   (is (= [["clean"] ["test" ":integration"] '("deploy" "clojars")]

@@ -83,8 +83,8 @@
                     (let [downloads {}]
                       (for [download (repo/downloads "technomancy" "leiningen")]
                         (assoc downloads
-                          (:name download)
-                          (:download_count download))))))))
+                               (:name download)
+                               (:download_count download))))))))
 
 (defn ^:no-project-needed downloads [project]
   (let [s3-downloads (s3-downloads)
