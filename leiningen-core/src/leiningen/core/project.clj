@@ -873,15 +873,17 @@
     (vary-meta (fn [m] (merge default-meta m)))
     (map? profile) set-dependencies-pom-scope))
 
-(defn project-with-profiles [project]
-  (let [profiles (merge (read-plugin-profiles project)
-                        (read-profiles project))]
-    (project-with-profiles-meta
-     project
-     (->> (map (fn [[k p]]
-                 [k (apply-profile-meta (default-profile-metadata k) p)])
-               profiles)
-          (into {})))))
+(defn project-with-profiles
+  ([project profiles]
+   (project-with-profiles-meta
+    project
+    (->> (map (fn [[k p]]
+                [k (apply-profile-meta (default-profile-metadata k) p)])
+              profiles)
+         (into {}))))
+  ([project]
+   (project-with-profiles project (merge (read-plugin-profiles project)
+                                         (read-profiles project)))))
 
 (defn ^:internal init-profiles
   "Compute a fresh version of the project map, including and excluding the
@@ -958,35 +960,53 @@
     (doseq [path (classpath/get-classpath project)]
       (pomegranate/add-classpath path))))
 
+(def ^:private repo-connection-keys
+  [:repositories :plugin-repositories :mirrors :certificates :local-repo])
+
+;; Since this feature was introduced, the initial profile loading sequence has
+;; been overhauled; repository overrides are no longer strictly necessary.
 (defn- load-repository-overrides
   "Loads any network-centric overrides specified in repository-overrides.clj.
   This feature allows certain features to be defined outside of the project
-  file, but before the profiles are loaded.  This is necessary because network
-  operations are needed to complete the profile merging themselves and therefore
-  they are not suited to defining network configuration items."
+  file, they are loaded at the very beginning before the profiles are loaded."
   [project]
   (let [overrides (-> (io/file (:root project) "repository-overrides.clj")
                       (utils/read-file)
-                      (select-keys [:repositories
-                                    :plugin-repositories
-                                    :mirrors
-                                    :certificates
-                                    :local-repo]))]
+                      (select-keys repo-connection-keys))]
     (merge project overrides)))
+
+(defn- focus-repo-connection [profile]
+  (cond
+    (map? profile) (select-keys profile (conj repo-connection-keys :plugins))
+    (composite-profile? profile) (mapv focus-repo-connection profile)
+    :else profile))
 
 (defn init-project
   "Initializes a project by loading certificates, plugins, middleware, etc.
 Also merges default profiles."
   ([project default-profiles]
-   (-> (load-repository-overrides project)
-       (doto
+   ;; Initialization proceeds in two stages:
+   ;; 1. Initial setup of certificates, Leiningen classpath, plugins using a
+   ;;    project map supplemented with only connection-related settings
+   ;;    (repository overrides plus a selection of keys from default profiles).
+   ;; 2. Regular profile initialization followed by a second round of plugin
+   ;;    loading and middleware activation.
+   (let [initial-project (load-repository-overrides project)
+         profiles (read-profiles project)
+         ;; Initial project setup with stripped down default profiles merged.
+         repo-project (-> initial-project
+                          (project-with-profiles-meta
+                            (utils/map-vals profiles focus-repo-connection))
+                          (init-profiles default-profiles))
+         _ (doto repo-project
              (load-certificates)
              (init-lein-classpath)
              (load-plugins))
-       (project-with-profiles)
-       (init-profiles default-profiles)
-       (load-plugins)
-       (activate-middleware)))
+         plugin-profiles (read-plugin-profiles repo-project)]
+     ;; Regular project initialization using initial project map.
+     (-> initial-project
+         (project-with-profiles (merge plugin-profiles profiles))
+         (set-profiles default-profiles))))
   ([project] (init-project project [:default])))
 
 (defn add-profiles
