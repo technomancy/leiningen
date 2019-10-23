@@ -799,27 +799,28 @@
       (utils/error "cannot resolve" hook-name "hook"))))
 
 (defn load-hooks [project & [ignore-missing?]]
-  (when (and (:implicits project true) (:implicit-hooks project true))
-    (doseq [hook-name (concat (plugin-hooks project) (:hooks project))]
-      ;; if hook-name is just a namespace assume hook fn is called activate
-      (let [hook-name (if (namespace hook-name)
-                        hook-name
-                        (symbol (name hook-name) "activate"))]
-        (load-hook hook-name))))
+  (doseq [hook-name (concat (when (and (:implicits project true) (:implicit-hooks project true))
+                              (plugin-hooks project))
+                            (:hooks project))]
+    ;; if hook-name is just a namespace assume hook fn is called activate
+    (let [hook-name (if (namespace hook-name)
+                      hook-name
+                      (symbol (name hook-name) "activate"))]
+      (load-hook hook-name)))
   project)
 
 (defn apply-middleware
   ([project]
-     (reduce apply-middleware project
-             (concat (plugin-middleware project) (:middleware project))))
+   (reduce apply-middleware project
+           (concat (when (and (:implicits project true) (:implicit-middleware project true))
+                     (plugin-middleware project))
+                   (:middleware project))))
   ([project middleware-name]
-     (if (and (:implicits project true) (:implicit-middleware project true))
-       (if-let [middleware (utils/require-resolve middleware-name)]
-         (middleware project)
-         (do (when-not (:optional (meta middleware-name))
-               (utils/error "cannot resolve" middleware-name "middleware"))
-             project))
-       project)))
+   (if-let [middleware (utils/require-resolve middleware-name)]
+     (middleware project)
+     (do (when-not (:optional (meta middleware-name))
+           (utils/error "cannot resolve" middleware-name "middleware"))
+         project))))
 
 (defn load-certificates
   "Load the SSL certificates specified by the project and register

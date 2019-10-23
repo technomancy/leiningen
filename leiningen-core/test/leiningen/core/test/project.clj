@@ -424,6 +424,12 @@
 (deftest test-middleware
   (is (= 7 (:seven (init-project (read (.getFile (io/resource "p2.clj"))))))))
 
+(deftest test-middleware-no-implicits
+  (is (= 7 (:seven (init-project (read (.getFile (io/resource "p4.clj"))))))))
+
+(deftest test-middleware-no-implicit-middleware
+  (is (= 7 (:seven (init-project (read (.getFile (io/resource "p5.clj"))))))))
+
 (deftest test-checkouts
   (let [project (read (.getFile (io/resource "p1.clj")))]
     (is (= #{"checkout-lib1" "checkout-lib2"} (set (map :name (read-checkouts project)))))))
