@@ -83,7 +83,7 @@
           tag (if prefix
                 (str prefix version)
                 version)
-          cmd (->> ["git" "tag" (when sign? "--sign") tag "-m" (str "Release " version)]
+          cmd (->> ["git" "tag" (when sign? "--sign") tag "-a" "-m" (str "Release " version)]
                    (filter some?))]
       (apply eval/sh-with-exit-code "Couldn't tag" cmd))))
 
