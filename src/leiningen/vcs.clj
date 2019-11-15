@@ -20,11 +20,13 @@
   (or (:vcs project) (some (partial uses-vcs project) @supported-systems)))
 
 (defn parse-tag-args [args]
-  (loop [parsed-args {:sign? true}
+  (loop [parsed-args {:sign? true :annotate? true}
          args args]
     (case (first args)
       ("--sign" "-s") (recur (assoc parsed-args :sign? true) (rest args))
       "--no-sign" (recur (assoc parsed-args :sign? false) (rest args))
+      "--annotate" (recur (assoc parsed-args :annotate? true) (rest args))
+      "--no-annotate" (recur (assoc parsed-args :annotate? false) (rest args))
       nil parsed-args                                       ;; We're finished and can exit
       (recur (assoc parsed-args :prefix (first args)) (rest args)))))
 
@@ -40,7 +42,10 @@
   string for the commit message that will be provided the version."
   which-vcs :default :none)
 
-(defmulti tag "Apply a version control tag. Takes an optional tag prefix. Pass --no-sign option to skip signing"
+(defmulti tag
+  "Apply a version control tag. Takes an optional tag prefix.
+  Pass --no-sign option to skip signing, or --no-annotate to create
+  non-release tags."
   which-vcs :default :none)
 
 (defmulti assert-committed "Abort if uncommitted changes exist."
@@ -79,11 +84,11 @@
 
 (defmethod tag :git [{:keys [root version]} & args]
   (binding [eval/*dir* root]
-    (let [{:keys [sign? prefix]} (parse-tag-args args)
+    (let [{:keys [annotate? sign? prefix]} (parse-tag-args args)
           tag (if prefix
                 (str prefix version)
                 version)
-          cmd (->> ["git" "tag" (when sign? "--sign") tag "-a" "-m" (str "Release " version)]
+          cmd (->> ["git" "tag" (when sign? "--sign") tag (when annotate? "-a") "-m" (str "Release " version)]
                    (filter some?))]
       (apply eval/sh-with-exit-code "Couldn't tag" cmd))))
 
