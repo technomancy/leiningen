@@ -276,7 +276,7 @@
 
 (defn- get-jar-filename*
   [project uberjar?]
-  (get-classified-jar-filename project (when uberjar? :standalone)))
+  (get-classified-jar-filename project (if uberjar? :standalone)))
 
 (defn get-jar-filename [project & [uberjar?]]
   (get-jar-filename* (preprocess-project project) uberjar?))

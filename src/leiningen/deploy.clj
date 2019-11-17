@@ -162,7 +162,7 @@
   [version f]
   (let [pattern (re-pattern (format "%s-(\\p{Alnum}*)\\.%s" version (extension f)))
         [_ classifier-of] (re-find pattern f)]
-    (when-not (empty? classifier-of)
+    (if-not (empty? classifier-of)
       classifier-of)))
 
 (defn- fail-on-empty-project [project]
