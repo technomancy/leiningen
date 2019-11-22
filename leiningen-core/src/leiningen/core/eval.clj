@@ -262,7 +262,8 @@
   (binding [*dir* (:root project)]
     (let [exit-code (apply sh (shell-command project form))]
       (when (pos? exit-code)
-        (throw (ex-info "Subprocess failed" {:exit-code exit-code}))))))
+        (throw (ex-info (format "Subprocess failed (exit code: %d)" exit-code)
+                        {:exit-code exit-code}))))))
 
 (defonce trampoline-project (atom nil))
 (defonce trampoline-forms (atom []))
