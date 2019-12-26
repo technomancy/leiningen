@@ -312,33 +312,25 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
     else
         TARGET_VERSION="${2:-stable}"
         echo "The script at $SCRIPT will be upgraded to the latest $TARGET_VERSION version."
-        echo -n "Do you want to continue [Y/n]? "
-        read RESP
-        case "$RESP" in
-            y|Y|"")
-                echo
-                msg "Upgrading..."
-                TARGET="/tmp/lein-${$}-upgrade"
-                if $cygwin; then
-                    TARGET=$(cygpath -w "$TARGET")
-                fi
-                LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
-                $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
-                if [ $? == 0 ]; then
-                    cmp -s "$TARGET" "$SCRIPT"
-                    if [ $? == 0 ]; then
-                        msg "Leiningen is already up-to-date."
-                    fi
-                    mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
-                    unset CLASSPATH
-                    exec "$SCRIPT" version
-                else
-                    download_failed_message "$LEIN_SCRIPT_URL"
-                fi;;
-            *)
-                msg "Aborted."
-                exit 1;;
-        esac
+        echo
+        msg "Upgrading..."
+        TARGET="/tmp/lein-${$}-upgrade"
+        if $cygwin; then
+            TARGET=$(cygpath -w "$TARGET")
+        fi
+        LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
+        $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
+        if [ $? == 0 ]; then
+            cmp -s "$TARGET" "$SCRIPT"
+            if [ $? == 0 ]; then
+                msg "Leiningen is already up-to-date."
+            fi
+            mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
+            unset CLASSPATH
+            exec "$SCRIPT" version
+        else
+            download_failed_message "$LEIN_SCRIPT_URL"
+        fi;;
     fi
 else
     if $cygwin; then
