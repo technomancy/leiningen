@@ -210,7 +210,6 @@ be able to depend on jars that are deployed without a pom."
      (let [repo (repo-for project repository)
            files (files-for project repo)]
        (try
-         (java.lang.System/setProperty "aether.checksums.forSignature" "true")
          (main/debug "Deploying" files "to" repo)
          (aether/deploy
           :coordinates [(symbol (:group project) (:name project))
@@ -230,7 +229,6 @@ be able to depend on jars that are deployed without a pom."
            artifacts (for [f files]
                        [[:extension (extension f)
                          :classifier (classifier version f)] f])]
-       (java.lang.System/setProperty "aether.checksums.forSignature" "true")
        (main/debug "Deploying" files "to" repo)
        (aether/deploy
         :coordinates [(symbol group-id artifact-id) version]
