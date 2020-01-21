@@ -1,5 +1,14 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.2 / ???
+
+* Bump to Clojure 1.10.1. (Phil Hagelberg)
+* Fix a bug where disabling implicit middleware disabled explicit ones. (radhika reddy)
+* Add checksum check during self-install process. (Toyam Cox)
+* Include repository auth when verifying dependencies. (David Bürgin)
+* Fix bugs in certain kinds of profile merging. (David Bürgin)
+* Include `:repositories` from `project.clj` in `pom.xml` file. (David Bürgin)
+
 ## 2.9.1 / 2019-02-26
 
 * Fix a bug where provided namespace compilation order was overridden. (Phil Hagelberg)
