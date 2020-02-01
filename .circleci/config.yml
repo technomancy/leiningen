@@ -1,20 +1,53 @@
-version: 2
+version: 2.1
+
+executors:
+  clojure:
+    docker:
+      - image: clojure:<< parameters.java_version >>-lein-2.9.1
+    parameters:
+      java_version:
+        description: "Java version"
+        default: "openjdk-11"
+        type: string
+    working_directory: ~/leiningen
+
 jobs:
   build:
-    working_directory: ~/leiningen
-    docker:
-      - image: clojure:lein-2.9.1
+    executor: clojure
+    parameters:
+      java_version:
+        description: "Java version"
+        default: << parameters.java_version >>
+        type: string
     steps:
       - checkout
       - restore_cache:
-          key: << checksum "project.clj" >>
+          key: leiningen-{{ checksum "project.clj" }}
       - run:
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
-      - run: GNUPGHOME=test/.gnupg bin/lein test
+      - run:
+          command: bin/lein test
+          environment:
+            GNUPGHOME: test/.gnupg
       - save_cache:
           paths:
             - $HOME/.m2
             - $HOME/.lein
-          key: << checksum "project.clj" >>
+          key: leiningen-{{ checksum "project.clj" }}
 
+workflows:
+  test-with-matrix:
+    jobs:
+      - build:
+          name: "openjdk8"
+          java_version: "openjdk-8"
+      - build:
+          name: "openjdk11"
+          java_version: "openjdk-11"
+      - build:
+          name: "openjdk13"
+          java_version: "openjdk-13"
+      - build:
+          name: "openjdk14"
+          java_version: "openjdk-14"
