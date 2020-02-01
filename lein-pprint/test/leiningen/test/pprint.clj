@@ -2,23 +2,27 @@
   (:require [clojure.test :refer :all]
             [leiningen.pprint :refer :all]))
 
-(def shallow {:foo "str"})
-(def deep {:foo {:bar "str"}})
+(def project {:foo {:bar "str"}})
 
-(deftest test-pprint-key
-  (is (= "\"str\"\n" (with-out-str (pprint shallow ":foo")))))
+(defn check [desc keys output]
+  (is (= output (with-out-str (apply pprint project keys)))) desc)
 
-(deftest test-pprint-seq
-  (is (= "\"str\"\n" (with-out-str (pprint deep "[:foo :bar]")))))
+(defn check-no-pretty [desc keys output]
+  (check desc (concat ["--no-pretty" "--"] keys) output))
 
-(deftest test-pprint-key-no-pretty
-  (is (= "str\n" (with-out-str (pprint shallow "--no-pretty" "--" ":foo")))))
+(deftest test-pprint
+  (check "pretty-print a key" [":foo"] "{:bar \"str\"}\n")
 
-(deftest test-pprint-seq-no-pretty
-  (is (= "str\n" (with-out-str (pprint deep "--no-pretty" "--" "[:foo :bar]")))))
+  (check-no-pretty "print a key" [":foo"] "{:bar str}\n")
 
-(deftest test-pprint-project
-  (is (= "{:foo \"str\"}\n" (with-out-str (pprint shallow)))))
+  (check "pretty-print a sequence" ["[:foo :bar]"] "\"str\"\n")
 
-(deftest test-pprint-project-no-pretty
-  (is (= "{:foo str}\n" (with-out-str (pprint shallow "--no-pretty" "--")))))
+  (check-no-pretty "print a sequence" ["[:foo :bar]"] "str\n")
+
+  (check "pretty-print a project" [] "{:foo {:bar \"str\"}}\n")
+
+  (check-no-pretty "print a project" [] "{:foo {:bar str}}\n")
+
+  (check "pretty-print multiple" [":foo" "[:foo :bar]"] "{:bar \"str\"}\n\"str\"\n")
+
+  (check-no-pretty "print multiple" [":foo" "[:foo :bar]"] "{:bar str}\nstr\n"))
