@@ -9,10 +9,16 @@ jobs:
       - restore_cache:
           key: << checksum "project.clj" >>
       - run:
+          name: Bootstrap leiningen-core
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
-      - run: GNUPGHOME=test/.gnupg bin/lein test
       - run:
+          name: Test Leiningen
+          environment:
+            GNUPGHOME: test/.gnupg
+          command: bin/lein test
+      - run:
+          name: Test lein-pprint
           working_directory: lein-pprint
           command: lein test
       - save_cache:
@@ -20,4 +26,3 @@ jobs:
             - $HOME/.m2
             - $HOME/.lein
           key: << checksum "project.clj" >>
-
