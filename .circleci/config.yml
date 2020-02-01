@@ -12,6 +12,9 @@ jobs:
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
       - run: GNUPGHOME=test/.gnupg bin/lein test
+      - run:
+          working_directory: lein-pprint
+          command: lein test
       - save_cache:
           paths:
             - $HOME/.m2
