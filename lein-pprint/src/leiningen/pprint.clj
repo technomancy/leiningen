@@ -1,6 +1,19 @@
 (ns leiningen.pprint
   (:require [clojure.pprint :as pprint]))
 
+(defn- parse-flags [args]
+  (let [[flag separator & rest] args]
+    (if (= [flag separator] ["--no-pretty" "--"])
+      [println rest]
+      [pprint/pprint args])))
+
+(defn- get-values [project keys]
+  (if (seq keys)
+    (map #(let [key (read-string %)
+                f (if (sequential? key) get-in get)]
+            (f project key)) keys)
+    [project]))
+
 (defn ^:no-project-needed pprint
   "Usage: pprint [--no-pretty] [--] [selector...]
 
@@ -10,16 +23,7 @@
   produces something sequential, or (get project selector) when it
   doesn't.  If \"--no-pretty\" is specified, doesn't pretty-print,
   just prints."
-  [project & keys]
-  (let [[args rest] (split-at 2 keys)
-        [show keys] (if (= args ["--no-pretty" "--"])
-                      [println rest]
-                      [pprint/pprint keys])]
-    (if (seq keys)
-      (doseq [kstr keys]
-        (let [k (read-string kstr)]
-          (show (if (sequential? k)
-                  (get-in project k)
-                  (get project k)))))
-      (show project)))
+  [project & args]
+  (let [[show keys] (parse-flags args)]
+    (run! show (get-values project keys)))
   (flush))
