@@ -6,9 +6,11 @@ This is a sample of how a simple plugin would work.
 
 ## Usage
 
-Add `[lein-pprint "1.2.0"]` to `:plugins`.
+Add `[lein-pprint "1.3.2"]` to `:plugins`.
 
-    $ lein pprint
+```bash
+$ lein pprint
+```
 
 ```clj
 {:compile-path "/home/phil/src/leiningen/lein-pprint/classes",
@@ -34,8 +36,17 @@ Add `[lein-pprint "1.2.0"]` to `:plugins`.
  :description "Pretty-print a representation of the project map."}
 ```
 
+Use the `--no-pretty` flag to just print rather than pretty-print.
+
+```bash
+$ lein pprint :version
+"1.0.0"
+$ lein pprint --no-pretty -- :version
+1.0.0
+```
+
 ## License
 
-Copyright © 2012-2017 Phil Hagelberg and contributors.
+Copyright © 2012-2020 Phil Hagelberg and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.

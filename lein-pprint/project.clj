@@ -1,4 +1,4 @@
-(defproject lein-pprint "1.3.0"
+(defproject lein-pprint "1.3.2"
   :description "Pretty-print a representation of the project map."
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
