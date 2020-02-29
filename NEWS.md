@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.2 / ???
+## 2.9.2 / 2020-02-28
 
 * Bump to Clojure 1.10.1. (Phil Hagelberg)
 * Fix a bug where disabling implicit middleware disabled explicit ones. (radhika reddy)

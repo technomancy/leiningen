@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.1</version>
+  <version>2.9.2-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -15,7 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>955bedae81aaa0ac733b3a66b5e16988a2cf4637</tag>
+    <tag>47243751579ae4cc198650b717c7ba75a9326c09</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
