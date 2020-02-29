@@ -3,7 +3,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.2</version>
+  <version>2.9.3-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://github.com/technomancy/leiningen</url>
@@ -14,9 +14,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>09d899a3d83ca98003851d3983b353a260e49d29
-</tag>
-    <url/>
+    <tag>df32368a84c3441b59d0310a991a3e10c91b28b8</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -48,7 +46,7 @@
     </repository>
     <repository>
       <id>clojars</id>
-      <url>https://clojars.org/repo/</url>
+      <url>https://repo.clojars.org/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -72,8 +70,8 @@
       <version>0.3.0</version>
       <exclusions>
         <exclusion>
-          <groupId>org.clojure</groupId>
           <artifactId>clojure</artifactId>
+          <groupId>org.clojure</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -93,8 +91,8 @@
       <version>1.2.0</version>
       <exclusions>
         <exclusion>
-          <groupId>org.slf4j</groupId>
           <artifactId>jcl-over-slf4j</artifactId>
+          <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
     </dependency>
