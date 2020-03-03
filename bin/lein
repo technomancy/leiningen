@@ -84,6 +84,7 @@ function checksum_failed_message {
 	file. We expected a sha256 of
 	$2 and actually had
 	$3.
+	We used '$SHASUM_CMD' to verify the downloaded file.
 	EOS
 }
 
@@ -101,12 +102,12 @@ function self_install {
   $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
   local exit_code=$?
   if [ $exit_code == 0 ]; then
-      printf "$LEIN_CHECKSUM $LEIN_JAR.pending\n" >> "$LEIN_JAR.pending.shasum"
+      printf "$LEIN_CHECKSUM  $LEIN_JAR.pending\n" > "$LEIN_JAR.pending.shasum"
       $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"
       if [ $? == 0 ]; then
         mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
       else
-        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending.shasum" | awk '{ print $1 }')"
+        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending.shasum" | cut -f 1 -d ' ')"
         checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum"
         rm "$LEIN_JAR.pending" 2> /dev/null
         exit 1
