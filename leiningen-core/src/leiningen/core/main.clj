@@ -443,13 +443,14 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
     (project/ensure-dynamic-classloader)
     (aether/register-wagon-factory! "http" insecure-http-abort)
     (user/init)
-    (let [project (if (.exists (io/file *cwd* "project.clj"))
-                    (project/read (str (io/file *cwd* "project.clj")))
-                    (default-project))]
-      (when (:exact-lein-version project) (verify-exact-version project))
-      (when (:min-lein-version project) (verify-min-version project))
-      (configure-http)
-      (resolve-and-apply project raw-args))
+    (binding [project/*memoize-middleware* true]
+      (let [project (if (.exists (io/file *cwd* "project.clj"))
+                      (project/read (str (io/file *cwd* "project.clj")))
+                      (default-project))]
+        (when (:exact-lein-version project) (verify-exact-version project))
+        (when (:min-lein-version project) (verify-min-version project))
+        (configure-http)
+        (resolve-and-apply project raw-args)))
     (catch Exception e
       (if (or *debug* (not (:exit-code (ex-data e))))
         (stacktrace/print-cause-trace e)
