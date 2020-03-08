@@ -107,7 +107,7 @@ function self_install {
       if [ $? == 0 ]; then
         mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
       else
-        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending.shasum" | cut -f 1 -d ' ')"
+        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')"
         checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum"
         rm "$LEIN_JAR.pending" 2> /dev/null
         exit 1
