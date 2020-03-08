@@ -809,6 +809,37 @@
       (load-hook hook-name)))
   project)
 
+(def ^:dynamic *memoize-middleware*
+  "Memoize middleware.
+  This is enabled when running lein from the command line, but is otherwise
+  disabled by default. Middleware memoization can be disabled by setting
+  `:memoize-middleware? false` in the project map or user profile."
+  false)
+
+(defn- memoize-middleware?
+  "Returns true if middleware should be memoized for the given project."
+  [project]
+  (and *memoize-middleware*
+    (:memoize-middleware? (:without-profiles (meta project) project)
+      (:memoize-middleware? (:user (user/profiles))
+        true))))
+
+(defn- memoize-when
+  "Returns a conditionally memoized version of a function.
+  Calls to the function will be memoized only when `test` returns logical
+  true. `test` will be called with the same arguments as the function."
+  [f test]
+  (let [f* (memoize f)]
+    (fn [& args]
+      (if (apply test args)
+        (apply f* args)
+        (apply f args)))))
+
+(def ^:private apply-middleware-memoized
+  (memoize-when
+    (fn [project middleware] (middleware project))
+    (fn [project _] (memoize-middleware? project))))
+
 (defn apply-middleware
   ([project]
    (reduce apply-middleware project
@@ -817,7 +848,7 @@
                    (:middleware project))))
   ([project middleware-name]
    (if-let [middleware (utils/require-resolve middleware-name)]
-     (middleware project)
+     (apply-middleware-memoized project middleware)
      (do (when-not (:optional (meta middleware-name))
            (utils/error "cannot resolve" middleware-name "middleware"))
          project))))
