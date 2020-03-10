@@ -195,6 +195,10 @@
   ;; when it loads. Both hooks and middleware can be loaded implicitly
   ;; or by being listed here.
   :middleware [lein-xml.plugin/middleware]
+  ;; By default, middleware gets memoized; you can disable it with this setting.
+  ;; For bootstrapping reasons, this is only supported in the top level of
+  ;; defproject or the :user profile.
+  :memoize-middleware? false
   ;; These settings disable the implicit loading of middleware and
   ;; hooks, respectively. You can disable both with :implicits false.
   :implicit-middleware false

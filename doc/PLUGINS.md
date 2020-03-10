@@ -424,11 +424,13 @@ middleware to inject values into the project map is if the profiles has to be
 programmatically computed, or if you have to modify the project map in a way
 that is not possible with `merge-profiles`.
 
+Note that middleware application will be memoized unless the
+`:memoize-middleware?` key is set to `false`.
+
 **Note**: Leiningen supports loading middleware implicitly when the
 middleware is named `plugin-name.plugin/middleware`; however this
 mechanism is even more difficult to debug than regular middleware. It
-should be considered deprecated as of 2.8.0 onward and will continue
-to work until version 3.0 but is strongly advised against.
+is strongly advised against using.
 
 ### Maven Wagons
 

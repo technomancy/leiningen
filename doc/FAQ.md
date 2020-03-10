@@ -267,20 +267,16 @@ Prior to version 2.8.0, this is the workaround:
 :dependencies [[~(symbol "net.3scale" "3scale-api") "3.0.2"]]
 ```
 
-**Q:** I'm getting warnings for implicit hooks or implicit middleware.  
+**Q:** I'm getting warnings for implicit hooks.  
 **A:** Hooks are a deprecated feature where plugins can modify the
 behavior of built-in Leiningen functionality; they result in
 situations which can be very difficult to debug and usually point
 to situations in which the original API is not flexible enough.
 
-Leiningen also has a deprecated feature for implicitly loading
-middleware. Middleware is not deprecated but should now be declared using
-`:middleware` instead of being auto-detected from plugins.
-
 Adding `:implicits false` to `project.clj` will disable all implicit features.
 
 **Q:** What causes "WARNING: An illegal reflective access operation has occurred"?  
-**A:** This is due to changes introduced in Java 9. At the time of
+**A:** This is due to changes introduced in Java 9+. At the time of
 this writing, it's recommended to use Java 8 if possible. Otherwise
 you can [use workarounds](https://clojure.org/guides/faq#illegal_access)
 including adding `{:user {:jvm-opts ["--illegal-access=deny"]}}` to your
