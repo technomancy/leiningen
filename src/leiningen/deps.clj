@@ -1,5 +1,5 @@
 (ns leiningen.deps
-  "Download all dependencies."
+  "Download and examine dependencies."
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
@@ -103,7 +103,7 @@
 
 
 (defn deps
-  "Show details about dependencies.
+  "Download and examine dependencies.
 
     lein deps :tree
 

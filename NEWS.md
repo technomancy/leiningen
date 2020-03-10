@@ -1,5 +1,11 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.3 / ???
+
+* Fix a bug where deploying would fail to send signature checksums. (Antonin Hildebrand)
+* Memoize application of project middleware. (Chris Thunes)
+* Fix a bug where checksum verification failed on non-GNU systems. (Antonio Hernández Blas)
+
 ## 2.9.2 / 2020-02-28
 
 * Bump to Clojure 1.10.1. (Phil Hagelberg)
