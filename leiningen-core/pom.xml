@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
@@ -14,9 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>3ec95ca59df4dbc96fe28ec1a31e8eb988d1ca9e
-</tag>
-    <url/>
+    <tag>d4aec407c677a9672e2b0150c31e913bc05c429a</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -48,7 +47,7 @@
     </repository>
     <repository>
       <id>clojars</id>
-      <url>https://clojars.org/repo/</url>
+      <url>https://repo.clojars.org/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -72,8 +71,8 @@
       <version>0.3.0</version>
       <exclusions>
         <exclusion>
-          <groupId>org.clojure</groupId>
           <artifactId>clojure</artifactId>
+          <groupId>org.clojure</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -93,8 +92,8 @@
       <version>1.2.0</version>
       <exclusions>
         <exclusion>
-          <groupId>org.slf4j</groupId>
           <artifactId>jcl-over-slf4j</artifactId>
+          <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
     </dependency>
