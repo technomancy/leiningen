@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.3 / 2020-06-16
+## 2.9.3 / 2020-03-16
 
 * Fix a bug where deploying would fail to send signature checksums. (Antonin Hildebrand)
 * Memoize application of project middleware. (Chris Thunes)
