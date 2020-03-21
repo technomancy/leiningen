@@ -361,7 +361,7 @@ else
     fi
 
     if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
-        INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj")"
+        INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
 
         INPUT_CHECKSUM=$(echo "$INPUTS" | $SHASUM_CMD | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
