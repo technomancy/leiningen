@@ -415,15 +415,6 @@
           (xml-tags :project (relativize project))))
         (if disclaimer? disclaimer)))))
 
-(def ^:private warning
-  (delay
-   (main/warn "WARNNG: leiningen.pom/make-pom-properties is deprecated."
-              "\nUse leiningen.core.project/make-project-properties instead.")))
-
-(defn ^:deprecated make-pom-properties [project]
-  (force warning)
-  (project/make-project-properties))
-
 (defn ^{:help-arglists '([])} pom
   "Write a pom.xml file to disk for Maven interoperability."
   ([project pom-location-or-properties]
