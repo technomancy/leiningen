@@ -368,7 +368,7 @@ Subcommands:
   LEIN_REPL_GREETING_FN, :repl-options, or .nrepl.edn (global one or in
   the project root), in that order.
 
-For connecting to HTTPS repl servers add [nrepl/drawbridge \"0.1.5\"]
+For connecting to HTTPS repl servers add [nrepl/drawbridge \"0.2.1\"]
 to your :plugins list.
 
 Note: the :repl profile is implicitly activated for this task. It cannot be
