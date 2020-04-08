@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## Unreleased
+
+* Update nREPL to 0.7. (Bozhidar Batsov)
+
 ## 2.9.3 / 2020-03-16
 
 * Fix a bug where deploying would fail to send signature checksums. (Antonin Hildebrand)
@@ -25,6 +29,7 @@
 * Re-enable bootclasspath optimization by default. (Phil Hagelberg)
 * Sort namespace order consistently during AOT. (Logan Girard)
 * Use Clojure 1.10.0 for plugins and new templates projects. (Alex Miller, Phil Hagelberg)
+* Update nREPL to 0.6. (Bozhidar Batsov)
 
 ## 2.8.3 / 2018-12-14
 

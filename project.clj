@@ -18,7 +18,7 @@
                  ;; needed for uberjar
                  [commons-lang "2.6"]
                  ;; needed for repl
-                 [nrepl "0.6.0"]
+                 [nrepl "0.7.0"]
                  ;; needed for change
                  [net.cgrand/sjacket "0.1.1" :exclusions [org.clojure/clojure]]
                  ;; bump versions of various common transitive deps

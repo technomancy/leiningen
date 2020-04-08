@@ -65,7 +65,7 @@ management, running tests, the REPL, and topics related to deployment.
 
 For those of you new to the JVM who have never touched [Ant](http://ant.apache.org/)
 or [Maven](https://maven.apache.org/) in anger: don't panic. Leiningen is designed
-with you in mind. This tutorial will help you get started and explain Leiningen's 
+with you in mind. This tutorial will help you get started and explain Leiningen's
 take on project automation and JVM-land dependency management.
 
 
@@ -110,7 +110,7 @@ Generating a new project is easy:
 
     $ # see how it looks like using the "tree" command
     $ tree -F -a --dirsfirst my-stuff/
-    
+
     my-stuff/
     ├── doc/
     │   └── intro.md
@@ -144,7 +144,7 @@ the `my-stuff.core` namespace.
 
 Note that we use `my-stuff.core` instead of just `my-stuff` since
 [single-segment namespaces are discouraged in Clojure](https://stackoverflow.com/questions/13567078/whats-wrong-with-single-segment-namespaces) as using those would imply classes are being assigned
-to the default (no-name) package. 
+to the default (no-name) package.
 
 Also note that if a Clojure namespaces segment contains a a dash (`-`), the
 corresponding path/filename will contain an underscore (`_`) instead. This is due to the fact that
@@ -272,8 +272,8 @@ wider JVM community.
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
 [sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
-for examples on how to do so. This sample uses additional repositories such as the Sonatype 
-repository which gives access to the latest SNAPSHOT development version of a library (Clojure or Java). 
+for examples on how to do so. This sample uses additional repositories such as the Sonatype
+repository which gives access to the latest SNAPSHOT development version of a library (Clojure or Java).
 It also contains other relevant settings regarding repositories such as update frequency.
 
 ### Checkout Dependencies
@@ -326,7 +326,7 @@ simply supplements that for convenience. That is, given the above directory hier
                      [suchwow "0.3.9"]
                      [com.megacorp/commons "1.3.5"]
                      ...]
-                 
+
 
 Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
 The `suchwow` and `commons` links look the same in `checkouts`, and the groupid
@@ -340,7 +340,7 @@ It's also possible that you're working on the main project and `suchwow` at the 
 have bumped the version number in both project files, but still have the old version in your
 local Maven repository. Run `lein install` in the `suchwow` directory. That is: the `suchwow`
 version number must be the same in *three* places:
-in suchwow's `project.clj`, in the main project's `project.clj`, *and in some repository the main project uses*. 
+in suchwow's `project.clj`, in the main project's `project.clj`, *and in some repository the main project uses*.
 
 If you change the
 dependencies of a checkout project you will still have to run `lein
@@ -351,7 +351,7 @@ Checkouts are an opt-in feature; not everyone who is working on the
 project will have the same set of checkouts, so your project should
 work without checkouts before you push or merge.
 
-Make sure not to override the `base` profile while using checkouts. In 
+Make sure not to override the `base` profile while using checkouts. In
 practice that usually means using `lein with-profile +foo run` rather
 than `lein with-profile foo run`.
 
@@ -365,13 +365,13 @@ Central and Clojars is supported.
 
 The underlying [Maven Wagon](https://maven.apache.org/wagon/) transport
 reads the `maven.wagon.rto` system property to determine the timeout used
-when downloading artifacts from a repository. The `lein` script sets that property to be 10000. 
-If that timeout isn't long enough (for example, when using a slow corporate mirror), 
+when downloading artifacts from a repository. The `lein` script sets that property to be 10000.
+If that timeout isn't long enough (for example, when using a slow corporate mirror),
 it can be overridden via `LEIN_JVM_OPTS`:
 
 ```bash
 export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
-``` 
+```
 
 ## Setting JVM Options
 
@@ -387,7 +387,7 @@ to the Clojure compiler, you also do this here.
 
 ```
 :jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
-           "-Dclojure.compiler.elide-meta=[:doc :file :line :added]" 
+           "-Dclojure.compiler.elide-meta=[:doc :file :line :added]"
            ; notice the array is not quoted like it would be if you passed it directly on the command line.
            "-Dclojure.compiler.direct-linking=true"]
 ```
@@ -403,8 +403,8 @@ Enough setup; let's see some code running. Start with a REPL
     $ cd my-stuff
     $ lein repl
     nREPL server started on port 55568 on host 127.0.0.1 - nrepl://127.0.0.1:55568
-    REPL-y 0.4.3, nREPL 0.6.0
-    Clojure 1.10.0
+    REPL-y 0.4.3, nREPL 0.7.0
+    Clojure 1.10.1
     OpenJDK 64-Bit Server VM 1.8.0_222-b10
         Docs: (doc function-name-here)
               (find-doc "part-of-name-here")
@@ -649,7 +649,7 @@ framework dependencies.
 
 There are many ways to get your project deployed as a server-side
 application. Aside from the obvious uberjar approach, simple programs can be
-packaged up as [tarballs](https://en.wikipedia.org/wiki/Tar_(computing)) with 
+packaged up as [tarballs](https://en.wikipedia.org/wiki/Tar_(computing)) with
 accompanied shell scripts using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
 and then deployed using [pallet](http://palletops.com/), [chef](https://chef.io/),
 or other mechanisms.
