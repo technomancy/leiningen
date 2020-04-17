@@ -2,9 +2,7 @@
 
 Leiningen is the most widely-contributed-to Clojure project. We
 welcome potential contributors and do our best to try to make it easy
-to help out. Contributors who have had a single patch accepted may
-request commit rights as well as two free
-[stickers](http://hypirion.com/imgs/lein-stickers.jpg).
+to help out.
 
 Discussion occurs primarily in the
 [#leiningen channel on Freenode](irc://chat.freenode.net#leiningen)
