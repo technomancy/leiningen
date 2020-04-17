@@ -67,9 +67,8 @@
 (defn mkdirs
   "Make a given directory and its parents, but throw an Exception on failure."
   [f] ; whyyyyy does .mkdirs fail silently ugh
-  (let [already-exists? (.exists (io/file f))]
-    (when-not (or (.mkdirs (io/file f)) already-exists?)
-      (throw (Exception. (str "Couldn't create directories: " (io/file f)))))))
+  (when-not (or (.mkdirs (io/file f)) (.exists (io/file f)))
+    (throw (Exception. (str "Couldn't create directories: " (io/file f))))))
 
 (defn relativize
   "Makes the filepath path relative to base. Assumes base is an ancestor to
