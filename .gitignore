@@ -8,6 +8,7 @@
 .lein*
 /.classpath
 /.nrepl-port
+/.prepl-port
 /.project
 /.settings
 /hs_err_pid*.log
@@ -15,8 +16,10 @@
 /lein_ja.man
 /leiningen-core/.lein-plugins/checksum
 /leiningen-core/.nrepl-port
+/leiningen-core/.prepl-port
 /leiningen-core/dev-resources/target
 /lein-pprint/.nrepl-port
+/lein-pprint/.prepl-port
 /logs
 /scratch.clj
 /target

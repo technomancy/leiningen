@@ -8,6 +8,7 @@ pom.xml.asc
 
 syntax: regexp
 ^.nrepl-port
+^.prepl-port
 ^.lein-.*
 ^target/
 ^classes/
