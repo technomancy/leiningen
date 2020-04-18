@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Update nREPL to 0.7. (Bozhidar Batsov)
+* Add scheme configuration support to REPL-y and use configured transport when starting the ack-server. (Paulo Feodrippe, Bozhidar Batsov)
 
 ## 2.9.3 / 2020-03-16
 
