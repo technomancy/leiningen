@@ -99,7 +99,23 @@ LEIN_JAR="$(dirname "$BIN_DIR")/lib/leiningen-$LEIN_VERSION-standalone.jar"
 ## echo $LEIN_JAR
 ## exit 1
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-Xverify:none -XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
+then
+    >&2 echo "Leiningen couldn't find 'java' executable, which is required."
+    >&2 echo "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
+    exit 1
+fi
+
+export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
+
+DEF_LEIN_JVM_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+JAVA_VERSION=$($LEIN_JAVA_CMD -version 2>&1 | awk -F '"' '/version/ {split($2, v, "."); print v[1] }')
+echo Java version $JAVA_VERSION
+if [[ $JAVA_VERSION -lt 13 ]]; then
+    DEF_LEIN_JVM_OPTS+=" -Xverify:none"
+fi
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-$DEF_LEIN_JVM_OPTS}"
+echo $LEIN_JVM_OPTS
 
 # When :eval-in :classloader we need more memory
 grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
@@ -110,15 +126,6 @@ add_path CLASSPATH "$LEIN_JAR"
 if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
     LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
 fi
-
-if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
-then
-    >&2 echo "Leiningen couldn't find 'java' executable, which is required."
-    >&2 echo "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
-    exit 1
-fi
-
-export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
 
 if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
     export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
