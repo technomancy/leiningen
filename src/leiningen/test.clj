@@ -61,15 +61,16 @@
   `(distinct
     (for [ns# ~ns-sym
           [_# var#] (ns-publics ns#)
-          :when (some (fn [[selector# args#]]
+          :when (and (-> var# meta :test)
+                     (some (fn [[selector# args#]]
 
-                        (apply (if (vector? selector#)
-                                 (second selector#)
-                                 selector#)
-                               (merge (-> var# meta :ns meta)
-                                      (assoc (meta var#) ::var var#))
-                               args#))
-                      ~selectors)]
+                             (apply (if (vector? selector#)
+                                      (second selector#)
+                                      selector#)
+                                    (merge (-> var# meta :ns meta)
+                                           (assoc (meta var#) ::var var#))
+                                    args#))
+                           ~selectors))]
       ns#)))
 
 ;; TODO: make this an arg to form-for-testing-namespaces in 3.0.
