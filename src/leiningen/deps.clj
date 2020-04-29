@@ -96,9 +96,12 @@
 
 
 (defn query [project artifact version-string]
-  (->> (assoc project :query [[(symbol artifact) version-string]])
-       (classpath/get-dependencies :query nil)
-       keys first second println))
+  (let [artifact (symbol artifact)]
+    (->> (assoc project :query [[artifact version-string]])
+         (classpath/get-dependencies :query nil)
+         keys
+         (filter #(= artifact (first %)))
+         first second println)))
 
 
 
