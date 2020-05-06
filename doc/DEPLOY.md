@@ -159,6 +159,12 @@ First write your credentials map to `~/.lein/credentials.clj` like so:
  "s3p://s3-repo-bucket/releases"
  {:username "AKIAIN..." :passphrase "1TChrGK4s..."}}
 ```
+
+When storing credentials for Clojars, it's recommended to generate a
+[deploy token](https://clojars.org/tokens) per machine and store that
+instead rather than using your account's password in order to limit
+the scope of the damage if the credential is leaked.
+
 Then encrypt it with `gpg`:
 
     $ gpg --default-recipient-self -e \
