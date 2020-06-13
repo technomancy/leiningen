@@ -187,6 +187,8 @@ if [ "$SHASUM_CMD" = "" ]; then
         export SHASUM_CMD="sha256sum"
     elif type -p shasum >/dev/null 2>&1; then
         export SHASUM_CMD="shasum --algorithm 256"
+    elif type -p sha256 >/dev/null 2>&1; then
+        export SHASUM_CMD="sha256 -q"
     else
         command_not_found sha256sum
     fi
