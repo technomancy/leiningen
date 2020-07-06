@@ -135,16 +135,6 @@
   and run that or use `lein trampoline run &`. For short-lived ones,
   both `lein run <&- &` and `bash -c "lein run &"` will work fine.
 
-**Q:** I'm getting "could not transfer artifact ... peer not authenticated"  
-**A:** This means that either your JVM is not configured with the
-  correct certificate authorities, or you're experiencing a
-  [man-in-the-middle attack](https://github.com/technomancy/leiningen/issues/1028#issuecomment-32732452)
-  on your SSL connection. Leiningen ships with the current Clojars
-  public certificate at the time of this writing, so you should be
-  able to work around problems with your CA by putting `:certificates
-  ["clojars.pem"]` in your `:user` profile, assuming the certificate
-  that ships with Leiningen hasn't expired.
-
 **Q:** How do I determine my project's version at runtime?  
 **A:** Leiningen writes a file called `pom.properties` into
   `target/classes` which contains the version number and current git
