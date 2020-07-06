@@ -269,9 +269,8 @@
           :when (not (.isResolved result))
           exception (.getExceptions result)]
     (warn (.getMessage exception)))
-  (doseq [ex (.getCollectExceptions (.getResult e))
-          ex2 (.getExceptions (.getResult ex))]
-    (warn (.getMessage ex2))))
+  (doseq [ex (.getCollectExceptions (.getResult e))]
+    (warn (.getMessage ex))))
 
 (defn- root-cause [e]
   (last (take-while identity (iterate (memfn getCause) e))))
