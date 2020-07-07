@@ -221,10 +221,14 @@ This can be used to avoid duplication:
 
 ```clj
 {:shared {:port 9229, :protocol "https"}
- :qa [:shared {:servers ["qa.mycorp.com"]}]
- :stage [:shared {:servers ["stage.mycorp.com"]}]
- :production [:shared {:servers ["prod1.mycorp.com", "prod1.mycorp.com"]}]}
+ :qa-servers {:servers ["qa.mycorp.com"]}
+ :prod-servers {:servers ["prod1.mycorp.com", "prod1.mycorp.com"]}
+ :qa [:shared :qa-servers]
+ :production [:shared :prod-servers]}
 ```
+
+It is not recommended to make a composite profile which contains both
+keywords and maps; they should either be all keywords or all maps.
 
 ## Dynamic Eval
 
