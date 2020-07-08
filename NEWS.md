@@ -1,7 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
-## Unreleased
+## 2.9.4 / 2020-07-08
 
+* Fix a bug where dependency conflict resolution errors were wrong. (Phil Hagelberg)
+* Make test selectors skip non-test vars. (Mourjo Sen)
+* Fix a bug where `deps :query` would report incorrect results. (Chris Thunes)
 * Update nREPL to 0.7. (Bozhidar Batsov)
 * Add scheme configuration support to REPL-y and use configured transport when starting the ack-server. (Paulo Feodrippe, Bozhidar Batsov)
 
