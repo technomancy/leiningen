@@ -86,7 +86,7 @@ if [ -r .lein-fast-trampoline ]; then
 fi
 
 if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
-    INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)
+    INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
 
     if command -v shasum >/dev/null 2>&1; then
         SUM="shasum"
