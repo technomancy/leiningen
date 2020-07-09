@@ -34,7 +34,8 @@ cd ..
 bin/lein uberjar
 RELEASE_JAR=$PWD/target/leiningen-$RELEASE_VERSION-standalone.jar
 RELEASE_JAR_CHECKSUM="$(sha256sum $RELEASE_JAR | awk '{ print $1 }')"
-cp $RELEASE_JAR $HOME/.lein/self-installs
+SELF_INSTALL_JAR=$HOME/.lein/self-installs/$RELEASE_JAR
+cp $RELEASE_JAR $SELF_INSTALL_JAR
 
 sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM='$RELEASE_JAR_CHECKSUM'/" bin/lein
 cp bin/lein /tmp/lein-$RELEASE_VERSION
@@ -71,7 +72,8 @@ git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin master:stable
 
-echo "Upload $RELEASE_JAR and $RELEASE_JAR.asc to GitHub releases for $RELEASE_VERSION."
+echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to GitHub:"
+echo "https://github.com/technomancy/leiningen/releases/tag/$RELEASE_VERSION"
 echo "Copy this version's section of NEWS.md to the GitHub release description."
 
 rm -rf target leiningen-core/target
