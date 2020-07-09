@@ -230,6 +230,12 @@ This can be used to avoid duplication:
 It is not recommended to make a composite profile which contains both
 keywords and maps; they should either be all keywords or all maps.
 
+Composite profiles also cannot have certain types of metadata
+propagated, which makes them incompatible with the `:provided`
+profile. If you get the error "Composite profiles are incompatible with :provided."
+consider adding `^{:pom-scope :provided}` metadata to the profile map
+which contains the dependencies instead.
+
 ## Dynamic Eval
 
 Often you want to read an environment variable or execute a function to capture

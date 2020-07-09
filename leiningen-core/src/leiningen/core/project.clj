@@ -633,6 +633,9 @@
                                   :production :system :repl}
                                 profile))
             (warn "Warning: profile" profile "not found."))
+          (when (and (= :provided profile) (composite-profile? result))
+            (throw (Exception.
+                    "Composite profiles are incompatible with :provided.")))
           (lookup-profile* profiles result))
 
         (composite-profile? profile)
