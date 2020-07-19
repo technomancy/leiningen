@@ -167,8 +167,7 @@ the scope of the damage if the credential is leaked.
 
 Then encrypt it with `gpg`:
 
-    $ gpg --default-recipient-self -e \
-        ~/.lein/credentials.clj > ~/.lein/credentials.clj.gpg
+    $ gpg --default-recipient-self -e ~/.lein/credentials.clj
 
 Remember to delete the plaintext `credentials.clj` once you've
 encrypted it. Due to a bug in `gpg` you currently need to use
