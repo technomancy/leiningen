@@ -92,7 +92,7 @@ for snapshots and releases, so you'll want two entries for them:
                ["releases" "https://blueant.com/archiva/internal"]]
 ```
 
-If you are are deploying to a repository that is _only_ used for deployment
+If you are deploying to a repository that is _only_ used for deployment
 and never for dependency resolution, then it should be specified in a
 `:deploy-repositories` slot instead of included in the more general-purpose
 `:repositories` map; the former is checked by `lein deploy` before the latter.
@@ -283,7 +283,7 @@ The following events will happen:
 
 4. The `change` task is run once more to "bump" the version number in
    `project.clj`. Which version level is decided by the argument
-   passed to `lein release`, in this case `:patch`. Afterword, `project.clj` will
+   passed to `lein release`, in this case `:patch`. Afterward, `project.clj` will
    look something like ```(defproject leiningen "2.4.1-SNAPSHOT" ...)```.
 
 5. Finally, `vcs` tasks will be run once more to commit the new change to
