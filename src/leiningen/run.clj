@@ -75,7 +75,7 @@
          (data# ~@args)
 
          ;; If the class exists, run its main method.
-         (instance? Class class#)
+         class#
          (Reflector/invokeStaticMethod
           ^Class class#
           "main"
