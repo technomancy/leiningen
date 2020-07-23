@@ -77,7 +77,7 @@
          ;; If the class exists, run its main method.
          class#
          (Reflector/invokeStaticMethod
-          ^Class class#
+          class#
           "main"
           ^"[[Ljava.lang.String;" (into-array [(into-array String '~args)]))
 
