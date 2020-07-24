@@ -19,6 +19,18 @@
               :compile-path "/tmp/lein-sample-project/classes"
               :name "test" :group "test" :version "1.0.0"})
 
+(deftest test-shell-command
+  (testing "Without :lein-with-meta -- 'normal case'"
+    (let [form `({:item ^{:invalid-meta clojure.core/get} {:foo true}} :item)
+          code (slurp (last (shell-command project form)))]
+      (is (not (.contains code "invalid-meta"))
+          "Potentially unserializable meta removed")))
+  (testing "Given a form with :lein-with-meta"
+    (let [form `(^:lein-with-meta {:item ^{:invalid-meta clojure.core/get} {:foo true}} :item)
+          code (slurp (last (shell-command project form)))]
+      (is (.contains code "invalid-meta")
+          "Potentially unserializable meta left intact"))))
+
 (deftest test-eval-in-project
   (doseq [where [:subprocess :leiningen :classloader]]
     (let [file (File/createTempFile "lein-eval-test" "")]
