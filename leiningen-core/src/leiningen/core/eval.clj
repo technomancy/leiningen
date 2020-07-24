@@ -322,8 +322,7 @@
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*
-                                                    *print-meta* true]
+        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*]
                                             (pr-str form))})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
