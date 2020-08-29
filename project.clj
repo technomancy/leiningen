@@ -20,7 +20,7 @@
                  ;; needed for repl
                  [nrepl "0.7.0"]
                  ;; needed for change
-                 [net.cgrand/sjacket "0.1.1" :exclusions [org.clojure/clojure]]
+                 [org.clojars.trptcolin/sjacket "0.1.1.1" :exclusions [org.clojure/clojure]]
                  ;; bump versions of various common transitive deps
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]
                  [scout "0.1.1"]
