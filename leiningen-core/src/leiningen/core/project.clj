@@ -583,7 +583,7 @@
    :provided {:pom-scope :provided}
    :repl {:repl true}})
 
-(defn- meta-merge
+(defn meta-merge
   "Recursively merge values based on the information in their metadata."
   [left right]
   (cond (different-priority? left right)
