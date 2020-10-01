@@ -1,0 +1,20 @@
+body {
+    color: #000000;
+    background-color: #ffffff;
+}
+.constant {
+    /* font-lock-constant-face */
+    color: #008b8b;
+}
+.esk-paren {
+    /* esk-paren-face */
+    color: #8c8c8c;
+}
+.hl-line {
+    /* hl-line */
+    background-color: #b4eeb4;
+}
+.string {
+    /* font-lock-string-face */
+    color: #8b2252;
+}

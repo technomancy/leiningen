@@ -23,7 +23,6 @@
 /logs
 /scratch.clj
 /target
-/web
 /wiki
 TAGS
 test_projects/*/target

@@ -1,0 +1,8 @@
+Options +MultiViews -ExecCGI
+RewriteEngine on
+
+# HTTPS
+RewriteCond %{HTTPS} !=on
+RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=301,L]
+
+Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
