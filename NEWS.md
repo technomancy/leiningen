@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.5
+
+* Update nREPL to 0.8. (Bozhidar Batsov)
+
 ## 2.9.4 / 2020-07-08
 
 * Fix a bug where dependency conflict resolution errors were wrong. (Phil Hagelberg)
