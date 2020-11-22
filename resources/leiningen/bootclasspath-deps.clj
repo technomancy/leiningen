@@ -24,7 +24,7 @@
  clojure-complete "0.2.5"
  com.hypirion/io "0.3.1"
  commons-codec "1.11"
- commons-io "2.6"
+ commons-io "2.8.0"
  commons-lang "2.6"
  commons-logging "1.2"
  javax.inject "1"
