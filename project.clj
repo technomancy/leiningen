@@ -24,7 +24,9 @@
                  ;; bump versions of various common transitive deps
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]
                  [scout "0.1.1"]
-                 [commons-io "2.8.0"]]
+                 [commons-io "2.8.0"]
+                 [org.apache.httpcomponents/httpclient "4.5.13"]
+                 [org.apache.httpcomponents/httpcore "4.4.13"]]
   :pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
