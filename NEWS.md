@@ -1,9 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.5
+## 2.9.5 / 2020-12-07
 
-* Update nREPL to 0.8. (Bozhidar Batsov)
-* Update commons-io t0 2.8.0. (Utkarsh Gupta)
+* Several dependency version bumps. (Bozhidar Batsov, Utkarsh Gupta, Chris Thunes)
 
 ## 2.9.4 / 2020-07-08
 
