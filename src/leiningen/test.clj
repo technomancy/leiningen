@@ -83,7 +83,7 @@
      (let [ns-sym (gensym "namespaces")]
        `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
           (when (seq ~ns-sym)
-            (apply require :reload ~ns-sym))
+            (apply require ~ns-sym))
           (let [failures# (atom {})
                 selected-namespaces# ~(form-for-nses-selectors-match selectors ns-sym)
                 _# (when ~*monkeypatch?*
