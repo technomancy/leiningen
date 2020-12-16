@@ -77,8 +77,7 @@
 
 (deftest test-namespaces-load-in-order
   ;; Issue #2715
-  (test lein-test-reload-bug-project)
-  (is (= (ran?) #{:lein-test-reload-bug.core-test})))
+  (test lein-test-reload-bug-project))
 
 (deftest test-invalid-namespace-argument
   (is (.contains
