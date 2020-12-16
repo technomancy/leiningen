@@ -6,4 +6,4 @@
 
 (deftype A []
   B
-  (b [this]))
+  (b [this] :ok))

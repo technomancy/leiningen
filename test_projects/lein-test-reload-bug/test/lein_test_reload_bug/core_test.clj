@@ -1,7 +1,7 @@
 (prn "loading" 'lein-test-reload-bug.core-test)
 
 (ns lein-test-reload-bug.core-test
-  (:require [clojure.test :refer [deftest]]
+  (:require [clojure.test :refer [deftest is]]
             [lein-test-reload-bug.a-deftype :refer [->A]]
             [lein-test-reload-bug.b-protocol :refer [b]]))
 
@@ -13,4 +13,4 @@
                    (map (juxt #(.getName ^Class %) hash))
                    (-> a class supers))
              (find "lein_test_reload_bug.b_protocol.B")))
-    (b a)))
+    (is (= :ok (b a)))))

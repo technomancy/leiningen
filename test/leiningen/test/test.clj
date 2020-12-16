@@ -3,7 +3,7 @@
   (:require [clojure.test :refer :all]
             [leiningen.test :refer :all]
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
-                                           lein-test-reload-bug
+                                           lein-test-reload-bug-project
                                            sample-reader-cond-project
                                            sample-failing-project
                                            sample-fixture-error-project
@@ -77,8 +77,8 @@
 
 (deftest test-namespaces-load-in-order
   ;; Issue #2715
-  (test lein-test-reload-bug)
-  (is (= (ran?) #{:clj-test :cljc-test})))
+  (test lein-test-reload-bug-project)
+  (is (= (ran?) #{:lein-test-reload-bug.core-test})))
 
 (deftest test-invalid-namespace-argument
   (is (.contains
