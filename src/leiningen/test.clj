@@ -79,7 +79,7 @@
 (defn form-for-testing-namespaces
   "Return a form that when eval'd in the context of the project will test each
   namespace and print an overall summary.
-  
+
   Options:
   - :reloading-require  if true, use :reload option for clojure.core/require calls"
   ([namespaces opt & [selectors]]
@@ -87,7 +87,7 @@
        `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
           (when (seq ~ns-sym)
             (apply require
-                   ~@(when (:reloading-require opt)
+                   ~@(if (:reloading-require opt)
                        [:reload])
                    ~ns-sym))
           (let [failures# (atom {})

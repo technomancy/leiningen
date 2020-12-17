@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.6 / ???
+
+* Don't `:reload` in tests unless connecting to an nrepl. (Ambrose Bonnaire-Sergeant)
+
 ## 2.9.5 / 2020-12-07
 
 * Several dependency version bumps. (Bozhidar Batsov, Utkarsh Gupta, Chris Thunes)
