@@ -3,6 +3,7 @@
   (:require [clojure.test :refer :all]
             [leiningen.test :refer :all]
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
+                                           lein-test-exit-code-project
                                            lein-test-reload-bug-project
                                            sample-reader-cond-project
                                            sample-failing-project
@@ -78,6 +79,15 @@
 (deftest test-namespaces-load-in-order
   ;; Issue #2715
   (test lein-test-reload-bug-project))
+
+(deftest test-failure-exit-code
+  (binding [*exit-after-tests* false]
+    (is (= 1 
+           (try
+             (test lein-test-exit-code-project)
+             false
+             (catch clojure.lang.ExceptionInfo e
+               (:exit-code (ex-data e))))))))
 
 (deftest test-invalid-namespace-argument
   (is (.contains

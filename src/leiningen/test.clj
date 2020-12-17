@@ -136,10 +136,12 @@
             (spit ".lein-failures" (if ~*monkeypatch?*
                                      (pr-str @failures#)
                                      "#<disabled :monkeypatch-clojure-test>"))
-            (let [total# (+ (int (:error summary#)) (int (:fail summary#)))]
+            (let [exit-code# (min 1
+                                  (+ (int (:error summary#))
+                                     (int (:fail summary#))))]
               (if ~*exit-after-tests*
-                (System/exit total#)
-                total#)))))))
+                (System/exit exit-code#)
+                exit-code#)))))))
 
 (defn- split-selectors [args]
   (let [[nses selectors] (split-with (complement keyword?) args)]
@@ -224,7 +226,11 @@ specified test. A default :all test-selector is available to run all tests.
   
 If :eval-in :nrepl is specified in the project, test namespaces may reload
 out-of-order. However, all test namespaces will be (re)loaded at least
-once (in *some* order)."
+once (in *some* order).
+  
+This task uses the following exit codes:
+- 0 if all tests pass successfully
+- 1 otherwise"
   [project & tests]
   (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
                                    false
