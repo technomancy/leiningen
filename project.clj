@@ -39,5 +39,6 @@
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
+  :global-vars {*warn-on-reflection* true}
   :source-paths ["leiningen-core/src" "src"]
   :eval-in :leiningen)

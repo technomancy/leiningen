@@ -45,9 +45,9 @@
                (helper/abort-msg run tricky-name-project "-m" "-1"))))
 
 (deftest test-nonexistant-ns-error-message
-  (is (re-find #"Can't find 'nonexistant.ns' as \.class or \.clj for lein run"
+  (is (re-find #"Can't find 'nonexistent.ns' as \.class or \.clj for lein run"
                (with-system-err-str
-                 (try (run tricky-name-project "-m" "nonexistant.ns")
+                 (try (run tricky-name-project "-m" "nonexistent.ns")
                       (catch Exception _))))))
 
 (deftest test-escape-args

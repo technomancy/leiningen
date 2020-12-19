@@ -17,5 +17,6 @@
                  [org.clojure/tools.macro "0.1.5"]]
   :scm {:dir ".."}
   :dev-resources-path "dev-resources"
+  :global-vars {*warn-on-reflection* true}
   :aliases {"bootstrap" ["with-profile" "base"
                          "do" "install," "classpath" ".lein-bootstrap"]})
