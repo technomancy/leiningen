@@ -2,9 +2,9 @@
   (:require [clojure.test :refer [deftest is]]))
 
 (defmacro gen-failing-deftests [n]
-  `(do 
+  `(do
      ~@(for [i (range n)]
-         `(deftest ~(symbol (str "failing-" i))
-            (is false)))))
+         `(deftest ~(symbol (str "expected-failure-" i))
+            (is false "Expected failure.")))))
 
 (gen-failing-deftests 256)

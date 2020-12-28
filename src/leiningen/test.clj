@@ -223,11 +223,11 @@ tests are run. Test selector arguments must come after the list of namespaces.
 A default :only test-selector is available to run select tests. For example,
 `lein test :only leiningen.test.test/test-default-selector` only runs the
 specified test. A default :all test-selector is available to run all tests.
-  
+
 If :eval-in :nrepl is specified in the project, test namespaces may reload
 out-of-order. However, all test namespaces will be (re)loaded at least
 once (in *some* order).
-  
+
 This task uses the following exit codes:
 - 0 if all tests pass successfully
 - 1 otherwise"

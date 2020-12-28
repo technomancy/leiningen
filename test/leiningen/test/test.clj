@@ -81,13 +81,13 @@
   (test lein-test-reload-bug-project))
 
 (deftest test-failure-exit-code
-  (binding [*exit-after-tests* false]
-    (is (= 1 
-           (try
-             (test lein-test-exit-code-project)
-             false
-             (catch clojure.lang.ExceptionInfo e
-               (:exit-code (ex-data e))))))))
+  (is (= 1
+         (try
+           ;; suppress output; there's a lot of bad-looking stuff here
+           (with-out-str (test lein-test-exit-code-project))
+           false
+           (catch clojure.lang.ExceptionInfo e
+             (:exit-code (ex-data e)))))))
 
 (deftest test-invalid-namespace-argument
   (is (.contains
