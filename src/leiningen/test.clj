@@ -119,9 +119,7 @@
                           (when-let [first-var# (-> clojure.test/*testing-vars* first meta)]
                             (let [ns-name# (-> first-var# :ns ns-name name)
                                   test-name# (-> first-var# :name name)]
-                              (swap! failures#
-                                     (fn [_#]
-                                       (update-in @failures# [ns-name#] (fnil conj []) test-name#)))
+                              (swap! failures# update-in [ns-name#] (fnil conj []) test-name#)
                               (newline)
                               (println "lein test :only" (str ns-name# "/" test-name#)))))
                         (if (= :begin-test-ns (:type m#))
