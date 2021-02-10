@@ -385,22 +385,6 @@ opaqueness. If you can do what you need using profiles inside your
 plugins instead, that is a much more declarative, introspectable way
 to do things which will save a lot of headache down the line.
 
-The following middleware injects additional javac options into the project map,
-but only if there are any java source paths in the project:
-
-```clj
-(ns leiningen.inject
-  (:require [leiningen.core.project :as p]))
-
-(def javac-params-profile
-  {:javac-options ^:prepend ["-target" "1.6" "-source" "1.6"]})
-
-(defn middleware [project]
-  (if (seq (:java-source-paths project))
-    (p/merge-profiles project [javac-params-profile])
-    project))
-```
-
 Projects use middleware by adding `:middleware` as a vector of var
 names into their `project.clj`:
 
