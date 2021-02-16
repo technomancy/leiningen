@@ -434,6 +434,8 @@
   :uberjar-merge-with {#"\.properties$" [slurp str spit]}
   ;; Add arbitrary jar entries. Supports :path, :paths, :bytes, and :fn types.
   :filespecs [{:type :path :path "config/base.clj"}
+              ;; Files within other jars can be added
+              {:type :path :path "some-dependency-1.0.0.jar!/resources/file.txt"}
               ;; Directory paths are included recursively.
               {:type :paths :paths ["config/web" "config/cli"]}
               ;; Programmatically-generated content can use :bytes.
