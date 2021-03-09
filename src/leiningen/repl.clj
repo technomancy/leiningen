@@ -82,7 +82,9 @@
   (let [port (repl-port project)]
     (if (= port 0)
       (try
-        (slurp (io/file (:root project) ".nrepl-port"))
+        (-> (io/file (:root project) ".nrepl-port")
+            slurp
+            s/trim)
         (catch Exception _))
       port)))
 
