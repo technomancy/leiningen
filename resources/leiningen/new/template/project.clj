@@ -1,4 +1,4 @@
-(defproject {{name}}/lein-template "0.1.0-SNAPSHOT"
+(defproject {{group-id}}/lein-template.{{artifact-id}} "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"

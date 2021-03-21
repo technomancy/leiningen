@@ -1,14 +1,14 @@
-(ns leiningen.new.{{name}}
-  (:require [leiningen.new.templates :refer [renderer name-to-path ->files]]
+(ns leiningen.new.{{group-id}}.{{artifact-id}}
+  (:require [leiningen.new.templates :as tmpl]
             [leiningen.core.main :as main]))
 
-(def render (renderer "{{name}}"))
+(def render (tmpl/renderer "{{sanitized}}"))
 
-(defn {{name}}
+(defn {{artifact-id}}
   "FIXME: write documentation"
   [name]
   (let [data {:name name
-              :sanitized (name-to-path name)}]
+              :sanitized (tmpl/name-to-path name)}]
     (main/info "Generating fresh 'lein new' {{name}} project.")
-    (->files data
-             ["src/{{placeholder}}/foo.clj" (render "foo.clj" data)])))
+    (tmpl/->files data
+                  ["src/{{placeholder}}/foo.clj" (render "foo.clj" data)])))
