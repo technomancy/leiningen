@@ -23,7 +23,7 @@ jobs:
       - checkout
       - restore_cache:
           key: leiningen-{{ checksum "project.clj" }}
-      - run: apt update -qq && apt install gnupg
+      - run: apt update -qq && apt install -y gnupg
       - run:
           name: Bootstrap leiningen-core
           working_directory: ~/leiningen/leiningen-core
