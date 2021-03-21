@@ -1,20 +1,33 @@
 (ns leiningen.new
   "Generate project scaffolding based on a template."
   (:refer-clojure :exclude [new list])
-  (:require [bultitude.core :as bultitude]
+  (:require [clojure.string :as str]
+            [bultitude.core :as bultitude]
             [leiningen.core.classpath :as cp]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
-            [leiningen.core.main :refer [abort parse-options option-arg]]
+            [leiningen.core.main :refer [abort parse-options option-arg debug]]
             [leiningen.new.templates :refer [*dir* *force?*]])
   (:import java.io.FileNotFoundException))
 
 (def ^:dynamic *use-snapshots?* false)
 (def ^:dynamic *template-version* nil)
 
+(defn- template-symbol
+  "The old style of template artifacts was $FOO/lein-template where
+  the short name of the template was used as the group-id within
+  Clojars, but Clojars will not allow new templates in this style to
+  be created going forward. The new style is $GROUP/lein-template.$ARTIFACT
+  so `lein new us.technomancy/my-stuff would look up
+  us.technomancy/lein-template.my-stuff in the remote repository."
+  [template-name]
+  (if (re-find #"/" template-name)
+    (let [[group-id artifact-id] ((juxt namespace name) (symbol template-name))]
+      (symbol group-id (str "lein-template." artifact-id)))
+    (symbol template-name "lein-template")))
+
 (defn- fake-project [name]
-  (let [template-symbol (symbol name "lein-template")
-        template-version (cond *template-version* *template-version*
+  (let [template-version (cond *template-version* *template-version*
                                *use-snapshots?*   "(0.0.0,)"
                                :else              "RELEASE")
         user-profiles (:user (user/profiles))
@@ -22,26 +35,29 @@
                        (:reduce (meta project/default-repositories))
                        project/default-repositories
                        (:plugin-repositories user-profiles))]
-    (merge {:templates [[template-symbol template-version]]
+    (merge {:templates [[(template-symbol name) template-version]]
             :repositories repositories}
            (select-keys user-profiles [:mirrors]))))
 
-(defn resolve-remote-template [name sym]
-  (try (cp/resolve-dependencies :templates (fake-project name) :add-classpath? true)
-       (require sym)
+(defn resolve-remote-template [name ns-sym]
+  (try (cp/resolve-dependencies :templates (fake-project name)
+                                :add-classpath? true)
+       (require ns-sym)
        true
        (catch clojure.lang.Compiler$CompilerException e
          (abort (str "Could not load template, failed with: " (.getMessage e))))
-       (catch Exception e nil)))
+       (catch Exception e
+         (debug (str e)))))
 
-(defn resolve-template [name]
-  (let [sym (symbol (str "leiningen.new." name))]
-    (if (try (require sym)
+(defn resolve-template [template-name]
+  (let [ns-sym (symbol (str "leiningen.new." (str/replace template-name "/" ".")))]
+    (if (try (require ns-sym)
              true
              (catch FileNotFoundException _
-               (resolve-remote-template name sym)))
-      (resolve (symbol (str sym "/" name)))
-      (abort "Could not find template" name "on the classpath."))))
+               (resolve-remote-template template-name ns-sym)))
+      (resolve (symbol (name ns-sym) (name (symbol template-name))))
+      (abort "Could not find template for" template-name
+             "on the classpath: " ns-sym))))
 
 ;; A lein-newnew template is actually just a function that generates files and
 ;; directories. We have a bit of convention: we expect that each template is on
@@ -176,15 +192,15 @@ arguments to `lein new`:
 
     lein new $TEMPLATE_NAME $PROJECT_NAME --snapshot -- template-arg-1 template-arg-2
 
-Third-party templates can be found at https://clojars.org/search?q=lein-template.
-When creating a new project from a third-party template, use its group-id
-as the template name. Note that there's no need to \"install\" a given third-
-party template --- lein will automatically fetch it for you.
+Third-party templates can be found at by searching on Clojars:
+  https://clojars.org/search?q=artifact-id:lein-template*
+
+Note that there's no need to \"install\" a given third- party template; lein
+will automatically fetch it for you.
 
 Use `lein new :show $TEMPLATE` to see details about a given template.
 
-To create a new template of your own, see the documentation for the
-lein-new Leiningen plug-in."
+To create a new template of your own, run `lein help templates`."
   [project & args]
   (binding [*project* project]
     (let [[template-name new-project-name
