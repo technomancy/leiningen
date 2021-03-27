@@ -16,8 +16,10 @@
         sym (symbol template-name)
         data {:name template-name
               :artifact-id (name sym)
-              :group-id (namespace sym)
-              :sanitized (t/name-to-path template-name)
+              ;; if there's no group-id we need to leave out the slash
+              :group-prefix (if-let [group-id (namespace sym)]
+                              (str group-id "/"))
+              :sanitized (t/name-to-path (name sym))
               :placeholder "{{sanitized}}"
               :year (t/year)
               :date (t/date)}]

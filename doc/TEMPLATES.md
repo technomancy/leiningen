@@ -41,16 +41,12 @@ Your new template would look like:
     ├── resources
     │   └── leiningen
     │       └── new
-    │           └── us
-    │               └── technomancy
-    │                   └── liquid_cool
-    │                       └── foo.clj
+    │           └── liquid_cool
+    │               └── foo.clj
     └── src
         └── leiningen
             └── new
-                └── us
-                    └── technomancy
-                        └── liquid_cool.clj
+                └── liquid_cool.clj
 
 Note that you'll now have a new and separate project named
 "liquid-cool-template". It will have a group-id of "us.technomancy", and
@@ -59,14 +55,14 @@ an artifact-id of "lein-template.liquid-cool".
 ## Structure
 
 The files that your template will provide to users are in
-`resources/leiningen/new/us/technomancy/liquid_cool`. The template generator
+`resources/leiningen/new/liquid_cool`. The template generator
 starts you off with just one, named "foo.clj". You can see it referenced in
-`src/leiningen/new/us/technomancy/liquid_cool.clj`, right underneath the
+`src/leiningen/new/liquid_cool.clj`, right underneath the
 `->files data` line.
 
 You can delete `foo.clj` if you like (and its corresponding line in
 `liquid_cool.clj`), and start populating that
-`resources/leiningen/new/us/technomancy/liquid_cool` directory with the files
+`resources/leiningen/new/liquid_cool` directory with the files
 you wish to be part of your template. For everything you add, make sure the
 `liquid_cool.clj` file receives corresponding entries in that `->files`
 call. For examples to follow, have a look inside [the \*.clj files for the
@@ -87,8 +83,8 @@ your system (without publishing your template to clojars yet), just run:
 
     $ lein install
 
-You should then be able to run `lein new us.technomancy/liquid-cool
-myproject` from any directory on your system.
+You should then be able to run `lein new us.technomancy/liquid-cool myproject`
+from any directory on your system.
 
 ## Templating System
 
@@ -104,7 +100,7 @@ and that we have a template file which looks up the key X by wrapping it in
 double mustaches like so: `{{X}}`. As for our input name, `data` already
 contains the line `:name name`, which means we can lookup the input name by
 writing `{{name}}` in the template file. To try it out, save the following
-contents in the file `resources/leiningen/new/us/technomancy/liquid_cool/README.md`:
+contents in the file `resources/leiningen/new/liquid_cool/README.md`:
 
 ```markdown
 # {{name}}
@@ -152,17 +148,18 @@ change the mustache delimiter temporarily, like so:
 
 ## Distributing your Template
 
-Templates are just maven artifacts. Particularly, they need only be on the
-classpath when `lein new` is called. So, as a side-effect, you can just put
-your templates in a jar and toss them on Clojars and have people install them
-like normal Leiningen plugins. Templates get dynamically fetched if they're not
-found. So for instance `lein new com.heroku/hello myproject` will find the
-latest version of the `com.heroku/lein-template.hello` project from Clojars and
-use that.
+Templates are just maven artifacts, aka dependencies. Particularly,
+they need only be on the classpath when `lein new` is called. So, as a
+side-effect, you can just put your templates in a jar and toss them on
+Clojars and have people install them like normal Leiningen
+plugins. Templates get fetched on demand if they're not found. So
+for instance `lein new com.heroku/hello myproject` will find the
+latest version of the `com.heroku/lein-template.hello` project from
+Clojars and use that.
 
 ## Legacy Templates
 
-Prior to Leiningen 2.6.2, templates defaulted to using the template
+Prior to Leiningen 2.9.6, templates defaulted to using the template
 name as the group-id and "lein-template" as the artifact-id. Changes
 to [Clojars policy](https://github.com/clojars/clojars-web/wiki/Verified-Group-Names)
 have necessitated using a new style where every template name includes

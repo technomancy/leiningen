@@ -1,4 +1,4 @@
-(ns leiningen.new.{{group-id}}.{{artifact-id}}
+(ns leiningen.new.{{artifact-id}}
   (:require [leiningen.new.templates :as tmpl]
             [leiningen.core.main :as main]))
 

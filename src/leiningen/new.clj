@@ -50,7 +50,7 @@
          (debug (str e)))))
 
 (defn resolve-template [template-name]
-  (let [ns-sym (symbol (str "leiningen.new." (str/replace template-name "/" ".")))]
+  (let [ns-sym (symbol (str "leiningen.new." (name (symbol template-name))))]
     (if (try (require ns-sym)
              true
              (catch FileNotFoundException _
