@@ -2,6 +2,8 @@
 
 ## 2.9.6 / ???
 
+* Look for templates in a way that reflects new Clojars group rules. (Phil Hagelberg)
+* Update template-generating template to reflect new Clojars rules. (Phil Hagelberg)
 * Don't `:reload` in tests unless connecting to an nrepl. (Ambrose Bonnaire-Sergeant)
 
 ## 2.9.5 / 2020-12-07

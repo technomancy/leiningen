@@ -1,8 +1,9 @@
 (ns leiningen.test.new
   (:require [leiningen.new :as new])
-  (:use [clojure.test]
-        [clojure.java.io :only [file]]
-        [leiningen.test.helper :only [delete-file-recursively abort-msg]]))
+  (:require [clojure.test :refer :all]
+            [clojure.java.io :refer [file]]
+            [leiningen.test.helper :refer [delete-file-recursively abort-msg]]
+            [leiningen.new :as new]))
 
 (deftest test-new-with-just-project-name
   (leiningen.new/new nil "test-new-proj")
@@ -55,7 +56,7 @@
 
 (deftest test-new-with-nonexistent-template
   (is (re-find
-       #"Could not find template zzz"
+       #"Could not find template for zzz"
        (with-redefs [leiningen.new/resolve-remote-template (constantly false)]
          (abort-msg leiningen.new/new nil "zzz" "my-zzz")))))
 
@@ -70,6 +71,9 @@
          (let [name "luminus"
                sym (symbol (str "leiningen.new." name))]
            (leiningen.new/resolve-remote-template name sym))))))
+
+(deftest ^:online test-group-id-template
+  (is (fn? @(new/resolve-template "us.technomancy/liquid-cool"))))
 
 (deftest test-new-with-*-jure-project-name
   (is (re-find
