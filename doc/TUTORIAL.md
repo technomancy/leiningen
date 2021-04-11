@@ -700,12 +700,26 @@ Given these pitfalls, it's best to use an uberjar if possible.
 
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
-a public repository. While it's possible to
-[maintain your own private repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+a public repository. While it's possible to [maintain your own private
+repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
 or get it into [Central](https://search.maven.org), the easiest way is
 to publish it at [Clojars](https://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
-is easy:
+is straightforward. You'll need to have a [verified group
+name](https://github.com/clojars/clojars-web/wiki/Groups), but you get
+some for free just for having a Clojars account. You'll need to change
+the name of your project to include the group name. Edit the first
+line of your `project.clj` to look like:
+
+```clj
+(defproject org.clojars.my-clojars-username/my-stuff "0.1.0-SNAPSHOT"
+  :description "FIXME: write description"
+  ...
+```
+
+Clojars doesn't use passwords, so you'll need to [generate a deploy
+token](https://github.com/clojars/clojars-web/wiki/Deploy-Tokens). Once
+you have that, you are ready to deploy:
 
     $ lein deploy clojars
     No credentials found for clojars
@@ -714,17 +728,17 @@ is easy:
     Password:
     Created ~/src/my-stuff/target/my-stuff-0.1.0-SNAPSHOT.jar
     Wrote ~/src/my-stuff/pom.xml
-    Retrieving my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml
+    Retrieving org/clojars/my-clojars-username/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml
         from https://repo.clojars.org/
-    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20190525.161117-2.jar (9k)
+    Sending org/clojars/my-clojars-username/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20190525.161117-2.jar (9k)
         to https://repo.clojars.org/
-    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20190525.161117-2.pom (2k)
+    Sending org/clojars/my-clojars-username/my-stuff/0.1.0-SNAPSHOT/my-stuff-0.1.0-20190525.161117-2.pom (2k)
         to https://repo.clojars.org/
-    Retrieving my-stuff/my-stuff/maven-metadata.xml
+    Retrieving org/clojars/my-clojars-username/my-stuff/maven-metadata.xml
         from https://repo.clojars.org/
-    Sending my-stuff/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
+    Sending org/clojars/my-clojars-username/my-stuff/0.1.0-SNAPSHOT/maven-metadata.xml (1k)
         to https://repo.clojars.org/
-    Sending my-stuff/my-stuff/maven-metadata.xml (1k)
+    Sending org/clojars/my-clojars-username/my-stuff/maven-metadata.xml (1k)
         to https://repo.clojars.org/
 
 Once that succeeds it will be available as a package on which other
