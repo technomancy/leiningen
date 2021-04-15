@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.6 / ???
+## 2.9.6 / 2021-04-15
 
 * Look for templates in a way that reflects new Clojars group rules. (Phil Hagelberg)
 * Update template-generating template to reflect new Clojars rules. (Phil Hagelberg)
