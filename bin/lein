@@ -8,7 +8,7 @@ function msg {
     echo "$@" 1>&2
 }
 
-export LEIN_VERSION="2.9.6"
+export LEIN_VERSION="2.9.7-SNAPSHOT"
 # Must be sha256sum, will be replaced by bin/release
 export LEIN_CHECKSUM='41c543f73eec4327dc20e60d5d820fc2a9dc772bc671610b9c385d9c4f5970b8'
 

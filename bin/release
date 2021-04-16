@@ -80,13 +80,13 @@ git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin master:stable
 
-echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to GitHub:"
+echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to GitHub"
+echo "but rename the jar to .zip first to work around GitHub foolishness."
 echo "https://github.com/technomancy/leiningen/releases/tag/$RELEASE_VERSION"
 echo "Copy this version's section of NEWS.md to the GitHub release description."
 
 rm -rf target leiningen-core/target
 echo "Test self-install. If things are good, run this:"
 echo "$ lein deploy clojars && cd leiningen-core && lein deploy clojars"
-echo "And announce it on the mailing list."
-
-echo "\nThen bump the version to the next SNAPSHOT."
+echo ""
+echo "Then bump the version to the next SNAPSHOT."
