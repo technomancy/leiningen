@@ -99,7 +99,7 @@ LEIN_JAR="$(dirname "$BIN_DIR")/lib/leiningen-$LEIN_VERSION-standalone.jar"
 ## echo $LEIN_JAR
 ## exit 1
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-Xverify:none -XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
 
 # When :eval-in :classloader we need more memory
 grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
