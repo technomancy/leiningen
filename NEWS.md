@@ -2,7 +2,8 @@
 
 ## 2.9.7 / ???
 
-* ???
+* Fix a bug where verifying deps could loop forever. (James Carnegie)
+* Get better error messages when deploys fail. (Toby Crawley)
 
 ## 2.9.6 / 2021-04-15
 

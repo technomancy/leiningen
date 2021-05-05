@@ -237,7 +237,6 @@
           _ (deps project)
           out (with-out-str (deps project ":verify"))]
       (doseq [[dep signed] '{[org.clojure/clojure "1.3.0"] :signed
-                             [commons-io "2.8.0"] :no-key
                              [rome "0.9"] :unsigned
                              [jdom "1.0"] :unsigned}]
         (is (.contains out (pr-str signed dep)))))))
