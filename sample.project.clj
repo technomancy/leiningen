@@ -497,9 +497,17 @@
   ;; Include xml in generated pom.xml file, as parsed by
   ;; clojure.data.xml/sexp-as-element. Resulting pom still needs to
   ;; validate according to the pom XML schema.
-  :pom-addition [:developers [:developer {:id "benbit"}
-                              [:name "Ben Bitdiddle"]
-                              [:url "http://www.example.com/benjamin"]]]
+  :pom-addition ([:developers [:developer
+                               [:id "technomancy"]
+                               [:name "Phil Hagelberg"]
+                               [:url "https://technomancy.us"]
+                               [:roles
+                                [:role "developer"]
+                                [:role "maintainer"]]]]
+                 [:contributors [:contributor
+                                 [:name "Ben Bitdiddle"]
+                                 [:url "http://www.example.com/benjamin"]
+                                 [:properties [:id "benbit"]]]])
 
 ;;; Safety flags
   ;; Indicate whether or not `lein install` should abort when trying to install
