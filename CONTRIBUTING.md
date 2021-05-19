@@ -4,8 +4,7 @@ Leiningen is the most widely-contributed-to Clojure project. We
 welcome potential contributors and do our best to try to make it easy
 to help out.
 
-Discussion occurs primarily in the
-[#leiningen channel on Freenode](irc://chat.freenode.net#leiningen)
+Discussion occurs primarily in the #leiningen channel on Libera chat.
 
 Please report issues on the
 [GitHub issue tracker](https://github.com/technomancy/leiningen/issues).
