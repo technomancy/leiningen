@@ -2,6 +2,7 @@
   (:use [clojure.test]
         [leiningen.core.classpath])
   (:require [clojure.java.io :as io]
+            [clojure.stacktrace :as stacktrace]
             [leiningen.core.user :as user]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.project :as project])
@@ -30,35 +31,28 @@
               :resource-paths ["/tmp/lein-sample-project/resources"]
               :test-paths ["/tmp/lein-sample-project/test"]})
 
+(defn- resolve-with-repo [repo-url]
+  (resolve-managed-dependencies :dependencies
+                                :managed-dependencies
+                                (assoc project
+                                       :repositories {"repo" {:url repo-url}}
+                                       :dependencies '[[lein-pprint "99"]])))
+
 (deftest test-resolve-deps
   (doseq [f (reverse (file-seq (io/file (:root project))))]
     (when (.exists f) (io/delete-file f)))
   (testing "checks certificate expiry"
-    (let [repositories [["badssl" {:url "https://expired.badssl.com/"}]]
-          project-bad-repo (assoc project :repositories repositories)]
-      (is (re-find #"CertificateExpiredException"
+    (is (instance? java.security.cert.CertificateExpiredException
                    (try
-                     (resolve-managed-dependencies :dependencies
-                                                   :managed-dependencies
-                                                   project-bad-repo)
+                     (resolve-with-repo "https://expired.badssl.com/")
                      (catch Exception e
-                       (->> (iterate (memfn getCause) e)
-                            (take-while identity)
-                            (map str)
-                            last)))))))
+                       (stacktrace/root-cause e))))))
   (testing "checks for host of cert"
-    (let [repositories [["badssl2" {:url "https://wrong.host.badssl.com/"}]]
-          project-bad-repo (assoc project :repositories repositories)]
-      (is (re-find #"javax.net.ssl.SSLHandshakeException"
+    (is (instance? javax.net.ssl.SSLPeerUnverifiedException
                    (try
-                     (resolve-managed-dependencies :dependencies
-                                                   :managed-dependencies
-                                                   project-bad-repo)
+                     (resolve-with-repo "https://badssl.f5n.de/")
                      (catch Exception e
-                       (->> (iterate (memfn getCause) e)
-                            (take-while identity)
-                            (map str)
-                            last)))))))
+                       (stacktrace/root-cause e))))))
   (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
            (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")
            (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar")
