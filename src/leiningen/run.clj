@@ -28,7 +28,7 @@
 (defn run-form
   "Construct a form to run the given main defn or class with arguments."
   [given args]
-  `(binding [*command-line-args* '~args]
+  `^:lein-with-meta (binding [*command-line-args* '~args]
      ;;
      ;; Some complicated error-handling logic here to support main
      ;; being either a namespace or a class.
@@ -77,7 +77,9 @@
          ;; If the class exists, run its main method.
          class#
          (Reflector/invokeStaticMethod
-          class# "main" (into-array [(into-array String '~args)]))
+          class#
+          "main"
+          ^"[[Ljava.lang.String;" (into-array [(into-array String '~args)]))
 
          ;; If the symbol didn't resolve, give a reasonable message
          (= :not-found ns-flag#)

@@ -238,7 +238,10 @@
                     (File/createTempFile "form-init" ".clj")
                     (io/file (:target-path project) (str checksum "-init.clj")))]
     (spit init-file
-          (binding [*print-dup* *eval-print-dup*]
+          (binding [*print-dup* *eval-print-dup*
+                    ;; only to resolve reflection warning in run-form (run.clj)
+                    *print-meta* (and (seq? form)
+                                      (first (filter #(:lein-with-meta (meta %)) form)))]
             (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                     form)))
