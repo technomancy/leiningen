@@ -181,6 +181,21 @@ Note to windows users: Be sure to download the full version of
 select GPA for installation. You then need to run 
 `gpg-connect-agent /bye` from the command line before starting lein.
 
+#### Troubleshooting
+
+`lein deploy` fails with _gpg: decryption failed: No secret key_ 
+Likely your secret key is protected by a passphrase, which lein cannot
+ask for (yet). Run `gpg --quiet --batch --decrypt ~/.lein/credentials.clj.gpg`
+to verify that you can decrpyt the credentials and to cache the passphrase
+for a while (given that `gpg-agent` is running) so that the next execution
+of leiningen will reuse it and succeed.
+
+`lein deploy <repo>` fails with _No credentials found for <repo>_ Make sure that
+ `<repo>` matches exactly the key in your `:repositories` or `:deploy-repositories`.
+ For example `lein deploy clojars` will fail if you only have
+ `:repositories [["releases" {:url "https://repo.clojars.org" :creds :gpg}]]`
+ To fix it, change "releases" to "clojars" or run with `lein deploy releases`.
+
 ### Full-disk Encryption
 
 If you use full-disk encryption, it may be safe to store your
