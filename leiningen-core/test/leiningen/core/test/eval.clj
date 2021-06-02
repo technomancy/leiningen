@@ -95,3 +95,62 @@
 (deftest test-sh-with-exit-code-failed-command
   (with-redefs [sh (constantly 1)]
     (is (thrown-with-msg? Exception #"Should see me. ls exit code: 1" (sh-with-exit-code "Should see me" "ls")))))
+
+
+(defn pr-str-with-meta [form]
+  (binding [*print-meta* true]
+    (pr-str form)))
+
+(def unreadable-form (java.io.File. "a"))
+
+(deftest test-form-with-readable-meta
+  (let [form '(a {b c})
+        {:keys [unsafe-forms maybe-safe-form]} (form-with-readable-meta form)]
+    (is (= #{} unsafe-forms))
+    (is (= form maybe-safe-form)))
+  (let [form `^String a#
+        {:keys [unsafe-forms maybe-safe-form]} (form-with-readable-meta form)]
+    (is (= #{} unsafe-forms))
+    (is (= form maybe-safe-form))
+    (is (= [`String nil]
+           (-> maybe-safe-form
+               meta
+               :tag
+               ((juxt identity (comp not-empty meta)))))))
+  (let [sym-with-funny-tag (with-meta
+                             (gensym 'foo)
+                             ;; try to smuggle a unreadable forms in metadata
+                             {:unreadable unreadable-form
+                              :tag (with-meta
+                                     `String
+                                     {:tag unreadable-form})})
+        form `(let [~sym-with-funny-tag 1]
+                ~sym-with-funny-tag)
+        {:keys [unsafe-forms maybe-safe-form]} (form-with-readable-meta form)]
+    (is (= #{} unsafe-forms))
+    (is (= form
+           (-> maybe-safe-form
+               pr-str-with-meta
+               read-string)))
+    (is (= [`String nil]
+           (-> maybe-safe-form
+               second
+               first
+               meta
+               :tag
+               ((juxt identity (comp not-empty meta)))))))
+  (let [form `(let [^{:unreadable ~unreadable-form
+                      :tag ~unreadable-form} foo# 1]
+               foo#)
+        {:keys [unsafe-forms maybe-safe-form]} (form-with-readable-meta form)]
+    (is (= #{} unsafe-forms))
+    (is (= form
+           (-> maybe-safe-form
+               pr-str-with-meta
+               read-string))))
+  (let [form `(let [foo# 1]
+                ;; can't remove metadata from a var, so it's not safe
+                ~#'+)
+        {:keys [unsafe-forms maybe-safe-form]} (form-with-readable-meta form)]
+    (is (= #{#'+} unsafe-forms))
+    (is (identical? form maybe-safe-form))))

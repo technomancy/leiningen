@@ -216,6 +216,7 @@
                        :ack-port ~ack-port
                        :handler ~(handler-for project))
               port# (:port server#)
+              ^java.io.File
               repl-port-file# (apply io/file ~(repl-port-file-vector project))
               ;; TODO 3.0: remove legacy repl port support.
               legacy-repl-port# (if (.exists (io/file ~(:target-path project "")))
@@ -223,7 +224,8 @@
           (when ~start-msg?
             (println "nREPL server started on port" port# "on host" ~(:host cfg)
                      (str "- "
-                          (transport/uri-scheme ~(or (:transport cfg) #'transport/bencode))
+                          (transport/uri-scheme ~(or (:transport cfg)
+                                                     `(var transport/bencode)))
                           "://" ~(:host cfg) ":" port#)))
           (spit (doto repl-port-file# .deleteOnExit) port#)
           (when legacy-repl-port#

@@ -3,6 +3,7 @@
   (:require [classlojure.core :as cl]
             [clojure.java.io :as io]
             [clojure.string :as string]
+            [clojure.walk :as walk]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
@@ -230,18 +231,73 @@
           [(str "-Xbootclasspath/a:" classpath-string)]
           ["-classpath" classpath-string]))))
 
+(defn ^:internal form-with-readable-meta
+  "Attempts to remove all metadata within form except
+  readable :tag forms that are symbols or strings.
+
+  If this is not possible, :unsafe-forms will be non-empty.
+  **Do not print :maybe-safe-form with `*print-meta* true`!**
+  The returned :maybe-safe-form will be identical to the
+  passed-in form.
+
+  If :unsafe-forms is empty, it is safe to assume that
+  printing the returned :maybe-safe-form with *print-meta* true will
+  not (further) detract its ability to roundtrip via pr/read-string."
+  [form]
+  (let [original-form form
+        unsafe-forms-atom (atom #{})
+        maybe-safe-form (walk/postwalk
+                          (fn [form]
+                            (cond
+                              (instance? clojure.lang.IObj form)
+                              (vary-meta
+                                form
+                                (fn [{:keys [tag]}]
+                                  (cond
+                                    (string? tag) {:tag tag}
+                                    (symbol? tag) {:tag (with-meta tag nil)})))
+
+                              :else (do (when (instance? clojure.lang.IMeta form)
+                                          (swap! unsafe-forms-atom conj form))
+                                        form)))
+                          original-form)
+        unsafe-forms @unsafe-forms-atom]
+    {:unsafe-forms unsafe-forms
+     :maybe-safe-form (if (empty? unsafe-forms)
+                        maybe-safe-form
+                        original-form)}))
+
 (defn shell-command
   "Calculate vector of strings needed to evaluate form in a project subprocess."
   [project form]
   (let [checksum (System/getProperty "leiningen.input-checksum")
         init-file (if (empty? checksum)
                     (File/createTempFile "form-init" ".clj")
-                    (io/file (:target-path project) (str checksum "-init.clj")))]
+                    (io/file (:target-path project) (str checksum "-init.clj")))
+        {:keys [unsafe-forms
+                maybe-safe-form]} (form-with-readable-meta form)]
+    (when (seq unsafe-forms)
+      ;; let's assume that if there's a *warn-on-reflection* entry in :global-vars
+      ;; that there's a good chance it's set to some expression that evaluates to true,
+      ;; and thus may see internal reflection warnings.
+      (when (#{'*warn-on-reflection* `*warn-on-reflection*} (:global-vars project))
+        (main/warn "WARNING: Leiningen was unable to emit :tag metadata for"
+                   "an initialization script, and reflection warnings may"
+                   "be printed that are internal to Leiningen."
+                   "The following forms were deemed unsafe to print with `*print-meta* true`:"
+                   unsafe-forms
+                   "These forms may occur in your :injections or :global-vars,"
+                   "in which case you should replace them with forms that roundtrip with `*print-meta* true`."
+                   "Otherwise, please report this to the plugin responsible for injecting these forms.")))
     (spit init-file
-          (binding [*print-dup* *eval-print-dup*]
+          (binding [*print-dup* *eval-print-dup*
+                    ;; see relationship between unsafe-forms/maybe-safe-form
+                    ;; in form-with-readable-meta docstring
+                    *print-meta* (empty? unsafe-forms)]
             (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
+                      ;; Note: ensure this form doesn't need type hints to avoid reflection
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
-                    form)))
+                    maybe-safe-form)))
     `(~(or (:java-cmd project) (System/getenv "JAVA_CMD") "java")
       ~@(classpath-arg project)
       ~@(get-jvm-args project)
@@ -348,12 +404,10 @@
   (println "Java:" (or (:java-cmd project) (System/getenv "JAVA_CMD") "java"))
   (apply println "Classpath:" (classpath-arg project))
   (apply println "JVM args:" (get-jvm-args project))
-  ;; Can't use binding with dynamic require
-  (let [dispatch-var (resolve 'clojure.pprint/*print-pprint-dispatch*)
-        code-dispatch @(resolve 'clojure.pprint/code-dispatch)]
-    (try (push-thread-bindings {dispatch-var code-dispatch})
-         ((resolve 'clojure.pprint/pprint) form)
-         (finally (pop-thread-bindings)))))
+  (with-bindings
+    {(resolve 'clojure.pprint/*print-pprint-dispatch*)
+     @(resolve 'clojure.pprint/code-dispatch)}
+    ((resolve 'clojure.pprint/pprint) form)))
 
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
@@ -366,9 +420,14 @@
        (main/warn "WARNING: :warn-on-reflection is deprecated in project.clj;"
                   "use :global-vars."))
      (eval-in project
-              `(do (set! ~'*warn-on-reflection*
+              `(do (set! *warn-on-reflection*
                          ~(:warn-on-reflection project))
-                   ~@(map (fn [[k v]] `(set! ~k ~v)) (:global-vars project))
+                   ~@(map (fn [[k v]]
+                            (let [vsym (if (simple-symbol? k)
+                                         (symbol "clojure.core" (name k))
+                                         k)]
+                              `(set! ~vsym ~v)))
+                          (:global-vars project))
                    ~init
                    ~@(:injections project)
                    ~form))))
