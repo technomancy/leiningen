@@ -117,6 +117,17 @@
       <artifactId>compojure-api</artifactId>
       <version>2.0.0-alpha31</version>
       </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.10.1</version>
+      </dependency>
+    <dependency>
+      <groupId>ring</groupId>
+      <artifactId>ring</artifactId>
+      <version>1.8.2</version>
+      </dependency>
+    
   </dependencies>
 </project>
 
