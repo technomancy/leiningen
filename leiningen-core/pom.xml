@@ -112,6 +112,11 @@
       <artifactId>tools.macro</artifactId>
       <version>0.1.5</version>
     </dependency>
+    <dependency>
+      <groupId>metosin</groupId>
+      <artifactId>compojure-api</artifactId>
+      <version>2.0.0-alpha31</version>
+      </dependency>
   </dependencies>
 </project>
 
