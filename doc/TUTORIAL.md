@@ -403,7 +403,7 @@ Enough setup; let's see some code running. Start with a REPL
     $ cd my-stuff
     $ lein repl
     nREPL server started on port 55568 on host 127.0.0.1 - nrepl://127.0.0.1:55568
-    REPL-y 0.4.4, nREPL 0.8.3
+    REPL-y 0.5.0, nREPL 0.8.3
     Clojure 1.10.1
     OpenJDK 64-Bit Server VM 1.8.0_222-b10
         Docs: (doc function-name-here)

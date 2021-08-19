@@ -46,7 +46,7 @@
                                [clj-http/clj-http "3.4.1"]
                                [nrepl/nrepl "0.8.3"
                                 :exclusions [[org.clojure/clojure]]]
-                               [clojure-complete/clojure-complete "0.2.5"
+                               [org.nrepl/incomplete "0.1.0"
                                 :exclusions [[org.clojure/clojure]]]],
                :twelve 12 ; testing unquote
 
