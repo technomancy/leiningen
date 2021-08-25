@@ -260,8 +260,8 @@ plugin:
      :group "lein-pprint",
      :source-path ("/home/phil/src/leiningen/lein-pprint/src"),
      :dependencies
-     ([org.clojure/tools.nrepl "0.0.5" :exclusions [org.clojure/clojure]]
-      [clojure-complete "0.1.4" :exclusions [org.clojure/clojure]]
+     ([nrepl "0.8.3" :exclusions [org.clojure/clojure]]
+      [incomplete "0.1.0" :exclusions [org.clojure/clojure]]
       [org.thnetos/cd-client "0.3.3" :exclusions [org.clojure/clojure]]),
      :target-path "/home/phil/src/leiningen/lein-pprint/target",
      :name "lein-pprint",

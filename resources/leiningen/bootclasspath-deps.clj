@@ -21,7 +21,7 @@
             (pp/pprint))))
 {
  clj-commons/pomegranate "1.2.0"
- clojure-complete "0.2.5"
+ org.nrepl/incomplete "0.1.0"
  com.hypirion/io "0.3.1"
  commons-codec "1.11"
  commons-io "2.8.0"

@@ -252,8 +252,8 @@
 
 (def reply-profile
   {:dependencies
-   '[^:displace [reply "0.4.4" :exclusions [org.clojure/clojure ring/ring-core]]
-     [clojure-complete "0.2.5"]]})
+   '[^:displace [reply "0.5.0" :exclusions [org.clojure/clojure ring/ring-core]]
+     [org.nrepl/incomplete "0.1.0"]]})
 
 (defn- trampoline-repl [project port]
   (let [init-option (get-in project [:repl-options :init])
