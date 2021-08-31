@@ -145,8 +145,8 @@ Calls the main function in the specified namespace. You may have to use -- to
 escape the first argument in case it begins with `-' or `:'.
 
 The `--quote-args' flag quotes the arguments passed in, instead of converting
-them to strings. Useful if you want to pass in :project/key entries that might
-be/contain lists.
+them to strings. Arguments coming from the command line will always be strings,
+so this is only useful when invoked from :aliases.
 
 See also \"lein help trampoline\" for a way to save memory using this task."
   [project & raw-args]

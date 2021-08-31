@@ -146,7 +146,7 @@ Note that we use `my-stuff.core` instead of just `my-stuff` since
 [single-segment namespaces are discouraged in Clojure](https://stackoverflow.com/questions/13567078/whats-wrong-with-single-segment-namespaces) as using those would imply classes are being assigned
 to the default (no-name) package.
 
-Also note that if a Clojure namespaces segment contains a a dash (`-`), the
+Also note that if a Clojure namespaces segment contains a dash (`-`), the
 corresponding path/filename will contain an underscore (`_`) instead. This is due to the fact that
 [Java disallows dashes in identifiers](https://docs.oracle.com/javase/specs/jls/se12/html/jls-3.html#jls-3.8),
 in particular in package and class names. A Clojure "dash-adorned" namespace identifier is thus mapped
