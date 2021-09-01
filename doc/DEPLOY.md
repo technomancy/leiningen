@@ -407,11 +407,12 @@ properly in your `project.clj`:
   :license
   :scm
   :pom-addition
+  :classifiers
 ```
 
 Examples of OSS-acceptable values for these entries can be seen in this
 [`project.clj`
-file](https://github.com/cemerick/piggieback/blob/master/project.clj).
+file](https://github.com/operatr-io/kpow-streams-agent/blob/main/project.clj).
 Note that all of them should be appropriate for *your* project; blind
 copy/paste is not appropriate here.
 
