@@ -182,7 +182,7 @@
 
 (defn- init-requires [{{:keys [nrepl-middleware nrepl-handler caught]}
                        :repl-options :as project} & nses]
-  (let [defaults '[nrepl.server complete.core]
+  (let [defaults '[nrepl.server incomplete.core]
         nrepl-syms (->> (cons nrepl-handler nrepl-middleware)
                         (filter symbol?)
                         (map namespace)
