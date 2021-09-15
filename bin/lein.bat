@@ -207,7 +207,7 @@ if not exist %LEIN_INSTALL_DIR% mkdir %LEIN_INSTALL_DIR%
 
 echo Downloading Leiningen now...
 
-set LEIN_JAR_URL=https://github.com/technomancy/leiningen/releases/download/%LEIN_VERSION%/leiningen-%LEIN_VERSION%-standalone.zip
+set LEIN_JAR_URL=https://github.com/technomancy/leiningen/releases/download/%LEIN_VERSION%/leiningen-%LEIN_VERSION%-standalone.jar
 call :DownloadFile "%LEIN_JAR%.pending" "%LEIN_JAR_URL%"
 SET RC=%ERRORLEVEL%
 if not %RC% == 0 goto DOWNLOAD_FAILED
