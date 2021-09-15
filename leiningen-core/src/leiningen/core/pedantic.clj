@@ -28,6 +28,13 @@
            (org.eclipse.aether.util.graph.transformer TransformationContextKeys
                                                       ConflictIdSorter)))
 
+(defn- warn [& args]
+  ;; TODO: remove me once #1227 is merged
+  (require 'leiningen.core.main)
+  (apply (resolve 'leiningen.core.main/warn) args))
+
+(def ^:private warn-once (memoize warn))
+
 ;; This namespace originated as an independent library which was at
 ;; https://github.com/xeqi/pedantic in order to allow it to evolve
 ;; at its own pace decoupled from Leiningen's release cycle, but now it's
@@ -103,20 +110,20 @@
                                :ranges
                                (filter #(node= (:node %) node) ranges)})))))
 
+(defn- path-branches [{:keys [node parents]}]
+  (for [c (.getChildren node)]
+    {:node c
+     :parents (conj parents node)}))
+
 (defn- all-paths
   "Breadth first traversal of the graph from DependencyNode node.
   Short circuits a path when a cycle is detected."
   [node]
-  (loop [paths [{:node node :parents []}]
-         results []]
-    (if (empty? paths)
-      results
-      (recur (for [{:keys [node parents]} paths
-                   :when (not (some #{node} parents))
-                   c (.getChildren node)]
-               {:node c
-                :parents (conj parents node)})
-             (doall (concat results paths))))))
+  (tree-seq (fn [{:keys [node parents]}] (not (#{node} parents)))
+            path-branches
+            {:parents [] :node node}))
+
+(def ^:private max-path-count 16384)
 
 (defn- transform-graph
   "Examine the tree with root `node` for version ranges, then
@@ -127,6 +134,8 @@
   (initialize-conflict-ids! node context)
   ;; Get all the paths of the graph before dependency resolution
   (let [potential-paths (all-paths node)]
+    (when (= max-path-count (count (take max-path-count potential-paths)))
+      (warn "Pathological dependency tree detected; consider disabling pedantic."))
     (set-ranges! ranges potential-paths)
     (.transformGraph transformer node context)
     ;; The original transformer should have done dependency resolution,
@@ -232,13 +241,6 @@
    :ignoreds (map message-for-version ignoreds)
    :ranges (map message-for-range ranges)
    :exclusions (map exclusion-for-override ignoreds)})
-
-(defn- warn [& args]
-  ;; TODO: remove me once #1227 is merged
-  (require 'leiningen.core.main)
-  (apply (resolve 'leiningen.core.main/warn) args))
-
-(def ^:private warn-once (memoize warn))
 
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
