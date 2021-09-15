@@ -123,7 +123,7 @@ explains how to write plugins.
 
 ## License
 
-Source Copyright © 2009-2020 Phil Hagelberg, Alex Osborne, Dan Larkin, and
+Source Copyright © 2009-2021 Phil Hagelberg, Alex Osborne, Dan Larkin, and
 [contributors](https://github.com/technomancy/leiningen/contributors).
 Distributed under the Eclipse Public License, the same as Clojure
 uses. See the file COPYING.
@@ -133,5 +133,5 @@ me that good builds are important.
 
 Images Copyright © 2010 Phil Hagelberg. Distributed under the Creative
 Commons Attribution + ShareAlike
-License. [Full-size version](https://leiningen.org/img/leiningen-full.jpg)
+License 4.0. [Full-size version](https://leiningen.org/img/leiningen-full.jpg)
 available.
