@@ -1,4 +1,4 @@
-(defproject leiningen-core "2.9.7"
+(defproject leiningen-core "2.9.8-SNAPSHOT"
   :url "https://github.com/technomancy/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

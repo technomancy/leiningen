@@ -88,4 +88,4 @@ rm -rf target leiningen-core/target
 echo "Test self-install. If things are good, run this:"
 echo "$ lein deploy clojars && cd leiningen-core && lein deploy clojars"
 echo ""
-echo "Then bump the version to the next SNAPSHOT."
+echo "Then run: bin/bump $RELEASE_VERSION NEXT_VERSION"
