@@ -112,7 +112,7 @@
                 (subtask-help-for task-ns task)
                 (if (some seq (get-arglists task))
                   (str "\n\nArguments: " (pr-str (get-arglists task))))))
-         (format "Task: '%s' not found" task-name))))
+         (main/abort (format "Task: '%s' not found" task-name)))))
   ([project task-name]
      (let [aliases (merge main/aliases (:aliases project))]
        (or (alias-help aliases task-name)
@@ -131,7 +131,7 @@
          (str (or (and help-fn (help-fn)) (:doc subtask-meta))
               (if (some seq arglists)
                 (str "\n\nArguments: " (pr-str arglists)))))
-       (format "Subtask: '%s %s' not found" task-name subtask-name)))
+       (main/abort (format "Subtask: '%s %s' not found" task-name subtask-name))))
   ([project task-name subtask-name]
      (let [aliases (merge main/aliases (:aliases project))]
        (help-for-subtask (aliases task-name task-name) subtask-name))))

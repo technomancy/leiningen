@@ -1,6 +1,7 @@
 (ns leiningen.test.help
   (:use [leiningen.help]
-        [clojure.test]))
+        [clojure.test])
+  (:require [leiningen.test.helper :as helper]))
 
 (def formatted-docstring @#'leiningen.help/formatted-docstring)
 (def get-subtasks-and-docstrings-for
@@ -48,7 +49,8 @@
   (testing "default alias docstrings"
     (is (re-find #"is an alias for" (help-for {} "--version")))
     (is (re-find #"is an alias" (help-for {} "-o")))
-    (is (re-find #"not found" (help-for {} "not-a-task"))))
+    (is (re-find #"not found"
+                 (helper/abort-msg help-for {} "not-a-task"))))
   (testing "own alias docstrings"
     (let [custom-aliases {:aliases {"foobar" ^{:doc "Foos the bar."}
                                               ["foo" "bar"],
@@ -57,4 +59,5 @@
       (is (re-find #"is an alias for" (help-for custom-aliases "vsn")))
       (is (re-find #"is an alias" (help-for custom-aliases "multipart")))
       (is (re-find #"Foos the bar\." (help-for custom-aliases "foobar")))
-      (is (re-find #"not found" (help-for custom-aliases "not-a-task"))))))
+      (is (re-find #"not found"
+                   (helper/abort-msg help-for custom-aliases "not-a-task"))))))
