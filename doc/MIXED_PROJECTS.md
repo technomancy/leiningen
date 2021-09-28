@@ -26,7 +26,7 @@ By default, Leiningen assumes your project only has Clojure source code under
 `src`. When using both Clojure and Java in the same codebase, however, it is
 necessary to tell Leiningen where to find Java sources.
 
-To do so, use `:source-paths` and `:java-source-path` options in the project
+To do so, use `:source-paths` and `:java-source-paths` options in the project
 definition:
 
 ```clojure
