@@ -171,7 +171,11 @@
      session
      (reify DependencyGraphTransformer
        (transformGraph [_ node context]
-         (transform-graph ranges overrides node context transformer)
+         (try
+           (transform-graph ranges overrides node context transformer)
+           (catch java.lang.OutOfMemoryError _
+             (warn "Pathological dependency tree detected.")
+             (warn "Consider setting :pedantic? false in project.clj to bypass.")))
          ;;Return the DependencyNode in order to meet
          ;;transformGraph's contract
          node)))))
