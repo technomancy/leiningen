@@ -82,8 +82,8 @@
     ;; Lein 3.0 by enforcing native to be inside :target-path and stating that
     ;; it should only be used by native deps.
     (when new-native-path?
-      (warn "Warning: You changed :native-path to" (pr-str relative-native-path)
-            ", but old native data is still available at" (pr-str old-native-path))
+      (warn-once "Warning: You changed :native-path to" (pr-str relative-native-path)
+                 ", but old native data is still available at" (pr-str old-native-path))
       (vreset! maybe-stale true)
       (doseq [[_ {:keys [native-prefix file]}] new-raw-deps]
         (extract-native-dep! native-path file native-prefix)))
@@ -106,15 +106,15 @@
                    (nil? new-vsn) ;; dependency was removed
                    (when (and (not new-native-path?) old-native?)
                      (vreset! maybe-stale true)
-                     (warn "Warning:" dep old-vsn "will still have its native content in :native-path"))
+                     (warn-once "Warning:" dep old-vsn "will still have its native content in :native-path"))
 
                    ;; prefix changed (possibly version as well)
                    (not= old-native-prefix new-native-prefix)
                    (let [native? (extract-native-dep! native-path new-file new-native-prefix)]
                      (when (and (not new-native-path?) old-native?)
                        (vreset! maybe-stale true)
-                       (warn "Warning:" dep "had its native prefix changed, but content"
-                             "from"  (pr-str old-native-prefix) "is still in :native-path"))
+                       (warn-once "Warning:" dep "had its native prefix changed, but content"
+                                  "from"  (pr-str old-native-prefix) "is still in :native-path"))
                      [dep {:vsn new-vsn
                            :native-prefix new-native-prefix
                            :native? native?}])
@@ -124,15 +124,15 @@
                    (let [native? (extract-native-dep! native-path new-file new-native-prefix)]
                      (when (and (not new-native-path?) old-native?)
                        (vreset! maybe-stale true)
-                       (warn "Warning: Native dependencies from the old version of"
-                             dep (str "(" old-vsn ") is still in :native-path")))
+                       (warn-once "Warning: Native dependencies from the old version of"
+                                  dep (str "(" old-vsn ") is still in :native-path")))
                      [dep {:vsn new-vsn
                            :native-prefix new-native-prefix
                            :native? native?}])))
            (filter identity)
            (into {}))]
       (when @maybe-stale
-        (warn "  Consider doing `lein clean` to remove potentially stale native files"))
+        (warn-once "  Consider doing `lein clean` to remove potentially stale native files"))
       {:native-path relative-native-path
        :dependencies newly-extracted-deps})))
 
@@ -163,7 +163,7 @@
           [old-cmp-val outdated-val] (if (not= ::error file-content)
                                        file-content)]
       (when (= ::error file-content)
-        (warn "Could not read the old stale value for" identifier ", rerunning stale task"))
+        (warn-once "Could not read the old stale value for" identifier ", rerunning stale task"))
       (when (or (= ::error file-content)
                 (not= old-cmp-val cmp-val))
         (utils/mkdirs (.getParentFile file))
@@ -180,7 +180,7 @@
   token to keep your stale value separate. Returns true if the code was executed
   and nil otherwise."
   [token keys project f & args]
-  (warn "leiningen.core.classpath/when-stale is deprecated, use outdated-swap! instead.")
+  (warn-once "leiningen.core.classpath/when-stale is deprecated, use outdated-swap! instead.")
   (let [file (io/file (:target-path project) "stale"
                       (str (name token) "." (str/join "+" (map name keys))))
         current-value (pr-str (map (juxt identity project) keys))

@@ -611,7 +611,7 @@
         (= (class left) (class right)) right
 
         :else
-        (do (warn left "and" right "have a type mismatch merging profiles.")
+        (do (warn-once left "and" right "have a type mismatch merging profiles.")
             right)))
 
 (defn- apply-profiles [project profiles]
@@ -632,7 +632,7 @@
           (when-not (or result (#{:provided :dev :user :test :base :default
                                   :production :system :repl}
                                 profile))
-            (warn "Warning: profile" profile "not found."))
+            (warn-once "Warning: profile" profile "not found."))
           (when (and (= :provided profile) (composite-profile? result))
             (throw (Exception.
                     "Composite profiles are incompatible with :provided.")))
@@ -1123,8 +1123,8 @@ Also initializes the project; see read-raw for a version that skips init."
       (try (read project)
            (catch Exception e
              (throw (Exception. (format "Problem loading %s" project) e)))))
-    (warn "WARN ignoring checkouts directory" (.getParent project-file)
-             "as it does not contain a project.clj file.")))
+    (warn-once "WARNING: ignoring checkouts directory" (.getParent project-file)
+               "as it does not contain a project.clj file.")))
 
 (alter-var-root #'read-dependency-project memoize)
 

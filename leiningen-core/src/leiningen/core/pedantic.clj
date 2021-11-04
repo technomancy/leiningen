@@ -135,7 +135,7 @@
   ;; Get all the paths of the graph before dependency resolution
   (let [potential-paths (all-paths node)]
     (when (= max-path-count (count (take max-path-count potential-paths)))
-      (warn "Pathological dependency tree detected; consider disabling pedantic."))
+      (warn-once "Pathological dependency tree detected; consider disabling pedantic."))
     (set-ranges! ranges potential-paths)
     (.transformGraph transformer node context)
     ;; The original transformer should have done dependency resolution,
