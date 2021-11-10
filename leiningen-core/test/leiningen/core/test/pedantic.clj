@@ -169,18 +169,3 @@
             :ranges [{:node [a "2"]
                       :parents [[range "2"]]}]}])))
 
-(deftest wide-deep-tree-warns
-  (is (thrown-with-msg? Exception
-                        #"disabling pedantic"
-                        (with-redefs [leiningen.core.main/warn
-                                      #(throw (Exception. (apply str %&)))]
-                          (aether/resolve-dependencies
-                           :coordinates '[[org.clojure/clojure "1.10.2"]
-                                          [com.vaadin/vaadin "14.6.8"]]
-                           :repositories [["central" {:url "https://repo1.maven.org/maven2/"
-                                                      :snapshots false :checksum :ignore}]]
-                           :local-repo tmp-local-repo-dir
-                           :repository-session-fn
-                           #(-> %
-                                aether/repository-session
-                                (#'pedantic/use-transformer ranges overrides)))))))
