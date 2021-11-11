@@ -142,7 +142,7 @@ if $cygwin; then
     export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
 fi
 
-LEIN_JAR="$LEIN_HOME/self-installs/leiningen-$LEIN_VERSION-standalone.jar"
+LEIN_JAR="${LEIN_JAR:-${LEIN_HOME}/self-installs/leiningen-${LEIN_VERSION}-standalone.jar}"
 
 # normalize $0 on certain BSDs
 if [ "$(dirname "$0")" = "." ]; then
