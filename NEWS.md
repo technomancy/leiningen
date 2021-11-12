@@ -1,5 +1,10 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.8 / 2021-11-11
+
+* Fix a bug where certain deep dependency trees would overflow stack. (Phil Hagelberg)
+* Allow `LEIN_JAR` to be overridden if you install elsewhere. (Ahmed Sajid)
+
 ## 2.9.7 / 2021-09-15
 
 * Detect certain pathological dependency trees and warn. (Phil Hagelberg)
