@@ -80,8 +80,8 @@ git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin master:stable
 
-echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to GitHub."
-echo "https://github.com/technomancy/leiningen/releases/tag/$RELEASE_VERSION"
+echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to GitHub:"
+echo "https://github.com/technomancy/leiningen/releases/new?tag=$RELEASE_VERSION"
 echo "Copy this version's section of NEWS.md to the GitHub release description."
 
 rm -rf target leiningen-core/target
