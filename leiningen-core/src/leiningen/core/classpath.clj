@@ -422,6 +422,7 @@
     (let [warned (atom false)]
       (doseq [[artifact version] dependencies
               :when (and (bootclasspath-deps artifact)
+                         (= :leiningen (:eval-in project))
                          (not= (bootclasspath-deps artifact) version))]
         (reset! warned true)
         (warn-once "Tried to load" artifact "version" version "but"
