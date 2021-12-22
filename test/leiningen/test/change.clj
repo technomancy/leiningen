@@ -125,7 +125,13 @@
   (is (= [:a :b]
          (normalize-path "a:b")
          (normalize-path ":a:b")
-         (normalize-path [:a :b]))))
+         (normalize-path [:a :b])))
+  (is (= [:dependencies 'org.clojure/clojure]
+         (normalize-path "dependencies[org.clojure/clojure]")
+         (normalize-path ":dependencies[org.clojure/clojure]")
+         (normalize-path "dependencies:[org.clojure/clojure]")
+         (normalize-path ":dependencies:[org.clojure/clojure]")
+         )))
 
 (def div-dinc (comp inc inc /))
 

@@ -22,12 +22,28 @@
 ;; NOTE: this destroy comments, formatting, etc.
 (defn- sjacket->clj [value]
   (if-not (#{:comment :whitespace :newline} (:tag value))
-    (-> value sj/str-pt read-string)))
+    (try (-> value sj/str-pt read-string)
+         (catch Exception e 
+           (println "****" (.getMessage e))
+           (println value)
+           (throw e))) ))
 
 (defn ^:internal normalize-path [value]
   (if (coll? value)
     value
-    (map keyword (remove empty? (str/split value #":")))))
+    (->> (re-seq #"(?:[:\[])?(?:[^:\[]*)?" value)
+         (remove empty?)
+         (map (fn [element]
+                (cond (re-matches #"\[.+" element)
+                      (if (re-matches #".+\]" element)
+                        (read-string (subs element 1 (dec (count element))))
+                        (throw (Exception. (format "Bad path element %s.  Must encode group/artifact name in []" element)))) 
+                      (re-matches #":.*" element)
+                      (if (not= element ":")
+                        (keyword (subs element 1))
+                        nil) 
+                      :else (keyword element))))
+         (filter identity))))
 
 (defn ^:internal collapse-fn [f args]
   (let [f (cond (ifn? f) f
@@ -80,10 +96,23 @@
 
 (defn- find-right [loc pred]
   (->> loc
-      (iterate zip/right)
-      (take-while (comp not nil?))
-      (filter (comp pred zip/node))
-      first))
+       (iterate zip/right)
+       (take-while (comp not nil?))
+       (filter (comp pred zip/node))
+       first))
+
+(defn- find-dependency-version [loc groupid-artifactid]
+  "Find the entry in a vector of dependencies or managed dependencies whose first element
+   matches the symbol bound to groupid-artifactid.  Return the loc of the first string
+   in that entry, which we assume to be a version number."
+  (-> (->> loc
+           (iterate zip/right)
+           (take-while (comp not nil?))
+           (remove insignificant?)
+           (filter (comp #{groupid-artifactid} first sjacket->clj first))
+           first)
+      zip/down
+      (find-right (comp #{:string} :tag))))
 
 (defn- find-key [loc key]
   (->> loc
@@ -125,6 +154,7 @@
       (zip/edit (comp clj->sjacket fn sjacket->clj))
       zip/root))
 
+
 (defn- update-name [proj fn]
   (-> proj
       zip/right
@@ -134,7 +164,9 @@
       zip/root))
 
 (defn- update-setting [proj [p & ath] fn]
-  (let [loc (or (-> proj (find-key p) next-value)
+  (let [loc (or (cond (keyword? p) (-> proj (find-key p) next-value)
+                      (symbol? p) (-> proj (find-dependency-version p))
+                      :else (throw (Exception. (format "Invalid update-setting path component: %s" (pr-str p)))))
                 (-> proj
                     zip/rightmost
                     (insert-entry p)
@@ -170,8 +202,9 @@ well as turning string args into Clojure data; this function handles the rest."
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
 
-The first argument should be a keyword (or mashed-together keywords for
-nested values indicating which value to change). The second argument
+The first argument should be a keyword,  mashed-together keywords for
+nested values, or keyword(s) separated by : and ending in a symbol enclosed in square braces,
+indicating which value to change). The second argument
 should name a function var which will be called with the current value
 as its first argument and the remaining task arguments as the rest.
 
@@ -186,6 +219,11 @@ Using set as the function argument will set the key directly, rather than
 applying a function to the original value:
 
     $ lein change version set '\"1.0.0\"'
+
+To update the version of a dependency in a :dependencies or :managed-dependencies
+vector, use this:
+
+    $ lein change :dependencies[org.clojure/clojure] set '\"1.10.1\"'
 
 All the arguments to f are passed through the reader, so double quoting is
 necessary to use strings. Note that this task reads the project.clj file
