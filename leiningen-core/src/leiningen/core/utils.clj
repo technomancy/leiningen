@@ -67,8 +67,9 @@
 (defn mkdirs
   "Make a given directory and its parents, but throw an Exception on failure."
   [f] ; whyyyyy does .mkdirs fail silently ugh
-  (when-not (or (.mkdirs (io/file f)) (.exists (io/file f)))
-    (throw (Exception. (str "Couldn't create directories: " (io/file f))))))
+  (when f ; (io/file nil) returns nil, so we mimic a similar API instead of failing eagerly on nil inputs.
+    (when-not (or (.mkdirs (io/file f)) (.exists (io/file f)))
+      (throw (Exception. (str "Couldn't create directories: " (io/file f)))))))
 
 (defn relativize
   "Makes the filepath path relative to base. Assumes base is an ancestor to
