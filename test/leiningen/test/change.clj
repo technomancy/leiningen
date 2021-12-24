@@ -118,6 +118,18 @@
            (change-string "(defproject leingingen.change \"0.0.1\")"
                           ":license:url" "set" "http://example.com")))))
 
+(deftest test-set-dependency-value
+  (testing "can set dependency version"
+    (is (= "(defproject leiningen.change \"0.0.1\" :description \"a dynamic description\" :dependencies [[org.clojure/clojure \"1.10.1\"]])"
+           (change-string "(defproject leiningen.change \"0.0.1\" :description \"a dynamic description\" :dependencies [[org.clojure/clojure \"1.8.0\"]])"
+                          ":dependencies:org.clojure/clojure"  "set" "1.10.1")
+           )))
+  (testing "can append dependency version"
+    (is (= "(defproject leiningen.change \"0.0.1\" :description \"a dynamic description\" :dependencies [[org.clojure/clojure \"1.8.0\"] [org.clojure/core.cache \"1.0.207\"]])"
+           (change-string "(defproject leiningen.change \"0.0.1\" :description \"a dynamic description\" :dependencies [[org.clojure/clojure \"1.8.0\"]])"
+                          ":dependencies:org.clojure/core.cache"  "set" "1.0.207")
+           ))))
+
 (deftest test-normalize-path
   (is (= [:a]
          (normalize-path "a")
@@ -126,11 +138,8 @@
          (normalize-path "a:b")
          (normalize-path ":a:b")
          (normalize-path [:a :b])))
-  (is (= [:dependencies 'org.clojure/clojure]
-         (normalize-path "dependencies[org.clojure/clojure]")
-         (normalize-path ":dependencies[org.clojure/clojure]")
-         (normalize-path "dependencies:[org.clojure/clojure]")
-         (normalize-path ":dependencies:[org.clojure/clojure]")
+  (is (= [:dependencies :org.clojure/clojure]
+         (normalize-path ":dependencies:org.clojure/clojure")
          )))
 
 (def div-dinc (comp inc inc /))

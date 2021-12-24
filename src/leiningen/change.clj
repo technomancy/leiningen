@@ -21,29 +21,16 @@
 
 ;; NOTE: this destroy comments, formatting, etc.
 (defn- sjacket->clj [value]
-  (if-not (#{:comment :whitespace :newline} (:tag value))
+  (if-not (or (#{:comment :whitespace :newline} (:tag value))
+              (#{"]" "}"} value))
     (try (-> value sj/str-pt read-string)
          (catch Exception e 
-           (println "****" (.getMessage e))
-           (println value)
            (throw e))) ))
 
 (defn ^:internal normalize-path [value]
-  (if (coll? value)
+  (if (coll? value) 
     value
-    (->> (re-seq #"(?:[:\[])?(?:[^:\[]*)?" value)
-         (remove empty?)
-         (map (fn [element]
-                (cond (re-matches #"\[.+" element)
-                      (if (re-matches #".+\]" element)
-                        (read-string (subs element 1 (dec (count element))))
-                        (throw (Exception. (format "Bad path element %s.  Must encode group/artifact name in []" element)))) 
-                      (re-matches #":.*" element)
-                      (if (not= element ":")
-                        (keyword (subs element 1))
-                        nil) 
-                      :else (keyword element))))
-         (filter identity))))
+    (map keyword (remove empty? (str/split value #":")))))
 
 (defn ^:internal collapse-fn [f args]
   (let [f (cond (ifn? f) f
@@ -105,14 +92,17 @@
   "Find the entry in a vector of dependencies or managed dependencies whose first element
    matches the symbol bound to groupid-artifactid.  Return the loc of the first string
    in that entry, which we assume to be a version number."
-  (-> (->> loc
-           (iterate zip/right)
-           (take-while (comp not nil?))
-           (remove insignificant?)
-           (filter (comp #{groupid-artifactid} first sjacket->clj first))
-           first)
-      zip/down
-      (find-right (comp #{:string} :tag))))
+  (if-let [dependency (->> loc
+                           (iterate zip/right)
+                           (take-while (comp not nil?))
+                           (remove insignificant?)
+                           (filter (comp #{groupid-artifactid} 
+                                         first
+                                         sjacket->clj
+                                         first))
+                           first)]
+    (-> dependency zip/down (find-right (comp #{:string} :tag)))
+    nil))
 
 (defn- find-key [loc key]
   (->> loc
@@ -163,17 +153,38 @@
       (zip/edit (comp clj->sjacket symbol fn str sjacket->clj ))
       zip/root))
 
-(defn- update-setting [proj [p & ath] fn]
-  (let [loc (or (cond (keyword? p) (-> proj (find-key p) next-value)
-                      (symbol? p) (-> proj (find-dependency-version p))
-                      :else (throw (Exception. (format "Invalid update-setting path component: %s" (pr-str p)))))
-                (-> proj
-                    zip/rightmost
-                    (insert-entry p)
-                    (insert-entry {})
-                    zip/left))]
+(defn- get-datatype [loc]
+  (let [node (->> loc 
+                  (iterate zip/right)
+                  (take-while (comp not nil?))
+                  (remove insignificant?)
+                  (filter (comp #{:string :map :vector} :tag zip/node))
+                  first
+                  zip/node)]
+    (:tag node)))
+
+(defn- update-setting [proj datatype [p & ath] fn]
+  (let [loc (or (case datatype
+                  :map (-> proj (find-key p) next-value)
+                  :vector (find-dependency-version proj (symbol (namespace p) (name p)))
+                  proj)
+                (case datatype
+                  :map (-> proj
+                           zip/rightmost
+                           (insert-entry p)
+                           (insert-entry {})
+                           zip/left)
+                  :vector (-> proj
+                              zip/rightmost
+                              (insert-entry [(symbol (namespace p) (name p)) ""])
+                              zip/left
+                              zip/down
+                              zip/right
+                              zip/right
+                              zip/right
+                              )))]
     (if-not (empty? ath)
-      (recur (-> loc zip/down zip/right) ath fn)
+      (recur (-> loc zip/down zip/right) (get-datatype loc) ath fn)
       (zip/root
        (zip/edit loc (comp clj->sjacket fn sjacket->clj))))))
 
@@ -197,7 +208,7 @@ well as turning string args into Clojure data; this function handles the rest."
                                           (f (get-artifact-id %)) %))
        ;; moving to the right to move past defproject to get nice key-value
        ;; pairs whitespaces and project name and version are filtered out later
-       (update-setting (zip/right proj) path f)))))
+       (update-setting (zip/right proj) :map path f)))))
 
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
@@ -223,7 +234,7 @@ applying a function to the original value:
 To update the version of a dependency in a :dependencies or :managed-dependencies
 vector, use this:
 
-    $ lein change :dependencies[org.clojure/clojure] set '\"1.10.1\"'
+    $ lein change :dependencies:org.clojure/clojure set '\"1.10.1\"'
 
 All the arguments to f are passed through the reader, so double quoting is
 necessary to use strings. Note that this task reads the project.clj file
