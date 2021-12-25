@@ -23,9 +23,7 @@
 (defn- sjacket->clj [value]
   (if-not (or (#{:comment :whitespace :newline} (:tag value))
               (#{"]" "}"} value))
-    (try (-> value sj/str-pt read-string)
-         (catch Exception e 
-           (throw e))) ))
+    (-> value sj/str-pt read-string)))
 
 (defn ^:internal normalize-path [value]
   (if (coll? value) 
@@ -83,10 +81,10 @@
 
 (defn- find-right [loc pred]
   (->> loc
-       (iterate zip/right)
-       (take-while (comp not nil?))
-       (filter (comp pred zip/node))
-       first))
+      (iterate zip/right)
+      (take-while (comp not nil?))
+      (filter (comp pred zip/node))
+      first))
 
 (defn- find-dependency-version [loc groupid-artifactid]
   "Find the entry in a vector of dependencies or managed dependencies whose first element
@@ -163,26 +161,31 @@
                   zip/node)]
     (:tag node)))
 
+(defmulti ^:private get-loc-for-key (fn [node datatype p] datatype))
+
+(defmethod get-loc-for-key :map [node datatype p]
+  (or (-> node 
+          (find-key p)
+          next-value)
+      (-> node
+          zip/rightmost
+          (insert-entry p)
+          (insert-entry {})
+          zip/left)))
+
+(defmethod get-loc-for-key :vector [node datatype p]
+  (or (find-dependency-version node (symbol (namespace p) (name p)))
+      (-> node
+          zip/rightmost
+          (insert-entry [(symbol (namespace p) (name p)) ""])
+          zip/left
+          zip/down
+          zip/right
+          zip/right
+          zip/right)))
+
 (defn- update-setting [proj datatype [p & ath] fn]
-  (let [loc (or (case datatype
-                  :map (-> proj (find-key p) next-value)
-                  :vector (find-dependency-version proj (symbol (namespace p) (name p)))
-                  proj)
-                (case datatype
-                  :map (-> proj
-                           zip/rightmost
-                           (insert-entry p)
-                           (insert-entry {})
-                           zip/left)
-                  :vector (-> proj
-                              zip/rightmost
-                              (insert-entry [(symbol (namespace p) (name p)) ""])
-                              zip/left
-                              zip/down
-                              zip/right
-                              zip/right
-                              zip/right
-                              )))]
+  (let [loc (get-loc-for-key proj datatype p)]
     (if-not (empty? ath)
       (recur (-> loc zip/down zip/right) (get-datatype loc) ath fn)
       (zip/root
@@ -213,9 +216,8 @@ well as turning string args into Clojure data; this function handles the rest."
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
 
-The first argument should be a keyword,  mashed-together keywords for
-nested values, or keyword(s) separated by : and ending in a symbol enclosed in square braces,
-indicating which value to change). The second argument
+The first argument should be a keyword,  or mashed-together keywords for
+nested values indicating which value to change). The second argument
 should name a function var which will be called with the current value
 as its first argument and the remaining task arguments as the rest.
 
