@@ -21,7 +21,8 @@
 
 ;; NOTE: this destroy comments, formatting, etc.
 (defn- sjacket->clj [value]
-  (if-not (#{:comment :whitespace :newline} (:tag value))
+  (if-not (or (#{:comment :whitespace :newline} (:tag value))
+              (#{"]" "}"} value))
     (-> value sj/str-pt read-string)))
 
 (defn ^:internal normalize-path [value]
@@ -85,6 +86,23 @@
       (filter (comp pred zip/node))
       first))
 
+(defn- find-dependency-version [loc groupid-artifactid]
+  "Find the entry in a vector of dependencies or managed dependencies 
+   whose first element matches the symbol bound to groupid-artifactid.  
+   Return the loc of the first string in that entry, which we assume
+   to be a version number."
+  (if-let [dependency (->> loc
+                           (iterate zip/right)
+                           (take-while (comp not nil?))
+                           (remove insignificant?)
+                           (filter (comp #{groupid-artifactid} 
+                                         first
+                                         sjacket->clj
+                                         first))
+                           first)]
+    (-> dependency zip/down (find-right (comp #{:string} :tag)))
+    nil))
+
 (defn- find-key [loc key]
   (->> loc
        (iterate zip/right)
@@ -102,6 +120,17 @@
        (drop 1)
        (remove insignificant?)
        first))
+
+(defn- get-datatype [loc]
+  "Get the datatype (e.g., :vector, :map) of the object at loc"
+  (let [node (->> loc 
+                  (iterate zip/right)
+                  (take-while (comp not nil?))
+                  (remove insignificant?)
+                  (filter (comp #{:string :map :vector} :tag zip/node))
+                  first
+                  zip/node)]
+    (:tag node)))
 
 (defn- parse-project [project-str]
   (-> (parser/parser project-str)
@@ -125,6 +154,7 @@
       (zip/edit (comp clj->sjacket fn sjacket->clj))
       zip/root))
 
+
 (defn- update-name [proj fn]
   (-> proj
       zip/right
@@ -133,15 +163,37 @@
       (zip/edit (comp clj->sjacket symbol fn str sjacket->clj ))
       zip/root))
 
-(defn- update-setting [proj [p & ath] fn]
-  (let [loc (or (-> proj (find-key p) next-value)
-                (-> proj
-                    zip/rightmost
-                    (insert-entry p)
-                    (insert-entry {})
-                    zip/left))]
+(defmulti ^:private get-loc-for-key 
+  "Given a node in the sjacket DOM with a known datatype (:map, :vector), 
+   return the next node in the traversal with key p."
+  (fn [node datatype p] datatype))
+
+(defmethod get-loc-for-key :map [node datatype p]
+  (or (-> node 
+          (find-key p)
+          next-value)
+      (-> node
+          zip/rightmost
+          (insert-entry p)
+          (insert-entry {})
+          zip/left)))
+
+(defmethod get-loc-for-key :vector [node datatype p]
+  (or (find-dependency-version node (symbol (namespace p) (name p)))
+      (-> node
+          zip/rightmost
+          (insert-entry [(symbol (namespace p) (name p)) ""])
+          zip/left
+          zip/down
+          zip/right
+          zip/right
+          zip/right)))
+
+
+(defn- update-setting [proj datatype [p & ath] fn]
+  (let [loc (get-loc-for-key proj datatype p)]
     (if-not (empty? ath)
-      (recur (-> loc zip/down zip/right) ath fn)
+      (recur (-> loc zip/down zip/right) (get-datatype loc) ath fn)
       (zip/root
        (zip/edit loc (comp clj->sjacket fn sjacket->clj))))))
 
@@ -165,12 +217,12 @@ well as turning string args into Clojure data; this function handles the rest."
                                           (f (get-artifact-id %)) %))
        ;; moving to the right to move past defproject to get nice key-value
        ;; pairs whitespaces and project name and version are filtered out later
-       (update-setting (zip/right proj) path f)))))
+       (update-setting (zip/right proj) :map path f)))))
 
 (defn change
   "Rewrite project.clj with f applied to the value at key-or-path.
 
-The first argument should be a keyword (or mashed-together keywords for
+The first argument should be a keyword,  or mashed-together keywords for
 nested values indicating which value to change). The second argument
 should name a function var which will be called with the current value
 as its first argument and the remaining task arguments as the rest.
@@ -186,6 +238,11 @@ Using set as the function argument will set the key directly, rather than
 applying a function to the original value:
 
     $ lein change version set '\"1.0.0\"'
+
+To update the version of a dependency in a :dependencies or 
+:managed-dependencies vector, use this:
+
+    $ lein change :dependencies:org.clojure/clojure set '\"1.10.1\"'
 
 All the arguments to f are passed through the reader, so double quoting is
 necessary to use strings. Note that this task reads the project.clj file
