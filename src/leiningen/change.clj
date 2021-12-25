@@ -26,7 +26,7 @@
     (-> value sj/str-pt read-string)))
 
 (defn ^:internal normalize-path [value]
-  (if (coll? value) 
+  (if (coll? value)
     value
     (map keyword (remove empty? (str/split value #":")))))
 
