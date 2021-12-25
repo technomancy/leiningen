@@ -87,9 +87,10 @@
       first))
 
 (defn- find-dependency-version [loc groupid-artifactid]
-  "Find the entry in a vector of dependencies or managed dependencies whose first element
-   matches the symbol bound to groupid-artifactid.  Return the loc of the first string
-   in that entry, which we assume to be a version number."
+  "Find the entry in a vector of dependencies or managed dependencies 
+   whose first element matches the symbol bound to groupid-artifactid.  
+   Return the loc of the first string in that entry, which we assume
+   to be a version number."
   (if-let [dependency (->> loc
                            (iterate zip/right)
                            (take-while (comp not nil?))
@@ -119,6 +120,17 @@
        (drop 1)
        (remove insignificant?)
        first))
+
+(defn- get-datatype [loc]
+  "Get the datatype (e.g., :vector, :map) of the object at loc"
+  (let [node (->> loc 
+                  (iterate zip/right)
+                  (take-while (comp not nil?))
+                  (remove insignificant?)
+                  (filter (comp #{:string :map :vector} :tag zip/node))
+                  first
+                  zip/node)]
+    (:tag node)))
 
 (defn- parse-project [project-str]
   (-> (parser/parser project-str)
@@ -151,17 +163,10 @@
       (zip/edit (comp clj->sjacket symbol fn str sjacket->clj ))
       zip/root))
 
-(defn- get-datatype [loc]
-  (let [node (->> loc 
-                  (iterate zip/right)
-                  (take-while (comp not nil?))
-                  (remove insignificant?)
-                  (filter (comp #{:string :map :vector} :tag zip/node))
-                  first
-                  zip/node)]
-    (:tag node)))
-
-(defmulti ^:private get-loc-for-key (fn [node datatype p] datatype))
+(defmulti ^:private get-loc-for-key 
+  "Given a node in the sjacket DOM with a known datatype (:map, :vector), 
+   return the next node in the traversal with key p."
+  (fn [node datatype p] datatype))
 
 (defmethod get-loc-for-key :map [node datatype p]
   (or (-> node 
@@ -183,6 +188,7 @@
           zip/right
           zip/right
           zip/right)))
+
 
 (defn- update-setting [proj datatype [p & ath] fn]
   (let [loc (get-loc-for-key proj datatype p)]
@@ -233,8 +239,8 @@ applying a function to the original value:
 
     $ lein change version set '\"1.0.0\"'
 
-To update the version of a dependency in a :dependencies or :managed-dependencies
-vector, use this:
+To update the version of a dependency in a :dependencies or 
+:managed-dependencies vector, use this:
 
     $ lein change :dependencies:org.clojure/clojure set '\"1.10.1\"'
 
