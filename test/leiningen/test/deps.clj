@@ -1,16 +1,28 @@
 (ns leiningen.test.deps
-  (:use [clojure.test]
-        [leiningen.deps]
-        [leiningen.test.helper :only [sample-project m2-dir m2-file native-project
-                                      managed-deps-project
-                                      delete-file-recursively]])
-  (:require [clojure.java.io :as io]
+  (:require [clojure.test :refer :all]
+            [leiningen.deps :refer :all]
+            [leiningen.test.helper :refer [sample-project m2-dir
+                                           m2-file
+                                           native-project
+                                           managed-deps-project
+                                           with-system-out-str
+                                           with-system-err-str
+                                           delete-file-recursively]]
+            [clojure.java.io :as io]
             [leiningen.core.utils :as utils]
             [leiningen.core.user :as user]
             [leiningen.core.eval :as eval]
+            [leiningen.core.main :as main]
             [leiningen.core.classpath :as classpath]
             [cemerick.pomegranate.aether :as aether]
             [leiningen.core.project :as project]))
+
+(defn- set-gpg-home [f]
+  (binding [user/*gpg-home* "test/.gnupg"
+            main/*info* false]
+    (f)))
+
+(use-fixtures :once set-gpg-home)
 
 (deftest ^:online test-deps
   (let [sample-deps [["rome" "0.9"] ["jdom" "1.0"]]]
@@ -216,14 +228,20 @@
   (let [project (-> sample-project
                     (update :repositories (fn [repos]
                                             (remove #(= "other" (first %)) repos)))
-                    (update :dependencies #(take 2 %))
+                    (assoc :dependencies '[[org.clojure/clojure "1.10.3"]
+                                           [rome "0.9"]
+                                           [ring "1.0.0"]])
+                    (assoc :key-server "hkps://keyserver.ubuntu.com")
                     (assoc :checksum :ignore))
         _ (deps project)
-        out (with-out-str (deps project ":verify"))]
-    (doseq [[dep signed] '{[org.clojure/clojure "1.3.0"] :signed
+        out (with-out-str
+              (with-system-err-str
+                (deps project ":verify")))]
+    (doseq [[dep signed] '{[org.clojure/clojure "1.10.3"] :signed
                            [rome "0.9"] :unsigned
                            [jdom "1.0"] :unsigned}]
-      (is (.contains out (pr-str signed dep))))))
+      (is (.contains out (pr-str signed dep))
+          (str "missing " dep)))))
 
 (deftest ^:online test-opengpg-org-server
   ;; https://keys.openpgp.org/about/faq#older-gnupg
@@ -235,13 +253,15 @@
                       (update :dependencies #(conj (take 2 %)
                                                    '[commons-io  "2.8.0"]))
                       (assoc :checksum :ignore))
-          _ (deps project)
+          _ (with-system-out-str
+              (deps project))
           out (with-out-str
-                ;; so that GNUPGHOME can be set to `test/.gnupg`
-                (with-redefs [user/gpg-program (constantly "test/.gnupg/gpg.sh")]
-                  (deps project ":verify")))]
+                (with-system-out-str
+                  (with-system-err-str
+                    (deps project ":verify"))))]
       (doseq [[dep signed] '{[org.clojure/clojure "1.3.0"] :signed
                              [commons-io "2.8.0"] :no-key
                              [rome "0.9"] :unsigned
                              [jdom "1.0"] :unsigned}]
-        (is (.contains out (pr-str signed dep)))))))
+        (is (.contains out (pr-str signed dep))
+            (str "missing " dep))))))

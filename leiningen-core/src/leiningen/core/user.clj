@@ -93,16 +93,20 @@
   []
   (or (getenv "LEIN_GPG") "gpg"))
 
+(def ^:dynamic *gpg-home* (System/getenv "GNUPGHOME"))
+
 (defn- get-english-env
   "Returns env vars as a map with clojure keywords and LANGUAGE set to 'en'"
   []
   (let [env (System/getenv)]
     (assoc (zipmap (map keyword (keys env)) (vals env))
-           :LANGUAGE "en")))
+           :LANGUAGE "en"
+           :GNUPGHOME *gpg-home*)))
 
 (defn- as-env-strings
   [env]
-  (into-array String (map (fn [[k v]] (str (name k) "=" v)) env)))
+  (into-array String (map (fn [[k v]] (str (name k) "=" v))
+                          (remove #(nil? (val %)) env))))
 
 (defn gpg
   "Shells out to (gpg-program) with the given arguments"

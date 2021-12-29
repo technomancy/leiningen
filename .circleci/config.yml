@@ -30,8 +30,6 @@ jobs:
           command: lein bootstrap
       - run:
           name: Test Leiningen
-          environment:
-            GNUPGHOME: test/.gnupg
           command: bin/lein test
       - run:
           name: Test lein-pprint

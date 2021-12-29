@@ -45,9 +45,8 @@
           (re-find #"Can't check signature: No public key" err))
     (let [key (second (re-find #"using \w+ key(?: ID)? (.+)" err))
           {:keys [err exit]} (user/gpg "--recv-keys" "--" key)]
-      (if (and
-           (zero? exit)
-           (not (re-find #"new key but contains no user ID - skipped" err)))
+      (if (and (zero? exit)
+               (not (re-find #"new key but contains no user ID - skipped" err)))
         (check-signature signature)
         :no-key))
     :bad-signature))
