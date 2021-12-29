@@ -15,7 +15,8 @@
            (java.util.zip ZipFile)))
 
 (deftest test-uberjar
-  (uberjar sample-no-aot-project)
+  (with-out-str
+    (uberjar sample-no-aot-project))
   (let [filename (str "test_projects/sample-no-aot/target/"
                       "nomnomnom-0.5.0-SNAPSHOT-standalone.jar")
         uberjar-file (File. filename)]
@@ -32,7 +33,8 @@
         (is (not (some #(re-find #"dummy" %) entries)))))))
 
 (deftest test-uberjar-merge-with
-  (uberjar uberjar-merging-project)
+  (with-out-str
+    (uberjar uberjar-merging-project))
   (let [filename (str "test_projects/uberjar-merging/target/"
                       "nomnomnom-0.5.0-SNAPSHOT-standalone.jar")
         uberjar-file (File. filename)]
@@ -50,7 +52,8 @@
                     slurp read-string)))))))
 
 (deftest test-uberjar-data-readers-backwards-compatibility
-  (uberjar data-readers-backwards-compatibility-project)
+  (with-out-str
+    (uberjar data-readers-backwards-compatibility-project))
   (let [filename (str "test_projects/data-readers-backwards-compatibility/"
                       "target/bug-bug-standalone.jar")
         uberjar-file (File. filename)]
@@ -83,8 +86,9 @@
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided
   (let [bootclasspath "-Xbootclasspath/a:leiningen-core/lib/clojure-1.4.0.jar"
-        filename "test_projects/provided/target/provided-0-standalone.jar"
-        _ (uberjar provided-project)]
+        filename "test_projects/provided/target/provided-0-standalone.jar"]
+    (with-out-str
+      (uberjar provided-project))
     (is (= 1 (:exit (sh "java" "-jar" filename))))
     (is (= 0 (:exit (sh "java" bootclasspath "-jar" filename))))))
 
@@ -97,7 +101,8 @@
                           [managed-deps-project
                            (str "test_projects/managed-deps/target/"
                                 "mgmt-0.99.0-standalone.jar")]]]
-    (uberjar proj)
+    (with-out-str
+      (uberjar proj))
     (let [uberjar-file (File. jarfile)]
       (is (= true (.exists uberjar-file))
           (format "File '%s' does not exist!" uberjar-file)))))

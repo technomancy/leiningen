@@ -295,7 +295,7 @@
     (-> (bound-fn []
           (binding [eval/*pump-in* false]
             (let [[evals requires]
-                  (server-forms project cfg ack-port headless?)]
+                  (server-forms project cfg ack-port (and headless? main/*info*))]
               (try
                 (eval/eval-in-project project
                                       `(do ~(ignore-sigint-form) ~evals)

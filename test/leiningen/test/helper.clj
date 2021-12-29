@@ -2,6 +2,7 @@
   (:require [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
+            [leiningen.core.main :as main]
             [leiningen.core.test.helper :as helper]
             [clojure.java.io :as io]
             [clojure.string :as str]))
@@ -36,7 +37,8 @@
 
 (def with-aliases-project (read-test-project "with-aliases"))
 
-(def with-aliases2-project (read-test-project "with-aliases2"))
+(def with-aliases2-project (binding [main/*info* false]
+                             (read-test-project "with-aliases2")))
 
 (def sample-project (read-test-project "sample"))
 

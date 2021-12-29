@@ -5,9 +5,9 @@
             [leiningen.test.helper :as helper
              :refer [bad-require-project tmp-dir tricky-name-project
                      java-main-project file-not-found-thrower-project
-                     with-system-out-str with-system-err-str]])
-  (:use [clojure.test]
-        [leiningen.run]))
+                     with-system-out-str with-system-err-str]]
+            [clojure.test :refer :all]
+            [leiningen.run :refer :all]))
 
 (def out-file (format "%s/lein-test" tmp-dir))
 

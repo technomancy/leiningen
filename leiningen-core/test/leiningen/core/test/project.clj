@@ -55,7 +55,8 @@
                               ["clojars" {:url "https://repo.clojars.org/"}]]})
 
 (deftest test-read-project
-  (let [actual (read (.getFile (io/resource "p1.clj")))]
+  (let [actual (binding [*err* (java.io.StringWriter.)]
+                 (read (.getFile (io/resource "p1.clj"))))]
     (doseq [[k v] expected]
       (is (= v (k actual))))
     (doseq [[k path] paths
@@ -431,7 +432,8 @@
   (is (= 7 (:seven (init-project (read (.getFile (io/resource "p5.clj"))))))))
 
 (deftest test-checkouts
-  (let [project (read (.getFile (io/resource "p1.clj")))]
+  (let [project (binding [*err* (java.io.StringWriter.)]
+                  (read (.getFile (io/resource "p1.clj"))))]
     (is (= #{"checkout-lib1" "checkout-lib2"} (set (map :name (read-checkouts project)))))))
 
 (deftest test-activate-middleware

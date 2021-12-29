@@ -9,7 +9,8 @@
 
 (deftest read-profiles
   (testing "Empty profile file"
-    (is (nil? (utils/read-file (io/file (str profiles "profiles-empty.clj"))))))
+    (is (nil? (with-redefs [println (constantly nil)]
+                (utils/read-file (io/file (str profiles "profiles-empty.clj")))))))
   (testing "Non-empty profile file"
     (is (= (utils/read-file (io/file (str profiles "profiles.clj"))) sample-profile))))
 

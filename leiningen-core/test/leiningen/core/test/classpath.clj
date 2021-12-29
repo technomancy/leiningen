@@ -4,6 +4,7 @@
   (:require [clojure.java.io :as io]
             [clojure.stacktrace :as stacktrace]
             [leiningen.core.user :as user]
+            [leiningen.core.main :as main]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.project :as project])
   (:import (java.io File)))
@@ -44,13 +45,15 @@
   (testing "checks certificate expiry"
     (is (instance? java.security.cert.CertificateExpiredException
                    (try
-                     (resolve-with-repo "https://expired.badssl.com/")
+                     (binding [main/*info* false]
+                       (resolve-with-repo "https://expired.badssl.com/"))
                      (catch Exception e
                        (stacktrace/root-cause e))))))
   (testing "checks for host of cert"
     (is (instance? javax.net.ssl.SSLPeerUnverifiedException
                    (try
-                     (resolve-with-repo "https://badssl.f5n.de/")
+                     (binding [main/*info* false]
+                       (resolve-with-repo "https://badssl.f5n.de/"))
                      (catch Exception e
                        (stacktrace/root-cause e))))))
   (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")

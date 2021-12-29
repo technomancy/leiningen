@@ -1,8 +1,10 @@
 (ns leiningen.test.repl
   (:require [clojure.test :refer :all]
             [leiningen.repl :refer :all]
-            [leiningen.test.helper :as lthelper]
-            (leiningen.core [user :as user] [project :as project])
+            [leiningen.test.helper :as helper]
+            [leiningen.core.user :as user]
+            [leiningen.core.project :as project]
+            [leiningen.core.main :as main]
             [nrepl.ack :as ack]))
 
 (deftest test-merge-repl-profile
@@ -100,30 +102,30 @@
     (are [in proj]
          (is (re-find
               #"Port is required"
-              (lthelper/abort-msg connect-string proj in)))
+              (helper/abort-msg connect-string proj in)))
          ["foo1234"]               {:root "/tmp"}
          []                        {:root "/tmp"}
-         []                        lthelper/with-resources-project)
+         []                        helper/with-resources-project)
     (are [in proj]
          (is (re-find
               #"The file '.+' can't be read."
-              (lthelper/abort-msg connect-string proj in)))
+              (helper/abort-msg connect-string proj in)))
          ["@/tmp/please-do-not-create-this-file-it-will-break-my-test"] {}))
-  (is (= "myhost:23" (connect-string lthelper/sample-project ["@test/sample-connect-string"])))
-  (is (= "http://localhost:23/repl" (connect-string lthelper/sample-project ["@test/sample-connect-string-http"])))
+  (is (= "myhost:23" (connect-string helper/sample-project ["@test/sample-connect-string"])))
+  (is (= "http://localhost:23/repl" (connect-string helper/sample-project ["@test/sample-connect-string-http"])))
 
-  (is (= "127.0.0.1:4242" (connect-string lthelper/sample-project [])))
-  (is (= "127.0.0.1:4343" (connect-string lthelper/sample-project ["4343"])))
-  (is (= "127.0.0.1:4242" (connect-string lthelper/with-resources-project ["4242"]))))
+  (is (= "127.0.0.1:4242" (connect-string helper/sample-project [])))
+  (is (= "127.0.0.1:4343" (connect-string helper/sample-project ["4343"])))
+  (is (= "127.0.0.1:4242" (connect-string helper/with-resources-project ["4242"]))))
 
 (deftest test-options-for-reply
-  (is (= (lthelper/fix-path-delimiters "/home/user/.lein-repl-history")
+  (is (= (helper/fix-path-delimiters "/home/user/.lein-repl-history")
          (:history-file (options-for-reply {:root "/home/user"}))))
   (let [prompt-fn (fn [ns] "hi ")]
     (are
      [in exp]
      (= (merge
-         {:history-file (lthelper/pathify
+         {:history-file (helper/pathify
                           (str (user/leiningen-home) "/repl-history"))
           :custom-help (list 'println (slurp (clojure.java.io/resource
                                                "repl-welcome")))
@@ -152,21 +154,22 @@
          main 'some.ns
          repl-opts 'init-ns)))
 
-(defn- mocked-repl
-  [& args]
+(defn- mocked-repl [& args]
   (with-redefs [ack/wait-for-ack (constantly 9999)
                 resolve-reply-launch-nrepl (constantly identity)]
-    (apply repl args)))
+    (binding [main/*info* false]
+      (apply repl args))))
 
 (deftest test-scheme
-  (is (= {:attach "9999" :scheme "nrepl"}
-         (-> (mocked-repl lthelper/sample-project)
-             (select-keys [:attach :scheme]))))
-  (is (= {:attach "9999" :scheme "nrepl"}
-         (-> (mocked-repl lthelper/sample-project ":start"
-                          ":transport" 'nrepl.transport/bencode)
-             (select-keys [:attach :scheme]))))
-  (is (= {:attach "9999" :scheme "nrepl+edn"}
-         (-> (mocked-repl lthelper/sample-project ":start"
-                          ":transport" 'nrepl.transport/edn)
-             (select-keys [:attach :scheme])))))
+  (let [project helper/sample-ordered-aot-project]
+    (is (= {:attach "9999" :scheme "nrepl"}
+           (-> (mocked-repl project)
+               (select-keys [:attach :scheme]))))
+    (is (= {:attach "9999" :scheme "nrepl"}
+           (-> (mocked-repl project ":start"
+                            ":transport" 'nrepl.transport/bencode)
+               (select-keys [:attach :scheme]))))
+    (is (= {:attach "9999" :scheme "nrepl+edn"}
+           (-> (mocked-repl project ":start"
+                            ":transport" 'nrepl.transport/edn)
+               (select-keys [:attach :scheme]))))))

@@ -1,14 +1,16 @@
 (ns leiningen.test.jar
-  (:require [clojure.java.io :as io]
+  (:require [clojure.test :refer :all]
+            [leiningen.jar :refer :all]
+            [clojure.java.io :as io]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]
             [leiningen.core.utils :refer [platform-nullsink]]
             [leiningen.test.helper :as helper]
             [robert.hooke :as hooke]
             [leiningen.javac :as javac]
-            [leiningen.test.helper :refer [unmemoize]])
-  (:use [clojure.test]
-        [leiningen.jar]))
+            [leiningen.test.helper :refer [unmemoize
+                                           with-system-out-str
+                                           with-system-err-str]]))
 
 (def long-line
   (apply str (repeat 10000 "a")))
@@ -64,8 +66,10 @@
                  set))))))
 
 (deftest test-jar-fails
-  (binding [*err* (java.io.PrintWriter. (platform-nullsink))]
-    (is (thrown? Exception (jar helper/sample-failing-project)))))
+  (binding [*err* (java.io.StringWriter.)]
+    (with-system-out-str
+      (with-system-err-str
+        (is (thrown? Exception (jar helper/sample-failing-project)))))))
 
 (deftest test-directory-entries-added-to-jar
   (with-out-str
@@ -91,8 +95,9 @@
 (deftest test-classifier-jar-succeeds
   (is (= 1 (count (:classifiers helper/with-classifiers-project)))
       "test project has a classifier")
-  (is (= 1 (count (classifier-jars helper/with-classifiers-project nil)))
-      "test project produces a classifier jar")
+  (with-out-str
+    (is (= 1 (count (classifier-jars helper/with-classifiers-project nil)))
+        "test project produces a classifier jar"))
   (with-out-str
     (is (jar helper/with-classifiers-project)
         "jar runs correctly")
@@ -102,11 +107,12 @@
 (deftest ^:online test-no-deps-jar
   (unmemoize #'leiningen.core.classpath/get-dependencies-memoized
              #'leiningen.core.classpath/get-dependencies*)
-  (let [[coord jar-file] (first
-                          (jar (dissoc helper/sample-project
-                                       :dependencies :main)))]
-    (is (.exists (io/file jar-file)))
-    (is (= coord [:extension "jar"]))))
+  (binding [main/*info* false]
+    (let [[coord jar-file] (first
+                            (jar (dissoc helper/sample-project
+                                         :dependencies :main)))]
+      (is (.exists (io/file jar-file)))
+      (is (= coord [:extension "jar"])))))
 
 (deftest overlapped-paths
   (let [info-logs (atom [])]
@@ -162,9 +168,11 @@
                                (reset! javac-project new-project)
                                new-project))]
     (hooke/with-scope
-     (hooke/add-hook #'javac/javac-project-for-subprocess javac-project-hook)
-     (jar orig-project)
-     (is (= (:local-repo orig-project)
-            (:local-repo @javac-project)))
-     (is (= (:mirrors orig-project)
-            (:mirrors @javac-project))))))
+      (hooke/add-hook #'javac/javac-project-for-subprocess javac-project-hook)
+      (with-out-str
+        (binding [main/*info* false]
+          (jar orig-project)))
+      (is (= (:local-repo orig-project)
+             (:local-repo @javac-project)))
+      (is (= (:mirrors orig-project)
+             (:mirrors @javac-project))))))

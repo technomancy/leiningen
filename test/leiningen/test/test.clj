@@ -8,7 +8,8 @@
                                            sample-reader-cond-project
                                            sample-failing-project
                                            sample-fixture-error-project
-                                           with-system-err-str]]
+                                           with-system-err-str
+                                           with-system-out-str]]
             [clojure.java.io :as io]
             [leiningen.core.main :as main]
             [leiningen.core.project :as project]))
@@ -115,5 +116,6 @@
                                         (.getMessage e))))))))
 
 (deftest test-catch-fixture-errors
-  (test sample-fixture-error-project)
+  (with-system-out-str
+    (test sample-fixture-error-project))
   (is (= (ran?) #{:test-a :test-c})))

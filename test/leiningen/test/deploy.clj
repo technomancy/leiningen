@@ -1,10 +1,16 @@
 (ns leiningen.test.deploy
-  (:use [clojure.test]
-        [clojure.java.io :only [file]]
-        [leiningen.deploy]
-        [leiningen.test.helper :only [delete-file-recursively
-                                      tmp-dir sample-project
-                                      sample-deploy-project]]))
+  (:require [clojure.java.io :as io]
+            [clojure.test :refer :all]
+            [leiningen.deploy :refer :all]
+            [leiningen.core.main :as main]
+            [leiningen.test.helper :refer [delete-file-recursively
+                                           tmp-dir
+                                           sample-project
+                                           sample-deploy-project
+                                           with-system-err-str
+                                           with-system-out-str]]))
+
+(use-fixtures :once (fn [f] (binding [main/*info* false] (f))))
 
 (defn- repo-path
   [relative-repo-path]
@@ -21,10 +27,11 @@
   (let [repo-path (repo-path relative-repo-path)
         repo-url (repo-url repo-path)]
     (delete-file-recursively repo-path :silently)
-    (deploy project (if explicit-deploy-repo?
-                      repo-url
-                      "snapshots"))
-    (let [dir (file repo-path "nomnomnom/nomnomnom/0.5.0-SNAPSHOT/")
+    (with-out-str
+      (deploy project (if explicit-deploy-repo?
+                        repo-url
+                        "snapshots")))
+    (let [dir (io/file repo-path "nomnomnom/nomnomnom/0.5.0-SNAPSHOT/")
           files (.list dir)]
       (is (seq files))
       ;; TODO: this is vulnerable to the y3k bug!
@@ -53,11 +60,12 @@
                             :deploy-repositories
                             {"snapshots" {:url (repo-url deploy-dir)}})]
       (delete-file-recursively deploy-dir :silently)
-      (deploy project "snapshots"
-              "deploy-me/deploy-me"
-              (:version project)
-              (str (:root project) "/deploy-me-0.1.0-SNAPSHOT-fat.jarr"))
-      (let [dir (file deploy-dir "deploy-me/deploy-me/0.1.0-SNAPSHOT/")
+      (with-out-str
+        (deploy project "snapshots"
+                "deploy-me/deploy-me"
+                (:version project)
+                (str (:root project) "/deploy-me-0.1.0-SNAPSHOT-fat.jarr")))
+      (let [dir (io/file deploy-dir "deploy-me/deploy-me/0.1.0-SNAPSHOT/")
             files (.list dir)]
         (is (seq (filter #(re-find #"deploy-me-0.1.0-[\d.]+-\d+-fat.jarr$" %) files)))))))
 
@@ -81,9 +89,11 @@
 
 (deftest validate-input
   (testing "Fail if project data is missing"
-    (is (thrown? clojure.lang.ExceptionInfo (deploy nil))))
+    (is (thrown? clojure.lang.ExceptionInfo (binding [*err* (java.io.StringWriter.)]
+                                              (deploy nil)))))
   (testing "Fail if project data is missing"
-    (is (thrown? clojure.lang.ExceptionInfo (deploy nil "snapshots")))))
+    (is (thrown? clojure.lang.ExceptionInfo (binding [*err* (java.io.StringWriter.)]
+                                              (deploy nil "snapshots"))))))
 
 (deftest classifiying
   (are [expected version file] (= expected (classifier version file))
