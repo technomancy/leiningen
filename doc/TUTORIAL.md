@@ -315,11 +315,13 @@ The names of the symlinks don't matter: Leiningen just follows all of them to fi
     │   └── suchwow -> [link to /code/oss/suchwow]
     .
 
-Libraries located under the `checkouts` directory take precedence
-over libraries pulled from repositories, but this is not a replacement
-for listing the project in your main project's `:dependencies`; it
-simply supplements that for convenience. That is, given the above directory hierarchy,
-`project.clj` should contain something like:
+Libraries located under the `checkouts` directory take precedence over
+libraries pulled from repositories, but this is not a replacement for listing
+the project in your main project's `:dependencies`; it simply supplements
+that for convenience. The project in `:dependencies` must be able to be
+resolved, either from a remote repo or via `lein install` locally. That is,
+given the above directory hierarchy, `project.clj` should contain something
+like:
 
       :dependencies [[org.clojure/clojure "1.9.0"]
                      ...
