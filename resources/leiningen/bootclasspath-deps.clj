@@ -20,7 +20,7 @@
             (dissoc 'leiningen-core)
             (pp/pprint))))
 {
- clj-commons/pomegranate "1.2.0",
+ clj-commons/pomegranate "1.2.1",
  com.hypirion/io "0.3.1"
  commons-codec "1.15",
  commons-io "2.8.0",
@@ -41,9 +41,9 @@
  org.apache.maven.resolver/maven-resolver-transport-http "1.3.3",
  org.apache.maven.resolver/maven-resolver-transport-wagon "1.3.3",
  org.apache.maven.resolver/maven-resolver-util "1.3.3",
- org.apache.maven.wagon/wagon-http "3.3.2",
- org.apache.maven.wagon/wagon-http-shared "3.3.2",
- org.apache.maven.wagon/wagon-provider-api "3.3.2",
+ org.apache.maven.wagon/wagon-http "3.3.4",
+ org.apache.maven.wagon/wagon-http-shared "3.3.4",
+ org.apache.maven.wagon/wagon-provider-api "3.3.4",
  org.apache.maven/maven-artifact "3.6.1",
  org.apache.maven/maven-builder-support "3.6.1",
  org.apache.maven/maven-model "3.6.1",
@@ -51,10 +51,10 @@
  org.apache.maven/maven-repository-metadata "3.6.1",
  org.apache.maven/maven-resolver-provider "3.6.1",
  org.clojars.trptcolin/sjacket "0.1.1.1",
- org.clojure/core.specs.alpha "0.2.44",
+ org.clojure/core.specs.alpha "0.2.56",
  org.clojure/data.codec "0.1.0",
  org.clojure/data.xml "0.2.0-alpha5",
- org.clojure/spec.alpha "0.2.176",
+ org.clojure/spec.alpha "0.2.194",
  org.clojure/tools.macro "0.1.5",
  org.codehaus.plexus/plexus-interpolation "1.25",
  org.codehaus.plexus/plexus-utils "3.2.0",
