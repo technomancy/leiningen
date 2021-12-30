@@ -23,14 +23,16 @@ jobs:
       - checkout
       - restore_cache:
           key: leiningen-{{ checksum "project.clj" }}
-      - run: apt update -qq && apt install -y gnupg
+      - run: apt update -qq && apt install -y gnupg netcat
       - run:
           name: Bootstrap leiningen-core
           working_directory: ~/leiningen/leiningen-core
           command: lein bootstrap
       - run:
           name: Test Leiningen
-          command: bin/lein test
+          environment:
+            IRC_CHANNEL: "#leiningen"
+          command: bin/lein test || bin/irc.sh
       - run:
           name: Test lein-pprint
           working_directory: lein-pprint
