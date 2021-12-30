@@ -9,7 +9,7 @@
             [leiningen.test.helper
              :refer [sample-project sample-profile-meta-project
                      managed-deps-project managed-deps-snapshot-project
-                     with-pom-plugins-project]
+                     with-pom-plugins-project leaky-composite-project]
              :as lthelper]))
 
 (use-fixtures :once (fn [f]
@@ -529,3 +529,12 @@
                  [::pom/b
                   [::pom/c 2]
                   [::pom/d 3]]]]))))))
+
+(deftest composite-does-not-leak
+  (let [pom-file (io/file (:root leaky-composite-project) "pom.xml")]
+    (io/delete-file pom-file true)
+    (binding [main/*info* false]
+      (pom leaky-composite-project))
+    (let [contents (slurp pom-file)]
+      (is (re-find #"org.clojure" contents))
+      (is (not (re-find #"ring" contents))))))

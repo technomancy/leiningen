@@ -30,6 +30,7 @@ jobs:
           command: lein bootstrap
       - run:
           name: Test Leiningen
+            LEIN_SILENT: true
           command: bin/lein test
       - run:
           name: Test lein-pprint

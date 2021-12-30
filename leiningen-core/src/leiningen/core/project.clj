@@ -904,7 +904,9 @@
 (defn- apply-profile-meta [default-meta profile]
   (cond-> profile
     (or (map? profile)
-        (composite-profile? profile))
+        ;; this breaks removal of default profiles in uberjar:
+        ;; https://github.com/technomancy/leiningen/issues/2721
+        #_(composite-profile? profile))
     (vary-meta (fn [m] (merge default-meta m)))
     (map? profile) set-dependencies-pom-scope))
 

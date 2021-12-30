@@ -90,6 +90,8 @@
 
 (def lein-test-exit-code-project (read-test-project "lein-test-exit-code"))
 
+(def leaky-composite-project (read-test-project "leaky-composite"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."

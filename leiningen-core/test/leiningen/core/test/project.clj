@@ -503,7 +503,9 @@
          (-> (init-project
               {:profiles {:repl {:a {:A 1}}}})
              (profiles-with-matching-meta :repl))))
-  (is (= [:repl]
+  ;; Disabled until we can sort out issues with default profiles in uberjars.
+  ;; https://github.com/technomancy/leiningen/issues/2721
+  #_(is (= [:repl]
          (-> (init-project
               {:profiles {:a {:A 1}
                           :repl [:a]}})
