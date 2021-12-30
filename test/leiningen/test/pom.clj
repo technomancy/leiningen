@@ -429,7 +429,8 @@
       (is (= [["0.4.5"]] versions)))))
 
 (deftest test-leaky-profile
-  (let [p (make-pom sample-profile-meta-project)
+  (let [p (binding [main/*info* false]
+            (make-pom sample-profile-meta-project))
         deps (deep-content (parse-xml p) [::pom/project ::pom/dependencies])
         t-m (filter #(re-find #"tools.macro" (pr-str %)) deps)
         j-c (filter #(re-find #"java.classpath" (pr-str %)) deps)
@@ -530,11 +531,10 @@
                   [::pom/c 2]
                   [::pom/d 3]]]]))))))
 
-(deftest composite-does-not-leak
-  (let [pom-file (io/file (:root leaky-composite-project) "pom.xml")]
-    (io/delete-file pom-file true)
-    (binding [main/*info* false]
-      (pom leaky-composite-project))
-    (let [contents (slurp pom-file)]
-      (is (re-find #"org.clojure" contents))
-      (is (not (re-find #"ring" contents))))))
+(deftest composite-dev-profile-sets-scope
+  (let [xml (binding [main/*info* false]
+              (parse-xml (make-pom leaky-composite-project)))
+        scopes (map #(first-in % [::pom/dependency ::pom/scope])
+                    (deep-content xml [::pom/project
+                                       ::pom/dependencies]))]
+    (is (= [nil "test" "test"] scopes))))
