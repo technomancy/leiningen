@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.9 / ???
+
+* Fix a bug where composite profiles would leak dependencies downstream. (Phil Hagelberg)
+
 ## 2.9.8 / 2021-11-11
 
 * Fix a bug where certain deep dependency trees would overflow stack. (Phil Hagelberg)
