@@ -1,8 +1,8 @@
 (ns leiningen.core.test.project
   (:refer-clojure :exclude [read])
-  (:use [clojure.test]
-        [leiningen.core.project :as project])
-  (:require [leiningen.core.user :as user]
+  (:require [clojure.test :refer :all]
+            [leiningen.core.project :refer :all :as project]
+            [leiningen.core.user :as user]
             [leiningen.core.test.helper :refer [abort-msg]]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.utils :as utils]
@@ -503,9 +503,7 @@
          (-> (init-project
               {:profiles {:repl {:a {:A 1}}}})
              (profiles-with-matching-meta :repl))))
-  ;; Disabled until we can sort out issues with default profiles in uberjars.
-  ;; https://github.com/technomancy/leiningen/issues/2721
-  #_(is (= [:repl]
+  (is (= [:repl]
          (-> (init-project
               {:profiles {:a {:A 1}
                           :repl [:a]}})
@@ -641,3 +639,29 @@
       [:e :b :c :d] "target/e+bcd"
       [:c :a :b :d] "target/c+ab+d"
       [:a]          "target/a")))
+
+(deftest test-init-profiles
+  (let [profiles {:ring {:dependencies [['ring "1.8.2"]]}
+                  :dev  [:ring]
+                  :test {:dependencies [['clucy "1.0.0"]]}}
+        project (init-project {:dependencies '[[org.clojure/clojure "1.10.1"]]
+                               :profiles profiles}
+                              [:default])
+        result (init-profiles project [:dev :test])]
+    (is (= '[[org.clojure/clojure "1.10.1"]
+             [ring "1.8.2" :scope "test"]
+             [clucy "1.0.0" :scope "test"]]
+           (:dependencies result)))))
+
+(deftest test-unmerge-composite-profiles
+  (let [profiles {:ring {:dependencies [['ring "1.8.2"]]}
+                  :dev  [:ring]
+                  :test {:dependencies [['clucy "1.0.0"]]}}
+        project (init-project {:dependencies '[[org.clojure/clojure "1.10.1"]]
+                               :profiles profiles}
+                              [:default])
+        result (unmerge-profiles project [:system :base :provided :user])]
+    (is (= '[[org.clojure/clojure "1.10.1"]
+             [ring "1.8.2" :scope "test"]]
+           (:dependencies result)))))
+

@@ -902,13 +902,7 @@
     profile))
 
 (defn- apply-profile-meta [default-meta profile]
-  (cond-> profile
-    (or (map? profile)
-        ;; this breaks removal of default profiles in uberjar:
-        ;; https://github.com/technomancy/leiningen/issues/2721
-        #_(composite-profile? profile))
-    (vary-meta (fn [m] (merge default-meta m)))
-    (map? profile) set-dependencies-pom-scope))
+  (vary-meta profile (fn [m] (merge default-meta m))))
 
 (defn project-with-profiles
   ([project profiles]
@@ -932,14 +926,19 @@
         include-profiles-meta (->> (expand-profiles-with-meta
                                     project include-profiles)
                                    (utils/last-distinct-by first))
-        include-profiles (map first include-profiles-meta)
+        effective-include-profiles (map first include-profiles-meta)
         exclude-profiles (utils/last-distinct (expand-profiles project exclude-profiles))
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
-        profiles (map (partial lookup-profile profile-map) include-profiles)
-        normalized-profiles (map normalize-values profiles)]
+        profiles (for [profile-name effective-include-profiles]
+                   (let [profile (lookup-profile profile-map profile-name)
+                         metas (into {} include-profiles-meta)
+                         profile-meta (metas profile-name)]
+                     (-> (vary-meta profile merge profile-meta)
+                         set-dependencies-pom-scope
+                         normalize-values)))]
     (-> project
-        (apply-profiles normalized-profiles)
-        (profile-scope-target-path include-profiles)
+        (apply-profiles profiles)
+        (profile-scope-target-path effective-include-profiles)
         (target-path-subdirs :compile-path)
         (target-path-subdirs :native-path)
         (absolutize-paths)
