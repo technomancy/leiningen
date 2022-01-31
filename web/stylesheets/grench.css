@@ -1,0 +1,106 @@
+body {
+    padding: 50px 0 200px 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Bitter", serif;
+    font-weight: 400;
+}
+
+nav#links {
+    margin-top: 149px;
+}
+
+/* nav#links > a { float: left; }  */
+/* nav#links > a + a:before { display: block; float: left; content: ' | '; } */
+
+.constant {
+ color: #25536D;
+}
+
+a, a:visited {
+  color: #25536D;
+  text-decoration: none;
+  border-bottom: 1px solid;
+}
+
+a:hover, a:focus {
+ color: black;
+}
+
+
+p {
+    text-align: justify;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+}
+
+p#pitch {
+    text-align: left;
+}
+
+pre, tt, kbd, code {
+    font-family: 'Inconsolata', 'Consolas', mono;
+}
+
+#sample {
+    font-size: 16px;
+}
+
+hr {
+    margin: 35px 0;
+}
+
+h3 {
+    margin: 21px 0;
+}
+
+#footer p {
+    text-align: center;
+}
+
+.etc {
+    font-size: 90%;
+}
+
+pre#sample {
+    padding: 0.5em;
+    color: white;
+    background-color: #3F3F3F;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #ddd;
+    border-radius: 5px;
+}
+
+pre .prompt {
+    font-weight: bold;
+}
+
+pre .stdout {
+    color: #cc9393;
+}
+
+pre .timing {
+    color: #bfebbf;
+}
+
+ul.download {
+    list-style-position: inside;
+    list-style-type: disc;
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+  src: url(/inconsolata.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Bitter';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/bitter.ttf) format('truetype');
+}
