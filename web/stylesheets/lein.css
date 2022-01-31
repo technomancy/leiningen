@@ -58,3 +58,18 @@ h3 {
 #footer p {
     text-align: center;
 }
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+  src: url(/inconsolata.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Bitter';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/bitter.ttf) format('truetype');
+}
