@@ -26,7 +26,10 @@
                              (swap! failures# inc)
                              (.printStackTrace e#)))))
                      (if-not (zero? @failures#)
-                       (System/exit @failures#)))]
+                       (System/exit @failures#)))
+           project (assoc project
+                          :aot nil
+                          :target-path (str (:target-path project) "/check"))]
        (try
          (binding [eval/*pump-in* false]
            (eval/eval-in-project project action))
