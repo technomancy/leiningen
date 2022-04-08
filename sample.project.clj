@@ -186,7 +186,7 @@
              :dev {:resource-paths ["dummy-data"]
                    :dependencies [[clj-stacktrace "0.2.4"]]}
              ;; activated automatically during uberjar
-             :uberjar {:aot :all}
+             :uberjar {:aot [entry.point.ns]}
              ;; activated automatically in repl task
              :repl {:plugins [[cider/cider-nrepl "0.7.1"]]}}
   ;; Load these namespaces from within Leiningen to pick up hooks from them.
@@ -267,8 +267,10 @@
   ;; These namespaces will be AOT-compiled. Needed for gen-class and
   ;; other Java interop functionality. Put a regex here to compile all
   ;; namespaces whose names match. If you only need AOT for an uberjar
-  ;; gen-class, put `:aot :all` in the :uberjar profile and see :target-path for
-  ;; how to enable profile-based target isolation.
+  ;; gen-class, put `:aot [entry.point.ns]` in the :uberjar profile and see
+  ;; :target-path for how to enable profile-based target isolation.
+  ;; Putting :all here will AOT-compile everything, but this can cause issues
+  ;; with certain uses of protocols and records.
   :aot [org.example.sample]
   ;; Forms to prepend to every form that is evaluated inside your project.
   ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
