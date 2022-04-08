@@ -56,7 +56,8 @@
 
 (defn- unknown-vcs [task]
   (binding [*out* *err*]
-    (println (str "Unknown VCS detected for 'vcs " task "'")))
+    (println (str "VCS not found for 'vcs " task "'"))
+    (println "Maybe add :scm {:dir \"..\"} to project.clj?"))
   (System/exit 1))
 
 (defmethod push :none [project & [args]] (unknown-vcs "push"))
