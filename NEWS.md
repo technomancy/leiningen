@@ -2,6 +2,10 @@
 
 ## 2.9.9 / ???
 
+* Prevent `module-info.class` files from being included in uberjars. (Phil Hagelberg)
+* Prevent duplicate warnings in `resource-paths` when creating jars. (Phil Hagelberg)
+* Fix an issue with `check` where AOT would shadow reflection warnings. (Phil Hagelberg)
+* Allow `change` to edit dependency versions. (Eric Schoen)
 * Fix a bug where composite profiles would leak dependencies downstream. (Phil Hagelberg)
 
 ## 2.9.8 / 2021-11-11

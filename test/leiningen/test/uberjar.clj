@@ -30,7 +30,8 @@
         (.deleteOnExit uberjar-file)
         (is (entries "nom/nom/nom.clj"))
         (is (entries "org/codehaus/janino/Compiler$1.class"))
-        (is (not (some #(re-find #"dummy" %) entries)))))))
+        (is (not (some #(re-find #"dummy" %) entries)))
+        (is (not (entries "module-info.class")))))))
 
 (deftest test-uberjar-merge-with
   (with-out-str
