@@ -209,11 +209,11 @@
               {:type :bytes :path (scope (.getName doc))
                :bytes (.getBytes (slurp doc))})
             [{:type :path :path (:compile-path project)}
-             {:type :paths :paths (:resource-paths project)}]
+             {:type :paths :paths (distinct (:resource-paths project))}]
             (if-not (:omit-source project)
               [{:type :paths
-                :paths (set (concat (:source-paths project)
-                                    (:java-source-paths project)))}])
+                :paths (distinct (concat (:source-paths project)
+                                         (:java-source-paths project)))}])
             (:filespecs project))))
 
 ;; Split out backwards-compatibility. Collapse into get-jar-filename for 3.0
