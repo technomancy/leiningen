@@ -127,7 +127,7 @@
   {"Mac OS X" :macosx "Windows" :windows "Linux" :linux
    "FreeBSD" :freebsd "OpenBSD" :openbsd
    "amd64" :x86_64 "x86_64" :x86_64 "x86" :x86 "i386" :x86
-   "arm" :arm "SunOS" :solaris "sparc" :sparc "Darwin" :macosx})
+   "arm" :arm "SunOS" :solaris "sparc" :sparc "Darwin" :macosx "aarch64" :aarch_64})
 
 (defn get-os
   "Returns a keyword naming the host OS."
