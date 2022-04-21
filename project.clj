@@ -35,7 +35,7 @@
                  ;; -> org.jsoup/jsoup
                  [version-clj "2.0.2"]
                  [org.jsoup/jsoup "1.14.2"]]
-  ;:pedantic? :abort
+  :pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
@@ -48,5 +48,4 @@
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
   :source-paths ["leiningen-core/src" "src"]
-  :eval-in :project)
-  ;:eval-in :leiningen)
+  :eval-in :leiningen)

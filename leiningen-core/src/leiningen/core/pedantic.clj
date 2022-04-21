@@ -260,7 +260,7 @@
                edn/read-string)]
     (vector (first v) (str \" (last v) \"))))
 
-(defn print-newest-dep [accepted ignoreds]
+(defn- print-newest-dep [accepted ignoreds]
   (let [deps (conj (mapv get-last-dep ignoreds) accepted)
         deps1 (sort-by (partial str second) v/version-compare deps)]
     (println "Suggest: "(last deps1))))
