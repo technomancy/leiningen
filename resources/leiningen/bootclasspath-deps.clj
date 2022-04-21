@@ -69,4 +69,4 @@
  stencil "0.5.0",
  timofreiberg/bultitude "0.3.0",
  org.codehaus.plexus/plexus-component-annotations "1.7.1",
- [version-clj "2.0.2"]}
+ version-clj "2.0.2"}
