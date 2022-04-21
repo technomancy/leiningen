@@ -22,7 +22,9 @@
   * `Version`
   * `VersionConstraint`"
   (:refer-clojure :exclude [do])
-  (:require [cemerick.pomegranate.aether :as aether])
+  (:require [cemerick.pomegranate.aether :as aether]
+            [clojure.edn :as edn]
+            [version-clj.core :as v])
   (:import (org.eclipse.aether.graph Exclusion)
            (org.eclipse.aether.collection DependencyGraphTransformer)
            (org.eclipse.aether.util.graph.transformer TransformationContextKeys
@@ -223,9 +225,9 @@
   (if-let [top-level (second parents)]
     (let [excluded-artifact (.getArtifact (.getDependency node))
           exclusion (Exclusion. (.getGroupId excluded-artifact)
-                      (.getArtifactId excluded-artifact) "*" "*")
+                                (.getArtifactId excluded-artifact) "*" "*")
           exclusion-set (into #{exclusion} (.getExclusions
-                                             (.getDependency top-level)))
+                                            (.getDependency top-level)))
           with-exclusion (.setExclusions (.getDependency top-level) exclusion-set)]
       (dependency-str with-exclusion))
     ""))
@@ -251,10 +253,23 @@
       (warn dep-string))
     (warn)))
 
+(defn- get-last-dep [i]
+  (let [v (->  (apply str i)
+               (clojure.string/split #" -> ")
+               last
+               edn/read-string)]
+    (vector (first v) (str \" (last v) \"))))
+
+(defn print-newest-dep [accepted ignoreds]
+  (let [deps (conj (mapv get-last-dep ignoreds) accepted)
+        deps1 (sort-by (partial str second) v/version-compare deps)]
+    (println "Suggest: "(last deps1))))
+
 (defn- pedantic-print-overrides [messages]
   (when-not (empty? messages)
     (warn "Possibly confusing dependencies found:")
     (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
+      (print-newest-dep accepted ignoreds)
       (warn accepted)
       (warn " overrides")
       (doseq [ignored (interpose " and" ignoreds)]

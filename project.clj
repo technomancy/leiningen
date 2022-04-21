@@ -8,6 +8,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[leiningen-core "2.9.9-SNAPSHOT"]
+                 [org.clojure/tools.macro "0.1.5"]
                  ;; needed for pom
                  [org.clojure/data.xml "0.2.0-alpha5"]
                  ;; needed for test
@@ -33,8 +34,9 @@
                  ;; for CVE-2021-37714, dep chain: leiningen-core -> clj-commons/pomegranate ->
                  ;; org.apache.maven.wagon/wagon-http -> org.apache.maven.wagon/wagon-http-shared ->
                  ;; -> org.jsoup/jsoup
+                 [version-clj "2.0.2"]
                  [org.jsoup/jsoup "1.14.2"]]
-  :pedantic? :abort
+  ;:pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
                    :test-paths ["leiningen-core/test"]}
@@ -47,4 +49,5 @@
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
   :source-paths ["leiningen-core/src" "src"]
-  :eval-in :leiningen)
+  :eval-in :project)
+  ;:eval-in :leiningen)

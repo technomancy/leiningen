@@ -19,8 +19,7 @@
             (dissoc 'org.clojure/clojure)
             (dissoc 'leiningen-core)
             (pp/pprint))))
-{
- clj-commons/pomegranate "1.2.1",
+{clj-commons/pomegranate "1.2.1",
  com.hypirion/io "0.3.1"
  commons-codec "1.15",
  commons-io "2.8.0",
@@ -70,4 +69,4 @@
  stencil "0.5.0",
  timofreiberg/bultitude "0.3.0",
  org.codehaus.plexus/plexus-component-annotations "1.7.1",
- }
+ [version-clj "2.0.2"]}
