@@ -18,7 +18,7 @@
     <url>https://github.com/cdzwm/leiningen</url>
     <connection>scm:git:git://github.com/cdzwm/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/cdzwm/leiningen.git</developerConnection>
-    <tag>66a55a50413aa349765b3ca4bfa4f5b5b9d8c091</tag>
+    <tag>ff8da4b4120ea622a73a3797a61a68ce8c6fcfd1</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>

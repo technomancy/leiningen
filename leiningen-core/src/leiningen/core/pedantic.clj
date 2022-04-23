@@ -294,6 +294,7 @@
     (when (and key (not= key :overrides))
       (pedantic-print-ranges (distinct (map message-for-range ranges))))
     (when (and key (not= key :ranges))
+      (run! prn overrides)
       (pedantic-print-overrides (map message-for-override overrides)))
     (when (and abort-or-true
                (not (empty? (concat ranges overrides))))
