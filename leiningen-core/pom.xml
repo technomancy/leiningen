@@ -18,7 +18,7 @@
     <url>https://github.com/cdzwm/leiningen</url>
     <connection>scm:git:git://github.com/cdzwm/leiningen.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/cdzwm/leiningen.git</developerConnection>
-    <tag>99973c1da26759ee6a41d3848aaffde485a67fdd</tag>
+    <tag>66a55a50413aa349765b3ca4bfa4f5b5b9d8c091</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -34,7 +34,7 @@
       </testResource>
     </testResources>
     <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
+    <outputDirectory>target\classes</outputDirectory>
     <plugins/>
   </build>
   <repositories>

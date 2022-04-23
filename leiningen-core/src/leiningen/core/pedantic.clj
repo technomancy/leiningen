@@ -23,8 +23,7 @@
   * `VersionConstraint`"
   (:refer-clojure :exclude [do])
   (:require [cemerick.pomegranate.aether :as aether]
-            [clojure.edn :as edn]
-            [version-clj.core :as v])
+            [clojure.edn :as edn])
   (:import (org.eclipse.aether.graph Exclusion)
            (org.eclipse.aether.collection DependencyGraphTransformer)
            (org.eclipse.aether.util.graph.transformer TransformationContextKeys
@@ -262,7 +261,7 @@
 
 (defn- print-newest-dep [accepted ignoreds]
   (let [deps (conj (mapv get-last-dep ignoreds) accepted)
-        deps1 (sort-by (partial str second) v/version-compare deps)]
+        deps1 (sort-by (partial str second) node< deps)]
     (println "Suggest: "(last deps1))))
 
 (defn- pedantic-print-overrides [messages]
