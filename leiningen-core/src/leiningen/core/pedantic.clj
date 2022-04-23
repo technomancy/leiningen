@@ -220,6 +220,9 @@
 (defn- message-for-version [{:keys [node parents]}]
   (message-for (conj parents node)))
 
+(defn- message-for-version-newest [{:keys [node parents]}]
+  (conj parents node))
+
 (defn- exclusion-for-range [node parents]
   (if-let [top-level (second parents)]
     (let [excluded-artifact (.getArtifact (.getDependency node))
@@ -245,6 +248,10 @@
    :ranges (map message-for-range ranges)
    :exclusions (map exclusion-for-override ignoreds)})
 
+(defn- message-for-override-newest [{:keys [accepted ignoreds ranges]}]
+  {:accepted (message-for-version-newest accepted)
+   :ignoreds (map message-for-version-newest ignoreds)})
+
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
     (warn "WARNING!!! version ranges found for:")
@@ -268,7 +275,6 @@
   (when-not (empty? messages)
     (warn "Possibly confusing dependencies found:")
     (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
-      (print-newest-dep accepted ignoreds)
       (warn accepted)
       (warn " overrides")
       (doseq [ignored (interpose " and" ignoreds)]
@@ -294,7 +300,7 @@
     (when (and key (not= key :overrides))
       (pedantic-print-ranges (distinct (map message-for-range ranges))))
     (when (and key (not= key :ranges))
-      (run! prn overrides)
+      (run! #(.getVersion (second %)) (map message-for-override-newest overrides))
       (pedantic-print-overrides (map message-for-override overrides)))
     (when (and abort-or-true
                (not (empty? (concat ranges overrides))))
