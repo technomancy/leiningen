@@ -219,6 +219,9 @@
 (defn- message-for-version [{:keys [node parents]}]
   (message-for (conj parents node)))
 
+(defn- message-for-version-newest [{:keys [node parents]}]
+  (conj parents node))
+
 (defn- exclusion-for-range [node parents]
   (if-let [top-level (second parents)]
     (let [excluded-artifact (.getArtifact (.getDependency node))
@@ -243,6 +246,10 @@
    :ignoreds (map message-for-version ignoreds)
    :ranges (map message-for-range ranges)
    :exclusions (map exclusion-for-override ignoreds)})
+
+(defn- message-for-override-newest [{:keys [accepted ignoreds ranges]}]
+  {:accepted (message-for-version-newest accepted)
+   :ignoreds (map message-for-version-newest ignoreds)})
 
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
