@@ -22,9 +22,7 @@
   * `Version`
   * `VersionConstraint`"
   (:refer-clojure :exclude [do])
-  (:require [cemerick.pomegranate.aether :as aether]
-            [clojure.edn :as edn]
-            [version-clj.core :as v])
+  (:require [cemerick.pomegranate.aether :as aether])
   (:import (org.eclipse.aether.graph Exclusion)
            (org.eclipse.aether.collection DependencyGraphTransformer)
            (org.eclipse.aether.util.graph.transformer TransformationContextKeys
@@ -253,23 +251,10 @@
       (warn dep-string))
     (warn)))
 
-(defn- get-last-dep [i]
-  (let [v (->  (apply str i)
-               (clojure.string/split #" -> ")
-               last
-               edn/read-string)]
-    (vector (first v) (str \" (last v) \"))))
-
-(defn- print-newest-dep [accepted ignoreds]
-  (let [deps (conj (mapv get-last-dep ignoreds) accepted)
-        deps1 (sort-by (partial str second) v/version-compare deps)]
-    (println "Suggest: "(last deps1))))
-
 (defn- pedantic-print-overrides [messages]
   (when-not (empty? messages)
     (warn "Possibly confusing dependencies found:")
     (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
-      (print-newest-dep accepted ignoreds)
       (warn accepted)
       (warn " overrides")
       (doseq [ignored (interpose " and" ignoreds)]
@@ -286,6 +271,24 @@
 (alter-var-root #'pedantic-print-ranges memoize)
 (alter-var-root #'pedantic-print-overrides memoize)
 
+(defn- node-str-version [node]
+  (-> node :node .getVersion .toString))
+
+(defn- newer-dep [{accepted :accepted
+                   ignoreds :ignoreds
+                   _ranges :ranges}]
+  (let [dep-name (str (-> accepted :node .getArtifact .getGroupId)
+                      "/"
+                      (-> accepted :node .getArtifact .getArtifactId))
+        newer-version (some->> (conj ignoreds accepted)
+                               (sort-by :node node<)
+                               last
+                               node-str-version)]
+    (str "[" dep-name " \"" newer-version "\"]")))
+
+(defn- print-overrides [overrides]
+  (run! #(->> % newer-dep (println "Suggest: "))  overrides))
+
 (defn ^:internal do [pedantic-setting ranges overrides]
   ;; Need to turn everything into a string before calling
   ;; pedantic-print-*, otherwise we can't memoize due to bad equality
@@ -295,6 +298,10 @@
     (when (and key (not= key :overrides))
       (pedantic-print-ranges (distinct (map message-for-range ranges))))
     (when (and key (not= key :ranges))
+      (when (not-empty overrides)
+        (println (apply str (repeat 60 "*")))
+        (print-overrides overrides)
+        (println (apply str (repeat 60 "*"))))
       (pedantic-print-overrides (map message-for-override overrides)))
     (when (and abort-or-true
                (not (empty? (concat ranges overrides))))

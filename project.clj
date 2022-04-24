@@ -33,7 +33,6 @@
                  ;; for CVE-2021-37714, dep chain: leiningen-core -> clj-commons/pomegranate ->
                  ;; org.apache.maven.wagon/wagon-http -> org.apache.maven.wagon/wagon-http-shared ->
                  ;; -> org.jsoup/jsoup
-                 [version-clj "2.0.2"]
                  [org.jsoup/jsoup "1.14.2"]]
   :pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
@@ -47,4 +46,5 @@
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
                                   (juxt :online :disabled))}
-  :source-paths ["leiningen-core/src" "src"])
+  :source-paths ["leiningen-core/src" "src"]
+  :eval-in :leiningen)
