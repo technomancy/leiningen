@@ -109,13 +109,11 @@ Leiningen documentation is organized as a number of guides:
 
 ## Plugins
 
-Leiningen supports plugins which may introduce new tasks. See
-[the plugins wiki page](https://github.com/technomancy/leiningen/wiki/Plugins)
-for a full list. If a plugin is needed for successful test or build
-runs, (such as `lein-tar`) then it should be added to `:plugins` in
-project.clj, but if it's for your own convenience (such as
-`lein-pprint`) then it should be added to the `:plugins` list in the
-`:user` profile in `~/.lein/profiles.clj`. See the
+Leiningen supports plugins which may introduce new tasks. If a plugin is needed for 
+successful test or build runs, (such as `lein-tar`) then it should be added to
+`:plugins` in project.clj, but if it's for your own convenience (such as
+`lein-pprint`) then it should be added to the `:plugins` list in the `:user`
+profile in `~/.lein/profiles.clj`. See the
 [profiles guide](https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md)
 for details on how to add to your `:user` profile. The
 [plugin guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
