@@ -33,7 +33,7 @@
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
           (:no-auth settings)
-          (re-find #"(file|scp|scpexe)://" (:url settings)))
+          (re-find #"(file|scp|scpexe)://" (str (:url settings))))
     [id settings]
     (do
       (when @utils/rebound-io?
