@@ -321,7 +321,11 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
             y|Y|"")
                 echo
                 msg "Upgrading..."
-                TARGET="/tmp/lein-${$}-upgrade"
+                if hash mktemp 2>/dev/null; then
+                    TARGET="mktemp -t lein-upgrade.XXXXXXXXX"
+                else
+                    TARGET="/tmp/lein-${$}-upgrade"
+                fi
                 if $cygwin; then
                     TARGET=$(cygpath -w "$TARGET")
                 fi
@@ -371,7 +375,7 @@ else
     else
         if hash mktemp 2>/dev/null; then
             # Check if mktemp is available before using it
-            TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
+            TRAMPOLINE_FILE="$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)"
         else
             TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
         fi
