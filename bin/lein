@@ -322,7 +322,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                 echo
                 msg "Upgrading..."
                 if hash mktemp 2>/dev/null; then
-                    TARGET="mktemp -t lein-upgrade.XXXXXXXXX"
+                    TARGET="mktemp --tmpdir lein-upgrade.XXXXXXXXX"
                 else
                     TARGET="/tmp/lein-${$}-upgrade"
                 fi
@@ -375,7 +375,7 @@ else
     else
         if hash mktemp 2>/dev/null; then
             # Check if mktemp is available before using it
-            TRAMPOLINE_FILE="$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)"
+            TRAMPOLINE_FILE="$(mktemp --tmpdir lein-trampoline-XXXXXXXXXXXXX)"
         else
             TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
         fi
