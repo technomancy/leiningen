@@ -9,7 +9,7 @@
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[leiningen-core "2.9.9-SNAPSHOT"]
                  ;; needed for pom
-                 [org.clojure/data.xml "0.2.0-alpha5"]
+                 [org.clojure/data.xml "0.2.0-alpha6"]
                  ;; needed for test
                  [timofreiberg/bultitude "0.3.0"
                   :exclusions [org.clojure/clojure]]
@@ -18,7 +18,7 @@
                  ;; needed for uberjar
                  [commons-lang "2.6"]
                  ;; needed for repl
-                 [nrepl "0.8.3"]
+                 [nrepl "0.9.0"]
                  ;; needed for change
                  [org.clojars.trptcolin/sjacket "0.1.1.1" :exclusions [org.clojure/clojure]]
                  ;; bump versions of various common transitive deps
