@@ -239,7 +239,7 @@ applying a function to the original value:
 
     $ lein change version set '\"1.0.0\"'
 
-To update the version of a dependency in a :dependencies or 
+To update the version of a dependency in a :dependencies or
 :managed-dependencies vector, use this:
 
     $ lein change :dependencies:org.clojure/clojure set '\"1.10.1\"'

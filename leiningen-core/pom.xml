@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>1ac239973a63320716616b0d7fdf27a12d117f4b</tag>
+    <tag>466ba77e53a689242d5124eb76f6832838042a9b</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.10.3</version>
+      <version>1.11.1</version>
     </dependency>
     <dependency>
       <groupId>timofreiberg</groupId>
