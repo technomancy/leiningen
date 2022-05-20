@@ -15,9 +15,6 @@
     </license>
   </licenses>
   <scm>
-    <url>https://github.com/cdzwm/leiningen</url>
-    <connection>scm:git:git://github.com/cdzwm/leiningen.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/cdzwm/leiningen.git</developerConnection>
     <tag>a5a678a81fca0ce278f91798a04b2aedc4cd7c7e</tag>
   </scm>
   <build>
@@ -66,7 +63,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.10.3</version>
+      <version>1.11.1</version>
     </dependency>
     <dependency>
       <groupId>timofreiberg</groupId>
