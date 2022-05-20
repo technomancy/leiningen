@@ -15,9 +15,10 @@
     </license>
   </licenses>
   <scm>
-<!-- here to update -->
-<tag>1ac239973a63320716616b0d7fdf27a12d117f4b</tag>
-
+    <url>https://github.com/cdzwm/leiningen</url>
+    <connection>scm:git:git://github.com/cdzwm/leiningen.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/cdzwm/leiningen.git</developerConnection>
+    <tag>a5a678a81fca0ce278f91798a04b2aedc4cd7c7e</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
