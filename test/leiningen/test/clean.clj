@@ -134,6 +134,7 @@
     (assert-cleaned "/a/b/c/foo/bar/dev")))
 
 (deftest absolute-spliced-target-path
+  (is false)
   (let [p (-> (project/make {:root "/a/b/c"
                              :target-path "/foo/bar/%s"
                              :clean-targets ^{:protect false} [:target-path]})
