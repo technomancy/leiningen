@@ -256,7 +256,7 @@
                             ":transport" 'nrepl.transport/edn)
                (select-keys [:attach :scheme]))))))
 
-(deftest test-headless-socket
+(deftest ^:disabled test-headless-socket
   (let [tmpdir (utils/create-tmpdir (-> "target" File. .getAbsoluteFile)
                                     "socket-test-" "rwx------")
         sock-path (str tmpdir "/socket")
