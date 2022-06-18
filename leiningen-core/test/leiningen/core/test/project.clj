@@ -44,7 +44,7 @@
                                [stencil/stencil "0.2.0"]
                                [~(symbol "net.3scale" "3scale-api") "3.0.2"]
                                [clj-http/clj-http "3.4.1"]
-                               [nrepl/nrepl "1.0.0-SNAPSHOT"
+                               [nrepl/nrepl "0.9.0"
                                 :exclusions [[org.clojure/clojure]]]
                                [org.nrepl/incomplete "0.1.0"
                                 :exclusions [[org.clojure/clojure]]]],
