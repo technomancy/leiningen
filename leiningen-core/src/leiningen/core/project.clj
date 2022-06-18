@@ -558,7 +558,7 @@
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 ;; bump deps in leiningen's own project.clj with these
-                :dependencies '[^:displace [nrepl/nrepl "0.9.0"
+                :dependencies '[^:displace [nrepl/nrepl "1.0.0-SNAPSHOT"
                                             :exclusions [org.clojure/clojure]]
                                 ^:displace [org.nrepl/incomplete "0.1.0"
                                             :exclusions [org.clojure/clojure]]]

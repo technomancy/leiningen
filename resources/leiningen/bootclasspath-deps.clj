@@ -29,7 +29,7 @@
  javax.inject "1",
  net.cgrand/parsley "0.9.3",
  net.cgrand/regex "1.1.0",
- nrepl "0.9.0",
+ nrepl "1.0.0-SNAPSHOT",
  org.apache.commons/commons-lang3 "3.8.1",
  org.apache.httpcomponents/httpclient "4.5.13",
  org.apache.httpcomponents/httpcore "4.4.13",
