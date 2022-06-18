@@ -1,12 +1,18 @@
 (ns leiningen.test.repl
-  (:require [clojure.test :refer :all]
+  (:require [clojure.java.io :as io]
+            [clojure.test :refer :all]
             [leiningen.repl :refer :all]
             [leiningen.test.helper :as helper]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
+            [leiningen.core.utils :as utils]
             [nrepl.ack :as ack]
-            [nrepl.config]))
+            [nrepl.core :as nrepl]
+            [nrepl.config])
+  (:import
+   (java.io File)
+   (java.nio.file Files)))
 
 (deftest test-merge-repl-profile
   (is (= (-> {:repl-options {:ack-port 4}}
@@ -249,3 +255,21 @@
            (-> (mocked-repl project ":start"
                             ":transport" 'nrepl.transport/edn)
                (select-keys [:attach :scheme]))))))
+
+(deftest test-headless-socket
+  (let [tmpdir (utils/create-tmpdir (-> "target" File. .getAbsoluteFile)
+                                    "socket-test-" "rwx------")
+        sock-path (str tmpdir "/socket")
+        sock-file (io/as-file sock-path)]
+    (try
+      (let [server (future (repl helper/sample-ordered-aot-project
+                                 ":headless" ":socket" sock-path))]
+        (while (not (.exists sock-file))
+          (Thread/sleep 100))
+        (is (= [42] (with-open [conn (nrepl/connect :socket sock-path)]
+                      (-> (nrepl/client conn 3000)
+                          (nrepl/message {:op "eval" :code "(+ 21 21)"})
+                          nrepl/response-values)))))
+      (finally
+        (.delete sock-file)
+        (Files/delete tmpdir)))))
