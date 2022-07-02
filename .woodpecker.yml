@@ -1,5 +1,7 @@
 pipeline:
   build:
-    image: debian
+    image: circleci/openjdk:16-buster
     commands:
-      - echo "test content" > myfile
+      - sudo apt update -qq && sudo apt install -y gnupg leiningen
+      - cd leiningen-core && lein bootstrap
+      - bin/lein test
