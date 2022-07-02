@@ -1,7 +1,5 @@
 pipeline:
   build:
-    image: clojure-openjdk-16-lein
+    image: debian
     commands:
-      - apt update -qq && apt install -y gnupg
-      - cd leiningen-core && lein bootstrap
-      - bin/lein test
+      - echo "test content" > myfile
