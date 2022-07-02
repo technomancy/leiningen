@@ -1,5 +1,7 @@
 pipeline:
   build:
-    image: debian
+    image: debian:stable-slim
     commands:
-      - echo "test content" > myfile
+      - apt-get update -qq && apt-get install -y gnupg leiningen
+      - cd leiningen-core && lein bootstrap
+      - cd .. && bin/lein test
