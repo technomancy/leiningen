@@ -2,6 +2,6 @@ pipeline:
   build:
     image: debian:stable-slim
     commands:
-      - apt-get update -qq && apt-get install -y gnupg leiningen
+      - apt-get update -qq && apt-get install -y gnupg leiningen netcat-openbsd
       - cd leiningen-core && lein bootstrap
-      - cd .. && bin/lein test
+      - cd .. && bin/lein test || bin/notify
