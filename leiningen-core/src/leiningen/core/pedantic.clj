@@ -238,11 +238,30 @@
 (defn- exclusion-for-override [{:keys [node parents]}]
   (exclusion-for-range node parents))
 
-(defn- message-for-override [{:keys [accepted ignoreds ranges]}]
+(defn- dep-str-version [node]
+  (-> node :node .getVersion .toString))
+
+(defn- newest-dep [{accepted :accepted
+                    ignoreds :ignoreds
+                    _ranges :ranges}]
+  (let [dep-name (str (-> accepted :node .getArtifact .getGroupId)
+                      "/"
+                      (-> accepted :node .getArtifact .getArtifactId))
+        dep-version (some->> (conj ignoreds accepted)
+                             (sort-by :node node<)
+                             last
+                             dep-str-version)]
+    (str "[" dep-name " \"" dep-version "\"]")))
+
+(defn- print-dep-suggest [overrides]
+  (run! #(->> % newest-dep warn)  overrides))
+
+(defn- message-for-override [{:keys [accepted ignoreds ranges] :as override}]
   {:accepted (message-for-version accepted)
    :ignoreds (map message-for-version ignoreds)
    :ranges (map message-for-range ranges)
-   :exclusions (map exclusion-for-override ignoreds)})
+   :exclusions (map exclusion-for-override ignoreds)
+   :override override})
 
 (defn- pedantic-print-ranges [messages]
   (when-not (empty? messages)
@@ -254,7 +273,7 @@
 (defn- pedantic-print-overrides [messages]
   (when-not (empty? messages)
     (warn "Possibly confusing dependencies found:")
-    (doseq [{:keys [accepted ignoreds ranges exclusions]} messages]
+    (doseq [{:keys [accepted ignoreds ranges exclusions override]} messages]
       (warn accepted)
       (warn " overrides")
       (doseq [ignored (interpose " and" ignoreds)]
@@ -266,6 +285,11 @@
       (warn "\nConsider using these exclusions:")
       (doseq [ex (distinct exclusions)]
         (warn ex))
+      (warn)
+      (warn "OR")
+      (warn)
+      (warn "Adding the next line to the head of the project.clj file's depency vector:")
+      (print-dep-suggest [override])
       (warn))))
 
 (alter-var-root #'pedantic-print-ranges memoize)
@@ -280,7 +304,12 @@
     (when (and key (not= key :overrides))
       (pedantic-print-ranges (distinct (map message-for-range ranges))))
     (when (and key (not= key :ranges))
-      (pedantic-print-overrides (map message-for-override overrides)))
+      (pedantic-print-overrides (map message-for-override overrides))
+      (when (not-empty overrides)
+        (warn "\nIn addition to using above exclusion method, you can also add all the following lines\nto the head of the depency vector of your project.clj to resolve the confusing dependencies' problem:\n")
+        (print-dep-suggest overrides)
+        (warn (apply str (repeat 40 \-)))
+        (warn)))
     (when (and abort-or-true
                (not (empty? (concat ranges overrides))))
       (require 'leiningen.core.main)
