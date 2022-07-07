@@ -13,7 +13,7 @@
 
 **Q:** What's a group ID? How do snapshots work?  
 **A:** See the
-  [tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
+  [tutorial](https://codeberg.org/leiningen/leiningen/blob/stable/doc/TUTORIAL.md)
   for background.
 
 **Q:** How should I pick my version numbers?  
@@ -25,7 +25,7 @@
 
 **Q:** What if my project depends on jars that aren't in any repository?  
 **A:** You will need to get them in a repository. The
-  [deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+  [deploy guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md)
   explains how to set up a private repository. In general it's easiest
   to deploy them to a static HTTP server or a private S3 bucket. Once
   the repo is set up, `lein deploy private-repo com.mycorp/somejar
@@ -38,7 +38,7 @@
 **Q:** I want to hack a project and one of its dependencies, but it's annoying to switch between them.  
 **A:** Leiningen provides a feature called *checkout dependencies* to
   make this smoother.  See the
-  [tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md)
+  [tutorial](https://codeberg.org/leiningen/leiningen/blob/stable/doc/TUTORIAL.md)
   to learn more.
 
 **Q:** Is it possible to exclude indirect dependencies?  
@@ -119,7 +119,7 @@
 
 **Q:** Still too slow; what else can make startup faster?  
 **A:** The wiki has a page covering
-  [ways to improve startup time](https://github.com/technomancy/leiningen/wiki/Faster).
+  [ways to improve startup time](https://codeberg.org/leiningen/leiningen/wiki/Faster).
 
 **Q:** What if I care more about long-term performance than startup time?  
 **A:** Leiningen 2.1.0 onward get a speed boost by disabling optimized
@@ -239,7 +239,7 @@ happens it is strongly recommended to add an `:exclusion` and report a
 bug with the dependency which does this.
 
 **Q:** `lein`/`lein.bat` won't download `leiningen-x.y.z-SNAPSHOT.jar`  
-**A:** You probably downloaded `lein`/`lein.bat` from the [master branch](https://github.com/technomancy/leiningen/tree/master/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)
+**A:** You probably downloaded `lein`/`lein.bat` from the [main branch](https://codeberg.org/leiningen/leiningen/tree/main/bin). Unless you plan to build leiningen yourself or help develop it, we suggest you use the latest stable version: [lein](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)/[lein.bat](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat)
 
 **Q:** I have a dependency whose group ID and/or artifact ID starts with a
 number (which is invalid for symbols in Clojure). How can I add it to my

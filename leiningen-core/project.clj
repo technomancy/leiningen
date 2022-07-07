@@ -1,5 +1,5 @@
 (defproject leiningen-core "2.9.9-SNAPSHOT"
-  :url "https://github.com/technomancy/leiningen"
+  :url "https://codeberg.org/leiningen/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."

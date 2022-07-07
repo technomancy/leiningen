@@ -1,22 +1,27 @@
 # Contributing
 
-Leiningen is the most widely-contributed-to Clojure project. We
-welcome potential contributors and do our best to try to make it easy
-to help out.
+Leiningen is the most widely-contributed-to Clojure project a the time
+of this writing. We welcome potential contributors and do our best to
+try to make it easy to help out.
 
-Discussion occurs primarily in the #leiningen channel on Libera chat.
+Discussion occurs primarily in the #leiningen channel on [Libera
+chat](https://libera.chat).
 
 Please report issues on the
-[GitHub issue tracker](https://github.com/technomancy/leiningen/issues).
+[issue tracker](https://codeberg.org/leiningen/leiningen/issues).
 
-Code submissions should
-be sent as GitHub pull requests. Please use topic branches when
-sending pull requests rather than committing directly to master in
-order to minimize unnecessary merge commit clutter. Direct pull
-requests towards the master branch, not the stable branch.
+Code submissions should be sent as [pull
+requests](https://codeberg.org/leiningen/leiningen/pulls). Please
+use topic branches when sending pull requests rather than committing
+directly to `main` in order to minimize unnecessary merge commit
+clutter. Direct pull requests towards the `main` branch, not the
+stable branch.
 
-Leiningen is [mirrored at GitLab](https://gitlab.com/technomancy/leiningen)
-and [tested on CircleCI](https://circleci.com/gh/technomancy/leiningen).
+Note: the canonical repository for Leiningen is [on
+Codeberg](https://codeberg.org/leiningen/leiningen) but we maintain [a
+mirror on GitHub](https://github.com/technomancy/leiningen) for the
+time being in order to ease the transition. Please update your links
+and git remotes.
 
 ## Codebase
 
@@ -26,7 +31,7 @@ top-level project. The underlying mechanisms for things like
 are implemented inside the `leiningen-core` subproject.
 
 See the
-[readme for the leiningen-core library](https://github.com/technomancy/leiningen/blob/master/leiningen-core/README.md)
+[readme for the leiningen-core library](https://codeberg.org/leiningen/leiningen/blob/main/leiningen-core/README.md)
 and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
 structured.
 
@@ -63,7 +68,7 @@ in the project root, though in most cases this will be done automatically. If
 dependencies in leiningen-core change, you have to redo the `lein bootstrap`
 step mentioned earlier.
 
-Using `bin/lein` alone from the master branch without a full checkout
+Using `bin/lein` alone from the main branch without a full checkout
 is not supported. If you want to just grab a shell script to work
 with, use the `stable` branch.
 
@@ -71,25 +76,25 @@ with, use the `stable` branch.
 
 Since a development version is not uberjared, it can be rather slow compared to
 a stable release. If this is annoying and you depend on a recent fix or
-enhancement, you can build an uberjar from master as follows:
+enhancement, you can build an uberjar from main as follows:
 
 ```bash
 # NB! You have to use *bin*/lein to build the uberjar
 $ bin/lein uberjar
 # ^ Last line printed from this command will tell the location of the standalone
 $ cp target/leiningen-2.5.2-SNAPSHOT-standalone.jar $HOME/.lein/self-installs
-$ cp bin/lein $HOME/bin/lein-master
+$ cp bin/lein $HOME/bin/lein-main
 ```
 
 Here, 2.5.2-SNAPSHOT is the version we've built, and we have `$HOME/bin` on our
 $PATH.
 
-Note that changes on master won't be visible in the uberjared version unless you
+Note that changes on main won't be visible in the uberjared version unless you
 overwrite both the lein script and a freshly created uberjar.
 
 ## Tests
 
-Before you're asking for a pull request, we would be very happy if you ensure
+Before you submit a pull request, we would be very happy if you ensure
 that the changes you've done doesn't break any of the existing test cases. While
 there is a test suite, it's not terribly thorough, so don't put too much trust
 in it. Patches which add test coverage for the functionality they change are

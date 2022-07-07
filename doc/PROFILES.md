@@ -252,7 +252,7 @@ Here is an example of such a case:
 ## Debugging
 
 To see how a given profile affects your project map, use the
-[lein-pprint](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
+[lein-pprint](https://codeberg.org/leiningen/leiningen/tree/stable/lein-pprint)
 plugin:
 
     $ lein with-profile 1.4 pprint

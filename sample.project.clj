@@ -520,7 +520,7 @@
   ;; Dictate which git branches deploys should be allowed from. When set,
   ;; `lein deploy` will only work from the git branches included and will
   ;; abort otherwise.
-  :deploy-branches ["master"]
+  :deploy-branches ["main"]
 
 ;;; Artifact Classifers Installation
   ;; Option to install classified maven artifacts. A map where keys

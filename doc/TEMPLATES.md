@@ -67,7 +67,7 @@ you wish to be part of your template. For everything you add, make sure the
 `liquid_cool.clj` file receives corresponding entries in that `->files`
 call. For examples to follow, have a look inside [the \*.clj files for the
 built-in
-templates](https://github.com/technomancy/leiningen/tree/stable/resources/leiningen/new).
+templates](https://codeberg.org/leiningen/leiningen/tree/stable/resources/leiningen/new).
 
 ## Testing Your Template
 

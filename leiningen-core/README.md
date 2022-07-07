@@ -5,9 +5,6 @@ consists of the task execution implementation, project configuration,
 and helper functions. The built-in tasks and the launcher scripts are
 kept in the main `leiningen` project.
 
-More detailed [API reference](https://leiningen.org/reference.html) is
-available.
-
 ## Namespaces
 
 * **leiningen.core.main** contains the `-main` entry point along with
@@ -32,7 +29,7 @@ it looks up the task which was invoked. Tasks are just functions named
 after the task they implement and defined in the `leiningen.the-task`
 namespace. They usually take a project map as their argument, but can
 also run outside the context of a project. See the
-[plugin guide](https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md)
+[plugin guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PLUGINS.md)
 for more details on how tasks are written. The `apply-task` function
 looks up the task function, checks to make sure it can be applied to
 the provided arguments, and then calls it.
@@ -69,7 +66,6 @@ itself, there's no need to enforce this isolation.
 
 ## License
 
-Copyright © 2011-2021 Phil Hagelberg and
-[contributors](https://github.com/technomancy/leiningen/graphs/contributors).
+Copyright © 2011-2022 Phil Hagelberg and contributors.
 
 Distributed under the Eclipse Public License, the same as Clojure.

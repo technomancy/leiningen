@@ -434,7 +434,7 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
         (abort "Tried to use insecure HTTP repository without TLS:\n"
                (str (.getId @repo) ": " (.getUrl @repo) "\n " resource) "\n"
                "\nThis is almost certainly a mistake; for details see"
-               "\nhttps://github.com/technomancy/leiningen/blob/master/doc/FAQ.md")))))
+               "\nhttps://codeberg.org/leiningen/leiningen/blob/main/doc/FAQ.md")))))
 
 (defn -main
   "Command-line entry point."

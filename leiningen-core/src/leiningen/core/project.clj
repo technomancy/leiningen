@@ -701,7 +701,7 @@
                (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
       (warn-once ":repositories detected in user-level profiles!"
                  (vec (map first repo-profiles)) "\nSee"
-                 "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
+                 "https://codeberg.org/leiningen/leiningen/wiki/Repeatability"))))
 
 (defn- warn-user-profile [root profiles]
   (when (and root (contains? profiles :user))
