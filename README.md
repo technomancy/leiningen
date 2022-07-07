@@ -13,6 +13,12 @@
 
 Leiningen is for automating Clojure projects without setting your hair on fire.
 
+Note: the canonical repository for Leiningen is [on
+Codeberg](https://codeberg.org/leiningen/leiningen) but we maintain [a
+mirror on GitHub](https://github.com/technomancy/leiningen) for the
+time being in order to ease the transition. Please update your links
+and git remotes.
+
 ## Installation
 
 If your preferred
@@ -33,12 +39,6 @@ Windows users can use the above script in the Linux subsystem or try
 [the batch file](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat) or
 [Powershell version](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.ps1)
 instead.
-
-Note: the canonical repository for Leiningen is [on
-Codeberg](https://codeberg.org/leiningen/leiningen) but we maintain [a
-mirror on GitHub](https://github.com/technomancy/leiningen) for the
-time being in order to ease the transition. Please update your links
-and git remotes.
 
 ## Basic Usage
 

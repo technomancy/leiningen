@@ -8,7 +8,11 @@ Discussion occurs primarily in the #leiningen channel on [Libera
 chat](https://libera.chat).
 
 Please report issues on the
-[issue tracker](https://codeberg.org/leiningen/leiningen/issues).
+[issue
+tracker](https://codeberg.org/leiningen/leiningen/issues). Issues used
+to be reported in the [GitHub
+tracker](https://github.com/technomancy/leiningen/issues) so you may
+want to check there to see if things have already been reported.
 
 Code submissions should be sent as [pull
 requests](https://codeberg.org/leiningen/leiningen/pulls). Please
