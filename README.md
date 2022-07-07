@@ -43,7 +43,7 @@ instead.
 ## Basic Usage
 
 The
-[tutorial](https://codeberg.org/leiningen/leiningen/blob/stable/doc/TUTORIAL.md)
+[tutorial](https://codeberg.org/leiningen/leiningen/src/stable/doc/TUTORIAL.md)
 has a detailed walk-through of the steps involved in creating a new
 project, but here are the commonly-used tasks:
 
@@ -86,12 +86,12 @@ The `project.clj` file in the project root should look like this:
 
 The `lein new` task generates a project skeleton with an appropriate
 starting point from which you can work. See the
-[sample.project.clj](https://codeberg.org/leiningen/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj)
 file (also available via `lein help sample`) for a detailed listing of
 configuration options.
 
 The `project.clj` file can be customized further with the use of
-[profiles](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PROFILES.md).
+[profiles](https://codeberg.org/leiningen/leiningen/src/stable/doc/PROFILES.md).
 
 ## Documentation
 
@@ -99,19 +99,19 @@ Leiningen documentation is organized as a number of guides:
 
 ### Usage
 
- * [Tutorial](https://codeberg.org/leiningen/leiningen/blob/stable/doc/TUTORIAL.md) (start here if you are new)
- * [FAQ](https://codeberg.org/leiningen/leiningen/blob/stable/doc/FAQ.md)
- * [Profiles](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PROFILES.md)
- * [Deployment & Distribution of Libraries](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md)
- * [Sample project.clj](https://codeberg.org/leiningen/leiningen/blob/stable/sample.project.clj)
- * [Polyglot (e.g. Clojure/Java) projects](https://codeberg.org/leiningen/leiningen/blob/stable/doc/MIXED_PROJECTS.md)
+ * [Tutorial](https://codeberg.org/leiningen/leiningen/src/stable/doc/TUTORIAL.md) (start here if you are new)
+ * [FAQ](https://codeberg.org/leiningen/leiningen/src/stable/doc/FAQ.md)
+ * [Profiles](https://codeberg.org/leiningen/leiningen/src/stable/doc/PROFILES.md)
+ * [Deployment & Distribution of Libraries](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
+ * [Sample project.clj](https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj)
+ * [Polyglot (e.g. Clojure/Java) projects](https://codeberg.org/leiningen/leiningen/src/stable/doc/MIXED_PROJECTS.md)
 
 ### Development
 
-* [Writing Plugins](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PLUGINS.md)
-* [Writing Templates](https://codeberg.org/leiningen/leiningen/blob/stable/doc/TEMPLATES.md)
-* [Contributing](https://codeberg.org/leiningen/leiningen/blob/stable/CONTRIBUTING.md)
-* [Building Leiningen](https://codeberg.org/leiningen/leiningen/blob/stable/CONTRIBUTING.md#bootstrapping)
+* [Writing Plugins](https://codeberg.org/leiningen/leiningen/src/stable/doc/PLUGINS.md)
+* [Writing Templates](https://codeberg.org/leiningen/leiningen/src/stable/doc/TEMPLATES.md)
+* [Contributing](https://codeberg.org/leiningen/leiningen/src/stable/CONTRIBUTING.md)
+* [Building Leiningen](https://codeberg.org/leiningen/leiningen/src/stable/CONTRIBUTING.md#bootstrapping)
 
 ## Plugins
 
@@ -122,9 +122,9 @@ runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as
 `lein-pprint`) then it should be added to the `:plugins` list in the
 `:user` profile in `~/.lein/profiles.clj`. See the
-[profiles guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PROFILES.md)
+[profiles guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/PROFILES.md)
 for details on how to add to your `:user` profile. The
-[plugin guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PLUGINS.md)
+[plugin guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/PLUGINS.md)
 explains how to write plugins.
 
 ## License

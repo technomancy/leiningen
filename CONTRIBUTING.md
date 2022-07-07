@@ -35,7 +35,7 @@ top-level project. The underlying mechanisms for things like
 are implemented inside the `leiningen-core` subproject.
 
 See the
-[readme for the leiningen-core library](https://codeberg.org/leiningen/leiningen/blob/main/leiningen-core/README.md)
+[readme for the leiningen-core library](https://codeberg.org/leiningen/leiningen/src/main/leiningen-core/README.md)
 and `doc/PLUGINS.md` for more details on how Leiningen's codebase is
 structured.
 

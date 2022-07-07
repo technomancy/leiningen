@@ -29,7 +29,7 @@ it looks up the task which was invoked. Tasks are just functions named
 after the task they implement and defined in the `leiningen.the-task`
 namespace. They usually take a project map as their argument, but can
 also run outside the context of a project. See the
-[plugin guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/PLUGINS.md)
+[plugin guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/PLUGINS.md)
 for more details on how tasks are written. The `apply-task` function
 looks up the task function, checks to make sure it can be applied to
 the provided arguments, and then calls it.

@@ -25,7 +25,7 @@
 
 Getting your library into [Clojars](https://clojars.org) is fairly
 straightforward as is documented near the end of
-[the Leiningen tutorial](https://codeberg.org/leiningen/leiningen/blob/stable/doc/TUTORIAL.md).
+[the Leiningen tutorial](https://codeberg.org/leiningen/leiningen/src/stable/doc/TUTORIAL.md).
 However, deploying elsewhere is not always that straightforward.
 
 ## Private Repositories
@@ -137,7 +137,7 @@ haven't set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
 [gpg](https://www.gnupg.org/) installed and a key pair configured.  If
 you need help with either of those, see the
-[GPG guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/GPG.md).
+[GPG guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/GPG.md).
 
 ### GPG
 

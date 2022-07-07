@@ -183,7 +183,7 @@ Leiningen uses GPG for three things: decrypting credential files,
 signing release artifacts, and signing tags. We'll focus on artifact
 signing here; for information on credentials encryption/decryption,
 see the
-[deploy guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md). Once
+[deploy guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md). Once
 you are configured to sign releases, signing tags should be
 straightforward.
 

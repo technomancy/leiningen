@@ -109,7 +109,7 @@ Leiningen は*プロジェクト*とともに動作します。
 ## プロジェクトの作成
 
 わたしたちは、あなたが
-[README](https://codeberg.org/leiningen/leiningen/blob/stable/README.md)
+[README](https://codeberg.org/leiningen/leiningen/src/stable/README.md)
 にしたがって Leiningen をインストールしたと仮定します。
 この時新しいプロジェクトを生成することは簡単です:
 
@@ -282,7 +282,7 @@ maven レポジトリで、 [Central](https://search.maven.org/) は
 
 サードパーティのレポジトリは `:repositories` キーを project.clj に指定することで追加出来ます。
 どのようにすれば良いのか
-[sample.project.clj](https://codeberg.org/leiningen/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj)
 を見てみましょう。このサンプルは追加のレポジトリとして Sonatype レポジトリを使っていますが、
 これは(Clojure や Java の)ライブラリの、最新のスナップショット開発バージョンへのアクセスを提供します。
 このサンプルには同様に、レポジトリに関連する更新頻度などの設定が含まれています。
@@ -716,7 +716,7 @@ Leiningen の自分自身の JVM は実行され続け、不必要なメモリ�
 もしプロジェクトがライブラリで、他の人がプロジェクトの中で
 依存関係としてそのライブラリを使えるようにしたいときは、
 そのライブラリをパブリックレポジトリに置く必要が出てきます。
-自分自身の[プライベートレポジトリを運用する](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md)
+自分自身の[プライベートレポジトリを運用する](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 こともできますし、
 [Central](https://search.maven.org)に置くことも出来ますが、
 最も簡単なのは[Clojars](https://clojars.org)で公開する方法でしょう。
@@ -749,7 +749,7 @@ Leiningen の自分自身の JVM は実行され続け、不必要なメモリ�
 スナップショット版ではなくリリース版をデプロイするときは、
 Leiningen は [GPG](https://gnupg.org) を使って署名を行い、
 リリースの著作権を証明します。どのように設定を行うかの詳細については、
-[デプロイガイド](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md)を参考にしてください。
+[デプロイガイド](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)を参考にしてください。
 デプロイガイドでは他のレポジトリへのデプロイ方法の説明もしています。
 
 ## おわり!

@@ -102,7 +102,7 @@ Next let's take a look at how projects are created.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[README](https://codeberg.org/leiningen/leiningen/blob/stable/README.md).
+[README](https://codeberg.org/leiningen/leiningen/src/stable/README.md).
 Generating a new project is easy:
 
     $ lein new app my-stuff
@@ -271,7 +271,7 @@ wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
-[sample.project.clj](https://codeberg.org/leiningen/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj)
 for examples on how to do so. This sample uses additional repositories such as the Sonatype
 repository which gives access to the latest SNAPSHOT development version of a library (Clojure or Java).
 It also contains other relevant settings regarding repositories such as update frequency.
@@ -703,7 +703,7 @@ Given these pitfalls, it's best to use an uberjar if possible.
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to [maintain your own private
-repository](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md)
+repository](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 or get it into [Central](https://search.maven.org), the easiest way is
 to publish it at [Clojars](https://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
@@ -749,7 +749,7 @@ they don't have to be re-entered every time, see `lein help
 deploying`. When deploying a release that's not a snapshot, Leiningen
 will attempt to sign it using [GPG](https://gnupg.org) to prove your
 authorship of the release. See the
-[deploy guide](https://codeberg.org/leiningen/leiningen/blob/stable/doc/DEPLOY.md)
+[deploy guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 for details of how to set that up. The deploy guide includes
 instructions for deploying to other repositories as well.
 

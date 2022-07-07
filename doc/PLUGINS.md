@@ -87,11 +87,11 @@ has `:eval-in-leiningen true`, which causes all tasks to operate
 inside the leiningen process rather than starting a subprocess to
 isolate the project's code. Plugins need not declare a dependency on
 Clojure itself; in fact
-[all of Leiningen's own dependencies](https://codeberg.org/leiningen/leiningen/blob/stable/project.clj)
+[all of Leiningen's own dependencies](https://codeberg.org/leiningen/leiningen/src/stable/project.clj)
 will be available.
 
 See the `lein-pprint` directory
-[in the Leiningen source](https://codeberg.org/leiningen/leiningen/tree/stable/lein-pprint)
+[in the Leiningen source](https://codeberg.org/leiningen/leiningen/src/stable/lein-pprint)
 for a sample of a very simple plugin.
 
 When emitting output, please use `leiningen.core.main/info`,
