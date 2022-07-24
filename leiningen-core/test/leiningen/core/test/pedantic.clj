@@ -169,3 +169,13 @@
             :ranges [{:node [a "2"]
                       :parents [[range "2"]]}]}])))
 
+(deftest netty-boringssl-works
+  (let [project {:root "/tmp"
+                 :dependencies '[[io.netty/netty-tcnative-boringssl-static
+                                  "2.0.50.Final"]]
+                 :pedantic? :warn
+                 :repositories [["c" {:url "https://repo1.maven.org/maven2/"
+                                      :snapshots false}]]}]
+    ;; this will result in an infinite loop in lein 2.9.8
+    (is (leiningen.core.classpath/get-classpath project))))
+

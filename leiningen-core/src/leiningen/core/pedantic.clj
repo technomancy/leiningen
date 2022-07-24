@@ -119,10 +119,11 @@
     (if (empty? paths)
       results
       (recur (for [{:keys [node parents]} paths
-                   :when (not (some #{node} parents))
+                   ;; hashing is broken for dependency nodes in aether so we
+                   ;; have to do cycle detection based on strings instead
+                   :when (not (some #{(str node)} (map str parents)))
                    c (.getChildren node)]
-               {:node c
-                :parents (conj parents node)})
+               {:node c :parents (conj parents node)})
              (doall (concat results paths))))))
 
 (defn- transform-graph
