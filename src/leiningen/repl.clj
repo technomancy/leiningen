@@ -15,7 +15,9 @@
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.classpath :as classpath]
-            [leiningen.trampoline :as trampoline]))
+            [leiningen.trampoline :as trampoline])
+  (:import
+   (java.net URI)))
 
 (defn- repl-port-file-vector
   "Returns the repl port file for this project as a vector."
@@ -39,6 +41,9 @@
   (if-let [port (lookup-opt ":port" opts)]
     (Integer/valueOf port)))
 
+(defn opt-socket [opts]
+  (lookup-opt ":socket" opts))
+
 (defn opt-transport [opts]
   (if-let [transport (lookup-opt ":transport" opts)]
     (utils/require-resolve transport)))
@@ -53,18 +58,34 @@
                  (:ack-port nrepl.config/config))]
     (Integer/valueOf p)))
 
-(defn repl-port [project]
-  (Integer/valueOf (or (user/getenv "LEIN_REPL_PORT")
-                       (-> project :repl-options :port)
-                       (:port nrepl.config/config)
-                       0)))
+(defn configured-repl-connection [project opts]
+  (let [opt-host (lookup-opt ":host" opts)
+        opt-port (lookup-opt ":port" opts)
+        opt-sock (lookup-opt ":socket" opts)
+        env-host (user/getenv "LEIN_REPL_HOST")
+        env-port (user/getenv "LEIN_REPL_PORT")
+        env-sock (user/getenv "LEIN_REPL_SOCKET")
+        prj-host (-> project :repl-options :host)
+        prj-port (-> project :repl-options :port)
+        prj-sock (-> project :repl-options :socket)
+        nrepl-bind (nrepl.config/config :bind)
+        nrepl-host (nrepl.config/config :host)
+        nrepl-port (nrepl.config/config :port)
+        nrepl-sock (nrepl.config/config :socket)]
 
-(defn repl-host [project]
-  (or (user/getenv "LEIN_REPL_HOST")
-      (-> project :repl-options :host)
-      (:host nrepl.config/config)
-      (:bind nrepl.config/config)
-      "127.0.0.1"))
+    (when (and opt-sock (or opt-host opt-port))
+      (main/abort ":socket argument conflicts with :host and :port"))
+    (when (and env-sock (or env-host env-port))
+      (main/abort "LEIN_REPL_HOST conflicts with LEIN_REPL_HOST and LEIN_REPL_PORT"))
+    (when (and prj-sock (or prj-host prj-port))
+      (main/abort "project :repl-options :socket conflicts with :host and :port"))
+    (when (and nrepl-sock (or nrepl-bind nrepl-host nrepl-port))
+      (main/abort "nREPL config :socket conflicts with :bind, :host, and :port"))
+
+    (if-let [sock (or opt-sock env-sock prj-sock nrepl-sock)]
+      {:socket sock}
+      {:host (or opt-host env-host prj-host nrepl-host nrepl-bind "127.0.0.1")
+       :port (Integer/valueOf (or opt-port env-port prj-port nrepl-port 0))})))
 
 (defn repl-transport [project]
   (if-let [transport (or (user/getenv "LEIN_REPL_TRANSPORT")
@@ -78,15 +99,15 @@
                            (:greeting-fn nrepl.config/config))]
     (utils/require-resolve greeting-fn)))
 
-(defn client-repl-port [project]
-  (let [port (repl-port project)]
-    (if (= port 0)
+(defn client-repl-port [project configured-port]
+  (let [port configured-port]
+    (if (zero? configured-port)
       (try
         (-> (io/file (:root project) ".nrepl-port")
             slurp
             s/trim)
         (catch Exception _))
-      port)))
+      configured-port)))
 
 (defn ensure-port [s]
   (if (re-find #":\d+($|/.*$)" s)
@@ -108,17 +129,22 @@
       false))
 
 (defn connect-string [project opts]
+  ;; REVIEW: ignores command line :host ;port :socket, depending on the first arg?
   (let [opt (str (first opts))]
     (if-let [sx (string-from-file opt)]
       (connect-string project [sx])
       (if (is-uri? opt)
         opt
-        (as-> (s/split opt #":") x
-              (remove s/blank? x)
-              (-> (drop-last (count x) [(repl-host project) (client-repl-port project)])
-                  (concat x))
-              (s/join ":" x)
-              (ensure-port x))))))
+        ;; TODO: perhaps use URI/toASCIIString (like nrepl, and server-forms)
+        (let [{:keys [host port socket]} (configured-repl-connection project opts)]
+          (when socket
+            (main/abort "Cannot connect to filesystem sockets yet"))
+          (as-> (s/split opt #":") x
+            (remove s/blank? x)
+            (-> (drop-last (count x) [host (client-repl-port project port)])
+                (concat x))
+            (s/join ":" x)
+            (ensure-port x)))))))
 
 (defn options-for-reply [project & {:keys [attach port scheme]}]
   (as-> (:repl-options project) opts
@@ -208,26 +234,32 @@
 (defn- server-forms [project cfg ack-port start-msg?]
   [`(do (if ~(some-> (:transport cfg) meta :ns str)
           (require (symbol ~(-> (:transport cfg) meta :ns str))))
-        (let [server# (nrepl.server/start-server
+        (let [socket# ~(:socket cfg)
+              server# (nrepl.server/start-server
                        :bind ~(:host cfg)
                        :port ~(:port cfg)
+                       :socket socket#
                        :transport-fn ~(:transport cfg)
                        :greeting-fn ~(:greeting-fn cfg)
                        :ack-port ~ack-port
-                       :handler ~(handler-for project))
-              port# (:port server#)
-              repl-port-file# (apply io/file ~(repl-port-file-vector project))
-              ;; TODO 3.0: remove legacy repl port support.
-              legacy-repl-port# (if (.exists (io/file ~(:target-path project "")))
-                                  (io/file ~(:target-path project) "repl-port"))]
-          (when ~start-msg?
-            (println "nREPL server started on port" port# "on host" ~(:host cfg)
-                     (str "- "
-                          (transport/uri-scheme ~(or (:transport cfg) #'transport/bencode))
-                          "://" ~(:host cfg) ":" port#)))
-          (spit (doto repl-port-file# .deleteOnExit) port#)
-          (when legacy-repl-port#
-            (spit (doto legacy-repl-port# .deleteOnExit) port#))
+                       :handler ~(handler-for project))]
+          (if socket#
+            (when ~start-msg?
+              (println "nREPL server listening on "
+                       (-> (URI. "nrepl+unix" socket# nil) .toASCIIString)))
+            (let [port# (:port server#)
+                  repl-port-file# (apply io/file ~(repl-port-file-vector project))
+                  ;; TODO 3.0: remove legacy repl port support.
+                  legacy-repl-port# (if (.exists (io/file ~(:target-path project "")))
+                                      (io/file ~(:target-path project) "repl-port"))]
+              (when ~start-msg?
+                (println "nREPL server started on port" port# "on host" ~(:host cfg)
+                         (str "- "
+                              (transport/uri-scheme ~(or (:transport cfg) #'transport/bencode))
+                              "://" ~(:host cfg) ":" port#)))
+              (spit (doto repl-port-file# .deleteOnExit) port#)
+              (when legacy-repl-port#
+                (spit (doto legacy-repl-port# .deleteOnExit) port#))))
           @(promise)))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
@@ -275,7 +307,7 @@
   "The server which handles ack replies."
   [transport]
   (nrepl.server/start-server
-   :bind (repl-host nil)
+   :bind (:nost (configured-repl-connection nil nil))
    :handler (nrepl.ack/handle-ack nrepl.server/unknown-op)
    :transport-fn transport))
 
@@ -353,9 +385,16 @@ Subcommands:
   run under trampoline, the client/server step is skipped entirely; use
   the :headless command to start a trampolined server.
 
-:headless [:host host] [:port port]
-  This will launch an nREPL server and wait, rather than connecting
-  a client to it.
+:headless [[:host host] [:port port] | [:socket path]]
+  This will launch an nREPL server and wait (as per :start), without
+  connecting a client to it.  If the :socket key is given,
+  LEIN_REPL_SOCKET is set, or :socket is present under :repl-options
+  in the project map, the server will listen on the filesystem socket
+  specified by the path. Note that POSIX does not specify the
+  effect (if any) of the socket file's permissions (and some systems
+  have ignored them), so any access control should be arranged via
+  parent directories. You may not specify both a socket and a
+  host/port.
 
 :connect [dest]
   Connects to an already running nREPL server. Dest can be:
@@ -399,19 +438,23 @@ deactivated, but it can be overridden."
      (if (= subcommand ":connect")
        (client project (doto (connect-string project opts)
                          (->> (main/info "Connecting to nREPL at"))))
-       (let [cfg {:host (or (opt-host opts) (repl-host project))
-                  :port (or (opt-port opts) (repl-port project))
-                  :transport (or (opt-transport opts) (repl-transport project))
-                  :greeting-fn (or (opt-greeting-fn opts) (repl-greeting-fn project))}]
-         (utils/with-write-permissions (repl-port-file-path project)
-           (case subcommand
-             ":start" (if trampoline/*trampoline?*
-                        (trampoline-repl project (:port cfg))
-                        (client project (server project cfg false) cfg))
-             ":headless" (apply eval/eval-in-project project
-                                (server-forms project cfg (ack-port project)
-                                              true))
-             (main/abort (str "Unknown subcommand " subcommand)))))))))
+       (let [cfg (assoc (configured-repl-connection project opts)
+                        :transport (or (opt-transport opts) (repl-transport project))
+                        :greeting-fn (or (opt-greeting-fn opts) (repl-greeting-fn project)))
+             socket (:socket cfg)
+             run #(case subcommand
+                    ":start" (if trampoline/*trampoline?*
+                               (trampoline-repl project (:port cfg))
+                               (client project (server project cfg false) cfg))
+                    ":headless" (apply eval/eval-in-project project
+                                       (server-forms project cfg
+                                                     (when-not socket (ack-port project))
+                                                     true))
+                    (main/abort (str "Unknown subcommand " subcommand)))]
+         (if socket
+           (run)
+           (utils/with-write-permissions (repl-port-file-path project)
+             (run))))))))
 
 ;; A note on testing the repl task: it has a number of modes of operation
 ;; which need to be tested individually:

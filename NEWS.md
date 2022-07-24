@@ -9,6 +9,7 @@
 * Fix an issue with `check` where AOT would shadow reflection warnings. (Phil Hagelberg)
 * Allow `change` to edit dependency versions. (Eric Schoen)
 * Fix a bug where composite profiles would leak dependencies downstream. (Phil Hagelberg)
+* Allow `repl` to bind to filesystem sockets via `:headless :socket PATH` (Rob Browning)
 
 ## 2.9.8 / 2021-11-11
 

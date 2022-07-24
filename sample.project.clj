@@ -382,9 +382,14 @@
                  ;; Skip's the default requires and printed help message.
                  :skip-default-init false
                  ;; Customize the socket the repl task listens on and
-                 ;; attaches to.
-                 :host "0.0.0.0"
-                 :port 4001
+                 ;; attaches to.  Specify either a filesystem :socket
+                 ;; (where the parent directory should be used to
+                 ;; control access since POSIX doesn't require
+                 ;; respecting the socket permissions):
+                 :socket "/path/to/the/socket"
+                 ;; or a network :host and/or :port
+                 ;;   :host "0.0.0.0"
+                 ;;   :port 4001
                  ;; If nREPL takes too long to load it may timeout,
                  ;; increase this to wait longer before timing out.
                  ;; Defaults to 30000 (30 seconds)
