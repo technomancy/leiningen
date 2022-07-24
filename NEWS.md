@@ -2,6 +2,8 @@
 
 ## 2.9.9 / ???
 
+* Work around a change in Java 9 which broke template listing. (Phil Hagelberg)
+* Fix a bug in pedantic checks which resulted in infinite loops. (Phil Hagelberg)
 * Prevent `module-info.class` files from being included in uberjars. (Phil Hagelberg)
 * Prevent duplicate warnings in `resource-paths` when creating jars. (Phil Hagelberg)
 * Fix an issue with `check` where AOT would shadow reflection warnings. (Phil Hagelberg)
