@@ -2,6 +2,7 @@
 
 ## 2.9.9 / ???
 
+* Fix a bug where template group-ids could be ignored. (Phil Hagelberg)
 * Work around a change in Java 9 which broke template listing. (Phil Hagelberg)
 * Fix a bug in pedantic checks which resulted in infinite loops. (Phil Hagelberg)
 * Prevent `module-info.class` files from being included in uberjars. (Phil Hagelberg)

@@ -54,7 +54,7 @@
 
 (defn resolve-template [template-name]
   (let [ns-sym (symbol (str "leiningen.new." (name (symbol template-name))))]
-    (if (try (require ns-sym)
+    (if (try (require (symbol (str "leiningen.new." template-name)))
              true
              (catch FileNotFoundException _
                (resolve-remote-template template-name ns-sym)))
