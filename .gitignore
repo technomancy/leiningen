@@ -30,3 +30,4 @@ test_projects/*/target
 pom.xml
 deps.txt
 profiles.clj
+/test/.gnupg/crls.d/DIR.txt

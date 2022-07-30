@@ -1,6 +1,6 @@
 # Leiningen
 
-[![status-badge](https://ci.codeberg.org/api/badges/technomancy/leiningen/status.svg)](https://ci.codeberg.org/technomancy/leiningen)
+[![status-badge](https://ci.codeberg.org/api/badges/leiningen/leiningen/status.svg)](https://ci.codeberg.org/leiningen/leiningen)
 
 <img src="https://leiningen.org/img/leiningen.jpg"
  alt="Leiningen logo" title="The man himself" align="right" />
@@ -28,7 +28,7 @@ offers a recent version of Leiningen, try that first as long as it has version 2
 Leiningen installs itself on the first run of the `lein` shell script; there is no
 separate install script.  Follow these instructions to install Leiningen manually:
 
-1. Make sure you have Java installed; OpenJDK version 8 is recommended at this time.
+1. Make sure you have Java installed; OpenJDK is recommended
 2. [Download the `lein` script from the `stable` branch](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)
  of this project.
 3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
