@@ -4,10 +4,10 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.9-SNAPSHOT</version>
+  <version>2.9.9</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
-  <url>https://github.com/technomancy/leiningen</url>
+  <url>https://codeberg.org/leiningen/leiningen</url>
   <licenses>
     <license>
       <name>Eclipse Public License</name>
@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>466ba77e53a689242d5124eb76f6832838042a9b</tag>
+    <tag>8264a4739679575570a599fae0855e544bdbb2a7</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
