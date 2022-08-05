@@ -41,6 +41,8 @@
       node)))
 
 (defn- components-read [ins]
+  ;; TODO: xml/parse causes an illegal reflective access due to an issue
+  ;; in Clojure itself.
   (let [zipper (->> ins xml/parse zip/xml-zip)]
     (->> (tree-edit zipper html-escape-editor) zip/xml-zip zip/children
          (filter #(= (:tag %) :components))

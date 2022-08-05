@@ -4,7 +4,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.9</version>
+  <version>2.9.10-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://codeberg.org/leiningen/leiningen</url>
@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>8264a4739679575570a599fae0855e544bdbb2a7</tag>
+    <tag>596a0671d190783fd80a711aa70ad5e2ed496833</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
