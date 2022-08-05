@@ -23,16 +23,16 @@ and git remotes.
 
 If your preferred
 [package manager](https://codeberg.org/leiningen/leiningen/wiki/Packaging)
-offers a recent version of Leiningen, try that first as long as it has version 2.x.
+offers a recent version of Leiningen, try that first.
 
 Leiningen installs itself on the first run of the `lein` shell script; there is no
 separate install script.  Follow these instructions to install Leiningen manually:
 
-1. Make sure you have Java installed; OpenJDK is recommended
+1. Make sure you have Java installed; [OpenJDK](https://adoptium.net) is recommended
 2. [Download the `lein` script from the `stable` branch](https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein)
- of this project.
-3. Place it on your `$PATH`. (`~/bin` is a good choice if it is on your path.)
-4. Set it to be executable. (`chmod +x ~/bin/lein`)
+ of this project
+3. Place it on your `$PATH` (`/usr/local/bin` for example)
+4. Set it to be executable. (`sudo chmod +x /usr/local/bin/lein`)
 5. Run it.
 
 Windows users can use the above script in the Linux subsystem or try

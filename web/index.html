@@ -74,20 +74,22 @@
 
     <div class="one-third column"><h3 class="offset-by-one">Install</h3></div>
     <div class="two-thirds column">
-      <p>Leiningen and Clojure require Java; ideally OpenJDK.</p>
+      <p>First check
+      your <a href="https://codeberg.org/leiningen/leiningen/wiki/Packaging">package
+      manager</a> to see whether it includes Leiningen. If not, don't
+      worry; a manual install is easy.</p>
+
+      <p>Leiningen and Clojure require Java; ideally
+        <a href="https://adoptium.net">OpenJDK</a>.</p>
       <a name="install"></a>
       <ol>
         <li>Download the <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"><kbd>lein</kbd>
         script</a> (or on
           Windows <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat"><kbd>lein.bat</kbd></a>)</li>
-        <li>Place it on your <tt>$PATH</tt> where your shell can find it (eg. <tt>~/bin</tt>)</li>
-        <li>Set it to be executable (<kbd>chmod a+x ~/bin/lein</kbd>)</li>
+        <li>Place it on your <tt>$PATH</tt> where your shell can find it (eg. <tt>/usr/local/bin/</tt>)</li>
+        <li>Set it to be executable (<kbd>sudo chmod a+x /usr/local/bin/lein</kbd>)</li>
         <li>Run it (<kbd>lein</kbd>) and it will download the self-install package</li>
       </ol>
-
-      <p>You can check
-      your <a href="https://codeberg.org/leiningen/leiningen/wiki/Packaging">package
-      manager</a> as well depending on your operating system.</p>
     </div>
 
     <div class="sixteen columns"><hr /></div>
