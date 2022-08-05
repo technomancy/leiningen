@@ -1,8 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.9 / ???
+## 2.9.9 / 2022-08-05
 
-* Fix a bug where template group-ids could be ignored. (Phil Hagelberg)
+* Migrate the repository from Github to Codeberg. (Phil Hagelberg)
+* Fix a bug in `new` where template group-ids could be ignored. (Phil Hagelberg)
 * Work around a change in Java 9 which broke template listing. (Phil Hagelberg)
 * Fix a bug in pedantic checks which resulted in infinite loops. (Phil Hagelberg)
 * Prevent `module-info.class` files from being included in uberjars. (Phil Hagelberg)
