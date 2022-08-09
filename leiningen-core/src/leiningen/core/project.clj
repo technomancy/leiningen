@@ -987,6 +987,10 @@
   (let [{:keys [included-profiles excluded-profiles]} (meta project)
         profiles (expand-profiles project profiles)]
     (set-profiles project
+                  ;; we need un-expanded profiles here because if :dev was
+                  ;; a composite profile that included :foo, we need to start
+                  ;; from :dev in order to ensure :foo's dependencies have
+                  ;; test scope in the pom.
                   (remove (set profiles) included-profiles)
                   (concat excluded-profiles profiles))))
 

@@ -10,14 +10,15 @@
                                            data-readers-backwards-compatibility-project
                                            provided-project
                                            managed-deps-project
-                                           managed-deps-snapshot-project]])
+                                           managed-deps-snapshot-project] :as h])
   (:import (java.io File FileOutputStream)
            (java.util.zip ZipFile)))
 
 (deftest test-uberjar
-  (with-out-str
-    (uberjar sample-no-aot-project))
-  (let [filename (str "test_projects/sample-no-aot/target/"
+  (let [project (h/read-test-project "sample-no-aot")
+        _ (with-out-str
+            (uberjar sample-no-aot-project))
+        filename (str "test_projects/sample-no-aot/target/"
                       "nomnomnom-0.5.0-SNAPSHOT-standalone.jar")
         uberjar-file (File. filename)]
     (is (= true (.exists uberjar-file)))

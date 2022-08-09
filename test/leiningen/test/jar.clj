@@ -90,7 +90,10 @@
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
-    (is (jar helper/sample-no-aot-project))))
+    (let [project (helper/read-test-project "sample-no-aot")
+          jar (first (vals (jar project)))
+          entry-names (set (helper/walkzip jar #(.getName %)))]
+      (is (not (entry-names "dev.clj"))))))
 
 (deftest test-classifier-jar-succeeds
   (is (= 1 (count (:classifiers helper/with-classifiers-project)))
