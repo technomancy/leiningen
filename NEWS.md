@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.10 / ???
+
+* Avoid illegal reflective access doing XML parsing in uberjar/search. (Phil Hagelberg)
+
 ## 2.9.9 / 2022-08-05
 
 * Migrate the repository from Github to Codeberg. (Phil Hagelberg)

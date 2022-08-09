@@ -4,14 +4,21 @@
             [clojure.xml :as xml]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main])
-  (:import (java.net URLEncoder)))
+  (:import (java.net URLEncoder)
+           (javax.xml.parsers SAXParser)
+           (org.xml.sax.helpers DefaultHandler)))
 
 (defn- decruft-central-xml [content]
   (zipmap (map #(get-in % [:attrs :name]) content)
           (map #(get-in % [:content 0]) content)))
 
+;; replace clojure.xml version with one that doesn't do illegal access
+(defn- startparse [^String url ^DefaultHandler ch]
+  (let [^SAXParser p (xml/disable-external-entities (xml/sax-parser))]
+    (.parse p url ch)))
+
 (defn parse [url]
-  (try (xml/parse url)
+  (try (xml/parse url startparse)
        (catch Exception e
          (main/warn "Could not retrieve search results from" url "because of"
                     (class e))

@@ -10,9 +10,11 @@
             [leiningen.jar :as jar]
             [leiningen.pom :as pom]
             [clojure.set :as set])
-  (:import (java.io File FileOutputStream PrintWriter)
+  (:import (java.io File FileOutputStream PrintWriter InputStream)
            (java.util.regex Pattern)
            (java.util.zip ZipFile ZipOutputStream ZipEntry)
+           (javax.xml.parsers SAXParser)
+           (org.xml.sax.helpers DefaultHandler)
            (org.apache.commons.io.output CloseShieldOutputStream)
            (org.apache.commons.lang StringEscapeUtils)))
 
@@ -40,10 +42,13 @@
       (assoc-in node [:content 0] (StringEscapeUtils/escapeXml content))
       node)))
 
+;; replace clojure.xml version with one that doesn't do illegal access
+(defn- startparse [^InputStream ins ^DefaultHandler ch]
+  (let [^SAXParser p (xml/disable-external-entities (xml/sax-parser))]
+    (.parse p ins ch)))
+
 (defn- components-read [ins]
-  ;; TODO: xml/parse causes an illegal reflective access due to an issue
-  ;; in Clojure itself.
-  (let [zipper (->> ins xml/parse zip/xml-zip)]
+  (let [zipper (-> ins (xml/parse startparse) zip/xml-zip)]
     (->> (tree-edit zipper html-escape-editor) zip/xml-zip zip/children
          (filter #(= (:tag %) :components))
          first :content)))
