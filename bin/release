@@ -80,9 +80,10 @@ git commit -a -m "Release $RELEASE_VERSION"
 git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin main:stable
 
-echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to GitHub:"
+echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to Codeberg and GitHub:"
+echo "https://codeberg.org/leiningen/leiningen/releases/new?tag=$RELEASE_VERSION"
 echo "https://github.com/technomancy/leiningen/releases/new?tag=$RELEASE_VERSION"
-echo "Copy this version's section of NEWS.md to the GitHub release description."
+echo "Copy this version's section of NEWS.md to the release description."
 
 rm -rf target leiningen-core/target
 echo "Test self-install. If things are good, run this:"
