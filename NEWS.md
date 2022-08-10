@@ -1,7 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.10 / ???
+## 2.9.10 / 2022-08-09
 
+* Fix a bug where dev-resources could leak into jars/uberjars. (Phil Hagelberg)
 * Avoid illegal reflective access doing XML parsing in uberjar/search. (Phil Hagelberg)
 
 ## 2.9.9 / 2022-08-05

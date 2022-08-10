@@ -51,5 +51,5 @@ workflows:
           name: "openjdk11"
           java_version: "openjdk-11"
       - build:
-          name: "openjdk16"
-          java_version: "openjdk-16"
+          name: "openjdk17"
+          java_version: "openjdk-17"
