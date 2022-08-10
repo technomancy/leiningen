@@ -1,7 +1,7 @@
 (ns leiningen.test.uberjar
   (:require [leiningen.uberjar :refer :all]
             [clojure.test :refer :all]
-            [clojure.java.io :refer [delete-file]]
+            [clojure.java.io :as io]
             [clojure.java.shell :refer [sh]]
             [clojure.xml :as xml]
             [leiningen.test.helper :refer [unmemoize
@@ -72,18 +72,19 @@
                  (read-string contents))))))))
 
 (deftest test-components-merger
-  (let [file1 (str "test_projects/uberjar-components-merging/components1.xml")
-        file2 (str "test_projects/uberjar-components-merging/components2.xml")
-        readxml (components-merger 0)
-        combine (components-merger 1)
-        writexml (components-merger 2)
-        combined-xml (combine (readxml file1) (readxml file2))
-        expected-xml (xml/parse "test_projects/uberjar-components-merging/expected-components.xml")
+  (let [file1 (io/input-stream "test_projects/uberjar-components-merging/components1.xml")
+        file2 (io/input-stream "test_projects/uberjar-components-merging/components2.xml")
+        [read-xml combine write-xml] components-merger
+        combined-xml (combine (read-xml file1) (read-xml file2))
+        expected-xml (xml/parse (io/input-stream
+                                 "test_projects/uberjar-components-merging/expected-components.xml")
+                                #'leiningen.uberjar/startparse)
         result-file "test_projects/uberjar-components-merging/result-components.xml"
         out-file (FileOutputStream. (File. result-file))]
-      (writexml out-file combined-xml)
-      (is (= expected-xml (xml/parse result-file)))
-      (delete-file result-file true)))
+      (write-xml out-file combined-xml)
+      (is (= expected-xml (xml/parse (io/input-stream result-file)
+                                     #'leiningen.uberjar/startparse)))
+      (io/delete-file result-file true)))
 
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided
