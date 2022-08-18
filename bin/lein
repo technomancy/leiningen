@@ -170,10 +170,6 @@ function run_from_checkout() {
     if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
-
-    if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        self_install
-    fi
 }
 
 function cmd_self_install() {
@@ -402,6 +398,10 @@ if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     run_from_source "$1"
 else
     run_from_checkout "$1"
+
+    if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
+        self_install
+    fi
 fi
 
 if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
