@@ -1130,6 +1130,12 @@ Also initializes the project; see read-raw for a version that skips init."
 
 (alter-var-root #'read-dependency-project memoize)
 
+(defn- warn-checkout-version-mismatch [base-project checkout-project]
+  (let [checkout-ver (:version checkout-project)
+        project-dep-ver (last (first (filter #(= (first %) (:name checkout-project)) (:dependencies base-project))))]
+    (when (not= checkout-ver project-dep-ver)
+      (warn (str "Warning: using" (:name checkout-project) "version" checkout-ver "from" :path-goes-here ", not the released version.")))))
+
 (defn read-checkouts
   "Returns a list of project maps for this project's checkout
   dependencies."
@@ -1138,4 +1144,6 @@ Also initializes the project; see read-raw for a version that skips init."
         :let [project-file (.getCanonicalFile (io/file dep "project.clj"))
               checkout-project (read-dependency-project project-file)]
         :when checkout-project]
-    checkout-project))
+    (do
+      (warn-checkout-version-mismatch project checkout-project)
+      checkout-project)))
