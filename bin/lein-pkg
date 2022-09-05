@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This variant of the lein script is meant for downstream packagers.
 # It has all the cross-platform stuff stripped out as well as the
@@ -6,10 +6,152 @@
 
 export LEIN_VERSION="2.9.11-SNAPSHOT"
 
+if [[ "$CLASSPATH" != "" ]]; then
+    cat <<-'EOS' 1>&2
+	WARNING: You have $CLASSPATH set, probably by accident.
+	It is strongly recommended to unset this before proceeding.
+	EOS
+fi
+
+if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+    delimiter=";"
+else
+    delimiter=":"
+fi
+
+if [[ "$OSTYPE" == "cygwin" ]]; then
+  cygwin=true
+else
+  cygwin=false
+fi
+
+function msg {
+    echo "$@" 1>&2
+}
+
+function command_not_found {
+    msg "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
+    exit 1
+}
+
+function make_native_path {
+    # ensure we have native paths
+    if $cygwin && [[ "$1"  == /* ]]; then
+    echo -n "$(cygpath -wp "$1")"
+    elif [[ "$OSTYPE" == "msys" && "$1"  == /?/* ]]; then
+    echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
+    else
+    echo -n "$1"
+    fi
+}
+
+#  usage : add_path PATH_VAR [PATH]...
+function add_path {
+    local path_var="$1"
+    shift
+    while [ -n "$1" ];do
+        # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
+        if [[ -z ${!path_var} ]]; then
+          export ${path_var}="$(make_native_path "$1")"
+        else
+          export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+        fi
+    shift
+    done
+}
+
+function run_from_checkout() {
+    add_path CLASSPATH "$LEIN_JAR"
+
+    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
+        LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
+    fi
+}
+
+function cmd_run {
+    if $cygwin; then
+        # When running on Cygwin, use Windows-style paths for java
+        ORIGINAL_PWD=$(cygpath -w "$ORIGINAL_PWD")
+    fi
+
+    # apply context specific CLASSPATH entries
+    if [ -f .lein-classpath ]; then
+        add_path CLASSPATH "$(cat .lein-classpath)"
+    fi
+
+    if [ -n "$DEBUG" ]; then
+        msg "Leiningen's classpath: $CLASSPATH"
+    fi
+
+    if [ -r .lein-fast-trampoline ]; then
+        export LEIN_FAST_TRAMPOLINE='y'
+    fi
+
+    if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
+        INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
+
+        INPUT_CHECKSUM=$(echo "$INPUTS" | $SHASUM_CMD | cut -f 1 -d " ")
+        # Just don't change :target-path in project.clj, mkay?
+        TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
+    else
+        if hash mktemp 2>/dev/null; then
+            # Check if mktemp is available before using it
+            TRAMPOLINE_FILE="$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)"
+        else
+            TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+        fi
+        trap 'rm -f $TRAMPOLINE_FILE' EXIT
+    fi
+
+    if $cygwin; then
+        TRAMPOLINE_FILE=$(cygpath -w "$TRAMPOLINE_FILE")
+    fi
+
+    if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
+        if [ -n "$DEBUG" ]; then
+            msg "Fast trampoline with $TRAMPOLINE_FILE."
+        fi
+        exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
+    else
+        export TRAMPOLINE_FILE
+        "$LEIN_JAVA_CMD" \
+            -Dfile.encoding=UTF-8 \
+            -Dmaven.wagon.http.ssl.easy=false \
+            -Dmaven.wagon.rto=10000 \
+            $LEIN_JVM_OPTS \
+            -Dleiningen.input-checksum="$INPUT_CHECKSUM" \
+            -Dleiningen.original.pwd="$ORIGINAL_PWD" \
+            -Dleiningen.script="$SCRIPT" \
+            -classpath "$CLASSPATH" \
+            clojure.main -m leiningen.core.main "$@"
+
+        EXIT_CODE=$?
+
+        if $cygterm ; then
+          stty icanon echo > /dev/null 2>&1
+        fi
+
+        if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
+            TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
+            if [ "$INPUT_CHECKSUM" = "" ]; then # not using fast trampoline
+                rm "$TRAMPOLINE_FILE"
+            fi
+            if [ "$TRAMPOLINE" = "" ]; then
+                exit $EXIT_CODE
+            else
+                exec sh -c "exec $TRAMPOLINE"
+            fi
+        else
+            exit $EXIT_CODE
+        fi
+    fi
+}
+
 # cd to the project root, if applicable
 NOT_FOUND=1
 ORIGINAL_PWD="$PWD"
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; do
+while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]
+do
     cd ..
     if [ "$(dirname "$PWD")" = "/" ]; then
         NOT_FOUND=0
@@ -17,91 +159,96 @@ while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; 
     fi
 done
 
-if [[ "$CLASSPATH" != "" ]]; then
-    echo "WARNING: You have \$CLASSPATH set, probably by accident."
-    echo "It is strongly recommended to unset this before proceeding."
-fi
-
 # User init
 export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
 
-# Support $JAVA_OPTS for backwards-compatibility.
-JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
-JAVA_CMD=${JAVA_CMD:-"java"}
-
 for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
-    if [ -e "$f" ]; then
-        source "$f"
+  if [ -e "$f" ]; then
+    source "$f"
+  fi
+done
+
+if $cygwin; then
+    export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+fi
+
+# normalize $0 on certain BSDs
+if [ "$(dirname "$0")" = "." ]; then
+    SCRIPT="$(which "$(basename "$0")")"
+    if [ -z "$SCRIPT" ]; then
+        SCRIPT="$0"
+    fi
+else
+    SCRIPT="$0"
+fi
+
+# resolve symlinks to the script itself portably
+while [ -h "$SCRIPT" ] ; do
+    ls=$(ls -ld "$SCRIPT")
+    link=$(expr "$ls" : '.*-> \(.*\)$')
+    if expr "$link" : '/.*' > /dev/null; then
+        SCRIPT="$link"
+    else
+        SCRIPT="$(dirname "$SCRIPT"$)/$link"
     fi
 done
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
-
-grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null &&
-LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}"
+BIN_DIR="$(dirname "$SCRIPT")"
 
 # If you're not using an uberjar you'll need to list each dependency
 # and add them individually to the classpath/bootclasspath as well.
 
 LEIN_JAR=/usr/share/java/leiningen-$LEIN_VERSION-standalone.jar
 
-# Do not use installed leiningen jar during self-compilation
-if ! { [ "$1" = "compile" ] &&
-        grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
-            project.clj ;}; then
-    CLASSPATH="$CLASSPATH":"$LEIN_JAR"
-    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
-        LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
+export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+
+# This needs to be defined before we call SHASUM_CMD below
+if [ "$SHASUM_CMD" = "" ]; then
+    if type -p sha256sum >/dev/null 2>&1; then
+        export SHASUM_CMD="sha256sum"
+    elif type -p shasum >/dev/null 2>&1; then
+        export SHASUM_CMD="shasum --algorithm 256"
+    elif type -p sha256 >/dev/null 2>&1; then
+        export SHASUM_CMD="sha256 -q"
+    else
+        command_not_found sha256sum
     fi
 fi
 
-# apply context specific CLASSPATH entries
-if [ -f .lein-classpath ]; then
-    CLASSPATH="$(cat .lein-classpath):$CLASSPATH"
+# When :eval-in :classloader we need more memory
+grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
+    export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Xms64m -Xmx512m"
+
+run_from_checkout "$1"
+
+if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
+then
+    msg "Leiningen couldn't find 'java' executable, which is required."
+    msg "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
+    exit 1
 fi
 
-if [ -n "$DEBUG" ]; then
-    echo "Leiningen's classpath: $CLASSPATH"
-fi
+export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
 
-# Which Java?
-
-export JAVA_CMD="${JAVA_CMD:-"java"}"
-export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
-
-if [[ "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
+if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
     export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
+    export DRIP_INIT_CLASS="clojure.main"
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
 
-function command_not_found {
-    >&2 echo "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
-    exit 1
-}
-
-if [ -r .lein-fast-trampoline ]; then
-    export LEIN_FAST_TRAMPOLINE='y'
+# Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
+cygterm=false
+if $cygwin; then
+  case "$TERM" in
+    rxvt* | xterm* | vt*) cygterm=true ;;
+  esac
 fi
 
-if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
-    INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
-
-    if command -v shasum >/dev/null 2>&1; then
-        SUM="shasum"
-    elif command -v sha1sum >/dev/null 2>&1; then
-        SUM="sha1sum"
-    else
-        command_not_found "sha1sum or shasum"
-    fi
-
-    INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
-    # Just don't change :target-path in project.clj, mkay?
-    TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
-else
-    TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
-    trap 'rm -f $TRAMPOLINE_FILE' EXIT
+if $cygterm; then
+  LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
+  stty -icanon min 1 -echo > /dev/null 2>&1
 fi
 
 if [ "$1" = "upgrade" ]; then
@@ -111,37 +258,4 @@ if [ "$1" = "upgrade" ]; then
     exit 1
 fi
 
-if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
-    if [ -n "$DEBUG" ]; then
-        echo "Fast trampoline with $TRAMPOLINE_FILE."
-    fi
-    exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
-else
-    export TRAMPOLINE_FILE
-    "$LEIN_JAVA_CMD" \
-        -Dfile.encoding=UTF-8 \
-        -Dmaven.wagon.http.ssl.easy=false \
-        -Dmaven.wagon.rto=10000 \
-        $LEIN_JVM_OPTS \
-        -Dleiningen.input-checksum="$INPUT_CHECKSUM" \
-        -Dleiningen.original.pwd="$ORIGINAL_PWD" \
-        -Dleiningen.script="$0" \
-        -classpath "$CLASSPATH" \
-        clojure.main -m leiningen.core.main "$@"
-
-    EXIT_CODE=$?
-
-    if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
-        TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
-        if [ "$INPUT_CHECKSUM" = "" ]; then # not using fast trampoline
-            rm "$TRAMPOLINE_FILE"
-        fi
-        if [ "$TRAMPOLINE" = "" ]; then
-            exit $EXIT_CODE
-        else
-            exec sh -c "exec $TRAMPOLINE"
-        fi
-    else
-        exit $EXIT_CODE
-    fi
-fi
+cmd_run "$@"
