@@ -237,15 +237,14 @@
               "\nIf you only need AOT for your uberjar, consider adding"
               ":aot :all into your\n:uberjar profile instead.")))
 
-(defn warn-implicit-aot [orig-project]
-  (let [project (project/merge-profiles orig-project [:uberjar])]
-    (when (and (:main project) (not (:skip-aot (meta (:main project))))
-               (not= :all (:aot project))
-               (not= [:all] (:aot project))
-               (not (some #{(:main project)} (:aot project)))
-               (not (some #(re-matches % (str (:main project)))
-                          (filter compile/regex? (:aot project)))))
-      (force implicit-aot-warning))))
+(defn warn-implicit-aot [project]
+  (when (and (:main project) (not (:skip-aot (meta (:main project))))
+             (not= :all (:aot project))
+             (not= [:all] (:aot project))
+             (not (some #{(:main project)} (:aot project)))
+             (not (some #(re-matches % (str (:main project)))
+                        (filter compile/regex? (:aot project)))))
+    (force implicit-aot-warning)))
 
 ;; TODO: remove for 3.0
 (defn- add-main [project given-main]
