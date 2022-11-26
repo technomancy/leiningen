@@ -1,7 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.11 / ???
+## 2.10.0 / ???
 
+* Add the ability to sign deployed files using SSH keys, not just GPG. (Phil Hagelberg)
 * Fix a bug where uberjar splices profiles into target path incorrectly. (Phil Hagelberg)
 
 ## 2.9.10 / 2022-08-09

@@ -165,7 +165,13 @@
                                      :signing {:gpg-key "0xAB123456"}}]
                         ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
   ;; Defaults for signing options. Defers to per-repository settings.
-  :signing {:gpg-key "root@eruditorum.org"}
+  ;; You can set this in the :user profile in ~/.lein/profiles.clj too.
+  :signing {;; specify which key to use for signing; set to false to disable.
+            ;; defaults to using whatever key GPG is configured to use.
+            :gpg-key "root@eruditorum.org"
+            ;; specify which SSH key to use for signing; defaults to not signing
+            ;; with SSH.
+            :ssh-key "~/.ssh/id_rsa"}
   ;; If you configure a custom repository with a self-signed SSL
   ;; certificate, you will need to add it here. Paths should either
   ;; be on Leiningen's classpath or relative to the project root.

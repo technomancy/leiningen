@@ -3,6 +3,7 @@
             [clojure.test :refer :all]
             [leiningen.deploy :refer :all]
             [leiningen.core.main :as main]
+            [leiningen.core.eval :as eval]
             [leiningen.test.helper :refer [delete-file-recursively
                                            tmp-dir
                                            sample-project
@@ -86,6 +87,19 @@
     (is (= (sign-for-repo? ["foo" {:sign-releases true}]) true))
     (is (= (sign-for-repo? ["foo" {:sign-releases false}]) false))
     (is (= (sign-for-repo? ["foo" {}]) true))))
+
+(deftest ssh-signing
+  (let [file (str (:root sample-project) "/project.clj")
+        artifacts {[:extension "clj"] file}]
+    (io/delete-file (str file ".sig"))
+    (binding [main/*exit-process?* false]
+      (is (= [{[:extension "clj.sig"] (str file ".sig")}]
+             (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
+               (signatures-for-artifacts artifacts
+                                         {:ssh-key "test_projects/.ssh/id_rsa"
+                                          :gpg-key false}))))
+      (is (= 0 (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
+                 (eval/sh "test_projects/.ssh/verify")))))))
 
 (deftest validate-input
   (testing "Fail if project data is missing"

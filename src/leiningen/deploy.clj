@@ -93,23 +93,40 @@
                        "false` to the relevant `:deploy-repositories` entry.")))
     (str file ".asc")))
 
-(defn signature-for-artifact [[coords artifact-file] opts]
-  {(apply concat
-          (update-in
-           (apply hash-map coords) [:extension]
-           #(str (or % "jar") ".asc")))
-   (sign artifact-file opts)})
+(defn- ssh-keygen-cmd [file opts]
+  ["ssh-keygen" "-Y" "sign" "-f" (:ssh-key opts) "-n" "file" file])
+
+(defn- sign-ssh [file opts]
+  (when-not (zero? (apply eval/sh (ssh-keygen-cmd file opts)))
+    (main/abort "Could not sign" file))
+  (str file ".sig"))
+
+(defn- signature-filename [coords extension]
+  (apply concat (update-in (apply hash-map coords) [:extension]
+                           #(str (or % "jar") extension))))
+
+(defn- gpg-signature-for-artifact [[coords artifact-file] opts]
+  (if (not= false (:gpg-key opts))
+    {(signature-filename coords ".asc") (sign artifact-file opts)}))
+
+(defn- ssh-signature-for-artifact [[coords artifact-file] opts]
+  (if (:ssh-key opts)
+    {(signature-filename coords ".sig") (sign-ssh artifact-file opts)}))
+
+(defn signature-for-artifact [artifact opts]
+  (merge (gpg-signature-for-artifact artifact opts)
+         (ssh-signature-for-artifact artifact opts)))
 
 (defn signatures-for-artifacts
   "Creates and returns the list of signatures for the artifacts needed to be
   signed."
   [artifacts sig-opts]
   (let [total (count artifacts)]
-    (println "Need to sign" total "files with GPG")
+    (println "Need to sign" total "files")
     (doall
      (map-indexed
       (fn [idx [coords artifact-file :as artifact]]
-        (printf "[%d/%d] Signing %s with GPG\n" (inc idx) total artifact-file)
+        (printf "[%d/%d] Signing %s\n" (inc idx) total artifact-file)
         (flush)
         (signature-for-artifact artifact sig-opts))
       artifacts))))

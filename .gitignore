@@ -31,3 +31,4 @@ pom.xml
 deps.txt
 profiles.clj
 /test/.gnupg/crls.d/DIR.txt
+/test_projects/sample/project.clj.sig
