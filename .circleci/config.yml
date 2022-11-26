@@ -23,7 +23,7 @@ jobs:
       - checkout
       - restore_cache:
           key: leiningen-{{ checksum "project.clj" }}
-      - run: apt update -qq && apt install -y gnupg netcat-openbsd
+      - run: apt update -qq && apt install -y gnupg netcat-openbsd openssh-client
       - run:
           name: Bootstrap leiningen-core
           working_directory: ~/leiningen/leiningen-core
