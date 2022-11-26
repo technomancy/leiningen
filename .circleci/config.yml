@@ -31,10 +31,6 @@ jobs:
       - run:
           name: Test Leiningen
           command: bin/lein test
-      - run:
-          name: Test lein-pprint
-          working_directory: lein-pprint
-          command: lein test || bin/notify
       - save_cache:
           paths:
             - $HOME/.m2

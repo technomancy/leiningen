@@ -92,6 +92,9 @@
   (let [file (str (:root sample-project) "/project.clj")
         artifacts {[:extension "clj"] file}]
     (io/delete-file (str file ".sig") :silently)
+    ;; git won't store file permissions so we need to set this manually
+    (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
+      (eval/sh "chmod" "600" "test_projects/.ssh/id_rsa"))
     (binding [main/*exit-process?* false]
       (is (= [{[:extension "clj.sig"] (str file ".sig")}]
              (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
