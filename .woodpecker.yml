@@ -4,4 +4,4 @@ pipeline:
     commands:
       - apt-get update -qq && apt-get install -y gnupg leiningen netcat-openbsd openssh-client
       - cd leiningen-core && lein bootstrap
-      - cd .. && bin/lein test || bin/notify
+      - cd .. && bin/lein test
