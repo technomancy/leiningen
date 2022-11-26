@@ -747,7 +747,8 @@ Once that succeeds it will be available as a package on which other
 projects may depend. For instructions on storing your credentials so
 they don't have to be re-entered every time, see `lein help
 deploying`. When deploying a release that's not a snapshot, Leiningen
-will attempt to sign it using [GPG](https://gnupg.org) to prove your
+will attempt to sign it using [GPG](https://gnupg.org) or
+[SSH](https://www.agwa.name/blog/post/ssh_signatures) to prove your
 authorship of the release. See the
 [deploy guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 for details of how to set that up. The deploy guide includes

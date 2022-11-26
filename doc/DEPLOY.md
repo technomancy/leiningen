@@ -249,6 +249,22 @@ your `project.clj`:
 You can use this to alias any `:repositories` entry; Clojars is just the most
 common use case.
 
+## Signing Artifacts
+
+By default Leiningen will attempt to sign all artifacts that are deployed
+using GPG. If you prefer, you can [sign them using
+SSH](https://www.agwa.name/blog/post/ssh_signatures) instead. If you don't
+already use GPG, this may be more convenient for you. Edit your
+`~/.lein/profiles.clj` file to add a `:user` profile with a `:signing` map:
+
+```clj
+{:user {:signing {:gpg-key false
+                  :ssh-key "~/.ssh/id_rsa"}}}
+```
+
+If you want to keep signing with both SSH and GPG at the same time, you can
+omit the `:gpg-key false` setting.
+
 ## Releasing Simplified
 
 Once you have your repositories and user credentials configured for deploying,
@@ -346,7 +362,7 @@ to the task, like so: `["vcs" "commit" "Version %s [skip ci]"]`.
 
 ### Tagging
 
-By default `["vcs" "tag"]` will create a GPG signed tag with your project version
+By default `["vcs" "tag"]` will create a signed tag with your project version
 number. You can add a tag prefix by passing the prefix after `"tag"`,
 for example: `["vcs" "tag" "v"]`. You can disable tag signing by passing `--no-sign`,
 for example: `["vcs" "tag" "v" "--no-sign"]` or `["vcs" "tag" "--no-sign"]`.

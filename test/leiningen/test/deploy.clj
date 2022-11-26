@@ -91,7 +91,7 @@
 (deftest ssh-signing
   (let [file (str (:root sample-project) "/project.clj")
         artifacts {[:extension "clj"] file}]
-    (io/delete-file (str file ".sig"))
+    (io/delete-file (str file ".sig") :silently)
     (binding [main/*exit-process?* false]
       (is (= [{[:extension "clj.sig"] (str file ".sig")}]
              (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
