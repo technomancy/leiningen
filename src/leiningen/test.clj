@@ -250,6 +250,9 @@ This task uses the following exit codes:
                   ;; never reload).
                   :reloading-require (= :nrepl (:eval-in project))}
                  (vec selectors))]
-      (try (eval/eval-in-project project form '(require 'clojure.test))
+      (try (when-let [n (eval/eval-in-project project form
+                                              '(require 'clojure.test))]
+             (when (and (number? n) (pos? n))
+               (throw (ex-info "Tests Failed" {:exit-code n}))))
            (catch clojure.lang.ExceptionInfo e
-             (main/abort (.getMessage e)))))))
+             (main/abort "Tests failed."))))))
