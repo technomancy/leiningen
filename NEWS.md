@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.9.11 / ???
+
+* Fix a bug where uberjar splices profiles into target path incorrectly. (Phil Hagelberg)
+
 ## 2.9.10 / 2022-08-09
 
 * Fix a bug where dev-resources could leak into jars/uberjars. (Phil Hagelberg)

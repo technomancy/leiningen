@@ -518,7 +518,9 @@
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
     (if (:target-path project)
       (update-in project [:target-path] format
-                 (str/join "+" (map n (normalize-profile-names project profiles))))
+                 (str/join "+" (->> (normalize-profile-names project profiles)
+                                    (map n)
+                                    (remove #{"default"}))))
       project)))
 
 (defn target-path-subdirs [{:keys [target-path] :as project} key]

@@ -665,3 +665,10 @@
              [ring "1.8.2" :scope "test"]]
            (:dependencies result)))))
 
+(deftest test-target-path
+  (let [project (init-project {:dependencies '[[org.clojure/clojure "1.10.1"]]
+                               :target-path "target/%s"
+                               :profiles {:uberjar {}}}
+                              [:default])
+        project (merge-profiles project [:uberjar])]
+    (is (= "target/uberjar" (:target-path project)))))
