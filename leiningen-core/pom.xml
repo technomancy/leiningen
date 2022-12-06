@@ -4,7 +4,7 @@
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
   <packaging>jar</packaging>
-  <version>2.9.10</version>
+  <version>2.9.11-SNAPSHOT</version>
   <name>leiningen-core</name>
   <description>Library for core functionality of Leiningen.</description>
   <url>https://codeberg.org/leiningen/leiningen</url>
@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>3d3570b4e76fbafedff8788faa79e54a45625863</tag>
+    <tag>7973ae602591581f9a11846f8f9bff22b2ed2ffe</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -94,6 +94,10 @@
         <exclusion>
           <artifactId>jcl-over-slf4j</artifactId>
           <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jsoup</artifactId>
+          <groupId>org.jsoup</groupId>
         </exclusion>
       </exclusions>
     </dependency>

@@ -29,11 +29,7 @@
                  ;; for PRISMA-2021-0055, dep: org.apache.httpcomponents/httpclient (patched above),
                  ;; which hasn't bumped commons-codec in its most recent version.
                  [commons-codec "1.15"]
-                 [org.apache.httpcomponents/httpcore "4.4.13"]
-                 ;; for CVE-2021-37714, dep chain: leiningen-core -> clj-commons/pomegranate ->
-                 ;; org.apache.maven.wagon/wagon-http -> org.apache.maven.wagon/wagon-http-shared ->
-                 ;; -> org.jsoup/jsoup
-                 [org.jsoup/jsoup "1.14.2"]]
+                 [org.apache.httpcomponents/httpcore "4.4.13"]]
   :pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
