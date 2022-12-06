@@ -2,6 +2,7 @@
 
 ## 2.10.0 / ???
 
+* Update to nREPL 1.0.0 (Phil Hagelberg)
 * Fix a bug where `:eval-in :leiningen` could suppress test exit code. (Phil Hagelberg)
 * Add the ability to sign deployed files using SSH keys, not just GPG. (Phil Hagelberg)
 * Fix a bug where uberjar splices profiles into target path incorrectly. (Phil Hagelberg)

@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>7973ae602591581f9a11846f8f9bff22b2ed2ffe</tag>
+    <tag>01a307b94dcbc8dd1ade8157342c4a0f066fad5d</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -96,8 +96,20 @@
           <groupId>org.slf4j</groupId>
         </exclusion>
         <exclusion>
-          <artifactId>jsoup</artifactId>
-          <groupId>org.jsoup</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>wagon-provider-api</artifactId>
+          <groupId>org.apache.maven.wagon</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>httpcore</artifactId>
+          <groupId>org.apache.httpcomponents</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>httpclient</artifactId>
+          <groupId>org.apache.httpcomponents</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -115,6 +127,17 @@
       <groupId>org.clojure</groupId>
       <artifactId>tools.macro</artifactId>
       <version>0.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.wagon</groupId>
+      <artifactId>wagon-http</artifactId>
+      <version>3.5.2</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>

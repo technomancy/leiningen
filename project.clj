@@ -18,18 +18,15 @@
                  ;; needed for uberjar
                  [commons-lang "2.6"]
                  ;; needed for repl
-                 [nrepl "0.9.0"]
+                 [nrepl "1.0.0"]
                  ;; needed for change
-                 [org.clojars.trptcolin/sjacket "0.1.1.1" :exclusions [org.clojure/clojure]]
+                 [org.clojars.trptcolin/sjacket "0.1.1.1"
+                  :exclusions [org.clojure/clojure]]
                  ;; bump versions of various common transitive deps
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]
                  [scout "0.1.1"]
                  [commons-io "2.8.0"]
-                 [org.apache.httpcomponents/httpclient "4.5.13"]
-                 ;; for PRISMA-2021-0055, dep: org.apache.httpcomponents/httpclient (patched above),
-                 ;; which hasn't bumped commons-codec in its most recent version.
-                 [commons-codec "1.15"]
-                 [org.apache.httpcomponents/httpcore "4.4.13"]]
+                 [commons-codec "1.15"]]
   :pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]
