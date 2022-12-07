@@ -929,7 +929,10 @@
         include-profiles-meta (->> (expand-profiles-with-meta
                                     project include-profiles)
                                    (utils/last-distinct-by first))
-        effective-include-profiles (map first include-profiles-meta)
+        ;; We want to remove the exclude-profiles earlier, but if we expand
+        ;; earlier on we lose the pom-scope metadata from the profile.
+        effective-include-profiles (remove (set exclude-profiles)
+                                           (map first include-profiles-meta))
         exclude-profiles (utils/last-distinct (expand-profiles project exclude-profiles))
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
         profiles (for [profile-name effective-include-profiles]

@@ -545,7 +545,15 @@
                             :foo [:b]}})
                (merge-profiles [:a :b :c])
                (unmerge-profiles [:foo])
-               (dissoc :profiles))))))
+               (dissoc :profiles))))
+    (testing "unmerge composite profiles"
+      (with-redefs [warn-once (fn [& _] (throw (Exception. "no warning!")))]
+        (let [project (project/init-project
+                       (make-project {:profiles {:dev [:project/dev]
+                                                 :project/dev {:dev? true}}
+                                      :dev? false})
+                       [:default])]
+          (is (not (:dev? (project/unmerge-profiles project [:dev])))))))))
 
 (deftest test-merge-coll-with-metadata
   (let [project
