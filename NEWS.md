@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.10.0 / ???
+## 2.10.0 / 2022-12-09
 
 * Update to nREPL 1.0.0 (Phil Hagelberg)
 * Fix a bug where `:eval-in :leiningen` could suppress test exit code. (Phil Hagelberg)
