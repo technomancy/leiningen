@@ -4,7 +4,7 @@
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
-export LEIN_VERSION="2.10.0"
+export LEIN_VERSION="2.10.1-SNAPSHOT"
 # Must be sha256sum, will be replaced by bin/release
 export LEIN_CHECKSUM='d27299bad34075ac2864d0bd0559f835c6e2c476c0b0a283bcbdb574fdadbb34'
 
