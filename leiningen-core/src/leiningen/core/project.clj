@@ -35,7 +35,7 @@
   (require 'leiningen.core.main)
   (apply (resolve 'leiningen.core.main/warn) args))
 
-(def ^:private warn-once (memoize warn))
+(def ^:internal warn-once (memoize warn))
 
 (defn- update-each-contained [m keys f & args]
   (reduce (fn [m k]

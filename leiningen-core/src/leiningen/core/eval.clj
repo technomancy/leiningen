@@ -170,6 +170,8 @@
        (map #(str (name (key %)) "=" (val %)))
        (into-array String)))
 
+(def ^:dynamic *sh-silent?* false)
+
 (defn sh ;; TODO 3.0.0 - move to independent namespace. e.g. io.clj
   "A version of clojure.java.shell/sh that streams in/out/err."
   [& cmd]
@@ -182,14 +184,15 @@
     (with-open [out (.getInputStream proc)
                 err (.getErrorStream proc)
                 in (.getOutputStream proc)]
-      (let [pump-out (doto (Pipe. out System/out) .start)
-            pump-err (doto (Pipe. err System/err) .start)
+      (let [pump-out (or *sh-silent?* (doto (Pipe. out System/out) .start))
+            pump-err (or *sh-silent?* (doto (Pipe. err System/err) .start))
             ;; TODO: this prevents nrepl need-input msgs from being propagated
             ;; in the case of connecting to Leiningen over nREPL.
             pump-in (ClosingPipe. System/in in)]
         (when *pump-in* (.start pump-in))
-        (.join pump-out)
-        (.join pump-err)
+        (when (not *sh-silent?*)
+          (.join pump-out)
+          (.join pump-err))
         (let [exit-value (.waitFor proc)]
           (when *pump-in*
             (.kill System/in)

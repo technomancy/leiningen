@@ -95,7 +95,8 @@
     ;; git won't store file permissions so we need to set this manually
     (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
       (eval/sh "chmod" "600" "test_projects/.ssh/id_rsa"))
-    (binding [main/*exit-process?* false]
+    (binding [main/*exit-process?* false
+              eval/*sh-silent?* true]
       (is (= [{[:extension "clj.sig"] (str file ".sig")}]
              (binding [*out* (java.io.PrintWriter. (java.io.StringWriter.))]
                (signatures-for-artifacts artifacts
