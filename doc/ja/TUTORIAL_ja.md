@@ -690,7 +690,7 @@ uberjar 以上のことをしようとした場合、サーバサイドデプロ
 Leiningen の自分自身の JVM は実行され続け、不必要なメモリを消費します。
 
 加えて非常に重要なこととして、デプロイする前に全ての依存関係を凍結するステップを踏まなければなりません。
-そうしなければ[繰り返せないデプロイ](https://codeberg.org/leiningen/leiningen/wiki/Repeatability)
+そうしなければ[繰り返せないデプロイ](https://github.com/technomnacy/leiningen/wiki/Repeatability)
 問題によって止まってしまいます。一つのデプロイ(tar ファイル, .deb ファイルなど)にプロジェクトのコードに加えて、
 `~/.m2/repository` を含むことを検討すべきです。継続インテグレーションを設定する際には、
 デプロイ可能なアーティファクトを作るために Leiningen を使う事が推奨されます。

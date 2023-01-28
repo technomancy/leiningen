@@ -8,4 +8,4 @@
   (main/abort "The plugin task has been removed.\n"
               "\nPlease see the upgrade guide for instructions on how to use"
               "the user profile to\nspecify plugins instead:"
-              "https://codeberg.org/leiningen/leiningen/wiki/Upgrading"))
+              "https://github.com/technomnacy/leiningen/wiki/Upgrading"))
