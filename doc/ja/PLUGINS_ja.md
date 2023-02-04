@@ -285,7 +285,7 @@ Leiningenタスクを記述する必要があるのは、例えば`eval-in-proje
 
 この例ではプロジェクトマップの`:version`フィールドを引数リストに渡すことで、プロジェクト内で実行される`-main`関数が値にアクセスできるようにしています。
 
-こういった例の多くは[既存のプラグイン](https://github.com/technomnacy/leiningen/wiki/plugins)でカバーされているはずですが、もし類似の例が見つからず、何らかの理由で別のブラグインに分離できない場合、`tasks/leiningen/`の下に新しいタスクを定義した`foo.clj`ファイルを作成し、`tasks`を`.lein-classpath`に追加することでこのふるまいを実現することができます。
+こういった例の多くは[既存のプラグイン](https://wiki.leiningen.org/Plugins)でカバーされているはずですが、もし類似の例が見つからず、何らかの理由で別のブラグインに分離できない場合、`tasks/leiningen/`の下に新しいタスクを定義した`foo.clj`ファイルを作成し、`tasks`を`.lein-classpath`に追加することでこのふるまいを実現することができます。
 
 ```
 $ ls

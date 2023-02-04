@@ -76,7 +76,8 @@ on that argument.
 
 However, if you need to call other Leiningen functions or have no need
 to run anything inside the context of the project's own process,
-making a plugin might be the right choice if one doesn't [exist already](https://github.com/technomnacy/leiningen/wiki/plugins),
+making a plugin might be the right choice if one doesn't
+[exist already](https://wiki.leiningen.org/Plugins).
 
 ## Writing a Plugin
 
@@ -542,7 +543,7 @@ the argument list so that the `-main` function running inside the
 project code gets access to it.
 
 The vast majority of these cases are already covered by
-[existing plugins](https://github.com/technomnacy/leiningen/wiki/plugins),
+[existing plugins](https://wiki.leiningen.org/Plugins),
 but if you have a case that doesn't exist and for some reason can't
 spin it off into its own separate plugin, you can enable this behavior
 by placing the `foo.clj` file defining the new task in
@@ -569,7 +570,7 @@ proper plugin.
 ## Have Fun
 
 Please add your plugin to [the list on the
-wiki](https://github.com/technomnacy/leiningen/wiki/plugins) once it's ready.
+wiki](https://wiki.leiningen.org/Plugins) once it's ready.
 
 Hopefully the plugin mechanism is simple and flexible enough to let
 you bend Leiningen to your will.

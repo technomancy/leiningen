@@ -227,8 +227,11 @@ This can be used to avoid duplication:
  :production [:shared :prod-servers]}
 ```
 
-It is not recommended to make a composite profile which contains both
-keywords and maps; they should either be all keywords or all maps.
+The vector should contain keywords referencing other profiles which
+will be merged together.
+
+While it is possible to make a composite profile which contains both
+keywords and maps, this will become an error in a future version of Leiningen.
 
 Composite profiles also cannot have certain types of metadata
 propagated, which makes them incompatible with the `:provided`

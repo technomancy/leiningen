@@ -21,8 +21,7 @@ and git remotes.
 
 ## Installation
 
-If your preferred
-[package manager](https://github.com/technomnacy/leiningen/wiki/Packaging)
+If your preferred [package manager](https://wiki.leiningen.org/Packaging)
 offers a recent version of Leiningen, try that first.
 
 Leiningen installs itself on the first run of the `lein` shell script; there is no
@@ -116,7 +115,7 @@ Leiningen documentation is organized as a number of guides:
 ## Plugins
 
 Leiningen supports plugins which may introduce new tasks. See
-[the plugins wiki page](https://github.com/technomnacy/leiningen/wiki/Plugins)
+[the plugins wiki page](https://wiki.leiningen.org/Plugins)
 for a full list. If a plugin is needed for successful test or build
 runs, (such as `lein-tar`) then it should be added to `:plugins` in
 project.clj, but if it's for your own convenience (such as

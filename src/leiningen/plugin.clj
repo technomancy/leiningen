@@ -5,7 +5,4 @@
 (defn ^:no-project-needed plugin
   "DEPRECATED. Please use the :user profile instead."
   [& args]
-  (main/abort "The plugin task has been removed.\n"
-              "\nPlease see the upgrade guide for instructions on how to use"
-              "the user profile to\nspecify plugins instead:"
-              "https://github.com/technomnacy/leiningen/wiki/Upgrading"))
+  (main/abort "The plugin task from Leiningen 1.x has been removed."))

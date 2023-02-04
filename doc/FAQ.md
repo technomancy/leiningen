@@ -119,7 +119,7 @@
 
 **Q:** Still too slow; what else can make startup faster?  
 **A:** The wiki has a page covering
-  [ways to improve startup time](https://github.com/technomancy/leiningen/wiki/Faster).
+  [ways to improve startup time](https://wiki.leiningen.org/Faster).
 
 **Q:** What if I care more about long-term performance than startup time?  
 **A:** Leiningen 2.1.0 onward get a speed boost by disabling optimized

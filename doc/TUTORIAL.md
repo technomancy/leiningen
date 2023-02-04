@@ -672,7 +672,7 @@ Leiningen's own JVM will stay up and consume unnecessary memory.
 In addition it's very important to ensure you take steps to freeze all
 the dependencies before deploying, otherwise it could be easy to end
 up with
-[unrepeatable deployments](https://github.com/technomnacy/leiningen/wiki/Repeatability).
+[unrepeatable deployments](https://wiki.leiningen.org/Repeatability).
 Consider including `~/.m2/repository` in your unit of deployment
 (tarball, .deb file, etc) along with your project code. It's
 recommended to use Leiningen to create a deployable artifact in a
