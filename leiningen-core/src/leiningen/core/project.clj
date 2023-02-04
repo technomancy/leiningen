@@ -625,6 +625,16 @@
           project
           profiles))
 
+(defn- warn-composite [profile]
+  (when (and (composite-profile? profile)
+             (not (keyword-composite-profile? profile)))
+    ;; TODO: include suggestion for how to move map to top-level profile
+    (warn-once
+     "Composite profiles containing maps are strongly recommended against."
+     "\nSupport will be removed in future versions of Leiningen due to subtle"
+     "\nunexpected behavior. Move the map from the composite profile to its own"
+     "\ntop-level named profile to avoid issues.\n" (pr-str profile))))
+
 (defn- lookup-profile*
   "Lookup a profile in the given profiles map, warning when the profile doesn't
   exist. Recurse whenever a keyword or vector is found, combining all profiles
@@ -642,7 +652,8 @@
           (lookup-profile* profiles result))
 
         (composite-profile? profile)
-        (apply-profiles {} (map (partial lookup-profile* profiles) profile))
+        (apply-profiles {} (map (partial lookup-profile* profiles)
+                                (doto profile warn-composite)))
 
         :else (or profile {})))
 

@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.10.1 / ???
+
+* Add warnings for buggy composite profiles. (Phil Hagelberg)
+
 ## 2.10.0 / 2022-12-09
 
 * Update to nREPL 1.0.0 (Phil Hagelberg)
