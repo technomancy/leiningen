@@ -99,7 +99,7 @@
   (aether/resolve-dependencies
    :coordinates coords
    :repositories {"test-repo" {:url "fake://ss"
-                               :checksum false}}
+                               :checksum :warn}}
    :local-repo tmp-local-repo-dir
    :repository-session-fn
    #(-> %
