@@ -139,7 +139,7 @@
                                      (int (:fail summary#))))]
               (if ~*exit-after-tests*
                 (System/exit exit-code#)
-                exit-code#)))))))
+                (throw (ex-info "Tests Failed" {:exit-code exit-code#})))))))))
 
 (defn- split-selectors [args]
   (let [[nses selectors] (split-with (complement keyword?) args)]
@@ -250,9 +250,6 @@ This task uses the following exit codes:
                   ;; never reload).
                   :reloading-require (= :nrepl (:eval-in project))}
                  (vec selectors))]
-      (try (when-let [n (eval/eval-in-project project form
-                                              '(require 'clojure.test))]
-             (when (and (number? n) (pos? n))
-               (throw (ex-info "Tests Failed" {:exit-code n}))))
+      (try (eval/eval-in-project project form '(require 'clojure.test))
            (catch clojure.lang.ExceptionInfo e
-             (main/abort "Tests failed."))))))
+             (main/abort (.getMessage e)))))))
