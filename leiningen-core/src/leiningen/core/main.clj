@@ -170,7 +170,7 @@
   (binding [*out* *err*]
     (when (seq msg)
       (apply println msg))
-    (exit 1)))
+    (apply exit 1 msg)))
 
 (defn- next-dist-row [s t x pprev prev]
   (let [t-len (count t)
