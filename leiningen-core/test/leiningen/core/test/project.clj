@@ -6,6 +6,7 @@
             [leiningen.core.test.helper :refer [abort-msg]]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.utils :as utils]
+            [leiningen.core.main :as main]
             [clojure.java.io :as io])
   (:import (java.io StringReader)))
 
@@ -489,14 +490,15 @@
              (dissoc :profiles)))))
 
 (deftest test-composite-profiles
-  (is (= {:A '(1 3 2), :B 2, :C 3}
-         (-> (make-project
-              {:profiles {:a [:b :c]
-                          :b [{:A [1] :B 1 :C 1} :d]
-                          :c {:A [2] :B 2}
-                          :d {:A [3] :C 3}}})
-             (merge-profiles [:a])
-             (dissoc :profiles)))))
+  (binding [main/*info* false]
+    (is (= {:A '(1 3 2), :B 2, :C 3}
+           (-> (make-project
+                {:profiles {:a [:b :c]
+                            :b [{:A [1] :B 1 :C 1} :d]
+                            :c {:A [2] :B 2}
+                            :d {:A [3] :C 3}}})
+               (merge-profiles [:a])
+               (dissoc :profiles))))))
 
 (deftest test-profiles-default-meta
   (is (= [:repl]
@@ -556,14 +558,14 @@
           (is (not (:dev? (project/unmerge-profiles project [:dev])))))))))
 
 (deftest test-merge-coll-with-metadata
-  (let [project
-        (-> (make-project
-             {:profiles
-              {:shared {:clean-targets ^{:protect false} ["resources/a.txt"]}
-               :prod [:shared {:clean-targets ^{:protect false} ["resources/b.txt"]}]}})
-            (merge-profiles [:prod]))]
-    (is (= (:clean-targets project) ["resources/a.txt" "resources/b.txt"]))
-    (is (false? (-> project :clean-targets meta :protect)))))
+  (binding [main/*info* false]
+    (let [profiles {:shared {:clean-targets ^{:protect false} ["resources/a.txt"]}
+                    :prod [:shared {:clean-targets
+                                    ^{:protect false} ["resources/b.txt"]}]}
+          project (-> (make-project {:profiles profiles})
+                      (merge-profiles [:prod]))]
+      (is (= (:clean-targets project) ["resources/a.txt" "resources/b.txt"]))
+      (is (false? (-> project :clean-targets meta :protect))))))
 
 (deftest test-dedupe-deps
   (is (= '[[org.clojure/clojure "1.3.0"]
