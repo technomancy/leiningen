@@ -14,7 +14,7 @@
     <link rel=\"stylesheet\" href=\"https://leiningen.org/stylesheets/base.css\">
     <link rel=\"stylesheet\" href=\"https://leiningen.org/stylesheets/skeleton.css\">
     <link rel=\"stylesheet\" href=\"https://leiningen.org/stylesheets/layout.css\">
-    <link rel=\"stylesheet\" href=\"stylesheets/lein.css\">
+    <link rel=\"stylesheet\" href=\"https://leiningen.org/stylesheets/lein.css\">
     <link rel=\"shortcut icon\" href=\"https://leiningen.org/images/favicon.ico\">
 
 </head>
