@@ -40,7 +40,7 @@ p#pitch {
 }
 
 pre, tt, kbd, code {
-    font-family: 'Inconsolata', 'Consolas', mono;
+  font-family: 'Inconsolata', 'Consolas', monospace;
 }
 
 #sample-project {
