@@ -396,6 +396,12 @@
                  ;; or a network :host and/or :port
                  ;;   :host "0.0.0.0"
                  ;;   :port 4001
+                 ;; File name to use as history: user input will be stored there
+                 ;; over sessions. Defaults to .lein-repl-history inside a
+                 ;; project or to repl-history in the Leiningen home directory
+                 ;; outside of a project.  Use nil (or file name like
+                 ;; "/dev/null") to disable REPL history completely.
+                 :history-file "/tmp/my-project-repl-history"
                  ;; If nREPL takes too long to load it may timeout,
                  ;; increase this to wait longer before timing out.
                  ;; Defaults to 30000 (30 seconds)
