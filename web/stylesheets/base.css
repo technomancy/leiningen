@@ -36,8 +36,6 @@
 		display: block; }
 	body {
 		line-height: 1; }
-	ol, ul {
-		list-style: none; }
 	blockquote, q {
 		quotes: none; }
 	blockquote:before, blockquote:after,
@@ -102,10 +100,7 @@
 
 /* #Lists
 ================================================== */
-	ul, ol { margin-bottom: 20px; }
-	ul { list-style: none outside; }
-	ol { list-style: decimal; }
-	ol, ul.square, ul.circle, ul.disc { margin-left: 30px; }
+	ul, ol { margin-bottom: 20px; margin-left: 30px; }
 	ul.square { list-style: square outside; }
 	ul.circle { list-style: circle outside; }
 	ul.disc { list-style: disc outside; }

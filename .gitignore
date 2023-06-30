@@ -32,3 +32,9 @@ deps.txt
 profiles.clj
 /test/.gnupg/crls.d/DIR.txt
 /test_projects/sample/project.clj.sig
+/web/deploy.html
+/web/faq.html
+/web/plugins.html
+/web/profiles.html
+/web/templates.html
+/web/tutorial.html
