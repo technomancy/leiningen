@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Tutorial](#tutorial)
   - [What This Tutorial Covers](#what-this-tutorial-covers)
@@ -161,7 +161,7 @@ read up on them elsewhere, for example [here](https://8thlight.com/blog/colin-jo
 
 Your `project.clj` file will start off looking something like this:
 
-```clj
+```clojure
 (defproject my-stuff "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "https://example.com/FIXME"
