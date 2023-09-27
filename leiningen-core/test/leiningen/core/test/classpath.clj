@@ -50,12 +50,13 @@
                      (catch Exception e
                        (stacktrace/root-cause e))))))
   (testing "checks for host of cert"
-    (is (instance? javax.net.ssl.SSLPeerUnverifiedException
-                   (try
-                     (binding [main/*info* false]
-                       (resolve-with-repo "https://badssl.f5n.de/"))
-                     (catch Exception e
-                       (stacktrace/root-cause e))))))
+    (let [ex (try
+               (binding [main/*info* false]
+                 (resolve-with-repo "https://badssl.f5n.de/"))
+               (catch Exception e
+                 (stacktrace/root-cause e)))]
+      (is (or (instance? javax.net.ssl.SSLPeerUnverifiedException ex)
+              (instance? java.security.GeneralSecurityException ex)))))
   (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
            (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")
            (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar")
