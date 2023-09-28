@@ -2,6 +2,7 @@
 
 ## 2.10.1 / ???
 
+* Support XDG config directories. (Phil Hagelberg)
 * Add warnings for buggy composite profiles. (Phil Hagelberg)
 
 ## 2.10.0 / 2022-12-09

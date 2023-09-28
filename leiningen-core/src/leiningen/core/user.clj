@@ -19,13 +19,28 @@
   [name]
   (System/getenv name))
 
+(defn- existing-file [f] (and f (.exists f) f))
+
+(def ^:private warn-once (memoize (fn [& args]
+                                    (binding [*out* *err*]
+                                      (apply println args)))))
+
 (defn leiningen-home
   "Return full path to the user's Leiningen home directory."
   []
-  (let [lein-home (getenv "LEIN_HOME")
-        lein-home (or (and lein-home (io/file lein-home))
-                      (io/file (System/getProperty "user.home") ".lein"))]
-    (.getAbsolutePath (doto lein-home utils/mkdirs))))
+  (let [home (System/getProperty "user.home")
+        explicit-home (getenv "LEIN_HOME")
+        home-home (io/file home ".lein")
+        xdg-home (io/file (or (getenv "XDG_CONFIG_HOME")
+                              (str home "/.config")) "leiningen")]
+    (when (and (existing-file home-home) (existing-file xdg-home))
+      (warn-once "Warning: found multiple config directories:\n  "
+                 (.getPath home-home) "and" (.getPath xdg-home))
+      (warn-once "Using" (.getPath home-home) "for config."))
+    (.getAbsolutePath (or (and explicit-home (io/file explicit-home))
+                          (existing-file home-home)
+                          (existing-file xdg-home)
+                          home-home))))
 
 ;; TODO: move all these memoized fns into delays
 (def init

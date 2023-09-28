@@ -328,7 +328,16 @@ do
 done
 
 # User init
-export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
+if [ "$LEIN_HOME" = "" ]; then
+    # For backwards-compatibility reasons, prefer the old location if present
+    if [ -d "$HOME/.lein" ]; then
+        export LEIN_HOME="$HOME/.lein"
+    elif [ -d "$XDG_DATA_HOME/leiningen" ]; then
+        export LEIN_HOME="$XDG_DATA_HOME/leiningen"
+    else
+        export LEIN_HOME="$HOME/.lein"
+    fi
+fi
 
 for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
   if [ -e "$f" ]; then
