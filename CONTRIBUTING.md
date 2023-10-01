@@ -83,7 +83,7 @@ Using `bin/lein` alone from the main branch without a full checkout
 is not supported. If you want to just grab a shell script to work
 with, use the `stable` branch.
 
-### Uberjar from Master
+### Uberjar from main
 
 Since a development version is not uberjared, it can be rather slow compared to
 a stable release. If this is annoying and you depend on a recent fix or

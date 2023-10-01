@@ -3,6 +3,7 @@
 ## 2.10.1 / ???
 
 * Support XDG config directories. (Phil Hagelberg)
+* Use `$XDG_CACHE_HOME` for self-installs if it exists. (Phil Hagelberg)
 * Add warnings for buggy composite profiles. (Phil Hagelberg)
 
 ## 2.10.0 / 2022-12-09
