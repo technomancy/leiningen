@@ -141,7 +141,7 @@ bump. If none is given, it defaults to :patch."
 (when-let [[resource] (-> (.getContextClassLoader (Thread/currentThread))
                           (.getResources "leiningen/release.clj")
                           (enumeration-seq) (distinct) (rest) (seq))]
-  (let [release-str (str resource)]
+  (let [release-str (slurp resource)]
     (when-not (re-find #"support existing release plugin" release-str)
       (clojure.lang.Compiler/load (io/reader resource)
                                   "leiningen/release.clj" release-str))))
