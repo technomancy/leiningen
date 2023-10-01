@@ -17,6 +17,7 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.trampoline :as trampoline])
   (:import
+   (java.io File)
    (java.net URI)))
 
 (defn- repl-port-file-vector
@@ -257,9 +258,9 @@
                          (str "- "
                               (transport/uri-scheme ~(or (:transport cfg) #'transport/bencode))
                               "://" ~(:host cfg) ":" port#)))
-              (spit (doto repl-port-file# .deleteOnExit) port#)
+              (spit (doto ^File repl-port-file# .deleteOnExit) port#)
               (when legacy-repl-port#
-                (spit (doto legacy-repl-port# .deleteOnExit) port#))))
+                (spit (doto ^File legacy-repl-port# .deleteOnExit) port#))))
           @(promise)))
    ;; TODO: remove in favour of :injections in the :repl profile
    `(do ~(when-let [init-ns (init-ns project)]
@@ -442,15 +443,16 @@ deactivated, but it can be overridden."
                         :transport (or (opt-transport opts) (repl-transport project))
                         :greeting-fn (or (opt-greeting-fn opts) (repl-greeting-fn project)))
              socket (:socket cfg)
-             run #(case subcommand
-                    ":start" (if trampoline/*trampoline?*
-                               (trampoline-repl project (:port cfg))
-                               (client project (server project cfg false) cfg))
-                    ":headless" (apply eval/eval-in-project project
-                                       (server-forms project cfg
-                                                     (when-not socket (ack-port project))
-                                                     true))
-                    (main/abort (str "Unknown subcommand " subcommand)))]
+             run #(binding [eval/*eval-print-dup* true]
+                    (case subcommand
+                      ":start" (if trampoline/*trampoline?*
+                                 (trampoline-repl project (:port cfg))
+                                 (client project (server project cfg false) cfg))
+                      ":headless" (apply eval/eval-in-project project
+                                         (server-forms project cfg
+                                                       (when-not socket (ack-port project))
+                                                       true))
+                      (main/abort (str "Unknown subcommand " subcommand))))]
          (if socket
            (run)
            (utils/with-write-permissions (repl-port-file-path project)
