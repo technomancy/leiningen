@@ -21,9 +21,9 @@ jobs:
         type: string
     steps:
       - checkout
+      - run: apt update -qq && apt install -y gnupg openssh-client
       - restore_cache:
-          key: leiningen-{{ checksum "project.clj" }}
-      - run: apt update -qq && apt install -y gnupg netcat-openbsd openssh-client
+          key: leiningen-{{ checksum "project.clj" }}-{{ checksum "leiningen-core/project.clj" }}
       - run:
           name: Bootstrap leiningen-core
           working_directory: ~/leiningen/leiningen-core
@@ -33,9 +33,8 @@ jobs:
           command: bin/lein test
       - save_cache:
           paths:
-            - $HOME/.m2
-            - $HOME/.lein
-          key: leiningen-{{ checksum "project.clj" }}
+            - ~/.m2/repository
+          key: leiningen-{{ checksum "project.clj" }}-{{ checksum "leiningen-core/project.clj" }}
 
 workflows:
   test-with-matrix:
