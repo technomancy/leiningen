@@ -47,7 +47,7 @@
 
 (defn ^:no-project-needed search
   "Search Central and Clojars for published artifacts."
-  [project query]
+  [project ^String query]
   (let [project (or project (project/make {}))
         repos (into {} (:repositories project))]
     (doseq [[repo searcher] [["central" search-central]
