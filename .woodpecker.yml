@@ -1,7 +1,10 @@
-steps:
-  build:
-    image: debian:stable-slim
-    commands:
-      - apt-get update -qq && apt-get install -y gnupg leiningen openssh-client
-      - cd leiningen-core && lein bootstrap
-      - cd .. && bin/lein test
+# -*- js -*-
+{"steps":
+ {"build":
+  {"image": "debian:stable-slim",
+   "commands": [
+       "apt-get update -qq",
+       "apt-get install -y gnupg leiningen openssh-client",
+       "cd leiningen-core && lein bootstrap",
+       "cd .. && bin/lein test"
+   ]}}}
