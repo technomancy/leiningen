@@ -11,9 +11,9 @@ function msg {
     echo "$@" 1>&2
 }
 
-export LEIN_VERSION="2.9.10"
+export LEIN_VERSION=2.9.10
 # Must be sha256sum, will be replaced by bin/release
-export LEIN_CHECKSUM='a228530f00b50753acfddc3de38a0d737b6f5c1aec49af202e70a0ad28c249c9'
+export LEIN_CHECKSUM=a228530f00b50753acfddc3de38a0d737b6f5c1aec49af202e70a0ad28c249c9
 
 cmd=${1-}
 
@@ -34,8 +34,8 @@ vars=(
 for var in "${vars[@]}"; do : "${!var:=}"; done
 
 case $LEIN_VERSION in
-    *SNAPSHOT) SNAPSHOT="YES" ;;
-    *) SNAPSHOT="NO" ;;
+    *SNAPSHOT) SNAPSHOT=YES ;;
+    *) SNAPSHOT=NO ;;
 esac
 
 if [[ $CLASSPATH ]]; then
@@ -46,9 +46,9 @@ if [[ $CLASSPATH ]]; then
 fi
 
 if [[ $OSTYPE == cygwin ]] || [[ $OSTYPE == msys ]]; then
-    delimiter=";"
+    delimiter=';'
 else
-    delimiter=":"
+    delimiter=':'
 fi
 
 if [[ $OSTYPE == cygwin ]]; then
@@ -77,7 +77,7 @@ function make_native_path {
 
 #  usage : add_path PATH_VAR [PATH]...
 function add_path {
-    local path_var="$1"
+    local path_var=$1
     shift
     while [[ $# -gt 0 ]];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
@@ -123,7 +123,7 @@ function self_install {
   fi
   msg "Downloading Leiningen to $LEIN_JAR now..."
   mkdir -p "$(dirname "$LEIN_JAR")"
-  LEIN_URL="https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar"
+  LEIN_URL=https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar
   $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
   local exit_code=$?
   if [[ $exit_code -eq 0 ]]; then
@@ -131,7 +131,7 @@ function self_install {
       if $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"; then
         mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
       else
-        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')"
+        got_sum=$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')
         checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum"
         rm "$LEIN_JAR.pending" 2> /dev/null
         exit 1
@@ -144,7 +144,7 @@ function self_install {
 }
 
 NOT_FOUND=1
-ORIGINAL_PWD="$PWD"
+ORIGINAL_PWD=$PWD
 while [[ ! -r $PWD/project.clj ]] && [[ $PWD != / ]] && [[ $NOT_FOUND -ne 0 ]]
 do
     cd ..
@@ -154,7 +154,7 @@ do
     fi
 done
 
-export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
+export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
 for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
   if [[ -e $f ]]; then
@@ -167,16 +167,16 @@ if $cygwin; then
     export LEIN_HOME
 fi
 
-LEIN_JAR="${LEIN_JAR:-${LEIN_HOME}/self-installs/leiningen-${LEIN_VERSION}-standalone.jar}"
+LEIN_JAR=${LEIN_JAR:-${LEIN_HOME}/self-installs/leiningen-${LEIN_VERSION}-standalone.jar}
 
 # normalize $0 on certain BSDs
 if [[ $(dirname "$0") == . ]]; then
-    SCRIPT="$(which "$(basename "$0")")"
+    SCRIPT=$(which "$(basename "$0")")
     if [[ -z $SCRIPT ]]; then
-        SCRIPT="$0"
+        SCRIPT=$0
     fi
 else
-    SCRIPT="$0"
+    SCRIPT=$0
 fi
 
 # resolve symlinks to the script itself portably
@@ -184,15 +184,15 @@ while [[ -h $SCRIPT ]] ; do
     ls=$(ls -ld "$SCRIPT")
     link=$(expr "$ls" : '.*-> \(.*\)$')
     if expr "$link" : '/.*' > /dev/null; then
-        SCRIPT="$link"
+        SCRIPT=$link
     else
-        SCRIPT="$(dirname "$SCRIPT"$)/$link"
+        SCRIPT=$(dirname "$SCRIPT"$)/$link
     fi
 done
 
-BIN_DIR="$(dirname "$SCRIPT")"
+BIN_DIR=$(dirname "$SCRIPT")
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+export LEIN_JVM_OPTS=${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}
 
 # This needs to be defined before we call HTTP_CLIENT below
 if [[ -z $HTTP_CLIENT ]]; then
@@ -204,18 +204,18 @@ if [[ -z $HTTP_CLIENT ]]; then
         fi
         HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
     else
-        HTTP_CLIENT="wget -O"
+        HTTP_CLIENT='wget -O'
     fi
 fi
 
 # This needs to be defined before we call SHASUM_CMD below
 if [[ -z $SHASUM_CMD ]]; then
     if type -p sha256sum >/dev/null 2>&1; then
-        export SHASUM_CMD="sha256sum"
+        export SHASUM_CMD=sha256sum
     elif type -p shasum >/dev/null 2>&1; then
-        export SHASUM_CMD="shasum --algorithm 256"
+        export SHASUM_CMD='shasum --algorithm 256'
     elif type -p sha256 >/dev/null 2>&1; then
-        export SHASUM_CMD="sha256 -q"
+        export SHASUM_CMD='sha256 -q'
     else
         command_not_found sha256sum
     fi
@@ -227,7 +227,7 @@ grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
 
 if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
     # Running from source checkout
-    LEIN_DIR="$(cd "$(dirname "$BIN_DIR")";pwd -P)"
+    LEIN_DIR=$(cd "$(dirname "$BIN_DIR")";pwd -P)
 
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
     if [[ ! -r $LEIN_DIR/leiningen-core/.lein-bootstrap ]]; then
@@ -288,16 +288,16 @@ then
     exit 1
 fi
 
-export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
+export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}
 
 if [[ -z ${DRIP_INIT+x} && $(basename "$LEIN_JAVA_CMD") == *drip* ]]; then
-    DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
-    DRIP_INIT_CLASS="clojure.main"
+    DRIP_INIT=$(printf -- '-e\n(require (quote leiningen.repl))')
+    DRIP_INIT_CLASS=clojure.main
     export DRIP_INIT DRIP_INIT_CLASS
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
-export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 
 # Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
 cygterm=false
@@ -341,7 +341,7 @@ elif [[ $cmd == upgrade ]] || [[ $cmd == downgrade ]]; then
         msg "You do not have permission to upgrade the installation in $SCRIPT"
         exit 1
     else
-        TARGET_VERSION="${2:-stable}"
+        TARGET_VERSION=${2:-stable}
         echo "The script at $SCRIPT will be upgraded to the latest $TARGET_VERSION version."
         echo -n "Do you want to continue [Y/n]? "
         read -r RESP
@@ -352,12 +352,12 @@ elif [[ $cmd == upgrade ]] || [[ $cmd == downgrade ]]; then
                 if hash mktemp 2>/dev/null; then
                     TARGET="(mktemp -t lein-upgrade.XXXXXXXXX)"
                 else
-                    TARGET="/tmp/lein-${$}-upgrade"
+                    TARGET=/tmp/lein-$$-upgrade
                 fi
                 if $cygwin; then
                     TARGET=$(cygpath -w "$TARGET")
                 fi
-                LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
+                LEIN_SCRIPT_URL=https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein
                 if $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"; then
                     if cmp -s "$TARGET" "$SCRIPT"; then
                         msg "Leiningen is already up-to-date."
@@ -397,13 +397,13 @@ else
 
         INPUT_CHECKSUM=$(echo "$INPUTS" | $SHASUM_CMD | cut -f 1 -d " ")
         # Just don't change :target-path in project.clj, mkay?
-        TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
+        TRAMPOLINE_FILE=target/trampolines/$INPUT_CHECKSUM
     else
         if hash mktemp 2>/dev/null; then
             # Check if mktemp is available before using it
-            TRAMPOLINE_FILE="$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)"
+            TRAMPOLINE_FILE=$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)
         else
-            TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+            TRAMPOLINE_FILE=/tmp/lein-trampoline-$$
         fi
         trap 'rm -f $TRAMPOLINE_FILE' EXIT
     fi
@@ -419,7 +419,7 @@ else
         exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
     else
         export TRAMPOLINE_FILE
-        IFS=" " read -r -a lein_jvm_opts <<< "$LEIN_JVM_OPTS"
+        IFS=' ' read -r -a lein_jvm_opts <<< "$LEIN_JVM_OPTS"
         "$LEIN_JAVA_CMD" \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
@@ -438,7 +438,7 @@ else
         fi
 
         if [[ -r $TRAMPOLINE_FILE ]] && [[ -z $LEIN_TRAMPOLINE_WARMUP ]]; then
-            TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
+            TRAMPOLINE=$(cat "$TRAMPOLINE_FILE")
             if [[ -z $INPUT_CHECKSUM ]]; then # not using fast trampoline
                 rm "$TRAMPOLINE_FILE"
             fi

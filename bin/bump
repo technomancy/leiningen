@@ -20,5 +20,5 @@ files=(
 )
 
 for file in "${files[@]}"; do
-    sed -i "s/$CURRENT_VERSION/$SNAPSHOT_VERSION/" $file
+    sed -i "s/$CURRENT_VERSION/$SNAPSHOT_VERSION/" "$file"
 done

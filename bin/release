@@ -8,7 +8,7 @@ if [[ -z $* ]]; then
 fi
 
 RELEASE_VERSION=$1
-CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
+CURRENT_VERSION=$RELEASE_VERSION-SNAPSHOT
 
 # Would like to use `lein release` here, but we don't have a way to
 # update the bash scripts or watch for boot slowdowns that way. Maybe
@@ -41,7 +41,7 @@ echo "Generating uberjar..."
 
 bin/lein uberjar
 RELEASE_JAR=$PWD/target/leiningen-$RELEASE_VERSION-standalone.jar
-RELEASE_JAR_CHECKSUM="$(sha256sum "$RELEASE_JAR" | awk '{ print $1 }')"
+RELEASE_JAR_CHECKSUM=$(sha256sum "$RELEASE_JAR" | awk '{ print $1 }')
 SELF_INSTALL_JAR=$HOME/.lein/self-installs/$(basename "$RELEASE_JAR")
 cp "$RELEASE_JAR" "$SELF_INSTALL_JAR"
 
