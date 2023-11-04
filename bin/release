@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
+set -e -u -o pipefail
+
 if [ "$1" = "" ]; then
     echo "usage: $0 VERSION"
     exit 1
 fi
-
-set -e -u
 
 RELEASE_VERSION=$1
 CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"

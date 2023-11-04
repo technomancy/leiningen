@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -e -u -o pipefail
 
 IRC_HOST_PORT=${IRC_HOST_PORT:-"irc.libera.chat 6667"}
 IRC_CHANNEL=${IRC_CHANNEL:-"#leiningen"}

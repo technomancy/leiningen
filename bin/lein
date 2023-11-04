@@ -4,6 +4,9 @@
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
+set -e -u -o pipefail
+(shopt -s inherit_errexit 2>/dev/null) && shopt -s inherit_errexit
+
 function msg {
     echo "$@" 1>&2
 }

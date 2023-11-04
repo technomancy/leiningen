@@ -4,6 +4,9 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from a source checkout and self-install/upgrading.
 
+set -e -u -o pipefail
+(shopt -s inherit_errexit 2>/dev/null) && shopt -s inherit_errexit
+
 export LEIN_VERSION="2.9.10"
 
 # cd to the project root, if applicable
