@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This variant of the lein script is meant for downstream packagers.
 # It has all the cross-platform stuff stripped out as well as the
