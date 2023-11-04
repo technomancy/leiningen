@@ -10,13 +10,14 @@ TEST_DEPS := \
     $(TEST_TAP_BASH) \
 
 export v
+t ?= test/
 
 .PHONY: test
 test: $(TEST_DEPS)
-	prove $${v:+-v }test
+	prove $${v:+-v }$t
 
 clean:
-	$(RM) -r $(BPAN) $(TEST_TAP_BASH)
+	$(RM) -r $(BPAN) $(TEST_TAP_BASH) ../target/
 
 $(BPAN):
 	git clone $(BPAN_REPO) $@

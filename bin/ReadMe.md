@@ -5,18 +5,24 @@ The Bash files in this directory have a test suite.
 
 To run the test suite:
 
-```
+```bash
 make test
 ```
 
 To run the test suite in verbose mode:
 
-```
+```bash
 make test v=1
+```
+
+To run a single test file:
+
+```bash
+make test t=test/00-shellcheck.t
 ```
 
 To remove the generated test support files:
 
-```
+```bash
 make clean
 ```

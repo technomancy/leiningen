@@ -4,7 +4,7 @@
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
-set -e +u -o pipefail
+set -e -u -o pipefail
 (shopt -s inherit_errexit 2>/dev/null) && shopt -s inherit_errexit
 
 function msg {
@@ -14,6 +14,24 @@ function msg {
 export LEIN_VERSION="2.9.10"
 # Must be sha256sum, will be replaced by bin/release
 export LEIN_CHECKSUM='a228530f00b50753acfddc3de38a0d737b6f5c1aec49af202e70a0ad28c249c9'
+
+cmd=${1-}
+
+vars=(
+    CLASSPATH
+    CURL_PROXY
+    DEBUG
+    HTTP_CLIENT
+    https_proxy
+    INPUT_CHECKSUM
+    JAVA_CMD
+    JAVA_OPTS
+    LEIN_FAST_TRAMPOLINE
+    LEIN_TRAMPOLINE_WARMUP
+    LEIN_USE_BOOTCLASSPATH
+    SHASUM_CMD
+)
+for var in "${vars[@]}"; do : "${!var:=}"; done
 
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
@@ -40,18 +58,20 @@ else
 fi
 
 function command_not_found {
-    msg "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
+    local path=$1
+    msg "Leiningen couldn't find $path in your \$PATH ($PATH), which is required."
     exit 1
 }
 
 function make_native_path {
+    local path=$1
     # ensure we have native paths
-    if $cygwin && [[ $1  == /* ]]; then
-    echo -n "$(cygpath -wp "$1")"
-    elif [[ $OSTYPE == msys && $1  == /?/* ]]; then
-    echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
+    if $cygwin && [[ $path  == /* ]]; then
+    echo -n "$(cygpath -wp "$path")"
+    elif [[ $OSTYPE == msys && $path  == /?/* ]]; then
+    echo -n "$(sh -c "(cd $path 2</dev/null && pwd -W) || echo $path | sed 's/^\\/\([a-z]\)/\\1:/g'")"
     else
-    echo -n "$1"
+    echo -n "$path"
     fi
 }
 
@@ -59,20 +79,22 @@ function make_native_path {
 function add_path {
     local path_var="$1"
     shift
-    while [[ $1 ]];do
+    while [[ $# -gt 0 ]];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
+        local path=$1
         if [[ -z ${!path_var} ]]; then
-          export "${path_var}=$(make_native_path "$1")"
+          export "${path_var}=$(make_native_path "$path")"
         else
-          export "${path_var}=${!path_var}${delimiter}$(make_native_path "$1")"
+          export "${path_var}=${!path_var}${delimiter}$(make_native_path "$path")"
         fi
     shift
     done
 }
 
 function download_failed_message {
+    local path=$1 code=$2
     cat <<-EOS 1>&2
-	Failed to download $1 (exit code $2)
+	Failed to download $path (exit code $code)
 	It's possible your HTTP client's certificate store does not have the
 	correct certificate authority needed. This is often caused by an
 	out-of-date version of libssl. It's also possible that you're behind a
@@ -227,7 +249,7 @@ if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
     fi
 
     # Use bin/lein to calculate its own classpath.
-    if [[ ! -r $LEIN_DIR/.lein-classpath ]] && [[ $1 != classpath ]]; then
+    if [[ ! -r $LEIN_DIR/.lein-classpath ]] && [[ $cmd != classpath ]]; then
         msg "Recalculating Leiningen's classpath."
         cd "$LEIN_DIR"
 
@@ -254,7 +276,7 @@ else # Not running from a checkout
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 
-    if [[ ! -r $LEIN_JAR ]] && [[ $1 != self-install ]]; then
+    if [[ ! -r $LEIN_JAR ]] && [[ $cmd != self-install ]]; then
         self_install
     fi
 fi
@@ -293,7 +315,7 @@ fi
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
-if [[ $1 == self-install ]]; then
+if [[ $cmd == self-install ]]; then
     if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
         cat <<-'EOS' 1>&2
 	Running self-install from a checkout is not supported.
@@ -303,7 +325,7 @@ if [[ $1 == self-install ]]; then
     fi
     msg "Manual self-install is deprecated; it will run automatically when necessary."
     self_install
-elif [[ $1 == upgrade ]] || [[ $1 == downgrade ]]; then
+elif [[ $cmd == upgrade ]] || [[ $cmd == downgrade ]]; then
     if [[ $LEIN_DIR ]]; then
         msg "The upgrade task is not meant to be run from a checkout."
         exit 1
