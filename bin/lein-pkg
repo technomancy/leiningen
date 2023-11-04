@@ -12,15 +12,15 @@ export LEIN_VERSION="2.9.10"
 # cd to the project root, if applicable
 NOT_FOUND=1
 ORIGINAL_PWD="$PWD"
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; do
+while [[ ! -r $PWD/project.clj ]] && [[ $PWD != / ]] && [[ $NOT_FOUND -ne 0 ]]; do
     cd ..
-    if [ "$(dirname "$PWD")" = "/" ]; then
+    if [[ $(dirname "$PWD") == / ]]; then
         NOT_FOUND=0
         cd "$ORIGINAL_PWD"
     fi
 done
 
-if [[ "$CLASSPATH" != "" ]]; then
+if [[ $CLASSPATH ]]; then
     echo "WARNING: You have \$CLASSPATH set, probably by accident."
     echo "It is strongly recommended to unset this before proceeding."
 fi
@@ -33,7 +33,7 @@ JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
 
 for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
-    if [ -e "$f" ]; then
+    if [[ -e $f ]]; then
         source "$f"
     fi
 done
@@ -49,21 +49,21 @@ LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}"
 LEIN_JAR=/usr/share/java/leiningen-$LEIN_VERSION-standalone.jar
 
 # Do not use installed leiningen jar during self-compilation
-if ! { [ "$1" = "compile" ] &&
+if ! { [[ $1 == compile ]] &&
         grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
             project.clj ;}; then
     CLASSPATH="$CLASSPATH":"$LEIN_JAR"
-    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
+    if [[ $LEIN_USE_BOOTCLASSPATH != no ]]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 fi
 
 # apply context specific CLASSPATH entries
-if [ -f .lein-classpath ]; then
+if [[ -f .lein-classpath ]]; then
     CLASSPATH="$(cat .lein-classpath):$CLASSPATH"
 fi
 
-if [ -n "$DEBUG" ]; then
+if [[ -n $DEBUG ]]; then
     echo "Leiningen's classpath: $CLASSPATH"
 fi
 
@@ -72,7 +72,7 @@ fi
 export JAVA_CMD="${JAVA_CMD:-"java"}"
 export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
 
-if [[ "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
+if [[ $(basename "$LEIN_JAVA_CMD") == *drip* ]]; then
     DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
     export DRIP_INIT
 fi
@@ -85,11 +85,11 @@ function command_not_found {
     exit 1
 }
 
-if [ -r .lein-fast-trampoline ]; then
+if [[ -r .lein-fast-trampoline ]]; then
     export LEIN_FAST_TRAMPOLINE='y'
 fi
 
-if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
+if [[ $LEIN_FAST_TRAMPOLINE ]] && [[ -r project.clj ]]; then
     INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
 
     if command -v shasum >/dev/null 2>&1; then
@@ -108,15 +108,15 @@ else
     trap 'rm -f $TRAMPOLINE_FILE' EXIT
 fi
 
-if [ "$1" = "upgrade" ]; then
+if [[ $1 == upgrade ]]; then
     echo "This version of Leiningen was installed with a package manager, but"
     echo "the upgrade task is intended for manual installs. Please use your"
     echo "package manager's built-in upgrade facilities instead."
     exit 1
 fi
 
-if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
-    if [ -n "$DEBUG" ]; then
+if [[ $INPUT_CHECKSUM ]] && [[ -r $TRAMPOLINE_FILE ]]; then
+    if [[ $DEBUG ]]; then
         echo "Fast trampoline with $TRAMPOLINE_FILE."
     fi
     exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
@@ -136,12 +136,12 @@ else
 
     EXIT_CODE=$?
 
-    if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
+    if [[ -r $TRAMPOLINE_FILE ]] && [[ -z $LEIN_TRAMPOLINE_WARMUP ]]; then
         TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
-        if [ "$INPUT_CHECKSUM" = "" ]; then # not using fast trampoline
+        if [[ -z $INPUT_CHECKSUM ]]; then # not using fast trampoline
             rm "$TRAMPOLINE_FILE"
         fi
-        if [ "$TRAMPOLINE" = "" ]; then
+        if [[ -z $TRAMPOLINE ]]; then
             exit $EXIT_CODE
         else
             exec sh -c "exec $TRAMPOLINE"

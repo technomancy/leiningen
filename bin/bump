@@ -5,7 +5,7 @@ set -e +u -o pipefail
 CURRENT_VERSION=$1
 SNAPSHOT_VERSION=$2
 
-if [ "$CURRENT_VERSION" = "" ] || [ "$SNAPSHOT_VERSION" = "" ] ; then
+if [[ -z $CURRENT_VERSION ]] || [[ -z $SNAPSHOT_VERSION ]] ; then
    echo "Usage: bin/bump 2.9.7 2.9.8-SNAPSHOT"
    exit 1
 fi

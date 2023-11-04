@@ -2,7 +2,7 @@
 
 set -e +u -o pipefail
 
-if [ "$1" = "" ]; then
+if [[ -z $* ]]; then
     echo "usage: $0 VERSION"
     exit 1
 fi
@@ -14,7 +14,7 @@ CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
 # update the bash scripts or watch for boot slowdowns that way. Maybe
 # try adding lein-shell?
 
-if [ ! -x "$(which lein-stable)" ]; then
+if [[ ! -x $(which lein-stable) ]]; then
     echo "Install a stable version of Leiningen as lein-stable."
     exit 1
 fi
@@ -49,7 +49,7 @@ sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM='$RELEASE_JAR_CHECKSUM'/"
 cp bin/lein "/tmp/lein-$RELEASE_VERSION"
 cd /tmp
 
-if [ ! -r test-project ]; then
+if [[ ! -r test-project ]]; then
     "./lein-$RELEASE_VERSION" new test-project
 fi
 
