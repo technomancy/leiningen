@@ -26,3 +26,10 @@ To remove the generated test support files:
 ```bash
 make clean
 ```
+
+
+## Dependencies
+
+The `test/00-shellcheck.t` test requires the `shellcheck` (v0.9.0+) command.
+You can get it here:
+https://github.com/koalaman/shellcheck/releases/tag/v0.9.0
