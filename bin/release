@@ -14,70 +14,70 @@ CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
 # update the bash scripts or watch for boot slowdowns that way. Maybe
 # try adding lein-shell?
 
-if [ ! -x `which lein-stable` ]; then
+if [ ! -x "$(which lein-stable)" ]; then
     echo "Install a stable version of Leiningen as lein-stable."
     exit 1
 fi
 
-grep $RELEASE_VERSION NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit 1)
+grep "$RELEASE_VERSION" NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit 1)
 
 lein vcs assert-committed
 
 for f in bin/lein bin/lein-pkg bin/lein.bat bin/lein.ps1 project.clj leiningen-core/project.clj; do
-    sed -i s/$CURRENT_VERSION/$RELEASE_VERSION/ $f
+    sed -i "s/$CURRENT_VERSION/$RELEASE_VERSION/" $f
 done
 
 rm -rf target classes leiningen-core/target leiningen-core/classes leiningen-core/lib
-rm -rf $HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar
+rm -rf "$HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar"
 
 LEIN_ROOT=$PWD
 
 echo "Bootstrapping..."
 cd leiningen-core
-lein-stable do clean, bootstrap
+lein-stable 'do' clean, bootstrap
 cd ..
 
 echo "Generating uberjar..."
 
 bin/lein uberjar
 RELEASE_JAR=$PWD/target/leiningen-$RELEASE_VERSION-standalone.jar
-RELEASE_JAR_CHECKSUM="$(sha256sum $RELEASE_JAR | awk '{ print $1 }')"
-SELF_INSTALL_JAR=$HOME/.lein/self-installs/$(basename $RELEASE_JAR)
-cp $RELEASE_JAR $SELF_INSTALL_JAR
+RELEASE_JAR_CHECKSUM="$(sha256sum "$RELEASE_JAR" | awk '{ print $1 }')"
+SELF_INSTALL_JAR=$HOME/.lein/self-installs/$(basename "$RELEASE_JAR")
+cp "$RELEASE_JAR" "$SELF_INSTALL_JAR"
 
 sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM='$RELEASE_JAR_CHECKSUM'/" bin/lein
-cp bin/lein /tmp/lein-$RELEASE_VERSION
+cp bin/lein "/tmp/lein-$RELEASE_VERSION"
 cd /tmp
 
 if [ ! -r test-project ]; then
-    ./lein-$RELEASE_VERSION new test-project
+    "./lein-$RELEASE_VERSION" new test-project
 fi
 
 cd test-project
 
 echo "Running a few invocations in order to check boot time..."
 
-time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
-time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
-time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
+time "../lein-$RELEASE_VERSION" run -m clojure.main/main -e nil
+time "../lein-$RELEASE_VERSION" run -m clojure.main/main -e nil
+time "../lein-$RELEASE_VERSION" run -m clojure.main/main -e nil
 
 echo "Check that these are about the same boot times as with the last version."
 echo "Run this in a project: time lein-stable run -m clojure.main/main -e nil"
 echo "Proceeding here will publish the new version to the git repo."
-echo "Are these acceptable times? (~3s) [Y\n]"
-read CONTINUE
+echo "Are these acceptable times? (~3s) [Y/n]"
+read -r CONTINUE
 case "$CONTINUE" in
     y|Y|"")
-        gpg -ab $RELEASE_JAR;;
+        gpg -ab "$RELEASE_JAR";;
     *)
         echo "Aborted."
         exit 1;;
 esac
 
-cd $LEIN_ROOT
+cd "$LEIN_ROOT"
 
 git commit -a -m "Release $RELEASE_VERSION"
-git tag -s $RELEASE_VERSION -m "Release $RELEASE_VERSION"
+git tag -s "$RELEASE_VERSION" -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin main:stable
 
 echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to Codeberg and GitHub:"

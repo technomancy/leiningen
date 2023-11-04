@@ -11,5 +11,5 @@ if [ "$CURRENT_VERSION" = "" ] || [ "$SNAPSHOT_VERSION" = "" ] ; then
 fi
 
 for f in bin/lein bin/lein-pkg bin/lein.bat bin/lein.ps1 project.clj leiningen-core/project.clj; do
-    sed -i s/$CURRENT_VERSION/$SNAPSHOT_VERSION/ $f
+    sed -i "s/$CURRENT_VERSION/$SNAPSHOT_VERSION/" $f
 done

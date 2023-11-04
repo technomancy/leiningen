@@ -62,9 +62,9 @@ function add_path {
     while [ -n "$1" ];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
         if [[ -z ${!path_var} ]]; then
-          export ${path_var}="$(make_native_path "$1")"
+          export "${path_var}=$(make_native_path "$1")"
         else
-          export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+          export "${path_var}=${!path_var}${delimiter}$(make_native_path "$1")"
         fi
     shift
     done
@@ -105,9 +105,8 @@ function self_install {
   $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
   local exit_code=$?
   if [ $exit_code == 0 ]; then
-      printf "$LEIN_CHECKSUM  $LEIN_JAR.pending\n" > "$LEIN_JAR.pending.shasum"
-      $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"
-      if [ $? == 0 ]; then
+      printf '%s  %s.pending\n' $LEIN_CHECKSUM "$LEIN_JAR" > "$LEIN_JAR.pending.shasum"
+      if $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"; then
         mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
       else
         got_sum="$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')"
@@ -142,7 +141,8 @@ for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
 done
 
 if $cygwin; then
-    export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+    LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+    export LEIN_HOME
 fi
 
 LEIN_JAR="${LEIN_JAR:-${LEIN_HOME}/self-installs/leiningen-${LEIN_VERSION}-standalone.jar}"
@@ -175,6 +175,8 @@ export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLe
 # This needs to be defined before we call HTTP_CLIENT below
 if [ "$HTTP_CLIENT" = "" ]; then
     if type -p curl >/dev/null 2>&1; then
+        # XXX shellcheck says https_proxy isn't defined. Ask if intended.
+        # shellcheck disable=2154
         if [ "$https_proxy" != "" ]; then
             CURL_PROXY="-x $https_proxy"
         fi
@@ -203,7 +205,7 @@ grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
 
 if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
     # Running from source checkout
-    LEIN_DIR="$(cd $(dirname "$BIN_DIR");pwd -P)"
+    LEIN_DIR="$(cd "$(dirname "$BIN_DIR")";pwd -P)"
 
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
     if [ ! -r "$LEIN_DIR/leiningen-core/.lein-bootstrap" ]; then
@@ -252,7 +254,7 @@ else # Not running from a checkout
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 
-    if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
+    if [ ! -r "$LEIN_JAR" ] && [ "$1" != "self-install" ]; then
         self_install
     fi
 fi
@@ -267,8 +269,9 @@ fi
 export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
 
 if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
-    export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
-    export DRIP_INIT_CLASS="clojure.main"
+    DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
+    DRIP_INIT_CLASS="clojure.main"
+    export DRIP_INIT DRIP_INIT_CLASS
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
@@ -319,7 +322,7 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
         TARGET_VERSION="${2:-stable}"
         echo "The script at $SCRIPT will be upgraded to the latest $TARGET_VERSION version."
         echo -n "Do you want to continue [Y/n]? "
-        read RESP
+        read -r RESP
         case "$RESP" in
             y|Y|"")
                 echo
@@ -333,10 +336,8 @@ elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
                     TARGET=$(cygpath -w "$TARGET")
                 fi
                 LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
-                $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
-                if [ $? == 0 ]; then
-                    cmp -s "$TARGET" "$SCRIPT"
-                    if [ $? == 0 ]; then
+                if $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"; then
+                    if cmp -s "$TARGET" "$SCRIPT"; then
                         msg "Leiningen is already up-to-date."
                     fi
                     mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
@@ -396,11 +397,12 @@ else
         exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
     else
         export TRAMPOLINE_FILE
+        IFS=" " read -r -a lein_jvm_opts <<< "$LEIN_JVM_OPTS"
         "$LEIN_JAVA_CMD" \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
-            $LEIN_JVM_OPTS \
+            "${lein_jvm_opts[@]}" \
             -Dleiningen.input-checksum="$INPUT_CHECKSUM" \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.script="$SCRIPT" \
