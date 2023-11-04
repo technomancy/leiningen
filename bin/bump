@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e -u -o pipefail
+set -e +u -o pipefail
 
 CURRENT_VERSION=$1
 SNAPSHOT_VERSION=$2
