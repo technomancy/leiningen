@@ -286,7 +286,7 @@ if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
         ":$LEIN_DIR/resources"
 
     if [[ -r $LEIN_DIR/.lein-classpath ]]; then
-        add-path CLASSPATH "$(cat "$LEIN_DIR/.lein-classpath" 2> /dev/null)"
+        add-path CLASSPATH "$(< "$LEIN_DIR/.lein-classpath")"
     else
         add-path CLASSPATH "$(
             cat "$LEIN_DIR/leiningen-core/.lein-bootstrap" 2> /dev/null
@@ -398,7 +398,7 @@ else
 
     # apply context specific CLASSPATH entries
     if [[ -f .lein-classpath ]]; then
-        add-path CLASSPATH "$(cat .lein-classpath)"
+        add-path CLASSPATH "$(< .lein-classpath)"
     fi
 
     if [[ $DEBUG ]]; then
@@ -412,7 +412,7 @@ else
     if [[ $LEIN_FAST_TRAMPOLINE ]] &&
        [[ -r project.clj ]]
     then
-        INPUTS="$* $(cat project.clj) $LEIN_VERSION $(
+        INPUTS="$* $(< project.clj) $LEIN_VERSION $(
             test -f "$LEIN_HOME/profiles.clj" &&
                 cat "$LEIN_HOME/profiles.clj"
         ) $(test -f profiles.clj &&
@@ -445,7 +445,7 @@ else
         if [[ $DEBUG ]]; then
             err "Fast trampoline with $TRAMPOLINE_FILE."
         fi
-        exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
+        exec sh -c "exec $(< "$TRAMPOLINE_FILE")"
     else
         export TRAMPOLINE_FILE
         IFS=' ' read -r -a lein_jvm_opts <<< "$LEIN_JVM_OPTS"
@@ -469,7 +469,7 @@ else
         if [[ -r $TRAMPOLINE_FILE ]] &&
            [[ -z $LEIN_TRAMPOLINE_WARMUP ]]
         then
-            TRAMPOLINE=$(cat "$TRAMPOLINE_FILE")
+            TRAMPOLINE=$(< "$TRAMPOLINE_FILE")
             if [[ -z $INPUT_CHECKSUM ]]; then # not using fast trampoline
                 rm "$TRAMPOLINE_FILE"
             fi
