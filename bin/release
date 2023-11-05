@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e +u -o pipefail
+set -e -u -o pipefail
 
 function msg { printf '%\n' "$@"; }
 function err { msg "$@" >&2; }
@@ -39,8 +39,13 @@ for file in "${files[@]}"; do
     sed -i "s/$CURRENT_VERSION/$RELEASE_VERSION/" "$file"
 done
 
-rm -rf target classes leiningen-core/target leiningen-core/classes leiningen-core/lib
-rm -rf "$HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar"
+rm -rf \
+    target \
+    classes \
+    leiningen-core/target \
+    leiningen-core/classes \
+    leiningen-core/lib \
+    "$HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar"
 
 LEIN_ROOT=$PWD
 
@@ -58,7 +63,7 @@ RELEASE_JAR_CHECKSUM=$(sha256sum "$RELEASE_JAR" | awk '{ print $1 }')
 SELF_INSTALL_JAR=$HOME/.lein/self-installs/$(basename "$RELEASE_JAR")
 cp "$RELEASE_JAR" "$SELF_INSTALL_JAR"
 
-sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM='$RELEASE_JAR_CHECKSUM'/" bin/lein
+sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM=$RELEASE_JAR_CHECKSUM/" bin/lein
 cp bin/lein "/tmp/lein-$RELEASE_VERSION"
 cd /tmp
 
@@ -74,10 +79,13 @@ time "../lein-$RELEASE_VERSION" run -m clojure.main/main -e nil
 time "../lein-$RELEASE_VERSION" run -m clojure.main/main -e nil
 time "../lein-$RELEASE_VERSION" run -m clojure.main/main -e nil
 
-echo "Check that these are about the same boot times as with the last version."
-echo "Run this in a project: time lein-stable run -m clojure.main/main -e nil"
-echo "Proceeding here will publish the new version to the git repo."
-echo "Are these acceptable times? (~3s) [Y/n]"
+cat <<EOS
+Check that these are about the same boot times as with the last version.
+Run this in a project: time lein-stable run -m clojure.main/main -e nil
+Proceeding here will publish the new version to the git repo.
+Are these acceptable times? (~3s) [Y/n]
+EOS
+
 read -r CONTINUE
 case "$CONTINUE" in
     y|Y|"")
@@ -93,13 +101,17 @@ git commit -a -m "Release $RELEASE_VERSION"
 git tag -s "$RELEASE_VERSION" -m "Release $RELEASE_VERSION"
 git push && git push --tags && git push origin main:stable
 
-echo "Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to Codeberg and GitHub:"
-echo "https://codeberg.org/leiningen/leiningen/releases/new?tag=$RELEASE_VERSION"
-echo "https://github.com/technomancy/leiningen/releases/new?tag=$RELEASE_VERSION"
-echo "Copy this version's section of NEWS.md to the release description."
+cat <<EOS
+Upload $SELF_INSTALL_JAR and $SELF_INSTALL_JAR.asc to Codeberg and GitHub:
+https://codeberg.org/leiningen/leiningen/releases/new?tag=$RELEASE_VERSION
+https://github.com/technomancy/leiningen/releases/new?tag=$RELEASE_VERSION
+Copy this version's section of NEWS.md to the release description.
+EOS
 
 rm -rf target leiningen-core/target
-echo "Test self-install. If things are good, run this:"
-echo "$ lein deploy clojars && cd leiningen-core && lein deploy clojars"
-echo ""
-echo "Then run: bin/bump $RELEASE_VERSION NEXT_VERSION"
+cat <<EOS
+Test self-install. If things are good, run this:
+$ lein deploy clojars && cd leiningen-core && lein deploy clojars
+
+Then run: bin/bump $RELEASE_VERSION NEXT_VERSION
+EOS

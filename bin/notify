@@ -7,12 +7,16 @@ IRC_CHANNEL=${IRC_CHANNEL:-"#leiningen"}
 
 echo "Announcing failure on $IRC_HOST_PORT $IRC_CHANNEL"
 
-LOG=$(git log --oneline -n 1 HEAD | head -n 1)
+LOG=$(
+    git log --oneline -n 1 HEAD |
+        head -n 1
+)
 
 echo "NICK leiningen-build
 USER leiningen-build 8 x : leiningen-build
 JOIN $IRC_CHANNEL
 PRIVMSG $IRC_CHANNEL :Build failure! $LOG
-QUIT" | nc "$IRC_HOST_PORT"
+QUIT" |
+    nc "$IRC_HOST_PORT"
 
 exit 1 # don't mask the failure!
