@@ -6,10 +6,8 @@ function msg { printf '%\n' "$@"; }
 function err { msg "$@" >&2; }
 function die { err "$@"; exit 1; }
 
-if [[ -z $* ]]; then
-    echo "usage: $0 VERSION"
-    exit 1
-fi
+[[ $* ]] ||
+    die "usage: $0 VERSION"
 
 RELEASE_VERSION=$1
 CURRENT_VERSION=$RELEASE_VERSION-SNAPSHOT
@@ -91,8 +89,7 @@ case "$CONTINUE" in
     y|Y|"")
         gpg -ab "$RELEASE_JAR";;
     *)
-        echo "Aborted."
-        exit 1;;
+        die "Aborted.";;
 esac
 
 cd "$LEIN_ROOT"
