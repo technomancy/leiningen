@@ -2,6 +2,10 @@
 
 set -e +u -o pipefail
 
+function msg { printf '%\n' "$@"; }
+function err { msg "$@" >&2; }
+function die { err "$@"; exit 1; }
+
 if [[ -z $* ]]; then
     echo "usage: $0 VERSION"
     exit 1
@@ -15,16 +19,24 @@ CURRENT_VERSION=$RELEASE_VERSION-SNAPSHOT
 # try adding lein-shell?
 
 if [[ ! -x $(which lein-stable) ]]; then
-    echo "Install a stable version of Leiningen as lein-stable."
-    exit 1
+    die "Install a stable version of Leiningen as lein-stable."
 fi
 
-grep "$RELEASE_VERSION" NEWS.md || (echo "Add $RELEASE_VERSION to NEWS.md" && exit 1)
+grep "$RELEASE_VERSION" NEWS.md ||
+    die "Add $RELEASE_VERSION to NEWS.md"
 
 lein vcs assert-committed
 
-for f in bin/lein bin/lein-pkg bin/lein.bat bin/lein.ps1 project.clj leiningen-core/project.clj; do
-    sed -i "s/$CURRENT_VERSION/$RELEASE_VERSION/" $f
+files=(
+    bin/lein
+    bin/lein-pkg
+    bin/lein.bat
+    bin/lein.ps1
+    project.clj
+    leiningen-core/project.clj
+)
+for file in "${files[@]}"; do
+    sed -i "s/$CURRENT_VERSION/$RELEASE_VERSION/" "$file"
 done
 
 rm -rf target classes leiningen-core/target leiningen-core/classes leiningen-core/lib

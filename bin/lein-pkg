@@ -7,6 +7,10 @@
 set -e +u -o pipefail
 (shopt -s inherit_errexit 2>/dev/null) && shopt -s inherit_errexit
 
+function msg { printf '%\n' "$@"; }
+function err { msg "$@" >&2; }
+function die { err "$@"; exit 1; }
+
 export LEIN_VERSION=2.9.10
 
 # cd to the project root, if applicable
@@ -21,8 +25,8 @@ while [[ ! -r $PWD/project.clj ]] && [[ $PWD != / ]] && [[ $NOT_FOUND -ne 0 ]]; 
 done
 
 if [[ $CLASSPATH ]]; then
-    echo "WARNING: You have \$CLASSPATH set, probably by accident."
-    echo "It is strongly recommended to unset this before proceeding."
+    msg "WARNING: You have \$CLASSPATH set, probably by accident." \
+        "It is strongly recommended to unset this before proceeding."
 fi
 
 # User init
@@ -81,8 +85,7 @@ fi
 export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 
 function command_not_found {
-    >&2 echo "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
-    exit 1
+    die "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
 }
 
 if [[ -r .lein-fast-trampoline ]]; then
@@ -109,10 +112,9 @@ else
 fi
 
 if [[ $1 == upgrade ]]; then
-    echo "This version of Leiningen was installed with a package manager, but"
-    echo "the upgrade task is intended for manual installs. Please use your"
-    echo "package manager's built-in upgrade facilities instead."
-    exit 1
+    die "This version of Leiningen was installed with a package manager, but" \
+        "the upgrade task is intended for manual installs. Please use your" \
+        "package manager's built-in upgrade facilities instead."
 fi
 
 if [[ $INPUT_CHECKSUM ]] && [[ -r $TRAMPOLINE_FILE ]]; then
