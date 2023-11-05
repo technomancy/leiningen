@@ -205,7 +205,7 @@ export LEIN_JVM_OPTS
 
 # This needs to be defined before we call HTTP_CLIENT below
 if [[ -z $HTTP_CLIENT ]]; then
-    if type -p curl >/dev/null 2>&1; then
+    if type -p curl &>/dev/null; then
         # XXX shellcheck says https_proxy isn't defined. Ask if intended.
         # shellcheck disable=2154
         if [[ $https_proxy ]]; then
@@ -219,11 +219,11 @@ fi
 
 # This needs to be defined before we call SHASUM_CMD below
 if [[ -z $SHASUM_CMD ]]; then
-    if type -p sha256sum >/dev/null 2>&1; then
+    if type -p sha256sum &>/dev/null; then
         export SHASUM_CMD=sha256sum
-    elif type -p shasum >/dev/null 2>&1; then
+    elif type -p shasum &>/dev/null; then
         export SHASUM_CMD='shasum --algorithm 256'
-    elif type -p sha256 >/dev/null 2>&1; then
+    elif type -p sha256 &>/dev/null; then
         export SHASUM_CMD='sha256 -q'
     else
         command-not-found sha256sum
@@ -336,7 +336,7 @@ fi
 
 if $cygterm; then
     LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
-    stty -icanon min 1 -echo > /dev/null 2>&1
+    stty -icanon min 1 -echo &> /dev/null
 fi
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
@@ -463,7 +463,7 @@ else
                 EXIT_CODE=$?
 
         if $cygterm ; then
-            stty icanon echo > /dev/null 2>&1
+            stty icanon echo &> /dev/null
         fi
 
         if [[ -r $TRAMPOLINE_FILE ]] &&
