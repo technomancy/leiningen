@@ -73,8 +73,10 @@ LEIN_JAR=/usr/share/java/leiningen-$LEIN_VERSION-standalone.jar
 
 # Do not use installed leiningen jar during self-compilation
 if ! { [[ $1 == compile ]] &&
-        grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
-            project.clj ;}; then
+       grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
+          project.clj
+     }
+then
     CLASSPATH=$CLASSPATH:$LEIN_JAR
     if [[ $LEIN_USE_BOOTCLASSPATH != no ]]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
@@ -111,7 +113,9 @@ if [[ -r .lein-fast-trampoline ]]; then
     export LEIN_FAST_TRAMPOLINE='y'
 fi
 
-if [[ $LEIN_FAST_TRAMPOLINE ]] && [[ -r project.clj ]]; then
+if [[ $LEIN_FAST_TRAMPOLINE ]] &&
+   [[ -r project.clj ]]
+then
     INPUTS="$* $(cat project.clj) $LEIN_VERSION $(
             test -f "$LEIN_HOME/profiles.clj" &&
                 cat "$LEIN_HOME/profiles.clj"
@@ -144,7 +148,9 @@ if [[ $1 == upgrade ]]; then
         "package manager's built-in upgrade facilities instead."
 fi
 
-if [[ $INPUT_CHECKSUM ]] && [[ -r $TRAMPOLINE_FILE ]]; then
+if [[ $INPUT_CHECKSUM ]] &&
+   [[ -r $TRAMPOLINE_FILE ]]
+then
     if [[ $DEBUG ]]; then
         echo "Fast trampoline with $TRAMPOLINE_FILE."
     fi
@@ -165,7 +171,9 @@ else
         clojure.main -m leiningen.core.main "$@" ||
             EXIT_CODE=$?
 
-    if [[ -r $TRAMPOLINE_FILE ]] && [[ -z $LEIN_TRAMPOLINE_WARMUP ]]; then
+    if [[ -r $TRAMPOLINE_FILE ]] &&
+       [[ -z $LEIN_TRAMPOLINE_WARMUP ]]
+    then
         TRAMPOLINE=$(cat "$TRAMPOLINE_FILE")
         if [[ -z $INPUT_CHECKSUM ]]; then # not using fast trampoline
             rm "$TRAMPOLINE_FILE"
