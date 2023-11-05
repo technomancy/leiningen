@@ -130,16 +130,19 @@ function self_install {
   fi
 }
 
-NOT_FOUND=1
+# cd to the project root, if applicable
+find-project-dir() (
+    while [[ $PWD != / ]]; do
+        if [[ -r $PWD/project.clj ]]; then
+          echo "$PWD"
+          exit
+        fi
+        cd ..
+    done
+)
+project_dir=$(find-project-dir)
 ORIGINAL_PWD=$PWD
-while [[ ! -r $PWD/project.clj ]] && [[ $PWD != / ]] && [[ $NOT_FOUND -ne 0 ]]
-do
-    cd ..
-    if [[ $(dirname "$PWD") == / ]]; then
-        NOT_FOUND=0
-        cd "$ORIGINAL_PWD"
-    fi
-done
+[[ $project_dir ]] && cd "$project_dir"
 
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
@@ -235,12 +238,13 @@ if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
     # Use bin/lein to calculate its own classpath.
     if [[ ! -r $LEIN_DIR/.lein-classpath ]] && [[ $cmd != classpath ]]; then
         err "Recalculating Leiningen's classpath."
-        cd "$LEIN_DIR"
-
-        LEIN_NO_USER_PROFILES=1 "$LEIN_DIR/bin/lein" classpath .lein-classpath
-        sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj" > \
-            .lein-project-checksum
-        cd -
+        (
+            cd "$LEIN_DIR"
+            LEIN_NO_USER_PROFILES=1 "$LEIN_DIR/bin/lein" classpath .lein-classpath
+            sum "$LEIN_DIR/project.clj" \
+                "$LEIN_DIR/leiningen-core/project.clj" > \
+                    .lein-project-checksum
+        )
     fi
 
     mkdir -p "$LEIN_DIR/target/classes"

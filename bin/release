@@ -45,9 +45,10 @@ rm -rf "$HOME/.lein/self-installs/leiningen-$RELEASE_VERSION-standalone.jar"
 LEIN_ROOT=$PWD
 
 echo "Bootstrapping..."
-cd leiningen-core
-lein-stable 'do' clean, bootstrap
-cd ..
+(
+    cd leiningen-core
+    lein-stable 'do' clean, bootstrap
+)
 
 echo "Generating uberjar..."
 

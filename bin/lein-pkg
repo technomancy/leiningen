@@ -14,14 +14,18 @@ function die { err "$@"; exit 1; }
 export LEIN_VERSION=2.9.10
 
 # cd to the project root, if applicable
-NOT_FOUND=1
-while [[ ! -r $PWD/project.clj ]] && [[ $PWD != / ]] && [[ $NOT_FOUND -ne 0 ]]; do
-    cd ..
-    if [[ $(dirname "$PWD") == / ]]; then
-        NOT_FOUND=0
-        cd "$ORIGINAL_PWD"
-    fi
-done
+find-project-dir() (
+    while [[ $PWD != / ]]; do
+        if [[ -r $PWD/project.clj ]]; then
+          echo "$PWD"
+          exit
+        fi
+        cd ..
+    done
+)
+project_dir=$(find-project-dir)
+ORIGINAL_PWD=$PWD
+[[ $project_dir ]] && cd "$project_dir"
 
 if [[ $CLASSPATH ]]; then
     msg "WARNING: You have \$CLASSPATH set, probably by accident." \
