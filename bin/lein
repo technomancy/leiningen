@@ -33,27 +33,22 @@ vars=(
 )
 for var in "${vars[@]}"; do : "${!var:=}"; done
 
-case $LEIN_VERSION in
-    *SNAPSHOT) SNAPSHOT=YES ;;
-    *) SNAPSHOT=NO ;;
-esac
+[[ $LEIN_VERSION == *SNAPSHOT ]] &&
+    SNAPSHOT=true ||
+    SNAPSHOT=false
 
 if [[ $CLASSPATH ]]; then
     err "WARNING: You have $CLASSPATH set, probably by accident." \
 	"It is strongly recommended to unset this before proceeding."
 fi
 
-if [[ $OSTYPE == cygwin ]] || [[ $OSTYPE == msys ]]; then
-    delimiter=';'
-else
+{ [[ $OSTYPE == cygwin ]] || [[ $OSTYPE == msys ]]; } &&
+    delimiter=';' ||
     delimiter=':'
-fi
 
-if [[ $OSTYPE == cygwin ]]; then
-  cygwin=true
-else
-  cygwin=false
-fi
+[[ $OSTYPE == cygwin ]] &&
+    cygwin=true
+    cygwin=false
 
 function command_not_found {
     local path=$1
@@ -314,7 +309,7 @@ elif [[ $cmd == upgrade ]] || [[ $cmd == downgrade ]]; then
     if [[ $LEIN_DIR ]]; then
         die "The upgrade task is not meant to be run from a checkout."
     fi
-    if [[ $SNAPSHOT == YES ]]; then
+    if $SNAPSHOT; then
         die "The upgrade task is only meant for stable releases." \
             'See the "Bootstrapping" section of CONTRIBUTING.md.'
     fi

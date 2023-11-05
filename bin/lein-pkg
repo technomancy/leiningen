@@ -15,7 +15,6 @@ export LEIN_VERSION=2.9.10
 
 # cd to the project root, if applicable
 NOT_FOUND=1
-ORIGINAL_PWD=$PWD
 while [[ ! -r $PWD/project.clj ]] && [[ $PWD != / ]] && [[ $NOT_FOUND -ne 0 ]]; do
     cd ..
     if [[ $(dirname "$PWD") == / ]]; then
