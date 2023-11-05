@@ -4,72 +4,102 @@
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
-function msg {
-    echo "$@" 1>&2
-}
+set -e -u -o pipefail
+(shopt -s inherit_errexit 2>/dev/null) && shopt -s inherit_errexit
 
-export LEIN_VERSION="2.9.10"
+function msg { printf '%\n' "$@"; }
+function err { msg "$@" >&2; }
+function die { err "$@"; exit 1; }
+
+export LEIN_VERSION=2.9.10
 # Must be sha256sum, will be replaced by bin/release
-export LEIN_CHECKSUM='a228530f00b50753acfddc3de38a0d737b6f5c1aec49af202e70a0ad28c249c9'
+export LEIN_CHECKSUM=a228530f00b50753acfddc3de38a0d737b6f5c1aec49af202e70a0ad28c249c9
 
-case $LEIN_VERSION in
-    *SNAPSHOT) SNAPSHOT="YES" ;;
-    *) SNAPSHOT="NO" ;;
-esac
+REPO_URL=https://github.com/technomancy/leiningen
+JAR_FILE=leiningen-$LEIN_VERSION-standalone.jar
 
-if [[ "$CLASSPATH" != "" ]]; then
-    cat <<-'EOS' 1>&2
-	WARNING: You have $CLASSPATH set, probably by accident.
-	It is strongly recommended to unset this before proceeding.
-	EOS
+cmd=${1-}
+
+vars=(
+    CLASSPATH
+    CURL_PROXY
+    DEBUG
+    HTTP_CLIENT
+    https_proxy
+    INPUT_CHECKSUM
+    JAVA_CMD
+    JAVA_OPTS
+    LEIN_FAST_TRAMPOLINE
+    LEIN_JAR
+    LEIN_JVM_OPTS
+    LEIN_TRAMPOLINE_WARMUP
+    LEIN_USE_BOOTCLASSPATH
+    SHASUM_CMD
+)
+for var in "${vars[@]}"; do : "${!var:=}"; done
+
+[[ $LEIN_VERSION == *SNAPSHOT ]] &&
+    SNAPSHOT=true ||
+    SNAPSHOT=false
+
+if [[ $CLASSPATH ]]; then
+    err "WARNING: You have $CLASSPATH set, probably by accident." \
+        "It is strongly recommended to unset this before proceeding."
 fi
 
-if [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
-    delimiter=";"
-else
-    delimiter=":"
-fi
+{ [[ $OSTYPE == cygwin ]] || [[ $OSTYPE == msys ]]; } &&
+    delimiter=';' ||
+    delimiter=':'
 
-if [[ "$OSTYPE" == "cygwin" ]]; then
-  cygwin=true
-else
-  cygwin=false
-fi
+[[ $OSTYPE == cygwin ]] &&
+    cygwin=true
+    cygwin=false
 
-function command_not_found {
-    msg "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
-    exit 1
+function command-not-found {
+    local path=$1
+    die "Leiningen couldn't find $path in your \$PATH ($PATH), which is required."
 }
 
-function make_native_path {
+function make-native-path {
+    local path=$1
     # ensure we have native paths
-    if $cygwin && [[ "$1"  == /* ]]; then
-    echo -n "$(cygpath -wp "$1")"
-    elif [[ "$OSTYPE" == "msys" && "$1"  == /?/* ]]; then
-    echo -n "$(sh -c "(cd $1 2</dev/null && pwd -W) || echo $1 | sed 's/^\\/\([a-z]\)/\\1:/g'")"
+    if $cygwin &&
+       [[ $path  == /* ]]
+    then
+        echo -n "$(cygpath -wp "$path")"
+    elif [[ $OSTYPE == msys ]] &&
+         [[ $path  == /?/* ]]
+    then
+        echo -n "$(
+            sh -c "(cd $path 2</dev/null && pwd -W) ||
+                echo $path |
+                sed 's/^\\/\([a-z]\)/\\1:/g'"
+        )"
     else
-    echo -n "$1"
+        echo -n "$path"
     fi
 }
 
-#  usage : add_path PATH_VAR [PATH]...
-function add_path {
-    local path_var="$1"
+#  usage : add-path PATH_VAR [PATH]...
+function add-path {
+    local path_var=$1
     shift
-    while [ -n "$1" ];do
+    while [[ $# -gt 0 ]]; do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
+        local path=$1
         if [[ -z ${!path_var} ]]; then
-          export ${path_var}="$(make_native_path "$1")"
+            export "${path_var}=$(make-native-path "$path")"
         else
-          export ${path_var}="${!path_var}${delimiter}$(make_native_path "$1")"
+            export "${path_var}=${!path_var}${delimiter}$(make-native-path "$path")"
         fi
-    shift
+        shift
     done
 }
 
-function download_failed_message {
-    cat <<-EOS 1>&2
-	Failed to download $1 (exit code $2)
+function download-failed-message {
+    local path=$1 code=$2
+    cat <<-EOS
+	Failed to download $path (exit code $code)
 	It's possible your HTTP client's certificate store does not have the
 	correct certificate authority needed. This is often caused by an
 	out-of-date version of libssl. It's also possible that you're behind a
@@ -77,274 +107,288 @@ function download_failed_message {
 	EOS
 }
 
-function checksum_failed_message {
-    cat <<-EOS 1>&2
-	Failed to properly download $1
+function checksum-failed-message {
+    local url=$1 want=$2 got=$3
+    cat <<-EOS
+	Failed to properly download $url
 	The checksum was mismatched. and we could not verify the downloaded
 	file. We expected a sha256 of
-	$2 and actually had
-	$3.
+	$want and actually had
+	$got.
 	We used '$SHASUM_CMD' to verify the downloaded file.
 	EOS
 }
 
-function self_install {
-  if [ -r "$LEIN_JAR" ]; then
-    cat <<-EOS 1>&2
-	The self-install jar already exists at $LEIN_JAR.
-	If you wish to re-download, delete it and rerun "$0 self-install".
-	EOS
-    exit 1
-  fi
-  msg "Downloading Leiningen to $LEIN_JAR now..."
-  mkdir -p "$(dirname "$LEIN_JAR")"
-  LEIN_URL="https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar"
-  $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
-  local exit_code=$?
-  if [ $exit_code == 0 ]; then
-      printf "$LEIN_CHECKSUM  $LEIN_JAR.pending\n" > "$LEIN_JAR.pending.shasum"
-      $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"
-      if [ $? == 0 ]; then
-        mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
-      else
-        got_sum="$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')"
-        checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum"
+function self-install {
+    [[ -r $LEIN_JAR ]] &&
+        die "The self-install jar already exists at $LEIN_JAR." \
+            "If you wish to re-download, delete it and rerun '$0 self-install'."
+    err "Downloading Leiningen to $LEIN_JAR now..."
+    mkdir -p "$(dirname "$LEIN_JAR")"
+    LEIN_URL=$REPO_URL/releases/download/$LEIN_VERSION/$JAR_FILE
+    local exit_code=0
+    $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL" || exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        printf '%s  %s.pending\n' $LEIN_CHECKSUM "$LEIN_JAR" \
+            > "$LEIN_JAR.pending.shasum"
+        if $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"; then
+            mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+        else
+            got_sum=$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')
+            rm "$LEIN_JAR.pending" 2> /dev/null
+            die "$(
+                checksum-failed-message \
+                    "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum"
+            )"
+        fi
+    else
         rm "$LEIN_JAR.pending" 2> /dev/null
-        exit 1
-      fi
-  else
-      rm "$LEIN_JAR.pending" 2> /dev/null
-      download_failed_message "$LEIN_URL" "$exit_code"
-      exit 1
-  fi
+        die "$(download-failed-message "$LEIN_URL" "$exit_code")"
+    fi
 }
 
-NOT_FOUND=1
-ORIGINAL_PWD="$PWD"
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]
-do
-    cd ..
-    if [ "$(dirname "$PWD")" = "/" ]; then
-        NOT_FOUND=0
-        cd "$ORIGINAL_PWD"
+# cd to the project root, if applicable
+find-project-dir() (
+    while [[ $PWD != / ]]; do
+        if [[ -r $PWD/project.clj ]]; then
+            echo "$PWD"
+            exit
+        fi
+        cd ..
+    done
+)
+project_dir=$(find-project-dir)
+ORIGINAL_PWD=$PWD
+[[ $project_dir ]] && cd "$project_dir"
+
+export LEIN_HOME=${LEIN_HOME:-$HOME/.lein}
+
+for f in /etc/leinrc $LEIN_HOME/leinrc .leinrc; do
+    if [[ -e $f ]]; then
+        source "$f"
     fi
-done
-
-export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
-
-for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
-  if [ -e "$f" ]; then
-    source "$f"
-  fi
 done
 
 if $cygwin; then
-    export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+    LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+    export LEIN_HOME
 fi
 
-LEIN_JAR="${LEIN_JAR:-${LEIN_HOME}/self-installs/leiningen-${LEIN_VERSION}-standalone.jar}"
+[[ $LEIN_JAR ]] ||
+    LEIN_JAR=${LEIN_HOME}/self-installs/$JAR_FILE
 
 # normalize $0 on certain BSDs
-if [ "$(dirname "$0")" = "." ]; then
-    SCRIPT="$(which "$(basename "$0")")"
-    if [ -z "$SCRIPT" ]; then
-        SCRIPT="$0"
-    fi
+if [[ $(dirname "$0") == . ]]; then
+    SCRIPT=$(command -v "$(basename "$0")" >/dev/null) ||
+        SCRIPT=$0
 else
-    SCRIPT="$0"
+    SCRIPT=$0
 fi
 
 # resolve symlinks to the script itself portably
-while [ -h "$SCRIPT" ] ; do
+while [[ -h $SCRIPT ]]; do
     ls=$(ls -ld "$SCRIPT")
     link=$(expr "$ls" : '.*-> \(.*\)$')
     if expr "$link" : '/.*' > /dev/null; then
-        SCRIPT="$link"
+        SCRIPT=$link
     else
-        SCRIPT="$(dirname "$SCRIPT"$)/$link"
+        SCRIPT=$(dirname "$SCRIPT")/$link
     fi
 done
 
-BIN_DIR="$(dirname "$SCRIPT")"
+BIN_DIR=$(dirname "$SCRIPT")
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+[[ $LEIN_JVM_OPTS ]] ||
+    LEIN_JVM_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+export LEIN_JVM_OPTS
+
 
 # This needs to be defined before we call HTTP_CLIENT below
-if [ "$HTTP_CLIENT" = "" ]; then
-    if type -p curl >/dev/null 2>&1; then
-        if [ "$https_proxy" != "" ]; then
+if [[ -z $HTTP_CLIENT ]]; then
+    if type -p curl &>/dev/null; then
+        # XXX shellcheck says https_proxy isn't defined. Ask if intended.
+        # shellcheck disable=2154
+        if [[ $https_proxy ]]; then
             CURL_PROXY="-x $https_proxy"
         fi
         HTTP_CLIENT="curl $CURL_PROXY -f -L -o"
     else
-        HTTP_CLIENT="wget -O"
+        HTTP_CLIENT='wget -O'
     fi
 fi
 
 # This needs to be defined before we call SHASUM_CMD below
-if [ "$SHASUM_CMD" = "" ]; then
-    if type -p sha256sum >/dev/null 2>&1; then
-        export SHASUM_CMD="sha256sum"
-    elif type -p shasum >/dev/null 2>&1; then
-        export SHASUM_CMD="shasum --algorithm 256"
-    elif type -p sha256 >/dev/null 2>&1; then
-        export SHASUM_CMD="sha256 -q"
+if [[ -z $SHASUM_CMD ]]; then
+    if type -p sha256sum &>/dev/null; then
+        export SHASUM_CMD=sha256sum
+    elif type -p shasum &>/dev/null; then
+        export SHASUM_CMD='shasum --algorithm 256'
+    elif type -p sha256 &>/dev/null; then
+        export SHASUM_CMD='sha256 -q'
     else
-        command_not_found sha256sum
+        command-not-found sha256sum
     fi
 fi
 
 # When :eval-in :classloader we need more memory
-grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null && \
+grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null &&
     export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Xms64m -Xmx512m"
 
-if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
+if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
     # Running from source checkout
-    LEIN_DIR="$(cd $(dirname "$BIN_DIR");pwd -P)"
+    LEIN_DIR=$(cd "$(dirname "$BIN_DIR")";pwd -P)
 
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
-    if [ ! -r "$LEIN_DIR/leiningen-core/.lein-bootstrap" ]; then
-        cat <<-'EOS' 1>&2
-	Leiningen is missing its dependencies.
-	Please run "lein bootstrap" in the leiningen-core/ directory
-	with a stable release of Leiningen. See CONTRIBUTING.md for details.
-	EOS
-        exit 1
+    if [[ ! -r $LEIN_DIR/leiningen-core/.lein-bootstrap ]]; then
+        die "Leiningen is missing its dependencies." \
+            'Please run "lein bootstrap" in the leiningen-core/ directory' \
+            "with a stable release of Leiningen. See CONTRIBUTING.md for details."
     fi
 
     # If project.clj for lein or leiningen-core changes, we must recalculate
     LAST_PROJECT_CHECKSUM=$(cat "$LEIN_DIR/.lein-project-checksum" 2> /dev/null)
-    PROJECT_CHECKSUM=$(sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj")
-    if [ "$PROJECT_CHECKSUM" != "$LAST_PROJECT_CHECKSUM" ]; then
-        if [ -r "$LEIN_DIR/.lein-classpath" ]; then
+    PROJECT_CHECKSUM=$(
+        sum "$LEIN_DIR/project.clj" \
+            "$LEIN_DIR/leiningen-core/project.clj"
+    )
+    if [[ $PROJECT_CHECKSUM != "$LAST_PROJECT_CHECKSUM" ]]; then
+        if [[ -r $LEIN_DIR/.lein-classpath ]]; then
             rm "$LEIN_DIR/.lein-classpath"
         fi
     fi
 
     # Use bin/lein to calculate its own classpath.
-    if [ ! -r "$LEIN_DIR/.lein-classpath" ] && [ "$1" != "classpath" ]; then
-        msg "Recalculating Leiningen's classpath."
-        cd "$LEIN_DIR"
-
-        LEIN_NO_USER_PROFILES=1 "$LEIN_DIR/bin/lein" classpath .lein-classpath
-        sum "$LEIN_DIR/project.clj" "$LEIN_DIR/leiningen-core/project.clj" > \
-            .lein-project-checksum
-        cd -
+    if [[ ! -r $LEIN_DIR/.lein-classpath ]] &&
+       [[ $cmd != classpath ]]
+    then
+        err "Recalculating Leiningen's classpath."
+        (
+            cd "$LEIN_DIR"
+            LEIN_NO_USER_PROFILES=1 \
+                "$LEIN_DIR/bin/lein" \
+                classpath \
+                .lein-classpath
+            sum "$LEIN_DIR/project.clj" \
+                "$LEIN_DIR/leiningen-core/project.clj" \
+                    > .lein-project-checksum
+        )
     fi
 
     mkdir -p "$LEIN_DIR/target/classes"
-    export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Dclojure.compile.path=$LEIN_DIR/target/classes"
-    add_path CLASSPATH "$LEIN_DIR/leiningen-core/src/" "$LEIN_DIR/leiningen-core/resources/" \
-        "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
+    LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Dclojure.compile.path=$LEIN_DIR/target/classes"
+    export LEIN_JVM_OPTS
+    add-path \
+        CLASSPATH \
+        "$LEIN_DIR/leiningen-core/src/" \
+        "$LEIN_DIR/leiningen-core/resources/" \
+        "$LEIN_DIR/test:$LEIN_DIR/target/classes" \
+        "$LEIN_DIR/src" \
+        ":$LEIN_DIR/resources"
 
-    if [ -r "$LEIN_DIR/.lein-classpath" ]; then
-        add_path CLASSPATH "$(cat "$LEIN_DIR/.lein-classpath" 2> /dev/null)"
+    if [[ -r $LEIN_DIR/.lein-classpath ]]; then
+        add-path CLASSPATH "$(< "$LEIN_DIR/.lein-classpath")"
     else
-        add_path CLASSPATH "$(cat "$LEIN_DIR/leiningen-core/.lein-bootstrap" 2> /dev/null)"
+        add-path CLASSPATH "$(
+            cat "$LEIN_DIR/leiningen-core/.lein-bootstrap" 2> /dev/null
+        )"
     fi
 else # Not running from a checkout
-    add_path CLASSPATH "$LEIN_JAR"
+    add-path CLASSPATH "$LEIN_JAR"
 
-    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
+    if [[ $LEIN_USE_BOOTCLASSPATH != no ]]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 
-    if [ ! -r "$LEIN_JAR" -a "$1" != "self-install" ]; then
-        self_install
+    if [[ ! -r $LEIN_JAR ]] &&
+       [[ $cmd != self-install ]]
+    then
+        self-install
     fi
 fi
 
-if [ ! -x "$JAVA_CMD" ] && ! type -f java >/dev/null
+if [[ ! -x $JAVA_CMD ]] &&
+   ! type -f java >/dev/null
 then
-    msg "Leiningen couldn't find 'java' executable, which is required."
-    msg "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
-    exit 1
+    die "Leiningen couldn't find 'java' executable, which is required." \
+        "Please either set JAVA_CMD or put java (>=1.6) in your \$PATH ($PATH)."
 fi
 
-export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}"
+export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-${JAVA_CMD:-java}}
 
-if [[ -z "${DRIP_INIT+x}" && "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
-    export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
-    export DRIP_INIT_CLASS="clojure.main"
+if [[ -z ${DRIP_INIT+x} &&
+   $(basename "$LEIN_JAVA_CMD") == *drip* ]]
+then
+    DRIP_INIT=$(printf -- '-e\n(require (quote leiningen.repl))')
+    DRIP_INIT_CLASS=clojure.main
+    export DRIP_INIT DRIP_INIT_CLASS
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
-export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 
-# Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
+# Handle jline issue with cygwin not propagating OSTYPE through java
+# subprocesses: https://github.com/jline/jline2/issues/62
 cygterm=false
 if $cygwin; then
-  case "$TERM" in
-    rxvt* | xterm* | vt*) cygterm=true ;;
-  esac
+    case "$TERM" in
+        rxvt* | xterm* | vt*) cygterm=true ;;
+    esac
 fi
 
 if $cygterm; then
-  LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
-  stty -icanon min 1 -echo > /dev/null 2>&1
+    LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
+    stty -icanon min 1 -echo &> /dev/null
 fi
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
-if [ "$1" = "self-install" ]; then
-    if [ -r "$BIN_DIR/../src/leiningen/version.clj" ]; then
-        cat <<-'EOS' 1>&2
-	Running self-install from a checkout is not supported.
-	See CONTRIBUTING.md for SNAPSHOT-specific build instructions.
-	EOS
-        exit 1
+if [[ $cmd == self-install ]]; then
+    if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
+        die "Running self-install from a checkout is not supported." \
+            "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
     fi
-    msg "Manual self-install is deprecated; it will run automatically when necessary."
-    self_install
-elif [ "$1" = "upgrade" ] || [ "$1" = "downgrade" ]; then
-    if [ "$LEIN_DIR" != "" ]; then
-        msg "The upgrade task is not meant to be run from a checkout."
-        exit 1
+    err "Manual self-install is deprecated; it will run automatically when necessary."
+    self-install
+elif [[ $cmd == upgrade ]] ||
+     [[ $cmd == downgrade ]]
+then
+    if [[ $LEIN_DIR ]]; then
+        die "The upgrade task is not meant to be run from a checkout."
     fi
-    if [ $SNAPSHOT = "YES" ]; then
-        cat <<-'EOS' 1>&2
-	The upgrade task is only meant for stable releases.
-	See the "Bootstrapping" section of CONTRIBUTING.md.
-	EOS
-        exit 1
+    if $SNAPSHOT; then
+        die "The upgrade task is only meant for stable releases." \
+            'See the "Bootstrapping" section of CONTRIBUTING.md.'
     fi
-    if [ ! -w "$SCRIPT" ]; then
-        msg "You do not have permission to upgrade the installation in $SCRIPT"
-        exit 1
+    if [[ ! -w $SCRIPT ]]; then
+        die "You do not have permission to upgrade the installation in $SCRIPT"
     else
-        TARGET_VERSION="${2:-stable}"
+        TARGET_VERSION=${2:-stable}
         echo "The script at $SCRIPT will be upgraded to the latest $TARGET_VERSION version."
         echo -n "Do you want to continue [Y/n]? "
-        read RESP
+        read -r RESP
         case "$RESP" in
             y|Y|"")
                 echo
-                msg "Upgrading..."
-                if hash mktemp 2>/dev/null; then
-                    TARGET="(mktemp -t lein-upgrade.XXXXXXXXX)"
-                else
-                    TARGET="/tmp/lein-${$}-upgrade"
-                fi
-                if $cygwin; then
+                err "Upgrading..."
+                hash mktemp 2>/dev/null &&
+                    TARGET="(mktemp -t lein-upgrade.XXXXXXXXX)" ||
+                    TARGET=/tmp/lein-$$-upgrade
+                $cygwin &&
                     TARGET=$(cygpath -w "$TARGET")
-                fi
-                LEIN_SCRIPT_URL="https://github.com/technomancy/leiningen/raw/$TARGET_VERSION/bin/lein"
-                $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"
-                if [ $? == 0 ]; then
-                    cmp -s "$TARGET" "$SCRIPT"
-                    if [ $? == 0 ]; then
-                        msg "Leiningen is already up-to-date."
+                LEIN_SCRIPT_URL=$REPO_URL/raw/$TARGET_VERSION/bin/lein
+                if $HTTP_CLIENT "$TARGET" "$LEIN_SCRIPT_URL"; then
+                    if cmp -s "$TARGET" "$SCRIPT"; then
+                        err "Leiningen is already up-to-date."
                     fi
                     mv "$TARGET" "$SCRIPT" && chmod +x "$SCRIPT"
                     unset CLASSPATH
                     exec "$SCRIPT" version
                 else
-                    download_failed_message "$LEIN_SCRIPT_URL"
+                    download-failed-message "$LEIN_SCRIPT_URL" >&2
                 fi;;
             *)
-                msg "Aborted."
-                exit 1;;
+                die "Aborted.";;
         esac
     fi
 else
@@ -354,30 +398,40 @@ else
     fi
 
     # apply context specific CLASSPATH entries
-    if [ -f .lein-classpath ]; then
-        add_path CLASSPATH "$(cat .lein-classpath)"
+    if [[ -f .lein-classpath ]]; then
+        add-path CLASSPATH "$(< .lein-classpath)"
     fi
 
-    if [ -n "$DEBUG" ]; then
-        msg "Leiningen's classpath: $CLASSPATH"
+    if [[ $DEBUG ]]; then
+        err "Leiningen's classpath: $CLASSPATH"
     fi
 
-    if [ -r .lein-fast-trampoline ]; then
+    if [[ -r .lein-fast-trampoline ]]; then
         export LEIN_FAST_TRAMPOLINE='y'
     fi
 
-    if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
-        INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
+    if [[ $LEIN_FAST_TRAMPOLINE ]] &&
+       [[ -r project.clj ]]
+    then
+        INPUTS="$* $(< project.clj) $LEIN_VERSION $(
+            test -f "$LEIN_HOME/profiles.clj" &&
+                cat "$LEIN_HOME/profiles.clj"
+        ) $(test -f profiles.clj &&
+                cat profiles.clj)"
 
-        INPUT_CHECKSUM=$(echo "$INPUTS" | $SHASUM_CMD | cut -f 1 -d " ")
+        INPUT_CHECKSUM=$(
+            echo "$INPUTS" |
+                $SHASUM_CMD |
+                cut -f 1 -d " "
+        )
         # Just don't change :target-path in project.clj, mkay?
-        TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
+        TRAMPOLINE_FILE=target/trampolines/$INPUT_CHECKSUM
     else
         if hash mktemp 2>/dev/null; then
             # Check if mktemp is available before using it
-            TRAMPOLINE_FILE="$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)"
+            TRAMPOLINE_FILE=$(mktemp -t lein-trampoline-XXXXXXXXXXXXX)
         else
-            TRAMPOLINE_FILE="/tmp/lein-trampoline-$$"
+            TRAMPOLINE_FILE=/tmp/lein-trampoline-$$
         fi
         trap 'rm -f $TRAMPOLINE_FILE' EXIT
     fi
@@ -386,36 +440,41 @@ else
         TRAMPOLINE_FILE=$(cygpath -w "$TRAMPOLINE_FILE")
     fi
 
-    if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
-        if [ -n "$DEBUG" ]; then
-            msg "Fast trampoline with $TRAMPOLINE_FILE."
+    if [[ $INPUT_CHECKSUM ]] &&
+       [[ -r $TRAMPOLINE_FILE ]]
+    then
+        if [[ $DEBUG ]]; then
+            err "Fast trampoline with $TRAMPOLINE_FILE."
         fi
-        exec sh -c "exec $(cat "$TRAMPOLINE_FILE")"
+        exec sh -c "exec $(< "$TRAMPOLINE_FILE")"
     else
         export TRAMPOLINE_FILE
+        IFS=' ' read -r -a lein_jvm_opts <<< "$LEIN_JVM_OPTS"
+        EXIT_CODE=0
         "$LEIN_JAVA_CMD" \
             -Dfile.encoding=UTF-8 \
             -Dmaven.wagon.http.ssl.easy=false \
             -Dmaven.wagon.rto=10000 \
-            $LEIN_JVM_OPTS \
+            "${lein_jvm_opts[@]}" \
             -Dleiningen.input-checksum="$INPUT_CHECKSUM" \
             -Dleiningen.original.pwd="$ORIGINAL_PWD" \
             -Dleiningen.script="$SCRIPT" \
             -classpath "$CLASSPATH" \
-            clojure.main -m leiningen.core.main "$@"
-
-        EXIT_CODE=$?
+            clojure.main -m leiningen.core.main "$@" ||
+                EXIT_CODE=$?
 
         if $cygterm ; then
-          stty icanon echo > /dev/null 2>&1
+            stty icanon echo &> /dev/null
         fi
 
-        if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
-            TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
-            if [ "$INPUT_CHECKSUM" = "" ]; then # not using fast trampoline
+        if [[ -r $TRAMPOLINE_FILE ]] &&
+           [[ -z $LEIN_TRAMPOLINE_WARMUP ]]
+        then
+            TRAMPOLINE=$(< "$TRAMPOLINE_FILE")
+            if [[ -z $INPUT_CHECKSUM ]]; then # not using fast trampoline
                 rm "$TRAMPOLINE_FILE"
             fi
-            if [ "$TRAMPOLINE" = "" ]; then
+            if [[ $TRAMPOLINE ]]; then
                 exit $EXIT_CODE
             else
                 exec sh -c "exec $TRAMPOLINE"

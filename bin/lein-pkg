@@ -1,44 +1,70 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This variant of the lein script is meant for downstream packagers.
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from a source checkout and self-install/upgrading.
 
-export LEIN_VERSION="2.9.10"
+set -e -u -o pipefail
+(shopt -s inherit_errexit 2>/dev/null) && shopt -s inherit_errexit
+
+function msg { printf '%\n' "$@"; }
+function err { msg "$@" >&2; }
+function die { err "$@"; exit 1; }
+
+export LEIN_VERSION=2.9.10
+
+vars=(
+    CLASSPATH
+    DEBUG
+    INPUT_CHECKSUM
+    JAVA_CMD
+    JAVA_OPTS
+    LEIN_FAST_TRAMPOLINE
+    LEIN_JAR
+    LEIN_JVM_OPTS
+    LEIN_TRAMPOLINE_WARMUP
+    LEIN_USE_BOOTCLASSPATH
+)
+for var in "${vars[@]}"; do : "${!var:=}"; done
 
 # cd to the project root, if applicable
-NOT_FOUND=1
-ORIGINAL_PWD="$PWD"
-while [ ! -r "$PWD/project.clj" ] && [ "$PWD" != "/" ] && [ $NOT_FOUND -ne 0 ]; do
-    cd ..
-    if [ "$(dirname "$PWD")" = "/" ]; then
-        NOT_FOUND=0
-        cd "$ORIGINAL_PWD"
-    fi
-done
+find-project-dir() (
+    while [[ $PWD != / ]]; do
+        if [[ -r $PWD/project.clj ]]; then
+            echo "$PWD"
+            exit
+        fi
+        cd ..
+    done
+)
+project_dir=$(find-project-dir)
+ORIGINAL_PWD=$PWD
+[[ $project_dir ]] && cd "$project_dir"
 
-if [[ "$CLASSPATH" != "" ]]; then
-    echo "WARNING: You have \$CLASSPATH set, probably by accident."
-    echo "It is strongly recommended to unset this before proceeding."
+if [[ $CLASSPATH ]]; then
+    msg "WARNING: You have \$CLASSPATH set, probably by accident." \
+        "It is strongly recommended to unset this before proceeding."
 fi
 
 # User init
-export LEIN_HOME="${LEIN_HOME:-"$HOME/.lein"}"
+export LEIN_HOME=${LEIN_HOME:-$HOME/.lein}
 
 # Support $JAVA_OPTS for backwards-compatibility.
 JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 JAVA_CMD=${JAVA_CMD:-"java"}
 
-for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
-    if [ -e "$f" ]; then
+for f in /etc/leinrc $LEIN_HOME/leinrc .leinrc; do
+    if [[ -e $f ]]; then
         source "$f"
     fi
 done
 
-export LEIN_JVM_OPTS="${LEIN_JVM_OPTS-"-XX:+TieredCompilation -XX:TieredStopAtLevel=1"}"
+[[ $LEIN_JVM_OPTS ]] ||
+    LEIN_JVM_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+export LEIN_JVM_OPTS
 
 grep -E -q '^\s*:eval-in\s+:classloader\s*$' project.clj 2> /dev/null &&
-LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}"
+    LEIN_JVM_OPTS=${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}
 
 # If you're not using an uberjar you'll need to list each dependency
 # and add them individually to the classpath/bootclasspath as well.
@@ -46,97 +72,113 @@ LEIN_JVM_OPTS="${LEIN_JVM_OPTS:-'-Xms64m -Xmx512m'}"
 LEIN_JAR=/usr/share/java/leiningen-$LEIN_VERSION-standalone.jar
 
 # Do not use installed leiningen jar during self-compilation
-if ! { [ "$1" = "compile" ] &&
-        grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
-            project.clj ;}; then
-    CLASSPATH="$CLASSPATH":"$LEIN_JAR"
-    if [ "$LEIN_USE_BOOTCLASSPATH" != "no" ]; then
+if ! { [[ $1 == compile ]] &&
+       grep -qsE 'defproject leiningen[[:space:]]+"[[:digit:].]+"' \
+          project.clj
+     }
+then
+    CLASSPATH=$CLASSPATH:$LEIN_JAR
+    if [[ $LEIN_USE_BOOTCLASSPATH != no ]]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 fi
 
 # apply context specific CLASSPATH entries
-if [ -f .lein-classpath ]; then
-    CLASSPATH="$(cat .lein-classpath):$CLASSPATH"
+if [[ -f .lein-classpath ]]; then
+    CLASSPATH=$(< .lein-classpath):$CLASSPATH
 fi
 
-if [ -n "$DEBUG" ]; then
+if [[ -n $DEBUG ]]; then
     echo "Leiningen's classpath: $CLASSPATH"
 fi
 
 # Which Java?
 
-export JAVA_CMD="${JAVA_CMD:-"java"}"
-export LEIN_JAVA_CMD="${LEIN_JAVA_CMD:-$JAVA_CMD}"
+export JAVA_CMD=${JAVA_CMD:-"java"}
+export LEIN_JAVA_CMD=${LEIN_JAVA_CMD:-$JAVA_CMD}
 
-if [[ "$(basename "$LEIN_JAVA_CMD")" == *drip* ]]; then
-    export DRIP_INIT="$(printf -- '-e\n(require (quote leiningen.repl))')"
+if [[ $(basename "$LEIN_JAVA_CMD") == *drip* ]]; then
+    DRIP_INIT=$(printf -- '-e\n(require (quote leiningen.repl))')
+    export DRIP_INIT
 fi
 
 # Support $JAVA_OPTS for backwards-compatibility.
-export JVM_OPTS="${JVM_OPTS:-"$JAVA_OPTS"}"
+export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 
-function command_not_found {
-    >&2 echo "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
-    exit 1
+function command-not-found {
+    die "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
 }
 
-if [ -r .lein-fast-trampoline ]; then
+if [[ -r .lein-fast-trampoline ]]; then
     export LEIN_FAST_TRAMPOLINE='y'
 fi
 
-if [ "$LEIN_FAST_TRAMPOLINE" != "" ] && [ -r project.clj ]; then
-    INPUTS="$* $(cat project.clj) $LEIN_VERSION $(test -f "$LEIN_HOME/profiles.clj" && cat "$LEIN_HOME/profiles.clj") $(test -f profiles.clj && cat profiles.clj)"
+if [[ $LEIN_FAST_TRAMPOLINE ]] &&
+   [[ -r project.clj ]]
+then
+    INPUTS="$* $(< project.clj) $LEIN_VERSION $(
+            test -f "$LEIN_HOME/profiles.clj" &&
+                cat "$LEIN_HOME/profiles.clj"
+        ) $(test -f profiles.clj &&
+                cat profiles.clj)"
 
-    if command -v shasum >/dev/null 2>&1; then
-        SUM="shasum"
-    elif command -v sha1sum >/dev/null 2>&1; then
-        SUM="sha1sum"
+    if command -v shasum >/dev/null; then
+        SUM=shasum
+    elif command -v sha1sum >/dev/null; then
+        SUM=sha1sum
     else
-        command_not_found "sha1sum or shasum"
+        command-not-found "sha1sum or shasum"
     fi
 
-    INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
+    INPUT_CHECKSUM=$(
+        echo "$INPUTS" |
+            $SUM |
+            cut -f 1 -d " "
+    )
     # Just don't change :target-path in project.clj, mkay?
-    TRAMPOLINE_FILE="target/trampolines/$INPUT_CHECKSUM"
+    TRAMPOLINE_FILE=target/trampolines/$INPUT_CHECKSUM
 else
-    TRAMPOLINE_FILE="$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)"
+    TRAMPOLINE_FILE=$(mktemp /tmp/lein-trampoline-XXXXXXXXXXXXX)
     trap 'rm -f $TRAMPOLINE_FILE' EXIT
 fi
 
-if [ "$1" = "upgrade" ]; then
-    echo "This version of Leiningen was installed with a package manager, but"
-    echo "the upgrade task is intended for manual installs. Please use your"
-    echo "package manager's built-in upgrade facilities instead."
-    exit 1
+if [[ $1 == upgrade ]]; then
+    die "This version of Leiningen was installed with a package manager, but" \
+        "the upgrade task is intended for manual installs. Please use your" \
+        "package manager's built-in upgrade facilities instead."
 fi
 
-if [ "$INPUT_CHECKSUM" != "" ] && [ -r "$TRAMPOLINE_FILE" ]; then
-    if [ -n "$DEBUG" ]; then
+if [[ $INPUT_CHECKSUM ]] &&
+   [[ -r $TRAMPOLINE_FILE ]]
+then
+    if [[ $DEBUG ]]; then
         echo "Fast trampoline with $TRAMPOLINE_FILE."
     fi
-    exec sh -c "exec $(cat $TRAMPOLINE_FILE)"
+    exec sh -c "exec $(< "$TRAMPOLINE_FILE")"
 else
     export TRAMPOLINE_FILE
+    IFS=' ' read -r -a lein_jvm_opts <<< "$LEIN_JVM_OPTS"
+    EXIT_CODE=0
     "$LEIN_JAVA_CMD" \
         -Dfile.encoding=UTF-8 \
         -Dmaven.wagon.http.ssl.easy=false \
         -Dmaven.wagon.rto=10000 \
-        $LEIN_JVM_OPTS \
+        "${lein_jvm_opts[@]}" \
         -Dleiningen.input-checksum="$INPUT_CHECKSUM" \
         -Dleiningen.original.pwd="$ORIGINAL_PWD" \
         -Dleiningen.script="$0" \
         -classpath "$CLASSPATH" \
-        clojure.main -m leiningen.core.main "$@"
+        clojure.main -m leiningen.core.main "$@" ||
+            EXIT_CODE=$?
 
-    EXIT_CODE=$?
-
-    if [ -r "$TRAMPOLINE_FILE" ] && [ "$LEIN_TRAMPOLINE_WARMUP" = "" ]; then
-        TRAMPOLINE="$(cat "$TRAMPOLINE_FILE")"
-        if [ "$INPUT_CHECKSUM" = "" ]; then # not using fast trampoline
+    if [[ -r $TRAMPOLINE_FILE ]] &&
+       [[ -z $LEIN_TRAMPOLINE_WARMUP ]]
+    then
+        TRAMPOLINE=$(< "$TRAMPOLINE_FILE")
+        if [[ -z $INPUT_CHECKSUM ]]; then # not using fast trampoline
             rm "$TRAMPOLINE_FILE"
         fi
-        if [ "$TRAMPOLINE" = "" ]; then
+        if [[ -z $TRAMPOLINE ]]; then
             exit $EXIT_CODE
         else
             exec sh -c "exec $TRAMPOLINE"

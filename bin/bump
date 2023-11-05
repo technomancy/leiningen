@@ -1,13 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-CURRENT_VERSION=$1
-SNAPSHOT_VERSION=$2
+set -e -u -o pipefail
 
-if [ "$CURRENT_VERSION" = "" ] || [ "$SNAPSHOT_VERSION" = "" ] ; then
-   echo "Usage: bin/bump 2.9.7 2.9.8-SNAPSHOT"
-   exit 1
+CURRENT_VERSION=${1-}
+SNAPSHOT_VERSION=${2-}
+
+if [[ -z $CURRENT_VERSION ]] ||
+   [[ -z $SNAPSHOT_VERSION ]]
+then
+    echo "Usage: bin/bump 2.9.7 2.9.8-SNAPSHOT"
+    exit 1
 fi
 
-for f in bin/lein bin/lein-pkg bin/lein.bat bin/lein.ps1 project.clj leiningen-core/project.clj; do
-    sed -i s/$CURRENT_VERSION/$SNAPSHOT_VERSION/ $f
+files=(
+    bin/lein
+    bin/lein.bat
+    bin/lein-pkg
+    bin/lein.ps1
+    leiningen-core/project.clj
+    project.clj
+)
+
+for file in "${files[@]}"; do
+    sed -i "s/$CURRENT_VERSION/$SNAPSHOT_VERSION/" "$file"
 done

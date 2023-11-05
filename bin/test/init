@@ -1,0 +1,13 @@
+#!/bash
+
+ROOT=$(cd -P "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd -P)
+
+cd "$ROOT" || exit
+
+export PATH=$ROOT/.bpan/lib:$PATH
+
+# BPAN_X=-x
+source bpan.bash --
+export BPAN_PATH=$ROOT/.bpan/.bpan/lib:$PATH
+bpan:source bashplus +cmd +sys
+bpan:source test-tap --
