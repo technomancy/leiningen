@@ -17,8 +17,8 @@ export LEIN_VERSION=2.9.10
 find-project-dir() (
     while [[ $PWD != / ]]; do
         if [[ -r $PWD/project.clj ]]; then
-          echo "$PWD"
-          exit
+            echo "$PWD"
+            exit
         fi
         cd ..
     done

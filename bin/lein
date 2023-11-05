@@ -39,7 +39,7 @@ for var in "${vars[@]}"; do : "${!var:=}"; done
 
 if [[ $CLASSPATH ]]; then
     err "WARNING: You have $CLASSPATH set, probably by accident." \
-	"It is strongly recommended to unset this before proceeding."
+        "It is strongly recommended to unset this before proceeding."
 fi
 
 { [[ $OSTYPE == cygwin ]] || [[ $OSTYPE == msys ]]; } &&
@@ -59,11 +59,11 @@ function make_native_path {
     local path=$1
     # ensure we have native paths
     if $cygwin && [[ $path  == /* ]]; then
-    echo -n "$(cygpath -wp "$path")"
+        echo -n "$(cygpath -wp "$path")"
     elif [[ $OSTYPE == msys && $path  == /?/* ]]; then
-    echo -n "$(sh -c "(cd $path 2</dev/null && pwd -W) || echo $path | sed 's/^\\/\([a-z]\)/\\1:/g'")"
+        echo -n "$(sh -c "(cd $path 2</dev/null && pwd -W) || echo $path | sed 's/^\\/\([a-z]\)/\\1:/g'")"
     else
-    echo -n "$path"
+        echo -n "$path"
     fi
 }
 
@@ -75,11 +75,11 @@ function add_path {
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
         local path=$1
         if [[ -z ${!path_var} ]]; then
-          export "${path_var}=$(make_native_path "$path")"
+            export "${path_var}=$(make_native_path "$path")"
         else
-          export "${path_var}=${!path_var}${delimiter}$(make_native_path "$path")"
+            export "${path_var}=${!path_var}${delimiter}$(make_native_path "$path")"
         fi
-    shift
+        shift
     done
 }
 
@@ -107,35 +107,35 @@ function checksum_failed_message {
 }
 
 function self_install {
-  [[ -r $LEIN_JAR ]] &&
-    die "The self-install jar already exists at $LEIN_JAR." \
-	"If you wish to re-download, delete it and rerun \"$0 self-install\"."
-  err "Downloading Leiningen to $LEIN_JAR now..."
-  mkdir -p "$(dirname "$LEIN_JAR")"
-  LEIN_URL=https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar
-  $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
-  local exit_code=$?
-  if [[ $exit_code -eq 0 ]]; then
-      printf '%s  %s.pending\n' $LEIN_CHECKSUM "$LEIN_JAR" > "$LEIN_JAR.pending.shasum"
-      if $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"; then
-        mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
-      else
-        got_sum=$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')
+    [[ -r $LEIN_JAR ]] &&
+        die "The self-install jar already exists at $LEIN_JAR." \
+            "If you wish to re-download, delete it and rerun \"$0 self-install\"."
+    err "Downloading Leiningen to $LEIN_JAR now..."
+    mkdir -p "$(dirname "$LEIN_JAR")"
+    LEIN_URL=https://github.com/technomancy/leiningen/releases/download/$LEIN_VERSION/leiningen-$LEIN_VERSION-standalone.jar
+    $HTTP_CLIENT "$LEIN_JAR.pending" "$LEIN_URL"
+    local exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+        printf '%s  %s.pending\n' $LEIN_CHECKSUM "$LEIN_JAR" > "$LEIN_JAR.pending.shasum"
+        if $SHASUM_CMD -c "$LEIN_JAR.pending.shasum"; then
+            mv -f "$LEIN_JAR.pending" "$LEIN_JAR"
+        else
+            got_sum=$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')
+            rm "$LEIN_JAR.pending" 2> /dev/null
+            die "$(checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum")"
+        fi
+    else
         rm "$LEIN_JAR.pending" 2> /dev/null
-        die "$(checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum")"
-      fi
-  else
-      rm "$LEIN_JAR.pending" 2> /dev/null
-      die "$(download_failed_message "$LEIN_URL" "$exit_code")"
-  fi
+        die "$(download_failed_message "$LEIN_URL" "$exit_code")"
+    fi
 }
 
 # cd to the project root, if applicable
 find-project-dir() (
     while [[ $PWD != / ]]; do
         if [[ -r $PWD/project.clj ]]; then
-          echo "$PWD"
-          exit
+            echo "$PWD"
+            exit
         fi
         cd ..
     done
@@ -147,9 +147,9 @@ ORIGINAL_PWD=$PWD
 export LEIN_HOME=${LEIN_HOME:-"$HOME/.lein"}
 
 for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
-  if [[ -e $f ]]; then
-    source "$f"
-  fi
+    if [[ -e $f ]]; then
+        source "$f"
+    fi
 done
 
 if $cygwin; then
@@ -289,14 +289,14 @@ export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 # Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
 cygterm=false
 if $cygwin; then
-  case "$TERM" in
-    rxvt* | xterm* | vt*) cygterm=true ;;
-  esac
+    case "$TERM" in
+        rxvt* | xterm* | vt*) cygterm=true ;;
+    esac
 fi
 
 if $cygterm; then
-  LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
-  stty -icanon min 1 -echo > /dev/null 2>&1
+    LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Djline.terminal=jline.UnixTerminal"
+    stty -icanon min 1 -echo > /dev/null 2>&1
 fi
 
 # TODO: investigate http://skife.org/java/unix/2011/06/20/really_executable_jars.html
@@ -412,7 +412,7 @@ else
         EXIT_CODE=$?
 
         if $cygterm ; then
-          stty icanon echo > /dev/null 2>&1
+            stty icanon echo > /dev/null 2>&1
         fi
 
         if [[ -r $TRAMPOLINE_FILE ]] && [[ -z $LEIN_TRAMPOLINE_WARMUP ]]; then
