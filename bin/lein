@@ -179,10 +179,8 @@ fi
 
 # normalize $0 on certain BSDs
 if [[ $(dirname "$0") == . ]]; then
-    SCRIPT=$(which "$(basename "$0")")
-    if [[ -z $SCRIPT ]]; then
+    SCRIPT=$(command -v "$(basename "$0")" >/dev/null) ||
         SCRIPT=$0
-    fi
 else
     SCRIPT=$0
 fi

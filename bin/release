@@ -16,9 +16,8 @@ CURRENT_VERSION=$RELEASE_VERSION-SNAPSHOT
 # update the bash scripts or watch for boot slowdowns that way. Maybe
 # try adding lein-shell?
 
-if [[ ! -x $(which lein-stable) ]]; then
+[[ -x $(command -v lein-stable) ]] ||
     die "Install a stable version of Leiningen as lein-stable."
-fi
 
 grep "$RELEASE_VERSION" NEWS.md ||
     die "Add $RELEASE_VERSION to NEWS.md"

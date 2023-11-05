@@ -118,9 +118,9 @@ if [[ $LEIN_FAST_TRAMPOLINE ]] && [[ -r project.clj ]]; then
         ) $(test -f profiles.clj &&
                 cat profiles.clj)"
 
-    if command -v shasum >/dev/null 2>&1; then
+    if command -v shasum >/dev/null; then
         SUM=shasum
-    elif command -v sha1sum >/dev/null 2>&1; then
+    elif command -v sha1sum >/dev/null; then
         SUM=sha1sum
     else
         command-not-found "sha1sum or shasum"
