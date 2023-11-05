@@ -326,7 +326,8 @@ fi
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 
-# Handle jline issue with cygwin not propagating OSTYPE through java subprocesses: https://github.com/jline/jline2/issues/62
+# Handle jline issue with cygwin not propagating OSTYPE through java
+# subprocesses: https://github.com/jline/jline2/issues/62
 cygterm=false
 if $cygwin; then
     case "$TERM" in
