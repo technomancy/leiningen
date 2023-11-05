@@ -50,12 +50,12 @@ fi
     cygwin=true
     cygwin=false
 
-function command_not_found {
+function command-not-found {
     local path=$1
     die "Leiningen couldn't find $path in your \$PATH ($PATH), which is required."
 }
 
-function make_native_path {
+function make-native-path {
     local path=$1
     # ensure we have native paths
     if $cygwin && [[ $path  == /* ]]; then
@@ -67,23 +67,23 @@ function make_native_path {
     fi
 }
 
-#  usage : add_path PATH_VAR [PATH]...
-function add_path {
+#  usage : add-path PATH_VAR [PATH]...
+function add-path {
     local path_var=$1
     shift
     while [[ $# -gt 0 ]];do
         # http://bashify.com/?Useful_Techniques:Indirect_Variables:Indirect_Assignment
         local path=$1
         if [[ -z ${!path_var} ]]; then
-            export "${path_var}=$(make_native_path "$path")"
+            export "${path_var}=$(make-native-path "$path")"
         else
-            export "${path_var}=${!path_var}${delimiter}$(make_native_path "$path")"
+            export "${path_var}=${!path_var}${delimiter}$(make-native-path "$path")"
         fi
         shift
     done
 }
 
-function download_failed_message {
+function download-failed-message {
     local path=$1 code=$2
     cat <<-EOS
 	Failed to download $path (exit code $code)
@@ -94,7 +94,7 @@ function download_failed_message {
 	EOS
 }
 
-function checksum_failed_message {
+function checksum-failed-message {
     local url=$1 want=$2 got=$3
     cat <<-EOS
 	Failed to properly download $url
@@ -106,7 +106,7 @@ function checksum_failed_message {
 	EOS
 }
 
-function self_install {
+function self-install {
     [[ -r $LEIN_JAR ]] &&
         die "The self-install jar already exists at $LEIN_JAR." \
             "If you wish to re-download, delete it and rerun \"$0 self-install\"."
@@ -122,11 +122,11 @@ function self_install {
         else
             got_sum=$($SHASUM_CMD "$LEIN_JAR.pending" | cut -f 1 -d ' ')
             rm "$LEIN_JAR.pending" 2> /dev/null
-            die "$(checksum_failed_message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum")"
+            die "$(checksum-failed-message "$LEIN_URL" "$LEIN_CHECKSUM" "$got_sum")"
         fi
     else
         rm "$LEIN_JAR.pending" 2> /dev/null
-        die "$(download_failed_message "$LEIN_URL" "$exit_code")"
+        die "$(download-failed-message "$LEIN_URL" "$exit_code")"
     fi
 }
 
@@ -207,7 +207,7 @@ if [[ -z $SHASUM_CMD ]]; then
     elif type -p sha256 >/dev/null 2>&1; then
         export SHASUM_CMD='sha256 -q'
     else
-        command_not_found sha256sum
+        command-not-found sha256sum
     fi
 fi
 
@@ -249,23 +249,23 @@ if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
 
     mkdir -p "$LEIN_DIR/target/classes"
     export LEIN_JVM_OPTS="$LEIN_JVM_OPTS -Dclojure.compile.path=$LEIN_DIR/target/classes"
-    add_path CLASSPATH "$LEIN_DIR/leiningen-core/src/" "$LEIN_DIR/leiningen-core/resources/" \
+    add-path CLASSPATH "$LEIN_DIR/leiningen-core/src/" "$LEIN_DIR/leiningen-core/resources/" \
         "$LEIN_DIR/test:$LEIN_DIR/target/classes" "$LEIN_DIR/src" ":$LEIN_DIR/resources"
 
     if [[ -r $LEIN_DIR/.lein-classpath ]]; then
-        add_path CLASSPATH "$(cat "$LEIN_DIR/.lein-classpath" 2> /dev/null)"
+        add-path CLASSPATH "$(cat "$LEIN_DIR/.lein-classpath" 2> /dev/null)"
     else
-        add_path CLASSPATH "$(cat "$LEIN_DIR/leiningen-core/.lein-bootstrap" 2> /dev/null)"
+        add-path CLASSPATH "$(cat "$LEIN_DIR/leiningen-core/.lein-bootstrap" 2> /dev/null)"
     fi
 else # Not running from a checkout
-    add_path CLASSPATH "$LEIN_JAR"
+    add-path CLASSPATH "$LEIN_JAR"
 
     if [[ $LEIN_USE_BOOTCLASSPATH != no ]]; then
         LEIN_JVM_OPTS="-Xbootclasspath/a:$LEIN_JAR $LEIN_JVM_OPTS"
     fi
 
     if [[ ! -r $LEIN_JAR ]] && [[ $cmd != self-install ]]; then
-        self_install
+        self-install
     fi
 fi
 
@@ -308,7 +308,7 @@ if [[ $cmd == self-install ]]; then
             "See CONTRIBUTING.md for SNAPSHOT-specific build instructions."
     fi
     err "Manual self-install is deprecated; it will run automatically when necessary."
-    self_install
+    self-install
 elif [[ $cmd == upgrade ]] || [[ $cmd == downgrade ]]; then
     if [[ $LEIN_DIR ]]; then
         die "The upgrade task is not meant to be run from a checkout."
@@ -345,7 +345,7 @@ elif [[ $cmd == upgrade ]] || [[ $cmd == downgrade ]]; then
                     unset CLASSPATH
                     exec "$SCRIPT" version
                 else
-                    download_failed_message "$LEIN_SCRIPT_URL" >&2
+                    download-failed-message "$LEIN_SCRIPT_URL" >&2
                 fi;;
             *)
                 die "Aborted.";;
@@ -359,7 +359,7 @@ else
 
     # apply context specific CLASSPATH entries
     if [[ -f .lein-classpath ]]; then
-        add_path CLASSPATH "$(cat .lein-classpath)"
+        add-path CLASSPATH "$(cat .lein-classpath)"
     fi
 
     if [[ $DEBUG ]]; then

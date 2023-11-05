@@ -87,7 +87,7 @@ fi
 # Support $JAVA_OPTS for backwards-compatibility.
 export JVM_OPTS=${JVM_OPTS:-"$JAVA_OPTS"}
 
-function command_not_found {
+function command-not-found {
     die "Leiningen couldn't find $1 in your \$PATH ($PATH), which is required."
 }
 
@@ -103,7 +103,7 @@ if [[ $LEIN_FAST_TRAMPOLINE ]] && [[ -r project.clj ]]; then
     elif command -v sha1sum >/dev/null 2>&1; then
         SUM=sha1sum
     else
-        command_not_found "sha1sum or shasum"
+        command-not-found "sha1sum or shasum"
     fi
 
     INPUT_CHECKSUM=$(echo "$INPUTS" | $SUM | cut -f 1 -d " ")
