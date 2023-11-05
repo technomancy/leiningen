@@ -122,7 +122,7 @@ function checksum-failed-message {
 function self-install {
     [[ -r $LEIN_JAR ]] &&
         die "The self-install jar already exists at $LEIN_JAR." \
-            "If you wish to re-download, delete it and rerun \"$0 self-install\"."
+            "If you wish to re-download, delete it and rerun '$0 self-install'."
     err "Downloading Leiningen to $LEIN_JAR now..."
     mkdir -p "$(dirname "$LEIN_JAR")"
     LEIN_URL=$REPO_URL/releases/download/$LEIN_VERSION/$JAR_FILE
@@ -241,7 +241,7 @@ if [[ -r $BIN_DIR/../src/leiningen/version.clj ]]; then
     # Need to use lein release to bootstrap the leiningen-core library (for aether)
     if [[ ! -r $LEIN_DIR/leiningen-core/.lein-bootstrap ]]; then
         die "Leiningen is missing its dependencies." \
-            "Please run \"lein bootstrap\" in the leiningen-core/ directory" \
+            'Please run "lein bootstrap" in the leiningen-core/ directory' \
             "with a stable release of Leiningen. See CONTRIBUTING.md for details."
     fi
 
