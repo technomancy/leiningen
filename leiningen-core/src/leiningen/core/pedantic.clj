@@ -22,7 +22,8 @@
   * `Version`
   * `VersionConstraint`"
   (:refer-clojure :exclude [do])
-  (:require [cemerick.pomegranate.aether :as aether])
+  (:require [cemerick.pomegranate.aether :as aether]
+            [clojure.set :as set])
   (:import (java.util Map)
            (org.eclipse.aether DefaultRepositorySystemSession)
            (org.eclipse.aether.artifact Artifact)
@@ -118,21 +119,27 @@
                                :ranges
                                (filter #(node= (:node %) node) ranges)})))))
 
+(defn- paths->deps
+  [paths]
+  (->> paths
+       (map (fn [{:keys [^DependencyNode node]}] (.getDependency node)))
+       (into #{})))
+
 (defn- all-paths
   "Breadth first traversal of the graph from DependencyNode node.
   Short circuits a path when a cycle is detected."
   [node]
   (loop [paths [{:node node :parents []}]
-         results []]
+         results []
+         visited-deps #{}]
     (if (empty? paths)
       results
       (recur (for [{:keys [^DependencyNode node parents]} paths
-                   ;; hashing is broken for dependency nodes in aether so we
-                   ;; have to do cycle detection based on strings instead
-                   :when (not (some #{(str node)} (map str parents)))
+                   :when (not (contains? visited-deps (.getDependency node)))
                    c (.getChildren node)]
                {:node c :parents (conj parents node)})
-             (doall (concat results paths))))))
+             (into results paths)
+             (set/union visited-deps (paths->deps paths))))))
 
 (defn- transform-graph
   "Examine the tree with root `node` for version ranges, then
@@ -152,7 +159,7 @@
     ;; to match against the potential paths
     (let [^Map node->id (.get context TransformationContextKeys/CONFLICT_IDS)
           id->paths (reduce (fn [acc {:keys [node] :as path}]
-                              (update-in acc [(.get node->id node)] conj path))
+                              (update acc (.get node->id node) conj path))
                             {}
                             ;; Remove ranges as they cause problems and were
                             ;; warned above

@@ -1,6 +1,7 @@
 (ns leiningen.core.test.pedantic
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
+            [leiningen.core.classpath]
             [leiningen.core.pedantic :as pedantic]
             [cemerick.pomegranate.aether :as aether]))
 
@@ -112,7 +113,7 @@
 
 (defmethod translate java.util.List
   [l]
-  (remove nil? (map translate l)))
+  (vec (remove nil? (map translate l))))
 
 (defmethod translate java.util.Map
   [m]
@@ -121,7 +122,10 @@
 (defmethod translate org.eclipse.aether.graph.DependencyNode
   [n]
   (if-let [a (#'pedantic/node->artifact-map n)]
-    [(symbol (:artifactId a)) (:version a)]))
+    [(if (= (:groupId a) (:artifactId a))
+       (symbol (:artifactId a))
+       (symbol (:groupId a) (:artifactId a)))
+     (:version a)]))
 
 (def repo
   '{[a "1"] []
@@ -179,3 +183,28 @@
     ;; this will result in an infinite loop in lein 2.9.8
     (is (leiningen.core.classpath/get-classpath project))))
 
+(deftest ^:online multiple-paths-to-ignored-dep
+  (aether/resolve-dependencies
+   :coordinates '[[com.amazonaws/aws-java-sdk-s3 "1.12.402"]]
+   :repository-session-fn
+   #(-> %
+        aether/repository-session
+        (#'pedantic/use-transformer ranges overrides)))
+
+  (is (empty? @ranges))
+  (is (= (translate @overrides)
+         '[{:accepted {:node    [commons-logging "1.1.3"]
+                       :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                 [com.amazonaws/aws-java-sdk-core "1.12.402"]]}
+            :ignoreds [; leiningen <= 2.10 used to also report this path,
+                       ; now we only report the shortest path
+                       #_{:node    [commons-logging "1.2"]
+                          :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                    [com.amazonaws/aws-java-sdk-kms "1.12.402"]
+                                    [com.amazonaws/aws-java-sdk-core "1.12.402"]
+                                    [org.apache.httpcomponents/httpclient "4.5.13"]]}
+                       {:node    [commons-logging "1.2"]
+                        :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                  [com.amazonaws/aws-java-sdk-core "1.12.402"]
+                                  [org.apache.httpcomponents/httpclient "4.5.13"]]}]
+            :ranges   []}])))
