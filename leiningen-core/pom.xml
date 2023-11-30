@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>20d9536755eb71e21132062b619fc888febd4492</tag>
+    <tag>3680dde3a94f61b333201e5809037f6d3f6e5942</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -74,6 +74,10 @@
           <artifactId>clojure</artifactId>
           <groupId>org.clojure</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>dynapath</artifactId>
+          <groupId>org.tcrawley</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -89,7 +93,7 @@
     <dependency>
       <groupId>clj-commons</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>1.2.1</version>
+      <version>1.2.23</version>
       <exclusions>
         <exclusion>
           <artifactId>jcl-over-slf4j</artifactId>
@@ -131,13 +135,18 @@
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>
       <artifactId>wagon-http</artifactId>
-      <version>3.5.2</version>
+      <version>3.5.3</version>
       <exclusions>
         <exclusion>
           <artifactId>slf4j-api</artifactId>
           <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.6</version>
     </dependency>
   </dependencies>
 </project>

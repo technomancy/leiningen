@@ -12,7 +12,8 @@
                  [org.clojure/data.xml "0.2.0-alpha6"]
                  ;; needed for test
                  [timofreiberg/bultitude "0.3.0"
-                  :exclusions [org.clojure/clojure]]
+                  :exclusions [org.clojure/clojure
+                               org.tcrawley/dynapath]]
                  ;; needed for new
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
                  ;; needed for uberjar
