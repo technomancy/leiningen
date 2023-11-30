@@ -23,10 +23,18 @@
   * `VersionConstraint`"
   (:refer-clojure :exclude [do])
   (:require [cemerick.pomegranate.aether :as aether])
-  (:import (org.eclipse.aether.graph Exclusion)
-           (org.eclipse.aether.collection DependencyGraphTransformer)
-           (org.eclipse.aether.util.graph.transformer TransformationContextKeys
-                                                      ConflictIdSorter)))
+  (:import (java.util Map)
+           (org.eclipse.aether DefaultRepositorySystemSession)
+           (org.eclipse.aether.artifact Artifact)
+           (org.eclipse.aether.collection DependencyGraphTransformationContext
+                                          DependencyGraphTransformer)
+           (org.eclipse.aether.graph Dependency
+                                     DependencyNode
+                                     Exclusion)
+           (org.eclipse.aether.util.graph.transformer ConflictIdSorter
+                                                      TransformationContextKeys)))
+
+(set! *warn-on-reflection* true)
 
 (defn- warn [& args]
   ;; TODO: remove me once #1227 is merged
@@ -43,7 +51,7 @@
 (defn- initialize-conflict-ids!
   "Make sure that `SORTED_CONFLICT_IDS` and `CONFLICT_IDS` have been
   initialized. Similar to what a NearestVersionConflictResolver will do."
-  [node context]
+  [node ^DependencyGraphTransformationContext context]
   (when-not (.get context TransformationContextKeys/SORTED_CONFLICT_IDS)
     (-> (ConflictIdSorter.)
         (.transformGraph node context))))
@@ -51,7 +59,7 @@
 (defn- range?
   "Does the path point to a DependencyNode asking for a version range
    which contains several versions?"
-  [{:keys [node]}]
+  [{:keys [^DependencyNode node]}]
   (when-let [vc (.getVersionConstraint node)]
     (let [range (.getRange vc)
           lb    (some-> range .getLowerBound)
@@ -67,11 +75,11 @@
 
 (defn- node<
   "Is the version of node1 < version of node2."
-  [node1 node2]
+  [^DependencyNode node1 ^DependencyNode node2]
   (< (compare (.getVersion node1) (.getVersion node2)) 0))
 
 (defn- node->artifact-map
-  [node]
+  [^DependencyNode node]
   (if-let [d (.getDependency node)]
     (if-let [a (.getArtifact d)]
       (let [b (bean a)]
@@ -118,7 +126,7 @@
          results []]
     (if (empty? paths)
       results
-      (recur (for [{:keys [node parents]} paths
+      (recur (for [{:keys [^DependencyNode node parents]} paths
                    ;; hashing is broken for dependency nodes in aether so we
                    ;; have to do cycle detection based on strings instead
                    :when (not (some #{(str node)} (map str parents)))
@@ -130,7 +138,9 @@
   "Examine the tree with root `node` for version ranges, then
   allow the original `transformer` to perform resolution, then check for
   overriden dependencies."
-  [ranges overrides node context transformer]
+  [ranges overrides node
+   ^DependencyGraphTransformationContext context
+   ^DependencyGraphTransformer transformer]
   ;; Force initialization of the context like NearestVersionConflictResolver
   (initialize-conflict-ids! node context)
   ;; Get all the paths of the graph before dependency resolution
@@ -140,7 +150,7 @@
     ;; The original transformer should have done dependency resolution,
     ;; so now we can gather just the accepted paths and use the ConflictId
     ;; to match against the potential paths
-    (let [node->id (.get context TransformationContextKeys/CONFLICT_IDS)
+    (let [^Map node->id (.get context TransformationContextKeys/CONFLICT_IDS)
           id->paths (reduce (fn [acc {:keys [node] :as path}]
                               (update-in acc [(.get node->id node)] conj path))
                             {}
@@ -166,7 +176,7 @@
     paths that were not used.
     `:ranges` is a list of paths containing version ranges that might
     have affected the resolution."
-  [session ranges overrides]
+  [^DefaultRepositorySystemSession session ranges overrides]
   (let [transformer (.getDependencyGraphTransformer session)]
     (.setDependencyGraphTransformer
      session
@@ -186,7 +196,7 @@
     #(-> % aether/repository-session
          (use-transformer ranges overrides))))
 
-(defn- group-artifact [artifact]
+(defn- group-artifact [^Artifact artifact]
   (if (= (.getGroupId artifact)
          (.getArtifactId artifact))
     (.getGroupId artifact)
@@ -194,8 +204,16 @@
          "/"
          (.getArtifactId artifact))))
 
-(defn- dependency-str [dependency & [version]]
-  (if-let [artifact (and dependency (.getArtifact dependency))]
+(defn- exclusion-group-artifact [^Exclusion exclusion]
+  (if (= (.getGroupId exclusion)
+         (.getArtifactId exclusion))
+    (.getGroupId exclusion)
+    (str (.getGroupId exclusion)
+         "/"
+         (.getArtifactId exclusion))))
+
+(defn- dependency-str [^Dependency dependency & [version]]
+  (if-let [^Artifact artifact (and dependency (.getArtifact dependency))]
     (str "["
          (group-artifact artifact)
          " \"" (or version (.getVersion artifact)) "\""
@@ -206,13 +224,14 @@
            (if (not= extension "jar")
              (str " :extension \"" extension "\"")))
          (if-let [exclusions (seq (.getExclusions dependency))]
-           (str " :exclusions " (mapv (comp symbol group-artifact)
+           (str " :exclusions " (mapv (comp symbol exclusion-group-artifact)
                                       exclusions)))
          "]")))
 
 (defn- message-for [path & [show-constraint?]]
   (->> path
-       (map #(dependency-str (.getDependency %) (.getVersionConstraint %)))
+       (map (fn [^DependencyNode node]
+              (dependency-str (.getDependency node) (.getVersionConstraint node))))
        (remove nil?)
        (interpose " -> ")
        (apply str)))
@@ -220,8 +239,8 @@
 (defn- message-for-version [{:keys [node parents]}]
   (message-for (conj parents node)))
 
-(defn- exclusion-for-range [node parents]
-  (if-let [top-level (second parents)]
+(defn- exclusion-for-range [^DependencyNode node parents]
+  (if-let [^DependencyNode top-level (second parents)]
     (let [excluded-artifact (.getArtifact (.getDependency node))
           exclusion (Exclusion. (.getGroupId excluded-artifact)
                       (.getArtifactId excluded-artifact) "*" "*")

@@ -33,7 +33,7 @@
 
 (defn build-url
   "Creates java.net.URL from string"
-  [url]
+  ^URL [url]
   (try (URL. url)
        (catch java.net.MalformedURLException _
          (URL. (str "http://" url)))))
