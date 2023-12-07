@@ -2,6 +2,8 @@
 
 ## 2.10.1 / ???
 
+* Major performance improvements handling pathological dependency trees. (Marco Biscaro)
+* Improve error reporting for search failures. (rome user)
 * Support XDG config directories. (Phil Hagelberg)
 * Use `$XDG_CACHE_HOME` for self-installs if it exists. (Phil Hagelberg)
 * Add warnings for buggy composite profiles. (Phil Hagelberg)
