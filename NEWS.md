@@ -1,7 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.10.1 / ???
+## 2.11.0 / ???
 
+* Add `static-classpath` task for static analysis. (Phil Hagelberg)
 * Major performance improvements handling pathological dependency trees. (Marco Biscaro)
 * Improve error reporting for search failures. (rome user)
 * Support XDG config directories. (Phil Hagelberg)

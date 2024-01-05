@@ -440,13 +440,18 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
   "Command-line entry point."
   [& raw-args]
   (try
-    (project/ensure-dynamic-classloader)
-    (aether/register-wagon-factory! "http" insecure-http-abort)
-    (user/init)
+    ;; it would be tidier if this could be kept as metadata on the task var
+    ;; itself, but it's needed before we resolve the task, so we must hard-code
+    (when (not= "static-classpath" (first raw-args))
+      (project/ensure-dynamic-classloader)
+      (aether/register-wagon-factory! "http" insecure-http-abort)
+      (user/init))
     (binding [project/*memoize-middleware* true]
-      (let [project (if (.exists (io/file *cwd* "project.clj"))
-                      (project/read (str (io/file *cwd* "project.clj")))
-                      (default-project))]
+      (let [project (cond (= "static-classpath" (first raw-args))
+                          {}
+                          (.exists (io/file *cwd* "project.clj"))
+                          (project/read (str (io/file *cwd* "project.clj")))
+                          :else (default-project))]
         (when (:exact-lein-version project) (verify-exact-version project))
         (when (:min-lein-version project) (verify-min-version project))
         (configure-http)
