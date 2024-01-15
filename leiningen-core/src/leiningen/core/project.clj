@@ -617,7 +617,7 @@
         (do (warn-once left "and" right "have a type mismatch merging profiles.")
             right)))
 
-(defn- apply-profiles [project profiles]
+(defn ^:internal apply-profiles [project profiles]
   (reduce (fn [project profile]
             (with-meta
               (meta-merge project profile)
