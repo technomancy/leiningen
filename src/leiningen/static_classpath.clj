@@ -8,6 +8,8 @@
 (def unsafe-keys [:plugins :hooks :middleware :certificates :mirrors :local-repo
                   :implicits :implicit-hooks :implicit-middleware])
 
+(def profile-names [:base :system :provided :dev])
+
 (defn- safely-read-project [{:keys [root]}]
   (with-open [rdr (PushbackReader. (io/reader (io/file root "project.clj")))]
     (let [items (repeatedly #(read {:eof ::eof} rdr))
@@ -23,8 +25,8 @@
                          {:repositories project/default-repositories
                           :plugin-repositories project/default-repositories})
           project (apply dissoc project unsafe-keys)]
-      (project/merge-profiles (project/init-project project)
-                              [:base :system :user :provided :dev]))))
+      (project/merge-profiles (project/init-project project profile-names)
+                              profile-names))))
 
 (defn ^:no-project-needed static-classpath
   "Write the classpath of the current project to output-file or stdout.
