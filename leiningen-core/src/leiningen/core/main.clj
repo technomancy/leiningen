@@ -436,19 +436,30 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
                "\nThis is almost certainly a mistake; for details see"
                "\nhttps://codeberg.org/leiningen/leiningen/src/main/doc/FAQ.md")))))
 
+(defn- init-dynamic []
+  (project/ensure-dynamic-classloader)
+  (aether/register-wagon-factory! "http" insecure-http-abort)
+  (user/init))
+
+(defn- init-static []
+  (require 'leiningen.static-classpath)
+  (let [no-load (fn [& _] (throw (Exception. "static-classpath can't load")))]
+    (alter-var-root #'*read-eval* (constantly false))
+    (alter-var-root #'eval (constantly no-load))
+    (alter-var-root #'load-file (constantly no-load))))
+
 (defn -main
   "Command-line entry point."
   [& raw-args]
   (try
     ;; it would be tidier if this could be kept as metadata on the task var
     ;; itself, but it's needed before we resolve the task, so we must hard-code
-    (when (not= "static-classpath" (first raw-args))
-      (project/ensure-dynamic-classloader)
-      (aether/register-wagon-factory! "http" insecure-http-abort)
-      (user/init))
+    (if (= "static-classpath" (first raw-args))
+      (init-static)
+      (init-dynamic))
     (binding [project/*memoize-middleware* true]
       (let [project (cond (= "static-classpath" (first raw-args))
-                          {}
+                          {:root *cwd*}
                           (.exists (io/file *cwd* "project.clj"))
                           (project/read (str (io/file *cwd* "project.clj")))
                           :else (default-project))]

@@ -5,20 +5,19 @@
             [clojure.java.io :as io])
   (:import (java.io PushbackReader)))
 
-(defn- safely-read-project [project]
-  (with-open [rdr (PushbackReader. (io/reader (io/file (:root project)
-                                                       "project.clj")))]
-    (binding [*read-eval* false]
-      (let [items (repeatedly #(read {:eof ::eof} rdr))
-            items (take-while #(not= ::eof %) items)
-            [_defproject project-name version & rest] (last items)]
-        (merge {:name (name project-name)
-                :group (or (namespace project-name)
-                           (name project-name))
-                :version version
-                :root (:root project)}
-               project/defaults
-               (apply hash-map rest))))))
+(defn- safely-read-project [{:keys [root]}]
+  (with-open [rdr (PushbackReader. (io/reader (io/file root "project.clj")))]
+    (let [items (repeatedly #(read {:eof ::eof} rdr))
+          items (take-while #(not= ::eof %) items)
+          [_defproject project-name version & rest] (last items)]
+      ;; TODO: merge default profiles?
+      (merge {:name (name project-name)
+              :group (or (namespace project-name)
+                         (name project-name))
+              :version version
+              :root root}
+             project/defaults
+             (apply hash-map rest)))))
 
 (defn ^:no-project-needed static-classpath
   "Write the classpath of the current project to output-file or stdout.
