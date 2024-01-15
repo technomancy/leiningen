@@ -2,13 +2,12 @@
   "Print the classpath of the current project."
   (:require [leiningen.core.classpath :as classpath]
             [leiningen.core.main :as main]
-            [clojure.string :as str])
-  (:import (org.eclipse.aether.resolution DependencyResolutionException)))
+            [clojure.string :as str]))
 
 (defn get-classpath-string [project]
   (try
     (str/join java.io.File/pathSeparatorChar (classpath/get-classpath project))
-    (catch DependencyResolutionException e
+    (catch Exception e
       (main/abort (.getMessage e)))))
 
 (defn classpath
