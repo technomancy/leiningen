@@ -1,3 +1,4 @@
+#!/home/leiningen/fennel
 ;; we don't have a great solution for the wiki right now; currently it's still
 ;; left on github because codeberg doesn't let you grant write access to their
 ;; wikis. for now we can just proxy the content from github and allow edits

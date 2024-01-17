@@ -1,5 +1,4 @@
 Options +ExecCGI
-php_flag engine off
 
 Header set Strict-Transport-Security "max-age=31536000"
 Header set X-Frame-Options "DENY"
