@@ -323,12 +323,13 @@ resolved, either from a remote repo or via `lein install` locally. That is,
 given the above directory hierarchy, `project.clj` should contain something
 like:
 
-      :dependencies [[org.clojure/clojure "1.9.0"]
-                     ...
-                     [suchwow "0.3.9"]
-                     [com.megacorp/commons "1.3.5"]
-                     ...]
-
+```clj
+:dependencies [[org.clojure/clojure "1.9.0"]
+               ...
+               [suchwow "0.3.9"]
+               [com.megacorp/commons "1.3.5"]
+               ...]
+```
 
 Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
 The `suchwow` and `commons` links look the same in `checkouts`, and the groupid
@@ -336,7 +337,7 @@ hierarchy doesn't need to appear in the way `commons` is actually laid out on di
 
 After you've updated `:dependencies`, `lein` will still need to be able
 to find the library in some repository like clojars or your `~/.m2`
-directory.  If `lein` complains with a message like "Could not find artifact suchwow:jar:0.3.9",
+directory.  If `lein` complains with a message like `"Could not find artifact suchwow:jar:0.3.9"`,
 it's possible that `project.clj` and `suchwow/project.clj` use different version numbers.
 It's also possible that you're working on the main project and `suchwow` at the same time,
 have bumped the version number in both project files, but still have the old version in your
@@ -381,13 +382,13 @@ To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will overri
 any default JVM opts set by Leiningen.
 
 ```clj
- :jvm-opts ["-Xmx1g"]
+:jvm-opts ["-Xmx1g"]
 ```
 
 If you want to pass [compiler options](https://clojure.org/reference/compilation#_compiler_options)
 to the Clojure compiler, you also do this here.
 
-```
+```clj
 :jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
            "-Dclojure.compiler.elide-meta=[:doc :file :line :added]"
            ; notice the array is not quoted like it would be if you passed it directly on the command line.
@@ -495,6 +496,16 @@ if you've got a large test suite you'll want to run just one or two
 namespaces at a time; `lein test my-stuff.core-test` will do that. You
 also might want to break up your tests using test selectors; see `lein
 help test` for more details.
+
+The built-in `test` command wraps the basic runner from `clojure.test`
+and adds a few small features, but many people prefer to replace it
+with a more full-featured test runner like [kaocha](https://github.com/lambdaisland/kaocha).
+By adding an alias for `test` along with an entry in `:dependencies`,
+it's easy to make a third-party runner replace the built-in test task:
+
+```clj
+:aliases {"test" ["run" "-m" "kaocha.runner"]}
+```
 
 Running `lein test` from the command-line is suitable for regression
 testing, but the slow startup time of the JVM makes it a poor fit for
