@@ -219,7 +219,7 @@
 
 (deftest dont-suggest-on-duplicates
   (let [project {:root "/tmp"
-                 :dependencies '([cider/cider-nrepl "0.44.0"]
-                                 [cider/cider-nrepl "0.44.0"])
+                 :dependencies '[[commons-logging "1.2"]
+                                 [commons-logging "1.2"]]
                  :pedantic? :abort}]
     (is (cp/get-dependencies :dependencies nil project))))
