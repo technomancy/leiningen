@@ -8,6 +8,7 @@
 (def tmp-dir (io/file
               (System/getProperty "java.io.tmpdir") "pedantic"))
 (def tmp-local-repo-dir (io/file tmp-dir "local-repo"))
+
 (defn delete-recursive
   [dir]
   (when (.isDirectory dir)
@@ -88,15 +89,7 @@
                 (throw (org.apache.maven.wagon.ResourceDoesNotExistException. ""))))))))
     (f)))
 
-(def ranges (atom []))
-(def overrides (atom []))
-
-(defn reset-state [f]
-  (reset! ranges [])
-  (reset! overrides [])
-  (f))
-
-(defn resolve-deps [coords]
+(defn resolve-deps [ranges overrides coords]
   (aether/resolve-dependencies
    :coordinates coords
    :repositories {"test-repo" {:url "fake://ss"
@@ -135,43 +128,46 @@
     [range "2"] [[a "[2,)"]]})
 
 (use-fixtures :once (add-repo repo))
-(use-fixtures :each clear-tmp)
-(use-fixtures :each reset-state)
-
 
 (deftest top-level-overrides-transative-later
-  (resolve-deps '[[a "1"]
-                  [aa "2"]])
-  (is (= @ranges []))
-  (is (= (translate @overrides)
-         '[{:accepted {:node [a "1"]
-                       :parents []}
-            :ignoreds [{:node [a "2"]
-                        :parents [[aa "2"]]}]
-            :ranges []}])))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (resolve-deps ranges overrides
+                  '[[a "1"]
+                    [aa "2"]])
+    (is (= @ranges []))
+    (is (= (translate @overrides)
+           '[{:accepted {:node [a "1"]
+                         :parents []}
+              :ignoreds [{:node [a "2"]
+                          :parents [[aa "2"]]}]
+              :ranges []}]))))
 
 (deftest ranges-are-found
-  (resolve-deps '[[range "1"]])
-  (is (= (translate @ranges) '[{:node [a "1"]
-                               :parents [[range "1"]]}
-                               {:node [a "2"]
-                               :parents [[range "1"]]}]))
-  (is (= @overrides
-         [])))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (resolve-deps ranges overrides '[[range "1"]])
+    (is (= (translate @ranges) '[{:node [a "1"]
+                                  :parents [[range "1"]]}
+                                 {:node [a "2"]
+                                  :parents [[range "1"]]}]))
+    (is (= @overrides []))))
 
 (deftest range-causes-other-transative-to-ignore-top-level
-  (resolve-deps '[[a "1"]
-                  [aa "2"]
-                  [range "2"]])
-  (is (= (translate @ranges) '[{:node [a "2"]
-                                :parents [[range "2"]]}]))
-  (is (= (translate @overrides)
-         '[{:accepted {:node [a "2"]
-                       :parents [[aa "2"]]}
-            :ignoreds [{:node [a "1"]
-                        :parents []}]
-            :ranges [{:node [a "2"]
-                      :parents [[range "2"]]}]}])))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (resolve-deps ranges overrides '[[a "1"]
+                                     [aa "2"]
+                                     [range "2"]])
+    (is (= (translate @ranges) '[{:node [a "2"]
+                                  :parents [[range "2"]]}]))
+    (is (= (translate @overrides)
+           '[{:accepted {:node [a "2"]
+                         :parents [[aa "2"]]}
+              :ignoreds [{:node [a "1"]
+                          :parents []}]
+              :ranges [{:node [a "2"]
+                        :parents [[range "2"]]}]}]))))
 
 (deftest netty-boringssl-works
   (let [project {:root "/tmp"
@@ -184,27 +180,29 @@
     (is (leiningen.core.classpath/get-classpath project))))
 
 (deftest ^:online multiple-paths-to-ignored-dep
-  (aether/resolve-dependencies
-   :coordinates '[[com.amazonaws/aws-java-sdk-s3 "1.12.402"]]
-   :repository-session-fn
-   #(-> %
-        aether/repository-session
-        (#'pedantic/use-transformer ranges overrides)))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (aether/resolve-dependencies
+     :coordinates '[[com.amazonaws/aws-java-sdk-s3 "1.12.402"]]
+     :repository-session-fn
+     #(-> %
+          aether/repository-session
+          (#'pedantic/use-transformer ranges overrides)))
 
-  (is (empty? @ranges))
-  (is (= (translate @overrides)
-         '[{:accepted {:node    [commons-logging "1.1.3"]
-                       :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
-                                 [com.amazonaws/aws-java-sdk-core "1.12.402"]]}
-            :ignoreds [; leiningen <= 2.10 used to also report this path,
-                       ; now we only report the shortest path
-                       #_{:node    [commons-logging "1.2"]
+    (is (empty? @ranges))
+    (is (= (translate @overrides)
+           '[{:accepted {:node    [commons-logging "1.1.3"]
+                         :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                   [com.amazonaws/aws-java-sdk-core "1.12.402"]]}
+              :ignoreds [; leiningen <= 2.10 used to also report this path,
+                                        ; now we only report the shortest path
+                         #_{:node    [commons-logging "1.2"]
+                            :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                      [com.amazonaws/aws-java-sdk-kms "1.12.402"]
+                                      [com.amazonaws/aws-java-sdk-core "1.12.402"]
+                                      [org.apache.httpcomponents/httpclient "4.5.13"]]}
+                         {:node    [commons-logging "1.2"]
                           :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
-                                    [com.amazonaws/aws-java-sdk-kms "1.12.402"]
                                     [com.amazonaws/aws-java-sdk-core "1.12.402"]
-                                    [org.apache.httpcomponents/httpclient "4.5.13"]]}
-                       {:node    [commons-logging "1.2"]
-                        :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
-                                  [com.amazonaws/aws-java-sdk-core "1.12.402"]
-                                  [org.apache.httpcomponents/httpclient "4.5.13"]]}]
-            :ranges   []}])))
+                                    [org.apache.httpcomponents/httpclient "4.5.13"]]}]
+              :ranges   []}]))))
