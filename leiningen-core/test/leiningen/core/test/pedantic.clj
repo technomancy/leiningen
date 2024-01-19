@@ -1,9 +1,10 @@
 (ns leiningen.core.test.pedantic
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
-            [leiningen.core.classpath]
+            [leiningen.core.classpath :as cp]
             [leiningen.core.pedantic :as pedantic]
-            [cemerick.pomegranate.aether :as aether]))
+            [cemerick.pomegranate.aether :as aether])
+  (:import (org.eclipse.aether.graph DependencyNode)))
 
 (def tmp-dir (io/file
               (System/getProperty "java.io.tmpdir") "pedantic"))
@@ -112,9 +113,19 @@
   [m]
   (into {} (map (fn [[k v]] [k (translate v)]) m)))
 
-(defmethod translate org.eclipse.aether.graph.DependencyNode
+(defn- node->artifact-map
+  [^DependencyNode node]
+  (if-let [d (.getDependency node)]
+    (if-let [a (.getArtifact d)]
+      (let [b (bean a)]
+        (-> b
+            (select-keys [:artifactId :groupId :exclusions
+                          :version :extension :properties])
+            (update-in [:exclusions] vec))))))
+
+(defmethod translate DependencyNode
   [n]
-  (if-let [a (#'pedantic/node->artifact-map n)]
+  (if-let [a (node->artifact-map n)]
     [(if (= (:groupId a) (:artifactId a))
        (symbol (:artifactId a))
        (symbol (:groupId a) (:artifactId a)))
@@ -166,8 +177,7 @@
                          :parents [[aa "2"]]}
               :ignoreds [{:node [a "1"]
                           :parents []}]
-              :ranges [{:node [a "2"]
-                        :parents [[range "2"]]}]}]))))
+              :ranges []}]))))
 
 (deftest netty-boringssl-works
   (let [project {:root "/tmp"
@@ -177,7 +187,7 @@
                  :repositories [["c" {:url "https://repo1.maven.org/maven2/"
                                       :snapshots false}]]}]
     ;; this will result in an infinite loop in lein 2.9.8
-    (is (leiningen.core.classpath/get-classpath project))))
+    (is (cp/get-classpath project))))
 
 (deftest ^:online multiple-paths-to-ignored-dep
   (let [ranges (atom [])
@@ -206,3 +216,10 @@
                                     [com.amazonaws/aws-java-sdk-core "1.12.402"]
                                     [org.apache.httpcomponents/httpclient "4.5.13"]]}]
               :ranges   []}]))))
+
+(deftest dont-suggest-on-duplicates
+  (let [project {:root "/tmp"
+                 :dependencies '([cider/cider-nrepl "0.44.0"]
+                                 [cider/cider-nrepl "0.44.0"])
+                 :pedantic? :abort}]
+    (is (cp/get-dependencies :dependencies nil project))))

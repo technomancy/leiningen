@@ -79,27 +79,22 @@
   [^DependencyNode node1 ^DependencyNode node2]
   (< (compare (.getVersion node1) (.getVersion node2)) 0))
 
-(defn- node->artifact-map
-  [^DependencyNode node]
-  (if-let [d (.getDependency node)]
-    (if-let [a (.getArtifact d)]
-      (let [b (bean a)]
-        (-> b
-            (select-keys [:artifactId :groupId :exclusions
-                          :version :extension :properties])
-            (update-in [:exclusions] vec))))))
-
 (defn- node=
   "Check value equality instead of reference equality."
-  [n1 n2]
-  (= (node->artifact-map n1)
-     (node->artifact-map n2)))
+  [^DependencyNode n1 ^DependencyNode n2]
+  (= (.getArtifact n1) (.getArtifact n2)))
 
 (defn- top-level?
   "Is the path a top level dependency in the project?"
   [{:keys [parents]}]
   ;; Parent is root node
   (= 1 (count parents)))
+
+(defn- different-paths?
+  "Work around a bug in DependencyNode where equality is broken."
+  [{node1 :node parents1 :parents} {node2 :node parents2 :parents}]
+  (not (and (node= node1 node2)
+            (every? true? (map node= parents1 parents2)))))
 
 (defn- set-overrides!
   "Check each `accepted-path` against its conflicting paths. If a
@@ -108,7 +103,7 @@
   [overrides conflicts accepted-paths ranges]
   (doseq [{:keys [node parents] :as path} accepted-paths]
     (let [ignoreds (for [conflict-path (conflicts node)
-                         :when (and (not= path conflict-path)
+                         :when (and (different-paths? path conflict-path)
                                     ;; This is the pedantic criteria
                                     (or (node< node (:node conflict-path))
                                         (top-level? conflict-path)))]
