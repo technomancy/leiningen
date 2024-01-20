@@ -2,7 +2,7 @@
 
 setLocal EnableExtensions EnableDelayedExpansion
 
-set LEIN_VERSION=2.10.1-SNAPSHOT
+set LEIN_VERSION=2.11.0-SNAPSHOT
 
 if "%LEIN_VERSION:~-9%" == "-SNAPSHOT" (
     set SNAPSHOT=YES
