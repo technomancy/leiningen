@@ -12,6 +12,8 @@ html: $(DOCS)
 		--metadata title="Leiningen $*" \
 		../doc/$(shell echo $* | tr '[:lower:]' '[:upper:]').md
 
+clean: ; rm $(DOCS)
+
 # TODO: css for code styles
 
 .PHONY: upload html
