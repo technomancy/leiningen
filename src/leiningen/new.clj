@@ -39,7 +39,8 @@
                        project/default-repositories
                        (:plugin-repositories user-profiles))]
     (merge {:templates [[(template-symbol name) template-version]]
-            :repositories repositories}
+            :repositories repositories
+            :update :always}
            (select-keys user-profiles [:mirrors]))))
 
 (defn resolve-remote-template [name ns-sym]
