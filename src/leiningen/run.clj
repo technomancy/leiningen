@@ -77,7 +77,7 @@
          ;; If the class exists, run its main method.
          class#
          (Reflector/invokeStaticMethod
-          class# "main" (into-array [(into-array String '~args)]))
+          class# "main" ^"[Ljava.lang.Object;" (into-array [(into-array String '~args)]))
 
          ;; If the symbol didn't resolve, give a reasonable message
          (= :not-found ns-flag#)
