@@ -201,12 +201,12 @@ Multiple profiles may be executed in series with colons:
     $ lein with-profile 1.3:1.4 test :database
 
 The above invocations activate the given profiles in place of the
-defaults. To activate a profile in addition to the defaults, prepend
-it with a `+`:
+defaults. To activate the profiles in addition to the defaults, prepend
+them with a `+`:
 
-    $ lein with-profile +server run
+    $ lein with-profile +server,+fast run
 
-You can also use `-` to deactivate a profile.
+You can also use `-` to deactivate profiles.
 
 By default all profiles will share the same `:target-path`, which can
 cause problems if settings from one profile leak over into
