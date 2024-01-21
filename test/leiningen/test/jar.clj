@@ -111,9 +111,8 @@
   (unmemoize #'leiningen.core.classpath/get-dependencies-memoized
              #'leiningen.core.classpath/get-dependencies*)
   (binding [main/*info* false]
-    (let [[coord jar-file] (first
-                            (jar (dissoc helper/sample-project
-                                         :dependencies :main)))]
+    (let [project (helper/read-test-project "sample-bad-user")
+          [coord jar-file] (first (jar (dissoc project :dependencies :main)))]
       (is (.exists (io/file jar-file)))
       (is (= coord [:extension "jar"])))))
 

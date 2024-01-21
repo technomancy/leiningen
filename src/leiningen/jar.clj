@@ -267,7 +267,10 @@
   [project main f & args]
   (-> (apply f project args)
       (project/retain-whitelisted-keys project)
-      (add-main main)))
+      (add-main main)
+      ;; Ensure test paths can't affect jar compilation
+      ;; https://github.com/technomancy/leiningen/issues/2808
+      (assoc :test-paths [])))
 
 (defn- preprocess-project [project & [main]]
   (process-project project main project/unmerge-profiles
