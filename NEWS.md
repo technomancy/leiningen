@@ -2,6 +2,7 @@
 
 ## 2.11.0 / ???
 
+* Fix an issue with `check` in namespaces that rely on AOT. (Phil Hagelberg)
 * Fix a redundant confusing dependencies warning. (Phil Hagelberg)
 * Add `static-classpath` task for static analysis. (Phil Hagelberg)
 * Major performance improvements handling pathological dependency trees. (Marco Biscaro)
