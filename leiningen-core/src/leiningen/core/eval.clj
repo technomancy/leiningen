@@ -313,11 +313,12 @@
 
 (defmethod eval-in :nrepl [project form]
   (require 'nrepl.core)
+  (require 'nrepl.transport)
   (let [port-file (io/file (:target-path project) "repl-port")
-        connect (resolve 'nrepl/connect)
-        client (resolve 'nrepl/client)
-        client-session (resolve 'nrepl/client-session)
-        message (resolve 'nrepl/message)
+        connect (resolve 'nrepl.core/connect)
+        client (resolve 'nrepl.core/client)
+        client-session (resolve 'nrepl.core/client-session)
+        message (resolve 'nrepl.core/message)
         recv (resolve 'nrepl.transport/recv)]
     (if (.exists port-file)
       (let [transport (connect :host "localhost"
