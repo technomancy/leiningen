@@ -2,6 +2,9 @@
 
 ## 2.11.0 / ???
 
+* Fix a bug where `:eval-in :nrepl` couldn't detect running repl. (Phil Hagelberg)
+* Fix a bug where `:eval-in :nrepl` would crash. (Marco Biscaro)
+* Fix a bug where files on test path could be visible during jar. (Phil Hagelberg)
 * Fix an issue with `check` in namespaces that rely on AOT. (Phil Hagelberg)
 * Fix a redundant confusing dependencies warning. (Phil Hagelberg)
 * Add `static-classpath` task for static analysis. (Phil Hagelberg)

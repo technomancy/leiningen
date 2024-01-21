@@ -314,7 +314,7 @@
 (defmethod eval-in :nrepl [project form]
   (require 'nrepl.core)
   (require 'nrepl.transport)
-  (let [port-file (io/file (:target-path project) "repl-port")
+  (let [port-file (io/file (:root project) ".nrepl-port")
         connect (resolve 'nrepl.core/connect)
         client (resolve 'nrepl.core/client)
         client-session (resolve 'nrepl.core/client-session)
