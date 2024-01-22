@@ -465,6 +465,26 @@
                         (meta dependencies)))
       project)))
 
+(defn- remove-self-excluded-deps
+  "Remove any dependency that contains it's dependency id inside it's own
+  :exclusions vec."
+  [{:keys [dependencies] :as project}]
+  (if dependencies
+    (update project :dependencies
+            (fn [deps]
+              (when deps
+                (let [self-excluded? (fn [dep]
+                                       (let [{:keys [artifact-id group-id exclusions]} (dependency-map dep)]
+                                         (some (fn [{excl-art-id :artifact-id, excl-grp-id :group-id}]
+                                                 (and
+                                                  (= group-id excl-grp-id)
+                                                  (= artifact-id excl-art-id)))
+                                               exclusions)))]
+                  (with-meta
+                    (remove self-excluded? deps)
+                    (meta deps))))))
+    project))
+
 (defn- absolutize [root path]
   (str (if (.isAbsolute (io/file path))
          path
@@ -960,6 +980,7 @@
         (target-path-subdirs :native-path)
         (absolutize-paths)
         (add-global-exclusions)
+        (remove-self-excluded-deps)
         (vary-meta merge {:without-profiles project
                           :included-profiles include-profiles
                           :excluded-profiles exclude-profiles

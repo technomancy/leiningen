@@ -410,7 +410,8 @@
 
 (deftest test-global-exclusions
   (let [project {:dependencies
-                 '[[lancet "1.0.1"]
+                 '[[org.clojure/clojure "1.11.1"]
+                   [lancet "1.0.1"]
                    [leiningen-core "2.0.0-SNAPSHOT" :exclusions [pomegranate]]
                    [clucy "0.2.2" :exclusions [org.clojure/clojure]]]
                  :exclusions '[org.clojure/clojure]}
@@ -418,7 +419,11 @@
     (is (= '[[[org.clojure/clojure]]
              [[org.clojure/clojure] [pomegranate/pomegranate]]
              [[org.clojure/clojure]]]
-           (map #(distinct (:exclusions (apply hash-map %))) dependencies)))))
+           (map #(distinct (:exclusions (apply hash-map %))) dependencies)))
+    (is (= '[[lancet/lancet "1.0.1" :exclusions ([org.clojure/clojure])]
+             [leiningen-core/leiningen-core "2.0.0-SNAPSHOT" :exclusions ([org.clojure/clojure] [pomegranate/pomegranate])]
+             [clucy/clucy "0.2.2" :exclusions ([org.clojure/clojure])]]
+           dependencies))))
 
 (defn add-seven [project]
   (assoc project :seven 7))

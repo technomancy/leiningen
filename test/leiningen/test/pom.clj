@@ -380,7 +380,7 @@
              ((partial mapcat :content))))))
 
 (deftest test-pom-handles-global-exclusions
-  (is (= [["clojure"] ["clojure"] ["clojure"]]
+  (is (= [["clojure"] ["clojure"]]
          (-> (make-pom (with-profile-merged sample-project
                          ^:leaky {:exclusions '[org.clojure/clojure]}))
              parse-xml
