@@ -35,7 +35,12 @@
              :uberjar {:aot [#"leiningen"
                              leiningen.core.ssl ; lazy-loaded
                              cemerick.pomegranate
+                             cemerick.pomegranate.aether
                              classlojure.core
+                             dynapath.dynamic-classpath
+                             dynapath.defaults
+                             dynapath.util
+                             bultitude.core
                              nrepl.core]}}
   :test-selectors {:default (complement :disabled)
                    :offline (comp (partial not-any? identity)
