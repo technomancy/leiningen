@@ -241,7 +241,8 @@
                     (File/createTempFile "form-init" ".clj")
                     (io/file (:target-path project) (str checksum "-init.clj")))]
     (spit init-file
-          (binding [*print-dup* *eval-print-dup*]
+          (binding [*print-dup* *eval-print-dup*
+                    *print-meta* true]
             (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                     form)))
@@ -325,7 +326,8 @@
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*]
+        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*
+                                                    *print-meta* true]
                                             (pr-str form))})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
@@ -356,7 +358,8 @@
   (let [dispatch-var (resolve 'clojure.pprint/*print-pprint-dispatch*)
         code-dispatch @(resolve 'clojure.pprint/code-dispatch)]
     (try (push-thread-bindings {dispatch-var code-dispatch})
-         ((resolve 'clojure.pprint/pprint) form)
+         (binding [*print-meta* true]
+           ((resolve 'clojure.pprint/pprint) form))
          (finally (pop-thread-bindings)))))
 
 (defn eval-in-project
