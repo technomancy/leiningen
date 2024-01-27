@@ -1,7 +1,8 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.11.0 / ???
+## 2.11.0 / 2024-01-27
 
+* Top-level `:exclusions` can now affect top-level `:dependencies`. (Juan Monetta)
 * Fix a bug where `:eval-in :nrepl` couldn't detect running repl. (Phil Hagelberg)
 * Fix a bug where `:eval-in :nrepl` would crash. (Marco Biscaro)
 * Fix a bug where files on test path could be visible during jar. (Phil Hagelberg)

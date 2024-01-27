@@ -8,11 +8,9 @@ Discussion occurs primarily in the #leiningen channel on [Libera
 chat](https://libera.chat).
 
 Please report issues on the
-[issue
-tracker](https://codeberg.org/leiningen/leiningen/issues). Issues used
-to be reported in the [GitHub
-tracker](https://github.com/technomancy/leiningen/issues) so you may
-want to check there to see if things have already been reported.
+[issue tracker](https://codeberg.org/leiningen/leiningen/issues). Issues used
+to be reported in the [GitHub tracker](https://github.com/technomancy/leiningen/issues)
+so you may want to check there to see if things have already been reported.
 
 Code submissions should be sent as [pull
 requests](https://codeberg.org/leiningen/leiningen/pulls). Please
@@ -20,6 +18,9 @@ use topic branches when sending pull requests rather than committing
 directly to `main` in order to minimize unnecessary merge commit
 clutter. Direct pull requests towards the `main` branch, not the
 stable branch.
+
+You can add a 1-line summary of your change to `NEWS.md` if it's a
+user-visible issue that affects more than a handful of people.
 
 Please note that it is ethically unacceptable to submit patches (to
 this project or any other) which you did not author yourself without
