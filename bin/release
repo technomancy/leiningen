@@ -9,13 +9,18 @@ set -e -u
 
 RELEASE_VERSION=$1
 CURRENT_VERSION="$RELEASE_VERSION-SNAPSHOT"
+LEIN_STABLE=$2
+
+if [ "$LEIN_STABLE" = "" ]; then
+    LEIN_STABLE=lein-stable
+fi
 
 # Would like to use `lein release` here, but we don't have a way to
 # update the bash scripts or watch for boot slowdowns that way. Maybe
 # try adding lein-shell?
 
-if [ ! -x `which lein-stable` ]; then
-    echo "Install a stable version of Leiningen as lein-stable."
+if [ ! -x `which $LEIN_STABLE` ]; then
+    echo "Install a stable version of Leiningen as $LEIN_STABLE."
     exit 1
 fi
 
@@ -34,7 +39,7 @@ LEIN_ROOT=$PWD
 
 echo "Bootstrapping..."
 cd leiningen-core
-lein-stable do clean, bootstrap
+$LEIN_STABLE do clean, bootstrap
 cd ..
 
 echo "Generating uberjar..."
@@ -43,6 +48,7 @@ bin/lein uberjar
 RELEASE_JAR=$PWD/target/leiningen-$RELEASE_VERSION-standalone.jar
 RELEASE_JAR_CHECKSUM="$(sha256sum $RELEASE_JAR | awk '{ print $1 }')"
 SELF_INSTALL_JAR=$HOME/.lein/self-installs/$(basename $RELEASE_JAR)
+mkdir -p $HOME/.lein/self-installs
 cp $RELEASE_JAR $SELF_INSTALL_JAR
 
 sed -i "s/export LEIN_CHECKSUM=.*/export LEIN_CHECKSUM='$RELEASE_JAR_CHECKSUM'/" bin/lein
@@ -62,7 +68,7 @@ time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 time ../lein-$RELEASE_VERSION run -m clojure.main/main -e nil
 
 echo "Check that these are about the same boot times as with the last version."
-echo "Run this in a project: time lein-stable run -m clojure.main/main -e nil"
+echo "Run this in a project: time $LEIN_STABLE run -m clojure.main/main -e nil"
 echo "Proceeding here will publish the new version to the git repo."
 echo "Are these acceptable times? (~3s) [Y\n]"
 read CONTINUE
