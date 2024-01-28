@@ -1,4 +1,4 @@
-(defproject lein-pprint "1.3.2"
+(defproject lein-pprint "1.3.3-SNAPSHOT"
   :description "Pretty-print a representation of the project map."
   :url "https://codeberg.org/leiningen/leiningen"
   :license {:name "Eclipse Public License"

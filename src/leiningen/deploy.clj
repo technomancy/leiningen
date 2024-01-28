@@ -51,7 +51,9 @@
       (let [username (read-line)
             console (System/console)
             password (if console
-                       (.readPassword console "%s"  (into-array ["Password: "]))
+                       (->> (into-array ["Password: "])
+                            (.readPassword console "%s")
+                            (apply str))
                        (do
                          (println "LEIN IS UNABLE TO TURN OFF ECHOING, SO"
                                   "THE PASSWORD IS PRINTED TO THE CONSOLE")
