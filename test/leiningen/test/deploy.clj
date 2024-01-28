@@ -4,6 +4,7 @@
             [leiningen.deploy :refer :all]
             [leiningen.core.main :as main]
             [leiningen.core.eval :as eval]
+            [leiningen.core.utils :as utils]
             [leiningen.test.helper :as help]))
 
 (use-fixtures :once (fn [f] (binding [main/*info* false] (f))))
@@ -41,6 +42,7 @@
   (with-redefs [read-password-fn (constantly (constantly
                                               (char-array "stupidhorse")))
                 read-line (constantly "leiningen-test-fail-expected-sorry")]
+    (reset! utils/rebound-io? false)
     (binding [main/*exit-process?* false
               *err* (java.io.StringWriter.)]
       (testing "provides password in a way pomegranate accepts"
