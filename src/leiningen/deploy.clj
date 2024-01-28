@@ -29,6 +29,12 @@
       [id (assoc settings :username username :password password)]
       [id settings])))
 
+;; for some reason they nerfed Console so you can't use proxy with it,
+;; so we gotta do this the dipshit way to make it testable.
+(defn read-password-fn []
+  (if (System/console)
+    #(.readPassword (System/console) "%s" (into-array [%]))))
+
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
@@ -49,11 +55,9 @@
                "to avoid prompts.")
       (print "Username: ") (flush)
       (let [username (read-line)
-            console (System/console)
-            password (if console
-                       (->> (into-array ["Password: "])
-                            (.readPassword console "%s")
-                            (apply str))
+            read-password (read-password-fn)
+            password (if read-password
+                       (apply str (read-password "Password: "))
                        (do
                          (println "LEIN IS UNABLE TO TURN OFF ECHOING, SO"
                                   "THE PASSWORD IS PRINTED TO THE CONSOLE")

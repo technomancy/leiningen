@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.11.1 / 2024-01-28
+
+* Fix a bug when deploying using passwords read from the console. (Phil Hagelberg)
+
 ## 2.11.0 / 2024-01-27
 
 * Top-level `:exclusions` can now affect top-level `:dependencies`. (Juan Monetta)

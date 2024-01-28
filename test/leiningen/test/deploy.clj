@@ -4,19 +4,14 @@
             [leiningen.deploy :refer :all]
             [leiningen.core.main :as main]
             [leiningen.core.eval :as eval]
-            [leiningen.test.helper :refer [delete-file-recursively
-                                           tmp-dir
-                                           sample-project
-                                           sample-deploy-project
-                                           with-system-err-str
-                                           with-system-out-str]]))
+            [leiningen.test.helper :as help]))
 
 (use-fixtures :once (fn [f] (binding [main/*info* false] (f))))
 
 (defn- repo-path
   [relative-repo-path]
   (clojure.string/replace
-    (format "%s/%s" tmp-dir relative-repo-path)
+    (format "%s/%s" help/tmp-dir relative-repo-path)
     "\\" "/")) ;make path delimiters look the same / even under Windows
 
 (defn- repo-url
@@ -27,7 +22,7 @@
   [project relative-repo-path & [explicit-deploy-repo?]]
   (let [repo-path (repo-path relative-repo-path)
         repo-url (repo-url repo-path)]
-    (delete-file-recursively repo-path :silently)
+    (help/delete-file-recursively repo-path :silently)
     (with-out-str
       (deploy project (if explicit-deploy-repo?
                         repo-url
@@ -40,15 +35,30 @@
 
 (deftest ^:online test-deploy
   (testing "simple deployment to `snapshots` already defined in project.clj"
-    (deploy-snapshots sample-project "lein-repo")))
+    (deploy-snapshots help/sample-project "lein-repo")))
+
+(deftest ^:online test-deploy-password
+  (with-redefs [read-password-fn (constantly (constantly
+                                              (char-array "stupidhorse")))
+                read-line (constantly "leiningen-test-fail-expected-sorry")]
+    (binding [main/*exit-process?* false
+              *err* (java.io.StringWriter.)]
+      (testing "provides password in a way pomegranate accepts"
+        (let [result (try
+                       (with-out-str
+                         (help/with-system-err-str
+                           (deploy help/sample-project "clojars")))
+                       (catch Exception e
+                         (.getMessage e)))]
+          (is (re-find #"401 Unauthorized" result)))))))
 
 (deftest ^:online test-deploy-custom-url
   (testing "deployment to a repo specified as a URL argument to `deploy`"
-    (deploy-snapshots sample-project "lein-custom-repo" true)))
+    (deploy-snapshots help/sample-project "lein-custom-repo" true)))
 
 (deftest ^:online test-deploy-repositories-key
   (testing "preferring repository in :deploy-repositories over :repositories"
-    (deploy-snapshots (assoc sample-project
+    (deploy-snapshots (assoc help/sample-project
                         :deploy-repositories
                         {"snapshots" {:url (-> "deploy-only-repo"
                                                repo-path repo-url)}})
@@ -57,10 +67,10 @@
 (deftest ^:online test-deploy-classifier
   (testing "deployment with explicit file names uploads classifiers to repo"
     (let [deploy-dir (repo-path "deploy-classifier")
-          project    (assoc sample-deploy-project
+          project    (assoc help/sample-deploy-project
                             :deploy-repositories
                             {"snapshots" {:url (repo-url deploy-dir)}})]
-      (delete-file-recursively deploy-dir :silently)
+      (help/delete-file-recursively deploy-dir :silently)
       (with-out-str
         (deploy project "snapshots"
                 "deploy-me/deploy-me"
@@ -89,7 +99,7 @@
     (is (= (sign-for-repo? ["foo" {}]) true))))
 
 (deftest ssh-signing
-  (let [file (str (:root sample-project) "/project.clj")
+  (let [file (str (:root help/sample-project) "/project.clj")
         artifacts {[:extension "clj"] file}]
     (io/delete-file (str file ".sig") :silently)
     ;; git won't store file permissions so we need to set this manually
