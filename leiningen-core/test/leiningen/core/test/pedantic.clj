@@ -219,6 +219,8 @@
 
 (deftest dont-suggest-on-duplicates
   (let [project {:root "/tmp"
+                 :repositories [["c" {:url "https://repo1.maven.org/maven2/"
+                                      :snapshots false}]]
                  :dependencies '[[commons-logging "1.2"]
                                  [commons-logging "1.2"]]
                  :pedantic? :abort}]
