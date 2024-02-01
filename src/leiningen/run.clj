@@ -78,7 +78,9 @@
          class#
          ;; NOTE: this prints a reflection warning, but it is not trivially solvable because
          ;;       metadata in the argument is not preserved when writing forms to be eval'ed.
-         ;;       See https://github.com/technomancy/leiningen/issues/2328 and
+         ;;       See:
+         ;;       https://github.com/technomancy/leiningen/issues/2695
+         ;;       https://github.com/technomancy/leiningen/issues/2328
          ;        https://github.com/technomancy/leiningen/issues/2814
          (Reflector/invokeStaticMethod
           class# "main" (into-array [(into-array String '~args)]))
