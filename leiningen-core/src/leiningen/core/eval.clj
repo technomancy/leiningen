@@ -241,8 +241,11 @@
                     (File/createTempFile "form-init" ".clj")
                     (io/file (:target-path project) (str checksum "-init.clj")))]
     (spit init-file
-          (binding [*print-dup* *eval-print-dup*
-                    *print-meta* true]
+          ;; NOTE: we can't include metadata in the printed forms here, because this breaks
+          ;;       some plugins (when metadata includes objects that don't have a tagged
+          ;;       literal reader). See https://github.com/technomancy/leiningen/issues/2328 and
+          ;;       https://github.com/technomancy/leiningen/issues/2814
+          (binding [*print-dup* *eval-print-dup*]
             (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                     form)))
@@ -326,8 +329,7 @@
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*
-                                                    *print-meta* true]
+        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*]
                                             (pr-str form))})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
@@ -358,8 +360,7 @@
   (let [dispatch-var (resolve 'clojure.pprint/*print-pprint-dispatch*)
         code-dispatch @(resolve 'clojure.pprint/code-dispatch)]
     (try (push-thread-bindings {dispatch-var code-dispatch})
-         (binding [*print-meta* true]
-           ((resolve 'clojure.pprint/pprint) form))
+         ((resolve 'clojure.pprint/pprint) form)
          (finally (pop-thread-bindings)))))
 
 (defn eval-in-project
