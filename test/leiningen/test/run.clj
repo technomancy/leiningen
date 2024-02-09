@@ -5,7 +5,8 @@
             [leiningen.test.helper :as helper
              :refer [bad-require-project tmp-dir tricky-name-project
                      java-main-project file-not-found-thrower-project
-                     with-system-out-str with-system-err-str]]
+                     with-system-out-str with-system-err-str
+                     preserve-eval-meta-project]]
             [clojure.test :refer :all]
             [leiningen.run :refer :all]))
 
@@ -83,3 +84,21 @@
     ;; 'file-not-found-thrower.core' as .class or .clj for lein run:
     ;; please check the spelling." is not
     (is (.contains s "Exception in thread \"main\" java.io.FileNotFoundException"))))
+
+(deftest test-preserve-eval-meta
+  ;; By default, metadata (including type hints) is not preserved when dumping the code
+  ;; to be evaluated in the project. That's the case because some plugins include objects
+  ;; with metadata that can't be read (i.e. #object tags, referring to functions or vars).
+  ;; See https://github.com/technomancy/leiningen/issues/2814
+  (let [err (with-system-err-str (run tricky-name-project "/unreadable"))]
+    (is (re-find #"Reflection warning.*call to.*can't be resolved" err)))
+
+  ;; One consequence of not including type hints in the code to be evaluated is that
+  ;; `lein run` will print a reflection warning in projects with
+  ;; `:global-vars {*warn-on-reflection* true}`, because the code injected to run the
+  ;; main function needs type hints to avoid reflection. Including metadata is available
+  ;; as opt-in, using the :preserve-eval-meta project key. When that is set to true, no
+  ;; reflection warning should happen, but some plugins can't be loaded.
+  ;; See https://github.com/technomancy/leiningen/issues/2695
+  (let [err (with-system-err-str (run preserve-eval-meta-project))]
+    (is (not (re-find #"Reflection warning.*call to.*can't be resolved" err)))))

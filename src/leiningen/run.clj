@@ -76,6 +76,10 @@
 
          ;; If the class exists, run its main method.
          class#
+         ;; NOTE: this prints a reflection warning, unless project has `:preserve-eval-meta true`
+         ;;       https://github.com/technomancy/leiningen/issues/2695
+         ;;       https://github.com/technomancy/leiningen/issues/2328
+         ;        https://github.com/technomancy/leiningen/issues/2814
          (Reflector/invokeStaticMethod
           class# "main" ^"[Ljava.lang.Object;" (into-array [(into-array String '~args)]))
 

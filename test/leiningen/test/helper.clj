@@ -92,6 +92,8 @@
 
 (def leaky-composite-project (read-test-project "leaky-composite"))
 
+(def preserve-eval-meta-project (read-test-project "preserve-eval-meta"))
+
 (defn abort-msg
   "Catches main/abort thrown by calling f on its args and returns its error
   message."
