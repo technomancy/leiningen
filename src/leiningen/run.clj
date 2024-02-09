@@ -76,14 +76,12 @@
 
          ;; If the class exists, run its main method.
          class#
-         ;; NOTE: this prints a reflection warning, but it is not trivially solvable because
-         ;;       metadata in the argument is not preserved when writing forms to be eval'ed.
-         ;;       See:
+         ;; NOTE: this prints a reflection warning, unless project has `:preserve-eval-meta true`
          ;;       https://github.com/technomancy/leiningen/issues/2695
          ;;       https://github.com/technomancy/leiningen/issues/2328
          ;        https://github.com/technomancy/leiningen/issues/2814
          (Reflector/invokeStaticMethod
-          class# "main" (into-array [(into-array String '~args)]))
+          class# "main" ^"[Ljava.lang.Object;" (into-array [(into-array String '~args)]))
 
          ;; If the symbol didn't resolve, give a reasonable message
          (= :not-found ns-flag#)
