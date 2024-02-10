@@ -296,6 +296,9 @@
   ;; valid global variables to set (and their meaningful values).
   :global-vars {*warn-on-reflection* true
                 *assert* false}
+  ;; Preserve metadata when evaluating project code. This can remove reflection
+  ;; warnings but can also cause incompatibilities with certain plugins.
+  :preserve-eval-meta true
   ;; Use a different `java` executable for project JVMs. Leiningen's own JVM is
   ;; set with the LEIN_JAVA_CMD environment variable.
   :java-cmd "/home/phil/bin/java1.7"
