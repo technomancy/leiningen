@@ -4,9 +4,9 @@
 # somewhere on your $PATH, like ~/bin. The rest of Leiningen will be
 # installed upon first run into the ~/.lein/self-installs directory.
 
-export LEIN_VERSION="2.11.2-SNAPSHOT"
+export LEIN_VERSION="2.11.2"
 # Must be sha256sum, will be replaced by bin/release
-export LEIN_CHECKSUM='47d3cd3d436433c59662fb54c5f3c8d87dcf6e8249421b362b38ec3710a3d4f9'
+export LEIN_CHECKSUM='7d31ae23ae769e927438b0cd55d15a93e7dabab09fd4fc15877979161e108774'
 
 case $LEIN_VERSION in
     *SNAPSHOT) SNAPSHOT="YES" ;;
@@ -446,7 +446,7 @@ if $cygterm; then
   stty -icanon min 1 -echo > /dev/null 2>&1
 fi
 
-# TODO: investigate http://skife.org/java/unix/2.11.2-SNAPSHOT6/20/really_executable_jars.html
+# TODO: investigate http://skife.org/java/unix/2.11.26/20/really_executable_jars.html
 # If you're packaging this for a package manager (.deb, homebrew, etc)
 # you need to remove the self-install and upgrade functionality or see lein-pkg.
 if [ "$1" = "self-install" ]; then
