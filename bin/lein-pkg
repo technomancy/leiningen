@@ -4,7 +4,7 @@
 # It has all the cross-platform stuff stripped out as well as the
 # logic for running from a source checkout and self-install/upgrading.
 
-export LEIN_VERSION="2.11.2"
+export LEIN_VERSION="2.11.3-SNAPSHOT"
 
 if [[ "$CLASSPATH" != "" ]]; then
     cat <<-'EOS' 1>&2

@@ -1,13 +1,13 @@
 ;; This is Leiningen's own project configuration. See doc/TUTORIAL.md
 ;; file as well as sample.project.clj for help writing your own.
 
-(defproject leiningen "2.11.2"
+(defproject leiningen "2.11.3-SNAPSHOT"
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://codeberg.org/leiningen/leiningen"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
-  :dependencies [[leiningen-core "2.11.2"]
+  :dependencies [[leiningen-core "2.11.3-SNAPSHOT"]
                  ;; needed for pom
                  [org.clojure/data.xml "0.2.0-alpha6"]
                  ;; needed for test
