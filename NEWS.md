@@ -1,6 +1,6 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.11.2 / ???
+## 2.11.2 / 2024-02-13
 
 * Add `:preserve-eval-meta` setting to avoid project code reflection. (Marco Biscaro)
 * Fix a bug where metadata on project code caused plugin incompatibilities. (Marco Biscaro)
