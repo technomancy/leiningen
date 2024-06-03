@@ -84,6 +84,16 @@ Using `bin/lein` alone from the main branch without a full checkout
 is not supported. If you want to just grab a shell script to work
 with, use the `stable` branch.
 
+You can also bootstrap using [Maven](https://maven.apache.org/) to work
+around the chicken/egg bootstrapping problem if you cannot or do not want to
+install a stable Leiningen build.
+
+```bash
+$ cd leiningen-core
+$ mvn install
+$ mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
+```
+
 ### Uberjar from main
 
 Since a development version is not uberjared, it can be rather slow compared to
