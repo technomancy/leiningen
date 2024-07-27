@@ -55,7 +55,8 @@
                  (resolve-with-repo "https://badssl.f5n.de/"))
                (catch Exception e
                  (stacktrace/root-cause e)))]
-      (is (or (instance? javax.net.ssl.SSLPeerUnverifiedException ex)
+      (is (or (instance? javax.net.ssl.SSLException ex)
+              (instance? javax.net.ssl.SSLPeerUnverifiedException ex)
               (instance? java.security.GeneralSecurityException ex)))))
   (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
            (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")

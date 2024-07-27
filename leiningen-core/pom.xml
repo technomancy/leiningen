@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>795c3a5d68de7a2465582da4184c42d7bd065c76</tag>
+    <tag>c26c0a144a37aeaa112919bf561e77afd5a895f6</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -93,7 +93,7 @@
     <dependency>
       <groupId>clj-commons</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>1.2.23</version>
+      <version>1.2.24</version>
       <exclusions>
         <exclusion>
           <artifactId>jcl-over-slf4j</artifactId>
