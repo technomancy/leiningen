@@ -10,7 +10,7 @@
                                org.tcrawley/dynapath]]
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
-                 [clj-commons/pomegranate "1.2.23"
+                 [clj-commons/pomegranate "1.2.24"
                   :exclusions [org.slf4j/jcl-over-slf4j org.slf4j/slf4j-api
                                org.apache.maven.wagon/wagon-provider-api
                                org.apache.httpcomponents/httpcore
