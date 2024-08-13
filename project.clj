@@ -5,7 +5,7 @@
   :description "Automate Clojure projects without setting your hair on fire."
   :url "https://codeberg.org/leiningen/leiningen"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://www.eclipse.org/legal/epl-v10.html"}
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[leiningen-core "2.11.3-SNAPSHOT"]
                  ;; needed for pom

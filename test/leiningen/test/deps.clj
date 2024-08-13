@@ -29,7 +29,7 @@
     (doseq [[n v] sample-deps]
       (delete-file-recursively (m2-dir n v) :silently))
     ;; For some reason running deps on a project that includes ring
-    ;; fails, but only when done right here. http://p.hagelb.org/mystery.gif
+    ;; fails, but only when done right here. https://p.hagelb.org/mystery.gif
     (deps (update-in sample-project [:dependencies] rest))
     (doseq [[n v] sample-deps]
       (is (.exists (m2-dir n v)) (str n " was not downloaded.")))))

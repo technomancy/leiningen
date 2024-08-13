@@ -12,7 +12,7 @@
             [clojure.data.xml.name :as name]
             [leiningen.core.classpath :as classpath]))
 
-(def pom-uri "http://maven.apache.org/POM/4.0.0")
+(def pom-uri "https://maven.apache.org/POM/4.0.0")
 
 (def ^:private xsi-uri "http://www.w3.org/2001/XMLSchema-instance")
 
@@ -363,7 +363,7 @@
         [::pom/project {:xmlns pom-uri
                         :xmlns/xsi xsi-uri
                         ::xsi/schemaLocation
-                        (str pom-uri " http://maven.apache.org/xsd/maven-4.0.0.xsd")}
+                        (str pom-uri " https://maven.apache.org/xsd/maven-4.0.0.xsd")}
          [::pom/modelVersion "4.0.0"]
          (and (:parent project) (xml-tags :parent (:parent project)))
          [::pom/groupId (:group project)]

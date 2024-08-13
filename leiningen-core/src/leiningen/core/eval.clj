@@ -370,7 +370,7 @@
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
   for the project. If the form depends on any requires, put them in the init arg
-  to avoid the Gilardi Scenario: http://technomancy.us/143"
+  to avoid the Gilardi Scenario: https://technomancy.us/143"
   ([project form] (eval-in-project project form nil))
   ([project form init]
      (prep project)

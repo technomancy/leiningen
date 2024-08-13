@@ -14,14 +14,14 @@
 ;;; Project Metadata
   ;; The description text is searchable from repositories like Clojars.
   :description "A sample project"
-  :url "http://example.org/sample-clojure-project"
+  :url "https://example.org/sample-clojure-project"
   ;; The mailing list of the project. If the project has multiple mailing
   ;; lists, use the :mailing-lists key (bound to a seq of mailing list
   ;; descriptions as below).
   :mailing-list {:name "sample mailing list"
-                 :archive "http://example.org/sample-mailing-list-archives"
-                 :other-archives ["http://example.org/sample-list-archive2"
-                                  "http://example.org/sample-list-archive3"]
+                 :archive "https://example.org/sample-mailing-list-archives"
+                 :other-archives ["https://example.org/sample-list-archive2"
+                                  "https://example.org/sample-list-archive3"]
                  :post "list@example.org"
                  :subscribe "list-subscribe@example.org"
                  :unsubscribe "list-unsubscribe@example.org"}
@@ -29,7 +29,7 @@
   ;; :repo means it is OK for public repositories to host this project's
   ;; artifacts. A seq of :licenses is also supported.
   :license {:name "Eclipse Public License - v 1.0"
-            :url "http://www.eclipse.org/legal/epl-v10.html"
+            :url "https://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "same as Clojure"}
   ;; Warns users of earlier versions of Leiningen. Set this if your project
@@ -131,15 +131,15 @@
   ;; These repositories will be included with :repositories when loading plugins.
   ;; This would normally be set in a profile for non-public repositories.
   ;; All the options are the same as in the :repositories map.
-  :plugin-repositories [["internal-plugin-repo" "http://example.org/repo"]]
+  :plugin-repositories [["internal-plugin-repo" "https://example.org/repo"]]
   ;; Fetch dependencies from mirrors. Mirrors override repositories when the key
   ;; in the :mirrors map matches either the name or URL of a specified
   ;; repository. All settings supported in :repositories may be set here too.
   ;; The :name should match the name of the mirrored repository.
   :mirrors {"central" {:name "central"
-                       :url "http://mirrors.ibiblio.org/pub/mirrors/maven2"}
+                       :url "https://mirrors.ibiblio.org/pub/mirrors/maven2"}
             #"clojars" {:name "Internal nexus"
-                        :url "http://mvn.local/nexus/releases"
+                        :url "https://mvn.local/nexus/releases"
                         :repo-manager true}}
   ;; Override location of the local maven repository. Relative to project root.
   :local-repo "local-m2"
@@ -154,7 +154,7 @@
   ;; the deploy task will give preference to repositories specified in
   ;; :deploy-repositories, and repos listed there will not be used for
   ;; dependency resolution.
-  :deploy-repositories [["releases" {:url "http://blueant.com/archiva/internal/releases"
+  :deploy-repositories [["releases" {:url "https://blueant.com/archiva/internal/releases"
                                      ;; Select a GPG private key to use for
                                      ;; signing. (See "How to specify a user
                                      ;; ID" in GPG's manual.) GPG will
@@ -163,7 +163,7 @@
                                      ;; Currently only works in :deploy-repositories
                                      ;; or as a top-level (global) setting.
                                      :signing {:gpg-key "0xAB123456"}}]
-                        ["snapshots" "http://blueant.com/archiva/internal/snapshots"]]
+                        ["snapshots" "https://blueant.com/archiva/internal/snapshots"]]
   ;; Defaults for signing options. Defers to per-repository settings.
   ;; You can set this in the :user profile in ~/.lein/profiles.clj too.
   :signing {;; specify which key to use for signing; set to false to disable.
@@ -279,7 +279,7 @@
   ;; with certain uses of protocols and records.
   :aot [org.example.sample]
   ;; Forms to prepend to every form that is evaluated inside your project.
-  ;; Allows working around the Gilardi Scenario: http://technomancy.us/143
+  ;; Allows working around the Gilardi Scenario: https://technomancy.us/143
   ;; Note: This code is not executed in jars or uberjars.
   :injections [(require 'clojure.pprint)]
   ;; Java agents can instrument and intercept certain VM features. Include
@@ -350,7 +350,7 @@
   ;; vector - ^{:protect false}
   :clean-targets [:target-path :compile-path :foobar-paths
                   [:baz-config :qux-path] "out"]
-  ;; Workaround for http://dev.clojure.org/jira/browse/CLJ-322 by deleting
+  ;; Workaround for https://dev.clojure.org/jira/browse/CLJ-322 by deleting
   ;; compilation artifacts for namespaces that come from dependencies.
   :clean-non-project-classes true
   ;; Paths to include on the classpath from each project in the
@@ -528,7 +528,7 @@
                                 [:role "maintainer"]]]]
                  [:contributors [:contributor
                                  [:name "Ben Bitdiddle"]
-                                 [:url "http://www.example.com/benjamin"]
+                                 [:url "https://www.example.com/benjamin"]
                                  [:properties [:id "benbit"]]]])
 
 ;;; Safety flags

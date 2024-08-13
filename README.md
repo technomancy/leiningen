@@ -78,7 +78,7 @@ The `project.clj` file in the project root should look like this:
 (defproject myproject "0.5.0-SNAPSHOT"
   :description "A project for doing things."
   :license "Eclipse Public License 1.0"
-  :url "http://codelab.org/technomancy/myproject"
+  :url "https://codelab.org/technomancy/myproject"
   :dependencies [[org.clojure/clojure "1.8.0"]]
   :plugins [[lein-tar "3.2.0"]])
 ```

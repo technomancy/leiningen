@@ -1,6 +1,6 @@
 (defproject provided "0"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://www.eclipse.org/legal/epl-v10.html"}
   :dependencies []
   :java-source-paths ["src"]
   :main provided.core.Example

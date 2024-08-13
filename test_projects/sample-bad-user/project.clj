@@ -2,9 +2,9 @@
 
 (defproject nomnomnom "0.5.0-SNAPSHOT"
   :description "A test project"
-  :url "http://leiningen.org"
+  :url "https://leiningen.org"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[~(symbol "org.clojure" "clojure") ~clj-version]
                  [rome ~(str "0." "9")]
                  [ring "1.0.0"]]
@@ -18,7 +18,7 @@
   :test-selectors {:integration :integration
                    :default (complement :integration)
                    :random (fn [_] (> (rand) ~(float 1/2)))}
-  :repositories [["other" {:url "http://example.com/repo"
+  :repositories [["other" {:url "https://example.com/repo"
                            :update :always
                            :releases {:checksum :warn}}]]
   :deploy-repositories {"snapshots" ~(format "file://%s/lein-repo"

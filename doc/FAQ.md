@@ -17,7 +17,7 @@
   for background.
 
 **Q:** How should I pick my version numbers?  
-**A:** Use [semantic versioning](http://semver.org) to communicate
+**A:** Use [semantic versioning](https://semver.org) to communicate
   intentions to downstream users of your library, but don't make
   assumptions that libraries you use stick with it consistently. Remember
   that the difference between a breaking change and a bug fix is often

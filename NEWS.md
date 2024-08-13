@@ -782,7 +782,7 @@
 * Support :eval-in-leiningen for easier testing of plugins.
 * Merge javac task from lein-javac plugin. (Antonio Garrote)
 * Add init argument to eval-in-project to help with the Gilardi Scenario.
-  See http://technomancy.us/143 for details.
+  See https://technomancy.us/143 for details.
 * Fix bug involving repl I/O flushing.
 * Run subset of test suite using test selector predicates.
 * Specify what file patterns to exclude from jars. (Zehua Liu)

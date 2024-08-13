@@ -1,7 +1,7 @@
 (defproject leiningen-core "2.11.3-SNAPSHOT"
   :url "https://codeberg.org/leiningen/leiningen"
   :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+            :url "https://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
   :dependencies [[org.clojure/clojure "1.11.1"]

@@ -63,8 +63,8 @@ tool.
 This tutorial will briefly cover project structure, dependency
 management, running tests, the REPL, and topics related to deployment.
 
-For those of you new to the JVM who have never touched [Ant](http://ant.apache.org/)
 or [Maven](https://maven.apache.org/) in anger: don't panic. Leiningen is designed
+For those of you new to the JVM who have never touched [Ant](https://ant.apache.org/)
 with you in mind. This tutorial will help you get started and explain Leiningen's
 take on project automation and JVM-land dependency management.
 

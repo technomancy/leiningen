@@ -70,7 +70,7 @@
           (constantly {:user
                         {:mirrors
                           {"clojars" "https://clojars.example.com"
-                           "central" "http://central.exmaple.com"}}})]
+                           "central" "https://central.exmaple.com"}}})]
          (let [name "luminus"
                sym (symbol (str "leiningen.new." name))]
            (leiningen.new/resolve-remote-template name sym))))))

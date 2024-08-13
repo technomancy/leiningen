@@ -146,9 +146,9 @@
         "version is correct")
     (is (nil? (first-in xml [::pom/project ::pom/parent]))
         "no parent")
-    (is (= "http://leiningen.org" (first-in xml [::pom/project ::pom/url]))
+    (is (= "https://leiningen.org" (first-in xml [::pom/project ::pom/url]))
         "url is correct")
-    (is (= ["Eclipse Public License" "http://www.eclipse.org/legal/epl-v10.html"]
+    (is (= ["Eclipse Public License" "https://www.eclipse.org/legal/epl-v10.html"]
            (->> (deep-content xml [::pom/project ::pom/licenses])
                 (map :content) first (map :content) (map first)))
         "no license")
@@ -161,7 +161,7 @@
                 (deep-content xml [::pom/project ::pom/repositories])))
         "repositories are named")
     (is (= ["https://repo1.maven.org/maven2/" "https://repo.clojars.org/"
-            "http://example.com/repo"]
+            "https://example.com/repo"]
            (map #(first-in % [::pom/repository ::pom/url])
                 (deep-content xml [::pom/project ::pom/repositories])))
         "repositories have correct location")

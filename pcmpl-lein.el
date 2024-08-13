@@ -3,7 +3,7 @@
 ;; Copyright (C) 2011 Phil Hagelberg
 ;;
 ;; Author: Phil Hagelberg
-;; URL: http://github.com/technomancy/leiningen
+;; URL: https://github.com/technomancy/leiningen
 ;; Version: 0.1
 ;; Keywords: eshell completion
 ;; Created: 2011-01-15

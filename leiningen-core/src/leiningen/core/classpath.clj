@@ -214,7 +214,7 @@
 
   So, a credentials map that contains an entry:
 
-    {#\"http://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
+    {#\"https://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
 
   would be applied to all repositories with URLs matching the regex key
   that didn't have an explicit entry."

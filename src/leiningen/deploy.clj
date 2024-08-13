@@ -181,7 +181,7 @@
 (defn classifier
   "The classifier is be located between the version and extension name of the artifact.
 
-  See http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html "
+  See https://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html "
   [version f]
   (let [pattern (re-pattern (format "%s-(\\p{Alnum}*)\\.%s" version (extension f)))
         [_ classifier-of] (re-find pattern f)]

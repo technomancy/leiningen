@@ -77,7 +77,7 @@ you can deploy to S3 buckets using the
 
 The most full-featured and complex route is to run a full-fledged
 repository manager. Both [Artifactory](https://www.jfrog.com/open-source/#os-arti), [Archiva](https://archiva.apache.org/) and
-[Nexus](http://nexus.sonatype.org/) provide this. They also proxy to
+[Nexus](https://nexus.sonatype.org/) provide this. They also proxy to
 other repositories, so you can set `^:replace` metadata on
 `:repositories` in project.clj, and dependency downloads will speed up
 by quite a bit since Clojars and Maven Central won't need to be

@@ -167,15 +167,15 @@
                                                   {#"clojars"
                                                    {:username "flynn"
                                                     :password "flotilla"}}}})]
-    (is (= [["clojars" {:url "http://clojars.org/repo"
+    (is (= [["clojars" {:url "https://clojars.org/repo"
                         :username "flynn" :password "flotilla"}]
             ["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
                          :url "https://sekrit.info/repo"}]]
            (map add-repo-auth
-                [["clojars" {:url "http://clojars.org/repo"}]
                  ["sonatype" {:url "https://oss.sonatype.org/"}]
                  ["internal" {:url "https://sekrit.info/repo"
+                [["clojars" {:url "https://clojars.org/repo"}]
                               :username :gpg :password :gpg}]])))))
 
 (deftest test-normalize-dep-vectors
