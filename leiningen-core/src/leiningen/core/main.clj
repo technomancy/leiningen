@@ -378,15 +378,15 @@ These get replaced with the corresponding values from the project map."
 
 ;; packagers should replace this string!
 (def ^:private min-version-warning
-  "*** Warning: This project requires Leiningen %s, but you have %s ***
+  ";; *** Warning: This project requires Leiningen %s, but you have %s ***
 
-Get the latest version of Leiningen at https://leiningen.org or by executing
-\"lein upgrade\".")
+;; Get the latest version of Leiningen from your package manager or by executing
+;; \"lein upgrade\".")
 
 (defn- verify-min-version
   [{:keys [min-lein-version]}]
   (when-not (version-satisfies? (leiningen-version) min-lein-version)
-    (info (format min-version-warning min-lein-version (leiningen-version)))))
+    (warn (format min-version-warning min-lein-version (leiningen-version)))))
 
 (defn user-agent []
   (format "Leiningen/%s (Java %s; %s %s; %s)"
