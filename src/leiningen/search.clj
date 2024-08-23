@@ -20,7 +20,7 @@
 (defn parse [url]
   (try (xml/parse url startparse)
        (catch Exception e
-         (main/warn "Could not retrieve search results from"
+         (main/warn ";; Could not retrieve search results from"
                     (str url ":")
                     (if (re-find #"HTTP response code: (400|505)" (str e))
                       "Query syntax unsupported."

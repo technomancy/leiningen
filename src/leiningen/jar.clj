@@ -307,7 +307,7 @@ keyword, it's looked up in :profiles before being merged."
   [{:keys [target-path] :as project} provided-profiles classifier spec]
   (when (:dependencies spec)
     (main/warn
-     "WARNING: Classifier specifies :dependencies which will be ignored."))
+     ";; WARNING: Classifier specifies :dependencies which will be ignored."))
   (let [profiles (concat provided-profiles [::target ::classifier])
         target-profile {:target-path
                         (.getPath (io/file target-path (name classifier)))}
