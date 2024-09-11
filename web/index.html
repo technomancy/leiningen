@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<head lang="en">
+<html lang="en">
+<head>
     <meta charset="utf-8">
     <title>Leiningen</title>
     <meta name="description" content="Leiningen: automating Clojure projects">
@@ -67,7 +68,7 @@
     <div class="sixteen columns"><hr /></div>
 
     <div class="one-third column"><h3 class="offset-by-one">Install</h3></div>
-    <div class="two-thirds column">
+    <div class="two-thirds column" id="install">
       <p>First check
       your <a href="https://wiki.leiningen.org/Packaging">package
       manager</a> to see whether it includes Leiningen. If not, don't
@@ -76,13 +77,12 @@
       <p>Leiningen and Clojure require Java; ideally
         <a href="https://adoptium.net">OpenJDK</a>. Get this from
         your package manager, or download manually if you have to.</p>
-      <a name="install"></a>
       <ol>
         <li>Download the <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"><kbd>lein</kbd>
         script</a> (or on
           Windows <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat"><kbd>lein.bat</kbd></a>
           if you don't use WSL)</li>
-        <li>Place it on your <tt>$PATH</tt> where your shell can find it (eg. <tt>/usr/local/bin/</tt>)</li>
+        <li>Place it on your <kbd>$PATH</kbd> where your shell can find it (eg. <kbd>/usr/local/bin/</kbd>)</li>
         <li>Set it to be executable (<kbd>sudo chmod a+x /usr/local/bin/lein</kbd>)</li>
         <li>Run it (<kbd>lein</kbd>) and it will download the self-install package</li>
       </ol>
@@ -93,8 +93,7 @@
     <div class="one-third column" style="float: right">
       <h3 class="offset-by-one">Documentation</h3></div>
 
-    <div class="two-thirds column">
-      <a name="docs"></a>
+    <div class="two-thirds column" id="docs">
       <p>The <a href="/tutorial.html">tutorial</a>
         is the best place to start. If you have Leiningen installed,
         you can read the tutorial by running <kbd>lein help
@@ -109,7 +108,7 @@
         Documentation for each individual task is available
         via <kbd>lein help $TASK</kbd>. You can also
         see <a href="https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj">the
-        sample <tt>project.clj</tt> file</a> containing a reference of most
+        sample <kbd>project.clj</kbd> file</a> containing a reference of most
         project settings by running <kbd>lein help sample</kbd>.</p>
 
       <p>More:
@@ -123,14 +122,13 @@
     <div class="sixteen columns"><hr /></div>
 
     <div class="one-third column"><h3 class="offset-by-one">Community</h3></div>
-    <div class="two-thirds column">
-      <a name="community"></a>
+    <div class="two-thirds column" id="community">
       <p>At the time of this writing Leiningen is the most
         widely-contributed-to Clojure project. We welcome potential
         contributors and do our best to make it easy to help out.</p>
 
       <p>Discussion occurs primarily <a href="irc://irc.libera.chat#leiningen">in
-          the <tt>#leiningen</tt> channel</a>
+          the <kbd>#leiningen</kbd> channel</a>
         on <a href="https://libera.chat">Libera.Chat</a>.</p>
 
       <p>Issues should
