@@ -366,14 +366,14 @@ Central and Clojars is supported.
 
 ### Maven Read Timeout
 
-The underlying [Maven Wagon](https://maven.apache.org/wagon/) transport
-reads the `maven.wagon.rto` system property to determine the timeout used
-when downloading artifacts from a repository. The `lein` script sets that property to be 10000.
-If that timeout isn't long enough (for example, when using a slow corporate mirror),
-it can be overridden via `LEIN_JVM_OPTS`:
+The underlying [Maven Wagon](https://maven.apache.org/wagon/)
+transport reads the `maven.wagon.rto` system property to determine the
+timeout (in milliseconds) used when communicating with a repository.
+If the default timeout isn't right, it can be overridden via
+`LEIN_JVM_OPTS`:
 
 ```bash
-export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
+export LEIN_JVM_OPTS="-Dmaven.wagon.rto=30000"
 ```
 
 ## Setting JVM Options
