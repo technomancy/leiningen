@@ -172,11 +172,11 @@
             ["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
                          :url "https://sekrit.info/repo"}]]
-           (map add-repo-auth
-                 ["sonatype" {:url "https://oss.sonatype.org/"}]
-                 ["internal" {:url "https://sekrit.info/repo"
+            (map add-repo-auth
                 [["clojars" {:url "https://clojars.org/repo"}]
-                              :username :gpg :password :gpg}]])))))
+                  ["sonatype" {:url "https://oss.sonatype.org/"}]
+                  ["internal" {:url "https://sekrit.info/repo"
+                               :username :gpg :password :gpg}]])))))
 
 (deftest test-normalize-dep-vectors
   (testing "dep vectors with string version"
