@@ -19,7 +19,7 @@
                  ;; needed for uberjar
                  [commons-lang "2.6"]
                  ;; needed for repl
-                 [nrepl "1.0.0"]
+                 [nrepl "1.3.0"]
                  ;; needed for change
                  [org.clojars.trptcolin/sjacket "0.1.1.1"
                   :exclusions [org.clojure/clojure]]
