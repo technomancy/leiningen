@@ -678,7 +678,10 @@
         result (unmerge-profiles project [:system :base :provided :user])]
     (is (= '[[org.clojure/clojure "1.10.1"]
              [ring "1.8.2" :scope "test"]]
-           (:dependencies result)))))
+           (:dependencies result)))
+    ;; Even though this isn't a part of the formal API, ensure
+    ;; that unmerging correctly adjust :active-profiles too.
+    (is (= [:ring] (-> result meta :active-profiles)))))
 
 (deftest test-target-path
   (let [project (init-project {:dependencies '[[org.clojure/clojure "1.10.1"]]

@@ -954,9 +954,9 @@
   "Compute a fresh version of the project map, including and excluding the
   specified profiles."
   [project include-profiles & [exclude-profiles]]
-  (let [project (with-meta
-                  (:without-profiles (meta project) project)
-                  (meta project))
+  (let [project (-> (:without-profiles (meta project) project)
+                    (with-meta (meta project))
+                    (vary-meta dissoc :active-profiles))
         include-profiles-meta (->> (expand-profiles-with-meta
                                     project include-profiles)
                                    (utils/last-distinct-by first))
