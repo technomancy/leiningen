@@ -21,7 +21,7 @@
             (dissoc 'org.clojure/clojure)
             (dissoc 'leiningen-core)
             (pp/pprint))))
-{clj-commons/pomegranate "1.2.23",
+{clj-commons/pomegranate "1.2.24",
  com.hypirion/io "0.3.1",
  com.jcraft/jsch "0.1.55",
  com.jcraft/jsch.agentproxy.connector-factory "0.0.9",
@@ -39,7 +39,7 @@
  net.cgrand/regex "1.1.0",
  net.java.dev.jna/jna "4.1.0",
  net.java.dev.jna/jna-platform "4.1.0",
- nrepl "1.0.0",
+ nrepl "1.3.0",
  org.apache.commons/commons-lang3 "3.12.0",
  org.apache.httpcomponents/httpclient "4.5.14",
  org.apache.httpcomponents/httpcore "4.4.16",
