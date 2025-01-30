@@ -10,3 +10,4 @@ Header always set Permissions-Policy: interest-cohort=()
 
 ErrorDocument 404 /404.html
 AddDefaultCharset UTF-8
+FileETag MTime Size
