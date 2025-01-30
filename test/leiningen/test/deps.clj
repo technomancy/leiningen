@@ -74,6 +74,19 @@
                            [org.clojure/core.unify "0.5.3"]]]
         (is (.contains out (pr-str plugin-dep)))))))
 
+(deftest ^:online test-plugin-dependency-hierarchy-as-edn
+  (let [sample-plugin-deps [["codox" "0.6.4"]]]
+    (doseq [[n v] sample-plugin-deps]
+      (delete-file-recursively (m2-dir n v) :silently))
+    (let [out (with-out-str (deps sample-project ":plugin-tree-data"))]
+      (is (= '{[codox "0.6.4"]
+               {[codox/codox.leiningen "0.6.4"]
+                {[leinjacker "0.4.1"]
+                 {[org.clojure/core.contracts "0.0.1"]
+                  {[org.clojure/clojure "1.4.0"] nil
+                   [org.clojure/core.unify "0.5.3"] nil}}}}}
+             (read-string out))))))
+
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project
                   :repositories ^:replace {"clojars" {:url "https://repo.clojars.org/"

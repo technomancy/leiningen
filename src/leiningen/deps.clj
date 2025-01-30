@@ -84,7 +84,8 @@
   for."
   {":tree" [:dependencies :managed-dependencies]
    ":tree-data" [:dependencies :managed-dependencies]
-   ":plugin-tree" [:plugins nil]})
+   ":plugin-tree" [:plugins nil]
+   ":plugin-tree-data" [:plugins nil]})
 
 
 
@@ -121,6 +122,10 @@ Show the full dependency tree as above, but in EDN format.
     lein deps :plugin-tree
 
 Show the full dependency tree for the plugins in the current project.
+
+    lein deps :plugin-tree-data
+
+Show the full dependency tree for the plugins in the current project as above, but in EDN format.
 
     lein deps :verify
 
@@ -169,7 +174,9 @@ force them to be updated, use `lein -U $TASK`."
                  ":tree" (walk-deps hierarchy print-dep)
                  ":plugin-tree" (walk-deps hierarchy print-dep)
                  ":tree-data"  (binding [*print-length* 10000 *print-level* 10000]
-                                 (pprint/pprint hierarchy))))
+                                 (pprint/pprint hierarchy))
+                 ":plugin-tree-data" (binding [*print-length* 10000 *print-level* 10000]
+                                       (pprint/pprint hierarchy))))
              (= command ":verify")
              (if (user/gpg-available?)
                (walk-deps (classpath/managed-dependency-hierarchy
