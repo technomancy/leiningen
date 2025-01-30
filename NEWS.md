@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.11.3 / ???
+
+* Add `:plugin-tree-data` subcommand to deps task. (Gabriel Giussi)
+
 ## 2.11.2 / 2024-02-13
 
 * Add `:preserve-eval-meta` setting to avoid project code reflection. (Marco Biscaro)
