@@ -345,7 +345,7 @@ for f in "/etc/leinrc" "$LEIN_HOME/leinrc" ".leinrc"; do
 done
 
 if $cygwin; then
-    export LEIN_HOME=$(cygpath -w "$LEIN_HOME")
+    export LEIN_HOME=$(cygpath -m "$LEIN_HOME")
 fi
 
 # normalize $0 on certain BSDs
