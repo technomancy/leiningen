@@ -664,8 +664,7 @@ There are many ways to get your project deployed as a server-side
 application. Aside from the obvious uberjar approach, simple programs can be
 packaged up as [tarballs](https://en.wikipedia.org/wiki/Tar_(computing)) with
 accompanied shell scripts using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
-and then deployed using [pallet](http://palletops.com/), [chef](https://chef.io/),
-or other mechanisms.
+and then deployed using [chef](https://chef.io/) or other mechanisms.
 
 Web applications may be deployed as uberjars using embedded Jetty with
 `ring-jetty-adapter` or as [war (web application archive) files](https://en.wikipedia.org/wiki/WAR_(file_format))
