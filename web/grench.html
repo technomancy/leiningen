@@ -1,36 +1,32 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
-<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
 <head>
 
-	<!-- Basic Page Needs
+    <!-- Basic Page Needs
   ================================================== -->
-	<meta charset="utf-8">
-	<title>Grenchman</title>
-	<meta name="description" content="Grenchman: quick invocation of code over nREPL.">
-	<meta name="author" content="Phil Hagelberg and contributors">
+    <meta charset="utf-8">
+    <title>Grenchman</title>
+    <meta name="description" content="Grenchman: quick invocation of code over nREPL.">
+    <meta name="author" content="Phil Hagelberg and contributors">
 
-	<!-- Mobile Specific Metas
+    <!-- Mobile Specific Metas
   ================================================== -->
-	<meta name="viewport"
+    <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1">
 
-	<!-- CSS
+    <!-- CSS
   ================================================== -->
-	<link rel="stylesheet" href="stylesheets/base.css">
-	<link rel="stylesheet" href="stylesheets/skeleton.css">
-	<link rel="stylesheet" href="stylesheets/layout.css">
+    <link rel="stylesheet" href="stylesheets/base.css">
+    <link rel="stylesheet" href="stylesheets/skeleton.css">
+    <link rel="stylesheet" href="stylesheets/layout.css">
     <link rel="stylesheet" href="stylesheets/htmlize.css">
-	<link rel="stylesheet" href="stylesheets/grench.css">
+    <link rel="stylesheet" href="stylesheets/grench.css">
 </head>
 <body>
 
   <div class="container">
-	<div class="eight columns offset-by-two" id="title">
-	  <h1 class="remove-bottom">Grenchman</h1>
-	  <h6>fast invocation of code over nREPL</h6>
+    <div class="eight columns offset-by-two" id="title">
+      <h1 class="remove-bottom">Grenchman</h1>
+      <h6>fast invocation of code over nREPL</h6>
     </div>
 
     <div class="sixteen columns"><hr /></div>
@@ -42,7 +38,7 @@
       running <a href="https://github.com/clojure/tools.nrepl">nREPL</a>
       server you avoid JVM startup time, streamlining your development
       workflow. It includes its own repl client implementation
-      featuring full <a href="http://www.gnu.org/s/readline">GNU
+      featuring full <a href="https://www.gnu.org/s/readline">GNU
       Readline</a> support as well as the ability to
       invoke <a href="https://leiningen.org">Leiningen</a> tasks.</p>
 
@@ -53,10 +49,8 @@
           connect to it and run your code there.</p>
 
       <p>Please report
-      issues <a href="https://github.com/technomancy/grenchman/issues">on
-      GitHub</a> or
-      the <a href="https://leiningen.org/#community">Leiningen mailing
-      list</a>.</p>
+      issues <a href="https://gitlab.com/technomancy/grenchman/issues">on
+      GitLab</a> or on IRC.</p>
     </div>
 
     <div class="one-third column">
@@ -70,13 +64,14 @@ sys     0m0.024s</span></pre>
 
     <div class="sixteen columns"><hr /></div>
 
-    	<div class="one-third column"><h3 class="offset-by-one"><a name="download"></a>Download</h3></div>
+    <div class="one-third column" id="download">
+      <h3 class="offset-by-one">Download</h3></div>
     <div class="two-thirds column">
 
       <p>The latest version of Grenchman is 0.3.0, but it claims to be
         Distributed native binaries are about 10MB but have no
-        dependencies required besides <tt>libffi</tt>
-        and <tt>libreadline-dev</tt>. All programs are 64-bit.</p>
+        dependencies required besides <kbd>libffi</kbd>
+        and <kbd>libreadline-dev</kbd>. All programs are 64-bit.</p>
 
       <ul class="download">
         <li><a href="https://technomancy.github.io/grenchman/downloads/grench-0.2.0-debian-7">Debian Wheezy</a>
@@ -94,29 +89,29 @@ sys     0m0.024s</span></pre>
       </ul>
 
       <p>Download the appropriate binary for your platform, set the
-        executable bit with <tt>chmod</tt>, and place it on
-        your <tt>$PATH</tt> as <tt>grench</tt> to install. You can
-        check the signatures by pulling in the key with <tt>gpg
-        --recv-keys 77E77DDC</tt> and running <tt>gpg --verify
-        $ASC_FILE</tt>.</p>
+        executable bit with <kbd>chmod</kbd>, and place it on
+        your <kbd>$PATH</kbd> as <kbd>grench</kbd> to install. You can
+        check the signatures by pulling in the key with <kbd>gpg
+        --recv-keys 77E77DDC</kbd> and running <kbd>gpg --verify
+        $ASC_FILE</kbd>.</p>
 
       <p>Source
-      and <a href="https://github.com/technomancy/grenchman/issues">issues</a>
+      and <a href="https://gitlab.com/technomancy/grenchman/issues">issues</a>
       are
-      tracked <a href="https://github.com/technomancy/grenchman">on
-      GitHub</a>.</p>
-	</div>
+      tracked <a href="https://gitlab.com/technomancy/grenchman">on
+      GitLab</a>.</p>
+    </div>
 
     <div class="sixteen columns"><hr /></div>
 
     <div class="sixteen columns" id="footer">
         <p>&copy; 2013, 2019 Phil Hagelberg
-        and <a href="https://github.com/technomancy/grenchman/contributors">contributors</a>.
+        and <a href="https://gitlab.com/technomancy/grenchman/contributors">contributors</a>.
         Licensed under
-        the <a href="https://github.com/technomancy/grenchman/blob/master/COPYING">GNU
+        the <a href="https://gitlab.com/technomancy/grenchman/blob/master/COPYING">GNU
         General Public License version 3.0</a> or later.</p>
     </div>
-	</div><!-- container -->
+    </div><!-- container -->
 
 <!-- End Document
 ================================================== -->

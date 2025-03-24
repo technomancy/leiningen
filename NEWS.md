@@ -1,12 +1,57 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.9.9 / ???
+## 2.11.3 / ???
 
+* Add `:plugin-tree-data` subcommand to deps task. (Gabriel Giussi)
+
+## 2.11.2 / 2024-02-13
+
+* Add `:preserve-eval-meta` setting to avoid project code reflection. (Marco Biscaro)
+* Fix a bug where metadata on project code caused plugin incompatibilities. (Marco Biscaro)
+
+## 2.11.1 / 2024-01-28
+
+* Fix a bug when deploying using passwords read from the console. (Phil Hagelberg)
+
+## 2.11.0 / 2024-01-27
+
+* Top-level `:exclusions` can now affect top-level `:dependencies`. (Juan Monetta)
+* Fix a bug where `:eval-in :nrepl` couldn't detect running repl. (Phil Hagelberg)
+* Fix a bug where `:eval-in :nrepl` would crash. (Marco Biscaro)
+* Fix a bug where files on test path could be visible during jar. (Phil Hagelberg)
+* Fix an issue with `check` in namespaces that rely on AOT. (Phil Hagelberg)
+* Fix a redundant confusing dependencies warning. (Phil Hagelberg)
+* Add `static-classpath` task for static analysis. (Phil Hagelberg)
+* Major performance improvements handling pathological dependency trees. (Marco Biscaro)
+* Improve error reporting for search failures. (rome user)
+* Support XDG config directories. (Phil Hagelberg)
+* Use `$XDG_CACHE_HOME` for self-installs if it exists. (Phil Hagelberg)
+* Add warnings for buggy composite profiles. (Phil Hagelberg)
+
+## 2.10.0 / 2022-12-09
+
+* Update to nREPL 1.0.0 (Phil Hagelberg)
+* Fix a bug where `:eval-in :leiningen` could suppress test exit code. (Phil Hagelberg)
+* Add the ability to sign deployed files using SSH keys, not just GPG. (Phil Hagelberg)
+* Fix a bug where uberjar splices profiles into target path incorrectly. (Phil Hagelberg)
+
+## 2.9.10 / 2022-08-09
+
+* Fix a bug where dev-resources could leak into jars/uberjars. (Phil Hagelberg)
+* Avoid illegal reflective access doing XML parsing in uberjar/search. (Phil Hagelberg)
+
+## 2.9.9 / 2022-08-05
+
+* Migrate the repository from Github to Codeberg. (Phil Hagelberg)
+* Fix a bug in `new` where template group-ids could be ignored. (Phil Hagelberg)
+* Work around a change in Java 9 which broke template listing. (Phil Hagelberg)
+* Fix a bug in pedantic checks which resulted in infinite loops. (Phil Hagelberg)
 * Prevent `module-info.class` files from being included in uberjars. (Phil Hagelberg)
 * Prevent duplicate warnings in `resource-paths` when creating jars. (Phil Hagelberg)
 * Fix an issue with `check` where AOT would shadow reflection warnings. (Phil Hagelberg)
 * Allow `change` to edit dependency versions. (Eric Schoen)
 * Fix a bug where composite profiles would leak dependencies downstream. (Phil Hagelberg)
+* Allow `repl` to bind to filesystem sockets via `:headless :socket PATH` (Rob Browning)
 
 ## 2.9.8 / 2021-11-11
 
@@ -741,7 +786,7 @@
 * Support :eval-in-leiningen for easier testing of plugins.
 * Merge javac task from lein-javac plugin. (Antonio Garrote)
 * Add init argument to eval-in-project to help with the Gilardi Scenario.
-  See http://technomancy.us/143 for details.
+  See https://technomancy.us/143 for details.
 * Fix bug involving repl I/O flushing.
 * Run subset of test suite using test selector predicates.
 * Specify what file patterns to exclude from jars. (Zehua Liu)

@@ -29,6 +29,12 @@
       [id (assoc settings :username username :password password)]
       [id settings])))
 
+;; for some reason they nerfed Console so you can't use proxy with it,
+;; so we gotta do this the dipshit way to make it testable.
+(defn read-password-fn []
+  (if (System/console)
+    #(.readPassword (System/console) "%s" (into-array [%]))))
+
 (defn add-auth-interactively [[id settings]]
   (if (or (and (:username settings) (some settings [:password :passphrase
                                                     :private-key-file]))
@@ -49,9 +55,9 @@
                "to avoid prompts.")
       (print "Username: ") (flush)
       (let [username (read-line)
-            console (System/console)
-            password (if console
-                       (.readPassword console "%s"  (into-array ["Password: "]))
+            read-password (read-password-fn)
+            password (if read-password
+                       (apply str (read-password "Password: "))
                        (do
                          (println "LEIN IS UNABLE TO TURN OFF ECHOING, SO"
                                   "THE PASSWORD IS PRINTED TO THE CONSOLE")
@@ -93,23 +99,40 @@
                        "false` to the relevant `:deploy-repositories` entry.")))
     (str file ".asc")))
 
-(defn signature-for-artifact [[coords artifact-file] opts]
-  {(apply concat
-          (update-in
-           (apply hash-map coords) [:extension]
-           #(str (or % "jar") ".asc")))
-   (sign artifact-file opts)})
+(defn- ssh-keygen-cmd [file opts]
+  ["ssh-keygen" "-Y" "sign" "-f" (:ssh-key opts) "-n" "file" file])
+
+(defn- sign-ssh [file opts]
+  (when-not (zero? (apply eval/sh (ssh-keygen-cmd file opts)))
+    (main/abort "Could not sign" file))
+  (str file ".sig"))
+
+(defn- signature-filename [coords extension]
+  (apply concat (update-in (apply hash-map coords) [:extension]
+                           #(str (or % "jar") extension))))
+
+(defn- gpg-signature-for-artifact [[coords artifact-file] opts]
+  (if (not= false (:gpg-key opts))
+    {(signature-filename coords ".asc") (sign artifact-file opts)}))
+
+(defn- ssh-signature-for-artifact [[coords artifact-file] opts]
+  (if (:ssh-key opts)
+    {(signature-filename coords ".sig") (sign-ssh artifact-file opts)}))
+
+(defn signature-for-artifact [artifact opts]
+  (merge (gpg-signature-for-artifact artifact opts)
+         (ssh-signature-for-artifact artifact opts)))
 
 (defn signatures-for-artifacts
   "Creates and returns the list of signatures for the artifacts needed to be
   signed."
   [artifacts sig-opts]
   (let [total (count artifacts)]
-    (println "Need to sign" total "files with GPG")
+    (println "Need to sign" total "files")
     (doall
      (map-indexed
       (fn [idx [coords artifact-file :as artifact]]
-        (printf "[%d/%d] Signing %s with GPG\n" (inc idx) total artifact-file)
+        (printf "[%d/%d] Signing %s\n" (inc idx) total artifact-file)
         (flush)
         (signature-for-artifact artifact sig-opts))
       artifacts))))
@@ -138,7 +161,7 @@
 (defn warn-missing-metadata [project]
   (doseq [key [:description :license :url]]
     (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
-      (main/warn "WARNING: please set" key "in project.clj."))))
+      (main/warn ";; WARNING: please set" key "in project.clj."))))
 
 (defn- in-branches [branches]
   (-> (sh/sh "git" "rev-parse" "--abbrev-ref" "HEAD")
@@ -158,7 +181,7 @@
 (defn classifier
   "The classifier is be located between the version and extension name of the artifact.
 
-  See http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html "
+  See https://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-with-classifiers.html "
   [version f]
   (let [pattern (re-pattern (format "%s-(\\p{Alnum}*)\\.%s" version (extension f)))
         [_ classifier-of] (re-find pattern f)]

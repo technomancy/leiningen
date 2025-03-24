@@ -22,11 +22,20 @@
   * `Version`
   * `VersionConstraint`"
   (:refer-clojure :exclude [do])
-  (:require [cemerick.pomegranate.aether :as aether])
-  (:import (org.eclipse.aether.graph Exclusion)
-           (org.eclipse.aether.collection DependencyGraphTransformer)
-           (org.eclipse.aether.util.graph.transformer TransformationContextKeys
-                                                      ConflictIdSorter)))
+  (:require [cemerick.pomegranate.aether :as aether]
+            [clojure.set :as set])
+  (:import (java.util Map)
+           (org.eclipse.aether DefaultRepositorySystemSession)
+           (org.eclipse.aether.artifact Artifact)
+           (org.eclipse.aether.collection DependencyGraphTransformationContext
+                                          DependencyGraphTransformer)
+           (org.eclipse.aether.graph Dependency
+                                     DependencyNode
+                                     Exclusion)
+           (org.eclipse.aether.util.graph.transformer ConflictIdSorter
+                                                      TransformationContextKeys)))
+
+(set! *warn-on-reflection* true)
 
 (defn- warn [& args]
   ;; TODO: remove me once #1227 is merged
@@ -43,7 +52,7 @@
 (defn- initialize-conflict-ids!
   "Make sure that `SORTED_CONFLICT_IDS` and `CONFLICT_IDS` have been
   initialized. Similar to what a NearestVersionConflictResolver will do."
-  [node context]
+  [node ^DependencyGraphTransformationContext context]
   (when-not (.get context TransformationContextKeys/SORTED_CONFLICT_IDS)
     (-> (ConflictIdSorter.)
         (.transformGraph node context))))
@@ -51,7 +60,7 @@
 (defn- range?
   "Does the path point to a DependencyNode asking for a version range
    which contains several versions?"
-  [{:keys [node]}]
+  [{:keys [^DependencyNode node]}]
   (when-let [vc (.getVersionConstraint node)]
     (let [range (.getRange vc)
           lb    (some-> range .getLowerBound)
@@ -67,30 +76,25 @@
 
 (defn- node<
   "Is the version of node1 < version of node2."
-  [node1 node2]
+  [^DependencyNode node1 ^DependencyNode node2]
   (< (compare (.getVersion node1) (.getVersion node2)) 0))
-
-(defn- node->artifact-map
-  [node]
-  (if-let [d (.getDependency node)]
-    (if-let [a (.getArtifact d)]
-      (let [b (bean a)]
-        (-> b
-            (select-keys [:artifactId :groupId :exclusions
-                          :version :extension :properties])
-            (update-in [:exclusions] vec))))))
 
 (defn- node=
   "Check value equality instead of reference equality."
-  [n1 n2]
-  (= (node->artifact-map n1)
-     (node->artifact-map n2)))
+  [^DependencyNode n1 ^DependencyNode n2]
+  (= (.getArtifact n1) (.getArtifact n2)))
 
 (defn- top-level?
   "Is the path a top level dependency in the project?"
   [{:keys [parents]}]
   ;; Parent is root node
   (= 1 (count parents)))
+
+(defn- different-paths?
+  "Work around a bug in DependencyNode where equality is broken."
+  [{node1 :node parents1 :parents} {node2 :node parents2 :parents}]
+  (not (and (node= node1 node2)
+            (every? true? (map node= parents1 parents2)))))
 
 (defn- set-overrides!
   "Check each `accepted-path` against its conflicting paths. If a
@@ -99,7 +103,7 @@
   [overrides conflicts accepted-paths ranges]
   (doseq [{:keys [node parents] :as path} accepted-paths]
     (let [ignoreds (for [conflict-path (conflicts node)
-                         :when (and (not= path conflict-path)
+                         :when (and (different-paths? path conflict-path)
                                     ;; This is the pedantic criteria
                                     (or (node< node (:node conflict-path))
                                         (top-level? conflict-path)))]
@@ -110,26 +114,35 @@
                                :ranges
                                (filter #(node= (:node %) node) ranges)})))))
 
+(defn- paths->deps
+  [paths]
+  (->> paths
+       (map (fn [{:keys [^DependencyNode node]}] (.getDependency node)))
+       (into #{})))
+
 (defn- all-paths
   "Breadth first traversal of the graph from DependencyNode node.
   Short circuits a path when a cycle is detected."
   [node]
   (loop [paths [{:node node :parents []}]
-         results []]
+         results []
+         visited-deps #{}]
     (if (empty? paths)
       results
-      (recur (for [{:keys [node parents]} paths
-                   :when (not (some #{node} parents))
+      (recur (for [{:keys [^DependencyNode node parents]} paths
+                   :when (not (contains? visited-deps (.getDependency node)))
                    c (.getChildren node)]
-               {:node c
-                :parents (conj parents node)})
-             (doall (concat results paths))))))
+               {:node c :parents (conj parents node)})
+             (into results paths)
+             (set/union visited-deps (paths->deps paths))))))
 
 (defn- transform-graph
   "Examine the tree with root `node` for version ranges, then
   allow the original `transformer` to perform resolution, then check for
   overriden dependencies."
-  [ranges overrides node context transformer]
+  [ranges overrides node
+   ^DependencyGraphTransformationContext context
+   ^DependencyGraphTransformer transformer]
   ;; Force initialization of the context like NearestVersionConflictResolver
   (initialize-conflict-ids! node context)
   ;; Get all the paths of the graph before dependency resolution
@@ -139,9 +152,9 @@
     ;; The original transformer should have done dependency resolution,
     ;; so now we can gather just the accepted paths and use the ConflictId
     ;; to match against the potential paths
-    (let [node->id (.get context TransformationContextKeys/CONFLICT_IDS)
+    (let [^Map node->id (.get context TransformationContextKeys/CONFLICT_IDS)
           id->paths (reduce (fn [acc {:keys [node] :as path}]
-                              (update-in acc [(.get node->id node)] conj path))
+                              (update acc (.get node->id node) conj path))
                             {}
                             ;; Remove ranges as they cause problems and were
                             ;; warned above
@@ -165,7 +178,7 @@
     paths that were not used.
     `:ranges` is a list of paths containing version ranges that might
     have affected the resolution."
-  [session ranges overrides]
+  [^DefaultRepositorySystemSession session ranges overrides]
   (let [transformer (.getDependencyGraphTransformer session)]
     (.setDependencyGraphTransformer
      session
@@ -185,7 +198,7 @@
     #(-> % aether/repository-session
          (use-transformer ranges overrides))))
 
-(defn- group-artifact [artifact]
+(defn- group-artifact [^Artifact artifact]
   (if (= (.getGroupId artifact)
          (.getArtifactId artifact))
     (.getGroupId artifact)
@@ -193,8 +206,16 @@
          "/"
          (.getArtifactId artifact))))
 
-(defn- dependency-str [dependency & [version]]
-  (if-let [artifact (and dependency (.getArtifact dependency))]
+(defn- exclusion-group-artifact [^Exclusion exclusion]
+  (if (= (.getGroupId exclusion)
+         (.getArtifactId exclusion))
+    (.getGroupId exclusion)
+    (str (.getGroupId exclusion)
+         "/"
+         (.getArtifactId exclusion))))
+
+(defn- dependency-str [^Dependency dependency & [version]]
+  (if-let [^Artifact artifact (and dependency (.getArtifact dependency))]
     (str "["
          (group-artifact artifact)
          " \"" (or version (.getVersion artifact)) "\""
@@ -205,13 +226,14 @@
            (if (not= extension "jar")
              (str " :extension \"" extension "\"")))
          (if-let [exclusions (seq (.getExclusions dependency))]
-           (str " :exclusions " (mapv (comp symbol group-artifact)
+           (str " :exclusions " (mapv (comp symbol exclusion-group-artifact)
                                       exclusions)))
          "]")))
 
 (defn- message-for [path & [show-constraint?]]
   (->> path
-       (map #(dependency-str (.getDependency %) (.getVersionConstraint %)))
+       (map (fn [^DependencyNode node]
+              (dependency-str (.getDependency node) (.getVersionConstraint node))))
        (remove nil?)
        (interpose " -> ")
        (apply str)))
@@ -219,8 +241,8 @@
 (defn- message-for-version [{:keys [node parents]}]
   (message-for (conj parents node)))
 
-(defn- exclusion-for-range [node parents]
-  (if-let [top-level (second parents)]
+(defn- exclusion-for-range [^DependencyNode node parents]
+  (if-let [^DependencyNode top-level (second parents)]
     (let [excluded-artifact (.getArtifact (.getDependency node))
           exclusion (Exclusion. (.getGroupId excluded-artifact)
                       (.getArtifactId excluded-artifact) "*" "*")

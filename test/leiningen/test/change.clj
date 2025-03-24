@@ -79,9 +79,9 @@
                           [:description] "set" "a dynamic description"))))
 
   (testing "can set a key with newlines and comments in place"
-    (is (= "(defproject leingingen.change \"0.0.1\"\n  :description \"a static description\"\n ; whatever \n  :url  \"http://test.com\")"
-           (change-string "(defproject leingingen.change \"0.0.1\"\n  :description \"a static description\"\n ; whatever \n  :url  \"http://old.com\")"
-                          [:url] "set" "http://test.com"))))
+    (is (= "(defproject leingingen.change \"0.0.1\"\n  :description \"a static description\"\n ; whatever \n  :url  \"https://test.com\")"
+           (change-string "(defproject leingingen.change \"0.0.1\"\n  :description \"a static description\"\n ; whatever \n  :url  \"https://old.com\")"
+                          [:url] "set" "https://test.com"))))
 
   (testing "can create a new key"
     (is (= "(defproject leingingen.change \"0.0.1\" :description \"a dynamic description\")"
@@ -94,19 +94,19 @@
                           [:description] "set" "a dynamic description"))))
 
   (testing "can create a new key instead of replacing a nested one with the same name"
-    (is (= "(defproject leingingen.change \"0.0.1\"\n  :description \"a dynamic description\"\n  :license {:name \"Test\"\n  :url \"http://test.com\"}\n :url \"http://new.com\")"
-           (change-string "(defproject leingingen.change \"0.0.1\"\n  :description \"a dynamic description\"\n  :license {:name \"Test\"\n  :url \"http://test.com\"}\n)"
-                          [:url] "set" "http://new.com"))))
+    (is (= "(defproject leingingen.change \"0.0.1\"\n  :description \"a dynamic description\"\n  :license {:name \"Test\"\n  :url \"https://test.com\"}\n :url \"https://new.com\")"
+           (change-string "(defproject leingingen.change \"0.0.1\"\n  :description \"a dynamic description\"\n  :license {:name \"Test\"\n  :url \"https://test.com\"}\n)"
+                          [:url] "set" "https://new.com"))))
 
   (testing "can set a nested key"
-    (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"http://example.com\"})"
-           (change-string "(defproject leingingen.change \"0.0.1\" :license {:url \"http://old.com\"})"
-                          [:license :url] "set" "http://example.com"))))
+    (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"https://example.com\"})"
+           (change-string "(defproject leingingen.change \"0.0.1\" :license {:url \"https://old.com\"})"
+                          [:license :url] "set" "https://example.com"))))
 
   (testing "can set a nested key with newlines in place"
-    (is (= "(defproject leingingen.change \"0.0.1\"\n  :license {:url \"http://example.com\"})"
-           (change-string "(defproject leingingen.change \"0.0.1\"\n  :license {:url \"http://old.com\"})"
-                          [:license :url] "set" "http://example.com"))))
+    (is (= "(defproject leingingen.change \"0.0.1\"\n  :license {:url \"https://example.com\"})"
+           (change-string "(defproject leingingen.change \"0.0.1\"\n  :license {:url \"https://old.com\"})"
+                          [:license :url] "set" "https://example.com"))))
 
   (testing "can create a nested value"
     (is (= "(defproject leingingen.change \"0.0.1\" :a {:b {:c 1}})"
@@ -114,9 +114,9 @@
                           [:a :b :c] "set" 1))))
 
   (testing "can understand cli short form"
-    (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"http://example.com\"})"
+    (is (= "(defproject leingingen.change \"0.0.1\" :license {:url \"https://example.com\"})"
            (change-string "(defproject leingingen.change \"0.0.1\")"
-                          ":license:url" "set" "http://example.com")))))
+                          ":license:url" "set" "https://example.com")))))
 
 (deftest test-set-dependency-value
   (testing "can set dependency version"

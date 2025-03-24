@@ -4,17 +4,27 @@
             [clojure.xml :as xml]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main])
-  (:import (java.net URLEncoder)))
+  (:import (java.net URLEncoder)
+           (javax.xml.parsers SAXParser)
+           (org.xml.sax.helpers DefaultHandler)))
 
 (defn- decruft-central-xml [content]
   (zipmap (map #(get-in % [:attrs :name]) content)
           (map #(get-in % [:content 0]) content)))
 
+;; replace clojure.xml version with one that doesn't do illegal access
+(defn- startparse [^String url ^DefaultHandler ch]
+  (let [^SAXParser p (xml/disable-external-entities (xml/sax-parser))]
+    (.parse p url ch)))
+
 (defn parse [url]
-  (try (xml/parse url)
+  (try (xml/parse url startparse)
        (catch Exception e
-         (main/warn "Could not retrieve search results from" url "because of"
-                    (class e))
+         (main/warn ";; Could not retrieve search results from"
+                    (str url ":")
+                    (if (re-find #"HTTP response code: (400|505)" (str e))
+                      "Query syntax unsupported."
+                      (.getMessage e)))
          (when main/*debug*
            (.printStackTrace e)))))
 
@@ -40,7 +50,7 @@
 
 (defn ^:no-project-needed search
   "Search Central and Clojars for published artifacts."
-  [project query]
+  [project ^String query]
   (let [project (or project (project/make {}))
         repos (into {} (:repositories project))]
     (doseq [[repo searcher] [["central" search-central]
@@ -50,6 +60,4 @@
              (searcher (URLEncoder/encode query "UTF-8"))
              (catch java.io.IOException e
                (binding [*out* *err*]
-                 (if (re-find #"HTTP response code: (400|505)" (str e))
-                   (println "Query syntax unsupported.")
-                   (println "Remote error" (.getMessage e))))))))))
+                 (println "Query failed with message" (.getMessage e)))))))))

@@ -90,7 +90,10 @@
 
 (deftest test-no-aot-jar-succeeds
   (with-out-str
-    (is (jar helper/sample-no-aot-project))))
+    (let [project (helper/read-test-project "sample-no-aot")
+          jar (first (vals (jar project)))
+          entry-names (set (helper/walkzip jar #(.getName %)))]
+      (is (not (entry-names "dev.clj"))))))
 
 (deftest test-classifier-jar-succeeds
   (is (= 1 (count (:classifiers helper/with-classifiers-project)))
@@ -108,9 +111,8 @@
   (unmemoize #'leiningen.core.classpath/get-dependencies-memoized
              #'leiningen.core.classpath/get-dependencies*)
   (binding [main/*info* false]
-    (let [[coord jar-file] (first
-                            (jar (dissoc helper/sample-project
-                                         :dependencies :main)))]
+    (let [project (helper/read-test-project "sample-bad-user")
+          [coord jar-file] (first (jar (dissoc project :dependencies :main)))]
       (is (.exists (io/file jar-file)))
       (is (= coord [:extension "jar"])))))
 

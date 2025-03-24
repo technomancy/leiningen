@@ -35,7 +35,7 @@
   (require 'leiningen.core.main)
   (apply (resolve 'leiningen.core.main/warn) args))
 
-(def ^:private warn-once (memoize warn))
+(def ^:internal warn-once (memoize warn))
 
 (defn- update-each-contained [m keys f & args]
   (reduce (fn [m k]
@@ -465,6 +465,26 @@
                         (meta dependencies)))
       project)))
 
+(defn- remove-self-excluded-deps
+  "Remove any dependency that contains it's dependency id inside it's own
+  :exclusions vec."
+  [{:keys [dependencies] :as project}]
+  (if dependencies
+    (update project :dependencies
+            (fn [deps]
+              (when deps
+                (let [self-excluded? (fn [dep]
+                                       (let [{:keys [artifact-id group-id exclusions]} (dependency-map dep)]
+                                         (some (fn [{excl-art-id :artifact-id, excl-grp-id :group-id}]
+                                                 (and
+                                                  (= group-id excl-grp-id)
+                                                  (= artifact-id excl-art-id)))
+                                               exclusions)))]
+                  (with-meta
+                    (remove self-excluded? deps)
+                    (meta deps))))))
+    project))
+
 (defn- absolutize [root path]
   (str (if (.isAbsolute (io/file path))
          path
@@ -518,7 +538,9 @@
   (let [n #(if (map? %) (subs (sha1 (pr-str %)) 0 8) (name %))]
     (if (:target-path project)
       (update-in project [:target-path] format
-                 (str/join "+" (map n (normalize-profile-names project profiles))))
+                 (str/join "+" (->> (normalize-profile-names project profiles)
+                                    (map n)
+                                    (remove #{"default"}))))
       project)))
 
 (defn target-path-subdirs [{:keys [target-path] :as project} key]
@@ -558,7 +580,7 @@
                 :test-selectors {:default (with-meta '(constantly true)
                                             {:displace true})}
                 ;; bump deps in leiningen's own project.clj with these
-                :dependencies '[^:displace [nrepl/nrepl "0.9.0"
+                :dependencies '[^:displace [nrepl/nrepl "1.0.0"
                                             :exclusions [org.clojure/clojure]]
                                 ^:displace [org.nrepl/incomplete "0.1.0"
                                             :exclusions [org.clojure/clojure]]]
@@ -615,13 +637,23 @@
         (do (warn-once left "and" right "have a type mismatch merging profiles.")
             right)))
 
-(defn- apply-profiles [project profiles]
+(defn ^:internal apply-profiles [project profiles]
   (reduce (fn [project profile]
             (with-meta
               (meta-merge project profile)
               (meta-merge (meta project) (meta profile))))
           project
           profiles))
+
+(defn- warn-composite [profile]
+  (when (and (composite-profile? profile)
+             (not (keyword-composite-profile? profile)))
+    ;; TODO: include suggestion for how to move map to top-level profile
+    (warn-once
+     "Composite profiles containing maps are strongly recommended against."
+     "\nSupport will be removed in future versions of Leiningen due to subtle"
+     "\nunexpected behavior. Move the map from the composite profile to its own"
+     "\ntop-level named profile to avoid issues.\n" (pr-str profile))))
 
 (defn- lookup-profile*
   "Lookup a profile in the given profiles map, warning when the profile doesn't
@@ -640,7 +672,8 @@
           (lookup-profile* profiles result))
 
         (composite-profile? profile)
-        (apply-profiles {} (map (partial lookup-profile* profiles) profile))
+        (apply-profiles {} (map (partial lookup-profile* profiles)
+                                (doto profile warn-composite)))
 
         :else (or profile {})))
 
@@ -701,7 +734,7 @@
                (not (System/getenv "LEIN_SUPPRESS_USER_LEVEL_REPO_WARNINGS")))
       (warn-once ":repositories detected in user-level profiles!"
                  (vec (map first repo-profiles)) "\nSee"
-                 "https://github.com/technomancy/leiningen/wiki/Repeatability"))))
+                 "https://wiki.leiningen.org/Repeatability"))))
 
 (defn- warn-user-profile [root profiles]
   (when (and root (contains? profiles :user))
@@ -921,13 +954,16 @@
   "Compute a fresh version of the project map, including and excluding the
   specified profiles."
   [project include-profiles & [exclude-profiles]]
-  (let [project (with-meta
-                  (:without-profiles (meta project) project)
-                  (meta project))
+  (let [project (-> (:without-profiles (meta project) project)
+                    (with-meta (meta project))
+                    (vary-meta dissoc :active-profiles))
         include-profiles-meta (->> (expand-profiles-with-meta
                                     project include-profiles)
                                    (utils/last-distinct-by first))
-        effective-include-profiles (map first include-profiles-meta)
+        ;; We want to remove the exclude-profiles earlier, but if we expand
+        ;; earlier on we lose the pom-scope metadata from the profile.
+        effective-include-profiles (remove (set exclude-profiles)
+                                           (map first include-profiles-meta))
         exclude-profiles (utils/last-distinct (expand-profiles project exclude-profiles))
         profile-map (apply dissoc (:profiles (meta project)) exclude-profiles)
         profiles (for [profile-name effective-include-profiles]
@@ -944,6 +980,7 @@
         (target-path-subdirs :native-path)
         (absolutize-paths)
         (add-global-exclusions)
+        (remove-self-excluded-deps)
         (vary-meta merge {:without-profiles project
                           :included-profiles include-profiles
                           :excluded-profiles exclude-profiles
@@ -987,6 +1024,10 @@
   (let [{:keys [included-profiles excluded-profiles]} (meta project)
         profiles (expand-profiles project profiles)]
     (set-profiles project
+                  ;; we need un-expanded profiles here because if :dev was
+                  ;; a composite profile that included :foo, we need to start
+                  ;; from :dev in order to ensure :foo's dependencies have
+                  ;; test scope in the pom.
                   (remove (set profiles) included-profiles)
                   (concat excluded-profiles profiles))))
 

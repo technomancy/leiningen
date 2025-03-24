@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Leiningen プラグイン](#leiningen-%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3)
   - [プラグインを書く](#%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%92%E6%9B%B8%E3%81%8F)
@@ -36,9 +36,9 @@ Leiningenのタスクはleiningen.$TASK名前空間にある$TASKという名前
 ## プラグインを書く
 
 `lein new plugin myplugin`でプロジェクトを作成するところからはじめ、`leiningen.myplugin`名前空間の`myplugin`関数を編集してください。`project.clj`内にある`:eval-in-leningen true`によって、タスクはサブプロセスではなく、leiningenプロセス内部で動作します。プラグインは、clojureそのものへの依存関係を宣言する必要はありません。
-[Leiningen本体の依存関係全て](https://github.com/technomancy/leiningen/blob/stable/project.clj)がプラグインから利用可能です。
+[Leiningen本体の依存関係全て](https://codeberg.org/leiningen/leiningen/src/stable/project.clj)がプラグインから利用可能です。
 
-非常に単純なプラグインの例として、 [ソースコード内の](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
+非常に単純なプラグインの例として、 [ソースコード内の](https://codeberg.org/leiningen/leiningen/src/stable/lein-pprint)
 `lein-pprint`ディレクトリを参照してください。
 
 プラグインの開発中、プロジェクト内で`lein install`を再実行し、それからテストプロジェクトに切り替えるのは非常に手間がかかります。一度プラグインをインストールすれば、テストプロジェクト内の`.lein-classpath`ファイルに、プラグインの`src`ディレクトリのパスを記述しておくことでこの手間を省くことができます。そのプラグインが別の開発中のライブラリに依存している場合は、`.lein-classpath`にUNIXでは`:`、Windowsでは`;`のクラスパスセパレータで区切ってライブラリのディレクトリを追加することができます。
@@ -285,7 +285,7 @@ Leiningenタスクを記述する必要があるのは、例えば`eval-in-proje
 
 この例ではプロジェクトマップの`:version`フィールドを引数リストに渡すことで、プロジェクト内で実行される`-main`関数が値にアクセスできるようにしています。
 
-こういった例の多くは[既存のプラグイン](https://github.com/technomancy/leiningen/wiki/plugins)でカバーされているはずですが、もし類似の例が見つからず、何らかの理由で別のブラグインに分離できない場合、`tasks/leiningen/`の下に新しいタスクを定義した`foo.clj`ファイルを作成し、`tasks`を`.lein-classpath`に追加することでこのふるまいを実現することができます。
+こういった例の多くは[既存のプラグイン](https://wiki.leiningen.org/Plugins)でカバーされているはずですが、もし類似の例が見つからず、何らかの理由で別のブラグインに分離できない場合、`tasks/leiningen/`の下に新しいタスクを定義した`foo.clj`ファイルを作成し、`tasks`を`.lein-classpath`に追加することでこのふるまいを実現することができます。
 
 ```
 $ ls
@@ -304,7 +304,7 @@ Hello, Foo!
 
 ## 楽しんでください
 
-あなたのプラグインができあがったら、[Wiki上のリスト](https://github.com/technomancy/leiningen/wiki/plugins)に追加してください。
+あなたのプラグインができあがったら、[Wiki上のリスト](https://github.com/technomnacy/leiningen/wiki/plugins)に追加してください。
 
 このプラグインシステムが、あなたの思いのままにLeiningenをカスタマイズするための簡単で、柔軟なシステムを提供していることを願っています。
 

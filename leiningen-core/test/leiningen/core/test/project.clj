@@ -6,6 +6,7 @@
             [leiningen.core.test.helper :refer [abort-msg]]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.utils :as utils]
+            [leiningen.core.main :as main]
             [clojure.java.io :as io])
   (:import (java.io StringReader)))
 
@@ -44,7 +45,7 @@
                                [stencil/stencil "0.2.0"]
                                [~(symbol "net.3scale" "3scale-api") "3.0.2"]
                                [clj-http/clj-http "3.4.1"]
-                               [nrepl/nrepl "0.9.0"
+                               [nrepl/nrepl "1.0.0"
                                 :exclusions [[org.clojure/clojure]]]
                                [org.nrepl/incomplete "0.1.0"
                                 :exclusions [[org.clojure/clojure]]]],
@@ -409,7 +410,8 @@
 
 (deftest test-global-exclusions
   (let [project {:dependencies
-                 '[[lancet "1.0.1"]
+                 '[[org.clojure/clojure "1.11.1"]
+                   [lancet "1.0.1"]
                    [leiningen-core "2.0.0-SNAPSHOT" :exclusions [pomegranate]]
                    [clucy "0.2.2" :exclusions [org.clojure/clojure]]]
                  :exclusions '[org.clojure/clojure]}
@@ -417,7 +419,11 @@
     (is (= '[[[org.clojure/clojure]]
              [[org.clojure/clojure] [pomegranate/pomegranate]]
              [[org.clojure/clojure]]]
-           (map #(distinct (:exclusions (apply hash-map %))) dependencies)))))
+           (map #(distinct (:exclusions (apply hash-map %))) dependencies)))
+    (is (= '[[lancet/lancet "1.0.1" :exclusions ([org.clojure/clojure])]
+             [leiningen-core/leiningen-core "2.0.0-SNAPSHOT" :exclusions ([org.clojure/clojure] [pomegranate/pomegranate])]
+             [clucy/clucy "0.2.2" :exclusions ([org.clojure/clojure])]]
+           dependencies))))
 
 (defn add-seven [project]
   (assoc project :seven 7))
@@ -489,14 +495,15 @@
              (dissoc :profiles)))))
 
 (deftest test-composite-profiles
-  (is (= {:A '(1 3 2), :B 2, :C 3}
-         (-> (make-project
-              {:profiles {:a [:b :c]
-                          :b [{:A [1] :B 1 :C 1} :d]
-                          :c {:A [2] :B 2}
-                          :d {:A [3] :C 3}}})
-             (merge-profiles [:a])
-             (dissoc :profiles)))))
+  (binding [main/*info* false]
+    (is (= {:A '(1 3 2), :B 2, :C 3}
+           (-> (make-project
+                {:profiles {:a [:b :c]
+                            :b [{:A [1] :B 1 :C 1} :d]
+                            :c {:A [2] :B 2}
+                            :d {:A [3] :C 3}}})
+               (merge-profiles [:a])
+               (dissoc :profiles))))))
 
 (deftest test-profiles-default-meta
   (is (= [:repl]
@@ -545,17 +552,25 @@
                             :foo [:b]}})
                (merge-profiles [:a :b :c])
                (unmerge-profiles [:foo])
-               (dissoc :profiles))))))
+               (dissoc :profiles))))
+    (testing "unmerge composite profiles"
+      (with-redefs [warn-once (fn [& _] (throw (Exception. "no warning!")))]
+        (let [project (project/init-project
+                       (make-project {:profiles {:dev [:project/dev]
+                                                 :project/dev {:dev? true}}
+                                      :dev? false})
+                       [:default])]
+          (is (not (:dev? (project/unmerge-profiles project [:dev])))))))))
 
 (deftest test-merge-coll-with-metadata
-  (let [project
-        (-> (make-project
-             {:profiles
-              {:shared {:clean-targets ^{:protect false} ["resources/a.txt"]}
-               :prod [:shared {:clean-targets ^{:protect false} ["resources/b.txt"]}]}})
-            (merge-profiles [:prod]))]
-    (is (= (:clean-targets project) ["resources/a.txt" "resources/b.txt"]))
-    (is (false? (-> project :clean-targets meta :protect)))))
+  (binding [main/*info* false]
+    (let [profiles {:shared {:clean-targets ^{:protect false} ["resources/a.txt"]}
+                    :prod [:shared {:clean-targets
+                                    ^{:protect false} ["resources/b.txt"]}]}
+          project (-> (make-project {:profiles profiles})
+                      (merge-profiles [:prod]))]
+      (is (= (:clean-targets project) ["resources/a.txt" "resources/b.txt"]))
+      (is (false? (-> project :clean-targets meta :protect))))))
 
 (deftest test-dedupe-deps
   (is (= '[[org.clojure/clojure "1.3.0"]
@@ -663,5 +678,15 @@
         result (unmerge-profiles project [:system :base :provided :user])]
     (is (= '[[org.clojure/clojure "1.10.1"]
              [ring "1.8.2" :scope "test"]]
-           (:dependencies result)))))
+           (:dependencies result)))
+    ;; Even though this isn't a part of the formal API, ensure
+    ;; that unmerging correctly adjust :active-profiles too.
+    (is (= [:ring] (-> result meta :active-profiles)))))
 
+(deftest test-target-path
+  (let [project (init-project {:dependencies '[[org.clojure/clojure "1.10.1"]]
+                               :target-path "target/%s"
+                               :profiles {:uberjar {}}}
+                              [:default])
+        project (merge-profiles project [:uberjar])]
+    (is (= "target/uberjar" (:target-path project)))))

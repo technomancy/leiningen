@@ -18,7 +18,7 @@
                                           (.replace \- \_)
                                           (.replace \. \/))]
                          (binding [*out* *err*]
-                           (println "Compiling namespace" ns#))
+                           (println "Checking namespace" ns#))
                          (try
                            (binding [*warn-on-reflection* true]
                              (load ns-file#))
@@ -27,9 +27,9 @@
                              (.printStackTrace e#)))))
                      (if-not (zero? @failures#)
                        (System/exit @failures#)))
-           project (assoc project
-                          :aot nil
-                          :target-path (str (:target-path project) "/check"))]
+           project (assoc-in project [:global-vars '*warn-on-reflection*] true)
+           project (assoc project :target-path
+                          (str (:target-path project) "/check"))]
        (try
          (binding [eval/*pump-in* false]
            (eval/eval-in-project project action))

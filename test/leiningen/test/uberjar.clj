@@ -1,7 +1,7 @@
 (ns leiningen.test.uberjar
   (:require [leiningen.uberjar :refer :all]
             [clojure.test :refer :all]
-            [clojure.java.io :refer [delete-file]]
+            [clojure.java.io :as io]
             [clojure.java.shell :refer [sh]]
             [clojure.xml :as xml]
             [leiningen.test.helper :refer [unmemoize
@@ -10,14 +10,15 @@
                                            data-readers-backwards-compatibility-project
                                            provided-project
                                            managed-deps-project
-                                           managed-deps-snapshot-project]])
+                                           managed-deps-snapshot-project] :as h])
   (:import (java.io File FileOutputStream)
            (java.util.zip ZipFile)))
 
 (deftest test-uberjar
-  (with-out-str
-    (uberjar sample-no-aot-project))
-  (let [filename (str "test_projects/sample-no-aot/target/"
+  (let [project (h/read-test-project "sample-no-aot")
+        _ (with-out-str
+            (uberjar sample-no-aot-project))
+        filename (str "test_projects/sample-no-aot/target/"
                       "nomnomnom-0.5.0-SNAPSHOT-standalone.jar")
         uberjar-file (File. filename)]
     (is (= true (.exists uberjar-file)))
@@ -30,7 +31,7 @@
         (.deleteOnExit uberjar-file)
         (is (entries "nom/nom/nom.clj"))
         (is (entries "org/codehaus/janino/Compiler$1.class"))
-        (is (not (some #(re-find #"dummy" %) entries)))
+        (is (not (entries "dev.clj")))
         (is (not (entries "module-info.class")))))))
 
 (deftest test-uberjar-merge-with
@@ -71,18 +72,19 @@
                  (read-string contents))))))))
 
 (deftest test-components-merger
-  (let [file1 (str "test_projects/uberjar-components-merging/components1.xml")
-        file2 (str "test_projects/uberjar-components-merging/components2.xml")
-        readxml (components-merger 0)
-        combine (components-merger 1)
-        writexml (components-merger 2)
-        combined-xml (combine (readxml file1) (readxml file2))
-        expected-xml (xml/parse "test_projects/uberjar-components-merging/expected-components.xml")
+  (let [file1 (io/input-stream "test_projects/uberjar-components-merging/components1.xml")
+        file2 (io/input-stream "test_projects/uberjar-components-merging/components2.xml")
+        [read-xml combine write-xml] components-merger
+        combined-xml (combine (read-xml file1) (read-xml file2))
+        expected-xml (xml/parse (io/input-stream
+                                 "test_projects/uberjar-components-merging/expected-components.xml")
+                                #'leiningen.uberjar/startparse)
         result-file "test_projects/uberjar-components-merging/result-components.xml"
         out-file (FileOutputStream. (File. result-file))]
-      (writexml out-file combined-xml)
-      (is (= expected-xml (xml/parse result-file)))
-      (delete-file result-file true)))
+      (write-xml out-file combined-xml)
+      (is (= expected-xml (xml/parse (io/input-stream result-file)
+                                     #'leiningen.uberjar/startparse)))
+      (io/delete-file result-file true)))
 
 ;; TODO: this breaks on Java 6
 (deftest ^:disabled test-uberjar-provided

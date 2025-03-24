@@ -1,0 +1,9 @@
+Options +ExecCGI
+
+Header set Strict-Transport-Security "max-age=31536000"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
+
+RewriteRule "^([-A-Za-z/]*)$" "/index.cgi?page=$1"
+
+ErrorDocument 404 /404.html

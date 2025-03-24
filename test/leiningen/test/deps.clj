@@ -29,7 +29,7 @@
     (doseq [[n v] sample-deps]
       (delete-file-recursively (m2-dir n v) :silently))
     ;; For some reason running deps on a project that includes ring
-    ;; fails, but only when done right here. http://p.hagelb.org/mystery.gif
+    ;; fails, but only when done right here. https://p.hagelb.org/mystery.gif
     (deps (update-in sample-project [:dependencies] rest))
     (doseq [[n v] sample-deps]
       (is (.exists (m2-dir n v)) (str n " was not downloaded.")))))
@@ -73,6 +73,19 @@
                            [org.clojure/clojure "1.4.0"]
                            [org.clojure/core.unify "0.5.3"]]]
         (is (.contains out (pr-str plugin-dep)))))))
+
+(deftest ^:online test-plugin-dependency-hierarchy-as-edn
+  (let [sample-plugin-deps [["codox" "0.6.4"]]]
+    (doseq [[n v] sample-plugin-deps]
+      (delete-file-recursively (m2-dir n v) :silently))
+    (let [out (with-out-str (deps sample-project ":plugin-tree-data"))]
+      (is (= '{[codox "0.6.4"]
+               {[codox/codox.leiningen "0.6.4"]
+                {[leinjacker "0.4.1"]
+                 {[org.clojure/core.contracts "0.0.1"]
+                  {[org.clojure/clojure "1.4.0"] nil
+                   [org.clojure/core.unify "0.5.3"] nil}}}}}
+             (read-string out))))))
 
 (deftest ^:online test-snapshots-releases
   (let [pr (assoc sample-project
@@ -242,26 +255,3 @@
                            [jdom "1.0"] :unsigned}]
       (is (.contains out (pr-str signed dep))
           (str "missing " dep)))))
-
-(deftest ^:online test-opengpg-org-server
-  ;; https://keys.openpgp.org/about/faq#older-gnupg
-  ;; https://dev.gnupg.org/T4393#133689
-  (testing "Avoid infinite loop when `gpg --receive-keys` is run against openpgp.org keyservers"
-    (let [project (-> sample-project
-                      (update :repositories (fn [repos]
-                                              (remove #(= "other" (first %)) repos)))
-                      (update :dependencies #(conj (take 2 %)
-                                                   '[commons-io  "2.8.0"]))
-                      (assoc :checksum :ignore))
-          _ (with-system-out-str
-              (deps project))
-          out (with-out-str
-                (with-system-out-str
-                  (with-system-err-str
-                    (deps project ":verify"))))]
-      (doseq [[dep signed] '{[org.clojure/clojure "1.3.0"] :signed
-                             [commons-io "2.8.0"] :no-key
-                             [rome "0.9"] :unsigned
-                             [jdom "1.0"] :unsigned}]
-        (is (.contains out (pr-str signed dep))
-            (str "missing " dep))))))

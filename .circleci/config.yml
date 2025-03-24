@@ -1,55 +1,68 @@
-version: 2.1
-
-executors:
-  clojure:
-    docker:
-      - image: clojure:<< parameters.java_version >>-lein
-    parameters:
-      java_version:
-        description: "Java version"
-        default: "openjdk-11"
-        type: string
-    working_directory: ~/leiningen
-
-jobs:
-  build:
-    executor: clojure
-    parameters:
-      java_version:
-        description: "Java version"
-        default: << parameters.java_version >>
-        type: string
-    steps:
-      - checkout
-      - restore_cache:
-          key: leiningen-{{ checksum "project.clj" }}
-      - run: apt update -qq && apt install -y gnupg
-      - run:
-          name: Bootstrap leiningen-core
-          working_directory: ~/leiningen/leiningen-core
-          command: lein bootstrap
-      - run:
-          name: Test Leiningen
-          command: bin/lein test
-      - run:
-          name: Test lein-pprint
-          working_directory: lein-pprint
-          command: lein test
-      - save_cache:
-          paths:
-            - $HOME/.m2
-            - $HOME/.lein
-          key: leiningen-{{ checksum "project.clj" }}
-
-workflows:
-  test-with-matrix:
-    jobs:
-      - build:
-          name: "openjdk8"
-          java_version: "openjdk-8"
-      - build:
-          name: "openjdk11"
-          java_version: "openjdk-11"
-      - build:
-          name: "openjdk16"
-          java_version: "openjdk-16"
+# -*- js -*-
+{
+  "version": 2.1,
+  "executors": {
+    "clojure": {
+      "docker": [{"image": "clojure:<< parameters.java_version >>-lein"}],
+      "parameters": {
+        "java_version": {
+          "description": "Java version",
+          "default": "openjdk-17",
+          "type": "string"
+        }
+      },
+      "working_directory": "~/leiningen"
+    }
+  },
+  "jobs": {
+    "build": {
+      "executor": "clojure",
+      "parameters": {
+        "java_version": {
+          "description": "Java version",
+          "default": "<< parameters.java_version >>",
+          "type": "string"
+        }
+      },
+      "steps": [
+        "checkout",
+        {
+          "run": "apt update -qq && apt install -y gnupg openssh-client"
+        },
+        {
+          "restore_cache": {
+            "key": "leiningen-{{ checksum \"project.clj\" }}-{{ checksum \"leiningen-core/project.clj\" }}"
+          }
+        },
+        {
+          "run": {
+            "name": "Bootstrap leiningen-core",
+            "working_directory": "~/leiningen/leiningen-core",
+            "command": "lein bootstrap"
+          }
+        },
+        {
+          "run": {
+            "name": "Test Leiningen",
+            "command": "bin/lein test"
+          }
+        },
+        {
+          "save_cache": {
+            "paths": ["~/.m2/repository"],
+            "key": "leiningen-{{ checksum \"project.clj\" }}-{{ checksum \"leiningen-core/project.clj\" }}"
+          }
+        }
+      ]
+    }
+  },
+  "workflows": {
+    "test-with-matrix": {
+      "jobs": [
+        {"build": {"name": "openjdk8",  "java_version": "openjdk-8"}},
+        {"build": {"name": "openjdk17", "java_version": "openjdk-17"}},
+        {"build": {"name": "openjdk21", "java_version": "openjdk-21"}}
+      ]
+    }
+  }
+}

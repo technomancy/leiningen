@@ -1,12 +1,15 @@
 (ns leiningen.core.test.pedantic
   (:require [clojure.test :refer :all]
             [clojure.java.io :as io]
+            [leiningen.core.classpath :as cp]
             [leiningen.core.pedantic :as pedantic]
-            [cemerick.pomegranate.aether :as aether]))
+            [cemerick.pomegranate.aether :as aether])
+  (:import (org.eclipse.aether.graph DependencyNode)))
 
 (def tmp-dir (io/file
               (System/getProperty "java.io.tmpdir") "pedantic"))
 (def tmp-local-repo-dir (io/file tmp-dir "local-repo"))
+
 (defn delete-recursive
   [dir]
   (when (.isDirectory dir)
@@ -87,19 +90,11 @@
                 (throw (org.apache.maven.wagon.ResourceDoesNotExistException. ""))))))))
     (f)))
 
-(def ranges (atom []))
-(def overrides (atom []))
-
-(defn reset-state [f]
-  (reset! ranges [])
-  (reset! overrides [])
-  (f))
-
-(defn resolve-deps [coords]
+(defn resolve-deps [ranges overrides coords]
   (aether/resolve-dependencies
    :coordinates coords
    :repositories {"test-repo" {:url "fake://ss"
-                               :checksum false}}
+                               :checksum :warn}}
    :local-repo tmp-local-repo-dir
    :repository-session-fn
    #(-> %
@@ -112,16 +107,29 @@
 
 (defmethod translate java.util.List
   [l]
-  (remove nil? (map translate l)))
+  (vec (remove nil? (map translate l))))
 
 (defmethod translate java.util.Map
   [m]
   (into {} (map (fn [[k v]] [k (translate v)]) m)))
 
-(defmethod translate org.eclipse.aether.graph.DependencyNode
+(defn- node->artifact-map
+  [^DependencyNode node]
+  (if-let [d (.getDependency node)]
+    (if-let [a (.getArtifact d)]
+      (let [b (bean a)]
+        (-> b
+            (select-keys [:artifactId :groupId :exclusions
+                          :version :extension :properties])
+            (update-in [:exclusions] vec))))))
+
+(defmethod translate DependencyNode
   [n]
-  (if-let [a (#'pedantic/node->artifact-map n)]
-    [(symbol (:artifactId a)) (:version a)]))
+  (if-let [a (node->artifact-map n)]
+    [(if (= (:groupId a) (:artifactId a))
+       (symbol (:artifactId a))
+       (symbol (:groupId a) (:artifactId a)))
+     (:version a)]))
 
 (def repo
   '{[a "1"] []
@@ -131,41 +139,89 @@
     [range "2"] [[a "[2,)"]]})
 
 (use-fixtures :once (add-repo repo))
-(use-fixtures :each clear-tmp)
-(use-fixtures :each reset-state)
-
 
 (deftest top-level-overrides-transative-later
-  (resolve-deps '[[a "1"]
-                  [aa "2"]])
-  (is (= @ranges []))
-  (is (= (translate @overrides)
-         '[{:accepted {:node [a "1"]
-                       :parents []}
-            :ignoreds [{:node [a "2"]
-                        :parents [[aa "2"]]}]
-            :ranges []}])))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (resolve-deps ranges overrides
+                  '[[a "1"]
+                    [aa "2"]])
+    (is (= @ranges []))
+    (is (= (translate @overrides)
+           '[{:accepted {:node [a "1"]
+                         :parents []}
+              :ignoreds [{:node [a "2"]
+                          :parents [[aa "2"]]}]
+              :ranges []}]))))
 
 (deftest ranges-are-found
-  (resolve-deps '[[range "1"]])
-  (is (= (translate @ranges) '[{:node [a "1"]
-                               :parents [[range "1"]]}
-                               {:node [a "2"]
-                               :parents [[range "1"]]}]))
-  (is (= @overrides
-         [])))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (resolve-deps ranges overrides '[[range "1"]])
+    (is (= (translate @ranges) '[{:node [a "1"]
+                                  :parents [[range "1"]]}
+                                 {:node [a "2"]
+                                  :parents [[range "1"]]}]))
+    (is (= @overrides []))))
 
 (deftest range-causes-other-transative-to-ignore-top-level
-  (resolve-deps '[[a "1"]
-                  [aa "2"]
-                  [range "2"]])
-  (is (= (translate @ranges) '[{:node [a "2"]
-                                :parents [[range "2"]]}]))
-  (is (= (translate @overrides)
-         '[{:accepted {:node [a "2"]
-                       :parents [[aa "2"]]}
-            :ignoreds [{:node [a "1"]
-                        :parents []}]
-            :ranges [{:node [a "2"]
-                      :parents [[range "2"]]}]}])))
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (resolve-deps ranges overrides '[[a "1"]
+                                     [aa "2"]
+                                     [range "2"]])
+    (is (= (translate @ranges) '[{:node [a "2"]
+                                  :parents [[range "2"]]}]))
+    (is (= (translate @overrides)
+           '[{:accepted {:node [a "2"]
+                         :parents [[aa "2"]]}
+              :ignoreds [{:node [a "1"]
+                          :parents []}]
+              :ranges []}]))))
 
+(deftest netty-boringssl-works
+  (let [project {:root "/tmp"
+                 :dependencies '[[io.netty/netty-tcnative-boringssl-static
+                                  "2.0.50.Final"]]
+                 :pedantic? :warn
+                 :repositories [["c" {:url "https://repo1.maven.org/maven2/"
+                                      :snapshots false}]]}]
+    ;; this will result in an infinite loop in lein 2.9.8
+    (is (cp/get-classpath project))))
+
+(deftest ^:online multiple-paths-to-ignored-dep
+  (let [ranges (atom [])
+        overrides (atom [])]
+    (aether/resolve-dependencies
+     :coordinates '[[com.amazonaws/aws-java-sdk-s3 "1.12.402"]]
+     :repository-session-fn
+     #(-> %
+          aether/repository-session
+          (#'pedantic/use-transformer ranges overrides)))
+
+    (is (empty? @ranges))
+    (is (= (translate @overrides)
+           '[{:accepted {:node    [commons-logging "1.1.3"]
+                         :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                   [com.amazonaws/aws-java-sdk-core "1.12.402"]]}
+              :ignoreds [; leiningen <= 2.10 used to also report this path,
+                                        ; now we only report the shortest path
+                         #_{:node    [commons-logging "1.2"]
+                            :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                      [com.amazonaws/aws-java-sdk-kms "1.12.402"]
+                                      [com.amazonaws/aws-java-sdk-core "1.12.402"]
+                                      [org.apache.httpcomponents/httpclient "4.5.13"]]}
+                         {:node    [commons-logging "1.2"]
+                          :parents [[com.amazonaws/aws-java-sdk-s3 "1.12.402"]
+                                    [com.amazonaws/aws-java-sdk-core "1.12.402"]
+                                    [org.apache.httpcomponents/httpclient "4.5.13"]]}]
+              :ranges   []}]))))
+
+(deftest dont-suggest-on-duplicates
+  (let [project {:root "/tmp"
+                 :repositories [["c" {:url "https://repo1.maven.org/maven2/"
+                                      :snapshots false}]]
+                 :dependencies '[[commons-logging "1.2"]
+                                 [commons-logging "1.2"]]
+                 :pedantic? :abort}]
+    (is (cp/get-dependencies :dependencies nil project))))

@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Deploying Libraries](#deploying-libraries)
   - [Private Repositories](#private-repositories)
@@ -25,7 +25,7 @@
 
 Getting your library into [Clojars](https://clojars.org) is fairly
 straightforward as is documented near the end of
-[the Leiningen tutorial](https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md).
+[the Leiningen tutorial](https://codeberg.org/leiningen/leiningen/src/stable/doc/TUTORIAL.md).
 However, deploying elsewhere is not always that straightforward.
 
 ## Private Repositories
@@ -77,7 +77,7 @@ you can deploy to S3 buckets using the
 
 The most full-featured and complex route is to run a full-fledged
 repository manager. Both [Artifactory](https://www.jfrog.com/open-source/#os-arti), [Archiva](https://archiva.apache.org/) and
-[Nexus](http://nexus.sonatype.org/) provide this. They also proxy to
+[Nexus](https://nexus.sonatype.org/) provide this. They also proxy to
 other repositories, so you can set `^:replace` metadata on
 `:repositories` in project.clj, and dependency downloads will speed up
 by quite a bit since Clojars and Maven Central won't need to be
@@ -137,7 +137,7 @@ haven't set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
 [gpg](https://www.gnupg.org/) installed and a key pair configured.  If
 you need help with either of those, see the
-[GPG guide](https://github.com/technomancy/leiningen/blob/stable/doc/GPG.md).
+[GPG guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/GPG.md).
 
 ### GPG
 
@@ -249,6 +249,22 @@ your `project.clj`:
 You can use this to alias any `:repositories` entry; Clojars is just the most
 common use case.
 
+## Signing Artifacts
+
+By default Leiningen will attempt to sign all artifacts that are deployed
+using GPG. If you prefer, you can [sign them using
+SSH](https://www.agwa.name/blog/post/ssh_signatures) instead. If you don't
+already use GPG, this may be more convenient for you. Edit your
+`~/.lein/profiles.clj` file to add a `:user` profile with a `:signing` map:
+
+```clj
+{:user {:signing {:gpg-key false
+                  :ssh-key "~/.ssh/id_rsa"}}}
+```
+
+If you want to keep signing with both SSH and GPG at the same time, you can
+omit the `:gpg-key false` setting.
+
 ## Releasing Simplified
 
 Once you have your repositories and user credentials configured for deploying,
@@ -346,7 +362,7 @@ to the task, like so: `["vcs" "commit" "Version %s [skip ci]"]`.
 
 ### Tagging
 
-By default `["vcs" "tag"]` will create a GPG signed tag with your project version
+By default `["vcs" "tag"]` will create a signed tag with your project version
 number. You can add a tag prefix by passing the prefix after `"tag"`,
 for example: `["vcs" "tag" "v"]`. You can disable tag signing by passing `--no-sign`,
 for example: `["vcs" "tag" "v" "--no-sign"]` or `["vcs" "tag" "--no-sign"]`.

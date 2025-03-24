@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Leiningen Plugins](#leiningen-plugins)
   - [Writing a Plugin](#writing-a-plugin)
@@ -76,7 +76,8 @@ on that argument.
 
 However, if you need to call other Leiningen functions or have no need
 to run anything inside the context of the project's own process,
-making a plugin might be the right choice if one doesn't [exist already](https://github.com/technomancy/leiningen/wiki/plugins),
+making a plugin might be the right choice if one doesn't
+[exist already](https://wiki.leiningen.org/Plugins).
 
 ## Writing a Plugin
 
@@ -87,11 +88,11 @@ has `:eval-in-leiningen true`, which causes all tasks to operate
 inside the leiningen process rather than starting a subprocess to
 isolate the project's code. Plugins need not declare a dependency on
 Clojure itself; in fact
-[all of Leiningen's own dependencies](https://github.com/technomancy/leiningen/blob/stable/project.clj)
+[all of Leiningen's own dependencies](https://codeberg.org/leiningen/leiningen/src/stable/project.clj)
 will be available.
 
 See the `lein-pprint` directory
-[in the Leiningen source](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
+[in the Leiningen source](https://codeberg.org/leiningen/leiningen/src/stable/lein-pprint)
 for a sample of a very simple plugin.
 
 When emitting output, please use `leiningen.core.main/info`,
@@ -542,7 +543,7 @@ the argument list so that the `-main` function running inside the
 project code gets access to it.
 
 The vast majority of these cases are already covered by
-[existing plugins](https://github.com/technomancy/leiningen/wiki/plugins),
+[existing plugins](https://wiki.leiningen.org/Plugins),
 but if you have a case that doesn't exist and for some reason can't
 spin it off into its own separate plugin, you can enable this behavior
 by placing the `foo.clj` file defining the new task in
@@ -569,7 +570,7 @@ proper plugin.
 ## Have Fun
 
 Please add your plugin to [the list on the
-wiki](https://github.com/technomancy/leiningen/wiki/plugins) once it's ready.
+wiki](https://wiki.leiningen.org/Plugins) once it's ready.
 
 Hopefully the plugin mechanism is simple and flexible enough to let
 you bend Leiningen to your will.

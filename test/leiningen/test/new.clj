@@ -1,6 +1,6 @@
 (ns leiningen.test.new
-  (:require [leiningen.new :as new])
-  (:require [clojure.test :refer :all]
+  (:require [leiningen.new :as new]
+            [clojure.test :refer :all]
             [clojure.java.io :refer [file]]
             [leiningen.test.helper :refer [delete-file-recursively abort-msg]]
             [leiningen.new :as new]
@@ -70,13 +70,14 @@
           (constantly {:user
                         {:mirrors
                           {"clojars" "https://clojars.example.com"
-                           "central" "http://central.exmaple.com"}}})]
+                           "central" "https://central.exmaple.com"}}})]
          (let [name "luminus"
                sym (symbol (str "leiningen.new." name))]
            (leiningen.new/resolve-remote-template name sym))))))
 
 (deftest ^:online test-group-id-template
-  (is (fn? @(new/resolve-template "us.technomancy/liquid-cool"))))
+  (is (fn? @(new/resolve-template "us.technomancy/liquid-cool")))
+  (is (fn? @(new/resolve-template "net.ofnir/default"))))
 
 (deftest test-new-with-*-jure-project-name
   (is (re-find

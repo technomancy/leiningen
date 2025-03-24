@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Tutorial](#tutorial)
   - [What This Tutorial Covers](#what-this-tutorial-covers)
@@ -37,7 +37,7 @@
 Leiningen is for automating Clojure projects without setting your hair
 on fire. If you experience your hair catching on fire or any other
 frustrations while following this tutorial, please
-[let us know](https://github.com/technomancy/leiningen/issues/new).
+[let us know](https://codeberg.org/leiningen/leiningen/issues/new).
 
 It offers various project-related tasks and can:
 
@@ -63,8 +63,8 @@ tool.
 This tutorial will briefly cover project structure, dependency
 management, running tests, the REPL, and topics related to deployment.
 
-For those of you new to the JVM who have never touched [Ant](http://ant.apache.org/)
 or [Maven](https://maven.apache.org/) in anger: don't panic. Leiningen is designed
+For those of you new to the JVM who have never touched [Ant](https://ant.apache.org/)
 with you in mind. This tutorial will help you get started and explain Leiningen's
 take on project automation and JVM-land dependency management.
 
@@ -102,7 +102,7 @@ Next let's take a look at how projects are created.
 ## Creating a Project
 
 We'll assume you've got Leiningen installed as per the
-[README](https://github.com/technomancy/leiningen/blob/stable/README.md).
+[README](https://codeberg.org/leiningen/leiningen/src/stable/README.md).
 Generating a new project is easy:
 
     $ lein new app my-stuff
@@ -161,7 +161,7 @@ read up on them elsewhere, for example [here](https://8thlight.com/blog/colin-jo
 
 Your `project.clj` file will start off looking something like this:
 
-```clj
+```clojure
 (defproject my-stuff "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "https://example.com/FIXME"
@@ -271,7 +271,7 @@ wider JVM community.
 
 You can add third-party repositories by setting the `:repositories` key
 in project.clj. See the
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj)
 for examples on how to do so. This sample uses additional repositories such as the Sonatype
 repository which gives access to the latest SNAPSHOT development version of a library (Clojure or Java).
 It also contains other relevant settings regarding repositories such as update frequency.
@@ -323,12 +323,13 @@ resolved, either from a remote repo or via `lein install` locally. That is,
 given the above directory hierarchy, `project.clj` should contain something
 like:
 
-      :dependencies [[org.clojure/clojure "1.9.0"]
-                     ...
-                     [suchwow "0.3.9"]
-                     [com.megacorp/commons "1.3.5"]
-                     ...]
-
+```clj
+:dependencies [[org.clojure/clojure "1.9.0"]
+               ...
+               [suchwow "0.3.9"]
+               [com.megacorp/commons "1.3.5"]
+               ...]
+```
 
 Note here that the Maven groupid `com.megacorp` has no effect on the way checkouts work.
 The `suchwow` and `commons` links look the same in `checkouts`, and the groupid
@@ -336,7 +337,7 @@ hierarchy doesn't need to appear in the way `commons` is actually laid out on di
 
 After you've updated `:dependencies`, `lein` will still need to be able
 to find the library in some repository like clojars or your `~/.m2`
-directory.  If `lein` complains with a message like "Could not find artifact suchwow:jar:0.3.9",
+directory.  If `lein` complains with a message like `"Could not find artifact suchwow:jar:0.3.9"`,
 it's possible that `project.clj` and `suchwow/project.clj` use different version numbers.
 It's also possible that you're working on the main project and `suchwow` at the same time,
 have bumped the version number in both project files, but still have the old version in your
@@ -365,14 +366,14 @@ Central and Clojars is supported.
 
 ### Maven Read Timeout
 
-The underlying [Maven Wagon](https://maven.apache.org/wagon/) transport
-reads the `maven.wagon.rto` system property to determine the timeout used
-when downloading artifacts from a repository. The `lein` script sets that property to be 10000.
-If that timeout isn't long enough (for example, when using a slow corporate mirror),
-it can be overridden via `LEIN_JVM_OPTS`:
+The underlying [Maven Wagon](https://maven.apache.org/wagon/)
+transport reads the `maven.wagon.rto` system property to determine the
+timeout (in milliseconds) used when communicating with a repository.
+If the default timeout isn't right, it can be overridden via
+`LEIN_JVM_OPTS`:
 
 ```bash
-export LEIN_JVM_OPTS="-Dmaven.wagon.rto=1800000"
+export LEIN_JVM_OPTS="-Dmaven.wagon.rto=30000"
 ```
 
 ## Setting JVM Options
@@ -381,13 +382,13 @@ To pass extra arguments to the JVM, set the `:jvm-opts` vector. This will overri
 any default JVM opts set by Leiningen.
 
 ```clj
- :jvm-opts ["-Xmx1g"]
+:jvm-opts ["-Xmx1g"]
 ```
 
 If you want to pass [compiler options](https://clojure.org/reference/compilation#_compiler_options)
 to the Clojure compiler, you also do this here.
 
-```
+```clj
 :jvm-opts ["-Dclojure.compiler.disable-locals-clearing=true"
            "-Dclojure.compiler.elide-meta=[:doc :file :line :added]"
            ; notice the array is not quoted like it would be if you passed it directly on the command line.
@@ -495,6 +496,16 @@ if you've got a large test suite you'll want to run just one or two
 namespaces at a time; `lein test my-stuff.core-test` will do that. You
 also might want to break up your tests using test selectors; see `lein
 help test` for more details.
+
+The built-in `test` command wraps the basic runner from `clojure.test`
+and adds a few small features, but many people prefer to replace it
+with a more full-featured test runner like [kaocha](https://github.com/lambdaisland/kaocha).
+By adding an alias for `test` along with an entry in `:dependencies`,
+it's easy to make a third-party runner replace the built-in test task:
+
+```clj
+:aliases {"test" ["run" "-m" "kaocha.runner"]}
+```
 
 Running `lein test` from the command-line is suitable for regression
 testing, but the slow startup time of the JVM makes it a poor fit for
@@ -653,8 +664,7 @@ There are many ways to get your project deployed as a server-side
 application. Aside from the obvious uberjar approach, simple programs can be
 packaged up as [tarballs](https://en.wikipedia.org/wiki/Tar_(computing)) with
 accompanied shell scripts using the [lein-tar plugin](https://github.com/technomancy/lein-tar)
-and then deployed using [pallet](http://palletops.com/), [chef](https://chef.io/),
-or other mechanisms.
+and then deployed using [chef](https://chef.io/) or other mechanisms.
 
 Web applications may be deployed as uberjars using embedded Jetty with
 `ring-jetty-adapter` or as [war (web application archive) files](https://en.wikipedia.org/wiki/WAR_(file_format))
@@ -672,7 +682,7 @@ Leiningen's own JVM will stay up and consume unnecessary memory.
 In addition it's very important to ensure you take steps to freeze all
 the dependencies before deploying, otherwise it could be easy to end
 up with
-[unrepeatable deployments](https://github.com/technomancy/leiningen/wiki/Repeatability).
+[unrepeatable deployments](https://wiki.leiningen.org/Repeatability).
 Consider including `~/.m2/repository` in your unit of deployment
 (tarball, .deb file, etc) along with your project code. It's
 recommended to use Leiningen to create a deployable artifact in a
@@ -703,7 +713,7 @@ Given these pitfalls, it's best to use an uberjar if possible.
 If your project is a library and you would like others to be able to
 use it as a dependency in their projects, you will need to get it into
 a public repository. While it's possible to [maintain your own private
-repository](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+repository](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 or get it into [Central](https://search.maven.org), the easiest way is
 to publish it at [Clojars](https://clojars.org). Once you have
 [created an account](https://clojars.org/register) there, publishing
@@ -747,9 +757,10 @@ Once that succeeds it will be available as a package on which other
 projects may depend. For instructions on storing your credentials so
 they don't have to be re-entered every time, see `lein help
 deploying`. When deploying a release that's not a snapshot, Leiningen
-will attempt to sign it using [GPG](https://gnupg.org) to prove your
+will attempt to sign it using [GPG](https://gnupg.org) or
+[SSH](https://www.agwa.name/blog/post/ssh_signatures) to prove your
 authorship of the release. See the
-[deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+[deploy guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 for details of how to set that up. The deploy guide includes
 instructions for deploying to other repositories as well.
 

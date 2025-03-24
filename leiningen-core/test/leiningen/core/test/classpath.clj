@@ -50,12 +50,14 @@
                      (catch Exception e
                        (stacktrace/root-cause e))))))
   (testing "checks for host of cert"
-    (is (instance? javax.net.ssl.SSLPeerUnverifiedException
-                   (try
-                     (binding [main/*info* false]
-                       (resolve-with-repo "https://badssl.f5n.de/"))
-                     (catch Exception e
-                       (stacktrace/root-cause e))))))
+    (let [ex (try
+               (binding [main/*info* false]
+                 (resolve-with-repo "https://badssl.f5n.de/"))
+               (catch Exception e
+                 (stacktrace/root-cause e)))]
+      (is (or (instance? javax.net.ssl.SSLException ex)
+              (instance? javax.net.ssl.SSLPeerUnverifiedException ex)
+              (instance? java.security.GeneralSecurityException ex)))))
   (is (= #{(m2-file "org/clojure/clojure/1.3.0/clojure-1.3.0.jar")
            (m2-file "commons-io/commons-io/1.4/commons-io-1.4.jar")
            (m2-file "javax/servlet/servlet-api/2.5/servlet-api-2.5.jar")
@@ -165,16 +167,16 @@
                                                   {#"clojars"
                                                    {:username "flynn"
                                                     :password "flotilla"}}}})]
-    (is (= [["clojars" {:url "http://clojars.org/repo"
+    (is (= [["clojars" {:url "https://clojars.org/repo"
                         :username "flynn" :password "flotilla"}]
             ["sonatype" {:url "https://oss.sonatype.org/"}]
             ["internal" {:password "reindur" :username "milgrim"
                          :url "https://sekrit.info/repo"}]]
-           (map add-repo-auth
-                [["clojars" {:url "http://clojars.org/repo"}]
-                 ["sonatype" {:url "https://oss.sonatype.org/"}]
-                 ["internal" {:url "https://sekrit.info/repo"
-                              :username :gpg :password :gpg}]])))))
+            (map add-repo-auth
+                [["clojars" {:url "https://clojars.org/repo"}]
+                  ["sonatype" {:url "https://oss.sonatype.org/"}]
+                  ["internal" {:url "https://sekrit.info/repo"
+                               :username :gpg :password :gpg}]])))))
 
 (deftest test-normalize-dep-vectors
   (testing "dep vectors with string version"

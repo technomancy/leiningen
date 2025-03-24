@@ -170,6 +170,8 @@
        (map #(str (name (key %)) "=" (val %)))
        (into-array String)))
 
+(def ^:dynamic *sh-silent?* false)
+
 (defn sh ;; TODO 3.0.0 - move to independent namespace. e.g. io.clj
   "A version of clojure.java.shell/sh that streams in/out/err."
   [& cmd]
@@ -182,14 +184,15 @@
     (with-open [out (.getInputStream proc)
                 err (.getErrorStream proc)
                 in (.getOutputStream proc)]
-      (let [pump-out (doto (Pipe. out System/out) .start)
-            pump-err (doto (Pipe. err System/err) .start)
+      (let [pump-out (or *sh-silent?* (doto (Pipe. out System/out) .start))
+            pump-err (or *sh-silent?* (doto (Pipe. err System/err) .start))
             ;; TODO: this prevents nrepl need-input msgs from being propagated
             ;; in the case of connecting to Leiningen over nREPL.
             pump-in (ClosingPipe. System/in in)]
         (when *pump-in* (.start pump-in))
-        (.join pump-out)
-        (.join pump-err)
+        (when (not *sh-silent?*)
+          (.join pump-out)
+          (.join pump-err))
         (let [exit-value (.waitFor proc)]
           (when *pump-in*
             (.kill System/in)
@@ -238,7 +241,13 @@
                     (File/createTempFile "form-init" ".clj")
                     (io/file (:target-path project) (str checksum "-init.clj")))]
     (spit init-file
-          (binding [*print-dup* *eval-print-dup*]
+          ;; NOTE: we can't include metadata in the printed forms by default, because this breaks
+          ;;       some plugins (when metadata includes objects that don't have a tagged
+          ;;       literal reader). Requires opt-in via `:preserve-eval-meta true`.
+          ;;       See https://github.com/technomancy/leiningen/issues/2328 and
+          ;;       https://github.com/technomancy/leiningen/issues/2814
+          (binding [*print-dup* *eval-print-dup*
+                    *print-meta* (:preserve-eval-meta project)]
             (pr-str (when-not (System/getenv "LEIN_FAST_TRAMPOLINE")
                       `(.deleteOnExit (File. ~(.getCanonicalPath init-file))))
                     form)))
@@ -310,18 +319,20 @@
 
 (defmethod eval-in :nrepl [project form]
   (require 'nrepl.core)
-  (let [port-file (io/file (:target-path project) "repl-port")
-        connect (resolve 'nrepl/connect)
-        client (resolve 'nrepl/client)
-        client-session (resolve 'nrepl/client-session)
-        message (resolve 'nrepl/message)
+  (require 'nrepl.transport)
+  (let [port-file (io/file (:root project) ".nrepl-port")
+        connect (resolve 'nrepl.core/connect)
+        client (resolve 'nrepl.core/client)
+        client-session (resolve 'nrepl.core/client-session)
+        message (resolve 'nrepl.core/message)
         recv (resolve 'nrepl.transport/recv)]
     (if (.exists port-file)
       (let [transport (connect :host "localhost"
                                :port (Integer. (slurp port-file)))
             client (client-session (client transport Long/MAX_VALUE))
             pending (atom #{})]
-        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*]
+        (message client {:op "eval" :code (binding [*print-dup* *eval-print-dup*
+                                                    *print-meta* (:preserve-eval-meta project)]
                                             (pr-str form))})
         (doseq [{:keys [out err status session] :as msg} (repeatedly
                                                           #(recv transport 100))
@@ -352,18 +363,19 @@
   (let [dispatch-var (resolve 'clojure.pprint/*print-pprint-dispatch*)
         code-dispatch @(resolve 'clojure.pprint/code-dispatch)]
     (try (push-thread-bindings {dispatch-var code-dispatch})
-         ((resolve 'clojure.pprint/pprint) form)
+         (binding [*print-meta* (:preserve-eval-meta project)]
+           ((resolve 'clojure.pprint/pprint) form))
          (finally (pop-thread-bindings)))))
 
 (defn eval-in-project
   "Executes form in isolation with the classpath and compile path set correctly
   for the project. If the form depends on any requires, put them in the init arg
-  to avoid the Gilardi Scenario: http://technomancy.us/143"
+  to avoid the Gilardi Scenario: https://technomancy.us/143"
   ([project form] (eval-in-project project form nil))
   ([project form init]
      (prep project)
      (when (:warn-on-reflection project)
-       (main/warn "WARNING: :warn-on-reflection is deprecated in project.clj;"
+       (main/warn ";; WARNING: :warn-on-reflection is deprecated in project.clj;"
                   "use :global-vars."))
      (eval-in project
               `(do (set! ~'*warn-on-reflection*

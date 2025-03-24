@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [チュートリアル](#%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB)
   - [このチュートリアルの取り扱い範囲](#%E3%81%93%E3%81%AE%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB%E3%81%AE%E5%8F%96%E3%82%8A%E6%89%B1%E3%81%84%E7%AF%84%E5%9B%B2)
@@ -38,7 +38,7 @@
 Leiningen は Clojure プロジェクトを、髪の毛が燃え上がるような思いをせずに、
 自動化するためのものです。もしこのチュートリアルにしたがっていて、
 髪の毛が燃え上がるような思いをしたり何かイライラするようなことがあった場合は、
-ぜひ[私達に知らせてください](https://github.com/technomancy/leiningen/issues/new)。
+ぜひ[私達に知らせてください](https://codeberg.org/leiningen/leiningen/issues/new)。
 
 Leiningen は様々なプロジェクトに関連するタスクを提案します:
 
@@ -109,7 +109,7 @@ Leiningen は*プロジェクト*とともに動作します。
 ## プロジェクトの作成
 
 わたしたちは、あなたが
-[README](https://github.com/technomancy/leiningen/blob/stable/README.md)
+[README](https://codeberg.org/leiningen/leiningen/src/stable/README.md)
 にしたがって Leiningen をインストールしたと仮定します。
 この時新しいプロジェクトを生成することは簡単です:
 
@@ -282,7 +282,7 @@ maven レポジトリで、 [Central](https://search.maven.org/) は
 
 サードパーティのレポジトリは `:repositories` キーを project.clj に指定することで追加出来ます。
 どのようにすれば良いのか
-[sample.project.clj](https://github.com/technomancy/leiningen/blob/stable/sample.project.clj)
+[sample.project.clj](https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj)
 を見てみましょう。このサンプルは追加のレポジトリとして Sonatype レポジトリを使っていますが、
 これは(Clojure や Java の)ライブラリの、最新のスナップショット開発バージョンへのアクセスを提供します。
 このサンプルには同様に、レポジトリに関連する更新頻度などの設定が含まれています。
@@ -690,7 +690,7 @@ uberjar 以上のことをしようとした場合、サーバサイドデプロ
 Leiningen の自分自身の JVM は実行され続け、不必要なメモリを消費します。
 
 加えて非常に重要なこととして、デプロイする前に全ての依存関係を凍結するステップを踏まなければなりません。
-そうしなければ[繰り返せないデプロイ](https://github.com/technomancy/leiningen/wiki/Repeatability)
+そうしなければ[繰り返せないデプロイ](https://wiki.leiningen.org/Repeatability)
 問題によって止まってしまいます。一つのデプロイ(tar ファイル, .deb ファイルなど)にプロジェクトのコードに加えて、
 `~/.m2/repository` を含むことを検討すべきです。継続インテグレーションを設定する際には、
 デプロイ可能なアーティファクトを作るために Leiningen を使う事が推奨されます。
@@ -716,7 +716,7 @@ Leiningen の自分自身の JVM は実行され続け、不必要なメモリ�
 もしプロジェクトがライブラリで、他の人がプロジェクトの中で
 依存関係としてそのライブラリを使えるようにしたいときは、
 そのライブラリをパブリックレポジトリに置く必要が出てきます。
-自分自身の[プライベートレポジトリを運用する](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)
+自分自身の[プライベートレポジトリを運用する](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)
 こともできますし、
 [Central](https://search.maven.org)に置くことも出来ますが、
 最も簡単なのは[Clojars](https://clojars.org)で公開する方法でしょう。
@@ -749,7 +749,7 @@ Leiningen の自分自身の JVM は実行され続け、不必要なメモリ�
 スナップショット版ではなくリリース版をデプロイするときは、
 Leiningen は [GPG](https://gnupg.org) を使って署名を行い、
 リリースの著作権を証明します。どのように設定を行うかの詳細については、
-[デプロイガイド](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md)を参考にしてください。
+[デプロイガイド](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md)を参考にしてください。
 デプロイガイドでは他のレポジトリへのデプロイ方法の説明もしています。
 
 ## おわり!
