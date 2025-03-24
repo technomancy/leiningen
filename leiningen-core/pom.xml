@@ -11,11 +11,14 @@
   <licenses>
     <license>
       <name>Eclipse Public License</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <url>https://www.eclipse.org/legal/epl-v10.html</url>
     </license>
   </licenses>
   <scm>
-    <tag>c26c0a144a37aeaa112919bf561e77afd5a895f6</tag>
+    <url>https://github.com/cdzwm/leiningen</url>
+    <connection>scm:git:git://github.com/cdzwm/leiningen.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/cdzwm/leiningen.git</developerConnection>
+    <tag>78b732819a61f7bf868fbd28589a9e690b0bfaea</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -31,7 +34,7 @@
       </testResource>
     </testResources>
     <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
+    <outputDirectory>target\classes</outputDirectory>
     <plugins/>
   </build>
   <repositories>
