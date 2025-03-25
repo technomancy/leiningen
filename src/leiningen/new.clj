@@ -1,13 +1,16 @@
 (ns leiningen.new
   "Generate project scaffolding based on a template."
-  (:refer-clojure :exclude [new list])
+  (:refer-clojure :exclude [new])
   (:require [clojure.string :as str]
-            [bultitude.core :as bultitude]
             [leiningen.core.classpath :as cp]
             [leiningen.core.project :as project]
             [leiningen.core.user :as user]
             [leiningen.core.main :refer [abort parse-options option-arg debug]]
-            [leiningen.new.templates :refer [*dir* *force?*]])
+            [leiningen.new.templates :refer [*dir* *force?*]]
+            leiningen.new.template
+            leiningen.new.plugin
+            leiningen.new.default
+            leiningen.new.app)
   (:import java.io.FileNotFoundException))
 
 (def ^:dynamic *use-snapshots?* false)
@@ -36,7 +39,8 @@
                        project/default-repositories
                        (:plugin-repositories user-profiles))]
     (merge {:templates [[(template-symbol name) template-version]]
-            :repositories repositories}
+            :repositories repositories
+            :update :always}
            (select-keys user-profiles [:mirrors]))))
 
 (defn resolve-remote-template [name ns-sym]
@@ -51,7 +55,7 @@
 
 (defn resolve-template [template-name]
   (let [ns-sym (symbol (str "leiningen.new." (name (symbol template-name))))]
-    (if (try (require ns-sym)
+    (if (try (require (symbol (str "leiningen.new." template-name)))
              true
              (catch FileNotFoundException _
                (resolve-remote-template template-name ns-sym)))
@@ -106,15 +110,6 @@
 ;; get the metadata off of that function to list the names and docs
 ;; for all of the available templates.
 
-(defn list []
-  (for [n (bultitude/namespaces-on-classpath :prefix "leiningen.new.")
-        ;; There are things on the classpath at `leiningen.new` that we
-        ;; don't care about here. We could use a regex here, but meh.
-        :when (not= n 'leiningen.new.templates)]
-    (-> (doto n require)
-        (the-ns)
-        (ns-resolve (symbol (last (.split (str n) "\\.")))))))
-
 (defn show
   "Show details for a given template."
   [name]
@@ -150,7 +145,10 @@
 (defn ^{:no-project-needed true
         :help-arglists '[[project project-name]
                          [project template project-name [-- & args]]]
-        :subtasks (list)}
+        :subtasks [#'leiningen.new.template/template
+                   #'leiningen.new.plugin/plugin
+                   #'leiningen.new.default/default
+                   #'leiningen.new.app/app]}
   new
   "Generate scaffolding for a new project based on a template.
 

@@ -9,7 +9,7 @@
 (defn string->semantic-version [version-string]
   "Create map representing the given version string. Returns nil if the
   string does not follow guidelines setforth by Semantic Versioning 2.0.0,
-  http://semver.org/"
+  https://semver.org/"
   ;; <MajorVersion>.<MinorVersion>.<PatchVersion>[-<Qualifier>][-SNAPSHOT]
   (if-let [[_ major minor patch qualifier snapshot]
            (re-matches
@@ -24,7 +24,7 @@
 (defn parse-semantic-version [version-string]
   "Create map representing the given version string. Aborts with exit code 1
   if the string does not follow guidelines setforth by Semantic Versioning 2.0.0,
-  http://semver.org/"
+  https://semver.org/"
   (or (string->semantic-version version-string)
       (main/abort "Unrecognized version string:" version-string)))
 
@@ -141,7 +141,7 @@ bump. If none is given, it defaults to :patch."
 (when-let [[resource] (-> (.getContextClassLoader (Thread/currentThread))
                           (.getResources "leiningen/release.clj")
                           (enumeration-seq) (distinct) (rest) (seq))]
-  (let [release-str (str resource)]
+  (let [release-str (slurp resource)]
     (when-not (re-find #"support existing release plugin" release-str)
       (clojure.lang.Compiler/load (io/reader resource)
                                   "leiningen/release.clj" release-str))))

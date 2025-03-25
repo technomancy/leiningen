@@ -6,7 +6,20 @@
            (clojure.lang LineNumberingPushbackReader)
            (java.io ByteArrayOutputStream PrintStream File FileDescriptor
                     FileOutputStream FileInputStream InputStreamReader)
-           (java.net URL)))
+           (java.net URL)
+           (java.nio.file Files)
+           (java.nio.file.attribute PosixFilePermissions)))
+
+(defn create-tmpdir
+  "Creates a temporary directory in parent (something clojure.java.io/as-path
+  can handle) with the specified permissions string (something
+  PosixFilePermissions/asFileAttribute can handle i.e. \"rw-------\") and
+  returns its Path."
+  [parent prefix permissions]
+  (let [nio-path (.toPath (io/as-file parent))
+        perms (PosixFilePermissions/fromString permissions)
+        attr (PosixFilePermissions/asFileAttribute perms)]
+    (Files/createTempDirectory nio-path prefix (into-array [attr]))))
 
 (def rebound-io? (atom false))
 
@@ -20,7 +33,7 @@
 
 (defn build-url
   "Creates java.net.URL from string"
-  [url]
+  ^URL [url]
   (try (URL. url)
        (catch java.net.MalformedURLException _
          (URL. (str "http://" url)))))

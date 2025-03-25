@@ -8,7 +8,8 @@
             [leiningen.core.user :as user]
             [leiningen.core.utils :as utils]
             [leiningen.core.pedantic :as pedantic])
-  (:import (java.util.jar JarFile)
+  (:import (java.io File)
+           (java.util.jar JarEntry JarFile)
            (org.eclipse.aether.resolution DependencyResolutionException)))
 
 (defn- warn [& args]
@@ -35,13 +36,13 @@
 (defn extract-native-dep!
   "Extracts native content into the native path. Returns true if at least one
   file was extracted."
-  [native-path file native-prefix]
+  [native-path ^File file native-prefix]
   (let [native? (volatile! false)
         native-prefix (or native-prefix "native/")
-        jar (try (JarFile. file)
-                 (catch Exception e
-                   (throw (Exception. (format "Problem opening jar %s" file) e))))]
-    (doseq [entry (enumeration-seq (.entries jar))
+        ^JarFile jar (try (JarFile. file)
+                          (catch Exception e
+                            (throw (Exception. (format "Problem opening jar %s" file) e))))]
+    (doseq [^JarEntry entry (enumeration-seq (.entries jar))
             :when (.startsWith (.getName entry) native-prefix)]
       (vreset! native? true)
       (let [f (io/file native-path (subs (.getName entry) (count native-prefix)))]
@@ -213,7 +214,7 @@
 
   So, a credentials map that contains an entry:
 
-    {#\"http://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
+    {#\"https://maven.company.com/.*\" {:username \"abc\" :password \"xyz\"}}
 
   would be applied to all repositories with URLs matching the regex key
   that didn't have an explicit entry."

@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Profiles](#profiles)
   - [Declaring Profiles](#declaring-profiles)
@@ -201,12 +201,12 @@ Multiple profiles may be executed in series with colons:
     $ lein with-profile 1.3:1.4 test :database
 
 The above invocations activate the given profiles in place of the
-defaults. To activate a profile in addition to the defaults, prepend
-it with a `+`:
+defaults. To activate the profiles in addition to the defaults, prepend
+them with a `+`:
 
-    $ lein with-profile +server run
+    $ lein with-profile +server,+fast run
 
-You can also use `-` to deactivate a profile.
+You can also use `-` to deactivate profiles.
 
 By default all profiles will share the same `:target-path`, which can
 cause problems if settings from one profile leak over into
@@ -227,8 +227,11 @@ This can be used to avoid duplication:
  :production [:shared :prod-servers]}
 ```
 
-It is not recommended to make a composite profile which contains both
-keywords and maps; they should either be all keywords or all maps.
+The vector should contain keywords referencing other profiles which
+will be merged together.
+
+While it is possible to make a composite profile which contains both
+keywords and maps, this will become an error in a future version of Leiningen.
 
 Composite profiles also cannot have certain types of metadata
 propagated, which makes them incompatible with the `:provided`
@@ -252,7 +255,7 @@ Here is an example of such a case:
 ## Debugging
 
 To see how a given profile affects your project map, use the
-[lein-pprint](https://github.com/technomancy/leiningen/tree/stable/lein-pprint)
+[lein-pprint](https://codeberg.org/leiningen/leiningen/src/stable/lein-pprint)
 plugin:
 
     $ lein with-profile 1.4 pprint

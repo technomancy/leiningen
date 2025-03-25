@@ -7,10 +7,10 @@
   "A meta-template for 'lein new' templates."
   [template-name]
   (when-not (namespace (symbol template-name))
-    (main/warn (str "Template names must use a group-id to conform with new"
+    (main/warn (str ";; Template names must use a group-id to conform with new"
                     " Clojars security policy:\n"
-                    "https://github.com/clojars/clojars-web/wiki/Verified-Group-Names"
-                    "\n\nYou may generate this template but you may not be"
+                    ";; https://github.com/clojars/clojars-web/wiki/Verified-Group-Names"
+                    "\n\n;; You may generate this template but you may not be"
                     " able to publish it on Clojars.")))
   (let [render (t/renderer "template")
         sym (symbol template-name)

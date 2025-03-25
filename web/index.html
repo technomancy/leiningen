@@ -1,23 +1,17 @@
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
-<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
-<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
-<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <title>Leiningen</title>
+    <meta name="description" content="Leiningen: automating Clojure projects">
+    <meta name="author" content="Phil Hagelberg and contributors">
 
-	<!-- Basic Page Needs
+    <!-- Mobile Specific Metas
   ================================================== -->
-	<meta charset="utf-8">
-	<title>Leiningen</title>
-	<meta name="description" content="Leiningen: automating Clojure projects">
-	<meta name="author" content="Phil Hagelberg and contributors">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
 
-	<!-- Mobile Specific Metas
-  ================================================== -->
-	<meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1">
-
-	<!-- Favicons + Manifest
+    <!-- Favicons + Manifest
   ================================================== -->
   <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
@@ -28,13 +22,13 @@
   <meta name="msapplication-config" content="/img/favicon/browserconfig.xml">
   <meta name="theme-color" content="#ffffff">
 
-	<!-- CSS
+    <!-- CSS
   ================================================== -->
-	<link rel="stylesheet" href="stylesheets/base.css">
-	<link rel="stylesheet" href="stylesheets/skeleton.css">
-	<link rel="stylesheet" href="stylesheets/layout.css">
+    <link rel="stylesheet" href="stylesheets/base.css">
+    <link rel="stylesheet" href="stylesheets/skeleton.css">
+    <link rel="stylesheet" href="stylesheets/layout.css">
     <link rel="stylesheet" href="stylesheets/htmlize.css">
-	<link rel="stylesheet" href="stylesheets/lein.css">
+    <link rel="stylesheet" href="stylesheets/lein.css">
 </head>
 <body>
 
@@ -42,14 +36,15 @@
     <div class="three columns offset-by-one">
       <img src="img/leiningen.jpg" title="logo" id="logo">
     </div>
-	<div class="eight columns offset-by-two" id="title">
-	  <h1 class="remove-bottom" style="margin-top: 40px">Leiningen</h1>
-	  <h6>for automating Clojure projects without setting your hair on fire</h6>
+    <div class="eight columns offset-by-two" id="title">
+      <h1 class="remove-bottom" style="margin-top: 40px">Leiningen</h1>
+      <p id="tagline">for automating Clojure projects without setting
+        your hair on fire</p>
       <nav id="links" class="offset-by-three">
         <a href="#install">install</a> |
         <a href="#docs">docs</a> |
         <a href="#community">community</a> |
-        <a href="https://github.com/technomancy/leiningen">source</a>
+        <a href="https://codeberg.org/leiningen/leiningen">source</a>
       </nav>
     </div>
 
@@ -72,87 +67,92 @@
 
     <div class="sixteen columns"><hr /></div>
 
-	<div class="one-third column"><h3 class="offset-by-one">Install</h3></div>
-    <div class="two-thirds column">
-      <p>Leiningen and Clojure require Java; ideally OpenJDK.</p>
-      <a name="install"></a>
+    <div class="one-third column"><h3 class="offset-by-one">Install</h3></div>
+    <div class="two-thirds column" id="install">
+      <p>First check
+      your <a href="https://wiki.leiningen.org/Packaging">package
+      manager</a> to see whether it includes Leiningen. If not, don't
+      worry; a manual install is easy.</p>
+
+      <p>Leiningen and Clojure require Java; ideally
+        <a href="https://adoptium.net">OpenJDK</a>. Get this from
+        your package manager, or download manually if you have to.</p>
       <ol>
         <li>Download the <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"><kbd>lein</kbd>
         script</a> (or on
-          Windows <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat"><kbd>lein.bat</kbd></a>)</li>
-        <li>Place it on your <tt>$PATH</tt> where your shell can find it (eg. <tt>~/bin</tt>)</li>
-        <li>Set it to be executable (<kbd>chmod a+x ~/bin/lein</kbd>)</li>
+          Windows <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat"><kbd>lein.bat</kbd></a>
+          if you don't use WSL)</li>
+        <li>Place it on your <kbd>$PATH</kbd> where your shell can find it (eg. <kbd>/usr/local/bin/</kbd>)</li>
+        <li>Set it to be executable (<kbd>sudo chmod a+x /usr/local/bin/lein</kbd>)</li>
         <li>Run it (<kbd>lein</kbd>) and it will download the self-install package</li>
       </ol>
-
-      <p>You can check
-      your <a href="https://github.com/technomancy/leiningen/wiki/Packaging">package
-      manager</a> as well depending on your operating system.</p>
-	</div>
+    </div>
 
     <div class="sixteen columns"><hr /></div>
 
-	<div class="one-third column" style="float: right">
+    <div class="one-third column" style="float: right">
       <h3 class="offset-by-one">Documentation</h3></div>
 
-	<div class="two-thirds column">
-      <a name="docs"></a>
-	  <p>The <a href="https://github.com/technomancy/leiningen/blob/stable/doc/TUTORIAL.md">tutorial</a>
+    <div class="two-thirds column" id="docs">
+      <p>The <a href="/tutorial.html">tutorial</a>
         is the best place to start. If you have Leiningen installed,
         you can read the tutorial by running <kbd>lein help
         tutorial</kbd>. It does not cover learning the
         language itself;
-        good <a href="http://clojure-doc.org">Clojure
+        good <a href="https://clojure-doc.org">Clojure
         documentation</a> can be found elsewhere.</p>
 
 
       <p>Running <kbd>lein help faq</kbd> will get you the
-        <a href="https://github.com/technomancy/leiningen/blob/stable/doc/FAQ.md">FAQ</a>.
+        <a href="/faq.html">FAQ</a>.
         Documentation for each individual task is available
         via <kbd>lein help $TASK</kbd>. You can also
-        see <a href="https://github.com/technomancy/leiningen/blob/stable/sample.project.clj">the
-        sample <tt>project.clj</tt> file</a> containing a reference of most
+        see <a href="https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj">the
+        sample <kbd>project.clj</kbd> file</a> containing a reference of most
         project settings by running <kbd>lein help sample</kbd>.</p>
 
       <p>More:
-        <a href="https://github.com/technomancy/leiningen/blob/stable/doc/PROFILES.md">profiles</a> |
-        <a href="https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md">deploying libraries</a> |
-        <a href="https://github.com/technomancy/leiningen/blob/stable/doc/PLUGINS.md">writing plugins</a> |
-        <a href="https://github.com/technomancy/leiningen/wiki/Plugins">plugin list</a>
+        <a href="/profiles.html">profiles</a> |
+        <a href="/deploy.html">deploying libraries</a> |
+        <a href="/plugins.html">writing plugins</a> |
+        <a href="https://wiki.leiningen.org/Plugins">plugin list</a>
       </p>
-	</div>
+    </div>
 
     <div class="sixteen columns"><hr /></div>
 
-	<div class="one-third column"><h3 class="offset-by-one">Community</h3></div>
-	<div class="two-thirds column">
-      <a name="community"></a>
+    <div class="one-third column"><h3 class="offset-by-one">Community</h3></div>
+    <div class="two-thirds column" id="community">
       <p>At the time of this writing Leiningen is the most
         widely-contributed-to Clojure project. We welcome potential
         contributors and do our best to make it easy to help out.</p>
 
       <p>Discussion occurs primarily <a href="irc://irc.libera.chat#leiningen">in
-          the <tt>#leiningen</tt> channel on Libera.Chat</a>.</p>
+          the <kbd>#leiningen</kbd> channel</a>
+        on <a href="https://libera.chat">Libera.Chat</a>.</p>
 
       <p>Issues should
-        be <a href="https://github.com/technomancy/leiningen/issues">reported
-        on the GitHub issue tracker</a>.</p>
-	</div>
+        be <a href="https://codeberg.org/leiningen/leiningen/issues">reported
+        on the issue tracker</a>.</p>
+
+      <p>The <a href="https://codeberg.org/leiningen/leiningen/issues">canonical
+          repository is on Codeberg</a> but a mirror will be left up
+        <a href="https://github.com/technomancy/leiningen">on
+        Github</a> for a while for people who have not yet created a
+        Codeberg account.</p>
+    </div>
 
     <div class="sixteen columns"><hr /></div>
 
     <div class="sixteen columns" id="footer">
-        <p>&copy; 2012-2021 Phil Hagelberg
-        and <a href="https://github.com/technomancy/leiningen/contributors">contributors</a>.
-        Licensed under
-        the <a href="https://github.com/technomancy/leiningen/blob/stable/COPYING">EPL
+        <p>&copy; 2012-2024 Phil Hagelberg
+        and contributors. Licensed under
+        the <a href="https://codeberg.org/leiningen/leiningen/src/stable/COPYING">EPL
         1.0</a>. See the code
-        for <a href="https://github.com/technomancy/leiningen/tree/master/web">this
+        for <a href="https://codeberg.org/leiningen/leiningen/src/main/web">this
         site</a>.</p>
     </div>
-	</div><!-- container -->
+    </div><!-- container -->
 
-<!-- End Document
-================================================== -->
 </body>
 </html>

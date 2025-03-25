@@ -378,15 +378,15 @@ These get replaced with the corresponding values from the project map."
 
 ;; packagers should replace this string!
 (def ^:private min-version-warning
-  "*** Warning: This project requires Leiningen %s, but you have %s ***
+  ";; *** Warning: This project requires Leiningen %s, but you have %s ***
 
-Get the latest version of Leiningen at https://leiningen.org or by executing
-\"lein upgrade\".")
+;; Get the latest version of Leiningen from your package manager or by executing
+;; \"lein upgrade\".")
 
 (defn- verify-min-version
   [{:keys [min-lein-version]}]
   (when-not (version-satisfies? (leiningen-version) min-lein-version)
-    (info (format min-version-warning min-lein-version (leiningen-version)))))
+    (warn (format min-version-warning min-lein-version (leiningen-version)))))
 
 (defn user-agent []
   (format "Leiningen/%s (Java %s; %s %s; %s)"
@@ -418,35 +418,32 @@ Get the latest version of Leiningen at https://leiningen.org or by executing
                      :test-paths ^:replace []})
       (project/init-project)))
 
-(defn- insecure-http-abort [& _]
-  (let [repo (promise)]
-    (reify org.apache.maven.wagon.Wagon
-      (getRepository [this])
-      (setTimeout [this _])
-      (setInteractive [this _])
-      (addTransferListener [this _])
-      (^void connect [this
-                      ^org.apache.maven.wagon.repository.Repository the-repo
-                      ^org.apache.maven.wagon.authentication.AuthenticationInfo _
-                      ^org.apache.maven.wagon.proxy.ProxyInfoProvider _]
-       (deliver repo the-repo) nil)
-      (get [this resource _]
-        (abort "Tried to use insecure HTTP repository without TLS:\n"
-               (str (.getId @repo) ": " (.getUrl @repo) "\n " resource) "\n"
-               "\nThis is almost certainly a mistake; for details see"
-               "\nhttps://github.com/technomancy/leiningen/blob/master/doc/FAQ.md")))))
+(defn- init-dynamic []
+  (project/ensure-dynamic-classloader)
+  (user/init))
+
+(defn- init-static []
+  (require 'leiningen.static-classpath)
+  (let [no-load (fn [& _] (throw (Exception. "static-classpath can't load")))]
+    (alter-var-root #'*read-eval* (constantly false))
+    (alter-var-root #'eval (constantly no-load))
+    (alter-var-root #'load-file (constantly no-load))))
 
 (defn -main
   "Command-line entry point."
   [& raw-args]
   (try
-    (project/ensure-dynamic-classloader)
-    (aether/register-wagon-factory! "http" insecure-http-abort)
-    (user/init)
+    ;; it would be tidier if this could be kept as metadata on the task var
+    ;; itself, but it's needed before we resolve the task, so we must hard-code
+    (if (= "static-classpath" (first raw-args))
+      (init-static)
+      (init-dynamic))
     (binding [project/*memoize-middleware* true]
-      (let [project (if (.exists (io/file *cwd* "project.clj"))
-                      (project/read (str (io/file *cwd* "project.clj")))
-                      (default-project))]
+      (let [project (cond (= "static-classpath" (first raw-args))
+                          {:root *cwd*}
+                          (.exists (io/file *cwd* "project.clj"))
+                          (project/read (str (io/file *cwd* "project.clj")))
+                          :else (default-project))]
         (when (:exact-lein-version project) (verify-exact-version project))
         (when (:min-lein-version project) (verify-min-version project))
         (configure-http)

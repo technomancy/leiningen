@@ -82,12 +82,12 @@
   (test lein-test-reload-bug-project))
 
 (deftest test-failure-exit-code
-  (let [exit (promise)]
-    ;; suppress output; there's a lot of bad-looking stuff here
-    (with-out-str
-      ;; but get the exit code
-      (deliver exit (test lein-test-exit-code-project)))
-    (is (= 1 @exit))))
+  (is (= 1 (try
+             ;; suppress output; there's a lot of bad-looking stuff here
+             (with-out-str
+               (test lein-test-exit-code-project))
+             (catch clojure.lang.ExceptionInfo e
+               (:exit-code (ex-data e)))))))
 
 (deftest test-invalid-namespace-argument
   (is (.contains

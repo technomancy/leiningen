@@ -1,11 +1,18 @@
 (ns leiningen.test.repl
-  (:require [clojure.test :refer :all]
+  (:require [clojure.java.io :as io]
+            [clojure.test :refer :all]
             [leiningen.repl :refer :all]
             [leiningen.test.helper :as helper]
             [leiningen.core.user :as user]
             [leiningen.core.project :as project]
             [leiningen.core.main :as main]
-            [nrepl.ack :as ack]))
+            [leiningen.core.utils :as utils]
+            [nrepl.ack :as ack]
+            [nrepl.core :as nrepl]
+            [nrepl.config])
+  (:import
+   (java.io File)
+   (java.nio.file Files)))
 
 (deftest test-merge-repl-profile
   (is (= (-> {:repl-options {:ack-port 4}}
@@ -48,25 +55,100 @@
          nil prj 4
          nil nil nil)))
 
-(deftest test-repl-port
-  (let [env "3"
-        prj {:repl-options {:port 2}}]
-    (are [env proj exp]
-         (= exp (with-redefs [user/getenv {"LEIN_REPL_PORT" env}]
-                  (repl-port proj)))
-         env prj 3
-         nil prj 2
-         nil nil 0)))
+(deftest test-configured-repl-connection
+  (let [vhost "LEIN_REPL_HOST"
+        vport "LEIN_REPL_PORT"
+        vsock "LEIN_REPL_SOCKET"]
+    (are [context exp]
+        (= exp (let [[opts env proj nrepl] context]
+                 (with-redefs [nrepl.config/config (or nrepl {})
+                               user/getenv (or env {})]
+                   (configured-repl-connection proj opts))))
 
-(deftest test-repl-host
-  (let [env "env-host"
-        prj {:repl-options {:host "proj-host"}}]
-    (are [env proj exp]
-         (= exp (with-redefs [user/getenv {"LEIN_REPL_HOST" env}]
-                  (repl-host proj)))
-         env prj "env-host"
-         nil prj "proj-host"
-         nil nil "127.0.0.1")))
+        [nil nil nil nil]
+        {:host "127.0.0.1" :port 0}
+
+        ;; port precedence
+        [[":port" "1"] {vport "2"} {:repl-options {:port 3}} {:port 4}]
+        {:host "127.0.0.1" :port 1}
+        [nil {vport "2"} {:repl-options {:port 3}} {:port 4}]
+        {:host "127.0.0.1" :port 2}
+        [nil nil {:repl-options {:port 3}} {:port 4}]
+        {:host "127.0.0.1" :port 3}
+        [nil nil nil {:port 4}]
+        {:host "127.0.0.1" :port 4}
+
+        ;; host precedence
+        [[":host" "opt"] {vhost "env"} {:repl-options {:host "proj"}} {:host "nrepl"}]
+        {:host "opt" :port 0}
+        [nil {vhost "env"} {:repl-options {:host "proj"}} {:host "nrepl"}]
+        {:host "env" :port 0}
+        [nil nil {:repl-options {:host "proj"}} {:host "nrepl"}]
+        {:host "proj" :port 0}
+        [nil nil nil {:host "nrepl"}]
+        {:host "nrepl" :port 0}
+        [nil nil nil {:bind "nrepl"}]
+        {:host "nrepl" :port 0}
+        ;; REVIEW: appropriate to allow duplicates?
+        [nil nil nil {:host "host" :bind "bind"}]
+        {:host "host" :port 0}
+
+        ;; socket precedence
+        [[":socket" "opt"] {vsock "env"} {:repl-options {:socket "proj"}} {:socket "nrepl"}]
+        {:socket "opt"}
+        [nil {vsock "env"} {:repl-options {:socket "proj"}} {:socket "nrepl"}]
+        {:socket "env"}
+        [nil nil {:repl-options {:socket "proj"}} {:socket "nrepl"}]
+        {:socket "proj"}
+        [nil nil nil {:socket "nrepl"}]
+        {:socket "nrepl"})))
+
+(defmacro with-captured-abort [& body]
+  `(let [args# (atom nil)]
+     (with-redefs [main/abort #(reset! args# %&)]
+       (do ~@body)
+       (let [result# @args#]
+         (when-not (seq result#)
+           (throw (ex-info "Expected abort, none found" {})))
+         @args#))))
+
+(deftest test-configured-repl-connection-errors
+  (testing "conflicting arguments"
+    (is (= [":socket argument conflicts with :host and :port"]
+           (with-captured-abort
+             (configured-repl-connection nil [":socket" "foo" ":host" "bar"]))))
+    (is (= [":socket argument conflicts with :host and :port"]
+           (with-captured-abort
+             (configured-repl-connection nil [":socket" "foo" ":port" "bar"])))))
+  (testing "conflicting environment vars"
+    (is (= ["LEIN_REPL_HOST conflicts with LEIN_REPL_HOST and LEIN_REPL_PORT"]
+           (with-captured-abort
+             (with-redefs [user/getenv {"LEIN_REPL_SOCKET" "foo" "LEIN_REPL_HOST" "bar"}]
+               (configured-repl-connection nil nil)))))
+    (is (= ["LEIN_REPL_HOST conflicts with LEIN_REPL_HOST and LEIN_REPL_PORT"]
+           (with-captured-abort
+             (with-redefs [user/getenv {"LEIN_REPL_SOCKET" "foo" "LEIN_REPL_PORT" "1"}]
+               (configured-repl-connection nil nil))))))
+  (testing "conflicting project settings"
+    (is (= ["project :repl-options :socket conflicts with :host and :port"]
+           (with-captured-abort
+             (configured-repl-connection {:repl-options {:socket "foo" :host "bar"}} nil))))
+    (is (= ["project :repl-options :socket conflicts with :host and :port"]
+           (with-captured-abort
+             (configured-repl-connection {:repl-options {:socket "foo" :port "bar"}} nil)))))
+  (testing "conflicticting nrepl settings"
+    (is (= ["nREPL config :socket conflicts with :bind, :host, and :port"]
+           (with-captured-abort
+             (with-redefs [nrepl.config/config {:socket "foo" :bind "bar"}]
+               (configured-repl-connection nil nil)))))
+    (is (= ["nREPL config :socket conflicts with :bind, :host, and :port"]
+           (with-captured-abort
+             (with-redefs [nrepl.config/config {:socket "foo" :host "bar"}]
+               (configured-repl-connection nil nil)))))
+    (is (= ["nREPL config :socket conflicts with :bind, :host, and :port"]
+           (with-captured-abort
+             (with-redefs [nrepl.config/config {:socket "foo" :port "bar"}]
+               (configured-repl-connection nil nil)))))))
 
 (deftest test-is-uri
   (is (= true  (is-uri? "http://example.org")))
@@ -81,8 +163,8 @@
 
 (deftest test-connect-string
   (are [in exp]
-       (= exp (with-redefs [repl-host (constantly "repl-host")
-                            repl-port (constantly 5)]
+      (= exp (with-redefs [configured-repl-connection (constantly {:host "repl-host"
+                                                                   :port 5})]
                 (connect-string {} [in])))
        ""                         "repl-host:5"
        "7"                        "repl-host:7"
@@ -95,8 +177,8 @@
        "https://localhost/ham"    "https://localhost/ham"
        "https://localhost:20"     "https://localhost:20"
        "https://localhost:20/ham" "https://localhost:20/ham")
-  (with-redefs [repl-host (constantly "repl-host")
-                repl-port (constantly 0)]
+  (with-redefs [configured-repl-connection (constantly {:host "repl-host"
+                                                        :port 0})]
     (is (= "repl-host:1" (connect-string {} ["1"])))
     (is (= "repl-host:123" (connect-string {} ["123"])))
     (are [in proj]
@@ -173,3 +255,21 @@
            (-> (mocked-repl project ":start"
                             ":transport" 'nrepl.transport/edn)
                (select-keys [:attach :scheme]))))))
+
+(deftest ^:disabled test-headless-socket
+  (let [tmpdir (utils/create-tmpdir (-> "target" File. .getAbsoluteFile)
+                                    "socket-test-" "rwx------")
+        sock-path (str tmpdir "/socket")
+        sock-file (io/as-file sock-path)]
+    (try
+      (let [server (future (repl helper/sample-ordered-aot-project
+                                 ":headless" ":socket" sock-path))]
+        (while (not (.exists sock-file))
+          (Thread/sleep 100))
+        (is (= [42] (with-open [conn (nrepl/connect :socket sock-path)]
+                      (-> (nrepl/client conn 3000)
+                          (nrepl/message {:op "eval" :code "(+ 21 21)"})
+                          nrepl/response-values)))))
+      (finally
+        (.delete sock-file)
+        (Files/delete tmpdir)))))

@@ -28,6 +28,10 @@ a:hover, a:focus {
  color: black;
 }
 
+a.anchor {
+  text-decoration: none;
+  border-bottom: unset;
+}
 
 p {
     text-align: justify;
@@ -40,7 +44,7 @@ p#pitch {
 }
 
 pre, tt, kbd, code {
-    font-family: 'Inconsolata', 'Consolas', mono;
+  font-family: 'Inconsolata', 'Consolas', monospace;
 }
 
 #sample-project {

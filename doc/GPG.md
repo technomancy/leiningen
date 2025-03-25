@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+**Table of Contents**
 
 - [Using GPG](#using-gpg)
   - [What is it?](#what-is-it)
@@ -183,7 +183,7 @@ Leiningen uses GPG for three things: decrypting credential files,
 signing release artifacts, and signing tags. We'll focus on artifact
 signing here; for information on credentials encryption/decryption,
 see the
-[deploy guide](https://github.com/technomancy/leiningen/blob/stable/doc/DEPLOY.md). Once
+[deploy guide](https://codeberg.org/leiningen/leiningen/src/stable/doc/DEPLOY.md). Once
 you are configured to sign releases, signing tags should be
 straightforward.
 

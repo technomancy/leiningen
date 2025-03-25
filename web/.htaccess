@@ -7,3 +7,7 @@ RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R=301,L]
 
 Header set Strict-Transport-Security "max-age=31536000" env=HTTPS
 Header always set Permissions-Policy: interest-cohort=()
+
+ErrorDocument 404 /404.html
+AddDefaultCharset UTF-8
+FileETag MTime Size

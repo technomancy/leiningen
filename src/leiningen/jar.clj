@@ -237,15 +237,14 @@
               "\nIf you only need AOT for your uberjar, consider adding"
               ":aot :all into your\n:uberjar profile instead.")))
 
-(defn warn-implicit-aot [orig-project]
-  (let [project (project/merge-profiles orig-project [:uberjar])]
-    (when (and (:main project) (not (:skip-aot (meta (:main project))))
-               (not= :all (:aot project))
-               (not= [:all] (:aot project))
-               (not (some #{(:main project)} (:aot project)))
-               (not (some #(re-matches % (str (:main project)))
-                          (filter compile/regex? (:aot project)))))
-      (force implicit-aot-warning))))
+(defn warn-implicit-aot [project]
+  (when (and (:main project) (not (:skip-aot (meta (:main project))))
+             (not= :all (:aot project))
+             (not= [:all] (:aot project))
+             (not (some #{(:main project)} (:aot project)))
+             (not (some #(re-matches % (str (:main project)))
+                        (filter compile/regex? (:aot project)))))
+    (force implicit-aot-warning)))
 
 ;; TODO: remove for 3.0
 (defn- add-main [project given-main]
@@ -268,7 +267,10 @@
   [project main f & args]
   (-> (apply f project args)
       (project/retain-whitelisted-keys project)
-      (add-main main)))
+      (add-main main)
+      ;; Ensure test paths can't affect jar compilation
+      ;; https://github.com/technomancy/leiningen/issues/2808
+      (assoc :test-paths [])))
 
 (defn- preprocess-project [project & [main]]
   (process-project project main project/unmerge-profiles
@@ -305,7 +307,7 @@ keyword, it's looked up in :profiles before being merged."
   [{:keys [target-path] :as project} provided-profiles classifier spec]
   (when (:dependencies spec)
     (main/warn
-     "WARNING: Classifier specifies :dependencies which will be ignored."))
+     ";; WARNING: Classifier specifies :dependencies which will be ignored."))
   (let [profiles (concat provided-profiles [::target ::classifier])
         target-profile {:target-path
                         (.getPath (io/file target-path (name classifier)))}
@@ -342,7 +344,8 @@ With an argument, the jar will be built with an alternate main."
              default-profiles (set (project/expand-profile project :default))
              provided-profiles (remove
                                 (set/difference default-profiles scoped-profiles)
-                                (-> project meta :included-profiles))
+                                (->> project meta :included-profiles
+                                     (project/expand-profiles project)))
              project (preprocess-project project main)]
          (merge (main-jar project provided-profiles main)
                 (classifier-jars project provided-profiles)))))

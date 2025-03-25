@@ -2,7 +2,6 @@
   (:require [clojure.test :refer :all]
             [leiningen.core.eval :refer :all]
             [clojure.java.io :as io]
-            [clojure.set :as set]
             [leiningen.core.classpath :as classpath]
             [leiningen.test.helper :as lthelper]
             [leiningen.core.project :as project])
@@ -95,3 +94,13 @@
 (deftest test-sh-with-exit-code-failed-command
   (with-redefs [sh (constantly 1)]
     (is (thrown-with-msg? Exception #"Should see me. ls exit code: 1" (sh-with-exit-code "Should see me" "ls")))))
+
+(deftest preserve-eval-meta
+  (let [project (assoc project :eval-in :pprint)
+        form `(do (defn ~'str-bytes [^String s#] (.getBytes s#)))
+        tagged-arg #"\^java.lang.String s"]
+    (is (not (re-find tagged-arg (with-out-str
+                                   (eval-in-project project form)))))
+
+    (is (re-find tagged-arg (with-out-str
+                              (eval-in-project (assoc project :preserve-eval-meta true) form))))))
