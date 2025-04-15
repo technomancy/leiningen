@@ -47,3 +47,4 @@
                                   (juxt :online :disabled))}
   :source-paths ["leiningen-core/src" "src"]
   :eval-in :leiningen)
+    
