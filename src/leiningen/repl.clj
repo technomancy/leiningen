@@ -258,7 +258,8 @@
                          (str "- "
                               (transport/uri-scheme ~(or (:transport cfg) #'transport/bencode))
                               "://" ~(:host cfg) ":" port#)))
-              (spit (doto ^File repl-port-file# .deleteOnExit) port#)
+              (spit (doto ^File repl-port-file# io/make-parents .deleteOnExit)
+                    port#)
               (when legacy-repl-port#
                 (spit (doto ^File legacy-repl-port# .deleteOnExit) port#))))
           @(promise)))
