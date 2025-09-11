@@ -4,7 +4,7 @@
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :description "Library for core functionality of Leiningen."
   ;; If you update these, update resources/leiningen/bootclasspath-deps.clj too
-  :dependencies [[org.clojure/clojure "1.11.4"]
+  :dependencies [[org.clojure/clojure "1.12.2"]
                  [timofreiberg/bultitude "0.3.0"
                   :exclusions [org.clojure/clojure
                                org.tcrawley/dynapath]]
