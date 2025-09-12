@@ -1,2 +1,2 @@
-upload: index.cgi .htaccess 404.html
+upload: .htaccess
 	rsync -rAv $^ leiningen@wiki.leiningen.org:wiki.leiningen.org/
