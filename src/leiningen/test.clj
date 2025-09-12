@@ -15,7 +15,7 @@
 ;; outside the core team. At this point the monkeypatching code below
 ;; should be considered legacy, and rather than trying to improve it,
 ;; all efforts should be instead directed towards improving external
-;; libraries such as https://github.com/circleci/circleci.test, which
+;; libraries such as https://github.com/lambdaisland/kaocha, which
 ;; has a superset of these features and also doesn't require you to
 ;; stop using clojure.test to write your tests.
 
@@ -225,6 +225,9 @@ specified test. A default :all test-selector is available to run all tests.
 If :eval-in :nrepl is specified in the project, test namespaces may reload
 out-of-order. However, all test namespaces will be (re)loaded at least
 once (in *some* order).
+
+If you are looking for more control over your tests, consider 3rd-party
+runners like Kaocha.
 
 This task uses the following exit codes:
 - 0 if all tests pass successfully
