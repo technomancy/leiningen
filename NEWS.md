@@ -1,12 +1,15 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.11.3 / ???
+## 2.12.0 / 2025-09-12
+
+This will be the last release of Leiningen that is still mirrored on
+Github; future releases will be Codeberg-only.
 
 * Use `:managed-dependencies` instead of `:exclusions` for version ranges. (Phil Hagelberg)
 * Add `:plugin-tree-data` subcommand to deps task. (Gabriel Giussi)
 * Fix a bug in `:active-profiles` in middleware plugins. (Rob Browning)
 * Update to nREPL 1.3.0 (oyakushev)
-* Update to Clojure 1.11.4 (Justin Polchlopek)
+* Update Clojure version (Justin Polchlopek)
 
 ## 2.11.2 / 2024-02-13
 
