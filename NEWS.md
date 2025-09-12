@@ -1,5 +1,9 @@
 # Leiningen News -- history of user-visible changes
 
+## 2.12.1 / ???
+
+* ???
+
 ## 2.12.0 / 2025-09-12
 
 This will be the last release of Leiningen that is still mirrored on
