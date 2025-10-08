@@ -16,7 +16,7 @@
            (javax.xml.parsers SAXParser)
            (org.xml.sax.helpers DefaultHandler)
            (org.apache.commons.io.output CloseShieldOutputStream)
-           (org.apache.commons.lang StringEscapeUtils)))
+           (org.apache.commons.lang3 StringEscapeUtils)))
 
 (defn- check-for-snapshot-deps [project]
   (->> (project/non-leaky-profiles project)
