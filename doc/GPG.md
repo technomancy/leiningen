@@ -33,14 +33,6 @@ This is an introduction to setting up and using
 [Leiningen](https://leiningen.org) to sign artifacts for publication to
 [Clojars](https://clojars.org/) and to encrypt repository credentials.
 
-There are two versions of GPG available: v1.x and v2.x. For our
-purposes, they are functionally equivalent. Package managers generally
-install v2.x as `gpg2`, and v1.x as `gpg`, except for Homebrew which
-installs v2.x as `gpg`, and v1.x as `gpg1`. By default, Leiningen
-expects the GPG command to be `gpg`. You're welcome to use any version
-you like, but this primer will only cover installing v1.x (except under
-macOS), and has only been tested under v1.x.
-
 ## What is it?
 
 [GPG](https://www.gnupg.org/) (or Gnu Privacy Guard) is a set of tools
@@ -64,34 +56,24 @@ and passphrase closely, and share them with no one.**
 
 ### Linux
 
-##### Debian based distributions
+It's usually already installed on linux systems, but if not you can
+use `apt install gnupg` or `yum install gnupg` or whatever package
+manager you distribution uses.
 
-Apt uses GPG v1, so it should already be installed. If not:
-
-    apt-get install gnupg
-    
-#### Fedora based distributions
-
-Fedora and friends may have GPG v2 installed by default, but GPG v1 is
-available via:
-    
-    yum install gnupg
-    
 ### Mac
 
 There are several options here, depending on which package manager you
 have installed (if any):
 
-1. via [homebrew](https://brew.sh/): `brew install gnupg2`
-2. via [macports](https://www.macports.org/): `port install gnupg2`
+1. via [homebrew](https://brew.sh/): `brew install gnupg`
+2. via [macports](https://www.macports.org/): `port install gnupg`
 3. via a [binary installer](https://www.gpgtools.org/installer/index.html) 
-   (this installs gpg2 as gpg)
 
 ### Windows
 
 [GPG4Win](https://gpg4win.org/) provides a binary installer that
 provides some possibly useful GUI tools in addition to providing the
-`gpg` command.
+`gpg` command, but it might be simpler to use WSL.
 
 ## Creating a keypair
 
@@ -128,9 +110,9 @@ for other commands described here):
     $ gpg --list-keys
 
                 ↓↓↓↓↓↓↓↓
-    pub   2048R/2ADFB13E 2013-03-16 [expires: 2014-03-16]
+    pub   2048R/2ADFB13E 2025-03-16 [expires: 2028-03-16]
     uid                  Bob Bobson <bob@bobsons.net>
-    sub   2048R/8D2344D0 2013-03-16 [expires: 2014-03-16]
+    sub   2048R/8D2344D0 2025-03-16 [expires: 2028-03-16]
 
 The `--fingerprint` option will act just like `--list-keys`, but will
 include the fingerprint of each certificate in the output. You can
@@ -140,10 +122,10 @@ or any substring from the uid (this trick also works for the
 
     $ gpg --fingerprint 2ADFB13E
 
-    pub   2048R/2ADFB13E 2013-03-16 [expires: 2014-03-16]
+    pub   2048R/2ADFB13E 2025-03-16 [expires: 2028-03-16]
           Key fingerprint = 3367 5FD0 D67B 3218 5815  51A3 97D4 06D0 2ADF B13E
     uid                  Bob Bobson <bob@bobsons.net>
-    sub   2048R/8D2344D0 2013-03-16 [expires: 2014-03-16]
+    sub   2048R/8D2344D0 2025-03-16 [expires: 2028-03-16]
 
 ## Publishing your public key
 
@@ -260,8 +242,7 @@ repository specification in your project definition:
 	gpg: can't query passphrase in batch mode
 	gpg: decryption failed: secret key not available
 
-
-This error happens with gpg 1.4.12. Make sure that you have `use-agent` option explicitly enabled in `~/.gnupg/gpg.conf`. See gpg option list.
+Make sure that you have `use-agent` option explicitly enabled in `~/.gnupg/gpg.conf`. See gpg option list.
 
 You can test whether this solution works with
 
@@ -323,6 +304,6 @@ It's hanging for a while after executing lein repl and then prints out these mes
     gpg: problem with the agent: Invalid IPC response
     gpg: decryption failed: No secret key
     
-Leiningen can't present enter-passphrase page of gpg. It's an issue with Leiningen or gpg2 or gpg-agent or pinentry.
+Leiningen can't present enter-passphrase page of gpg. It's an issue with Leiningen or gpg or gpg-agent or pinentry.
 
 Use the GUI version of gpg, GPG Suite. Now when executing 'lein repl', it prompts for passphrase on the GUI instead.

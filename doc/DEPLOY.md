@@ -132,7 +132,7 @@ their wagons in ways that can be inferred automatically.
 Deploying and reading from private repositories needs authentication
 credentials. Check your repository's documentation for details, but
 you'll usually need to provide a `:username` and `:password` (for a repository)
-or `:passphrase` (for GPG). Leiningen will prompt you for a password if you
+or `:passphrase`. Leiningen will prompt you for a password if you
 haven't set up credentials, but it's convenient to set it so you don't have to
 re-enter it every time you want to deploy. You will need
 [gpg](https://www.gnupg.org/) installed and a key pair configured.  If
