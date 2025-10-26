@@ -1,11 +1,8 @@
 # Hello Github User!
 
-The Leiningen project is in the process of [moving off
-Github](https://sfconservancy.org/GiveUpGitHub/).
+The Leiningen project has [moved off Github](https://sfconservancy.org/GiveUpGitHub/).
 
-This repository will continue to be sporadically updated as a mirror
-for a while as we work to complete the move, but please switch your
-git remotes over to https://codeberg.org/leiningen/leiningen
+Please switch your git remotes over to https://codeberg.org/leiningen/leiningen
 
 Codeberg works just like Github, and you can even use your Github
 account to log in there, but it is operated like a user-owned
