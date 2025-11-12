@@ -37,10 +37,9 @@
 (defn- html-escape-editor
   "Escape <,>,& from content"
   [node]
-  (let [content (get (:content node) 0)]
-    (if-not (nil? content)
-      (assoc-in node [:content 0] (StringEscapeUtils/escapeXml content))
-      node)))
+  (if (get (:content node) 0)
+    (update-in node [:content 0] StringEscapeUtils/escapeXml)
+    node))
 
 ;; replace clojure.xml version with one that doesn't do illegal access
 (defn- startparse [^InputStream ins ^DefaultHandler ch]

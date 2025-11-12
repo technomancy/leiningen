@@ -39,7 +39,7 @@
  net.java.dev.jna/jna "4.1.0",
  net.java.dev.jna/jna-platform "4.1.0",
  nrepl "1.3.0",
- org.apache.commons/commons-lang3 "3.12.0",
+ org.apache.commons/commons-lang3 "3.17.0",
  org.apache.httpcomponents/httpclient "4.5.14",
  org.apache.httpcomponents/httpcore "4.4.16",
  org.apache.maven.resolver/maven-resolver-api "1.9.4",
