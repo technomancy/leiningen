@@ -16,8 +16,6 @@
                                org.tcrawley/dynapath]]
                  ;; needed for new
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
-                 ;; needed for uberjar
-                 [commons-lang "2.6"]
                  ;; needed for repl
                  [nrepl "1.3.0"]
                  ;; needed for change

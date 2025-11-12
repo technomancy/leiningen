@@ -33,7 +33,6 @@
  com.jcraft/jsch.agentproxy.usocket-nc "0.0.9",
  commons-codec "1.15",
  commons-io "2.8.0",
- commons-lang "2.6",
  javax.inject "1",
  net.cgrand/parsley "0.9.3",
  net.cgrand/regex "1.1.0",
