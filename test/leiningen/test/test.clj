@@ -5,6 +5,7 @@
             [leiningen.test.helper :refer [tmp-dir sample-no-aot-project
                                            lein-test-exit-code-project
                                            lein-test-reload-bug-project
+                                           lein-test-bail-project
                                            sample-reader-cond-project
                                            sample-failing-project
                                            sample-fixture-error-project
@@ -118,3 +119,37 @@
   (with-system-out-str
     (test sample-fixture-error-project))
   (is (= (ran?) #{:test-a :test-c})))
+
+(deftest test-bail-stops-after-first-failure
+  (try
+    (with-out-str
+      (test lein-test-bail-project "--bail"))
+    (catch clojure.lang.ExceptionInfo _))
+  (is (= (ran?) #{:ns-a})))
+
+(deftest test-bail-with-threshold
+  (try
+    (with-out-str
+      (test lein-test-bail-project "--bail" "2"))
+    (catch clojure.lang.ExceptionInfo _))
+  (is (= (ran?) #{:ns-a :ns-b})))
+
+(deftest test-without-bail-runs-all
+  (try
+    (with-out-str
+      (test lein-test-bail-project))
+    (catch clojure.lang.ExceptionInfo _))
+  (is (= (ran?) #{:ns-a :ns-b :ns-c})))
+
+(deftest test-parse-bail
+  (let [parse-bail (find-var 'leiningen.test/parse-bail)]
+    (is (= [["my.ns" ":integration"] 1]
+           (parse-bail ["my.ns" "--bail" ":integration"])))
+    (is (= [["my.ns"] 3]
+           (parse-bail ["my.ns" "--bail" "3"])))
+    (is (= [["my.ns" "other.ns"] nil]
+           (parse-bail ["my.ns" "other.ns"])))
+    (is (= [[] 1]
+           (parse-bail ["--bail"])))
+    (is (= [[] 5]
+           (parse-bail ["--bail" "5"])))))

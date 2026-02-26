@@ -50,6 +50,26 @@
             (finally
               (copy# :leiningen/skipped-test :test))))))
 
+(def ^:private form-for-bail-run-tests
+  `(fn [nses# bail-n#]
+     (loop [remaining# (seq nses#)
+            results# clojure.test/*initial-report-counters*]
+       (if-let [ns# (first remaining#)]
+         (let [ns-results# (clojure.test/test-ns ns#)
+               merged# (merge-with + results# ns-results#)
+               total-failures# (+ (:fail merged# 0) (:error merged# 0))]
+           (if (>= total-failures# bail-n#)
+             (do
+               (println (str "\nlein test: bailing out after "
+                             total-failures# " failure(s)."))
+               (let [s# (assoc merged# :type :summary)]
+                 (clojure.test/do-report s#)
+                 s#))
+             (recur (next remaining#) merged#)))
+         (let [s# (assoc results# :type :summary)]
+           (clojure.test/do-report s#)
+           s#)))))
+
 (defn- form-for-select-namespaces [namespaces selectors]
   `(reduce (fn [acc# [f# args#]]
              (if (vector? f#)
@@ -83,63 +103,67 @@
   Options:
   - :reloading-require  if true, use :reload option for clojure.core/require calls"
   ([namespaces opt & [selectors]]
-     (let [ns-sym (gensym "namespaces")]
-       `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
-          (when (seq ~ns-sym)
-            (apply require
-                   ~@(if (:reloading-require opt)
-                       [:reload])
-                   ~ns-sym))
-          (let [failures# (atom {})
-                selected-namespaces# ~(form-for-nses-selectors-match selectors ns-sym)
-                _# (when ~*monkeypatch?*
-                     (leiningen.core.injected/add-hook
-                      #'clojure.test/test-ns
-                      (fn [test-ns# ns#]
-                        (try
-                          (test-ns# ns#)
-                          (catch Throwable t#
-                            (binding [clojure.test/*report-counters*
-                                      (ref clojure.test/*initial-report-counters*)
-                                      clojure.test/*testing-vars*
-                                      (list (with-meta 'test
-                                              {:name ns#
-                                               :ns ns#}))]
-                              (clojure.test/do-report {:type :error
-                                                       :message "Uncaught exception in test fixture"
-                                                       :expected nil
-                                                       :actual t#})
-                              (clojure.test/do-report {:type :end-test-ns
-                                                       :ns (the-ns ns#)})
-                              @clojure.test/*report-counters*)))))
-                     (leiningen.core.injected/add-hook
-                      #'clojure.test/report
-                      (fn [report# m# & args#]
-                        (when (#{:error :fail} (:type m#))
-                          (when-let [first-var# (-> clojure.test/*testing-vars* first meta)]
-                            (let [ns-name# (-> first-var# :ns ns-name name)
-                                  test-name# (-> first-var# :name name)]
-                              (swap! failures# update-in [ns-name#] (fnil conj []) test-name#)
-                              (newline)
-                              (println "lein test :only" (str ns-name# "/" test-name#)))))
-                        (if (= :begin-test-ns (:type m#))
-                          (clojure.test/with-test-out
+   (let [ns-sym (gensym "namespaces")
+         sel-nses (gensym "selected-namespaces")
+         bail (:bail opt)]
+     `(let [~ns-sym ~(form-for-select-namespaces namespaces selectors)]
+        (when (seq ~ns-sym)
+          (apply require
+                 ~@(if (:reloading-require opt)
+                     [:reload])
+                 ~ns-sym))
+        (let [failures# (atom {})
+              ~sel-nses ~(form-for-nses-selectors-match selectors ns-sym)
+              _# (when ~*monkeypatch?*
+                   (leiningen.core.injected/add-hook
+                    #'clojure.test/test-ns
+                    (fn [test-ns# ns#]
+                      (try
+                        (test-ns# ns#)
+                        (catch Throwable t#
+                          (binding [clojure.test/*report-counters*
+                                    (ref clojure.test/*initial-report-counters*)
+                                    clojure.test/*testing-vars*
+                                    (list (with-meta 'test
+                                            {:name ns#
+                                             :ns ns#}))]
+                            (clojure.test/do-report {:type :error
+                                                     :message "Uncaught exception in test fixture"
+                                                     :expected nil
+                                                     :actual t#})
+                            (clojure.test/do-report {:type :end-test-ns
+                                                     :ns (the-ns ns#)})
+                            @clojure.test/*report-counters*)))))
+                   (leiningen.core.injected/add-hook
+                    #'clojure.test/report
+                    (fn [report# m# & args#]
+                      (when (#{:error :fail} (:type m#))
+                        (when-let [first-var# (-> clojure.test/*testing-vars* first meta)]
+                          (let [ns-name# (-> first-var# :ns ns-name name)
+                                test-name# (-> first-var# :name name)]
+                            (swap! failures# update-in [ns-name#] (fnil conj []) test-name#)
                             (newline)
-                            (println "lein test" (ns-name (:ns m#))))
-                          (apply report# m# args#)))))
-                summary# (binding [clojure.test/*test-out* *out*]
-                           (~form-for-suppressing-unselected-tests
-                            selected-namespaces# ~selectors
-                            #(apply ~'clojure.test/run-tests selected-namespaces#)))]
-            (spit ".lein-failures" (if ~*monkeypatch?*
-                                     (pr-str @failures#)
-                                     "#<disabled :monkeypatch-clojure-test>"))
-            (let [exit-code# (min 1
-                                  (+ (int (:error summary#))
-                                     (int (:fail summary#))))]
-              (if ~*exit-after-tests*
-                (System/exit exit-code#)
-                exit-code#)))))))
+                            (println "lein test :only" (str ns-name# "/" test-name#)))))
+                      (if (= :begin-test-ns (:type m#))
+                        (clojure.test/with-test-out
+                          (newline)
+                          (println "lein test" (ns-name (:ns m#))))
+                        (apply report# m# args#)))))
+              summary# (binding [clojure.test/*test-out* *out*]
+                         (~form-for-suppressing-unselected-tests
+                          ~sel-nses ~selectors
+                          ~(if bail
+                             `(fn [] (~form-for-bail-run-tests ~sel-nses ~bail))
+                             `(fn [] (apply ~'clojure.test/run-tests ~sel-nses)))))]
+          (spit ".lein-failures" (if ~*monkeypatch?*
+                                   (pr-str @failures#)
+                                   "#<disabled :monkeypatch-clojure-test>"))
+          (let [exit-code# (min 1
+                                (+ (int (:error summary#))
+                                   (int (:fail summary#))))]
+            (if ~*exit-after-tests*
+              (System/exit exit-code#)
+              exit-code#)))))))
 
 (defn- split-selectors [args]
   (let [[nses selectors] (split-with (complement keyword?) args)]
@@ -173,6 +197,19 @@
                  (= var (-> m ::var str))
                  (= % (ns-name (:ns m)))))
             vars))])
+
+(defn- parse-bail [args]
+  (loop [remaining [] [arg & rest-args] (seq args) bail nil]
+    (if (nil? arg)
+      [remaining bail]
+      (if (= "--bail" arg)
+        (if-let [n (when-let [s (first rest-args)]
+                     (when (re-matches #"\d+" s)
+                       (let [n (Integer/parseInt s)]
+                         (when (pos? n) n))))]
+          (recur remaining (next rest-args) n)
+          (recur remaining rest-args 1))
+        (recur (conj remaining arg) rest-args bail)))))
 
 (defn- convert-to-ns [possible-file]
   (if (and (re-matches #".*\.cljc?" possible-file) (.exists (io/file possible-file)))
@@ -233,28 +270,30 @@ This task uses the following exit codes:
 - 0 if all tests pass successfully
 - 1 otherwise"
   [project & tests]
-  (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
+  (let [[tests bail] (parse-bail tests)]
+    (binding [main/*exit-process?* (if (= :leiningen (:eval-in project))
+                                     false
+                                     main/*exit-process?*)
+              *exit-after-tests* (if (= :leiningen (:eval-in project))
                                    false
-                                   main/*exit-process?*)
-            *exit-after-tests* (if (= :leiningen (:eval-in project))
-                                 false
-                                 *exit-after-tests*)
-            *monkeypatch?* (:monkeypatch-clojure-test project true)]
-    (let [project (project/merge-profiles project [:leiningen/test :test])
-          [nses selectors] (read-args tests project)
-          _ (eval/prep project)
-          form (form-for-testing-namespaces
-                 nses
-                 {;; people running `lein test` with :eval-in :nrepl presumably
-                  ;; want the nrepl server to reevaluate code on each run.
-                  ;; while it's known to be buggy to use :reload, let's just
-                  ;; use it for now, because the alternative would be somewhat
-                  ;; underwhelming for users of :eval-in :nrepl (tests would
-                  ;; never reload).
-                  :reloading-require (= :nrepl (:eval-in project))}
-                 (vec selectors))]
-      (try (let [exit (eval/eval-in-project project form '(require 'clojure.test))]
-             (when (and (number? exit) (pos? exit))
-               (throw (ex-info "Tests Failed" {:exit-code exit}))))
-           (catch clojure.lang.ExceptionInfo e
-             (main/abort (.getMessage e)))))))
+                                   *exit-after-tests*)
+              *monkeypatch?* (:monkeypatch-clojure-test project true)]
+      (let [project (project/merge-profiles project [:leiningen/test :test])
+            [nses selectors] (read-args tests project)
+            _ (eval/prep project)
+            form (form-for-testing-namespaces
+                  nses
+                  {;; people running `lein test` with :eval-in :nrepl presumably
+                   ;; want the nrepl server to reevaluate code on each run.
+                   ;; while it's known to be buggy to use :reload, let's just
+                   ;; use it for now, because the alternative would be somewhat
+                   ;; underwhelming for users of :eval-in :nrepl (tests would
+                   ;; never reload).
+                   :reloading-require (= :nrepl (:eval-in project))
+                   :bail bail}
+                  (vec selectors))]
+        (try (let [exit (eval/eval-in-project project form '(require 'clojure.test))]
+               (when (and (number? exit) (pos? exit))
+                 (throw (ex-info "Tests Failed" {:exit-code exit}))))
+             (catch clojure.lang.ExceptionInfo e
+               (main/abort (.getMessage e))))))))

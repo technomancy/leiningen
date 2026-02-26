@@ -90,6 +90,8 @@
 
 (def lein-test-exit-code-project (read-test-project "lein-test-exit-code"))
 
+(def lein-test-bail-project (read-test-project "lein-test-bail"))
+
 (def leaky-composite-project (read-test-project "leaky-composite"))
 
 (def preserve-eval-meta-project (read-test-project "preserve-eval-meta"))
