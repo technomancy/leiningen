@@ -1,6 +1,6 @@
 # Hello Github User!
 
-The Leiningen project has [moved off Github](https://sfconservancy.org/GiveUpGitHub/).
+The Leiningen project has [moved the repository off Github](https://sfconservancy.org/GiveUpGitHub/).
 
 Please switch your git remotes over to https://codeberg.org/leiningen/leiningen
 
@@ -15,6 +15,11 @@ As usual, you can join the `#leiningen` IRC channel on
 Any use of this project's code by Github Copilot, past or present, is done
 without our permission. We do not consent to Github's use of this project's
 code in training Copilot or any other language model.
+
+**Packagers' note**: if you are a downstream maintainer whose scripts
+download the Leiningen uberjar, we will continue to host those on Github
+in order to reduce the load on Codeberg. However, the uberjars are the
+only thing that will continue to be updated here.
 
 ## For your consideration
 
