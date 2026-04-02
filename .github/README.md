@@ -13,8 +13,8 @@ As usual, you can join the `#leiningen` IRC channel on
 [Libera.Chat](https://libera.chat) to discuss issues.
 
 Any use of this project's code by Github Copilot, past or present, is done
-without our permission. We do not consent to Github's use of this project's
-code in training Copilot or any other language model.
+without our permission. We do not consent to use of this project's
+data in training Copilot or any other language model.
 
 **Packagers' note**: if you are a downstream maintainer whose scripts
 download the Leiningen uberjar, we will continue to host those on Github
