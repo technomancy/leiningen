@@ -17,26 +17,6 @@ Note: the canonical repository for Leiningen is [on
 Codeberg](https://codeberg.org/leiningen/leiningen). Please update your
 links and git remotes.
 
-## Installation
-
-If your preferred [package manager](https://wiki.leiningen.org/Packaging)
-offers a recent version of Leiningen, try that first.
-
-Leiningen installs itself on the first run of the `lein` shell script; there is no
-separate install script.  Follow these instructions to install Leiningen manually:
-
-1. Make sure you have Java installed; [OpenJDK](https://adoptium.net) is recommended
-2. [Download the `lein` script from the `stable` branch](https://codeberg.org/leiningen/leiningen/raw/branch/stable/bin/lein)
- of this project
-3. Place it on your `$PATH` (`/usr/local/bin` for example)
-4. Set it to be executable. (`sudo chmod +x /usr/local/bin/lein`)
-5. Run it.
-
-Windows users can use the above script in the Linux subsystem or try
-[the batch file](https://codeberg.org/leiningen/leiningen/raw/branch/stable/bin/lein.bat) or
-[PowerShell version](https://codeberg.org/leiningen/leiningen/raw/branch/stable/bin/lein.ps1)
-instead.
-
 ## Basic Usage
 
 The
@@ -89,6 +69,27 @@ configuration options.
 
 The `project.clj` file can be customized further with the use of
 [profiles](https://codeberg.org/leiningen/leiningen/src/stable/doc/PROFILES.md).
+
+## Manual Installation
+
+You should install Leiningen using your [package manager](https://wiki.leiningen.org/Packaging).
+
+In the unlikely event that you can't do that, it is possible to do a manual install.
+
+Leiningen installs itself on the first run of the `lein` shell script; there is no
+separate install script.  Follow these instructions to install Leiningen manually:
+
+1. Make sure you have Java installed; [OpenJDK](https://adoptium.net) is recommended
+2. [Download the `lein` script from the `stable` branch](https://codeberg.org/leiningen/leiningen/raw/branch/stable/bin/lein)
+ of this project
+3. Place it on your `$PATH` (`/usr/local/bin` for example)
+4. Set it to be executable. (`sudo chmod +x /usr/local/bin/lein`)
+5. Run it.
+
+Windows users can use the above script in the Linux subsystem or try
+[the batch file](https://codeberg.org/leiningen/leiningen/raw/branch/stable/bin/lein.bat) or
+[PowerShell version](https://codeberg.org/leiningen/leiningen/raw/branch/stable/bin/lein.ps1)
+instead.
 
 ## Documentation
 
