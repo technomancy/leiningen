@@ -41,7 +41,6 @@
       <p id="tagline">for automating Clojure projects without setting
         your hair on fire</p>
       <nav id="links" class="offset-by-three">
-        <a href="#install">install</a> |
         <a href="#docs">docs</a> |
         <a href="#community">community</a> |
         <a href="https://codeberg.org/leiningen/leiningen">source</a>
@@ -55,6 +54,11 @@
       <a href="https://clojure.org">Clojure</a></strong>. With a focus
       on project automation and declarative configuration, it gets out
       of your way and lets you focus on your code.</p>
+
+      <p>Install Leiningen with
+        <a href="https://codeberg.org/leiningen/leiningen/wiki/Packaging">your
+          package manager</a>; for example <code>sudo apt
+          install leiningen</code></p>
     </div>
     <div class="two-thirds column">
     <pre class="htmlize" id="sample-project"><span class="esk-paren">(</span>defproject leiningen.org <span class="string">"1.0.0"</span>
@@ -67,34 +71,11 @@
 
     <div class="sixteen columns"><hr /></div>
 
-    <div class="one-third column"><h3 class="offset-by-one">Install</h3></div>
-    <div class="two-thirds column" id="install">
-      <p>First check
-      your <a href="https://wiki.leiningen.org/Packaging">package
-      manager</a> to see whether it includes Leiningen. If not, don't
-      worry; a manual install is easy.</p>
-
-      <p>Leiningen and Clojure require Java; ideally
-        <a href="https://adoptium.net">OpenJDK</a>. Get this from
-        your package manager, or download manually if you have to.</p>
-      <ol>
-        <li>Download the <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"><kbd>lein</kbd>
-        script</a> (or on
-          Windows <a href="https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein.bat"><kbd>lein.bat</kbd></a>
-          if you don't use WSL)</li>
-        <li>Place it on your <kbd>$PATH</kbd> where your shell can find it (eg. <kbd>/usr/local/bin/</kbd>)</li>
-        <li>Set it to be executable (<kbd>sudo chmod a+x /usr/local/bin/lein</kbd>)</li>
-        <li>Run it (<kbd>lein</kbd>) and it will download the self-install package</li>
-      </ol>
-    </div>
-
-    <div class="sixteen columns"><hr /></div>
-
     <div class="one-third column" style="float: right">
       <h3 class="offset-by-one">Documentation</h3></div>
 
     <div class="two-thirds column" id="docs">
-      <p>The <a href="/tutorial.html">tutorial</a>
+      <p>The <a href="/tutorial">tutorial</a>
         is the best place to start. If you have Leiningen installed,
         you can read the tutorial by running <kbd>lein help
         tutorial</kbd>. It does not cover learning the
@@ -104,7 +85,7 @@
 
 
       <p>Running <kbd>lein help faq</kbd> will get you the
-        <a href="/faq.html">FAQ</a>.
+        <a href="/faq">FAQ</a>.
         Documentation for each individual task is available
         via <kbd>lein help $TASK</kbd>. You can also
         see <a href="https://codeberg.org/leiningen/leiningen/src/stable/sample.project.clj">the
@@ -112,9 +93,9 @@
         project settings by running <kbd>lein help sample</kbd>.</p>
 
       <p>More:
-        <a href="/profiles.html">profiles</a> |
-        <a href="/deploy.html">deploying libraries</a> |
-        <a href="/plugins.html">writing plugins</a> |
+        <a href="/profiles">profiles</a> |
+        <a href="/deploy">deploying libraries</a> |
+        <a href="/plugins">writing plugins</a> |
         <a href="https://wiki.leiningen.org/Plugins">plugin list</a>
       </p>
     </div>
