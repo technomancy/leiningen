@@ -52,7 +52,7 @@
                            (deploy help/sample-project "clojars")))
                        (catch Exception e
                          (.getMessage e)))]
-          (is (re-find #"401 Unauthorized" result)))))))
+          (is (re-find #"status=401" result)))))))
 
 (deftest ^:online test-deploy-custom-url
   (testing "deployment to a repo specified as a URL argument to `deploy`"

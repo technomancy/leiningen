@@ -17,7 +17,7 @@
                  ;; needed for new
                  [stencil "0.5.0" :exclusions [org.clojure/core.cache]]
                  ;; needed for uberjar
-                 [org.apache.commons/commons-lang3 "3.17.0"]
+                 [org.apache.commons/commons-lang3 "3.18.0"]
                  ;; needed for repl
                  [nrepl "1.3.0"]
                  ;; needed for change
@@ -27,7 +27,7 @@
                  [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]
                  [scout "0.1.1"]
                  [commons-io "2.8.0"]
-                 [commons-codec "1.15"]]
+                 [commons-codec "1.21.0"]]
   :pedantic? :abort
   ;; checkout-deps don't work with :eval-in :leiningen
   :profiles {:dev {:resource-paths ["leiningen-core/dev-resources"]

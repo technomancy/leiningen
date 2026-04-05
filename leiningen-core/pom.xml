@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>leiningen-core</groupId>
   <artifactId>leiningen-core</artifactId>
@@ -15,7 +15,7 @@
     </license>
   </licenses>
   <scm>
-    <tag>64c65c6d86bc6753144b4a0dd1bdb000d39d6382</tag>
+    <tag>50a475226578306627b6b2194516e61f5aedad72</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -93,7 +93,7 @@
     <dependency>
       <groupId>clj-commons</groupId>
       <artifactId>pomegranate</artifactId>
-      <version>1.2.24</version>
+      <version>1.3.26</version>
       <exclusions>
         <exclusion>
           <artifactId>jcl-over-slf4j</artifactId>
@@ -102,18 +102,6 @@
         <exclusion>
           <artifactId>slf4j-api</artifactId>
           <groupId>org.slf4j</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>wagon-provider-api</artifactId>
-          <groupId>org.apache.maven.wagon</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>httpcore</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>httpclient</artifactId>
-          <groupId>org.apache.httpcomponents</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -131,17 +119,6 @@
       <groupId>org.clojure</groupId>
       <artifactId>tools.macro</artifactId>
       <version>0.1.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven.wagon</groupId>
-      <artifactId>wagon-http</artifactId>
-      <version>3.5.3</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>slf4j-api</artifactId>
-          <groupId>org.slf4j</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
