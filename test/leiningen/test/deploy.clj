@@ -7,7 +7,9 @@
             [leiningen.core.utils :as utils]
             [leiningen.test.helper :as help]))
 
-(use-fixtures :once (fn [f] (binding [main/*info* false] (f))))
+(use-fixtures :once (fn [f] (binding [main/*info* false
+                                     main/*exit-process?* false]
+                             (f))))
 
 (defn- repo-path
   [relative-repo-path]
@@ -73,11 +75,10 @@
                             :deploy-repositories
                             {"snapshots" {:url (repo-url deploy-dir)}})]
       (help/delete-file-recursively deploy-dir :silently)
-      (with-out-str
-        (deploy project "snapshots"
-                "deploy-me/deploy-me"
-                (:version project)
-                (str (:root project) "/deploy-me-0.1.0-SNAPSHOT-fat.jarr")))
+      (deploy project "snapshots"
+              "deploy-me/deploy-me"
+              (:version project)
+              (str (:root project) "/deploy-me-0.1.0-SNAPSHOT-fat.jarr"))
       (let [dir (io/file deploy-dir "deploy-me/deploy-me/0.1.0-SNAPSHOT/")
             files (.list dir)]
         (is (seq (filter #(re-find #"deploy-me-0.1.0-[\d.]+-\d+-fat.jarr$" %) files)))))))

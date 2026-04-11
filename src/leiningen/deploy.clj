@@ -192,6 +192,8 @@
   (when-not (:root project)
     (main/abort "Couldn't find project.clj, which is needed for deploy task")))
 
+(defn- transfer-listener [] (if main/*info* :stdout (constantly nil)))
+
 (defn ^:no-project-needed deploy
   "Deploy jar and pom to remote repository.
 
@@ -239,7 +241,7 @@ be able to depend on jars that are deployed without a pom."
           :coordinates [(symbol (:group project) (:name project))
                         (:version project)]
           :artifact-map files
-          :transfer-listener :stdout
+          :transfer-listener (transfer-listener)
           :repository [repo]
           :proxy (classpath/get-proxy-settings))
          (catch org.eclipse.aether.deployment.DeploymentException e
@@ -258,7 +260,7 @@ be able to depend on jars that are deployed without a pom."
        (aether/deploy
         :coordinates [(symbol group-id artifact-id) version]
         :artifact-map (into {} artifacts)
-        :transfer-listener :stdout
+        :transfer-listener (transfer-listener)
         :repository [repo]
         :local-repo (:local-repo project)
         :proxy (classpath/get-proxy-settings)))))
