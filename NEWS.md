@@ -1,8 +1,13 @@
 # Leiningen News -- history of user-visible changes
 
-## 2.12.1 / ???
+## 2.13.0 / ???
 
-* ???
+Please update your git remotes to point to Codeberg; the Github
+repository is deprecated. Downloads will still be hosted there, but
+the Codeberg git repository is now canonical.
+
+* Sign with SSH keys when deploying; `:signing {:ssh-key nil}` to disable. (Phil Hagelberg)
+* Update Maven Resolver API dependency, improving behavior when rate limited. (Toby Crawley)
 
 ## 2.12.0 / 2025-09-12
 

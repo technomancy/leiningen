@@ -29,7 +29,7 @@ TAGS
 test_projects/*/target
 pom.xml
 deps.txt
-profiles.clj
+/profiles.clj
 /test/.gnupg/crls.d/DIR.txt
 /test_projects/sample/project.clj.sig
 /web/deploy.html
@@ -38,3 +38,5 @@ profiles.clj
 /web/profiles.html
 /web/templates.html
 /web/tutorial.html
+/.clj-kondo
+/.lsp

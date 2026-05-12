@@ -142,10 +142,18 @@
   [repo]
   (:sign-releases (second repo) true))
 
+(defn- ssh-key []
+  (let [home (System/getProperty "user.home")]
+    ;; for compatibility with openssh, choose in the same order openssh does
+    (first (for [filename ["id_rsa" "id_dsa" "id_ecdsa" "id_ecdsa_sk"
+                           "id_ed25519" "id_ed25519_sk"]
+                 :let [f (io/file home ".ssh" filename)]
+                 :when (.exists f)] {:ssh-key (str f)}))))
+
 (defn signing-opts
   "Extract signing options map from a project."
   [project repo]
-  (merge (:signing project) (:signing (second repo))))
+  (merge (ssh-key) (:signing project) (:signing (second repo))))
 
 (defn files-for [project repo]
   (let [signed? (sign-for-repo? repo)
