@@ -21,7 +21,7 @@
             (dissoc 'org.clojure/clojure)
             (dissoc 'leiningen-core)
             (pp/pprint))))
-{clj-commons/pomegranate "1.3.26",
+{clj-commons/pomegranate "1.3.27",
  com.google.code.gson/gson "2.13.2",
  com.hypirion/io "0.3.1",
  com.jcraft/jsch "0.1.55",
