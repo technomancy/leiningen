@@ -10,7 +10,7 @@
                                org.tcrawley/dynapath]]
                  [org.flatland/classlojure "0.7.1"]
                  [robert/hooke "1.3.0"]
-                 [clj-commons/pomegranate "1.3.26"
+                 [clj-commons/pomegranate "1.3.27"
                   :exclusions [org.slf4j/jcl-over-slf4j org.slf4j/slf4j-api]]
                  [com.hypirion/io "0.3.1"]
                  [org.slf4j/slf4j-nop "1.7.25"] ; wagon-http uses slf4j
