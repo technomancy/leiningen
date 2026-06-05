@@ -9,6 +9,8 @@
             [leiningen.core.classpath :as classpath]
             [leiningen.core.utils :as utils])
   (:import (com.hypirion.io Pipe ClosingPipe)
+           (java.nio.file Files Path)
+           (java.nio.file.attribute FileTime)
            (java.io File)))
 
 (def ^:private arch-options
@@ -35,10 +37,19 @@
 
 (defn- write-pom-properties [{:keys [compile-path group name] :as project}]
   (when (and (:root project) (:write-pom-properties project true))
-    (let [path (format "%s/META-INF/maven/%s/%s/pom.properties"
-                       (or compile-path "target/classes") group name)]
-      (utils/mkdirs (.getParentFile (io/file path)))
-      (spit path (project/make-project-properties project)))))
+    (let [path [compile-path "META-INF" "maven" group name "pom.properties"]
+          file (io/file (string/join "/" path))
+          ;; see https://reproducible-builds.org/docs/source-date-epoch/
+          time (if-let [e (System/getenv "SOURCE_DATE_EPOCH")]
+                 (parse-long e)
+                 (.lastModified (io/file (:root project) "project.clj")))]
+      (utils/mkdirs (.getParentFile file))
+      (spit (str file) (project/make-project-properties project))
+      ;; for the sake of reproducible builds
+      (dotimes [n (dec (count path))]
+        (let [segments (into-array String (take (inc n) (rest path)))]
+          (Files/setLastModifiedTime (Path/of compile-path segments)
+                                     (FileTime/fromMillis time)))))))
 
 (defn run-prep-tasks
   "Execute all the prep-tasks. A task can either be a string, or a

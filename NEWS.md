@@ -6,6 +6,8 @@ Please update your git remotes to point to Codeberg; the Github
 repository is deprecated. Downloads will still be hosted there, but
 the Codeberg git repository is now canonical.
 
+* Ensure synthetic jar entries have timestamps matching `project.clj` file. (Phil Hagelberg)
+* Support `SOURCE_DATE_EPOCH` environment variable. (Phil Hagelberg)
 * Sign with SSH keys when deploying; `:signing {:ssh-key nil}` to disable. (Phil Hagelberg)
 * Update Maven Resolver API dependency, improving behavior when rate limited. (Toby Crawley)
 

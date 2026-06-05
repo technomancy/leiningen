@@ -127,11 +127,18 @@
     (str (.getParent file) "/")
     (str file "/")))
 
+;; see https://reproducible-builds.org/docs/source-date-epoch/
+(def ^:private source-date-epoch (if-let [e (System/getenv "SOURCE_DATE_EPOCH")]
+                                   (parse-long e)))
+
+(defn- time-for [file]
+  (or source-date-epoch (.lastModified file)))
+
 (defn- put-jar-entry!
   "Adds a jar entry to the Jar output stream."
   [jar-os file path]
   (.putNextEntry jar-os (doto (JarEntry. path)
-                       (.setTime (.lastModified file))))
+                          (.setTime (time-for file))))
   (when-not (.isDirectory file)
     (io/copy file jar-os)))
 
@@ -158,10 +165,13 @@
 (defmethod copy-to-jar :bytes [project jar-os acc spec]
   (let [path (unix-path (:path spec))]
     (when-not (some #(re-find % path) (:jar-exclusions project))
-      (.putNextEntry jar-os (JarEntry. path))
-      (let [bytes (if (string? (:bytes spec))
+      (let [entry (JarEntry. path)
+            bytes (if (string? (:bytes spec))
                     (.getBytes (:bytes spec))
                     (:bytes spec))]
+        (when (:time spec)
+          (.setTime entry (:time spec)))
+        (.putNextEntry jar-os entry)
         (io/copy (ByteArrayInputStream. bytes) jar-os)))
     (conj acc path)))
 
@@ -170,11 +180,20 @@
         dynamic-spec (f project)]
     (copy-to-jar project jar-os acc dynamic-spec)))
 
+;; this is normally written for you by JarOutputStream, but when you do that it
+;; hard-codes the timestamp on that entry to the present and you can't override.
+(defn- write-manifest [root jar-os manifest]
+  (let [entry (doto (JarEntry. "META-INF/MANIFEST.MF")
+                (.setTime (time-for (io/file root "project.clj"))))]
+    (.putNextEntry jar-os entry)
+    (.write manifest jar-os)))
+
 (defn write-jar [project out-file filespecs]
   (with-open [jar-os (-> out-file
                          (FileOutputStream.)
                          (BufferedOutputStream.)
-                         (JarOutputStream. (make-manifest project)))]
+                         (JarOutputStream.))]
+    (write-manifest (:root project) jar-os (make-manifest project))
     (let [jar-paths (reduce (partial copy-to-jar project jar-os)
                             #{}
                             filespecs)]
@@ -196,18 +215,22 @@
         readmes (filter (partial re-find #"^(?i)readme") root-files)
         licenses (filter (partial re-find #"^(?i)license") root-files)
         scope (partial format "META-INF/leiningen/%s/%s/%s"
-                       (:group project) (:name project))]
+                       (:group project) (:name project))
+        project-time (time-for (io/file (:root project) "project.clj"))]
     (concat [{:type :bytes
               :path (format "META-INF/maven/%s/%s/pom.xml"
                             (:group project) (:name project))
-              :bytes (.getBytes (pom/make-pom project))}
+              :bytes (.getBytes (pom/make-pom project))
+              :time project-time}
              {:type :bytes :path (scope "project.clj")
-              :bytes (.getBytes (slurp (str (:root project) "/project.clj")))}]
-            (for [doc (map (partial io/file (:root project))
-                        (concat readmes licenses))
-                  :when (.isFile doc)]
-              {:type :bytes :path (scope (.getName doc))
-               :bytes (.getBytes (slurp doc))})
+              :bytes (.getBytes (slurp (str (:root project) "/project.clj")))
+              :time project-time}]
+            (for [doc-file (map (partial io/file (:root project))
+                                (concat readmes licenses))
+                  :when (.isFile doc-file)]
+              {:type :bytes :path (scope (.getName doc-file))
+               :bytes (.getBytes (slurp doc-file))
+               :time (.lastModified doc-file)})
             [{:type :path :path (:compile-path project)}
              {:type :paths :paths (distinct (:resource-paths project))}]
             (if-not (:omit-source project)

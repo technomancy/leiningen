@@ -104,3 +104,12 @@
 
     (is (re-find tagged-arg (with-out-str
                               (eval-in-project (assoc project :preserve-eval-meta true) form))))))
+
+(deftest pom-properties-timestamp
+  (let [project (doto lthelper/with-aliases-project
+                  prep)
+        pom-properties (io/file (:compile-path project)
+                                "META-INF/maven/project-with-aliases/"
+                                "project-with-aliases/pom.properties")]
+    (is (= (.lastModified pom-properties)
+           (.lastModified (io/file (:root project) "project.clj"))))))

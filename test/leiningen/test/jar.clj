@@ -119,9 +119,20 @@
 (deftest overlapped-paths
   (let [info-logs (atom [])]
     (with-redefs [main/info (fn [& args] (swap! info-logs conj args))]
-      (let [result (jar helper/overlapped-sourcepaths-project)]
+      (let [result (jar helper/overlapped-sourcepaths-project)
+            jar-file (io/file (first (vals result)))
+            project-file (io/file (:root helper/overlapped-sourcepaths-project)
+                                  "project.clj")]
         (is result)
-        (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))))))
+        (is (not-any? #(re-find #"Warning" %) (mapcat identity @info-logs)))
+        (with-open [i (JarInputStream. (io/input-stream jar-file))]
+          (loop [entry (.getNextEntry i)]
+            (when (re-find #"META-INF" (.getName entry))
+              (is (= (long (/ (.lastModified project-file) 1000))
+                     (long (/ (.toMillis (.getLastModifiedTime entry)) 1000)))
+                  (str "wrong time for " (.getName entry))))
+            (when-let [next-entry (.getNextEntry i)]
+              (recur next-entry))))))))
 
 (def mock-project mock-project-1)
 
