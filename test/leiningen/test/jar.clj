@@ -10,7 +10,8 @@
             [leiningen.javac :as javac]
             [leiningen.test.helper :refer [unmemoize
                                            with-system-out-str
-                                           with-system-err-str]]))
+                                           with-system-err-str]])
+  (:import (java.util.jar JarInputStream)))
 
 (def long-line
   (apply str (repeat 10000 "a")))

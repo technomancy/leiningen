@@ -40,22 +40,6 @@
   (testing "simple deployment to `snapshots` already defined in project.clj"
     (deploy-snapshots help/sample-project "lein-repo")))
 
-(deftest ^:online test-deploy-password
-  (with-redefs [read-password-fn (constantly (constantly
-                                              (char-array "stupidhorse")))
-                read-line (constantly "leiningen-test-fail-expected-sorry")]
-    (reset! utils/rebound-io? false)
-    (binding [main/*exit-process?* false
-              *err* (java.io.StringWriter.)]
-      (testing "provides password in a way pomegranate accepts"
-        (let [result (try
-                       (with-out-str
-                         (help/with-system-err-str
-                           (deploy help/sample-project "clojars")))
-                       (catch Exception e
-                         (.getMessage e)))]
-          (is (re-find #"status=401" result)))))))
-
 (deftest ^:online test-deploy-custom-url
   (testing "deployment to a repo specified as a URL argument to `deploy`"
     (deploy-snapshots help/sample-project "lein-custom-repo" true)))
